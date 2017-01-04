@@ -4,6 +4,7 @@ Tags: editor, style, profiler
 Requires at least: 4.6
 Tested up to: 4.7
 Stable tag: 1.0
+GitHub Plugin URI: rafasashi/live-template-editor-client
 
 LTPLE template editor  
 
