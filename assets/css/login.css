@@ -1,0 +1,77 @@
+#login{width:350px;margin:auto}
+.login div#login form#registerform .message p,.login div#login form#registerform .register p{width:350px;color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
+
+.wp-core-ui .button,.wp-core-ui .button-primary,.wp-core-ui .button-secondary{display:inline-block;text-decoration:none;font-size:13px;line-height:26px;height:28px;margin:0;padding:0 10px 1px;cursor:pointer;border-width:1px;border-style:solid;-webkit-appearance:none;-webkit-border-radius:3px;border-radius:3px;white-space:nowrap;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
+.wp-core-ui button::-moz-focus-inner,.wp-core-ui input[type=reset]::-moz-focus-inner,.wp-core-ui input[type=button]::-moz-focus-inner,.wp-core-ui input[type=submit]::-moz-focus-inner{border-width:0;border-style:none;padding:0}
+.wp-core-ui .button-group.button-large .button,.wp-core-ui .button.button-large{height:30px;line-height:28px;padding:0 12px 2px}
+.wp-core-ui .button-group.button-small .button,.wp-core-ui .button.button-small{height:24px;line-height:22px;padding:0 8px 1px;font-size:11px}
+.wp-core-ui .button-group.button-hero .button,.wp-core-ui .button.button-hero{font-size:14px;height:46px;line-height:44px;padding:0 36px}
+.wp-core-ui .button:active,.wp-core-ui .button:focus{outline:0}
+.wp-core-ui .button.hidden{display:none}
+.wp-core-ui input[type=reset],.wp-core-ui input[type=reset]:active,.wp-core-ui input[type=reset]:focus,.wp-core-ui input[type=reset]:hover{background:0 0;border:none;-webkit-box-shadow:none;box-shadow:none;padding:0 2px 1px;width:auto}
+.wp-core-ui .button,.wp-core-ui .button-secondary{color:#555;border-color:#ccc;background:#f7f7f7;-webkit-box-shadow:0 1px 0 #ccc;box-shadow:0 1px 0 #ccc;vertical-align:top}
+
+.wp-core-ui p .button{vertical-align:baseline;font-size: 15px;width: 100%;}
+
+.wp-core-ui .button-secondary:focus,.wp-core-ui .button-secondary:hover,.wp-core-ui .button.focus,.wp-core-ui .button.hover,.wp-core-ui .button:focus,.wp-core-ui .button:hover{background:#fafafa;border-color:#999;color:#23282d}
+.wp-core-ui .button-link:focus,.wp-core-ui .button-secondary:focus,.wp-core-ui .button.focus,.wp-core-ui .button:focus{border-color:#5b9dd9;-webkit-box-shadow:0 0 3px rgba(0,115,170,.8);box-shadow:0 0 3px rgba(0,115,170,.8)}
+.wp-core-ui .button-secondary:active,.wp-core-ui .button.active,.wp-core-ui .button.active:hover,.wp-core-ui .button:active{background:#eee;border-color:#999;-webkit-box-shadow:inset 0 2px 5px -3px rgba(0,0,0,.5);box-shadow:inset 0 2px 5px -3px rgba(0,0,0,.5);-webkit-transform:translateY(1px);-ms-transform:translateY(1px);transform:translateY(1px)}
+.wp-core-ui .button.active:focus{border-color:#5b9dd9;-webkit-box-shadow:inset 0 2px 5px -3px rgba(0,0,0,.5),0 0 3px rgba(0,115,170,.8);box-shadow:inset 0 2px 5px -3px rgba(0,0,0,.5),0 0 3px rgba(0,115,170,.8)}
+.wp-core-ui .button-disabled,.wp-core-ui .button-secondary.disabled,.wp-core-ui .button-secondary:disabled,.wp-core-ui .button-secondary[disabled],.wp-core-ui .button.disabled,.wp-core-ui .button:disabled,.wp-core-ui .button[disabled]{color:#a0a5aa!important;border-color:#ddd!important;background:#f7f7f7!important;-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:0 1px 0 #fff!important;cursor:default;-webkit-transform:none!important;-ms-transform:none!important;transform:none!important}
+.wp-core-ui .button-link{margin:0;padding:0;-webkit-box-shadow:none;box-shadow:none;border:0;-webkit-border-radius:0;border-radius:0;background:0 0;outline:0;cursor:pointer}
+.wp-core-ui .button-link:focus{outline:#5b9dd9 solid 1px}
+.wp-core-ui .button-primary{background:#0085ba;border-color:#0073aa #006799 #006799;-webkit-box-shadow:0 1px 0 #006799;box-shadow:0 1px 0 #006799;color:#fff;text-decoration:none;text-shadow:0 -1px 1px #006799,1px 0 1px #006799,0 1px 1px #006799,-1px 0 1px #006799}
+.wp-core-ui .button-primary.focus,.wp-core-ui .button-primary.hover,.wp-core-ui .button-primary:focus,.wp-core-ui .button-primary:hover{background:#008ec2;border-color:#006799;color:#fff}
+.wp-core-ui .button-primary.focus,.wp-core-ui .button-primary:focus{-webkit-box-shadow:0 1px 0 #0073aa,0 0 2px 1px #33b3db;box-shadow:0 1px 0 #0073aa,0 0 2px 1px #33b3db}
+.wp-core-ui .button-primary.active,.wp-core-ui .button-primary.active:focus,.wp-core-ui .button-primary.active:hover,.wp-core-ui .button-primary:active{background:#0073aa;border-color:#006799;-webkit-box-shadow:inset 0 2px 0 #006799;box-shadow:inset 0 2px 0 #006799;vertical-align:top}
+.wp-core-ui .button-primary-disabled,.wp-core-ui .button-primary.disabled,.wp-core-ui .button-primary:disabled,.wp-core-ui .button-primary[disabled]{color:#66c6e4!important;background:#008ec2!important;border-color:#007cb2!important;-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:0 -1px 0 rgba(0,0,0,.1)!important;cursor:default}
+.wp-core-ui .button.button-primary.button-hero{-webkit-box-shadow:0 2px 0 #006799;box-shadow:0 2px 0 #006799}
+.wp-core-ui .button.button-primary.button-hero.active,.wp-core-ui .button.button-primary.button-hero.active:focus,.wp-core-ui .button.button-primary.button-hero.active:hover,.wp-core-ui .button.button-primary.button-hero:active{-webkit-box-shadow:inset 0 3px 0 #006799;box-shadow:inset 0 3px 0 #006799}
+.wp-core-ui .button-group{position:relative;display:inline-block;white-space:nowrap;font-size:0;vertical-align:middle}
+.wp-core-ui .button-group>.button{display:inline-block;-webkit-border-radius:0;border-radius:0;margin-right:-1px;z-index:10}
+.wp-core-ui .button-group>.button-primary{z-index:100}
+.wp-core-ui .button-group>.button:hover{z-index:20}
+.wp-core-ui .button-group>.button:first-child{-webkit-border-radius:3px 0 0 3px;border-radius:3px 0 0 3px}
+.wp-core-ui .button-group>.button:last-child{-webkit-border-radius:0 3px 3px 0;border-radius:0 3px 3px 0}
+.wp-core-ui .button-group>.button:focus{position:relative;z-index:1}
+
+.login #backtoblog,.login #nav{font-size:13px;padding:0 24px}
+.login #nav{margin:24px 0 0}
+.login #backtoblog a,.login #nav a{text-decoration:none;color:#555d66}
+.login #backtoblog a:hover,.login #nav a:hover,.login h1 a:hover{color:#00a0d2}
+.login #backtoblog a:focus,.login #nav a:focus,.login h1 a:focus{color:#124964}
+.login form .input,.login input[type=text]{font-size:24px;width:100%;padding:3px;margin:2px 6px 16px 0}
+.login form .input,.login form input[type=checkbox],.login input[type=text]{background:#fbfbfb}.ie7.login form .input,.ie8.login form .input{font-family:sans-serif}
+.login-action-rp input[type=text]{-webkit-box-shadow:none;box-shadow:none;margin:0}
+.login #pass-strength-result{font-weight:600;margin:-1px 5px 16px 0;padding:6px 5px;text-align:center;width:100%}
+.mobile #login{padding:20px 0}.mobile #login form{margin-left:0}
+.mobile #login #backtoblog,.mobile #login #nav{margin-left:8px}
+
+#login-wrap {padding:6% 0;background: url(https://dexdan.files.wordpress.com/2016/09/transparent_bg.png) no-repeat 50% 50% / cover;} 
+
+.login div#login {background:rgba(255,255,255,0.50);border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;padding:30px 60px;box-shadow:0 1px 3px #F69;-moz-box-shadow:0 1px 3px #F69;-ms-box-shadow:0 1px 3px #F69;-o-box-shadow:0 1px 3px #F69;-webkit-box-shadow:0 1px 3px #F69;}
+
+.login div#login form#registerform{background:rgba(255,255,255,0.50);border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;padding:30px 60px;box-shadow:0 1px 3px #F69;-moz-box-shadow:0 1px 3px #F69;-ms-box-shadow:0 1px 3px #F69;-o-box-shadow:0 1px 3px #F69;-webkit-box-shadow:0 1px 3px #F69;}
+.login div#login form#loginform p {}
+.login div#login form#loginform p label {color:#000;}
+.login div#login form#loginform input {border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
+.login div#login form#loginform input#user_login {border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
+.login div#login form#loginform input#user_pass {border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
+.login div#login form#loginform p.forgetmenot {display:none;}
+.login div#login form#loginform p.forgetmenot input#rememberme {display:none;}
+.login div#login form#loginform p.submit {}
+.login div#login form#loginform p.submit input#wp-submit {}
+.login div#login p#nav {}
+.login div#login p#nav a {color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
+.login div#login p#backtoblog {display:none;}
+.login div#login p#backtoblog a {display:none;}
+.login .register {background:rgba(255,255,255,0.50);border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;box-shadow:0 1px 3px #F69;-moz-box-shadow:0 1px 3px #F69;-ms-box-shadow:0 1px 3px #F69;-o-box-shadow:0 1px 3px #F69;-webkit-box-shadow:0 1px 3px #F69;border:none;text-align:center;color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
+#user_login{border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
+.login div#login form#registerform p label {color:#000;}
+.login div#login form#registerform input {border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
+.login div#login form#registerform .message{color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
+.login div#login form#registerform .register{color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
+
+.login-remember {display:none;}
+
+.beforefooter{display:none;}
