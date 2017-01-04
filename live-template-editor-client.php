@@ -6,12 +6,14 @@
  * Description: Live Template Editor allows you to edit and save HTML5 and CSS3 templates.
  * Author: Rafasashi
  * Author URI: https://github.com/rafasashi
- * GitHub Plugin URI: rafasashi/live-template-editor-client
  * Requires at least: 4.6
  * Tested up to: 4.6
  *
  * Text Domain: ltple-client
  * Domain Path: /lang/
+ *
+ * GitHub Plugin URI: rafasashi/live-template-editor-client
+ * GitHub Branch:     master
  *
  * @package WordPress
  * @author Rafasashi
