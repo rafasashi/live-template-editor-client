@@ -49,6 +49,8 @@ class LTPLE_Client_App_Blogger {
 		
 		// get current action
 		
+		$this->action = '';
+		
 		if(!empty($_REQUEST['action'])){
 			
 			$this->action = $_REQUEST['action'];

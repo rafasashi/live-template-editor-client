@@ -10,7 +10,7 @@ class LTPLE_Client_Apps {
 	/**
 	 * Constructor function
 	 */
-	public function __construct ( $parent, $app = '' ) {
+	public function __construct ( $parent, $currentApp = '' ) {
 		
 		$this->parent 	= $parent;
 
@@ -32,9 +32,10 @@ class LTPLE_Client_Apps {
 		}
 		
 		// get current app
-		if(!empty($app)){
+		
+		if(!empty($currentApp)){
 			
-			$this->app = $app;
+			$this->app = $currentApp;
 		}		
 		elseif(!empty($_REQUEST['app'])){
 			
@@ -61,7 +62,7 @@ class LTPLE_Client_Apps {
 					);
 					
 					$className = 'LTPLE_Client_App_'. ucfirst($string) ;
-
+					
 					if(class_exists($className)){
 						
 						include($this->parent->vendor . '/autoload.php');
