@@ -44,6 +44,8 @@ class LTPLE_Client_Apps {
 		elseif(!empty($_SESSION['app'])){
 			
 			$this->app = $_SESSION['app'];
+			
+			$_SESSION['app'] = '';
 		}
 		
 		if(!empty($this->app)){
