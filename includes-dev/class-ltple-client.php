@@ -113,7 +113,7 @@ class LTPLE_Client {
 		$this->file 		= $file;
 		$this->dir 			= dirname( $this->file );
 		$this->views   		= trailingslashit( $this->dir ) . 'views';
-		$this->vendor  		= trailingslashit( $this->dir ) . 'vendor';
+		$this->vendor  		= WP_CONTENT_DIR . '/vendor';
 		$this->assets_dir 	= trailingslashit( $this->dir ) . 'assets';
 		$this->assets_url 	= esc_url( trailingslashit( plugins_url( '/assets/', $this->file ) ) );
 
@@ -605,7 +605,7 @@ class LTPLE_Client {
 				
 				if( $_SERVER['HTTP_X_REF_KEY'] ){ //TODO improve ref rey validation via header
 					
-					$path = $this->views . $this->_dev .'/'.$post_type.'.php';
+					$path = $this->views . $this->_dev .'/layer.php';
 				}
 				else{
 					
@@ -615,10 +615,9 @@ class LTPLE_Client {
 			}
 			elseif( $post_type == 'cb-default-layer' ){
 				
-
 				if( $this->user->loggedin && $this->user_has_layer( $post_id ) === true ){
 					
-					$path = $this->views . $this->_dev .'/'.$post_type.'.php';						
+					$path = $this->views . $this->_dev .'/layer.php';
 				}
 				else{
 					
@@ -629,7 +628,7 @@ class LTPLE_Client {
 				
 				if( $this->user->loggedin && ( $this->user->is_admin || $post_author == $this->user->ID )){
 				
-					$path = $this->views . $this->_dev .'/'.$post_type.'.php';
+					$path = $this->views . $this->_dev .'/layer.php';
 				}
 				else{
 					
@@ -639,7 +638,7 @@ class LTPLE_Client {
 			}
 			else{
 				
-				$path = $this->views . $this->_dev .'/'.$post_type.'.php';
+				$path = $this->views . $this->_dev .'/layer.php';
 			}
 			
 			if( file_exists( $path ) ) {

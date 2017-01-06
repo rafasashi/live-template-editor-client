@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: Live Template Editor Client
- * Version: 1.0.1
+ * Version: 1.0.2
  * Plugin URI: https://github.com/rafasashi
  * Description: Live Template Editor allows you to edit and save HTML5 and CSS3 templates.
  * Author: Rafasashi
@@ -444,16 +444,42 @@
 		
 		LTPLE_Client()->admin->add_meta_box (
 			
+			'layer-js',
+			__( 'Layer Javascript', 'live-template-editor-client' ), 
+			array("cb-default-layer"),
+			'advanced'
+		);
+		
+		LTPLE_Client()->admin->add_meta_box (
+			
 			'layer-output',
 			__( 'Layer Output', 'live-template-editor-client' ), 
 			array("cb-default-layer"),
 			'side'
 		);
 		
+		/*
 		LTPLE_Client()->admin->add_meta_box (
 			
 			'layer-options',
 			__( 'Layer Options', 'live-template-editor-client' ), 
+			array("cb-default-layer"),
+			'side'
+		);
+		*/
+		
+		LTPLE_Client()->admin->add_meta_box (
+			
+			'css-libraries',
+			__( 'CSS Libraries', 'live-template-editor-client' ), 
+			array("cb-default-layer"),
+			'side'
+		);
+		
+		LTPLE_Client()->admin->add_meta_box (
+			
+			'js-libraries',
+			__( 'Javascript Libraries', 'live-template-editor-client' ), 
 			array("cb-default-layer"),
 			'side'
 		);
@@ -710,11 +736,29 @@
 		
 			"metabox" =>
 			
+				array('name'=>"layer-js"),
+				'id'=>"layerJs",
+				'label'=>"",
+				'type'=>'textarea',
+				'placeholder'=>"Additional Javascript",
+				'description'=>'<i>without '.htmlentities('<script></script>').'</i>'
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
 				array('name'=>"layer-output"),
 				'id'		=>"layerOutput",
 				'label'		=>"",
 				'type'		=>'select',
-				'options'	=>array('inline-css'=>'Inline Style','external-css'=>'Style Sheet','canvas'=>'Canvas'),
+				'options'	=> array(
+				
+					'inline-css'	=>'Inline Style',
+					'external-css'	=>'Style Sheet',
+					'self-hosted'	=>'Self Hosted',
+					'canvas'		=>'Canvas'
+				),
 				'selected'	=>'inline-css',
 				'description'=>''
 		);
@@ -727,8 +771,47 @@
 				'id'		=>"layerOptions",
 				'label'		=>"",
 				'type'		=>'checkbox_multi',
-				'options'	=>array('line-break'=>'Line break (Enter)'),
+				'options'	=>array(
+				
+					'line-break'=>'Line break (Enter)'
+				
+				),
 				'checked'	=>array('margin-top'),
+				'description'=>''
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"css-libraries"),
+				'id'		=>"cssLibraries",
+				'label'		=>"",
+				'type'		=>'checkbox_multi',
+				'options'	=>array(
+				
+					'bootstrap-3' 	=> 'Bootstrap 3'
+				
+				),
+				//'checked'		=> array('bootstrap-3'),
+				'description'	=> ''
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"js-libraries"),
+				'id'		=>"jsLibraries",
+				'label'		=>"",
+				'type'		=>'checkbox_multi',
+				'options'	=>array(
+				
+					'jquery' 		=> 'JQuery',
+					'bootstrap-3' 	=> 'Bootstrap 3'
+				
+				),
+				//'checked'	=>array('jquery'),
 				'description'=>''
 		);
 		
