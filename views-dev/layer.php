@@ -36,6 +36,13 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 		$layerMargin = '-120px 0px -20px 0px';
 	}
 	
+	$layerMinWidth = get_post_meta( $layer_id, 'layerMinWidth', true );
+	
+	if($layerMargin == ''){
+		
+		$layerMinWidth = '1000px';
+	}	
+	
 	//get layer options
 	
 	$layerOptions = get_post_meta( $layer_id, 'layerOptions', true );
@@ -111,9 +118,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			}
 			
 		echo '</head>';
-		
-		
-		
+
 		echo '<body style="padding:0;margin:0;display:inline-block;width:100%;">';
 			
 			//include style-sheet
@@ -129,7 +134,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			
 			//include layer
 			
-			echo '<layer '.$disable_return.'class="editable" style="width:100%;margin:'.$layerMargin.';">';
+			echo '<layer '.$disable_return.'class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
 				
 				echo $layerContent;
 

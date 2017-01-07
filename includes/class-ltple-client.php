@@ -601,6 +601,8 @@ class LTPLE_Client {
 			$post_id	= get_the_ID();
 			$post_author= intval(get_post_field( 'post_author', $post_id ));
 			
+			$path = $template_path;
+			
 			if( isset( $_SERVER['HTTP_X_REF_KEY'] ) ){
 				
 				if( $_SERVER['HTTP_X_REF_KEY'] ){ //TODO improve ref rey validation via header
@@ -635,10 +637,6 @@ class LTPLE_Client {
 					echo 'You don\'t have access to this template...';
 					exit;
 				}				
-			}
-			else{
-				
-				$path = $this->views . $this->_dev .'/layer.php';
 			}
 			
 			if( file_exists( $path ) ) {

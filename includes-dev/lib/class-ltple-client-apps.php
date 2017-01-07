@@ -45,6 +45,8 @@ class LTPLE_Client_Apps {
 			
 			$this->app = $_SESSION['app'];
 			
+			// flush app session
+			
 			$_SESSION['app'] = '';
 		}
 		
