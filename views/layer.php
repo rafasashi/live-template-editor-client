@@ -160,6 +160,41 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 				if( in_array('bootstrap-3',$jsLibraries)){
 					
 					echo '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>' .PHP_EOL;
+				
+					?>	
+					
+					<script>
+					
+					;(function($){
+						
+						$(document).ready(function(){						
+										
+							$('.modal').appendTo("body");
+							
+							$('[data-slide-to]').on('click',function(){
+
+								var carouselId 	= $(this).attr('data-target');
+								var slideTo 	= parseInt( $(this).attr('data-slide-to') );
+								
+								$(carouselId).carousel(slideTo);
+								
+							});
+							
+							$('[data-slide]').on('click',function(){
+
+								var carouselId 	= $(this).attr('data-target');
+								var slideTo 	= $(this).attr('data-slide');
+								
+								$(carouselId).carousel(slideTo);
+								
+							});
+						});
+						
+					})(jQuery);	
+					
+					</script>
+					
+					<?php
 				}
 			}
 
