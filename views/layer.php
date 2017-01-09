@@ -99,6 +99,11 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 	echo '<html>';
 
 		echo '<head>';
+		
+			echo '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
+			echo '<!--[if lt IE 9]>';
+			echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
+			echo '<![endif]-->';
 			
 			echo '<style>';
 			
@@ -143,22 +148,22 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 				
 				echo $layerContent;
 
-			echo '</layer>';
+			echo '</layer>' .PHP_EOL;
 			
 			if(	is_array($jsLibraries) ){
 			
 				if( in_array('jquery',$jsLibraries)){
 					
-					echo '<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>';
+					echo '<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>' .PHP_EOL;
 				}
 				
 				if( in_array('bootstrap-3',$jsLibraries)){
 					
-					echo '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>';
+					echo '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>' .PHP_EOL;
 				}
 			}
 
-			echo'<script>';
+			echo'<script>' .PHP_EOL;
 				
 				//include layer Output
 				
@@ -185,15 +190,27 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 					echo ' var pageDef = {};' .PHP_EOL;
 				}
 				
+				$enableIcons = 'false';
+				
+				if( is_array($cssLibraries) ){
+
+					if( in_array('fontawesome-4',$cssLibraries)){
+						
+						$enableIcons = 'true';
+					}
+				}
+				
+				echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
+				
 				//include medium editor
 				
 				//echo file_get_contents( trailingslashit(dirname(dirname( __FILE__ ))) . 'assets/js/medium-editor.custom.js' ).PHP_EOL;
 				
-			echo'</script>';
+			echo'</script>' .PHP_EOL;
 			
-		echo'</body>';
+		echo'</body>' .PHP_EOL;
 		
-	echo'</html>';		
+	echo'</html>' .PHP_EOL;	
 				
 break; 
 endwhile; 

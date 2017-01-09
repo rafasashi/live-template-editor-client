@@ -772,13 +772,14 @@ class LTPLE_Client {
 	}
 
 	public function ltple_client_header(){
-		
+
 		//echo '<link rel="stylesheet" href="https://raw.githubusercontent.com/dbtek/bootstrap-vertical-tabs/master/bootstrap.vertical-tabs.css">';	
 	}	
 	
 	public function ltple_client_footer(){
 		
 		?>
+
 		<script>
 		
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
