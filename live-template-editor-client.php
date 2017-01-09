@@ -790,7 +790,8 @@
 				'type'		=>'checkbox_multi',
 				'options'	=>array(
 				
-					'bootstrap-3' 	=> 'Bootstrap 3'
+					'bootstrap-3' 	=> 'Bootstrap 3',
+					'fontawesome-4' => 'Font Awesome 4'
 				
 				),
 				//'checked'		=> array('bootstrap-3'),

@@ -36,6 +36,13 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 		$layerMargin = '-120px 0px -20px 0px';
 	}
 	
+	$layerMinWidth = get_post_meta( $layer_id, 'layerMinWidth', true );
+	
+	if($layerMargin == ''){
+		
+		$layerMinWidth = '1000px';
+	}	
+	
 	//get layer options
 	
 	$layerOptions = get_post_meta( $layer_id, 'layerOptions', true );
@@ -107,13 +114,16 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 				if( in_array('bootstrap-3',$cssLibraries)){
 					
 					echo '<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>';
-				}				
+				}
+
+				if( in_array('fontawesome-4',$cssLibraries)){
+					
+					echo '<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>';
+				}
 			}
 			
 		echo '</head>';
-		
-		
-		
+
 		echo '<body style="padding:0;margin:0;display:inline-block;width:100%;">';
 			
 			//include style-sheet
@@ -129,7 +139,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			
 			//include layer
 			
-			echo '<layer '.$disable_return.'class="editable" style="width:100%;margin:'.$layerMargin.';">';
+			echo '<layer '.$disable_return.'class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
 				
 				echo $layerContent;
 
