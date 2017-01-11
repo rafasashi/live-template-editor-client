@@ -1,7 +1,7 @@
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) exit;
-
+ 
 class LTPLE_Client_Request {
 
 	public $url = '';
@@ -13,31 +13,7 @@ class LTPLE_Client_Request {
 		
 		//get user ip
 		
-		if(!empty($_SERVER['HTTP_CLIENT_IP'])) {
-			
-			$this->ip = $_SERVER['HTTP_CLIENT_IP'];
-		}
-		elseif(!empty($_SERVER['HTTP_FORWARDED'])) {
-			
-			$this->ip = trim(str_replace('for=','',$_SERVER['HTTP_FORWARDED']));
-		} 
-		elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-			
-			if(strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',') !== false){
-				
-				$ips=explode(',',$_SERVER['HTTP_X_FORWARDED_FOR']);
-				
-				$this->ip = trim($ips[0]);
-			}
-			else{
-				
-				$this->ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-			}
-		} 
-		else{
-			
-			$this->ip = $_SERVER['REMOTE_ADDR'];
-		}		
+		$this->ip = $this->ltple_get_user_ip();
 		
 		// get remote request
 		
@@ -52,4 +28,21 @@ class LTPLE_Client_Request {
 		
 		$this->user_agent = $_SERVER['HTTP_USER_AGENT'];
 	}
+	
+	public function ltple_get_user_ip() {
+		
+		foreach (array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR') as $key){
+			
+			if (array_key_exists($key, $_SERVER) === true){
+				
+				foreach (array_map('trim', explode(',', $_SERVER[$key])) as $ip){
+					
+					if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false){
+						
+						return $ip;
+					}
+				}
+			}
+		}
+	}	
 }
