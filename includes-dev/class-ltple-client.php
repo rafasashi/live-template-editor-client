@@ -273,6 +273,15 @@ class LTPLE_Client {
 
 	} // End __construct ()
 	
+	private function ltple_get_secret_iv(){
+		
+		//$secret_iv = md5( $this->user_agent . $this->user_ip );
+		//$secret_iv = md5( $this->user_ip );
+		$secret_iv = md5( 'another-secret' );	
+
+		return $secret_iv;
+	}	
+	
 	private function ltple_encrypt_str($string){
 		
 		$output = false;
@@ -293,14 +302,6 @@ class LTPLE_Client {
 		$output = $this->base64_urlencode($output);
 
 		return $output;
-	}
-	
-	private function ltple_get_secret_iv(){
-		
-		//$secret_iv = md5( $this->user_agent . $this->request->ip );
-		$secret_iv = md5( $this->request->ip );	
-
-		return $secret_iv;
 	}
 	
 	private function ltple_decrypt_str($string){

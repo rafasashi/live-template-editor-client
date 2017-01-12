@@ -11,7 +11,7 @@ class LTPLE_Client_Request {
 	 */
 	public function __construct () {
 		
-		//get user ip
+		// get user ip
 		
 		$this->ip = $this->ltple_get_user_ip();
 		
