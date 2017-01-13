@@ -19,9 +19,9 @@
 			
 			global $pagenow;
 			
-			if( is_admin() && 'users.php' == $pagenow && isset($_GET[$this->base .'view']) ){
+			if( is_admin() && 'users.php' == $pagenow && isset($_REQUEST[$this->base .'view']) ){
 				
-				$this->view = $_GET[$this->base .'view'];
+				$this->view = $_REQUEST[$this->base .'view'];
 				
 				add_filter('admin_footer-users.php', array($this, 'ltple_add_users_table_view'));
 				
@@ -75,7 +75,7 @@
 						
 						$name = 'top' === $which ? $taxonomy.'1' : $taxonomy.'2';
 						
-						echo '<div style="display:inline-block;">';
+						echo '<span>';
 							
 							echo wp_dropdown_categories(array(
 							
@@ -84,14 +84,40 @@
 								'name'    	  		=> $name,
 								'show_count'  		=> false,
 								'hierarchical' 		=> true,
-								'selected'     		=> ( isset($_GET[$name]) ? $_GET[$name] : ''),
+								'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
 								'echo'		   		=> false,
 								'hide_empty'   		=> false
 							));	
 
-							echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="">';
+							echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
 						
-						echo '</div>';
+						echo '</span>';
+						
+						// add plan value filter
+						
+						echo '<span>';
+							
+							echo '<label style="padding:7px;float:left;">';
+								echo ' Plan';
+							echo '</label>';
+							
+							$filter = 'planValueOperator';
+							$name = 'top' === $which ? $filter.'1' : $filter.'2';							
+							
+							echo'<select name="'.$name.'">';
+								echo'<option value="'.htmlentities ('>').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('>')) ? ' selected="selected"' : '').'>'.htmlentities ('>').'</option>';
+								echo'<option value="'.htmlentities ('<').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('<')) ? ' selected="selected"' : '').'>'.htmlentities ('<').'</option>';								
+								echo'<option value="'.htmlentities ('=').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('=')) ? ' selected="selected"' : '').'>'.htmlentities ('=').'</option>';
+							echo'</select>';
+							
+							$filter = 'userPlanValue';
+							$name = 'top' === $which ? $filter.'1' : $filter.'2';
+
+							echo '<input name="'.$name.'" type="number" value="'.( isset($_REQUEST[$name]) ? intval($_REQUEST[$name]) : -1).'" style="width:55px;float:left;">';
+
+							echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
+						
+						echo '</span>';
 						
 						// add bulk email sender
 						
@@ -99,27 +125,27 @@
 						
 						$name = 'top' === $which ? $post_type.'1' : $post_type.'2';
 
-
-						echo '<div style="display:inline-block;">';
+						echo '<span>';
 						
 							echo $this->parent->ltple_get_dropdown_posts(array(
 							
 								'show_option_none'  => 'Select an email',
 								'post_type'     	=> $post_type,
 								'name'    	  		=> $name,
-								'selected'     		=> ( isset($_GET[$name]) ? $_GET[$name] : ''),
+								'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
 								'echo'		   		=> false
 							));	
 
-							echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="">';
+							echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
 						
-						echo '</div>';
+						echo '</span>';
 						
 					echo '</div>';					
 					
 				} );
 				
 				add_filter( 'pre_get_users', array( $this, 'ltple_filter_users_by_marketing_channel') );
+				add_filter( 'pre_get_users', array( $this, 'ltple_filter_users_by_plan_value') );
 				add_filter( 'pre_get_users', array( $this, 'ltple_bulk_send_email_model') );
 			}		
 		}
@@ -236,6 +262,7 @@
 			$last_sent = $this->users->{$user_id}->sent;
 			$channel   = $this->users->{$user_id}->channel;
 			
+			$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
 			
 			$row='';
 			
@@ -302,12 +329,12 @@
 					if($can_spam==='false'){
 						
 						$text = "<img src='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=25 height=25>";
-						$row .= "<a title=\"Subscribe to mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "true" , "ltple_view" => "subscribers"), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
+						$row .= "<a title=\"Subscribe to mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "true" , "ltple_view" => "subscribers", "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
 					}
 					else{
 						
 						$text = "<img src='" . $this->parent->assets_url . "/images/right_arrow.png' width=25 height=25>";
-						$row .= "<a title=\"Unsubscribe from mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "false" , "ltple_view" => "subscribers"), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
+						$row .= "<a title=\"Unsubscribe from mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "false" , "ltple_view" => "subscribers", "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
 					}
 					
 				
@@ -341,11 +368,11 @@
 		
 		public function ltple_update_subscribers_manually() {
 			
-			if(isset($_GET["user_id"]) && isset($_GET["wp_nonce"]) && wp_verify_nonce($_GET["wp_nonce"], "ltple_can_spam") && isset($_GET["ltple_can_spam"])) {
+			if(isset($_REQUEST["user_id"]) && isset($_REQUEST["wp_nonce"]) && wp_verify_nonce($_REQUEST["wp_nonce"], "ltple_can_spam") && isset($_REQUEST["ltple_can_spam"])) {
 				
-				if($_GET["ltple_can_spam"] === 'true' || $_GET["ltple_can_spam"] === 'false'){
+				if($_REQUEST["ltple_can_spam"] === 'true' || $_REQUEST["ltple_can_spam"] === 'false'){
 					
-					update_user_meta($_GET["user_id"], $this->base . '_can_spam', $_GET["ltple_can_spam"]);
+					update_user_meta($_REQUEST["user_id"], $this->base . '_can_spam', $_REQUEST["ltple_can_spam"]);
 				}
 			}
 		}
@@ -362,6 +389,8 @@
 					
 					// append to bottom dropdown
 					jQuery('<option>').val('export-emails').text('<?php _e('Export emails')?>').appendTo("select[name='action2']");
+				
+					//jQuery('form').attr('method','post');
 				});
 			
 			</script>
@@ -388,9 +417,9 @@
 				 
 					$exported = 0;
 					
-					if( !empty($_GET['users']) ){
+					if( !empty($_REQUEST['users']) ){
 						
-						$user_ids = $_GET['users'];
+						$user_ids = $_REQUEST['users'];
 						
 						$users = new WP_User_Query(array(
 						
@@ -418,7 +447,7 @@
 						}
 
 						// build the redirect url
-						$sendback = add_query_arg( array( 'exported' => $exported, 'ltple_view' => $_GET['ltple_view'] ), $sendback );		
+						$sendback = add_query_arg( array( 'exported' => $exported, 'ltple_view' => $_REQUEST['ltple_view'] ), $sendback );		
 					}
 					
 				break;
@@ -431,25 +460,32 @@
 			exit();
 		}			
 		
+		public function ltple_get_filter_value($filter) {
+			
+			$value=null;
+			
+			if ( isset( $_REQUEST[$filter.'1'] ) && $_REQUEST[$filter.'1'] != '-1' ) {
+				
+				$value = $_REQUEST[$filter.'1'];
+			}
+			elseif ( isset( $_REQUEST[$filter.'2'] ) && $_REQUEST[$filter.'2'] != '-1' ) {
+				
+				$value = $_REQUEST[$filter.'2'];
+			}
+
+			return $value;
+		}
+		
 		public function ltple_filter_users_by_marketing_channel( $query ) {
 			
 			$taxonomy = 'marketing-channel';
-			$term_id=null;
+			$term_id = $this->ltple_get_filter_value($taxonomy);
 			
-			if ( isset( $_GET[$taxonomy.'1'] ) && is_numeric( $_GET[$taxonomy.'1'] ) && $_GET[$taxonomy.'1'] != '-1' ) {
+			if(!is_null($term_id)){
 				
-				$term_id=intval($_GET[$taxonomy.'1']);
-			}
-			elseif ( isset( $_GET[$taxonomy.'2'] ) && is_numeric( $_GET[$taxonomy.'2'] ) && $_GET[$taxonomy.'2'] != '-1' ) {
-				
-				$term_id=intval($_GET[$taxonomy.'2']);
-			}
-			
-			if( !is_null( $term_id )){
-
 				// alter the user query to add my meta_query
 				
-				$users = get_objects_in_term( $term_id, $taxonomy );
+				$users = get_objects_in_term( intval($term_id), $taxonomy );
 				
 				if(!empty($users)){
 					
@@ -457,8 +493,49 @@
 				}
 				else{
 					
-					$query->set( 'meta_key', 'something-that-doesnt-exists' );
+					$query->set( 'meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
 				}
+			}
+		}
+		
+		
+		public function ltple_filter_users_by_plan_value( $query ) {
+
+			$userPlanValue		= $this->ltple_get_filter_value('userPlanValue');
+			$planValueOperator	= $this->ltple_get_filter_value('planValueOperator');
+
+			if( !is_null($userPlanValue) && $userPlanValue > -1 ){
+
+				$q = new WP_Query(array(
+				
+					'posts_per_page'=> -1,
+					'post_type'		=> 'user-plan',
+					'fields' 		=> 'post_author',
+					'meta_query'	=> array(
+						array(
+							'key'		=> 'userPlanValue',
+							'value'		=> $userPlanValue,
+							'type'		=> 'NUMERIC',
+							'compare'	=> $planValueOperator
+						)
+					)
+				));
+
+				if(!empty($q->posts)){
+					
+					$users = [];
+					
+					foreach($q->posts as $post){
+						
+						$users[] = $post->post_author;
+					}
+					
+					$query->set( 'include', $users);
+				}
+				else{
+					
+					$query->set( 'meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
+				}			
 			}
 		}
 		
@@ -467,21 +544,21 @@
 			$post_type = 'email-model';
 			$model_id=null;
 			
-			if ( isset( $_GET[$post_type.'1'] ) && is_numeric( $_GET[$post_type.'1'] ) && $_GET[$post_type.'1'] != '-1' ) {
+			if ( isset( $_REQUEST[$post_type.'1'] ) && is_numeric( $_REQUEST[$post_type.'1'] ) && $_REQUEST[$post_type.'1'] != '-1' ) {
 				
-				$model_id=intval($_GET[$post_type.'1']);
+				$model_id=intval($_REQUEST[$post_type.'1']);
 			}
-			elseif ( isset( $_GET[$post_type.'2'] ) && is_numeric( $_GET[$post_type.'2'] ) && $_GET[$post_type.'2'] != '-1' ) {
+			elseif ( isset( $_REQUEST[$post_type.'2'] ) && is_numeric( $_REQUEST[$post_type.'2'] ) && $_REQUEST[$post_type.'2'] != '-1' ) {
 				
-				$model_id=intval($_GET[$post_type.'2']);
+				$model_id=intval($_REQUEST[$post_type.'2']);
 			}
 			
-			if( !is_null( $model_id ) && !empty($_GET['users']) && is_array($_GET['users'])){
+			if( !is_null( $model_id ) && !empty($_REQUEST['users']) && is_array($_REQUEST['users'])){
 				
 				$this->email_sent	  =0;
 				$this->email_not_sent =0;
 				
-				foreach( $_GET['users'] as $user_id){
+				foreach( $_REQUEST['users'] as $user_id){
 					
 					$user = get_userdata($user_id);
 				

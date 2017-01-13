@@ -41,9 +41,7 @@
 				global $post;
 				$image = $post;
 
-				$image_uri=str_replace($home_url.'/','',get_permalink());
-				
-				$editor_url = $home_url.'/editor/?uri='.$image_uri;
+				$editor_url = $this->urls->editor . '?uri='.str_replace(home_url().'/','',get_permalink());
 
 				//get permalink
 				
@@ -136,12 +134,8 @@
 					
 					global $post;
 					$image = $post;
-					
-					$home_url = home_url();
-					
-					$image_uri=str_replace($home_url.'/','',get_permalink());
-					
-					$editor_url = $home_url.'/editor/?uri='.$image_uri;
+
+					$editor_url = $this->urls->editor . 'editor/?uri='.str_replace(home_url().'/','',get_permalink());
 
 					//get permalink
 					

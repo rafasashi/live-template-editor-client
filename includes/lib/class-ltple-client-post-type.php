@@ -107,14 +107,27 @@ class LTPLE_Client_Post_Type {
 			//'supports' 			=> array( 'title', 'editor', 'excerpt', 'comments', 'thumbnail' ),
 			'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail' ),
 			'menu_position' 		=> 5,
-			'menu_icon' 			=> 'dashicons-admin-post',
+			'menu_icon' 			=> 'dashicons-admin-post'
+			
 		);
 
 		$args = array_merge($args, $this->options);
+		
+		/*
+		if( !isset($args['register_meta_box_cb']) ){
+			
+			$callback = 'ltple_callback_'. str_replace('-','_', $this->post_type);
+			
+			if(method_exists($this, $callback )){
+				
+				$args['register_meta_box_cb'] = array( $this, $callback );
+			}
+		}
+		*/
 
 		register_post_type( $this->post_type, apply_filters( $this->post_type . '_register_args', $args, $this->post_type ) );	
 	}
-
+	
 	/**
 	 * Set up admin messages for post type
 	 * @param  array $messages Default message

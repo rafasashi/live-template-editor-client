@@ -79,6 +79,9 @@ class LTPLE_Client_Admin_API {
 			case 'email':
 				$html .= '<input id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" />' . "\n";
 			break;
+			case 'slug':
+				$html .= '<span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">'.home_url() . '/</span><input id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" /><span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">/</span>' . "\n";
+			break;			
 			case 'margin':
 				
 				$value = esc_attr( $data );
@@ -136,6 +139,20 @@ class LTPLE_Client_Admin_API {
 				}
 			break;
 			
+			case 'plan_value':
+				
+				$total_price_amount 	= $field['plan']['info']['total_price_amount'];
+				$total_price_period		= $field['plan']['info']['total_price_period'];
+				$total_price_currency	= $field['plan']['info']['total_price_currency'];
+				
+				$html .= '<span style="color:red;font-weight:bold;font-size:20px;">';
+				
+					$html .= round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;		
+				
+				$html .= '</span>';
+				
+			break;
+			
 			case 'checkbox_multi_plan_options':
 				
 				$total_price_amount = 0;
@@ -180,7 +197,7 @@ class LTPLE_Client_Admin_API {
 							
 							foreach($terms as $i => $term){
 							
-								$taxonomy_options[$i] = LTPLE_Client()->get_custom_taxonomy_options( $taxonomy, $term );
+								$taxonomy_options[$i] = LTPLE_Client()->get_layer_taxonomy_options( $taxonomy, $term );
 								
 								if ( in_array( $term->slug, (array) $data ) ) {
 									
@@ -428,7 +445,7 @@ class LTPLE_Client_Admin_API {
 					'numberposts' => -1
 				));
 				
-				$selected_id 	= get_option( $this->parent->settings->base . $field['id'] );
+				$selected_id 	= get_option( $this->parent->_base . $field['id'] );
 				$options 		= [];
 				
 				foreach($apps as $app){
@@ -502,7 +519,7 @@ class LTPLE_Client_Admin_API {
 					$html .= '<label for="' . esc_attr( $field['id'] ) . '">' . "\n";
 				}
 
-				$html .= '<div>' . $field['description'] . '</div>' . "\n";
+				$html .= '<div><i style="color:#aaa;">' . $field['description'] . '</i></div>' . "\n";
 
 				if ( ! $post ) {
 					$html .= '</label>' . "\n";
@@ -527,8 +544,8 @@ class LTPLE_Client_Admin_API {
 	public function validate_field ( $data = '', $type = 'text' ) {
 
 		switch( $type ) {
-			case 'text': $data = esc_attr( $data ); break;
-			case 'url': $data = esc_url( $data ); break;
+			case 'text'	: $data = esc_attr( $data ); break;
+			case 'url'	: $data = esc_url( $data ); break;
 			case 'email': $data = is_email( $data ); break;
 		}
 

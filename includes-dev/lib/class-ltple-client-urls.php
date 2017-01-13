@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Triggers {
+class LTPLE_Client_Urls {
 	
 	/**
 	 * The single instance of LTPLE_Client_Settings.
@@ -26,7 +26,7 @@ class LTPLE_Client_Triggers {
 	 * @access  public
 	 * @since   1.0.0
 	 */
-	public $triggers = array();	
+	public $Urls = array();	
 	
 	/**
 	 * Constructor function
@@ -34,55 +34,21 @@ class LTPLE_Client_Triggers {
 	public function __construct ( $parent ) {
 
 		$this->parent = $parent;
-	
-		if( $this->parent->user->loggedin ){
-			
-			if( $this->parent->user->last_seen == 0 ){
-				
-				// get email series
-				
-				$q = get_posts(array(
-				
-					'post_type'   => 'email-campaign',
-					'post_status' => 'publish',
-					'numberposts' => -1,
-
-					'tax_query' => array(
-						array(
-						  'taxonomy' => 'campaign-trigger',
-						  'field' => 'slug',
-						  'terms' => 'user-registration'
-					))
-			
-				));
-
-				foreach( $q as $campaign){
-					
-					$this->parent->ltple_schedule_series( $campaign->ID,  $this->parent->user);					
-				}
-			}
-			
-			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->_time);		
-		}	
-	
-		add_action('user_register', array( $this, 'ltple_trigger_after_user_register'), 10, 1);
-	}
-	
-	public function ltple_trigger_after_user_register( $user_id ){
-
-		// the new user just registered but never logged in yet
-		add_user_meta($user_id, $this->parent->_base . '_last_seen', 'false');
+		
+		$this->editor 	= home_url().'/'.get_option( $this->parent->_base . 'editorSlug' ).'/';
+		$this->login 	= home_url().'/'.get_option( $this->parent->_base . 'loginSlug' ).'/';
+		$this->plans 	= home_url().'/'.get_option( $this->parent->_base . 'plansSlug' ).'/';
 	}
 	
 	/**
-	 * Main LTPLE_Client_Triggers Instance
+	 * Main LTPLE_Client_Urls Instance
 	 *
-	 * Ensures only one instance of LTPLE_Client_Triggers is loaded or can be loaded.
+	 * Ensures only one instance of LTPLE_Client_Urls is loaded or can be loaded.
 	 *
 	 * @since 1.0.0
 	 * @static
 	 * @see LTPLE_Client()
-	 * @return Main LTPLE_Client_Triggers instance
+	 * @return Main LTPLE_Client_Urls instance
 	 */
 	public static function instance ( $parent ) {
 		

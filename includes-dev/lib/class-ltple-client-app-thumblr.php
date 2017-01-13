@@ -19,8 +19,8 @@ class LTPLE_Client_App_Tumblr {
 		
 		// get app credentials
 
-		define('CONSUMER_KEY', 		get_option( $this->parent->settings->base . 'tblr_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->settings->base . 'tblr_consumer_secret' ));
+		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'tblr_consumer_key' ));
+		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'tblr_consumer_secret' ));
 
 		// get current action
 		
@@ -180,7 +180,7 @@ class LTPLE_Client_App_Tumblr {
 						
 						// get main account token
 						
-						//$this->main_token = LTPLE_Client_Apps::getAppData( get_option( $this->parent->settings->base . 'tblr_main_account' ));
+						//$this->main_token = LTPLE_Client_Apps::getAppData( get_option( $this->parent->_base . 'tblr_main_account' ));
 						
 						foreach($info->user->blogs as $blog){
 							
@@ -230,7 +230,7 @@ class LTPLE_Client_App_Tumblr {
 									
 									// welcome tweet on behalf of main account
 
-									//$tweet_content = get_option( $this->parent->settings->base . 'tblr_welcome_tweet' );
+									//$tweet_content = get_option( $this->parent->_base . 'tblr_welcome_tweet' );
 									
 									if(!empty($tweet_content )){
 										
@@ -239,7 +239,7 @@ class LTPLE_Client_App_Tumblr {
 									
 									// welcome DM on behalf of main account
 									
-									//$dm_content = get_option( $this->parent->settings->base . 'tblr_welcome_dm' );
+									//$dm_content = get_option( $this->parent->_base . 'tblr_welcome_dm' );
 									
 									if(!empty($dm_content )){
 

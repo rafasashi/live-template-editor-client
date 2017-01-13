@@ -22,10 +22,10 @@ class LTPLE_Client_App_Youtube {
 		
 		// get app credentials
 
-		define('API_PROJECT', 		get_option( $this->parent->settings->base . 'goo_api_project' ));
-		define('CONSUMER_KEY', 		get_option( $this->parent->settings->base . 'goo_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->settings->base . 'goo_consumer_secret' ));
-		define('OAUTH_CALLBACK', 	get_option( $this->parent->settings->base . 'goo_oauth_callback' ));
+		define('API_PROJECT', 		get_option( $this->parent->_base . 'goo_api_project' ));
+		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'goo_consumer_key' ));
+		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'goo_consumer_secret' ));
+		define('OAUTH_CALLBACK', 	get_option( $this->parent->_base . 'goo_oauth_callback' ));
 		
 		$callback=parse_url(OAUTH_CALLBACK);
 		define('JS_ORIGINS', $callback['scheme'].'://'.$callback['host']);

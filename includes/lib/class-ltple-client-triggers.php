@@ -62,7 +62,7 @@ class LTPLE_Client_Triggers {
 				}
 			}
 			
-			update_user_meta( $this->parent->user->ID, $this->parent->settings->base . '_last_seen', $this->parent->_time);		
+			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->_time);		
 		}	
 	
 		add_action('user_register', array( $this, 'ltple_trigger_after_user_register'), 10, 1);
@@ -71,7 +71,7 @@ class LTPLE_Client_Triggers {
 	public function ltple_trigger_after_user_register( $user_id ){
 
 		// the new user just registered but never logged in yet
-		add_user_meta($user_id, $this->parent->settings->base . '_last_seen', 'false');
+		add_user_meta($user_id, $this->parent->_base . '_last_seen', 'false');
 	}
 	
 	/**

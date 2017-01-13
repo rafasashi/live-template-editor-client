@@ -22,9 +22,9 @@ class LTPLE_Client_App_Wordpress {
 		
 		// get app credentials
 
-		define('CONSUMER_KEY', 		get_option( $this->parent->settings->base . 'wpcom_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->settings->base . 'wpcom_consumer_secret' ));
-		define('OAUTH_CALLBACK', 	get_option( $this->parent->settings->base . 'wpcom_oauth_callback' ));
+		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'wpcom_consumer_key' ));
+		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'wpcom_consumer_secret' ));
+		define('OAUTH_CALLBACK', 	get_option( $this->parent->_base . 'wpcom_oauth_callback' ));
 
 		include( $this->parent->vendor . '/wp-rest-php-lib/src/wpcom.php' );
 		

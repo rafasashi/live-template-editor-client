@@ -149,7 +149,7 @@ if( $this->user->plan["info"]["total_price_amount"] == 0 ){
 		
 		echo'<div class="col-xs-2 text-right">';
 		
-			echo'<a class="btn btn-success btn-lg" href="' . home_url() . '/plans/"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> Upgrade now</a>';
+			echo'<a class="btn btn-success btn-lg" href="' . $this->urls->plans . '"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> Upgrade now</a>';
 		
 		echo'</div>';
 		

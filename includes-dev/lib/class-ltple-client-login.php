@@ -52,16 +52,16 @@ class LTPLE_Client_Login {
 	}
 	
 	public function set_login_redirect_url( $redirect_to, $request, $user ) {
-			
+
 		// set $redirect_to default value
 		
 		if( get_user_meta( $user->ID , 'has_subscription', true) === 'true'){
 			
-			return home_url().'/editor/';
+			return $this->parent->urls->editor;
 		}
 		else{
 			
-			return home_url().'/plans/';
+			return $this->parent->urls->plans;
 		}
 	}
 		

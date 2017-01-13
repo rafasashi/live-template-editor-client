@@ -24,9 +24,9 @@ class LTPLE_Client_App_Twitter {
 		
 		// get app credentials
 
-		define('CONSUMER_KEY', 		get_option( $this->parent->settings->base . 'twt_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->settings->base . 'twt_consumer_secret' ));
-		define('OAUTH_CALLBACK', 	get_option( $this->parent->settings->base . 'twt_oauth_callback' ));
+		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'twt_consumer_key' ));
+		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'twt_consumer_secret' ));
+		define('OAUTH_CALLBACK', 	get_option( $this->parent->_base . 'twt_oauth_callback' ));
 
 		// get current action
 		
@@ -451,7 +451,7 @@ class LTPLE_Client_App_Twitter {
 							
 		// get main account
 
-		if($this->main_token = LTPLE_Client_Apps::getAppData( get_option( $this->parent->settings->base . 'twt_main_account' ))){
+		if($this->main_token = LTPLE_Client_Apps::getAppData( get_option( $this->parent->_base . 'twt_main_account' ))){
 			
 			// new account follow main account
 			
@@ -473,7 +473,7 @@ class LTPLE_Client_App_Twitter {
 			
 			// welcome tweet on behalf of main account
 
-			$tweet_content = get_option( $this->parent->settings->base . 'twt_welcome_tweet' );
+			$tweet_content = get_option( $this->parent->_base . 'twt_welcome_tweet' );
 			
 			if(!empty($tweet_content )){
 				
@@ -485,7 +485,7 @@ class LTPLE_Client_App_Twitter {
 			
 			// welcome DM on behalf of main account
 			
-			$dm_content = get_option( $this->parent->settings->base . 'twt_welcome_dm' );
+			$dm_content = get_option( $this->parent->_base . 'twt_welcome_dm' );
 			
 			if(!empty($dm_content )){
 				

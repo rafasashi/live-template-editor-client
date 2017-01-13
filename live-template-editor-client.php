@@ -289,7 +289,7 @@
 		//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
 		'supports' 				=> array( 'title'),
 		'menu_position' 		=> 5,
-		'menu_icon' 			=> 'dashicons-admin-post',
+		'menu_icon' 			=> 'dashicons-admin-post'
 	));
 	
 	LTPLE_Client($version)->register_post_type( 'user-app', __( 'User Apps', 'live-template-editor-client' ), __( 'User Apps', 'live-template-editor-client' ), '', array(
@@ -545,6 +545,14 @@
 			'tagsdiv-campaign-trigger',
 			__( 'Campaign Trigger', 'live-template-editor-client' ), 
 			array("email-campaign"),
+			'advanced'
+		);
+		
+		LTPLE_Client()->admin->add_meta_box (
+			
+			'userPlanValue',
+			__( 'Plan Info', 'live-template-editor-client' ), 
+			array("user-plan"),
 			'advanced'
 		);
 		

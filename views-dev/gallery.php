@@ -59,11 +59,7 @@
 				
 				global $post;
 				
-				$home_url = home_url();
-				
-				$post_uri=str_replace($home_url.'/','',get_permalink());
-				
-				$editor_url = $home_url.'/editor/?uri='.$post_uri;
+				$editor_url = $this->urls->editor . '?uri='.str_replace(home_url().'/','',get_permalink());
 
 				//get permalink
 				
@@ -361,7 +357,7 @@
 
 											echo '<div style="display:block;margin:30px;">';
 											
-												echo '<a style="display:block;width:100%;" class="btn-lg btn-success" href="'.site_url().'/plans/'.'" target="_parent" title="View plans">View plans</a>';
+												echo '<a style="display:block;width:100%;" class="btn-lg btn-success" href="' . $this->urls->plans . '" target="_parent" title="View plans">View plans</a>';
 											
 											echo '</div>';
 											

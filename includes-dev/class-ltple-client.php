@@ -37,6 +37,7 @@ class LTPLE_Client {
 	 * @since   1.0.0
 	 */
 	public $_token;
+	public $_base;
 	
 	public $_time;
 
@@ -97,7 +98,8 @@ class LTPLE_Client {
 		
 		$this->_version = $version;
 		$this->_token 	= 'ltple';
-
+		$this->_base 	= 'ltple_';
+		
 		if( isset($_GET['_']) && is_numeric($_GET['_']) ){
 			
 			$this->_time = intval($_GET['_']);
@@ -105,8 +107,8 @@ class LTPLE_Client {
 		else{
 			
 			$this->_time = time();
-		}		
-		
+		}
+
 		$this->message = '';
 		
 		// Load plugin environment variables
@@ -123,6 +125,7 @@ class LTPLE_Client {
 		register_activation_hook( $this->file, array( $this, 'install' ) );
 
 		$this->request 		= new LTPLE_Client_Request();
+		$this->urls 		= new LTPLE_Client_Urls( $this );
 		$this->client 		= new LTPLE_Client_Client( $this );
 		$this->login 		= new LTPLE_Client_Login( $this );
 		
@@ -212,6 +215,10 @@ class LTPLE_Client {
 		// add email-campaign
 		
 		add_filter("email-campaign_custom_fields", array( $this, 'add_campaign_trigger_custom_fields' ));
+		
+		// add user-plan
+		
+		add_filter("user-plan_custom_fields", array( $this, 'add_user_plan_custom_fields' ));			
 		
 		// add user-app
 		
@@ -376,7 +383,7 @@ class LTPLE_Client {
 		
 		// get user last seen
 		
-		$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->settings->base . '_last_seen',true) );
+		$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
 
 		//get user layer
 		
@@ -556,7 +563,32 @@ class LTPLE_Client {
 		
 		return $fields;
 	}
+
 	
+	// Add user plan data custom fields
+
+	public function add_user_plan_custom_fields(){
+		
+		$user_plan  = get_post();
+		$layer_plan = $this->get_user_plan_info( intval($user_plan->post_author) );
+
+		$fields=[];
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"userPlanValue"),
+				'id'			=>	"userPlanValue",
+				'label'			=>	"",
+				'type'			=>	'plan_value',
+				'plan'			=>	$layer_plan,
+				'placeholder'	=>	"Plan Value",
+				'description'	=>	''
+		);
+		
+		return $fields;
+	}	
 	
 	// Add app data custom fields
 
@@ -569,11 +601,11 @@ class LTPLE_Client {
 			"metabox" =>
 			
 				array('name'=>"appData"),
-				'id'=>"appData",
-				'label'=>"",
-				'type'=>'textarea',
-				'placeholder'=>"JSON object",
-				'description'=>''
+				'id'			=>	"appData",
+				'label'			=>	"",
+				'type'			=>	'textarea',
+				'placeholder'	=>	"JSON object",
+				'description'	=>	''
 		);
 		
 		return $fields;
@@ -1084,10 +1116,10 @@ class LTPLE_Client {
 		return $user_plan;	
 	}
 	
-	public function get_user_plan_info($user_id){	
+	public function get_user_plan_info( $user_id ){	
 
-		$user_plan_id = $this->get_user_plan_id( $user_id );	
-		
+		$user_plan_id 	 = $this->get_user_plan_id( $user_id );
+
 		$taxonomies = $this -> get_user_plan_custom_taxonomies();
 		//var_dump($taxonomies);exit;
 		
@@ -1157,18 +1189,18 @@ class LTPLE_Client {
 					
 					// push terms
 				
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]				= $term_slug;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]				= $term->name;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]			= $term_slug;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]			= $term->term_id;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			 	= $term->name;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_group"]		= $term->term_group;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"]	= $term->term_taxonomy_id;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		 	= $term->taxonomy;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"]= $term->term_taxonomy_id;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		= $term->taxonomy;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	 	= $term->description;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["parent"]			= $term->parent;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			 	= $term->count;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			= $term->count;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["filter"]			= $term->filter;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]			= $has_term;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]		= $has_term;
 					
 					if( $in_term === true ){
 						
@@ -1179,6 +1211,17 @@ class LTPLE_Client {
 					}					
 				}
 			}
+		}
+		
+		// get stored user plan value
+		
+		$user_plan_value = get_post_meta( $user_plan_id, 'userPlanValue',true );
+		
+		// compare it with current value
+		
+		if( $user_plan_value=='' || $user_plan['info']['total_price_amount'] != intval($user_plan_value) ){
+
+			update_post_meta( $user_plan_id, 'userPlanValue', $user_plan['info']['total_price_amount'] );
 		}
 		
 		//echo'<pre>';
@@ -1519,7 +1562,7 @@ class LTPLE_Client {
 				
 				echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Emails sent', 'live-template-editor-client' ) . '</h3>';
 				
-				$emails = get_user_meta($user->ID, $this->settings->base . '_email_sent', true);
+				$emails = get_user_meta($user->ID, $this->_base . '_email_sent', true);
 				
 				if( !empty($emails) ){
 					
@@ -1902,7 +1945,7 @@ class LTPLE_Client {
 														
 														$subscription_plan.= '<div class="pull-right">';
 
-															$subscription_plan.= '<a class="btn-sm btn-success" href="' . home_url() . '/editor/' . '" target="_parent">Start editing</a>';
+															$subscription_plan.= '<a class="btn-sm btn-success" href="' . $this->urls->editor . '" target="_parent">Start editing</a>';
 															
 														$subscription_plan.= '</div>';
 														
@@ -2667,7 +2710,7 @@ class LTPLE_Client {
 						
 						$this->message .= '<div class="pull-right">';
 						
-							$this->message .= '<a class="btn-sm btn-success" href="' . home_url() . '/editor/' . '" target="_parent">Start editing</a>';
+							$this->message .= '<a class="btn-sm btn-success" href="' . $this->urls->editor . '" target="_parent">Start editing</a>';
 					
 						$this->message .= '</div>';
 						
@@ -2695,7 +2738,7 @@ class LTPLE_Client {
 			$user = get_user_by( 'email', $user);
 		}
 		
-		$can_spam = get_user_meta( $user->ID, $this->settings->base . '_can_spam',true);
+		$can_spam = get_user_meta( $user->ID, $this->_base . '_can_spam',true);
 
 		if($can_spam !== 'false'){
 		
@@ -2727,7 +2770,7 @@ class LTPLE_Client {
 				
 				// get email sent
 				
-				$emails_sent = get_user_meta($user->ID, $this->settings->base . '_email_sent', true);
+				$emails_sent = get_user_meta($user->ID, $this->_base . '_email_sent', true);
 				
 				if( empty($emails_sent) ){
 					
@@ -2768,7 +2811,7 @@ class LTPLE_Client {
 							arsort($emails_sent);
 							$emails_sent = json_encode($emails_sent);
 
-							update_user_meta($user->ID, $this->settings->base . '_email_sent', $emails_sent);
+							update_user_meta($user->ID, $this->_base . '_email_sent', $emails_sent);
 						}
 						else{
 							

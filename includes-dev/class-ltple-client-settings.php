@@ -26,8 +26,7 @@ class LTPLE_Client_Settings {
 	 * @access  public
 	 * @since   1.0.0
 	 */
-	public $base = '';
-	
+
 	public $plugin;
 
 	/**
@@ -41,8 +40,6 @@ class LTPLE_Client_Settings {
 	public function __construct ( $parent ) {
 
 		$this->parent = $parent;
-
-		$this->base 		 	= 'ltple_';
 		
 		$this->plugin 			= new stdClass();
 		$this->plugin->slug  	= 'live-template-editor-client';
@@ -51,8 +48,8 @@ class LTPLE_Client_Settings {
 		
 		// get options
 		$this->options 				 = new stdClass();
-		$this->options->analyticsId  = get_option( $this->base . 'analytics_id');
-		$this->options->emailSupport = get_option( $this->base . 'email_support');	
+		$this->options->analyticsId  = get_option( $this->parent->_base . 'analytics_id');
+		$this->options->emailSupport = get_option( $this->parent->_base . 'email_support');	
 		
 		// Initialise settings
 		add_action( 'init', array( $this, 'init_settings' ), 11 );
@@ -130,7 +127,7 @@ class LTPLE_Client_Settings {
 			'All Subscribers', 
 			'All Subscribers', 
 			'administrator',
-			'users.php?'.$this->base .'view=subscribers'
+			'users.php?'.$this->parent->_base .'view=subscribers'
 		);		
 
 		add_submenu_page(
@@ -138,7 +135,7 @@ class LTPLE_Client_Settings {
 			__( 'All Subscribers', $this->plugin->slug ),
 			__( 'All Subscribers', $this->plugin->slug ),
 			'administrator',
-			'users.php?'.$this->base .'view=subscribers'
+			'users.php?'.$this->parent->_base .'view=subscribers'
 		);
 		
 		add_submenu_page(
@@ -435,7 +432,36 @@ class LTPLE_Client_Settings {
 			'fields'				=> array()
 		);
 		*/
-		
+	
+		$settings['urls'] = array(
+			'title'					=> __( 'URLS', $this->plugin->slug ),
+			'description'			=> __( '', $this->plugin->slug ),
+			'fields'				=> array(
+
+				array(
+					'id' 			=> 'editorSlug',
+					'label'			=> __( 'Editor' , $this->plugin->slug ),
+					'description'	=> '[ltple-client-editor]',
+					'type'			=> 'slug',
+					'callback'		=> 'test',
+					'placeholder'	=> __( 'editor', $this->plugin->slug )
+				),
+				array(
+					'id' 			=> 'loginSlug',
+					'label'			=> __( 'Login' , $this->plugin->slug ),
+					'description'	=> '[ltple-client-login]',
+					'type'			=> 'slug',
+					'placeholder'	=> __( 'login', $this->plugin->slug )
+				),
+				array(
+					'id' 			=> 'plansSlug',
+					'label'			=> __( 'Plans' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'slug',
+					'placeholder'	=> __( 'plans', $this->plugin->slug )
+				)
+			)
+		);	
 		
 		$settings['wpcom'] = array(
 			'title'					=> __( 'WPCOM', $this->plugin->slug ),
@@ -649,11 +675,11 @@ class LTPLE_Client_Settings {
 					}
 
 					// Register field
-					$option_name = $this->base . $field['id'];
+					$option_name = $this->parent->_base . $field['id'];
 					register_setting( $this->parent->_token . '_settings', $option_name, $validation );
 
 					// Add field to page
-					add_settings_field( $field['id'], $field['label'], array( $this->parent->admin, 'display_field' ), $this->parent->_token . '_settings', $section, array( 'field' => $field, 'prefix' => $this->base ) );
+					add_settings_field( $field['id'], $field['label'], array( $this->parent->admin, 'display_field' ), $this->parent->_token . '_settings', $section, array( 'field' => $field, 'prefix' => $this->parent->_base ) );
 
 				}
 

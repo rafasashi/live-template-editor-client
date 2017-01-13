@@ -22,8 +22,8 @@ class LTPLE_Client_App_Imgur {
 		
 		// get app credentials
 
-		define('CONSUMER_KEY', 		get_option( $this->parent->settings->base . 'imgur_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->settings->base . 'imgur_consumer_secret' ));
+		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'imgur_consumer_key' ));
+		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'imgur_consumer_secret' ));
 		
 		// get current action
 		

@@ -37,11 +37,9 @@
 			
 			$items = [];
 			
-			$home_url = home_url();
-			
 			foreach( $this->apps->appType as $app ){ 
 				
-				$connect_url = $home_url.'/editor/?app='.$app->slug.'&action=connect';
+				$connect_url = $this->urls->editor . '?app='.$app->slug.'&action=connect';
 				
 				//get item
 				
