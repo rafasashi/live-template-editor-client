@@ -224,6 +224,11 @@ class LTPLE_Client {
 		
 		add_filter("user-app_custom_fields", array( $this, 'add_app_data_custom_fields' ));		
 		
+		// add user-image
+	
+		add_filter('manage_user-image_posts_columns', array( $this, 'set_user_image_columns'));
+		add_action('manage_user-image_posts_custom_column', array( $this, 'add_user_image_column_content'), 10, 2);
+
 		// setup phpmailer
 
 		add_action( 'phpmailer_init', 	function( PHPMailer $phpmailer ) {
@@ -611,6 +616,64 @@ class LTPLE_Client {
 		return $fields;
 	}
 	
+	public function add_subscription_plan_custom_fields(){
+			
+		$fields = [];
+		
+		//get options
+		
+		$options = $this -> get_layer_custom_taxonomies_options();
+		
+		//var_dump($options);exit;
+		
+		$fields[]=array(
+		
+			"metabox" =>
+				array('name'=> "plan_options"),
+				'type'		=> 'checkbox_multi_plan_options',
+				'id'		=> 'plan_options',
+				'label'		=> '',
+				'options'	=> $options,
+				'description'=> ''
+		);
+		
+		// get email models
+		
+		$q = get_posts(array(
+		
+			'post_type'   => 'email-model',
+			'post_status' => 'publish',
+			'numberposts' => -1,
+			'orderby' 	  => 'title',
+			'order' 	  => 'ASC'
+		));
+		
+		$email_models=['' => 'no email model selected'];
+		
+		if(!empty($q)){
+			
+			foreach( $q as $model ){
+				
+				$email_models[$model->ID] = $model->post_title;
+			}
+		}
+		
+		$fields[]=array(
+		
+			"metabox" =>
+				array('name'=> "email_series"),
+				'type'				=> 'email_series',
+				'id'				=> 'email_series',
+				'label'				=> '',
+				'email-models' 		=> $email_models,
+				'model-selected'	=> '',
+				'days-from-sub' 	=> 0,
+				'description'		=> ''
+		);
+		
+		return $fields;
+	}
+	
 	public function set_subscription_plan_columns($columns){
 
 		// Remove description, posts, wpseo columns
@@ -626,11 +689,34 @@ class LTPLE_Client {
 	
 	public function add_subscription_plan_column_content($column_name, $post_id){
 
-		$content='';
-	
 		if($column_name === 'shortcode') {
 			
 			echo '<input style="width:200px;" type="text" name="shortcode" value="[subscription-plan id=\'' . $post_id . '\']" ' . disabled( true, true, false ) . ' />';
+		}		
+	}
+	
+	public function set_user_image_columns($columns){
+
+		// Remove description, posts, wpseo columns
+		$columns = [];
+		
+		$columns['cb'] 					= '<input type="checkbox" />';
+		$columns['title'] 				= 'Title';
+		$columns['author'] 				= 'Author';
+		$columns['taxonomy-app-type'] 	= 'App';
+		$columns['image'] 				= 'Image';
+		$columns['date'] 				= 'Date';
+
+		return $columns;		
+	}
+	
+	public function add_user_image_column_content($column_name, $post_id){
+
+		if($column_name === 'image') {
+			
+			$post = get_post($post_id);
+			
+			echo '<img src="' . $post->post_content . '" style="width:100px;" />';
 		}		
 	}
 	
@@ -1033,7 +1119,9 @@ class LTPLE_Client {
 		$user_plan['id'] = $item_id;
 		
 		$user_plan['info']['total_price_amount'] 	= 0;
+		$user_plan['info']['total_fee_amount'] 		= 0;
 		$user_plan['info']['total_price_period'] 	= 'month';
+		$user_plan['info']['total_fee_period'] 		= 'once';
 		$user_plan['info']['total_price_currency'] 	= '$';
 		
 		foreach($taxonomies as $i => $t){
@@ -1102,7 +1190,8 @@ class LTPLE_Client {
 					if( $in_term === true ){
 						
 						$options = $this->get_layer_taxonomy_options( $taxonomy, $term );
-
+						
+						$user_plan['info']['total_fee_amount']	 = $this -> sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_fee_amount'], $options, $user_plan['info']['total_fee_period'] );
 						$user_plan['info']['total_price_amount'] = $this -> sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_price_amount'], $options, $user_plan['info']['total_price_period'] );
 						$user_plan['info']['total_storage'] 	 = $this -> sum_custom_taxonomy_total_storage( $user_plan['info']['total_storage'], $options);
 					}					
@@ -1128,7 +1217,9 @@ class LTPLE_Client {
 		$user_plan['id'] = $user_plan_id;
 		
 		$user_plan['info']['total_price_amount'] 	= 0;
+		$user_plan['info']['total_fee_amount'] 		= 0;
 		$user_plan['info']['total_price_period'] 	= 'month';
+		$user_plan['info']['total_fee_period'] 		= 'once';
 		$user_plan['info']['total_price_currency'] 	= '$';
 		
 		foreach($taxonomies as $i => $t){
@@ -1206,6 +1297,7 @@ class LTPLE_Client {
 						
 						$options = $this->get_layer_taxonomy_options( $taxonomy, $term );
 
+						$user_plan['info']['total_fee_amount']	 = $this -> sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_fee_amount'], $options, $user_plan['info']['total_fee_period'] );
 						$user_plan['info']['total_price_amount'] = $this -> sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_price_amount'], $options, $user_plan['info']['total_price_period'] );
 						$user_plan['info']['total_storage'] 	 = $this -> sum_custom_taxonomy_total_storage( $user_plan['info']['total_storage'], $options);
 					}					
@@ -1281,23 +1373,26 @@ class LTPLE_Client {
 		
 		$plan_options = get_post_meta( $plan_id, 'plan_options', true );
 		$plan_options = array_flip($plan_options);
-
-		foreach($this->user->plan['taxonomies'] as $taxonomy => $tax){
+		
+		if(!empty($this->user->plan['taxonomies'])){
 			
-			foreach($tax['terms'] as $term_slug => $term){
+			foreach($this->user->plan['taxonomies'] as $taxonomy => $tax){
+				
+				foreach($tax['terms'] as $term_slug => $term){
 
-				if(isset($plan_options[$term_slug])){
-					
-					$user_has_plan = true;
-
-					if( $term['has_term']!==true ){
+					if(isset($plan_options[$term_slug])){
 						
-	
-						$user_has_plan = false;
-						break 2;
+						$user_has_plan = true;
+
+						if( $term['has_term']!==true ){
+							
+		
+							$user_has_plan = false;
+							break 2;
+						}
 					}
-				}
-			}			
+				}			
+			}
 		}
 
 		return $user_has_plan;
@@ -1306,9 +1401,10 @@ class LTPLE_Client {
 	public function get_price_periods(){
 		
 		$periods=[];
-		$periods['day']='day';
-		$periods['month']='month';
-		$periods['year']='year';
+		$periods['day']		='day';
+		$periods['month']	='month';
+		$periods['year']	='year';
+		$periods['once']	='once';
 		
 		return $periods;
 	}
@@ -1367,9 +1463,11 @@ class LTPLE_Client {
 				
 			$user_plan_id = $this->get_user_plan_id($user->ID);
 			
-			$total_price_amount = 0;
-			$total_price_period='month';
-			$total_price_currency='$';
+			$total_price_amount 	= 0;
+			$total_fee_amount 		= 0;
+			$total_price_period		='month';
+			$total_fee_period		='once';
+			$total_price_currency	='$';
 			
 			$taxonomies = $this -> get_user_plan_custom_taxonomies();
 
@@ -1444,9 +1542,9 @@ class LTPLE_Client {
 										
 										if( is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ) ){
 											
+											$total_fee_amount 	= $this -> sum_custom_taxonomy_total_price_amount( $total_fee_amount, $options[$i], $total_fee_period);
 											$total_price_amount = $this -> sum_custom_taxonomy_total_price_amount( $total_price_amount, $options[$i], $total_price_period);
-											
-											$total_storage = $this -> sum_custom_taxonomy_total_storage( $total_storage, $options[$i]);
+											$total_storage 		= $this -> sum_custom_taxonomy_total_storage( $total_storage, $options[$i]);
 										}
 										
 										echo '<span style="display:block;padding:1px 0;margin:0;">';
@@ -1474,7 +1572,7 @@ class LTPLE_Client {
 									
 										foreach ( $terms as $i => $term ) {
 									
-											echo '<span style="display:block;padding:1px 0;margin:0;">';
+											echo '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
 											
 												echo $options[$i]['price_amount'].$options[$i]['price_currency'].' / '.$options[$i]['price_period'];
 											
@@ -1538,11 +1636,17 @@ class LTPLE_Client {
 								echo '</span>';
 							}
 							
-						echo'</td>';					
+						echo'</td>';
 						
 						echo '<td>';
 						
 							echo '<span style="font-size:16px;">';
+							
+								if( $total_fee_amount > 0 ){
+									
+									echo htmlentities(' ').round($total_fee_amount, 2).$total_price_currency.' '.$total_fee_period;
+									echo '<br>+';
+								}
 								
 								echo round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;
 							
@@ -1554,7 +1658,7 @@ class LTPLE_Client {
 						
 				echo'</table>';
 				
-			echo'</div>';				
+			echo'</div>';
 
 			//get list of emails sent to user
 			
@@ -1616,7 +1720,7 @@ class LTPLE_Client {
 
 			$price_fields.='<span class="input-group-addon" style="color: #fff;padding: 5px 10px;background: #9E9E9E;">$</span>';
 			
-			$price_fields.='<input type="number" step="0.1" min="-100" max="100" placeholder="0" name="'.$taxonomy_name.'-price-amount" id="'.$taxonomy_name.'-price-amount" style="width: 60px;" value="'.$price_amount.'"/>';
+			$price_fields.='<input type="number" step="0.1" min="-1000" max="1000" placeholder="0" name="'.$taxonomy_name.'-price-amount" id="'.$taxonomy_name.'-price-amount" style="width: 60px;" value="'.$price_amount.'"/>';
 			
 			$price_fields.='<span> / </span>';
 			
@@ -1769,9 +1873,12 @@ class LTPLE_Client {
 		if(!is_null($atts['id'])&&is_numeric($atts['id'])){
 			
 			$id=intval($atts['id']);
-			$total_price_amount = 0;
-			$total_price_period='month';
-			$total_price_currency='$';
+			
+			$total_price_amount 	= 0;
+			$total_fee_amount 		= 0;
+			$total_price_period		='month';
+			$total_fee_period		='once';
+			$total_price_currency	='$';
 			
 			$option_name='plan_options';
 			
@@ -1829,15 +1936,16 @@ class LTPLE_Client {
 
 							if ( in_array( $term->slug, $data ) ) {
 								
-								$total_price_amount = $this -> sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);				
-								
-								$total_storage = $this -> sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
+								$total_price_amount = $this -> sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);	
+								$total_fee_amount 	= $this -> sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);				
+								$total_storage 		= $this -> sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
 							}
 						}
 					}
 					
 					// round total_price_amount
 					
+					$total_fee_amount 	= round($total_fee_amount, 2);
 					$total_price_amount = round($total_price_amount, 2);
 					
 					//get current_user
@@ -1854,15 +1962,15 @@ class LTPLE_Client {
 					$plan_data['name'] 		= $plan->post_title;
 					$plan_data['options'] 	= $data;
 					$plan_data['price'] 	= $total_price_amount;
+					$plan_data['fee'] 		= $total_fee_amount;
 					$plan_data['currency']	= $total_price_currency;
 					$plan_data['period'] 	= $total_price_period;
+					$plan_data['fperiod']	= $total_fee_period;
 					$plan_data['storage'] 	= $total_storage;
 					
 					$plan_data=esc_attr( json_encode( $plan_data ) );
 					//var_dump($plan_data);exit;
-					
-					//var_dump('plan' . $plan_data . $this->_time . $this->user->user_email);exit;
-					
+
 					$plan_key=md5( 'plan' . $plan_data . $this->_time . $this->user->user_email );
 					
 					$iframe_url = $this->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->base64_urlencode($plan_data) . '&_=' . $this->_time;
@@ -1896,6 +2004,12 @@ class LTPLE_Client {
 					}
 					
 					$subscription_plan.= '<div id="plan_price">';				
+						
+						if( $total_fee_amount > 0 ){
+							
+							$subscription_plan.= htmlentities(' ').$total_fee_amount.$total_price_currency.' '. ( $total_fee_period == 'once' ? 'one time fee' : $total_fee_period );
+							$subscription_plan.= '<br>+';
+						}
 						
 						$subscription_plan.= $total_price_amount.$total_price_currency.' / '.$total_price_period;
 					
@@ -1935,7 +2049,7 @@ class LTPLE_Client {
 											//var_dump($this->user->has_subscription);exit;
 											//var_dump($this->user_has_layer( $plan->ID ));exit;
 											
-											if( $this->user_has_plan( $plan->ID ) === true ){
+											if( 1==2 && $this->user_has_plan( $plan->ID ) === true ){
 												
 												$subscription_plan.='<div class="modal-body">'.PHP_EOL;
 											
@@ -1952,31 +2066,6 @@ class LTPLE_Client {
 													$subscription_plan.= '</div>';	
 
 												$subscription_plan.='</div>'.PHP_EOL;
-												
-												//Google Code for subscription completed Conversion Page
-												
-												$subscription_plan.='<script type="text/javascript">' . PHP_EOL;
-													$subscription_plan.='/* <![CDATA[ */' . PHP_EOL;
-													$subscription_plan.='var google_conversion_id = 866030496;' . PHP_EOL;
-													$subscription_plan.='var google_conversion_language = "en";' . PHP_EOL;
-													$subscription_plan.='var google_conversion_format = "3";' . PHP_EOL;
-													$subscription_plan.='var google_conversion_color = "ffffff";' . PHP_EOL;
-													$subscription_plan.='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
-													$subscription_plan.='var google_conversion_value = '.$total_price_amount.'.00;' . PHP_EOL;
-													$subscription_plan.='var google_conversion_currency = "USD";' . PHP_EOL;
-													$subscription_plan.='var google_remarketing_only = false;' . PHP_EOL;
-													$subscription_plan.='/* ]]> */' . PHP_EOL;
-												$subscription_plan.='</script>' . PHP_EOL;
-												
-												$subscription_plan.='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
-												$subscription_plan.='</script>' . PHP_EOL;
-												
-												$subscription_plan.='<noscript>' . PHP_EOL;
-													$subscription_plan.='<div style="display:inline;">' . PHP_EOL;
-														$subscription_plan.='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value=0.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
-													$subscription_plan.='</div>' . PHP_EOL;
-												$subscription_plan.='</noscript>' . PHP_EOL;
-
 											}
 											else{
 												
@@ -2022,64 +2111,6 @@ class LTPLE_Client {
 		
 		return $subscription_plan;
 	}	
-	
-	public function add_subscription_plan_custom_fields(){
-			
-		$fields = [];
-		
-		//get options
-		
-		$options = $this -> get_layer_custom_taxonomies_options();
-		
-		//var_dump($options);exit;
-		
-		$fields[]=array(
-		
-			"metabox" =>
-				array('name'=> "plan_options"),
-				'type'		=> 'checkbox_multi_plan_options',
-				'id'		=> 'plan_options',
-				'label'		=> '',
-				'options'	=> $options,
-				'description'=> ''
-		);
-		
-		// get email models
-		
-		$q = get_posts(array(
-		
-			'post_type'   => 'email-model',
-			'post_status' => 'publish',
-			'numberposts' => -1,
-			'orderby' 	  => 'title',
-			'order' 	  => 'ASC'
-		));
-		
-		$email_models=['' => 'no email model selected'];
-		
-		if(!empty($q)){
-			
-			foreach( $q as $model ){
-				
-				$email_models[$model->ID] = $model->post_title;
-			}
-		}
-		
-		$fields[]=array(
-		
-			"metabox" =>
-				array('name'=> "email_series"),
-				'type'				=> 'email_series',
-				'id'				=> 'email_series',
-				'label'				=> '',
-				'email-models' 		=> $email_models,
-				'model-selected'	=> '',
-				'days-from-sub' 	=> 0,
-				'description'		=> ''
-		);
-		
-		return $fields;
-	}
 	
 	public function ltple_get_dropdown_posts( $args ){
 		
@@ -2480,7 +2511,31 @@ class LTPLE_Client {
 													
 												$this->message .= 'Congratulations! Image succefully uploaded to your library.';
 
-											$this->message .='</div>';													
+											$this->message .='</div>';
+
+											//Google Code for subscription completed Conversion Page
+											
+											$this->message.='<script type="text/javascript">' . PHP_EOL;
+												$this->message.='/* <![CDATA[ */' . PHP_EOL;
+												$this->message.='var google_conversion_id = 866030496;' . PHP_EOL;
+												$this->message.='var google_conversion_language = "en";' . PHP_EOL;
+												$this->message.='var google_conversion_format = "3";' . PHP_EOL;
+												$this->message.='var google_conversion_color = "ffffff";' . PHP_EOL;
+												$this->message.='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
+												$this->message.='var google_conversion_value = '.$total_price_amount.'.00;' . PHP_EOL;
+												$this->message.='var google_conversion_currency = "USD";' . PHP_EOL;
+												$this->message.='var google_remarketing_only = false;' . PHP_EOL;
+												$this->message.='/* ]]> */' . PHP_EOL;
+											$this->message.='</script>' . PHP_EOL;
+											
+											$this->message.='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
+											$this->message.='</script>' . PHP_EOL;
+											
+											$this->message.='<noscript>' . PHP_EOL;
+												$this->message.='<div style="display:inline;">' . PHP_EOL;
+													$this->message.='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value=0.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
+												$this->message.='</div>' . PHP_EOL;
+											$this->message.='</noscript>' . PHP_EOL;											
 										}
 										else{
 											

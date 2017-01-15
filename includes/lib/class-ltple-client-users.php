@@ -266,9 +266,15 @@
 			
 			$row='';
 			
-			if ($column_name == "subscription") {
+			if ($column_name == "subscription") { 
 					
 				if ($user_role->roles[0] != "administrator") {
+					
+					if( $user_plan['info']['total_fee_amount'] > 0 ){
+						
+						$row .= htmlentities(' ').$user_plan['info']['total_price_currency'].$user_plan['info']['total_fee_amount'].' '.$user_plan['info']['total_fee_period'];
+						$row .= '<br>+';
+					}
 					
 					$row .= $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].'/'.$user_plan['info']['total_price_period'];
 				} 
@@ -390,7 +396,7 @@
 					// append to bottom dropdown
 					jQuery('<option>').val('export-emails').text('<?php _e('Export emails')?>').appendTo("select[name='action2']");
 				
-					//jQuery('form').attr('method','post');
+					jQuery('form').attr('method','post');
 				});
 			
 			</script>

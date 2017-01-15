@@ -31,14 +31,14 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 	
 	$layerMargin = get_post_meta( $layer_id, 'layerMargin', true );
 	
-	if($layerMargin == ''){
+	if( empty($layerMargin) ){
 		
 		$layerMargin = '-120px 0px -20px 0px';
 	}
 	
 	$layerMinWidth = get_post_meta( $layer_id, 'layerMinWidth', true );
 	
-	if($layerMargin == ''){
+	if( empty($layerMinWidth) ){
 		
 		$layerMinWidth = '1000px';
 	}	
@@ -129,7 +129,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			
 		echo '</head>';
 
-		echo '<body style="padding:0;margin:0;display:inline-block;width:100%;">';
+		echo '<body style="padding:0;margin:0;display:flex !important;width:100%;">';
 			
 			//include style-sheet
 			

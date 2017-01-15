@@ -142,11 +142,19 @@ class LTPLE_Client_Admin_API {
 			case 'plan_value':
 				
 				$total_price_amount 	= $field['plan']['info']['total_price_amount'];
+				$total_fee_amount 		= $field['plan']['info']['total_fee_amount'];
 				$total_price_period		= $field['plan']['info']['total_price_period'];
+				$total_fee_period		= $field['plan']['info']['total_fee_period'];
 				$total_price_currency	= $field['plan']['info']['total_price_currency'];
 				
 				$html .= '<span style="color:red;font-weight:bold;font-size:20px;">';
 				
+					if( $total_fee_amount > 0 ){
+						
+						$html .= htmlentities(' ').round($total_fee_amount, 2).$total_price_currency.' '.$total_fee_period;
+						$html .= '<br>+';
+					}				
+			
 					$html .= round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;		
 				
 				$html .= '</span>';
@@ -155,9 +163,11 @@ class LTPLE_Client_Admin_API {
 			
 			case 'checkbox_multi_plan_options':
 				
-				$total_price_amount = 0;
-				$total_price_period='month';
-				$total_price_currency='$';
+				$total_price_amount 	= 0;
+				$total_fee_amount 		= 0;
+				$total_price_period		='month';
+				$total_fee_period		='once';
+				$total_price_currency	='$';
 				
 				$html .= '<table class="widefat fixed striped" style="border:none;">';
 				
@@ -201,12 +211,14 @@ class LTPLE_Client_Admin_API {
 								
 								if ( in_array( $term->slug, (array) $data ) ) {
 									
-									$total_price_amount = LTPLE_Client()->sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);
+									$total_fee_amount 	= LTPLE_Client()->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);
 									
+									$total_price_amount = LTPLE_Client()->sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);
+
 									$total_storage = LTPLE_Client()->sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
 								}
 
-								$html .= '<span style="display:block;padding:1px 0;margin:0;">';
+								$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
 								
 									if($taxonomy_options[$i]['storage_unit']=='templates'&&$taxonomy_options[$i]['storage_amount']==1){
 										
@@ -230,7 +242,7 @@ class LTPLE_Client_Admin_API {
 						
 						foreach($terms as $i => $term){
 							
-							$html .= '<span style="display:block;padding:1px 0;margin:0;">';
+							$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
 							
 								$html .= $taxonomy_options[$i]['price_amount'].$taxonomy_options[$i]['price_currency'].' / '.$taxonomy_options[$i]['price_period'];							
 						
@@ -242,9 +254,7 @@ class LTPLE_Client_Admin_API {
 					$html .= '</tr>';
 						
 				}
-				
-	
-				
+
 				$html .= '<tr style="font-weight:bold;">';
 					
 					$html .= '<th style="width:200px;">';
@@ -284,8 +294,14 @@ class LTPLE_Client_Admin_API {
 					
 					$html .= '<td>';
 
+						if( $total_fee_amount > 0 ){
+							
+							$html .= htmlentities(' ').round($total_fee_amount, 2).$total_price_currency.' '.$total_fee_period;
+							$html .= '<br>+';
+						}
+		
 						$html .= round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;
-					
+
 					$html .= '</td>';				
 				
 				$html .= '</table>';

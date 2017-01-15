@@ -102,6 +102,7 @@ class LTPLE_Client_Login {
 	 * @return void
 	 */
 	public function enqueue_styles () {
+		
 		wp_register_style( $this->parent->_token . '-login', esc_url( $this->parent->assets_url ) . 'css/login.css', array(), $this->parent->_version );
 		wp_enqueue_style( $this->parent->_token . '-login' );
 	} // End enqueue_styles ()

@@ -46,8 +46,8 @@
 	$request_headers['Host']				= parse_url($this->server->url, PHP_URL_HOST);
 	$request_headers['X-forwarded-Host']	= $_SERVER['HTTP_HOST'];
 	$request_headers['X-forwarded-Server']	= $_SERVER['HTTP_HOST'];
-	$request_headers['X-forwarded-For']		= $_SERVER['REMOTE_ADDR'];
-	$request_headers['X-forwarded-Key']		= md5('remote'.$_SERVER['REMOTE_ADDR']);
+	$request_headers['X-forwarded-For']		= $this->request->ip;
+	$request_headers['X-forwarded-Key']		= md5('remote'.$this->request->ip);
 	$request_headers['X-forwarded-User']	= $this->ltple_encrypt_str( $this->user->user_email );
 	$request_headers['X-forwarded-Demo']	= ( ( $this->layer->price > 0 ) ? $this->ltple_encrypt_str( md5( 'false' . $this->user->user_email ) ) : $this->ltple_encrypt_str( md5( 'true' . $this->user->user_email ) ));
 	//$request_headers['X-ref-Key']			= $this->server->ref_key;
