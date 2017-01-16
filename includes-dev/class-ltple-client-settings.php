@@ -126,7 +126,7 @@ class LTPLE_Client_Settings {
 		add_users_page( 
 			'All Subscribers', 
 			'All Subscribers', 
-			'administrator',
+			'edit_pages',
 			'users.php?'.$this->parent->_base .'view=subscribers'
 		);		
 
@@ -134,7 +134,7 @@ class LTPLE_Client_Settings {
 			$this->plugin->slug,
 			__( 'All Subscribers', $this->plugin->slug ),
 			__( 'All Subscribers', $this->plugin->slug ),
-			'administrator',
+			'edit_pages',
 			'users.php?'.$this->parent->_base .'view=subscribers'
 		);
 		

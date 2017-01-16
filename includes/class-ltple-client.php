@@ -140,11 +140,15 @@ class LTPLE_Client {
 			
 			// Load API for generic admin functions
 			
-			$this->admin = new LTPLE_Client_Admin_API( $this );
+			$this->admin 	= new LTPLE_Client_Admin_API( $this );
 			
-			$this->users = new LTPLE_Client_Users( $this );
+			$this->users 	= new LTPLE_Client_Users( $this );
 
 			$this->channels = new LTPLE_Client_Channels( $this );
+			
+			$this->rights 	= new LTPLE_Client_Rights( $this );
+			
+			add_action( 'init', array( $this, 'ltple_client_backend_init' ));	
 		}
 		elseif(isset($_POST['imgData']) && isset($_POST["submitted"])&& isset($_POST["download_image_nonce_field"]) && $_POST["submitted"]=='true'){
 			
@@ -175,7 +179,7 @@ class LTPLE_Client {
 
 			$this->image = new LTPLE_Client_Image();
 
-			add_action( 'init', array( $this, 'ltple_client_init' ));	
+			add_action( 'init', array( $this, 'ltple_client_frontend_init' ));	
 			
 			add_action( 'wp_head', array( $this, 'ltple_client_header') );
 			
@@ -361,7 +365,7 @@ class LTPLE_Client {
 		return base64_decode(strtr($inputStr, '-_,', '+/='));
 	}
 	
-	public function ltple_client_init(){
+	public function ltple_client_frontend_init(){
 		
 		//get current user
 		
@@ -389,7 +393,11 @@ class LTPLE_Client {
 		// get user last seen
 		
 		$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
-
+		
+		// get user rights
+		
+		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
+		
 		//get user layer
 		
 		if( $this->layer->type == 'user-layer' ){
@@ -411,6 +419,31 @@ class LTPLE_Client {
 			
 			unset($q);
 		}  
+	}
+	
+	
+	public function ltple_client_backend_init(){
+		
+		//get current user
+		
+		$this->user = wp_get_current_user();
+
+		// get user rights
+		
+		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
+		
+		// get editedUser
+		
+		if(strpos($_SERVER['SCRIPT_NAME'],'user-edit.php')>0 && isset($_REQUEST['user_id']) ){
+			
+			$this->editedUser = get_userdata(intval($_REQUEST['user_id']));
+	
+			$this->editedUser->rights  = json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-rights',true) );
+		}
+		else{
+			
+			$this->editedUser = $this->user;
+		}	
 	}
 	
 	public function remove_custom_post_quick_edition( $actions, $post ){

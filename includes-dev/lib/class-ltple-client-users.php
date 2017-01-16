@@ -221,7 +221,7 @@
 			$column["plan"]			= 'Plan';
 			$column["channel"]		= 'Channel';
 			$column["spam"]			= 'Spam';
-			$column["sent"]			= 'Last 3 emails';
+			$column["sent"]			= 'Last emails sent';
 			
 			return $column;
 		}

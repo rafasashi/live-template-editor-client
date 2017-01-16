@@ -29,7 +29,7 @@
 
 						$class='';						
 					}
-					elseif($this->user->is_admin){
+					elseif( $this->user->is_admin ){
 						
 						echo '<li'.$class.'>';
 						

@@ -45,26 +45,26 @@ class LTPLE_Client_Channels {
 				
 				echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Marketing Channel', 'live-template-editor-client' ) . '</h3>';
 						
-					$tax = get_taxonomy( $this->taxonomy );
+				$tax = get_taxonomy( $this->taxonomy );
 
-					/* Make sure the user can assign terms of the user taxonomy before proceeding. */
-					if ( !current_user_can( $tax->cap->assign_terms ) )
-					return;
+				/* Make sure the user can assign terms of the user taxonomy before proceeding. */
+				if ( !current_user_can( $tax->cap->assign_terms ) )
+				return;
+			
+				$terms = wp_get_object_terms( $user->ID, $this->taxonomy );
+
+				echo wp_dropdown_categories(array(
 				
-					$terms = wp_get_object_terms( $user->ID, $this->taxonomy );
-
-					echo wp_dropdown_categories(array(
+					'show_option_none' => 'Select a channel',
+					'taxonomy'     => $this->taxonomy,
+					'name'    	   => $this->taxonomy,
+					'show_count'   => false,
+					'hierarchical' => true,
+					'selected'     => ( ( !isset($terms->errors) && isset($terms[0]->term_taxonomy_id) ) ? $terms[0]->term_taxonomy_id : ''),
+					'echo'		   => false,
+					'hide_empty'   => false
+				));
 					
-						'show_option_none' => 'Select a channel',
-						'taxonomy'     => $this->taxonomy,
-						'name'    	   => $this->taxonomy,
-						'show_count'   => false,
-						'hierarchical' => true,
-						'selected'     => ( ( !isset($terms->errors) && isset($terms[0]->term_taxonomy_id) ) ? $terms[0]->term_taxonomy_id : ''),
-						'echo'		   => false,
-						'hide_empty'   => false
-					));					
-				
 			echo'</div>';
 		}	
 	}
