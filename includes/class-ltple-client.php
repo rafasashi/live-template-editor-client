@@ -1967,6 +1967,7 @@ class LTPLE_Client {
 					$plan_data['period'] 	= $total_price_period;
 					$plan_data['fperiod']	= $total_fee_period;
 					$plan_data['storage'] 	= $total_storage;
+					$plan_data['subscriber']= $this->user->user_email;
 					
 					$plan_data=esc_attr( json_encode( $plan_data ) );
 					//var_dump($plan_data);exit;
