@@ -2252,7 +2252,12 @@ class LTPLE_Client {
 
 				$this->message .='</div>';
 				
-				//include( $this->views . $this->_dev .'/message.php' );						
+				//include( $this->views . $this->_dev .'/message.php' );
+
+				//redirect to gallery
+				
+				wp_redirect($this->urls->editor);
+				exit;				
 			}
 			elseif( isset($_POST['postContent']) && !empty($this->layer->type) ){
 				

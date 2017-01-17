@@ -82,23 +82,28 @@
 			echo '<a class="btn btn-sm btn-danger" href="' . $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $this->layer->slug . '/&postAction=delete">Delete</a>';
 		}
 		
-		if( $this->layer->type != '' && $this->user->is_admin ){
+		if( $this->layer->type != '' ){
 			
-			echo'<div style="margin:0 2px;" class="btn-group">';
+			echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $this->layer->id ) . '" style="margin-left: 4px;border-color: #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+		
+			if( $this->user->is_admin ){
 			
-				echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:2px;font-size:14px;height:30px;background: rgb(110, 96, 96);border: 1px solid #503f3f;color: #fff;"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>';
-									
-				echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
-					
-					echo'<li style="position:relative;">';
-						
-						echo '<a href="' . get_edit_post_link( $this->layer->id ) . '"><span class="label label-warning">admin</span> Edit Layer</a>';
-
-					echo'</li>';	
-					
-				echo'</ul>';
+				echo'<div style="margin:0 2px;" class="btn-group">';
 				
-			echo'</div>';
+					echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:2px;font-size:14px;height:30px;background: rgb(110, 96, 96);border: 1px solid #503f3f;color: #fff;"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>';
+										
+					echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
+						
+						echo'<li style="position:relative;">';
+							
+							echo '<a target="_blank" href="' . get_edit_post_link( $this->layer->id ) . '"><span class="label label-warning">admin</span> Edit Layer</a>';
+
+						echo'</li>';	
+						
+					echo'</ul>';
+					
+				echo'</div>';
+			}
 		}
 		
 		if( $this->user->ID > 0 ){

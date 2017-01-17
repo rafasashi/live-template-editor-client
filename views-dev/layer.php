@@ -61,8 +61,8 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 					
 	//get layer content
 	
-	$layerContent = get_the_content();
-	$layerContent = str_replace(array('&quot;','cursor: pointer;'),'',$layerContent);
+	$layerContent 	= get_the_content();
+	$layerContent 	= str_replace(array('&quot;','cursor: pointer;'),'',$layerContent);
 	
 	if($layerOutput=='canvas'){
 		
@@ -94,6 +94,9 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 		$disable_return = 'data-disable-return="true" data-disable-double-return="true" ';
 	}
 	*/
+	
+		
+	$previewMinWidth = '1400px';
 
 	echo '<!DOCTYPE>';
 	echo '<html>';
@@ -129,7 +132,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			
 		echo '</head>';
 
-		echo '<body style="padding:0;margin:0;display:flex !important;width:100%;">';
+		echo '<body style="padding:0;margin:0;display:flex !important;width:100%;min-width:'.$previewMinWidth.';">';
 			
 			//include style-sheet
 			

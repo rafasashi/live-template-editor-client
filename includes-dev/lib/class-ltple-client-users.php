@@ -509,6 +509,17 @@
 
 			$userPlanValue		= $this->ltple_get_filter_value('userPlanValue');
 			$planValueOperator	= $this->ltple_get_filter_value('planValueOperator');
+			
+			$comparition = [];
+			
+			$comparition['=']['operator']	= '!=';
+			$comparition['=']['action']		= 'exclude';
+			
+			$comparition['>']['operator']	= '>';
+			$comparition['>']['action']		= 'include';
+			
+			$comparition['<']['operator']	= '>=';
+			$comparition['<']['action']		= 'exclude';
 
 			if( !is_null($userPlanValue) && $userPlanValue > -1 ){
 
@@ -522,7 +533,7 @@
 							'key'		=> 'userPlanValue',
 							'value'		=> $userPlanValue,
 							'type'		=> 'NUMERIC',
-							'compare'	=> $planValueOperator
+							'compare'	=> $comparition[$planValueOperator]['operator']
 						)
 					)
 				));
@@ -536,7 +547,7 @@
 						$users[] = $post->post_author;
 					}
 					
-					$query->set( 'include', $users);
+					$query->set( $comparition[$planValueOperator]['action'], $users);
 				}
 				else{
 					
