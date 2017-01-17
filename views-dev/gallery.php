@@ -144,11 +144,11 @@
 							
 							$item.='<div class="panel-footer text-right">';
 
-								//$item.='<a class="btn btn-warning" href="'. $permalink .'" target="_blank" title="'. $post_title .'">Preview</a>';
+								//$item.='<a class="btn btn-sm btn-warning" href="'. $permalink .'" target="_blank" title="'. $post_title .'">Preview</a>';
 							
 								$modal_id='modal_'.md5($permalink);
 								
-								$item.='<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+								$item.='<button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 									
 									$item.='Preview'.PHP_EOL;
 								
@@ -185,11 +185,11 @@
 											
 												if($this->user->loggedin){
 
-													$item.='<a class="btn btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+													$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
 												}
 												else{
 													
-													$item.='<button type="button" class="btn btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
+													$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
 													
 														$item.='<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
 												
@@ -208,11 +208,11 @@
 									
 									if($this->user_has_layer( $post->ID ) === true){
 										
-										$item.='<a class="btn btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+										$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
 									}
 									else{
 										
-										$item.='<button type="button" class="btn btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+										$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 									
 											$item.='<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
 								
@@ -221,7 +221,7 @@
 								}
 								else{
 									
-									$item.='<button type="button" class="btn btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
+									$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
 									
 										$item.='<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
 								

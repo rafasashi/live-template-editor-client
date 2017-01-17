@@ -4,19 +4,19 @@
 		
 		<div class="pull-left">
 
-			<a class="btn btn-warning" href="<?php echo $_SERVER['SCRIPT_URI'] ?>">Gallery</a>
+			<a class="btn btn-sm btn-warning" href="<?php echo $_SERVER['SCRIPT_URI'] ?>">Gallery</a>
 		
 		</div>
 		
 		<div class="pull-left">
 
-			<a style="margin-left: 6px;" class="btn btn-primary" href="<?php echo $_SERVER['SCRIPT_URI'].'?media' ?>">Media</a>
+			<a style="margin-left: 6px;" class="btn btn-sm btn-primary" href="<?php echo $_SERVER['SCRIPT_URI'].'?media' ?>">Media</a>
 		
 		</div>
 		
 		<div class="pull-left">
 
-			<a style="margin-left: 6px;background-color:#bd3d72;border: 1px solid #9c4167;" class="btn btn-primary" href="<?php echo $_SERVER['SCRIPT_URI'].'?app' ?>">Apps</a>
+			<a style="margin-left: 6px;background-color:#bd3d72;border: 1px solid #9c4167;" class="btn btn-sm btn-primary" href="<?php echo $_SERVER['SCRIPT_URI'].'?app' ?>">Apps</a>
 		
 		</div>	
 	
@@ -43,11 +43,11 @@
 						
 						<?php if( $this->user->plan["info"]["total_price_amount"]>0 ){ ?>
 						
-						<button class="btn btn-primary" type="button" id="saveBtn">Save</button>
+						<button class="btn btn-sm btn-primary" type="button" id="saveBtn" style="height:34px;border-radius: 0 5px 5px 0;">Save</button>
 					
 						<?php }else{ ?>
 						
-						<button class="btn btn-primary" type="button" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan <?php echo PHP_EOL; ?> to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span>  Save</button>
+						<button class="btn btn-sm btn-primary" type="button" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan <?php echo PHP_EOL; ?> to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span>  Save</button>
 						
 						<?php } ?>
 					
@@ -56,8 +56,9 @@
 				</div>
 			</form>
 		
-		<?php }
-		elseif( $this->user->has_layer && $this->layer->type=='user-layer'){
+		<?php 
+		}
+		elseif( $this->user->has_layer && $this->layer->type == 'user-layer'){
 			
 			?>
 			
@@ -72,14 +73,33 @@
 				<input type="hidden" name="_wp_http_referer" value="<?php echo '/editor/?uri=user-layer/' . $this->layer->slug . '/&lk=' . md5( 'layer' . $this->layer->uri . $this->_time ) . '&_=' .  $this->_time; ?>">
 				<input type="hidden" name="submitted" id="submitted" value="true">
 				
-				<button style="background-color: #3F51B5;border: 1px solid #5869ca;" class="btn btn-primary" type="button" id="saveBtn">Save</button>
+				<button style="background-color: #3F51B5;border: 1px solid #5869ca;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>
 				
 			</form>			
 			
 			<?php
 			
-			echo '<a class="btn btn-danger" href="' . $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $this->layer->slug . '/&postAction=delete">Delete</a>';
-		} 
+			echo '<a class="btn btn-sm btn-danger" href="' . $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $this->layer->slug . '/&postAction=delete">Delete</a>';
+		}
+		
+		if( $this->layer->type != '' && $this->user->is_admin ){
+			
+			echo'<div style="margin:0 2px;" class="btn-group">';
+			
+				echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:2px;font-size:14px;height:30px;background: rgb(110, 96, 96);border: 1px solid #503f3f;color: #fff;"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>';
+									
+				echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
+					
+					echo'<li style="position:relative;">';
+						
+						echo '<a href="' . get_edit_post_link( $this->layer->id ) . '"><span class="label label-warning">admin</span> Edit Layer</a>';
+
+					echo'</li>';	
+					
+				echo'</ul>';
+				
+			echo'</div>';
+		}
 		
 		if( $this->user->ID > 0 ){
 		
@@ -97,7 +117,7 @@
 
 				echo'<div style="margin:0 2px;" class="btn-group">';
 				
-					echo'<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load <span class="caret"></span></button>';
+					echo'<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load <span class="caret"></span></button>';
 					
 					echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 						
@@ -116,13 +136,13 @@
 			}
 			elseif( $this->user->plan["info"]["total_price_amount"] ==0 ){ 
 				
-				echo '<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"></span> Load <span class="caret"></span></button>';
+				echo '<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"></span> Load <span class="caret"></span></button>';
 			}
 		}
 		
 		?>
 		
-		<a style="margin:0 2px;" class="btn btn-info" href="<?php echo wp_logout_url( $_SERVER['SCRIPT_URI'] ); ?>">Logout</a>				
+		<a style="margin:0 2px;" class="btn btn-sm btn-info" href="<?php echo wp_logout_url( $_SERVER['SCRIPT_URI'] ); ?>">Logout</a>				
 	
 	</div>
 	
@@ -149,7 +169,7 @@ if( $this->user->plan["info"]["total_price_amount"] == 0 ){
 		
 		echo'<div class="col-xs-2 text-right">';
 		
-			echo'<a class="btn btn-success btn-lg" href="' . $this->urls->plans . '"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> Upgrade now</a>';
+			echo'<a class="btn btn-sm btn-success btn-lg" href="' . $this->urls->plans . '"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> Upgrade now</a>';
 		
 		echo'</div>';
 		
