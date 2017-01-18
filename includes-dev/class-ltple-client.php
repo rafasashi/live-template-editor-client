@@ -2572,31 +2572,7 @@ class LTPLE_Client {
 													
 												$this->message .= 'Congratulations! Image succefully uploaded to your library.';
 
-											$this->message .='</div>';
-
-											//Google Code for subscription completed Conversion Page
-											
-											$this->message.='<script type="text/javascript">' . PHP_EOL;
-												$this->message.='/* <![CDATA[ */' . PHP_EOL;
-												$this->message.='var google_conversion_id = 866030496;' . PHP_EOL;
-												$this->message.='var google_conversion_language = "en";' . PHP_EOL;
-												$this->message.='var google_conversion_format = "3";' . PHP_EOL;
-												$this->message.='var google_conversion_color = "ffffff";' . PHP_EOL;
-												$this->message.='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
-												$this->message.='var google_conversion_value = '.$total_price_amount.'.00;' . PHP_EOL;
-												$this->message.='var google_conversion_currency = "USD";' . PHP_EOL;
-												$this->message.='var google_remarketing_only = false;' . PHP_EOL;
-												$this->message.='/* ]]> */' . PHP_EOL;
-											$this->message.='</script>' . PHP_EOL;
-											
-											$this->message.='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
-											$this->message.='</script>' . PHP_EOL;
-											
-											$this->message.='<noscript>' . PHP_EOL;
-												$this->message.='<div style="display:inline;">' . PHP_EOL;
-													$this->message.='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value=0.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
-												$this->message.='</div>' . PHP_EOL;
-											$this->message.='</noscript>' . PHP_EOL;											
+											$this->message .='</div>';											
 										}
 										else{
 											
@@ -2831,6 +2807,30 @@ class LTPLE_Client {
 						$this->message .= '</div>';
 						
 					$this->message .= '</div>';
+					
+					//Google Code for subscription completed Conversion Page
+					
+					$this->message.='<script type="text/javascript">' . PHP_EOL;
+						$this->message.='/* <![CDATA[ */' . PHP_EOL;
+						$this->message.='var google_conversion_id = 866030496;' . PHP_EOL;
+						$this->message.='var google_conversion_language = "en";' . PHP_EOL;
+						$this->message.='var google_conversion_format = "3";' . PHP_EOL;
+						$this->message.='var google_conversion_color = "ffffff";' . PHP_EOL;
+						$this->message.='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
+						$this->message.='var google_conversion_value = '.$this->plan->data['price'].'.00;' . PHP_EOL;
+						$this->message.='var google_conversion_currency = "USD";' . PHP_EOL;
+						$this->message.='var google_remarketing_only = false;' . PHP_EOL;
+						$this->message.='/* ]]> */' . PHP_EOL;
+					$this->message.='</script>' . PHP_EOL;
+					
+					$this->message.='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
+					$this->message.='</script>' . PHP_EOL;
+					
+					$this->message.='<noscript>' . PHP_EOL;
+						$this->message.='<div style="display:inline;">' . PHP_EOL;
+							$this->message.='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->plan->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
+						$this->message.='</div>' . PHP_EOL;
+					$this->message.='</noscript>' . PHP_EOL;
 					
 					include( $this->views . $this->_dev .'/message.php' );
 				}

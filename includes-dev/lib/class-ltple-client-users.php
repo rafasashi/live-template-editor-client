@@ -217,6 +217,7 @@
 			$column["subscription"]	= 'Subscription';
 			$column["plan"]			= 'Plan';
 			$column["channel"]		= 'Channel';
+			$column["stars"]		= 'Stars';
 			$column["spam"]			= 'Spam';
 			$column["sent"]			= 'Last emails sent';
 			
@@ -231,6 +232,7 @@
 				echo '.column-subscription 	{width: 9%}';
 				echo '.column-plan 			{width: 10%}';
 				echo '.column-channel 		{width: 8%}';
+				echo '.column-stars 			{width: 5%}';
 				echo '.column-spam 			{width: 5%}';
 				
 		    echo '</style>';
@@ -244,6 +246,7 @@
 				$this->users->{$user_id}->role 		= get_userdata($user_id);
 				$this->users->{$user_id}->plan 		= $this->parent->get_user_plan_info( $user_id, true );
 				$this->users->{$user_id}->last_seen = get_user_meta($user_id, $this->parent->_base . '_last_seen',true);
+				$this->users->{$user_id}->stars 	= get_user_meta($user_id, $this->parent->_base . '_stars',true);
 				$this->users->{$user_id}->can_spam 	= get_user_meta($user_id, $this->parent->_base . '_can_spam',true);
 				$this->users->{$user_id}->sent 		= get_user_meta($user_id, $this->parent->_base . '_email_sent',true);
 				
@@ -255,6 +258,7 @@
 			$user_role = $this->users->{$user_id}->role;
 			$user_plan = $this->users->{$user_id}->plan;
 			$user_seen = $this->users->{$user_id}->last_seen;
+			$user_stars= $this->users->{$user_id}->stars;
 			$can_spam  = $this->users->{$user_id}->can_spam;
 			$last_sent = $this->users->{$user_id}->sent;
 			$channel   = $this->users->{$user_id}->channel;
@@ -324,6 +328,17 @@
 					$row .= $channel;
 				
 				$row .= '</span>';
+			}
+			elseif ($column_name == "stars") {
+				
+				if(!is_numeric($user_stars)){
+					
+					$row .= 0;
+				}
+				else{
+					
+					$row .= $user_stars;
+				}
 			}
 			elseif ($column_name == "spam") {
 				
