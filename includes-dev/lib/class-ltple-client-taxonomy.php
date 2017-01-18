@@ -3,7 +3,9 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 class LTPLE_Client_Taxonomy {
-
+	
+	public $parent;
+	
 	/**
 	 * The name for the taxonomy.
 	 * @var 	string
@@ -44,8 +46,10 @@ class LTPLE_Client_Taxonomy {
 	 */
 	public $taxonomy_args;
 
-	public function __construct ( $taxonomy = '', $plural = '', $single = '', $post_types = array(), $tax_args = array() ) {
-
+	public function __construct ( $parent, $taxonomy = '', $plural = '', $single = '', $post_types = array(), $tax_args = array() ) {
+		
+		$this->parent = $parent;
+		
 		if ( ! $taxonomy || ! $plural || ! $single ) return;
 
 		// Post type name and labels
@@ -307,12 +311,40 @@ class LTPLE_Client_Taxonomy {
 						
 			echo'</td>';
 			
-		echo'</tr>';		
+		echo'</tr>';	
+
+		if($this->parent->user->is_admin){
+			
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Parameters (admin)</label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$field = array(
+						'type'				=> 'key_value',
+						'id'				=> 'parameters_'.$term->slug,
+						'name'				=> $term->taxonomy . '-parameters',
+						'array' 			=> [],
+						'description'		=> ''
+					);
+					
+					$this->parent->admin->display_field( $field, false );
+					
+				echo'</td>';
+				
+			echo'</tr>';
+		}		
 	}
 	
 	public function save_app_taxonomy_fields($term_id){
 
 		//collect all term related data for this new taxonomy
+		
 		$term = get_term($term_id);
 
 		//save our custom fields as wp-options
@@ -325,6 +357,14 @@ class LTPLE_Client_Taxonomy {
 		if(isset($_POST[$term->taxonomy . '-types'])){
 
 			update_option('types_'.$term->slug, $_POST[$term->taxonomy . '-types']);			
+		}
+		
+		if($this->parent->user->is_admin){
+		
+			if(isset($_POST[$term->taxonomy . '-parameters'])){
+
+				update_option('parameters_'.$term->slug, $_POST[$term->taxonomy . '-parameters']);			
+			}
 		}
 	}
 	

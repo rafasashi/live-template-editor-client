@@ -5,9 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_App_Imgur {
 	
 	var $parent;
-	var $consumer_key;
-	var $consumer_secret;
-	var $oauth_callback;
 	
 	/**
 	 * Constructor function
@@ -20,27 +17,40 @@ class LTPLE_Client_App_Imgur {
 
 		$this->term = get_term_by('slug',$app_slug,'app-type');
 		
-		// get app credentials
+		// get app parameters
+		
+		$parameters = get_option('parameters_'.$app_slug);
+		
+		if( isset($parameters['key']) ){
+			
+			$imgur_consumer_key 		= array_search('imgur_consumer_key', $parameters['key']);
+			$imgur_consumer_secret 		= array_search('imgur_consumer_secret', $parameters['key']);
+			$imgur_oauth_callback 		= $this->parent->urls->editor;
 
-		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'imgur_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'imgur_consumer_secret' ));
-		
-		// get current action
-		
-		if(!empty($_REQUEST['action'])){
+			if( !empty($parameters['value'][$imgur_consumer_key]) && !empty($parameters['value'][$imgur_consumer_secret]) ){
 			
-			$this->action = $_REQUEST['action'];
-		}
-		elseif(!empty($_SESSION['action'])){
-			
-			$this->action = $_SESSION['action'];
-		}
-		
-		$methodName = 'app'.ucfirst($this->action);
+				define('CONSUMER_KEY', 		$parameters['value'][$imgur_consumer_key]);
+				define('CONSUMER_SECRET', 	$parameters['value'][$imgur_consumer_secret]);
+				//define('OAUTH_CALLBACK', 	$imgur_oauth_callback);
+				
+				// get current action
+				
+				if(!empty($_REQUEST['action'])){
+					
+					$this->action = $_REQUEST['action'];
+				}
+				elseif(!empty($_SESSION['action'])){
+					
+					$this->action = $_SESSION['action'];
+				}
+				
+				$methodName = 'app'.ucfirst($this->action);
 
-		if(method_exists($this,$methodName)){
-			
-			$this->$methodName();
+				if(method_exists($this,$methodName)){
+					
+					$this->$methodName();
+				}
+			}
 		}
 	}
 

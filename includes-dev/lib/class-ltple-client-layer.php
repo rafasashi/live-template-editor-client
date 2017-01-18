@@ -74,11 +74,6 @@ class LTPLE_Client_Layer {
 					exit;
 				}
 			}
-			else{
-				
-				echo 'Wrong uri...';
-				exit;
-			}
 		}
 	}
 }

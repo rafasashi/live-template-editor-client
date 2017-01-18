@@ -320,7 +320,7 @@ class LTPLE_Client_Settings {
 					'id' 			=> 'client_key',
 					'label'			=> __( 'Client key' , $this->plugin->slug ),
 					'description'	=> '',
-					'type'			=> 'text',
+					'type'			=> 'password',
 					'default'		=> '',
 					'placeholder'	=> __( '', $this->plugin->slug )
 				),
@@ -461,35 +461,6 @@ class LTPLE_Client_Settings {
 					'placeholder'	=> __( 'plans', $this->plugin->slug )
 				)
 			)
-		);	
-		
-		$settings['wpcom'] = array(
-			'title'					=> __( 'WPCOM', $this->plugin->slug ),
-			'description'			=> __( 'Wordpress.com API settings', $this->plugin->slug ),
-			'fields'				=> array(
-
-				array(
-					'id' 			=> 'wpcom_consumer_key',
-					'label'			=> __( 'Wordpress Consumer ID' , $this->plugin->slug ),
-					'description'	=> 'Wordpress Consumer ID',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'Client ID...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'wpcom_consumer_secret',
-					'label'			=> __( 'Wordpress Consumer Secret' , $this->plugin->slug ),
-					'description'	=> 'Wordpress Consumer Secret',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'Client Secret...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'wpcom_oauth_callback',
-					'label'			=> __( 'Wordpress Oauth Callback' , $this->plugin->slug ),
-					'description'	=> 'Wordpress callback url',
-					'type'			=> 'text',
-					'placeholder'	=> __( 'http://', $this->plugin->slug )
-				)
-			)
 		);		
 		
 		$settings['twitter'] = array(
@@ -497,27 +468,6 @@ class LTPLE_Client_Settings {
 			'description'			=> __( 'Twitter API settings', $this->plugin->slug ),
 			'fields'				=> array(
 
-				array(
-					'id' 			=> 'twt_consumer_key',
-					'label'			=> __( 'Twitter Consumer Key' , $this->plugin->slug ),
-					'description'	=> 'Twitter Consumer Key',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'API Key...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'twt_consumer_secret',
-					'label'			=> __( 'Twitter Consumer Secret' , $this->plugin->slug ),
-					'description'	=> 'Twitter Consumer Secret',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'API Secret...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'twt_oauth_callback',
-					'label'			=> __( 'Twitter Oauth Callback' , $this->plugin->slug ),
-					'description'	=> 'Twitter callback url',
-					'type'			=> 'text',
-					'placeholder'	=> __( 'http://', $this->plugin->slug )
-				),
 				array(
 					'id' 			=> 'twt_main_account',
 					'label'			=> __( 'Twitter Main Account' , $this->plugin->slug ),
@@ -539,101 +489,6 @@ class LTPLE_Client_Settings {
 					'type'			=> 'textarea',
 					'placeholder'	=> __( 'Welcome DM', $this->plugin->slug )
 				)				
-			)
-		);
-		
-		
-		$settings['google'] = array(
-			'title'					=> __( 'Google', $this->plugin->slug ),
-			'description'			=> __( 'Google API settings', $this->plugin->slug ),
-			'fields'				=> array(
-
-				array(
-					'id' 			=> 'goo_api_project',
-					'label'			=> __( 'Google API Project' , $this->plugin->slug ),
-					'description'	=> 'Google API Project',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'api-project-456...', $this->plugin->slug )
-				),			
-				array(
-					'id' 			=> 'goo_consumer_key',
-					'label'			=> __( 'Google Consumer Key' , $this->plugin->slug ),
-					'description'	=> 'Google Consumer Key',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'API Key...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'goo_consumer_secret',
-					'label'			=> __( 'Google Consumer Secret' , $this->plugin->slug ),
-					'description'	=> 'Google Consumer Secret',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'API Secret...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'goo_oauth_callback',
-					'label'			=> __( 'Google Oauth Callback' , $this->plugin->slug ),
-					'description'	=> 'Google callback url',
-					'type'			=> 'text',
-					'placeholder'	=> __( 'http://', $this->plugin->slug )
-				)
-			)
-		);		
-		
-		$settings['tumblr'] = array(
-			'title'					=> __( 'Thumblr', $this->plugin->slug ),
-			'description'			=> __( 'Thumblr API settings', $this->plugin->slug ),
-			'fields'				=> array(
-
-				array(
-					'id' 			=> 'tblr_consumer_key',
-					'label'			=> __( 'Thumblr Consumer Key' , $this->plugin->slug ),
-					'description'	=> 'Thumblr Consumer Key',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'API Key...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'tblr_consumer_secret',
-					'label'			=> __( 'Thumblr Consumer Secret' , $this->plugin->slug ),
-					'description'	=> 'Thumblr Consumer Secret',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'API Secret...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'tblr_oauth_callback',
-					'label'			=> __( 'Thumblr Oauth Callback' , $this->plugin->slug ),
-					'description'	=> 'Thumblr callback url',
-					'type'			=> 'text',
-					'placeholder'	=> __( 'http://', $this->plugin->slug )
-				)
-			)
-		);
-		
-		$settings['other-apis'] = array(
-			'title'					=> __( 'Other APIs', $this->plugin->slug ),
-			'description'			=> __( 'Settings for other APIs', $this->plugin->slug ),
-			'fields'				=> array(
-
-				array(
-					'id' 			=> 'imgur_consumer_key',
-					'label'			=> __( 'Imgur Consumer Key' , $this->plugin->slug ),
-					'description'	=> 'Imgur Consumer Key',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'API Key...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'imgur_consumer_secret',
-					'label'			=> __( 'Imgur Consumer Secret' , $this->plugin->slug ),
-					'description'	=> 'Imgur Consumer Secret',
-					'type'			=> 'password',
-					'placeholder'	=> __( 'API Secret...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'imgur_oauth_callback',
-					'label'			=> __( 'Imgur Oauth Callback' , $this->plugin->slug ),
-					'description'	=> 'Imgur callback url',
-					'type'			=> 'text',
-					'placeholder'	=> __( 'http://', $this->plugin->slug )
-				)
 			)
 		);
 

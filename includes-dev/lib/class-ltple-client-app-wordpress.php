@@ -5,9 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_App_Wordpress {
 	
 	var $parent;
-	var $consumer_key;
-	var $consumer_secret;
-	var $oauth_callback;
 	
 	/**
 	 * Constructor function
@@ -20,34 +17,46 @@ class LTPLE_Client_App_Wordpress {
 
 		$this->term = get_term_by('slug',$app_slug,'app-type');
 		
-		// get app credentials
-
-		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'wpcom_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'wpcom_consumer_secret' ));
-		define('OAUTH_CALLBACK', 	get_option( $this->parent->_base . 'wpcom_oauth_callback' ));
-
-		include( $this->parent->vendor . '/wp-rest-php-lib/src/wpcom.php' );
+		// get app parameters
 		
-		//Set client
-		$this->client = new WPCOM_REST_Client;
-		$this->client->set_auth_key( CONSUMER_KEY, CONSUMER_SECRET );
-
-		// get current action
+		$parameters = get_option('parameters_'.$app_slug);
 		
-		if(!empty($_REQUEST['action'])){
+		if( isset($parameters['key']) ){
 			
-			$this->action = $_REQUEST['action'];
-		}
-		elseif(!empty($_SESSION['action'])){
-			
-			$this->action = $_SESSION['action'];
-		}
-		
-		$methodName = 'app'.ucfirst($this->action);
+			$wpcom_consumer_key 	= array_search('wpcom_consumer_key', $parameters['key']);
+			$wpcom_consumer_secret 	= array_search('wpcom_consumer_secret', $parameters['key']);
+			$wpcom_oauth_callback 	= $this->parent->urls->editor;
 
-		if(method_exists($this,$methodName)){
+			if( !empty($parameters['value'][$wpcom_consumer_key]) && !empty($parameters['value'][$wpcom_consumer_secret]) ){
 			
-			$this->$methodName();
+				define('CONSUMER_KEY', 		$parameters['value'][$wpcom_consumer_key]);
+				define('CONSUMER_SECRET', 	$parameters['value'][$wpcom_consumer_secret]);
+				define('OAUTH_CALLBACK', 	$wpcom_oauth_callback);
+				
+				include( $this->parent->vendor . '/wp-rest-php-lib/src/wpcom.php' );
+				
+				//Set client
+				$this->client = new WPCOM_REST_Client;
+				$this->client->set_auth_key( CONSUMER_KEY, CONSUMER_SECRET );
+
+				// get current action
+				
+				if(!empty($_REQUEST['action'])){
+					
+					$this->action = $_REQUEST['action'];
+				}
+				elseif(!empty($_SESSION['action'])){
+					
+					$this->action = $_SESSION['action'];
+				}
+				
+				$methodName = 'app'.ucfirst($this->action);
+
+				if(method_exists($this,$methodName)){
+					
+					$this->$methodName();
+				}
+			}
 		}
 	}
 

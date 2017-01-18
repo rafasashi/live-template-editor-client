@@ -50,7 +50,8 @@ class LTPLE_Client_Admin_API {
 				$data = $option;
 			}
 
-		} else {
+		} 
+		else{
 
 			// Get saved option
 			$option_name .= $field['id'];
@@ -60,7 +61,6 @@ class LTPLE_Client_Admin_API {
 			if ( isset( $option ) ) {
 				$data = $option;
 			}
-
 		}
 
 		// Show default data if no option saved and default is supplied
@@ -360,6 +360,82 @@ class LTPLE_Client_Admin_API {
 									$html .= '<a class="remove-input-group" href="#">[ x ]</a> ';
 								}
 								
+
+							$html .= '</div>';						
+						}
+						
+					$html .= '</div>';
+					
+				$html .= '</div>';
+
+			break;
+			
+			case 'key_value':
+
+				if( !isset($data['key']) || !isset($data['value']) ){
+
+					$data = ['key' => [ 0 => '' ], 'value' => [ 0 => '' ]];
+				}
+
+				$inputs = ['string','text','number','password'];
+				
+				$html .= '<div id="'.$field['id'].'">';
+					
+					$html .= ' <a href="#" class="add-input-group" style="line-height:40px;">Add field</a>';
+				
+					$html .= '<div class="input-group">';
+						
+						foreach( $data['key'] as $e => $key) {
+									
+							$html .= '<div class="input-group-row" style="display:inline-block;width:100%;">';
+						
+								$html .= '<select name="'.$field['name'].'[input][]" style="float:left;">';
+
+								foreach ( $inputs as $input ) {
+									
+									$selected = false;
+									if ( isset($data['input'][$e]) && $data['input'][$e] == $input ) {
+										
+										$selected = true;
+									}
+									
+									$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $input ) . '">' . $input . '</option>';
+								}
+								
+								$html .= '</select> ';
+						
+								$html .= '<input type="text" placeholder="key" name="'.$field['name'].'[key][]" style="width:30%;float:left;" value="'.$data['key'][$e].'">';
+								
+								$html .= '<span style="float:left;"> => </span>';
+								
+								if(isset($data['input'][$e])){
+									
+									if($data['input'][$e] == 'number'){
+										
+										$html .= '<input type="number" placeholder="number" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$data['value'][$e].'">';
+									}
+									elseif($data['input'][$e] == 'password'){
+										
+										$html .= '<input type="password" placeholder="password" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$data['value'][$e].'">';
+									}
+									elseif($data['input'][$e] == 'text'){
+										
+										$html .= '<textarea placeholder="text" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:200px;">' . $data['value'][$e] . '</textarea>';
+									}										
+									else{
+										
+										$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$data['value'][$e].'">';
+									}
+								}
+								else{
+									
+									$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$data['value'][$e].'">';
+								}
+
+								if( $e > 0 ){
+									
+									$html .= '<a class="remove-input-group" href="#">[ x ]</a> ';
+								}
 
 							$html .= '</div>';						
 						}

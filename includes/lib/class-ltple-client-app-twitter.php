@@ -7,9 +7,6 @@ use Abraham\TwitterOAuth\TwitterOAuth;
 class LTPLE_Client_App_Twitter {
 	
 	var $parent;
-	var $consumer_key;
-	var $consumer_secret;
-	var $oauth_callback;
 	
 	/**
 	 * Constructor function
@@ -22,28 +19,40 @@ class LTPLE_Client_App_Twitter {
 
 		$this->term = get_term_by('slug',$app_slug,'app-type');
 		
-		// get app credentials
-
-		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'twt_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'twt_consumer_secret' ));
-		define('OAUTH_CALLBACK', 	get_option( $this->parent->_base . 'twt_oauth_callback' ));
-
-		// get current action
+		// get app parameters
 		
-		if(!empty($_REQUEST['action'])){
-			
-			$this->action = $_REQUEST['action'];
-		}
-		elseif(!empty($_SESSION['action'])){
-			
-			$this->action = $_SESSION['action'];
-		}
+		$parameters = get_option('parameters_'.$app_slug);
 		
-		$methodName = 'app'.ucfirst($this->action);
-
-		if(method_exists($this,$methodName)){
+		if( isset($parameters['key']) ){
 			
-			$this->$methodName();
+			$twt_consumer_key 		= array_search('twt_consumer_key', $parameters['key']);
+			$twt_consumer_secret 	= array_search('twt_consumer_secret', $parameters['key']);
+			$twt_oauth_callback 	= $this->parent->urls->editor;
+
+			if( !empty($parameters['value'][$twt_consumer_key]) && !empty($parameters['value'][$twt_consumer_secret]) ){
+			
+				define('CONSUMER_KEY', 		$parameters['value'][$twt_consumer_key]);
+				define('CONSUMER_SECRET', 	$parameters['value'][$twt_consumer_secret]);
+				define('OAUTH_CALLBACK', 	$twt_oauth_callback);
+
+				// get current action
+				
+				if(!empty($_REQUEST['action'])){
+					
+					$this->action = $_REQUEST['action'];
+				}
+				elseif(!empty($_SESSION['action'])){
+					
+					$this->action = $_SESSION['action'];
+				}
+				
+				$methodName = 'app'.ucfirst($this->action);
+
+				if(method_exists($this,$methodName)){
+					
+					$this->$methodName();
+				}
+			}
 		}
 	}
 	

@@ -17,27 +17,40 @@ class LTPLE_Client_App_Tumblr {
 
 		$this->term = get_term_by('slug',$app_slug,'app-type');
 		
-		// get app credentials
-
-		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'tblr_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'tblr_consumer_secret' ));
-
-		// get current action
+		// get app parameters
 		
-		if(!empty($_REQUEST['action'])){
-			
-			$this->action = $_REQUEST['action'];
-		}
-		elseif(!empty($_SESSION['action'])){
-			
-			$this->action = $_SESSION['action'];
-		}
+		$parameters = get_option('parameters_'.$app_slug);
 		
-		$methodName = 'app'.ucfirst($this->action);
-
-		if(method_exists($this,$methodName)){
+		if( isset($parameters['key']) ){
 			
-			$this->$methodName();
+			$tblr_consumer_key 		= array_search('tblr_consumer_key', $parameters['key']);
+			$tblr_consumer_secret 	= array_search('tblr_consumer_secret', $parameters['key']);
+			$tblr_oauth_callback 	= $this->parent->urls->editor;
+
+			if( !empty($parameters['value'][$tblr_consumer_key]) && !empty($parameters['value'][$tblr_consumer_secret]) ){
+			
+				define('CONSUMER_KEY', 		$parameters['value'][$tblr_consumer_key]);
+				define('CONSUMER_SECRET', 	$parameters['value'][$tblr_consumer_secret]);
+				//define('OAUTH_CALLBACK', 	$tblr_oauth_callback);
+
+				// get current action
+				
+				if(!empty($_REQUEST['action'])){
+					
+					$this->action = $_REQUEST['action'];
+				}
+				elseif(!empty($_SESSION['action'])){
+					
+					$this->action = $_SESSION['action'];
+				}
+				
+				$methodName = 'app'.ucfirst($this->action);
+
+				if(method_exists($this,$methodName)){
+					
+					$this->$methodName();
+				}
+			}
 		}
 	}
 

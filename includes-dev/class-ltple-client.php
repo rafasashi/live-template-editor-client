@@ -427,6 +427,10 @@ class LTPLE_Client {
 		//get current user
 		
 		$this->user = wp_get_current_user();
+		
+		// get is admin
+		
+		$this->user->is_admin = current_user_can( 'administrator', $this->user->ID );
 
 		// get user rights
 		
@@ -443,7 +447,7 @@ class LTPLE_Client {
 		else{
 			
 			$this->editedUser = $this->user;
-		}	
+		}
 	}
 	
 	public function remove_custom_post_quick_edition( $actions, $post ){
@@ -2972,7 +2976,7 @@ class LTPLE_Client {
 
 		if ( ! $taxonomy || ! $plural || ! $single ) return;
 
-		$taxonomy = new LTPLE_Client_Taxonomy( $taxonomy, $plural, $single, $post_types, $taxonomy_args );
+		$taxonomy = new LTPLE_Client_Taxonomy( $this, $taxonomy, $plural, $single, $post_types, $taxonomy_args );
 
 		return $taxonomy;
 	}

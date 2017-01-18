@@ -5,9 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_App_Google_Plus {
 	
 	var $parent;
-	var $consumer_key;
-	var $consumer_secret;
-	var $oauth_callback;
 	
 	/**
 	 * Constructor function
@@ -19,52 +16,65 @@ class LTPLE_Client_App_Google_Plus {
 		// get app term
 
 		$this->term = get_term_by('slug',$app_slug,'app-type');
-		
-		// get app credentials
 
-		define('API_PROJECT', 		get_option( $this->parent->_base . 'goo_api_project' ));
-		define('CONSUMER_KEY', 		get_option( $this->parent->_base . 'goo_consumer_key' ));
-		define('CONSUMER_SECRET', 	get_option( $this->parent->_base . 'goo_consumer_secret' ));
-		define('OAUTH_CALLBACK', 	get_option( $this->parent->_base . 'goo_oauth_callback' ));
+		// get app parameters
 		
-		$callback=parse_url(OAUTH_CALLBACK);
-		define('JS_ORIGINS', $callback['scheme'].'://'.$callback['host']);
+		$parameters = get_option('parameters_'.$app_slug);
 		
-		$this->oauthConfig = json_decode('{"web":{"client_id":"'.CONSUMER_KEY.'","project_id":"'.API_PROJECT.'","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://accounts.google.com/o/oauth2/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"'.CONSUMER_SECRET.'","redirect_uris":["'.OAUTH_CALLBACK.'"],"javascript_origins":["'.JS_ORIGINS.'"]}}', true);
-		
-		//set client
-		$this->client = new Google_Client();
-		
-		//Set the path to these credentials
-		$this->client->setAuthConfig($this->oauthConfig);
-		
-		//Set the scopes required for the API you are going to call
-		$this->client->addScope('https://www.googleapis.com/auth/plus.login');
-		$this->client->addScope('https://www.googleapis.com/auth/plus.profile.emails.read');
-		$this->client->addScope('https://www.googleapis.com/auth/plus.me');
-		
-		// set Approval Prompt
-		$this->client->setApprovalPrompt('auto');
-		
-		// generates refresh token
-		$this->client->setAccessType('offline');       
-		
-		// get current action
-		
-		if(!empty($_REQUEST['action'])){
+		if( isset($parameters['key']) ){
 			
-			$this->action = $_REQUEST['action'];
-		}
-		elseif(!empty($_SESSION['action'])){
-			
-			$this->action = $_SESSION['action'];
-		}
-		
-		$methodName = 'app'.ucfirst($this->action);
+			$goo_api_project 		= array_search('goo_api_project', $parameters['key']);
+			$goo_consumer_key 		= array_search('goo_consumer_key', $parameters['key']);
+			$goo_consumer_secret 	= array_search('goo_consumer_secret', $parameters['key']);
+			$goo_oauth_callback 	= $this->parent->urls->editor;
 
-		if(method_exists($this,$methodName)){
+			if( !empty($parameters['value'][$goo_api_project]) && !empty($parameters['value'][$goo_consumer_key]) && !empty($parameters['value'][$goo_consumer_secret]) ){
 			
-			$this->$methodName();
+				define('API_PROJECT', 		$parameters['value'][$goo_api_project]);
+				define('CONSUMER_KEY', 		$parameters['value'][$goo_consumer_key]);
+				define('CONSUMER_SECRET', 	$parameters['value'][$goo_consumer_secret]);
+				define('OAUTH_CALLBACK', 	$goo_oauth_callback);
+				
+				$callback=parse_url(OAUTH_CALLBACK);
+				define('JS_ORIGINS', $callback['scheme'].'://'.$callback['host']);
+				
+				$this->oauthConfig = json_decode('{"web":{"client_id":"'.CONSUMER_KEY.'","project_id":"'.API_PROJECT.'","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://accounts.google.com/o/oauth2/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"'.CONSUMER_SECRET.'","redirect_uris":["'.OAUTH_CALLBACK.'"],"javascript_origins":["'.JS_ORIGINS.'"]}}', true);
+				
+				//set client
+				$this->client = new Google_Client();
+				
+				//Set the path to these credentials
+				$this->client->setAuthConfig($this->oauthConfig);
+				
+				//Set the scopes required for the API you are going to call
+				$this->client->addScope('https://www.googleapis.com/auth/plus.login');
+				$this->client->addScope('https://www.googleapis.com/auth/plus.profile.emails.read');
+				$this->client->addScope('https://www.googleapis.com/auth/plus.me');
+				
+				// set Approval Prompt
+				$this->client->setApprovalPrompt('auto');
+				
+				// generates refresh token
+				$this->client->setAccessType('offline');       
+				
+				// get current action
+				
+				if(!empty($_REQUEST['action'])){
+					
+					$this->action = $_REQUEST['action'];
+				}
+				elseif(!empty($_SESSION['action'])){
+					
+					$this->action = $_SESSION['action'];
+				}
+				
+				$methodName = 'app'.ucfirst($this->action);
+
+				if(method_exists($this,$methodName)){
+					
+					$this->$methodName();
+				}
+			}
 		}
 	}
 
