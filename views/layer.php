@@ -84,17 +84,6 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);				
 		}
 	}
-
-	//get line break setting
-
-	$disable_return = '';
-	/*
-	if( !is_array($layerOptions) || !in_array('line-break',$layerOptions)){
-		
-		$disable_return = 'data-disable-return="true" data-disable-double-return="true" ';
-	}
-	*/
-	
 		
 	$previewMinWidth = '1400px';
 
@@ -147,7 +136,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			
 			//include layer
 			
-			echo '<layer '.$disable_return.'class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
+			echo '<layer class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
 				
 				echo $layerContent;
 
@@ -227,6 +216,19 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 					
 					echo ' var pageDef = {};' .PHP_EOL;
 				}
+				
+				//include  line break setting
+
+				if( !is_array($layerOptions) || !in_array('line-break',$layerOptions)){
+					
+					echo ' var disableReturn = true;' .PHP_EOL;
+				}
+				else{
+					
+					echo ' var disableReturn = false;' .PHP_EOL;
+				}
+				
+				//include icon settings
 				
 				$enableIcons = 'false';
 				
