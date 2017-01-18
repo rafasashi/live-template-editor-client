@@ -1,3 +1,11 @@
+<?php 
+
+	if(!empty($this->message)){ 
+	
+		echo $this->message;
+	}
+?>
+
 <div id="layer_gallery" style="margin-top:20px;">
 
 	<div class="col-xs-3 col-sm-2">

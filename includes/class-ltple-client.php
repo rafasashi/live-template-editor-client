@@ -326,7 +326,7 @@ class LTPLE_Client {
 
 		$encrypt_method = "AES-256-CBC";
 		
-		$secret_key = md5( $this->secret_key );
+		$secret_key = md5( $this->client->key );
 		
 		$secret_iv = $this->ltple_get_secret_iv();
 
@@ -418,7 +418,25 @@ class LTPLE_Client {
 			}
 			
 			unset($q);
-		}  
+		}
+		
+		// newsletter unsubscription
+		
+		if(!empty($_GET['unsubscribe'])){
+		
+			$unsubscriber_id = $this->ltple_decrypt_uri(sanitize_text_field($_GET['unsubscribe']));
+			
+			if(is_numeric($unsubscriber_id)){
+				
+				update_user_meta(intval($unsubscriber_id), $this->_base . '_can_spam', 'false');
+
+				$this->message ='<div class="alert alert-success">';
+
+					$this->message .= '<b>Congratulations</b>! You successfully unsbuscribed from the newsletter';
+
+				$this->message .='</div>';
+			}
+		}
 	}
 	
 	
@@ -2882,6 +2900,7 @@ class LTPLE_Client {
 				if( !isset($emails_sent[$email_slug]) ){
 					
 					$sender_email 	= 'please-reply@'.$domain;
+					
 					$message 		= $model->post_content;
 					$message	 	= $this->ltple_do_email_shortcodes($message, $user);
 					
@@ -2890,9 +2909,11 @@ class LTPLE_Client {
 					$headers[] = 'MIME-Version: 1.0';
 					$headers[] = 'Content-type: text/html';
 					
-					$preMesaage = "<html><body><div style='width:700px;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div></div></body></html>";
+					$unsubscribeMessage = '<div style="text-align:center;"><a style="font-size: 11px;" href="' . $this->urls->editor . '?unsubscribe=' . $this->ltple_encrypt_uri($user->ID) . '">Unsubscribe from this Newsletter</a></div>';
 					
-					if(!wp_mail($user->user_email, $Email_title, $preMesaage, $headers)){
+					$preMessage = "<html><body><div style='width:700px;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$unsubscribeMessage."<div style='clear:both'></div></div></body></html>";
+					
+					if(!wp_mail($user->user_email, $Email_title, $preMessage, $headers)){
 						
 						global $phpmailer;
 						

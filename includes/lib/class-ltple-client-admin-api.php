@@ -351,7 +351,7 @@ class LTPLE_Client_Admin_API {
 
 								$html .= ' + ';
 								
-								$html .= '<input type="number" step="1" min="0" max="10" placeholder="0" name="email_series[days][]" id="plan_email_days" style="width: 50px;" value="'.$email_series['days'][$e].'">';
+								$html .= '<input type="number" step="1" min="0" max="1000" placeholder="0" name="email_series[days][]" id="plan_email_days" style="width: 50px;" value="'.$email_series['days'][$e].'">';
 								
 								$html .= ' day(s) after triggered ';
 								

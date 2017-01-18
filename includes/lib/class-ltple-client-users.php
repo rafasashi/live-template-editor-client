@@ -5,23 +5,20 @@
 	class LTPLE_Client_Users {
 		
 		public $parent;
-		public $base 	= '';
-		public $view 	= '';
+		public $view;
 		public $users;
 
 		public function __construct ( $parent ) {
 			
 			$this->parent = $parent;
 			
-			$this->base = 'ltple_';
-			
 			$this->users = new stdClass();
 			
 			global $pagenow;
 			
-			if( is_admin() && 'users.php' == $pagenow && isset($_REQUEST[$this->base .'view']) ){
+			if( is_admin() && 'users.php' == $pagenow && isset($_REQUEST[$this->parent->_base .'view']) ){
 				
-				$this->view = $_REQUEST[$this->base .'view'];
+				$this->view = $_REQUEST[$this->parent->_base .'view'];
 				
 				add_filter('admin_footer-users.php', array($this, 'ltple_add_users_table_view'));
 				
@@ -195,12 +192,12 @@
 					  
 					jQuery('.subsubsub a').each(function() {
 						
-						this.href += (/\?/.test(this.href) ? '&' : '?') + '<?php echo $this->base . 'view'; ?>=<?php echo $this->view; ?>';
+						this.href += (/\?/.test(this.href) ? '&' : '?') + '<?php echo $this->parent->_base . 'view'; ?>=<?php echo $this->view; ?>';
 					});
 					
 					// add hidden input to form
 					  
-					jQuery('<input>').attr({type: 'hidden',name: '<?php echo $this->base . 'view'; ?>',value: '<?php echo $this->view; ?>'}).appendTo('form');
+					jQuery('<input>').attr({type: 'hidden',name: '<?php echo $this->parent->_base . 'view'; ?>',value: '<?php echo $this->view; ?>'}).appendTo('form');
 				});
 			
 			</script>
@@ -246,9 +243,9 @@
 				$this->users->{$user_id} = new stdClass();
 				$this->users->{$user_id}->role 		= get_userdata($user_id);
 				$this->users->{$user_id}->plan 		= $this->parent->get_user_plan_info( $user_id, true );
-				$this->users->{$user_id}->last_seen = get_user_meta($user_id, $this->base . '_last_seen',true);
-				$this->users->{$user_id}->can_spam 	= get_user_meta($user_id, $this->base . '_can_spam',true);
-				$this->users->{$user_id}->sent 		= get_user_meta($user_id, $this->base . '_email_sent',true);
+				$this->users->{$user_id}->last_seen = get_user_meta($user_id, $this->parent->_base . '_last_seen',true);
+				$this->users->{$user_id}->can_spam 	= get_user_meta($user_id, $this->parent->_base . '_can_spam',true);
+				$this->users->{$user_id}->sent 		= get_user_meta($user_id, $this->parent->_base . '_email_sent',true);
 				
 				// user marketing channel
 				$terms = wp_get_object_terms( $user_id, 'marketing-channel' );
@@ -378,7 +375,7 @@
 				
 				if($_REQUEST["ltple_can_spam"] === 'true' || $_REQUEST["ltple_can_spam"] === 'false'){
 					
-					update_user_meta($_REQUEST["user_id"], $this->base . '_can_spam', $_REQUEST["ltple_can_spam"]);
+					update_user_meta($_REQUEST["user_id"], $this->parent->_base . '_can_spam', $_REQUEST["ltple_can_spam"]);
 				}
 			}
 		}
