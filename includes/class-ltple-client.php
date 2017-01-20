@@ -127,8 +127,9 @@ class LTPLE_Client {
 		$this->request 		= new LTPLE_Client_Request();
 		$this->urls 		= new LTPLE_Client_Urls( $this );
 		$this->client 		= new LTPLE_Client_Client( $this );
+		$this->stars 		= new LTPLE_Client_Stars( $this );
 		$this->login 		= new LTPLE_Client_Login( $this );
-		
+
 		if( is_admin() ) {
 			
 			// Load admin JS & CSS
@@ -394,6 +395,10 @@ class LTPLE_Client {
 		
 		$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
 		
+		// get user stars
+		
+		$this->user->stars = $this->stars->get_count($this->user->ID);
+		
 		// get user rights
 		
 		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
@@ -401,15 +406,29 @@ class LTPLE_Client {
 		//get user layer
 		
 		if( $this->layer->type == 'user-layer' ){
-						 
-			$q = get_posts(array(
 			
-				'name'        => $this->layer->slug,
-				'author'      => $this->user->ID,
-				'post_type'   => 'user-layer',
-				'post_status' => 'publish',
-				'numberposts' => 1
-			));
+			if( $this->user->is_admin ){
+			
+				$q = get_posts(array(
+				
+					'name'        => $this->layer->slug,
+					'post_type'   => 'user-layer',
+					'post_status' => 'publish',
+					'numberposts' => 1
+				));						
+			}
+			else{
+				
+				$q = get_posts(array(
+				
+					'name'        => $this->layer->slug,
+					'author'      => $this->user->ID,
+					'post_type'   => 'user-layer',
+					'post_status' => 'publish',
+					'numberposts' => 1
+				));				
+			}
+			
 			//var_dump( $q );exit;
 			
 			if(isset($q[0])){
@@ -450,6 +469,10 @@ class LTPLE_Client {
 		
 		$this->user->is_admin = current_user_can( 'administrator', $this->user->ID );
 
+		// get user stars
+		
+		$this->user->stars = $this->stars->get_count($this->user->ID);		
+		
 		// get user rights
 		
 		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
@@ -1003,6 +1026,10 @@ class LTPLE_Client {
 			elseif(isset($_GET['app'])||isset($_SESSION['app'])){
 				
 				include($this->views . $this->_dev .'/apps.php');
+			}		
+			elseif(isset($_GET['rank'])||isset($_SESSION['rank'])){
+				
+				include($this->views . $this->_dev .'/ranking.php');
 			}				
 			elseif( $this->layer->uri != ''){
 				
@@ -2248,7 +2275,7 @@ class LTPLE_Client {
 				
 				include( $this->views . $this->_dev .'/message.php' );					
 			}
-			elseif( $this->layer->type == 'user-layer' && $this->user->layer->post_author != $this->user->ID ){
+			elseif( $this->layer->type == 'user-layer' && $this->user->layer->post_author != $this->user->ID && !$this->user->is_admin ){
 				
 				//--------permission denied--------
 				

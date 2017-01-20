@@ -5,13 +5,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_App_Wordpress {
 	
 	var $parent;
+	var $apps;
 	
 	/**
 	 * Constructor function
 	 */
-	public function __construct ( $app_slug, $parent ) {
+	public function __construct ( $app_slug, $parent, $apps ) {
 		
-		$this->parent 	= $parent;
+		$this->parent 		= $parent;
+		$this->parent->apps = $apps;
 
 		// get app term
 
@@ -64,7 +66,7 @@ class LTPLE_Client_App_Wordpress {
 		
 		if(!empty($_REQUEST['id'])){
 		
-			if( $this->app = LTPLE_Client_Apps::getAppData( $_REQUEST['id'], $this->parent->user->ID, false ) ){
+			if( $this->app = $this->parent->apps->getAppData( $_REQUEST['id'], $this->parent->user->ID, false ) ){
 				
 				$this->client->set_auth_token($this->app->access_token);
 
@@ -118,7 +120,7 @@ class LTPLE_Client_App_Wordpress {
 	
 	public function appUploadImg( $app_id, $image_url){
 
-		if( $this->app = LTPLE_Client_Apps::getAppData( $app_id, $this->parent->user->ID, false ) ){
+		if( $this->app = $this->parent->apps->getAppData( $app_id, $this->parent->user->ID, false ) ){
 			
 			$this->client->set_auth_token($this->app->access_token);
 
@@ -160,6 +162,12 @@ class LTPLE_Client_App_Wordpress {
 						))){
 							
 							wp_set_object_terms( $image_id, $this->term->term_id, 'app-type' );
+							
+							// hook connected app
+							
+							do_action( $this->parent->_base . 'wordpress_account_connected');
+							
+							$this->parent->apps->newAppConnected();							
 						}
 						else{
 							

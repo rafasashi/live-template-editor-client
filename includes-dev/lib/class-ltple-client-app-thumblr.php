@@ -5,13 +5,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_App_Tumblr {
 	
 	var $parent;
+	var $apps;
 
 	/**
 	 * Constructor function
 	 */
-	public function __construct ( $app_slug, $parent ) {
-		
-		$this->parent 	= $parent;
+	public function __construct ( $app_slug, $parent, $apps ) {
+
+		$this->parent 		= $parent;
+		$this->parent->apps = $apps;
 
 		// get app term
 
@@ -58,7 +60,7 @@ class LTPLE_Client_App_Tumblr {
 		
 		if(!empty($_REQUEST['id'])){
 		
-			if( $this->app = LTPLE_Client_Apps::getAppData( $_REQUEST['id'], $this->parent->user->ID ) ){
+			if( $this->app = $this->parent->apps->getAppData( $_REQUEST['id'], $this->parent->user->ID ) ){
 				
 				$client = new Tumblr\API\Client(CONSUMER_KEY, CONSUMER_SECRET, $this->app->oauth_token, $this->app->oauth_token_secret);
 										
@@ -184,7 +186,7 @@ class LTPLE_Client_App_Tumblr {
 					// get user info
 					
 					$info = $client->getUserInfo();
-					
+
 					if(!empty($info->user->blogs)){
 						
 						// append user name
@@ -193,10 +195,10 @@ class LTPLE_Client_App_Tumblr {
 						
 						// get main account token
 						
-						//$this->main_token = LTPLE_Client_Apps::getAppData( get_option( $this->parent->_base . 'tblr_main_account' ));
+						//$this->main_token = $this->parent->apps->getAppData( get_option( $this->parent->_base . 'tblr_main_account' ));
 						
 						foreach($info->user->blogs as $blog){
-							
+
 							if( $blog->admin === true ){
 								
 								// store access_token in database		
@@ -218,48 +220,21 @@ class LTPLE_Client_App_Tumblr {
 									));
 									
 									wp_set_object_terms( $app_id, $this->term->term_id, 'app-type' );
+									
+									// hook connected app
+									
+									do_action( $this->parent->_base . 'thumblr_account_connected');
+									
+									$this->parent->apps->newAppConnected();
 								}
 								else{
-
+									
 									$app_id = $app_item->ID;
 								}
 									
 								// update app item
 									
-								update_post_meta( $app_id, 'appData', json_encode($this->access_token,JSON_PRETTY_PRINT));
-
-								// get main account
-								/*
-								if( !empty( $this->main_token ) ){
-									
-									// new account follow main account
-									
-									
-									// start main account connection
-									
-									
-									// main account follow new account
-															
-									
-									// welcome tweet on behalf of main account
-
-									//$tweet_content = get_option( $this->parent->_base . 'tblr_welcome_tweet' );
-									
-									if(!empty($tweet_content )){
-										
-										
-									}
-									
-									// welcome DM on behalf of main account
-									
-									//$dm_content = get_option( $this->parent->_base . 'tblr_welcome_dm' );
-									
-									if(!empty($dm_content )){
-
-									
-									}
-								}
-								*/								
+								update_post_meta( $app_id, 'appData', json_encode($this->access_token,JSON_PRETTY_PRINT));							
 							}							
 						}
 					}

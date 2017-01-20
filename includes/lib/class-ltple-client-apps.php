@@ -16,7 +16,7 @@ class LTPLE_Client_Apps {
 
 		// get all apps
 		
-		$this->appType = get_terms( array(
+		$this->appList = get_terms( array(
 				
 			'taxonomy' 		=> 'app-type',
 			'hide_empty' 	=> false,
@@ -25,7 +25,7 @@ class LTPLE_Client_Apps {
 		
 		// get custom fields
 		
-		foreach($this->appType as $app){
+		foreach($this->appList as $app){
 		
 			$app->thumbnail = get_option('thumbnail_'.$app->slug);
 			$app->types 	= get_option('types_'.$app->slug);
@@ -52,7 +52,7 @@ class LTPLE_Client_Apps {
 		
 		if(!empty($this->app)){
 			
-			foreach($this->appType as $app){
+			foreach($this->appList as $app){
 				
 				if( $this->app == $app->slug ){
 					
@@ -71,16 +71,21 @@ class LTPLE_Client_Apps {
 						
 						include($this->parent->vendor . '/autoload.php');
 
-						$this->{$app->slug} = new $className($app->slug, $parent);
+						$this->{$app->slug} = new $className($app->slug, $parent, $this);
 					}
 					
 					break;
 				}
-			}			
+			}
 		}
 	}
 	
-	public static function getAppData($app_id, $user_id = NULL, $array = false ){
+	public function newAppConnected(){
+		
+		do_action( $this->parent->_base . 'new_app_connected' );
+	}
+	
+	public function getAppData($app_id, $user_id = NULL, $array = false ){
 		
 		$app_data = NULL;
 		

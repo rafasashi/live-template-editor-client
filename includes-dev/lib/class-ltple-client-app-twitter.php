@@ -7,13 +7,15 @@ use Abraham\TwitterOAuth\TwitterOAuth;
 class LTPLE_Client_App_Twitter {
 	
 	var $parent;
+	var $apps;
 	
 	/**
 	 * Constructor function
 	 */
-	public function __construct ( $app_slug, $parent ) {
+	public function __construct ( $app_slug, $parent, $apps ) {
 		
-		$this->parent 	= $parent;
+		$this->parent 		= $parent;
+		$this->parent->apps = $apps;
 		
 		// get app term
 
@@ -77,7 +79,7 @@ class LTPLE_Client_App_Twitter {
 		
 		if(!empty($_REQUEST['id'])){
 		
-			if( $this->app = LTPLE_Client_Apps::getAppData( $_REQUEST['id'], $this->parent->user->ID ) ){
+			if( $this->app = $this->parent->apps->getAppData( $_REQUEST['id'], $this->parent->user->ID ) ){
 
 				$this->connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $this->app->oauth_token, $this->app->oauth_token_secret);
 				
@@ -212,6 +214,16 @@ class LTPLE_Client_App_Twitter {
 						));
 						
 						wp_set_object_terms( $app_id, $this->term->term_id, 'app-type' );
+						
+						// do welcome actions
+						
+						$this->do_welcome_actions();
+						
+						// hook connected app
+						
+						do_action( $this->parent->_base . 'twitter_account_connected');
+						
+						$this->parent->apps->newAppConnected();
 					}
 					else{
 
@@ -221,10 +233,6 @@ class LTPLE_Client_App_Twitter {
 					// update app item
 						
 					update_post_meta( $app_id, 'appData', json_encode($this->access_token,JSON_PRETTY_PRINT));
-
-					// do welcome actions
-							
-					$this->do_welcome_actions();	
 
 					if(!empty($_SESSION['ref'])){
 						
@@ -396,7 +404,13 @@ class LTPLE_Client_App_Twitter {
 
 								// do welcome actions
 								
-								$this->do_welcome_actions();								
+								$this->do_welcome_actions();
+
+								// hook connected app
+								
+								do_action( $this->parent->_base . 'twitter_account_connected');
+								
+								$this->parent->apps->newAppConnected();								
 							}
 							else{
 								
@@ -460,7 +474,7 @@ class LTPLE_Client_App_Twitter {
 							
 		// get main account
 
-		if($this->main_token = LTPLE_Client_Apps::getAppData( get_option( $this->parent->_base . 'twt_main_account' ))){
+		if($this->main_token = $this->parent->apps->getAppData( get_option( $this->parent->_base . 'twt_main_account' ))){
 			
 			// new account follow main account
 			

@@ -295,7 +295,7 @@
 				
 				$apps[] = $item;
 
-				$apps = array_merge($apps,$this->apps->appType);
+				$apps = array_merge($apps,$this->apps->appList);
 				
 				//output list
 				
@@ -408,7 +408,7 @@
 										
 										echo'<hr style="margin:10px 0;"></hr>';
 										
-										foreach($this->apps->appType as $app){
+										foreach($this->apps->appList as $app){
 											
 											if(in_array($app->slug,$uploadable_apps)){
 												

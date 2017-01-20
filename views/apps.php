@@ -37,7 +37,7 @@
 			
 			$items = [];
 			
-			foreach( $this->apps->appType as $app ){ 
+			foreach( $this->apps->appList as $app ){ 
 				
 				$connect_url = $this->urls->editor . '?app='.$app->slug.'&action=connect';
 				
@@ -82,12 +82,13 @@
 								
 								if($a>0){
 									
-									$item.='<a href="#" class="badge" data-html="true" data-toggle="popover" data-placement="top" title="' . ucfirst($app->name) .' accounts" data-content="'.$c.'">'.$a.' <span class="glyphicon glyphicon-link" aria-hidden="true"></span></a>';	
+									$item.='<a href="#" class="badge" data-html="true" data-toggle="popover" data-trigger="hover" data-placement="top" title="' . ucfirst($app->name) .' accounts" data-content="'.$c.'">'.$a.' <span class="glyphicon glyphicon-link" aria-hidden="true"></span></a>';	
 								}
 								else{
 									
 									$item.='<span class="badge">'.$a.' <span class="glyphicon glyphicon-link" aria-hidden="true"></span></span>';
-								}	
+								}
+								
 							$item.='</div>';
 							$item.='<div class="col-xs-5 text-right">';
 								$item.='<a class="btn-sm btn-primary insert_media" href="'.$connect_url.'">Connect</a>';
@@ -137,7 +138,7 @@
 								
 								foreach($items as $slug => $item){									
 								
-									foreach( $this->apps->appType as $term ){ 
+									foreach( $this->apps->appList as $term ){ 
 									
 										if( $term->slug == $slug ){		
 											

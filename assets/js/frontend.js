@@ -53,7 +53,31 @@
 		// set tooltips & popovers
 			
 		$('[data-toggle="tooltip"]').tooltip();
-		$('[data-toggle="popover"]').popover();
+		
+		$('[data-toggle="popover"]').popover().on("click", function(e) {
+			
+			if($(this).attr('data-trigger') == 'hover'){
+				
+				e.preventDefault();
+				
+				$(location).attr('href',$(this).attr('href'));
+			}
+		});
+		
+		/*
+		$('[data-toggle="popover"]').popover().on("shown.bs.popover", function(e) {
+		
+			e.preventDefault();
+		
+			var pop = $(this);
+		
+			$('.close-popover').on("click", function() {
+				
+				pop.popover('hide'); // need 2 clicks to re-open the second time...
+			});
+		});
+		*/
+		
 		
 		// show active tab
 

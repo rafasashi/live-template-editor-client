@@ -246,7 +246,7 @@
 				$this->users->{$user_id}->role 		= get_userdata($user_id);
 				$this->users->{$user_id}->plan 		= $this->parent->get_user_plan_info( $user_id, true );
 				$this->users->{$user_id}->last_seen = get_user_meta($user_id, $this->parent->_base . '_last_seen',true);
-				$this->users->{$user_id}->stars 	= get_user_meta($user_id, $this->parent->_base . '_stars',true);
+				$this->users->{$user_id}->stars 	= $this->parent->stars->get_count($user_id);
 				$this->users->{$user_id}->can_spam 	= get_user_meta($user_id, $this->parent->_base . '_can_spam',true);
 				$this->users->{$user_id}->sent 		= get_user_meta($user_id, $this->parent->_base . '_email_sent',true);
 				
@@ -330,15 +330,8 @@
 				$row .= '</span>';
 			}
 			elseif ($column_name == "stars") {
-				
-				if(!is_numeric($user_stars)){
-					
-					$row .= 0;
-				}
-				else{
-					
-					$row .= $user_stars;
-				}
+
+				$row .= $user_stars;
 			}
 			elseif ($column_name == "spam") {
 				
@@ -633,4 +626,43 @@
 				echo'</div>';					
 			}			
 		}
+		
+		/**
+		 * Main LTPLE_Client_Users Instance
+		 *
+		 * Ensures only one instance of LTPLE_Client_Users is loaded or can be loaded.
+		 *
+		 * @since 1.0.0
+		 * @static
+		 * @see LTPLE_Client()
+		 * @return Main LTPLE_Client_Users instance
+		 */
+		public static function instance ( $parent ) {
+			
+			if ( is_null( self::$_instance ) ) {
+				
+				self::$_instance = new self( $parent );
+			}
+			
+			return self::$_instance;
+			
+		} // End instance()
+
+		/**
+		 * Cloning is forbidden.
+		 *
+		 * @since 1.0.0
+		 */
+		public function __clone () {
+			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->parent->_version );
+		} // End __clone()
+
+		/**
+		 * Unserializing instances of this class is forbidden.
+		 *
+		 * @since 1.0.0
+		 */
+		public function __wakeup () {
+			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->parent->_version );
+		} // End __wakeup()
 	}

@@ -112,5 +112,4 @@ class LTPLE_Client_Triggers {
 	public function __wakeup () {
 		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->parent->_version );
 	} // End __wakeup()
-
 }

@@ -5,14 +5,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_App_Blogger {
 	
 	var $parent;
-
+	var $apps;
 	
 	/**
 	 * Constructor function
 	 */
-	public function __construct ( $app_slug, $parent ) {
+	public function __construct ( $app_slug, $parent, $apps ) {
 		
-		$this->parent 	= $parent;
+		$this->parent 		= $parent;
+		$this->parent->apps = $apps;
 
 		// get app term
 
@@ -83,7 +84,7 @@ class LTPLE_Client_App_Blogger {
 		
 		if(!empty($_REQUEST['id'])){
 		
-			if( $this->app = LTPLE_Client_Apps::getAppData( $_REQUEST['id'], $this->parent->user->ID, true ) ){
+			if( $this->app = $this->parent->apps->getAppData( $_REQUEST['id'], $this->parent->user->ID, true ) ){
 				
 				$this->client->setAccessToken($this->app);		
 
@@ -215,6 +216,12 @@ class LTPLE_Client_App_Blogger {
 									));
 									
 									wp_set_object_terms( $app_id, $this->term->term_id, 'app-type' );
+									
+									// hook connected app
+									
+									do_action( $this->parent->_base . 'blogger_account_connected');
+									
+									$this->parent->apps->newAppConnected();
 								}
 								else{
 

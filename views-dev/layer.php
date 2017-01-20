@@ -84,8 +84,6 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);				
 		}
 	}
-		
-	$previewMinWidth = '1400px';
 
 	echo '<!DOCTYPE>';
 	echo '<html>';
@@ -121,7 +119,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			
 		echo '</head>';
 
-		echo '<body style="padding:0;margin:0;display:flex !important;width:100%;min-width:'.$previewMinWidth.';">';
+		echo '<body style="padding:0;margin:0;display:flex !important;width:100%;">';
 			
 			//include style-sheet
 			

@@ -1,24 +1,50 @@
 <div class="row" style="background: #eee;padding: 10px 0;margin:0;position: relative;">
 
-	<div class="col-xs-6 col-sm-4" style="z-index:0;">				
+	<div class="col-xs-6 col-sm-4" style="z-index:10;">				
 		
 		<div class="pull-left">
 
-			<a class="btn btn-sm btn-warning" href="<?php echo $_SERVER['SCRIPT_URI'] ?>">Gallery</a>
+			<a class="btn btn-sm btn-warning" href="<?php echo $_SERVER['SCRIPT_URI'] ?>" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Designs" data-content="The gallery is where you can find beautifull designs to start a project. New things are added every week.">
+			
+				Gallery
+			
+			</a>
 		
 		</div>
 		
 		<div class="pull-left">
 
-			<a style="margin-left: 6px;" class="btn btn-sm btn-primary" href="<?php echo $_SERVER['SCRIPT_URI'].'?media' ?>">Media</a>
+			<a style="margin-left: 6px;" class="btn btn-sm btn-primary" href="<?php echo $this->urls->editor . '?media' ?>" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">
+			
+				Media
+			
+			</a>
 		
 		</div>
 		
 		<div class="pull-left">
 
-			<a style="margin-left: 6px;background-color:#bd3d72;border: 1px solid #9c4167;" class="btn btn-sm btn-primary" href="<?php echo $_SERVER['SCRIPT_URI'].'?app' ?>">Apps</a>
+			<a style="margin-left: 6px;background-color:#bd3d72;border: 1px solid #9c4167;" class="btn btn-sm btn-primary" href="<?php echo $this->urls->editor . '?app' ?>"  role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Connected Apps" data-content="Connect third party accounts to import your contents, to take advantage of advanced features and to gain stars.">
+				
+				Apps
+				
+			</a>
 		
-		</div>	
+		</div>
+		
+		<?php if( $this->user->is_admin ){ ?>
+		
+		<div class="pull-left">
+ 
+			<a class="btn btn-sm popover-btn" href="<?php echo $this->urls->editor . '?rank' ?>" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Popularity score" data-content="Your stars determine your rank in our World Ranking, give you visibility and drive traffic.">
+  
+				<span class="badge"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>  0</span>
+			
+			</a>
+			
+		</div>
+		
+		<?php } ?>
 	
 	</div>
 	
