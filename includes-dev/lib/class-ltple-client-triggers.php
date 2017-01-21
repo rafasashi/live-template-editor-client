@@ -36,7 +36,7 @@ class LTPLE_Client_Triggers {
 		$this->parent = $parent;
 	
 		if( $this->parent->user->loggedin ){
-			
+
 			if( $this->parent->user->last_seen == 0 ){
 				
 				// get email series
@@ -61,8 +61,12 @@ class LTPLE_Client_Triggers {
 					$this->parent->ltple_schedule_series( $campaign->ID,  $this->parent->user);					
 				}
 			}
+			elseif(( date('Y.m.d',$this->parent->user->last_seen) != date('Y.m.d') )){
+
+				do_action( $this->parent->_base . 'first_log_today' );
+			}
 			
-			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->_time);		
+			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->_time);
 		}	
 	
 		add_action('user_register', array( $this, 'ltple_trigger_after_user_register'), 10, 1);

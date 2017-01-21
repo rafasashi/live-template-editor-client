@@ -124,9 +124,9 @@ class LTPLE_Client {
 		
 		register_activation_hook( $this->file, array( $this, 'install' ) );
 
-		$this->request 		= new LTPLE_Client_Request();
-		$this->urls 		= new LTPLE_Client_Urls( $this );
 		$this->client 		= new LTPLE_Client_Client( $this );
+		$this->request 		= new LTPLE_Client_Request( $this );
+		$this->urls 		= new LTPLE_Client_Urls( $this );
 		$this->stars 		= new LTPLE_Client_Stars( $this );
 		$this->login 		= new LTPLE_Client_Login( $this );
 
@@ -349,7 +349,7 @@ class LTPLE_Client {
 		return $uri;
 	}
 	
-	private function ltple_decrypt_uri($uri,$separator='/'){
+	public function ltple_decrypt_uri($uri,$separator='/'){
 		
 		$uri = $this->ltple_decrypt_str(str_replace($separator,'',$uri));
 		
@@ -398,6 +398,8 @@ class LTPLE_Client {
 		// get user stars
 		
 		$this->user->stars = $this->stars->get_count($this->user->ID);
+		
+		$this->user->refId = $this->ltple_encrypt_uri( 'RI-' . $this->user->ID );
 		
 		// get user rights
 		

@@ -4,12 +4,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  
 class LTPLE_Client_Request {
 
-	public $url = '';
+	public $parent;
+	public $url;
+	public $ref_id;
 
 	/**
 	 * Constructor function
 	 */
-	public function __construct () {
+	public function __construct ( $parent ) {
+		
+		$this->parent = $parent;
 		
 		// get user ip
 		
@@ -27,6 +31,34 @@ class LTPLE_Client_Request {
 		// get user agent
 		
 		$this->user_agent = $_SERVER['HTTP_USER_AGENT'];
+		
+		// get referral id
+		
+		$ref_id 	= '';
+		$ref_key 	= '_' . $this->parent->_base . 'ref_id';
+		
+		if( !empty( $_COOKIE[$ref_key] ) ){
+			
+			$ref_id = sanitize_text_field($_COOKIE[$ref_key]);
+		}
+		elseif( !empty( $_REQUEST['ri'] ) ){
+			
+			$ref_id = sanitize_text_field($_REQUEST['ri']);
+			
+			// set cookie
+			
+			setcookie($ref_key, $ref_id, time() + 2678400, COOKIEPATH, COOKIE_DOMAIN); // for one month
+		}
+
+		if( !empty( $ref_id ) ){
+
+			$ref = explode('RI-', $this->parent->ltple_decrypt_uri($ref_id) );
+			
+			if( isset($ref[1]) && is_numeric($ref[1]) ){
+
+				$this->ref_id = intval($ref[1]);
+			}
+		}
 	}
 	
 	public function ltple_get_user_ip() {

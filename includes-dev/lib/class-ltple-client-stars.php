@@ -19,14 +19,20 @@
 			
 			if( !empty($this->triggers) ){
 				
-				foreach( $this->triggers as $trigger => $description ){
+				foreach( $this->triggers as $group => $trigger ){
 					
-					add_action( $trigger, array( $this,  'add_stars') );
+					foreach($trigger as $key => $data){
+						
+						add_action( $key, array( $this,  'add_triggered_stars') );
+					}
 				}
 			}
 			
+			add_action( 'user_register', 	array( $this, 'ref_user_register' ) );
+			
 			add_action( 'show_user_profile', array( $this, 'get_user_stars' ) );
 			add_action( 'edit_user_profile', array( $this, 'get_user_stars' ) );
+			
 			add_action( 'edit_user_profile_update', array( $this, 'save_user_stars' ) );
 		}
 		
@@ -34,22 +40,27 @@
 			
 			$triggers = array();
 
-			$triggers['user_register'] = array(
+			$triggers['register & login']['user_register'] = array(
 					
 				'description' => 'when you register for the first time'
 			);
 			
-			$triggers[$this->parent->_base . 'first_log_today'] = array(
+			$triggers['register & login'][$this->parent->_base . 'referred_registration'] = array(
+					
+				'description' => 'when someone register after visiting your referral url'
+			);
+			
+			$triggers['register & login'][$this->parent->_base . 'first_log_today'] = array(
 					
 				'description' => 'when you login for the first time in a day'
 			);
 				
-			$triggers[$this->parent->_base . 'new_app_connected'] = array(
+			$triggers['connected apps'][$this->parent->_base . 'new_app_connected'] = array(
 					
-				'description' => 'when you connect a new App'
+				'description' => 'when you connect any new App'
 			);
 			
-			$triggers[$this->parent->_base . 'twitter_account_connected'] = array(
+			$triggers['connected apps'][$this->parent->_base . 'twitter_account_connected'] = array(
 					
 				'description' => 'when you connect a new Twitter account'
 			);
@@ -90,7 +101,40 @@
 			return $stars;
 		}
 		
-		public function add_stars( $user_id = null ){
+		public function add_stars( $user_id, $option_name ){
+			
+			if( is_numeric($user_id) ){
+			
+				$stars = get_option($option_name);
+				
+				if( !is_numeric($stars) ){
+					
+					$stars = 0;
+				}
+				
+				if( $stars != 0 ){
+					
+					// get user stars
+					
+					$user_stars = $this->get_count( $user_id );
+					
+					$user_stars = $user_stars + $stars;
+					
+					// update user stars
+					
+					update_user_meta( $user_id, $this->parent->_base . 'stars', $user_stars );
+					
+					if( $user_id == $this->parent->user->ID){
+						
+						// set current user stars
+						
+						$this->parent->user->stars = $user_stars;
+					}
+				}
+			}			
+		}
+		
+		public function add_triggered_stars( $user_id = null ){
 			
 			if( !is_numeric($user_id) ){
 				
@@ -98,32 +142,21 @@
 			}			
 			
 			$option_name = $this->parent->_base . current_filter().'_stars';
-			
-			$stars = get_option($option_name);
-			
-			if( !is_numeric($stars) ){
-				
-				$stars = 0;
-			}
-			
-			if( $stars != 0 ){
-				
-				// get user stars
-				
-				$user_stars = $this->get_count( $user_id );
-				
-				$user_stars = $user_stars + $stars;
-				
-				// update user stars
-				
-				update_user_meta( $user_id, $this->parent->_base . 'stars', $user_stars );
-				
-				if( $user_id == $this->parent->user->ID){
+
+			$this->add_stars( $user_id, $option_name );
+		}
+		
+		public function ref_user_register(){
 					
-					// set current user stars
-					
-					$this->parent->user->stars = $user_stars;
-				}
+			// we dont use do_action here
+			// because all hooks are attached to the current id
+			// and we want the referral id to be credited
+
+			if( is_numeric( $this->parent->request->ref_id ) && get_userdata( $this->parent->request->ref_id ) ){
+				
+				//add referral stars
+				
+				$this->add_stars( $this->parent->request->ref_id, $this->parent->_base . $this->parent->_base . 'referred_registration_stars' );
 			}
 		}
 			

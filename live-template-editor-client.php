@@ -135,7 +135,7 @@
 		'can_export' 			=> true,
 		'rewrite' 				=> array('slug'=>'user-layer'),
 		'capability_type' 		=> 'post',
-		'has_archive' 			=> false,
+		'has_archive' 			=> true,
 		'hierarchical' 			=> true,
 		'show_in_rest' 			=> true,
 		//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),

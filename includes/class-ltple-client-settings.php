@@ -468,16 +468,21 @@ class LTPLE_Client_Settings {
 			'description'			=> __( 'Amount of stars rewarded', $this->plugin->slug )
 		);
 		
-		foreach( $this->parent->stars->triggers as $id => $trigger ){
-			 
-			$settings['stars']['fields'][] = array(
+		foreach( $this->parent->stars->triggers as $group => $trigger ){
 			
-				'id' 			=> $id.'_stars',
-				'label'			=> $trigger['description'],
-				'description'	=> '['.$id.']',
-				'type'			=> 'number',
-				'placeholder'	=> __( 'stars', $this->plugin->slug )
-			);
+			foreach($trigger as $key => $data){
+				
+				$settings['stars']['fields'][] = array(
+				
+					'id' 			=> $key.'_stars',
+					'label'			=> $data['description'],
+					'description'	=> '['.$key.']',
+					'type'			=> 'number',
+					'placeholder'	=> __( 'stars', $this->plugin->slug )
+				);				
+			}
+			 
+
 		}		
 		
 		$settings['twitter'] = array(

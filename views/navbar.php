@@ -36,9 +36,9 @@
 		
 		<div class="pull-left">
  
-			<a class="btn btn-sm popover-btn" href="<?php echo $this->urls->editor . '?rank' ?>" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Popularity score" data-content="Your stars determine your rank in our World Ranking, give you visibility and drive traffic.">
+			<a class="btn btn-sm popover-btn" href="<?php echo $this->urls->editor . '?rank'; ?>" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Popularity score" data-content="Your stars determine your rank in our World Ranking, give you visibility and drive traffic.">
   
-				<span class="badge"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>  0</span>
+				<span class="badge"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>  <?php echo $this->user->stars; ?></span>
 			
 			</a>
 			
