@@ -8,7 +8,7 @@
 			
 			e.preventDefault();
 			
-			var clone = $(".input-group-row").eq(0).clone();
+			var clone = $(".input-group-row").eq(0).clone().removeClass('ui-state-disabled');
 			
 			clone.append('<a class="remove-input-group" href="#">[ x ]</a>');
 			
@@ -20,7 +20,15 @@
 
 			e.preventDefault();
 			$(this).closest('.input-group-row').remove();
-		});		
+		});	
+
+		$( ".ui-sortable" ).sortable({
+			
+			placeholder	: "ui-state-highlight",
+			items		: "li:not(.ui-state-disabled)"
+		});
+		
+		$( ".ui-sortable li" ).disableSelection();
 	});
 	
 })(jQuery);

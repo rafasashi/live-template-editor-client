@@ -334,11 +334,20 @@ class LTPLE_Client_Admin_API {
 					
 					$html .= ' <a href="#" class="add-input-group" style="line-height:40px;">Add email</a>';
 				
-					$html .= '<div class="input-group">';
+					$html .= '<ul class="input-group ui-sortable">';
 						
 						foreach( $email_series['model'] as $e => $model) {
-											
-							$html .= '<div class="input-group-row">';
+									
+							if($e > 0){
+								
+								$class='input-group-row ui-state-default ui-sortable-handle';
+							}
+							else{
+								
+								$class='input-group-row ui-state-default ui-state-disabled';
+							}
+
+							$html .= '<li class="'.$class.'">';
 						
 								$html .= 'Send  ';
 								
@@ -372,10 +381,10 @@ class LTPLE_Client_Admin_API {
 								}
 								
 
-							$html .= '</div>';						
+							$html .= '</li>';						
 						}
 						
-					$html .= '</div>';
+					$html .= '</ul>';
 					
 				$html .= '</div>';
 
