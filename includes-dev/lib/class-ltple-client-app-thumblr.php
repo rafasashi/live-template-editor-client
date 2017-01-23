@@ -223,7 +223,7 @@ class LTPLE_Client_App_Tumblr {
 									
 									// hook connected app
 									
-									do_action( $this->parent->_base . 'thumblr_account_connected');
+									do_action( 'ltple_thumblr_account_connected');
 									
 									$this->parent->apps->newAppConnected();
 								}

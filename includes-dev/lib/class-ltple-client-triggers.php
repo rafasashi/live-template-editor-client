@@ -63,7 +63,7 @@ class LTPLE_Client_Triggers {
 			}
 			elseif(( date('Y.m.d',$this->parent->user->last_seen) != date('Y.m.d') )){
 
-				do_action( $this->parent->_base . 'first_log_today' );
+				do_action( 'ltple_first_log_today' );
 			}
 			
 			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->_time);

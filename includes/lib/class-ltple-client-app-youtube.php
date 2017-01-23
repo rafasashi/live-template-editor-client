@@ -224,7 +224,7 @@ class LTPLE_Client_App_Youtube {
 								
 								// hook connected app
 								
-								do_action( $this->parent->_base . 'youtube_account_connected');
+								do_action( 'ltple_youtube_account_connected');
 								
 								$this->parent->apps->newAppConnected();								
 							}

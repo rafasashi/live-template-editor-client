@@ -2811,6 +2811,17 @@ class LTPLE_Client {
 						clean_object_term_cache( $user_plan_id, $update_taxonomy );
 					}
 					
+					// hook triggers
+					
+					if( intval($this->plan->data['price']) > 0 ){
+						
+						do_action('ltple_paid_plan_subscription');
+					}
+					else{
+						
+						do_action('ltple_free_plan_subscription');
+					}
+					
 					//send admin notification
 						
 					wp_mail($this->settings->options->emailSupport, 'Plan edited on checkout - user id ' . $this->user->ID . ' - ip ' . $this->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);						

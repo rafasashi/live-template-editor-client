@@ -82,7 +82,7 @@ class LTPLE_Client_Apps {
 	
 	public function newAppConnected(){
 		
-		do_action( $this->parent->_base . 'new_app_connected' );
+		do_action( 'ltple_new_app_connected' );
 	}
 	
 	public function getAppData($app_id, $user_id = NULL, $array = false ){
@@ -104,11 +104,6 @@ class LTPLE_Client_Apps {
 					
 					$app_data = json_decode(get_post_meta( $app->ID, 'appData', true ),$array);
 				}
-			}
-			else{
-				
-				echo 'User app not found...';
-				exit;				
 			}
 		}
 		else{

@@ -129,7 +129,11 @@ class LTPLE_Client {
 		$this->urls 		= new LTPLE_Client_Urls( $this );
 		$this->stars 		= new LTPLE_Client_Stars( $this );
 		$this->login 		= new LTPLE_Client_Login( $this );
-
+		
+		// Load API for generic admin functions
+		
+		$this->admin 	= new LTPLE_Client_Admin_API( $this );
+			
 		if( is_admin() ) {
 			
 			// Load admin JS & CSS
@@ -138,11 +142,7 @@ class LTPLE_Client {
 			
 			add_filter( 'page_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
 			add_filter( 'post_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
-			
-			// Load API for generic admin functions
-			
-			$this->admin 	= new LTPLE_Client_Admin_API( $this );
-			
+
 			$this->users 	= new LTPLE_Client_Users( $this );
 
 			$this->channels = new LTPLE_Client_Channels( $this );
@@ -399,11 +399,17 @@ class LTPLE_Client {
 		
 		$this->user->stars = $this->stars->get_count($this->user->ID);
 		
+		// get user ref id
+		
 		$this->user->refId = $this->ltple_encrypt_uri( 'RI-' . $this->user->ID );
 		
 		// get user rights
 		
 		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
+		
+		// get user profile
+		
+		$this->user->profile = new LTPLE_Client_User_Profile( $this );
 		
 		//get user layer
 		
@@ -957,8 +963,6 @@ class LTPLE_Client {
 		
 		// get editor iframe
 
-		
-		
 		if( $this->user->loggedin===true && $this->layer->slug!='' && $this->layer->type!='' && $this->layer->key!='' && $this->server->url!==false ){
 			
 			if( $this->layer->key == md5( 'layer' . $this->layer->uri . $this->_time )){
@@ -1021,18 +1025,22 @@ class LTPLE_Client {
 				include($this->views . $this->_dev .'/channel-modal.php');
 			}			
 
-			if(isset($_GET['media'])){
+			if( isset($_GET['media']) ){
 				
 				include($this->views . $this->_dev .'/media.php');
 			}
-			elseif(isset($_GET['app'])||isset($_SESSION['app'])){
+			elseif( isset($_GET['app']) || isset($_SESSION['app']) ){
 				
 				include($this->views . $this->_dev .'/apps.php');
-			}		
-			elseif(isset($_GET['rank'])||isset($_SESSION['rank'])){
+			}	
+			elseif( isset($_GET['rank']) ){
 				
 				include($this->views . $this->_dev .'/ranking.php');
-			}				
+			}
+			elseif( isset($_GET['my-profile']) ){
+				
+				include($this->views . $this->_dev .'/edit-profile.php');
+			}			
 			elseif( $this->layer->uri != ''){
 				
 				if( $this->user->has_layer ){
@@ -2809,6 +2817,17 @@ class LTPLE_Client {
 						$response = wp_set_object_terms( $user_plan_id, $update_terms, $update_taxonomy );
 
 						clean_object_term_cache( $user_plan_id, $update_taxonomy );
+					}
+					
+					// hook triggers
+					
+					if( intval($this->plan->data['price']) > 0 ){
+						
+						do_action('ltple_paid_plan_subscription');
+					}
+					else{
+						
+						do_action('ltple_free_plan_subscription');
 					}
 					
 					//send admin notification

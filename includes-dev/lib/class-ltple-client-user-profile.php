@@ -2,8 +2,8 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Plan {
-	
+class LTPLE_Client_User_Profile {
+
 	var $parent;
 	
 	/**
@@ -12,12 +12,41 @@ class LTPLE_Client_Plan {
 	public function __construct ( $parent ) {
 
 		$this->parent 	= $parent;
+
+		if( isset( $_REQUEST['my-profile'] ) && $this->parent->user->loggedin ){
+			 
+			$this->fields = $this->get_profile_fields();
+		}
+	}
+	
+	public function get_profile_fields(){
+		
+		$fields = array();
+		
+		$fields['nickname'] = array(
+
+			'id' 			=> 'nickname',
+			'label'			=> 'Nickname',
+			'description'	=> 'Requiered',
+			'placeholder'	=> 'Requiered',
+			'type'			=> 'text'
+		);
+		
+		$fields['url'] = array(
+		
+			'id' 			=> 'url',
+			'label'			=> 'Web Site',
+			'description'	=> '',
+			'placeholder'	=> 'http://',
+			'type'			=> 'text'			
+		);
+		
+		return $fields;
 	}
 	
 	
-	
 	/**
-	 * Main LTPLE_Client_Plan Instance
+	 * Main LTPLE_Client_User_Profile Instance
 	 *
 	 * Ensures only one instance of LTPLE_Client_Stars is loaded or can be loaded.
 	 *

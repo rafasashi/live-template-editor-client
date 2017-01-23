@@ -72,6 +72,8 @@
 						
 						$name = 'top' === $which ? $taxonomy.'1' : $taxonomy.'2';
 						
+						echo '<input type="hidden" name="ltple_view" value="subscribers">';
+						
 						echo '<span>';
 							
 							echo wp_dropdown_categories(array(

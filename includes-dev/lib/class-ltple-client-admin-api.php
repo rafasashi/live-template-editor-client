@@ -89,10 +89,10 @@ class LTPLE_Client_Admin_API {
 			case 'text':
 			case 'url':
 			case 'email':
-				$html .= '<input id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" />' . "\n";
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" />' . "\n";
 			break;
 			case 'slug':
-				$html .= '<span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">'.home_url() . '/</span><input id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" /><span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">/</span>' . "\n";
+				$html .= '<span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">'.home_url() . '/</span><input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" /><span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">/</span>' . "\n";
 			break;			
 			case 'margin':
 				
@@ -103,7 +103,7 @@ class LTPLE_Client_Admin_API {
 					$value = esc_attr( $field['default'] );
 				}
 				
-				$html .= '<input id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . $value . '" />' . "\n";
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . $value . '" />' . "\n";
 			break;
 
 			case 'password':
@@ -118,14 +118,14 @@ class LTPLE_Client_Admin_API {
 				if ( isset( $field['max'] ) ) {
 					$max = ' max="' . esc_attr( $field['max'] ) . '"';
 				}
-				$html .= '<input id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
 			break;
 			case 'text_secret':
-				$html .= '<input id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="" />' . "\n";
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="" />' . "\n";
 			break;
 
 			case 'textarea':
-				$html .= '<textarea id="' . esc_attr( $field['id'] ) . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '">' . $data . '</textarea><br/>'. "\n";
+				$html .= '<textarea class="form-control" id="' . esc_attr( $field['id'] ) . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '">' . $data . '</textarea><br/>'. "\n";
 			break;
 
 			case 'checkbox':
@@ -133,7 +133,7 @@ class LTPLE_Client_Admin_API {
 				if ( $data && 'on' == $data ) {
 					$checked = 'checked="checked"';
 				}
-				$html .= '<input id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" ' . $checked . '/>' . "\n";
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" ' . $checked . '/>' . "\n";
 			break;
 
 			case 'checkbox_multi':
@@ -145,7 +145,7 @@ class LTPLE_Client_Admin_API {
 						$checked = true;
 					}
 					
-					$html .= '<label for="' . esc_attr( $field['id'] . '_' . $k ) . '" class="checkbox_multi"><input type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" /> ' . $v . '</label> ';
+					$html .= '<label for="' . esc_attr( $field['id'] . '_' . $k ) . '" class="checkbox_multi"><input class="form-control" type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" /> ' . $v . '</label> ';
 					$html .= '<br>';
 				}
 			break;
@@ -558,7 +558,7 @@ class LTPLE_Client_Admin_API {
 				));
 				
 				$selected_id 	= get_option( $this->parent->_base . $field['id'] );
-				$options 		= [];
+				$options 		= array( -1 => 'none');
 				
 				foreach($apps as $app){
 
@@ -732,9 +732,15 @@ class LTPLE_Client_Admin_API {
 
 		if ( ! is_array( $field ) || 0 == count( $field ) ) return;
 
-		$field = '<p class="form-field"><label for="' . $field['id'] . '">' . $field['label'] . '</label>' . $this->display_field( $field, $post, false ) . '</p>' . "\n";
+		$meta_box  = '<p class="form-field form-group">' . PHP_EOL;
+		
+			$meta_box .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label> ' . PHP_EOL;
+			
+			$meta_box .= $this->display_field( $field, $post, false ) . PHP_EOL;
+			
+		$meta_box .= '</p>' . PHP_EOL;
 
-		echo $field;
+		echo $meta_box;
 	}
 
 	/**

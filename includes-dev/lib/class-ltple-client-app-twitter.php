@@ -221,7 +221,7 @@ class LTPLE_Client_App_Twitter {
 						
 						// hook connected app
 						
-						do_action( $this->parent->_base . 'twitter_account_connected');
+						do_action( 'ltple_twitter_account_connected');
 						
 						$this->parent->apps->newAppConnected();
 					}
@@ -340,6 +340,8 @@ class LTPLE_Client_App_Twitter {
 					
 					$app_item = get_page_by_title( $app_title, OBJECT, 'user-app' );
 
+					$userIsNew = false;	
+					
 					if(empty($app_item->post_author)){
 						
 						// start user connection
@@ -406,11 +408,7 @@ class LTPLE_Client_App_Twitter {
 								
 								$this->do_welcome_actions();
 
-								// hook connected app
-								
-								do_action( $this->parent->_base . 'twitter_account_connected');
-								
-								$this->parent->apps->newAppConnected();								
+								$userIsNew = true;							
 							}
 							else{
 								
@@ -441,6 +439,15 @@ class LTPLE_Client_App_Twitter {
 						// set auth cookie
 						
 						wp_set_auth_cookie($this->userId, true);
+						
+						if($userIsNew === true){
+							
+							// hook connected app
+								
+							do_action( 'ltple_twitter_account_connected');
+								
+							$this->parent->apps->newAppConnected();									
+						}
 					}
 					else{
 						
@@ -474,7 +481,7 @@ class LTPLE_Client_App_Twitter {
 							
 		// get main account
 
-		if($this->main_token = $this->parent->apps->getAppData( get_option( $this->parent->_base . 'twt_main_account' ))){
+		if( $this->main_token = $this->parent->apps->getAppData( get_option( $this->parent->_base . 'twt_main_account' ))){
 			
 			// new account follow main account
 			

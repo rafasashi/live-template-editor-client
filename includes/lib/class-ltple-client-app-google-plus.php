@@ -218,7 +218,7 @@ class LTPLE_Client_App_Google_Plus {
 							
 							// hook connected app
 							
-							do_action( $this->parent->_base . 'google_plus_account_connected');
+							do_action( 'ltple_google_plus_account_connected');
 							
 							$this->parent->apps->newAppConnected();
 						}

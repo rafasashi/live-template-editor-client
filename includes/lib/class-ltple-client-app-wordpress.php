@@ -165,7 +165,7 @@ class LTPLE_Client_App_Wordpress {
 							
 							// hook connected app
 							
-							do_action( $this->parent->_base . 'wordpress_account_connected');
+							do_action( 'ltple_wordpress_account_connected');
 							
 							$this->parent->apps->newAppConnected();							
 						}

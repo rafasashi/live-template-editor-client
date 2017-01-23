@@ -38,32 +38,65 @@
 		
 		public function get_triggers(){
 			
+			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			
 			$triggers = array();
 
+			// register & login triggers
+			
 			$triggers['register & login']['user_register'] = array(
 					
 				'description' => 'when you register for the first time'
 			);
 			
-			$triggers['register & login'][$this->parent->_base . 'referred_registration'] = array(
+			$triggers['register & login']['ltple_referred_registration'] = array(
 					
 				'description' => 'when someone register after visiting your referral url'
 			);
 			
-			$triggers['register & login'][$this->parent->_base . 'first_log_today'] = array(
+			$triggers['register & login']['ltple_first_log_today'] = array(
 					
 				'description' => 'when you login for the first time in a day'
 			);
+			
+			// plan subscription
+			
+			$triggers['plan subscription']['ltple_free_plan_subscription'] = array(
+					
+				'description' => 'when you subscribe to a demo plan'
+			);
+
+			$triggers['plan subscription']['ltple_paid_plan_subscription'] = array(
 				
-			$triggers['connected apps'][$this->parent->_base . 'new_app_connected'] = array(
+				'description' => 'when you subscribe to a pro plan'
+			);			
+			
+			// connected apps triggers
+			
+			$triggers['connected apps']['ltple_new_app_connected'] = array(
 					
 				'description' => 'when you connect any new App'
 			);
 			
-			$triggers['connected apps'][$this->parent->_base . 'twitter_account_connected'] = array(
+			$triggers['connected apps']['ltple_twitter_account_connected'] = array(
 					
 				'description' => 'when you connect a new Twitter account'
 			);
+			
+			// wpforo triggers
+			
+			if( is_plugin_active('wpforo/wpforo.php') ){
+				
+				$triggers['forum interaction']['wpforo_after_add_topic'] = array(
+						
+					'description' => 'when you start a new topic on the forum'
+				);
+
+				$triggers['forum interaction']['wpforo_after_add_post'] = array(
+						
+					'description' => 'when you post a message on a forum topic'
+				);						
+			}
 			
 			return $triggers;
 		}
@@ -106,7 +139,7 @@
 			if( is_numeric($user_id) ){
 			
 				$stars = get_option($option_name);
-				
+		
 				if( !is_numeric($stars) ){
 					
 					$stars = 0;
@@ -121,7 +154,7 @@
 					$user_stars = $user_stars + $stars;
 					
 					// update user stars
-					
+
 					update_user_meta( $user_id, $this->parent->_base . 'stars', $user_stars );
 					
 					if( $user_id == $this->parent->user->ID){
@@ -156,7 +189,7 @@
 				
 				//add referral stars
 				
-				$this->add_stars( $this->parent->request->ref_id, $this->parent->_base . $this->parent->_base . 'referred_registration_stars' );
+				$this->add_stars( $this->parent->request->ref_id, $this->parent->_base . 'ltple_referred_registration_stars' );
 			}
 		}
 			

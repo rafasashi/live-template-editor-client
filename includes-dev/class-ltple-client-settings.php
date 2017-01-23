@@ -140,14 +140,6 @@ class LTPLE_Client_Settings {
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'All Nominees', $this->plugin->slug ),
-			__( 'All Nominees', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=nominee'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
 			__( 'Default Layers', $this->plugin->slug ),
 			__( 'Default Layers', $this->plugin->slug ),
 			'edit_pages',
@@ -160,6 +152,14 @@ class LTPLE_Client_Settings {
 			__( 'Default Images', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=default-image'
+		);
+		
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'User profile', $this->plugin->slug ),
+			__( 'User profile', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=user-profile'
 		);
 		
 		add_submenu_page(
@@ -489,7 +489,6 @@ class LTPLE_Client_Settings {
 			'title'					=> __( 'Twitter', $this->plugin->slug ),
 			'description'			=> __( 'Twitter API settings', $this->plugin->slug ),
 			'fields'				=> array(
-
 				array(
 					'id' 			=> 'twt_main_account',
 					'label'			=> __( 'Twitter Main Account' , $this->plugin->slug ),

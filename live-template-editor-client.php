@@ -100,7 +100,31 @@
 	
 	// Add custom post type cb-default-layer
 	
-	$version = '1.0.1';
+	$version 	= '1.0.1';
+	
+	// get editor slug
+	
+	$editorSlug		= get_option( 'ltple_editorSlug' );
+	
+	if( !empty($editorSlug) ){
+		
+		$editorSlug .='/'; 
+	}
+	
+	// get user profile slug
+	
+	$profileSlug = get_option( 'ltple_profileSlug' );
+	
+	if( !empty($profileSlug) ){
+		
+		$profileSlug .='/'; 
+	}
+	else{
+		
+		$profileSlug .='info'; 
+	}
+	
+	// register all post types
 	
 	LTPLE_Client($version)->register_post_type( 'cb-default-layer', __( 'Default Layers', 'live-template-editor-client' ), __( 'Default Layer', 'live-template-editor-client' ), '', array(
 
@@ -186,6 +210,8 @@
 		'menu_icon' 			=> 'dashicons-admin-post',
 	));
 	
+	
+	
 	LTPLE_Client()->register_post_type( 'user-image', __( 'User images', 'live-template-editor-client' ), __( 'User image', 'live-template-editor-client' ), '', array(
 
 		'public' 				=> false,
@@ -250,23 +276,23 @@
 	));
 	
 	
-	LTPLE_Client($version)->register_post_type( 'nominee', __( 'Nominees', 'live-template-editor-client' ), __( 'Nominees', 'live-template-editor-client' ), '', array(
+	LTPLE_Client($version)->register_post_type( 'user-profile', __( 'User profiles', 'live-template-editor-client' ), __( 'User profiles', 'live-template-editor-client' ), '', array(
 
 		'public' 				=> true,
 		'publicly_queryable' 	=> true,
 		'exclude_from_search' 	=> true,
 		'show_ui' 				=> true,
-		'show_in_menu' 			=> 'nominee',
+		'show_in_menu' 			=> 'user-profile',
 		'show_in_nav_menus' 	=> true,
 		'query_var' 			=> true,
 		'can_export'			=> true,
-		'rewrite' 				=> array('slug'=>'nominee'),
+		'rewrite' 				=> array('slug'=>$profileSlug),
 		'capability_type' 		=> 'post',
 		'has_archive' 			=> true,
 		'hierarchical' 			=> true,
 		'show_in_rest' 			=> true,
 		//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-		'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail' ),
+		'supports' 				=> array( 'title', 'editor', 'author', 'excerpt', 'thumbnail' ),
 		'menu_position' 		=> 5,
 		'menu_icon' 			=> 'dashicons-admin-post',
 	));
@@ -458,7 +484,6 @@
 			'side'
 		);
 		
-		/*
 		LTPLE_Client()->admin->add_meta_box (
 			
 			'layer-options',
@@ -466,7 +491,6 @@
 			array("cb-default-layer"),
 			'side'
 		);
-		*/
 		
 		LTPLE_Client()->admin->add_meta_box (
 			

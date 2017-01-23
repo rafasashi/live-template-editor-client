@@ -219,7 +219,7 @@ class LTPLE_Client_App_Blogger {
 									
 									// hook connected app
 									
-									do_action( $this->parent->_base . 'blogger_account_connected');
+									do_action( 'ltple_blogger_account_connected');
 									
 									$this->parent->apps->newAppConnected();
 								}
