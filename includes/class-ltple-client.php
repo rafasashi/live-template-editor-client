@@ -129,7 +129,11 @@ class LTPLE_Client {
 		$this->urls 		= new LTPLE_Client_Urls( $this );
 		$this->stars 		= new LTPLE_Client_Stars( $this );
 		$this->login 		= new LTPLE_Client_Login( $this );
-
+		
+		// Load API for generic admin functions
+		
+		$this->admin 	= new LTPLE_Client_Admin_API( $this );
+			
 		if( is_admin() ) {
 			
 			// Load admin JS & CSS
@@ -138,11 +142,7 @@ class LTPLE_Client {
 			
 			add_filter( 'page_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
 			add_filter( 'post_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
-			
-			// Load API for generic admin functions
-			
-			$this->admin 	= new LTPLE_Client_Admin_API( $this );
-			
+
 			$this->users 	= new LTPLE_Client_Users( $this );
 
 			$this->channels = new LTPLE_Client_Channels( $this );
@@ -174,11 +174,10 @@ class LTPLE_Client {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 
-			$this->server = new LTPLE_Client_Server();
-			
-			$this->layer = new LTPLE_Client_Layer();
-
-			$this->image = new LTPLE_Client_Image();
+			$this->server 	= new LTPLE_Client_Server();
+			$this->layer 	= new LTPLE_Client_Layer();
+			$this->image 	= new LTPLE_Client_Image();
+			$this->profile 	= new LTPLE_Client_Profile( $this );
 
 			add_action( 'init', array( $this, 'ltple_client_frontend_init' ));	
 			
@@ -387,58 +386,66 @@ class LTPLE_Client {
 		
 		$this->user->loggedin = is_user_logged_in();		
 		
-		// get is admin
+		if($this->user->loggedin){
 		
-		$this->user->is_admin = current_user_can( 'administrator', $this->user->ID );
-		
-		// get user last seen
-		
-		$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
-		
-		// get user stars
-		
-		$this->user->stars = $this->stars->get_count($this->user->ID);
-		
-		$this->user->refId = $this->ltple_encrypt_uri( 'RI-' . $this->user->ID );
-		
-		// get user rights
-		
-		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
-		
-		//get user layer
-		
-		if( $this->layer->type == 'user-layer' ){
+			// get is admin
 			
-			if( $this->user->is_admin ){
+			$this->user->is_admin = current_user_can( 'administrator', $this->user->ID );
 			
-				$q = get_posts(array(
+			// get user last seen
+			
+			$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
+			
+			// get user layers
+			
+			$this->user->layers = get_posts(array(
+			
+				'author'      => $this->user->ID,
+				'post_type'   => 'user-layer',
+				'post_status' => 'publish',
+				'numberposts' => -1
+			));	
+			
+			// get user stars
+			
+			$this->user->stars = $this->stars->get_count($this->user->ID);
+			
+			// get user ref id
+			
+			$this->user->refId = $this->ltple_encrypt_uri( 'RI-' . $this->user->ID );
+			
+			// get user rights
+			
+			$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
+
+			//get user layer
+			
+			if( $this->layer->type == 'user-layer' ){
 				
-					'name'        => $this->layer->slug,
-					'post_type'   => 'user-layer',
-					'post_status' => 'publish',
-					'numberposts' => 1
-				));						
+				if( $this->user->is_admin ){
+				
+					$q = get_posts(array(
+					
+						'name'        => $this->layer->slug,
+						'post_type'   => 'user-layer',
+						'post_status' => 'publish',
+						'numberposts' => 1
+					));						
+				}
+				else{
+					
+					$q = $this->user->layers;				
+				}
+				
+				//var_dump( $q );exit;
+				
+				if(isset($q[0])){
+					
+					$this->user->layer=$q[0];
+				}
+				
+				unset($q);
 			}
-			else{
-				
-				$q = get_posts(array(
-				
-					'name'        => $this->layer->slug,
-					'author'      => $this->user->ID,
-					'post_type'   => 'user-layer',
-					'post_status' => 'publish',
-					'numberposts' => 1
-				));				
-			}
-			
-			//var_dump( $q );exit;
-			
-			if(isset($q[0])){
-				
-				$this->user->layer=$q[0];
-			}
-			
-			unset($q);
 		}
 		
 		// newsletter unsubscription
@@ -801,8 +808,15 @@ class LTPLE_Client {
 	}
 	
 	public function editor_templates( $template_path ){
-		
-		if( is_single() ) {
+
+		if( isset($_GET['pr']) && is_numeric($_GET['pr']) ){
+			
+			if( isset($this->profile->layer->ID) || !empty(get_user_meta( intval($_GET['pr']) , 'ltple_profile_html', true )) ){
+				
+				$template_path = $this->views . $this->_dev . '/layer-profile.php';
+			}
+		}	
+		elseif( is_single() ) {
 			
 			$post_type	= get_post_type();
 			$post_id	= get_the_ID();
@@ -883,21 +897,6 @@ class LTPLE_Client {
 				
 			'taxonomy' => 'image-type',
 			'hide_empty' => true,
-		));		
-		
-		// get user marketing channel
-		
-		$terms = wp_get_object_terms( $this->user->ID, 'marketing-channel' );
-		$this->user->channel = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0]->slug : '');
-
-		// get user connected apps
-		
-		$this->user->apps = get_posts(array(
-				
-			'author'      => $this->user->ID,
-			'post_type'   => 'user-app',
-			'post_status' => 'publish',
-			'numberposts' => -1
 		));
 			
 		// get layer type
@@ -921,6 +920,25 @@ class LTPLE_Client {
 		// get triggers
 		
 		$this->triggers = new LTPLE_Client_Triggers( $this );
+
+		// get user profile
+			
+		$this->user->profile = new LTPLE_Client_User_Profile( $this );
+					
+		// get user marketing channel
+		
+		$terms = wp_get_object_terms( $this->user->ID, 'marketing-channel' );
+		$this->user->channel = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0]->slug : '');
+
+		// get user connected apps
+		
+		$this->user->apps = get_posts(array(
+				
+			'author'      => $this->user->ID,
+			'post_type'   => 'user-app',
+			'post_status' => 'publish',
+			'numberposts' => -1
+		));
 		
 		// get user plan
 
@@ -957,8 +975,6 @@ class LTPLE_Client {
 		
 		// get editor iframe
 
-		
-		
 		if( $this->user->loggedin===true && $this->layer->slug!='' && $this->layer->type!='' && $this->layer->key!='' && $this->server->url!==false ){
 			
 			if( $this->layer->key == md5( 'layer' . $this->layer->uri . $this->_time )){
@@ -1007,12 +1023,18 @@ class LTPLE_Client {
 	
 	public function add_shortcode_editor(){
 		
+		// vertical tab styling
+		
 		echo '<style>';
 			echo '.pgheadertitle{display:none;}.tabs-left,.tabs-right{border-bottom:none;padding-top:2px}.tabs-left{border-right:0px solid #ddd}.tabs-right{border-left:0px solid #ddd}.tabs-left>li,.tabs-right>li{float:none;margin-bottom:2px}.tabs-left>li{margin-right:-1px}.tabs-right>li{margin-left:-1px}.tabs-left>li.active>a,.tabs-left>li.active>a:focus,.tabs-left>li.active>a:hover{border-left: 5px solid #F86D18;border-top:0;border-right:0;border-bottom:0; }.tabs-right>li.active>a,.tabs-right>li.active>a:focus,.tabs-right>li.active>a:hover{border-bottom:0px solid #ddd;border-left-color:transparent}.tabs-left>li>a{border-radius:4px 0 0 4px;margin-right:0;display:block}.tabs-right>li>a{border-radius:0 4px 4px 0;margin-right:0}.sideways{margin-top:50px;border:none;position:relative}.sideways>li{height:20px;width:120px;margin-bottom:100px}.sideways>li>a{border-bottom:0px solid #ddd;border-right-color:transparent;text-align:center;border-radius:4px 4px 0 0}.sideways>li.active>a,.sideways>li.active>a:focus,.sideways>li.active>a:hover{border-bottom-color:transparent;border-right-color:#ddd;border-left-color:#ddd}.sideways.tabs-left{left:-50px}.sideways.tabs-right{right:-50px}.sideways.tabs-right>li{-webkit-transform:rotate(90deg);-moz-transform:rotate(90deg);-ms-transform:rotate(90deg);-o-transform:rotate(90deg);transform:rotate(90deg)}.sideways.tabs-left>li{-webkit-transform:rotate(-90deg);-moz-transform:rotate(-90deg);-ms-transform:rotate(-90deg);-o-transform:rotate(-90deg);transform:rotate(-90deg)}';
 			echo 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
-		echo '</style>';
-		
-		if($this->user->loggedin){
+		echo '</style>';	
+	
+		if( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
+
+			include($this->views . $this->_dev .'/profile.php');
+		}			
+		elseif($this->user->loggedin){		
 
 			include( $this->views . $this->_dev .'/navbar.php' );	
 			
@@ -1021,18 +1043,22 @@ class LTPLE_Client {
 				include($this->views . $this->_dev .'/channel-modal.php');
 			}			
 
-			if(isset($_GET['media'])){
+			if( isset($_GET['media']) ){
 				
 				include($this->views . $this->_dev .'/media.php');
 			}
-			elseif(isset($_GET['app'])||isset($_SESSION['app'])){
+			elseif( isset($_GET['app']) || isset($_SESSION['app']) ){
 				
 				include($this->views . $this->_dev .'/apps.php');
-			}		
-			elseif(isset($_GET['rank'])||isset($_SESSION['rank'])){
+			}	
+			elseif( isset($_GET['rank']) ){
 				
 				include($this->views . $this->_dev .'/ranking.php');
-			}				
+			}
+			elseif( isset($_GET['my-profile']) ){
+				
+				include($this->views . $this->_dev .'/settings.php');
+			}			
 			elseif( $this->layer->uri != ''){
 				
 				if( $this->user->has_layer ){
@@ -2319,10 +2345,10 @@ class LTPLE_Client {
 				
 				if( $this->layer->type == 'user-layer' ){
 				
-					$post_id=$this->user->layer->ID;
-					$post_title=$this->user->layer->post_title;
-					$post_name=$this->user->layer->post_name;
-					$post_default_layer=intval(get_post_meta($post_id, 'defaultLayerId')[0]);						
+					$post_id			= $this->user->layer->ID;
+					$post_title			= $this->user->layer->post_title;
+					$post_name			= $this->user->layer->post_name;
+					$post_default_layer	= intval(get_post_meta( $post_id, 'defaultLayerId', true));
 				}
 				elseif(isset($_POST['postTitle'])&&$_POST['postTitle']!=''){
 					
@@ -2349,9 +2375,9 @@ class LTPLE_Client {
 					}
 					else{
 						
-						$post_title = wp_strip_all_tags( $_POST['postTitle'] );
-						$post_name = $post_title;
-						$post_default_layer=intval(get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer')->ID);					
+						$post_title 		= wp_strip_all_tags( $_POST['postTitle'] );
+						$post_name 			= $post_title;
+						$post_default_layer	= intval( get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer')->ID);					
 					}
 				}
 				else{
@@ -2360,11 +2386,9 @@ class LTPLE_Client {
 					exit;
 				}
 				
-				//var_dump($post_default_layer);exit;
-
-				$post_content=$_POST['postContent'];
-				$post_content=stripslashes($post_content);
-				$post_content=str_replace('&quot;','',$post_content);
+				$post_content = $_POST['postContent'];
+				$post_content = stripslashes($post_content);
+				$post_content = str_replace('&quot;','',$post_content);
 				
 				//$post_content=html_entity_decode(stripslashes($post_content));
 				
@@ -2378,30 +2402,26 @@ class LTPLE_Client {
 					}
 				}
 				
-				//var_dump($post_content);exit;
-				
-				if($post_title!=''&&$post_content!=''&&is_int($post_default_layer)&&$post_default_layer!==-1){
+				if( $post_title!='' && $post_content!='' && is_int($post_default_layer) && $post_default_layer !== -1 ){
 					
 					$post_information = array(
 						
-						'post_author' => $this->user->ID,
-						'ID' => $post_id,
-						'post_title' => $post_title,
-						'post_name' =>  $post_name,
-						'post_content' => $post_content,
-						'post_type' => 'user-layer',
-						'post_status' => 'publish'
+						'post_author' 	=> $this->user->ID,
+						'ID' 			=> $post_id,
+						'post_title' 	=> $post_title,
+						'post_name' 	=> $post_name,
+						'post_content' 	=> $post_content,
+						'post_type' 	=> 'user-layer',
+						'post_status' 	=> 'publish'
 					);
 					
-					//var_dump($post_content);exit;
-					
-					if($post_id = wp_update_post( $post_information )){
+					$post_id = wp_update_post( $post_information );
+
+					if( is_numeric($post_id) ){
 						
-						if( $this->layer->type == 'default-layer' ){
-							
-							update_post_meta($post_id, 'defaultLayerId', $post_default_layer);
+						update_post_meta($post_id, 'defaultLayerId', $post_default_layer);
 						
-							//var_dump($post_id);exit;
+						if( $this->layer->type == 'user-layer' ){
 							
 							//redirect to user layer
 							

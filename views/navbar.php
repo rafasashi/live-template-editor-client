@@ -134,17 +134,7 @@
 		
 		if( $this->user->ID > 0 ){
 		
-			$q = get_posts(array(
-			
-				'author'      => $this->user->ID,
-				'post_type'   => 'user-layer',
-				'post_status' => 'publish',
-				'numberposts' => -1
-			));
-			
-			//var_dump( $q );exit;
-			
-			if(!empty($q)){ 
+			if(!empty($this->user->layers)){ 
 
 				echo'<div style="margin:0 2px;" class="btn-group">';
 				
@@ -152,7 +142,7 @@
 					
 					echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 						
-							foreach($q as $i => $layer) {
+							foreach($this->user->layers as $i => $layer) {
 								
 								echo'<li style="position:relative;">';
 									
@@ -171,10 +161,36 @@
 			}
 		}
 		
-		?>
+		echo'<div style="margin:0 2px;" class="btn-group">';
 		
-		<a style="margin:0 2px;" class="btn btn-sm btn-info" href="<?php echo wp_logout_url( $_SERVER['SCRIPT_URI'] ); ?>">Logout</a>				
-	
+			echo'<button type="button" style="margin:0 2px;" class="btn btn-sm btn-info"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">My Profile <span class="caret"></span></button>';
+								
+			echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
+				
+				echo'<li style="position:relative;">';
+					
+					echo '<a target="_blank" href="'. $this->urls->editor .'?pr='.$this->user->ID . '"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> View Profile</a>';
+
+				echo'</li>';					
+				
+				echo'<li style="position:relative;">';
+					
+					echo '<a href="'. $this->urls->editor .'?my-profile"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Edit Settings</a>';
+
+				echo'</li>';				
+				
+				echo'<li style="position:relative;">';
+					
+					echo '<a href="'. wp_logout_url( $_SERVER['SCRIPT_URI'] ) .'"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout</a>';
+
+				echo'</li>';	
+				
+			echo'</ul>';
+			
+		echo'</div>';		
+		
+		?>
+
 	</div>
 	
 </div>

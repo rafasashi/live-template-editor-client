@@ -107,7 +107,7 @@
 										echo'<tr>';
 										
 											echo'<td style="font-size:16px;font-weight:bold;text-align:center;"># '.$rank.'</td>';
-											echo'<td style="font-size:15px;">' . ucfirst( $user->user_nicename ) . '</td>';
+											echo'<td style="font-size:15px;"><a href="' . $this->urls->editor . '?pr='.$user->ID.'">' . ucfirst( $user->user_nicename ) . '</a></td>';
 											echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;"><span class="glyphicon glyphicon-star" aria-hidden="true"></span> ' . $stars . '</span></td>';
 										
 										echo'</tr>';										

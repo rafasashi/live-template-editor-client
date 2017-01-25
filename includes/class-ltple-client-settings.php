@@ -154,6 +154,7 @@ class LTPLE_Client_Settings {
 			'edit.php?post_type=default-image'
 		);
 		
+		/*
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'User profile', $this->plugin->slug ),
@@ -161,6 +162,7 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit.php?post_type=user-profile'
 		);
+		*/
 		
 		add_submenu_page(
 			$this->plugin->slug,
@@ -489,7 +491,6 @@ class LTPLE_Client_Settings {
 			'title'					=> __( 'Twitter', $this->plugin->slug ),
 			'description'			=> __( 'Twitter API settings', $this->plugin->slug ),
 			'fields'				=> array(
-
 				array(
 					'id' 			=> 'twt_main_account',
 					'label'			=> __( 'Twitter Main Account' , $this->plugin->slug ),

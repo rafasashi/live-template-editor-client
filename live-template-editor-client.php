@@ -275,7 +275,7 @@
 		'menu_icon' 			=> 'dashicons-admin-post',
 	));
 	
-	
+	/*
 	LTPLE_Client($version)->register_post_type( 'user-profile', __( 'User profiles', 'live-template-editor-client' ), __( 'User profiles', 'live-template-editor-client' ), '', array(
 
 		'public' 				=> true,
@@ -296,6 +296,7 @@
 		'menu_position' 		=> 5,
 		'menu_icon' 			=> 'dashicons-admin-post',
 	));
+	*/
 	
 	LTPLE_Client($version)->register_post_type( 'user-plan', __( 'User Plans', 'live-template-editor-client' ), __( 'User Plans', 'live-template-editor-client' ), '', array(
 
@@ -805,7 +806,8 @@
 				'type'		=>'checkbox_multi',
 				'options'	=>array(
 				
-					'line-break'=>'Line break (Enter)'
+					'line-break'	=> 'Line break (Enter)',
+					'wrap-text'		=> 'Auto wrap text',
 				
 				),
 				'checked'	=>array('margin-top'),

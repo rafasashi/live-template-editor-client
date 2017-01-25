@@ -1,18 +1,14 @@
 <?php 
 
-if ( have_posts() ) : while ( have_posts() ) : the_post();
-
-	$layer_type	= get_post_type();
-
 	//get current layer id
 	 
-	if( $layer_type == 'user-layer' ){
+	if( $post->post_type == 'user-layer' ){
 	
-		$layer_id=intval(get_post_meta( get_the_ID(), 'defaultLayerId', true ));
+		$layer_id=intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
 	}
 	else{
 		
-		$layer_id=get_the_ID();
+		$layer_id=$post->ID;
 	}
 	
 	//get page def
@@ -61,7 +57,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 					
 	//get layer content
 	
-	$layerContent 	= get_the_content();
+	$layerContent 	= $post->post_content;
 	$layerContent 	= str_replace(array('&quot;','cursor: pointer;'),'',$layerContent);
 	
 	if($layerOutput=='canvas'){
@@ -94,16 +90,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			echo '<!--[if lt IE 9]>';
 			echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
 			echo '<![endif]-->';
-			
-			echo '<style>';
-			
-				//echo file_get_contents( trailingslashit(dirname(dirname( __FILE__ ))) . 'assets/css/ltple-layer.css' ).PHP_EOL;
-				 
-				echo file_get_contents( trailingslashit(dirname(dirname( __FILE__ ))) . 'assets/css/medium-editor.min.css' ).PHP_EOL;
-				echo file_get_contents( trailingslashit(dirname(dirname( __FILE__ ))) . 'assets/css/themes/bootstrap.min.css' ).PHP_EOL;
-			
-			echo '</style>';
-			
+
 			if( is_array($cssLibraries) ){
 				
 				if( in_array('bootstrap-3',$cssLibraries)){
@@ -248,8 +235,4 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 			
 		echo'</body>' .PHP_EOL;
 		
-	echo'</html>' .PHP_EOL;	
-				
-break; 
-endwhile; 
-endif;
+	echo'</html>' .PHP_EOL;

@@ -154,6 +154,7 @@ class LTPLE_Client_Settings {
 			'edit.php?post_type=default-image'
 		);
 		
+		/*
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'User profile', $this->plugin->slug ),
@@ -161,6 +162,7 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit.php?post_type=user-profile'
 		);
+		*/
 		
 		add_submenu_page(
 			$this->plugin->slug,

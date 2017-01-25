@@ -2,9 +2,10 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Plan {
-	
+class LTPLE_Client_Profile {
+
 	var $parent;
+	var $layer;
 	
 	/**
 	 * Constructor function
@@ -12,12 +13,56 @@ class LTPLE_Client_Plan {
 	public function __construct ( $parent ) {
 
 		$this->parent 	= $parent;
+		
+		$this->fields 	= $this->get_fields();
+		
+		if( isset($_GET['pr']) && is_numeric($_GET['pr']) ){
+
+			if( $layer = get_post( intval(get_user_meta( intval($_GET['pr']), 'ltple_profile_template', true )) ) ){
+				
+				$this->layer = $layer;
+			}				
+		}
 	}
 	
-	
+	public function get_fields(){
+		
+		$fields = array();
+
+		$fields['user_login'] = array(
+
+			'id' 			=> 'user_login',
+			'label'			=> 'Username',
+			'description'	=> '',
+			'placeholder'	=> 'Username',
+			'type'			=> 'text',
+			'disabled'		=> true
+		);
+		
+		$fields['nickname'] = array(
+
+			'id' 			=> 'nickname',
+			'label'			=> 'Nickname',
+			'description'	=> '',
+			'placeholder'	=> 'Nickname',
+			'type'			=> 'text',
+			'required'		=> true
+		);
+		
+		$fields['url'] = array(
+		
+			'id' 			=> 'url',
+			'label'			=> 'Web Site',
+			'description'	=> '',
+			'placeholder'	=> 'http://',
+			'type'			=> 'text'			
+		);
+		
+		return $fields;
+	}
 	
 	/**
-	 * Main LTPLE_Client_Plan Instance
+	 * Main LTPLE_Client_Profile Instance
 	 *
 	 * Ensures only one instance of LTPLE_Client_Stars is loaded or can be loaded.
 	 *

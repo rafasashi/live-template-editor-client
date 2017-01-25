@@ -17,7 +17,18 @@
 		
 		<div class="tab-content">
 		  
-			<?php		
+			<?php
+			
+			$inWidget = false;
+			$output='default';
+			$target='_self';
+		
+			if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
+				
+				$inWidget = true;
+				$output=$_GET['output'];
+				$target='_blank';
+			}
 			
 			//------------------ get default images ------------
 
@@ -88,7 +99,7 @@
 							
 							$item.='<div class="text-right">';
 
-								if(isset($_GET['output']) && $_GET['output'] == 'widget' ){
+								if($inWidget){
 									
 									if($this->user->plan["info"]["total_price_amount"]>0){
 										
@@ -170,12 +181,6 @@
 								
 								$item.='<b>' . $image_title . '</b>';
 								
-								$output='';
-								if(isset($_GET['output'])){
-									
-									$output=$_GET['output'];
-								}
-								
 								$item.='<a class="btn-xs btn-danger" href="' . $_SERVER['SCRIPT_URI'] . '?media&output='.$output.'&uri=user-image/' . $image->post_name . '/&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
 
 							$item.='</div>';
@@ -198,7 +203,7 @@
 
 								$item.='<div class="text-right">';
 
-									if(isset($_GET['output']) && $_GET['output'] == 'widget' ){
+									if($inWidget){
 										
 										if($this->user->plan["info"]["total_price_amount"]>0){
 											
@@ -412,7 +417,7 @@
 											
 											if(in_array($app->slug,$uploadable_apps)){
 												
-												echo '<a href="'.$_SERVER['SCRIPT_URI'] . '?media&app='.$app->slug.'&action=connect&ref='.$ref_url.'" style="width:100%;text-align:left;" class="btn btn-lg btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add a '.$app->name.' account</a>';
+												echo '<a target="'.$target.'" href="'.$_SERVER['SCRIPT_URI'] . '?media&app='.$app->slug.'&action=connect&ref='.str_replace(urlencode('output=widget'), urlencode('output=default'),$ref_url).'" style="width:100%;text-align:left;" class="btn btn-lg btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add a '.$app->name.' account</a>';
 											}
 										}
 										
@@ -437,11 +442,11 @@
 
 											if(strpos($user_app->post_name ,$app->slug. '-')===0){
 												
-												echo '<a href="'.$_SERVER['SCRIPT_URI'] . '?media&app='.$app->slug.'&action=importImg&id=' . $user_app->ID . '&ref='.$ref_url.'" style="width:100%;text-align:left;" class="btn btn-md btn-info"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> '.ucfirst($user_app->post_title).'</a>';
+												echo '<a href="'.$_SERVER['SCRIPT_URI'] . '?media&app='.$app->slug.'&output='.$output.'&action=importImg&id=' . $user_app->ID . '&ref='.$ref_url.'" style="width:100%;text-align:left;" class="btn btn-md btn-info"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> '.ucfirst($user_app->post_title).'</a>';
 											}
 										}
 										
-										echo '<a href="'.$_SERVER['SCRIPT_URI'] . '?media&app='.$app->slug.'&action=connect&ref='.$ref_url.'" style="width:100%;text-align:left;" class="btn btn-md btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
+										echo '<a target="'.$target.'" href="'.$_SERVER['SCRIPT_URI'] . '?media&app='.$app->slug.'&action=connect&ref='.str_replace(urlencode('output=widget'), urlencode('output=default'),$ref_url).'" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
 									}
 									else{
 										

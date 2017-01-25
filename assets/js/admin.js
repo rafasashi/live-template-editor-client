@@ -21,14 +21,18 @@
 			e.preventDefault();
 			$(this).closest('.input-group-row').remove();
 		});	
-
-		$( ".ui-sortable" ).sortable({
-			
-			placeholder	: "ui-state-highlight",
-			items		: "li:not(.ui-state-disabled)"
-		});
 		
-		$( ".ui-sortable li" ).disableSelection();
+		if( $( ".ui-sortable" ).length ){
+		
+			$( ".ui-sortable" ).sortable({
+				
+				placeholder	: "ui-state-highlight",
+				items		: "li:not(.ui-state-disabled)"
+			});
+			
+			$( ".ui-sortable li" ).disableSelection();
+		
+		}
 	});
 	
 })(jQuery);

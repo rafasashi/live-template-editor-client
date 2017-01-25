@@ -242,6 +242,7 @@
 		 * @see LTPLE_Client()
 		 * @return Main LTPLE_Client_Stars instance
 		 */
+		 
 		public static function instance ( $parent ) {
 			
 			if ( is_null( self::$_instance ) ) {
