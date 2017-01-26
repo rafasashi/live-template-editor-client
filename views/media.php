@@ -181,8 +181,11 @@
 								
 								$item.='<b>' . $image_title . '</b>';
 								
-								$item.='<a class="btn-xs btn-danger" href="' . $_SERVER['SCRIPT_URI'] . '?media&output='.$output.'&uri=user-image/' . $image->post_name . '/&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-
+								if(!$inWidget){
+								
+									$item.='<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?media&output='.$output.'&uri=user-image/' . $image->post_name . '/&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
+								}
+								
 							$item.='</div>';
 
 							$item.='<div class="panel-body">';
@@ -320,8 +323,7 @@
 				echo'<div class="tab-content row" style="margin-top:20px;">';
 					
 					$active	 = ' active';
-					$ref_url = urlencode( $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] );
-					
+
 					foreach( $apps as $app ){
 						
 						echo'<div role="tabpanel" class="tab-pane'.$active.'" id="user-images_'.$app->slug.'">';
@@ -413,11 +415,11 @@
 										
 										echo'<hr style="margin:10px 0;"></hr>';
 										
-										foreach($this->apps->appList as $app){
+										foreach( $this->apps->appList as $app ){
 											
 											if(in_array($app->slug,$uploadable_apps)){
 												
-												echo '<a target="'.$target.'" href="'.$_SERVER['SCRIPT_URI'] . '?media&app='.$app->slug.'&action=connect&ref='.str_replace(urlencode('output=widget'), urlencode('output=default'),$ref_url).'" style="width:100%;text-align:left;" class="btn btn-lg btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add a '.$app->name.' account</a>';
+												echo '<a target="'.$target.'" href="'.$this->apps->getAppUrl($app->slug,'connect').'" style="width:100%;text-align:left;" class="btn btn-lg btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add a '.$app->name.' account</a>';
 											}
 										}
 										
@@ -442,11 +444,11 @@
 
 											if(strpos($user_app->post_name ,$app->slug. '-')===0){
 												
-												echo '<a href="'.$_SERVER['SCRIPT_URI'] . '?media&app='.$app->slug.'&output='.$output.'&action=importImg&id=' . $user_app->ID . '&ref='.$ref_url.'" style="width:100%;text-align:left;" class="btn btn-md btn-info"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> '.ucfirst($user_app->post_title).'</a>';
+												echo '<a href="'.$this->apps->getAppUrl($app->slug,'importImg').'&output='.$output.'&id=' . $user_app->ID .'" style="width:100%;text-align:left;" class="btn btn-md btn-info"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> '.ucfirst($user_app->post_title).'</a>';
 											}
 										}
 										
-										echo '<a target="'.$target.'" href="'.$_SERVER['SCRIPT_URI'] . '?media&app='.$app->slug.'&action=connect&ref='.str_replace(urlencode('output=widget'), urlencode('output=default'),$ref_url).'" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
+										echo '<a target="'.$target.'" href="'.$this->apps->getAppUrl($app->slug,'connect').'" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
 									}
 									else{
 										

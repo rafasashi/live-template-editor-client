@@ -27,8 +27,9 @@ class LTPLE_Client_Profile {
 	
 	public function get_fields(){
 		
-		$fields = array();
-
+		$fields = array();	
+		
+		/*
 		$fields['user_login'] = array(
 
 			'id' 			=> 'user_login',
@@ -38,6 +39,7 @@ class LTPLE_Client_Profile {
 			'type'			=> 'text',
 			'disabled'		=> true
 		);
+		*/
 		
 		$fields['nickname'] = array(
 
@@ -49,13 +51,22 @@ class LTPLE_Client_Profile {
 			'required'		=> true
 		);
 		
-		$fields['url'] = array(
+		$fields['description'] = array(
+
+			'id' 			=> 'description',
+			'label'			=> 'About me',
+			'description'	=> '',
+			'placeholder'	=> '',
+			'type'			=> 'textarea'
+		);
 		
-			'id' 			=> 'url',
+		$fields['user_url'] = array(
+		
+			'id' 			=> 'user_url',
 			'label'			=> 'Web Site',
 			'description'	=> '',
 			'placeholder'	=> 'http://',
-			'type'			=> 'text'			
+			'type'			=> 'url'			
 		);
 		
 		return $fields;

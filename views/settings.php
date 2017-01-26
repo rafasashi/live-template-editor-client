@@ -48,15 +48,36 @@
 						echo'<h3>General Information</h3>';
 						
 					echo'</div>';
-
-					echo'<div class="col-xs-12 col-sm-4"></div>';
+					
+					echo'<div class="col-xs-12 col-sm-2 text-right">';
+						
+						echo'<a target="_blank" class="label label-warning" style="font-size: 13px;" href="'.$this->urls->editor . '?pr='.$this->user->ID . '">view profile</a>';
+						
+					echo'</div>';
+					
+					echo'<div class="col-xs-12 col-sm-2"></div>';
 					
 					echo'<div class="clearfix"></div>';
 				
 					echo'<div class="col-xs-12 col-sm-8">';
 
 						echo'<table class="form-table">';
-						
+	
+							foreach( $this->user->profile->pictures as $field ){
+								
+								echo'<tr>';
+								
+									echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+									
+									echo'<td>';
+									
+										$this->admin->display_field( $field , $this->user );
+									
+									echo'</td>';
+									
+								echo'</tr>';
+							}
+	
 							foreach( $this->profile->fields as $field ){
 								
 								echo'<tr>';
@@ -101,7 +122,7 @@
 
 					echo'<div class="col-xs-12 col-sm-6">';
 				
-						echo'<h3>Connected Apps</h3>';
+						echo'<h3>Displayed connected accounts</h3>';
 						
 					echo'</div>';
 

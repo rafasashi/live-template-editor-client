@@ -2251,7 +2251,7 @@ class LTPLE_Client {
 				'order' 		=> $args['order']
 			)
 		);
-		
+		 
 		$dropdown = '';
 		
 		if( $posts ){

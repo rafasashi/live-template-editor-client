@@ -17,6 +17,8 @@ class LTPLE_Client_User_Profile {
 			
 			if( isset( $_REQUEST['my-profile'] ) || isset( $_GET['pr'] ) ){
 				 
+				$this->pictures = $this->get_pictures(); 
+				 
 				$this->customization = $this->get_customization();
 
 				$this->apps = $this->get_apps();
@@ -25,13 +27,33 @@ class LTPLE_Client_User_Profile {
 					
 					// save general information
 					
-					foreach( $this->parent->profile->fields as $id => $field){
+					foreach( $this->parent->profile->fields as $field){
+						
+						$id = $field['id'];
 						
 						if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
 							
-							update_user_meta( $this->parent->user->ID, $id, sanitize_text_field($_POST[$id]) );
+							$content = wp_kses_post($_POST[$id]);
+							
+							wp_update_user( array( 'ID' => $this->parent->user->ID, $id => $content ) );
+								
+							$this->parent->user->{$id} = $content;
 						}
 					}
+					
+					// save pictures
+					
+					foreach( $this->pictures as $field){
+						
+						$id = $field['id'];
+						
+						if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
+							
+							$content = wp_kses_post($_POST[$id]);
+
+							update_user_meta( $this->parent->user->ID, $id, $content );
+						}
+					} 
 					
 					// save displayed apps
 					
@@ -55,7 +77,7 @@ class LTPLE_Client_User_Profile {
 						
 						if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
 							
-							$content = wp_kses_post($_POST[$id]);
+							$content = $_POST[$id]; //using here wp_kses_post break inline styling...
 							
 							if(isset($field['allowed_tags'])){
 								
@@ -69,10 +91,10 @@ class LTPLE_Client_User_Profile {
 			}
 		}
 	}
-
+	
 	public function get_customization(){
 		
-		$templates = array( -1 => 'none', -2 => 'custom HTML' );
+		$templates = array( -1 => 'none', -2 => 'custom HTML below' );
 		
 		if( !empty($this->parent->user->layers) ){
 
@@ -127,6 +149,47 @@ class LTPLE_Client_User_Profile {
 		return $fields;
 	}
 	
+	public function get_pictures( $user_id = 0, $userApps = array() ){
+	
+		if( $user_id == 0) {
+			
+			$user_id = $this->parent->user->ID;
+			
+			$userApps = $this->parent->user->apps;
+		}
+		
+		$pictures 	= array();
+		
+		//get gravatar picture
+		
+		$image 			= get_avatar_url( $user_id );
+		$pictures[] 	= $image;
+		
+		// get connected twitter pictures
+		
+		foreach( $userApps as $i => $userApp ){
+			
+			$key = 'twitter-';
+			
+			if( strpos( $userApp->post_name, $key ) === 0 ){
+				
+				$name 		= str_replace($key,'',$userApp->post_name);
+				$pictures[] = 'https://twitter.com/'.$name.'/profile_image?size=original';
+			}
+		}		
+		
+		$fields['profile_picture'] = array(
+
+			'id' 			=> $this->parent->_base . 'profile_picture',
+			'label'			=> 'Picture',
+			'description'	=> 'Select a pictures among your <a class="label label-default" target="_blank" href="https://en.gravatar.com/">Gravatar</a> or <a class="label label-info" href="'.$this->parent->apps->getAppUrl('twitter','connect').'">Twitter</a> accounts',
+			'type'			=> 'avatar',
+			'options'		=> $pictures
+		);
+		
+		return $fields;
+	}	
+	
 	public function get_apps( $user_id = 0 ){
 		
 		$fields = array();
@@ -152,9 +215,9 @@ class LTPLE_Client_User_Profile {
 			
 			$accounts = array( 'none' => 'none' );
 			
-			foreach( $this->parent->user->apps as $userApp ){
+			foreach( $userApps as $userApp ){
 				
-				if(strpos($userApp->post_name, $app->slug . '-')===0){
+				if( strpos($userApp->post_name, $app->slug . '-') === 0 ){
 					
 					$accounts[$userApp->post_name] = $userApp->post_title;
 				}

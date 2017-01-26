@@ -27,7 +27,25 @@ if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 
 						echo'<div class="col-xs-12 col-sm-6">';
 					
-							echo'<h3>General Information</h3>';
+							// get profile picture
+							
+							$picture = get_user_meta( $displayedUser->ID , $this->_base . 'profile_picture', true );
+							
+							if( empty($picture) ){
+								
+								$picture = get_avatar_url( $displayedUser->ID );
+							}
+							
+							// get profile title
+							
+							$title = get_user_meta( $displayedUser->ID , $this->_base . 'profile_title', true );
+							
+							if( empty($title) ){
+								
+								$title = 'General Information';
+							}
+							
+							echo'<h3>'.'<img src="'.$picture.'" height="75" width="75" /> '.$title.'</h3>';
 							
 						echo'</div>';
 
@@ -49,15 +67,27 @@ if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 										
 											if( isset($displayedUser->{$field['id']}) ){
 												
-												echo $displayedUser->{$field['id']};
-											}
-											elseif( $meta = get_user_meta( $displayedUser->ID , $field['id'] )){
-										
-												echo $meta;
+												$meta = $displayedUser->{$field['id']};
 											}
 											else{
 												
-												echo 'none';
+												$meta = get_user_meta( $displayedUser->ID , $field['id'] );
+											}
+											
+											if(!empty($meta)){
+											
+												if(	$field['id'] == 'user_url'){
+														
+													echo '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
+												}
+												else{
+														
+													echo strip_tags($meta);
+												}
+											}
+											else{
+												
+												echo '';
 											}
 										
 										echo'</td>';

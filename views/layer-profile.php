@@ -3,22 +3,24 @@
 	if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 
 		$template_id = floatval( get_user_meta( $displayedUser->ID, 'ltple_profile_template', true ) );
-		
+		 
 		if( $template_id > 0 ){
 			
 			$post = get_post( $template_id );
 			
 			include('layer.php');
-		}
+		} 
 		elseif( $template_id == -2 ){
+			
+			// get profile_html
 			
 			$profile_html = get_user_meta( $displayedUser->ID, 'ltple_profile_html', true );
 			
-			//get profile_title
+			// get profile_title
 		
 			$profile_title = get_user_meta( $displayedUser->ID, 'ltple_profile_title', true );
 			
-			//get profile_css
+			// get profile_css
 			
 			$profile_css = get_user_meta( $displayedUser->ID, 'ltple_profile_css', true );
 			
@@ -35,7 +37,7 @@
 				$profile_content.= '</style>';
 			}
 			
-			$profile_content.= '<div style="min-width:1000px;width:100%;margin:250px auto auto auto;">';
+			$profile_content.= '<div style="min-width:1000px;width:100%;margin:120px 0px 20px 0px;">';
 				$profile_content.= '<div><div><div>';
 				
 					$profile_content.= $profile_html;
@@ -51,6 +53,11 @@
 			$post->post_content = $profile_content;
 			
 			include('layer.php');
+		}
+		else{
+			
+			echo 'Error loading profile...';
+			exit;			
 		}
 	}
 	else{

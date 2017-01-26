@@ -49,13 +49,12 @@
 					$limit 	= 100;
 					$offset = ( ( $page -1 ) * $limit );							
 					
-					$q = new WP_User_Query( array( 
-					
+					$q = new WP_User_Query( array( 								
 						'role' 			=> 'Subscriber',
 						'number' 		=> $limit,
 						'offset' 		=> $offset,
 						'meta_key' 		=> $this->_base . 'stars',
-						'orderby' 		=> $this->_base . 'stars',
+						'orderby' 		=> 'meta_value_num',
 						'order' 		=> 'DESC',
 					));
 
@@ -91,6 +90,7 @@
 									
 									echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:6%; text-align:center;">Rank</th>';
 									echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;text-align:left;">Profile</th>';
+									echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:5%;text-align:center;">Site</th>';
 									echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:10%;text-align:center;">Stars</th>';
 									
 								echo'</tr>';
@@ -99,20 +99,29 @@
 							
 							echo'<tbody>';								
 								
-									foreach( $q->results as $id => $user ){
-										
-										$rank = $id + 1 + $offset;
-										$stars = $user->{$this->_base . 'stars'};
+								foreach( $q->results as $id => $user ){
 
-										echo'<tr>';
+									$rank 	= $id + 1 + $offset;
+									$stars 	= $user->{$this->_base . 'stars'};
+									
+									$picture = get_user_meta( $user->ID , $this->_base . 'profile_picture', true );
+									
+									if( empty($picture) ){
 										
-											echo'<td style="font-size:16px;font-weight:bold;text-align:center;"># '.$rank.'</td>';
-											echo'<td style="font-size:15px;"><a href="' . $this->urls->editor . '?pr='.$user->ID.'">' . ucfirst( $user->user_nicename ) . '</a></td>';
-											echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;"><span class="glyphicon glyphicon-star" aria-hidden="true"></span> ' . $stars . '</span></td>';
-										
-										echo'</tr>';										
+										$picture = get_avatar_url( $user->ID );
+									}									
 
-									}
+									echo'<tr>';
+									
+										echo'<td style="font-size:16px;font-weight:bold;text-align:center;"># '.$rank.'</td>';
+										echo'<td style="font-size:15px;padding:1px;"><a href="' . $this->urls->editor . '?pr='.$user->ID.'">' . '<img src="'.$picture.'" height="35" width="35" /> '. ucfirst( $user->user_nicename ) . '</a></td>';
+										echo'<td style="text-align:center;">'.( !empty($user->user_url) ? '<a target="_blank" href="'.$user->user_url . '"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>' : '').'</td>';
+										echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;"><span class="glyphicon glyphicon-star" aria-hidden="true"></span> ' . $stars . '</span></td>';
+									
+									echo'</tr>';										
+
+								}
+									
 							echo'</tbody>';
 							
 						echo'</table>';

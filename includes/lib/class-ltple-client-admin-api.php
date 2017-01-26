@@ -504,6 +504,41 @@ class LTPLE_Client_Admin_API {
 				
 			break;
 			
+			case 'avatar':
+				
+				$checked = array();
+				
+				foreach ( $field['options'] as $k => $v ) {
+
+					if( $k === 0){
+					
+						$checked[$k] = true;
+					}
+					else{
+						
+						$checked[$k] = false;
+						
+						if ( $v == $data ) {
+							
+							$checked[$k] 	= true;
+							$checked[0] 	= false;
+						}						
+					}		
+				}
+				
+				foreach ( $field['options'] as $k => $v ) {
+
+					$html .= '<label for="' . esc_attr( $field['id'] . '_' . $k ) . '" style="width:50px;text-align:center;">';
+					
+						$html .= '<img src="'.$v.'" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
+					
+						$html .= '<input type="radio" ' . checked( $checked[$k], true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $v ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" />';
+
+					$html .= '</label> ';
+				}
+				
+			break;
+			
 			case 'dropdown_categories':
 
 				$html .=wp_dropdown_categories(array(

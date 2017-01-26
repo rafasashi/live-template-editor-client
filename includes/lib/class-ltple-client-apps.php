@@ -85,6 +85,15 @@ class LTPLE_Client_Apps {
 		do_action( 'ltple_new_app_connected' );
 	}
 	
+	public function getAppUrl( $appSlug, $action='connect' ){
+		
+		$ref_url = urlencode( $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] );
+		
+		$url = $this->parent->urls->editor . '?media&app='.$appSlug.'&action='.$action.'&ref='.str_replace(urlencode('output=widget'), urlencode('output=default'),$ref_url);
+		
+		return $url;
+	}
+	
 	public function getAppData($app_id, $user_id = NULL, $array = false ){
 		
 		$app_data = NULL;
