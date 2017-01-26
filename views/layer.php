@@ -86,6 +86,8 @@
 
 		echo '<head>';
 		
+			echo '<title>'.ucfirst($post->post_title).'</title>';
+		
 			echo '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
 			echo '<!--[if lt IE 9]>';
 			echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
@@ -204,13 +206,30 @@
 				
 				//include  line break setting
 
-				if( !is_array($layerOptions) || !in_array('line-break',$layerOptions)){
+				if( !is_array($layerOptions) ){
 					
-					echo ' var disableReturn = true;' .PHP_EOL;
+					echo ' var disableReturn 	= true;' .PHP_EOL;
+					echo ' var autoWrapText 	= false;' .PHP_EOL;
 				}
 				else{
 					
-					echo ' var disableReturn = false;' .PHP_EOL;
+					if(!in_array('line-break',$layerOptions)){
+						
+						echo ' var disableReturn = true;' .PHP_EOL;
+					}
+					else{
+						
+						echo ' var disableReturn = false;' .PHP_EOL;
+					}
+					
+					if(in_array('wrap-text',$layerOptions)){
+						
+						echo ' var autoWrapText = true;' .PHP_EOL;
+					}
+					else{
+						
+						echo ' var autoWrapText = false;' .PHP_EOL;
+					}
 				}
 				
 				//include icon settings

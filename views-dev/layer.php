@@ -86,6 +86,8 @@
 
 		echo '<head>';
 		
+			echo '<title>'.ucfirst($post->post_title).'</title>';
+		
 			echo '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
 			echo '<!--[if lt IE 9]>';
 			echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';

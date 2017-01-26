@@ -50,12 +50,12 @@
 					$offset = ( ( $page -1 ) * $limit );							
 					
 					$q = new WP_User_Query( array( 
-					
+										
 						'role' 			=> 'Subscriber',
 						'number' 		=> $limit,
 						'offset' 		=> $offset,
 						'meta_key' 		=> $this->_base . 'stars',
-						'orderby' 		=> $this->_base . 'stars',
+						'orderby' 		=> 'meta_value_num',
 						'order' 		=> 'DESC',
 					));
 

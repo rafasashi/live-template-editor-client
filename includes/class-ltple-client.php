@@ -811,7 +811,11 @@ class LTPLE_Client {
 
 		if( isset($_GET['pr']) && is_numeric($_GET['pr']) ){
 			
-			if( isset($this->profile->layer->ID) || !empty(get_user_meta( intval($_GET['pr']) , 'ltple_profile_html', true )) ){
+			$template_id = get_user_meta( intval($_GET['pr']) , 'ltple_profile_template', true );
+			
+			$template_id = floatval($template_id);
+			
+			if( ( $template_id > 0 && isset($this->profile->layer->ID) ) || $template_id == -2 ){
 				
 				$template_path = $this->views . $this->_dev . '/layer-profile.php';
 			}
@@ -917,6 +921,16 @@ class LTPLE_Client {
 		
 		$this->apps = new LTPLE_Client_Apps( $this );
 		
+		// get user connected apps
+		
+		$this->user->apps = get_posts(array(
+				
+			'author'      => $this->user->ID,
+			'post_type'   => 'user-app',
+			'post_status' => 'publish',
+			'numberposts' => -1
+		));	
+		
 		// get triggers
 		
 		$this->triggers = new LTPLE_Client_Triggers( $this );
@@ -930,16 +944,6 @@ class LTPLE_Client {
 		$terms = wp_get_object_terms( $this->user->ID, 'marketing-channel' );
 		$this->user->channel = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0]->slug : '');
 
-		// get user connected apps
-		
-		$this->user->apps = get_posts(array(
-				
-			'author'      => $this->user->ID,
-			'post_type'   => 'user-app',
-			'post_status' => 'publish',
-			'numberposts' => -1
-		));
-		
 		// get user plan
 
 		$this->user->plan = $this->get_user_plan_info( $this->user->ID );

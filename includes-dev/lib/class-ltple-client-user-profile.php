@@ -33,6 +33,20 @@ class LTPLE_Client_User_Profile {
 						}
 					}
 					
+					// save displayed apps
+					
+					foreach( $this->apps as $field){
+						
+						$id = $field['id'];
+						
+						if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
+							
+							$content = wp_kses_post($_POST[$id]);
+
+							update_user_meta( $this->parent->user->ID, $id, $content );
+						}
+					}
+					
 					// save profile customization
 					
 					foreach( $this->customization as $field){
@@ -41,7 +55,14 @@ class LTPLE_Client_User_Profile {
 						
 						if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
 							
-							update_user_meta( $this->parent->user->ID, $id, wp_kses_post($_POST[$id]) );
+							$content = wp_kses_post($_POST[$id]);
+							
+							if(isset($field['allowed_tags'])){
+								
+								$content = strip_tags($content, $field['allowed_tags']);
+							}
+							
+							update_user_meta( $this->parent->user->ID, $id, $content );
 						}
 					}
 				}
@@ -51,18 +72,14 @@ class LTPLE_Client_User_Profile {
 
 	public function get_customization(){
 		
+		$templates = array( -1 => 'none', -2 => 'custom HTML below' );
+		
 		if( !empty($this->parent->user->layers) ){
-			
-			$templates = array( -1 => 'none' );
-			
+
 			foreach($this->parent->user->layers as $i => $layer) {
 				
-				$templates[$layer->ID] = ucfirst($layer->post_title);
+				$templates[$layer->ID] = 'saved - ' . ucfirst($layer->post_title);
 			}
-		}
-		else{
-			
-			$templates = array( -1 => 'no saved templates' );
 		}
 		
 		$fields = array();
@@ -71,42 +88,77 @@ class LTPLE_Client_User_Profile {
 
 			'id' 			=> $this->parent->_base . 'profile_template',
 			'label'			=> 'Template',
-			'description'	=> 'Use a saved template instead of the custom html below',
+			'description'	=> '',
 			'type'			=> 'select',
 			'options'		=> $templates,
 			'required'		=> true,
 		);
 		
+		$fields['profile_title'] = array(
+
+			'id' 			=> $this->parent->_base . 'profile_title',
+			'label'			=> 'Title',
+			'description'	=> 'Add a title to your page without ' . htmlentities('<title></title>'),
+			'type'			=> 'text',
+			'placeholder'	=> 'Welcome to my profile',
+			'required'		=> true,
+		);
+
 		$fields['profile_html_body'] = array(
 
 			'id' 			=> $this->parent->_base . 'profile_html',
 			'label'			=> 'HTML body',
-			'description'	=> '',
+			'description'	=> 'Use HTML content without ' . htmlentities('<body></body>'),
 			'placeholder'	=> '',
-			'type'			=> 'textarea'
+			'type'			=> 'textarea',
+			'allowed_tags'	=> '<div><p><a><header><section><aside><main><nav><footer><em><i><u><font><strong><br><hr><h1><h2><h3><h4><h5><h6><img><ol><ul><li><span>',
 		);
 		
 		$fields['profile_css'] = array(
 		
 			'id' 			=> $this->parent->_base . 'profile_css',
 			'label'			=> 'CSS',
-			'description'	=> '',
+			'description'	=> 'Add CSS rules without ' . htmlentities('<style></style>'),
 			'placeholder'	=> '',
-			'type'			=> 'textarea'			
+			'type'			=> 'textarea',
+			'allowed_tags'	=> '',			
 		);
 		
 		return $fields;
 	}
 	
-	public function get_apps(){
+	public function get_apps( $user_id = 0 ){
 		
 		$fields = array();
+		
+		if( $user_id == $this->parent->user->ID && !empty($this->parent->user->apps) ){
+			
+			$userApps = $this->parent->user->apps;
+		}
+		else{
+			
+			$userApps = get_posts(array(
+					
+				'author'      => $user_id,
+				'post_type'   => 'user-app',
+				'post_status' => 'publish',
+				'numberposts' => -1
+			));				
+		}
 		
 		foreach($this->parent->apps->appList as $app){
 			
 			$key = 'display_'.str_replace('-','_',$app->slug);
 			
-			$accounts = array( -1 => 'none' );
+			$accounts = array( 'none' => 'none' );
+			
+			foreach( $this->parent->user->apps as $userApp ){
+				
+				if(strpos($userApp->post_name, $app->slug . '-')===0){
+					
+					$accounts[$userApp->post_name] = $userApp->post_title;
+				}
+			}
 			
 			$fields[$key] = array(
 

@@ -1,23 +1,24 @@
 <?php
-echo'<div id="media_library" style="margin-top:15px;background:#FFF;display:inline-block;width:100%;">';
 
-	echo'<div class="col-xs-3 col-sm-2">';
-	
-		echo'<ul class="nav nav-tabs tabs-left">';
-			
-			echo'<li class="gallery_type_title">My Profile</li>';
-			
-			echo'<li class="active"><a href="#general-info" data-toggle="tab">General Info</a></li>';
-			
-		echo'</ul>';
-	echo'</div>';
+if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 
-	echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;">';
+	echo'<div id="media_library" style="margin-top:15px;background:#FFF;display:inline-block;width:100%;">';
+
+		echo'<div class="col-xs-3 col-sm-2">';
 		
-		echo'<div class="tab-content">';
-		
-			if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
+			echo'<ul class="nav nav-tabs tabs-left">';
+				
+				echo'<li class="gallery_type_title">About '.ucfirst($displayedUser->user_nicename).'</li>';
+				
+				echo'<li class="active"><a href="#general-info" data-toggle="tab">General Info</a></li>';
+				
+			echo'</ul>';
+		echo'</div>';
+
+		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;">';
 			
+			echo'<div class="tab-content">';
+
 				//---------------------- output General Info --------------------------
 				
 				echo'<div class="tab-pane active" id="general-info">';
@@ -71,18 +72,18 @@ echo'<div id="media_library" style="margin-top:15px;background:#FFF;display:inli
 					echo'</form>';
 					
 				echo'</div>';
-			}
-			else{
-				
-				echo '<div class="alert alert-warning">';
-				
-					echo 'This profile doesn\'t exits...';
-					
-				echo '</div>';
-			}
-		  
-		echo '</div>';
-		
-	echo '</div>';	
 
-echo '</div>';
+			echo '</div>';
+			
+		echo '</div>';	
+
+	echo '</div>';
+}
+else{
+	
+	echo '<div class="alert alert-warning">';
+	
+		echo 'This profile doesn\'t exits...';
+		
+	echo '</div>';
+}
