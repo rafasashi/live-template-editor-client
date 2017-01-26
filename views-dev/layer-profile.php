@@ -3,7 +3,7 @@
 	if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 
 		$template_id = floatval( get_user_meta( $displayedUser->ID, 'ltple_profile_template', true ) );
-		
+		 
 		if( $template_id > 0 ){
 			
 			$post = get_post( $template_id );
