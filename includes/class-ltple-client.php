@@ -2231,13 +2231,14 @@ class LTPLE_Client {
 		
 		$defaults = array(
 		
-			'post_type' => 'post', 
+			'post_type' 		=> 'post', 
 			'show_option_none'  => 'Select a post', 
-			'name' => null, 
-			'selected' => '', 
-			'echo' => true, 
-			'orderby' => 'title', 
-			'order' => 'ASC' 
+			'name' 				=> null, 
+			'selected' 			=> '',
+			'style' 			=> '', 
+			'echo' 				=> true, 
+			'orderby' 			=> 'title', 
+			'order' 			=> 'ASC' 
 		);
 
 		$args = array_merge($defaults, $args);
@@ -2261,7 +2262,7 @@ class LTPLE_Client {
 				$args['name'] = $args['post_type'].'_select';
 			}
 			
-			$dropdown .= '<select id="'.$args['name'].'" name="'.$args['name'].'">';
+			$dropdown .= '<select' . ( !empty($args['style']) ? ' style="' . $args['style'] . '"' : '' ).' id="'.$args['name'].'" name="'.$args['name'].'">';
 				
 				$dropdown .= '<option value="-1">'.$args['show_option_none'].'</option>';
 				

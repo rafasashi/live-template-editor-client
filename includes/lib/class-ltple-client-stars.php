@@ -134,18 +134,16 @@
 			return $stars;
 		}
 		
-		public function add_stars( $user_id, $option_name ){
+		public function add_stars( $user_id, $stars ){
 			
 			if( is_numeric($user_id) ){
 			
-				$stars = get_option($option_name);
-		
 				if( !is_numeric($stars) ){
 					
-					$stars = 0;
+					$stars = get_option($stars);
 				}
 				
-				if( $stars != 0 ){
+				if( is_numeric($stars) ){
 					
 					// get user stars
 					

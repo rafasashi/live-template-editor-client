@@ -64,7 +64,8 @@
 
 				add_action( 'ltple_restrict_manage_users', function( $which ){
 					
-					echo '<div style="display:inline-block;">';
+					echo '</div>'; //close previous actions div
+					echo '<div class="actions" style="display:inline-block;">';
 						
 						// add marketing-channel filter
 						
@@ -118,6 +119,23 @@
 						
 						echo '</span>';
 						
+						// add bulk stars
+						
+						echo '<span>';
+							
+							echo '<label style="padding:7px;float:left;">';
+								echo ' Stars';
+							echo '</label>';
+
+							$filter = 'addStars';
+							$name = 'top' === $which ? $filter.'1' : $filter.'2';
+
+							echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
+
+							echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+						
+						echo '</span>';
+						
 						// add bulk email sender
 						
 						$post_type = 'email-model';
@@ -131,6 +149,7 @@
 								'show_option_none'  => 'Select an email',
 								'post_type'     	=> $post_type,
 								'name'    	  		=> $name,
+								'style'    	  		=> 'width:130px;',
 								'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
 								'echo'		   		=> false
 							));	
@@ -139,13 +158,14 @@
 						
 						echo '</span>';
 						
-					echo '</div>';					
+					//echo '</div>';					
 					
 				} );
 				
 				add_filter( 'pre_get_users', array( $this, 'ltple_filter_users_by_marketing_channel') );
 				add_filter( 'pre_get_users', array( $this, 'ltple_filter_users_by_plan_value') );
 				add_filter( 'pre_get_users', array( $this, 'ltple_bulk_send_email_model') );
+				add_filter( 'pre_get_users', array( $this, 'ltple_bulk_add_stars') );
 			}		
 		}
 		
@@ -627,6 +647,47 @@
 					
 				echo'</div>';					
 			}			
+		}
+		
+		
+		public function ltple_bulk_add_stars() {
+			
+			$field = 'addStars';
+			$addStars=0;
+			
+			if ( isset( $_REQUEST[$field.'1'] ) && is_numeric( $_REQUEST[$field.'1'] ) ) {
+				
+				$addStars = floatval($_REQUEST[$field.'1']);
+			}
+			elseif ( isset( $_REQUEST[$field.'2'] ) && is_numeric( $_REQUEST[$field.'2'] ) ) {
+				
+				$addStars = floatval($_REQUEST[$field.'2']);
+			}
+			
+			if( is_numeric( $addStars ) && !empty($_REQUEST['users']) && is_array($_REQUEST['users'])){
+				
+				$this->stars_added = $addStars;
+				
+				foreach( $_REQUEST['users'] as $user_id){
+					
+					$this->parent->stars->add_stars( $user_id, $addStars );
+				}
+
+				add_action( 'admin_notices', array( $this, 'output_stars_added_notice'));						
+			}
+		}
+		
+		public function output_stars_added_notice(){
+			
+			echo'<div class="notice notice-success">';
+			
+				echo'<p>';
+				
+					echo $this->stars_added .' stars added';
+					
+				echo'</p>';
+				
+			echo'</div>';						
 		}
 		
 		/**

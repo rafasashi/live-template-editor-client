@@ -20,9 +20,9 @@
 			
 			<li class="active"><a href="#general-info" data-toggle="tab">General Info</a></li>
 			
-			<li><a href="#connected-apps" data-toggle="tab">Connected Apps</a></li>
-			
 			<li><a href="#custom-profile" data-toggle="tab">Custom Profile</a></li>
+			
+			<li><a href="#connected-apps" data-toggle="tab">Connected Apps</a></li>
 			
 			<li class="gallery_type_title">Design Rules</li>
 			
@@ -112,62 +112,7 @@
 				echo'</form>';
 				
 			echo'</div>';
-			
-
-			//---------------------- output Connected Apps --------------------------
-			
-			echo'<div class="tab-pane" id="connected-apps">';
-			
-				echo'<form action="" method="post" class="tab-content row" style="margin:20px;">';
-
-					echo'<div class="col-xs-12 col-sm-6">';
-				
-						echo'<h3>Displayed connected accounts</h3>';
-						
-					echo'</div>';
-
-					echo'<div class="col-xs-12 col-sm-4"></div>';
-					
-					echo'<div class="clearfix"></div>';
-				
-					echo'<div class="col-xs-12 col-sm-8">';
-
-						echo'<table class="form-table">';
-							
-							foreach( $this->user->profile->apps as $field ){
-								
-								echo'<tr>';
-								
-									echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
-									
-									echo'<td>';
-									
-										$this->admin->display_field( $field , $this->user );
-									
-									echo'</td>';
-									
-								echo'</tr>';
-							}
-							
-						echo'</table>';
-						
-					echo'</div>';
-					
-					echo'<div class="clearfix"></div>';
-					
-					echo'<div class="col-xs-12 col-sm-6"></div>';
-					
-					echo'<div class="col-xs-12 col-sm-2 text-right">';
-				
-						echo'<button class="btn btn-sm btn-warning" style="width:100%;margin-top: 10px;">Save</button>';
-						
-					echo'</div>';
-
-					echo'<div class="col-xs-12 col-sm-4"></div>';
-						
-				echo'</form>';
-				
-			echo'</div>';
+	
 			
 			//---------------------- output Custom Profile --------------------------
 						
@@ -181,7 +126,13 @@
 						
 					echo'</div>';
 					
-					echo'<div class="col-xs-12 col-sm-4"></div>';
+					echo'<div class="col-xs-12 col-sm-2 text-right">';
+						
+						echo'<a target="_blank" class="label label-warning" style="font-size: 13px;" href="'.$this->urls->editor . '?pr='.$this->user->ID . '">view profile</a>';
+						
+					echo'</div>';
+					
+					echo'<div class="col-xs-12 col-sm-2"></div>';
 					
 					echo'<div class="clearfix"></div>';
 				
@@ -220,6 +171,67 @@
 
 					echo'<div class="col-xs-12 col-sm-4"></div>';
 	
+				echo'</form>';
+				
+			echo'</div>';	
+
+			//---------------------- output Connected Apps --------------------------
+			
+			echo'<div class="tab-pane" id="connected-apps">';
+			
+				echo'<form action="" method="post" class="tab-content row" style="margin:20px;">';
+
+					echo'<div class="col-xs-12 col-sm-6">';
+				
+						echo'<h3>Displayed connected accounts</h3>';
+						
+					echo'</div>';
+
+					echo'<div class="col-xs-12 col-sm-2 text-right">';
+						
+						echo'<a target="_blank" class="label label-warning" style="font-size: 13px;" href="'.$this->urls->editor . '?pr='.$this->user->ID . '">view profile</a>';
+						
+					echo'</div>';
+					
+					echo'<div class="col-xs-12 col-sm-2"></div>';
+					
+					echo'<div class="clearfix"></div>';
+				
+					echo'<div class="col-xs-12 col-sm-8">';
+
+						echo'<table class="form-table">';
+							
+							foreach( $this->user->profile->apps as $field ){
+								
+								echo'<tr>';
+								
+									echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+									
+									echo'<td>';
+									
+										$this->admin->display_field( $field , $this->user );
+									
+									echo'</td>';
+									
+								echo'</tr>';
+							}
+							
+						echo'</table>';
+						
+					echo'</div>';
+					
+					echo'<div class="clearfix"></div>';
+					
+					echo'<div class="col-xs-12 col-sm-6"></div>';
+					
+					echo'<div class="col-xs-12 col-sm-2 text-right">';
+				
+						echo'<button class="btn btn-sm btn-warning" style="width:100%;margin-top: 10px;">Save</button>';
+						
+					echo'</div>';
+
+					echo'<div class="col-xs-12 col-sm-4"></div>';
+						
 				echo'</form>';
 				
 			echo'</div>';
