@@ -98,12 +98,6 @@ class LTPLE_Client_App_Imgur {
 								))){
 									
 									wp_set_object_terms( $image_id, $this->term->term_id, 'app-type' );
-									
-									// hook connected app
-									
-									do_action( 'ltple_imgur_account_connected');
-									
-									$this->parent->apps->newAppConnected();
 								}
 							}						
 						}
@@ -175,6 +169,12 @@ class LTPLE_Client_App_Imgur {
 							));
 							
 							wp_set_object_terms( $app_id, $this->term->term_id, 'app-type' );
+							
+							// hook connected app
+							
+							do_action( 'ltple_imgur_account_connected');
+							
+							$this->parent->apps->newAppConnected();							
 						}
 						else{
 
@@ -202,7 +202,7 @@ class LTPLE_Client_App_Imgur {
 
 						$_SESSION['message'] = '<div class="alert alert-success">';
 							
-							$_SESSION['message'] .= 'Congratulations, you have successfully connected a Imgur account!';
+							$_SESSION['message'] .= 'Congratulations, you have successfully connected an Imgur account!';
 								
 						$_SESSION['message'] .= '</div>';						
 					}

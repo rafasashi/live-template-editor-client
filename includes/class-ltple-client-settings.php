@@ -106,6 +106,10 @@ class LTPLE_Client_Settings {
 	public function init_settings () {
 		
 		$this->settings = $this->settings_fields();
+		
+		// TODO pre_update_op for 
+		// foreach if action schedule apply filter
+		// schedule cron
 	}
 	
 	/**
@@ -485,8 +489,8 @@ class LTPLE_Client_Settings {
 			}
 			 
 
-		}		
-		
+		}
+
 		$settings['twitter'] = array(
 			'title'					=> __( 'Twitter', $this->plugin->slug ),
 			'description'			=> __( 'Twitter API settings', $this->plugin->slug ),
@@ -495,8 +499,16 @@ class LTPLE_Client_Settings {
 					'id' 			=> 'twt_main_account',
 					'label'			=> __( 'Twitter Main Account' , $this->plugin->slug ),
 					'description'	=> 'Main connected account',
-					'type'			=> 'select_main_app',
+					'type'			=> 'dropdown_main_apps',
 					'app'			=> 'twitter'
+				),
+				array(
+					'id' 			=> 'twt_auto_retweet',
+					'label'			=> __( 'Auto Retweet' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'action_schedule',
+					'action' 		=> 'retweet',
+					'unit' 			=> 'tweets',
 				),
 				array(
 					'id' 			=> 'twt_welcome_tweet',
@@ -626,9 +638,13 @@ class LTPLE_Client_Settings {
 			$html .= '<form style="margin:15px;" method="post" action="options.php" enctype="multipart/form-data">' . "\n";
 
 				// Get settings fields
+				
 				ob_start();
+				
 				settings_fields( $this->parent->_token . '_settings' );
+				
 				do_settings_sections( $this->parent->_token . '_settings' );
+				
 				$html .= ob_get_clean();
 
 				$html .= '<p class="submit">' . "\n";

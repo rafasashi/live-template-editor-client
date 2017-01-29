@@ -13,7 +13,7 @@ class LTPLE_Client_Admin_API {
 		
 		$this->parent 	= $parent;
 		
-		add_action( 'save_post', array( $this, 'save_meta_boxes' ), 10, 1 );	
+		add_action( 'save_post', array( $this, 'save_meta_boxes' ), 10, 1 );
 	}
 
 	/**
@@ -87,9 +87,20 @@ class LTPLE_Client_Admin_API {
 			$option = get_option( $option_name );
 
 			// Get data to display in field
+			
 			if ( isset( $option ) ) {
+				
 				$data = $option;
 			}
+		}
+		
+		// get field style
+		
+		$style = '';
+		
+		if( !empty($field['style']) ){
+			
+			$style = ' style="'.$field['style'].'"';
 		}
 
 		// Show default data if no option saved and default is supplied
@@ -115,7 +126,7 @@ class LTPLE_Client_Admin_API {
 			case 'text':
 			case 'url':
 			case 'email':
-				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+				$html .= '<input' . $style . ' class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
 			break;
 			case 'slug':
 				$html .= '<span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">'.home_url() . '/</span><input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/><span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">/</span>' . "\n";
@@ -159,7 +170,7 @@ class LTPLE_Client_Admin_API {
 				if ( $data && 'on' == $data ) {
 					$checked = 'checked="checked"';
 				}
-				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" ' . $checked . ''.$required.$disabled.'/>' . "\n";
+				$html .= '<input'.$style.' class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" ' . $checked . ''.$required.$disabled.'/>' . "\n";
 			break;
 
 			case 'checkbox_multi':
@@ -432,6 +443,8 @@ class LTPLE_Client_Admin_API {
 					$html .= '<div class="input-group">';
 						
 						foreach( $data['key'] as $e => $key) {
+							
+							$value = str_replace('\\\'','\'',$data['value'][$e]);
 									
 							$html .= '<div class="input-group-row" style="display:inline-block;width:100%;">';
 						
@@ -458,24 +471,24 @@ class LTPLE_Client_Admin_API {
 									
 									if($data['input'][$e] == 'number'){
 										
-										$html .= '<input type="number" placeholder="number" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$data['value'][$e].'">';
+										$html .= '<input type="number" placeholder="number" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 									}
 									elseif($data['input'][$e] == 'password'){
 										
-										$html .= '<input type="password" placeholder="password" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$data['value'][$e].'">';
+										$html .= '<input type="password" placeholder="password" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 									}
 									elseif($data['input'][$e] == 'text'){
 										
-										$html .= '<textarea placeholder="text" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:200px;">' . $data['value'][$e] . '</textarea>';
+										$html .= '<textarea placeholder="text" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:200px;">' . $value . '</textarea>';
 									}										
 									else{
 										
-										$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$data['value'][$e].'">';
+										$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 									}
 								}
 								else{
 									
-									$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$data['value'][$e].'">';
+									$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 								}
 
 								if( $e > 0 ){
@@ -539,22 +552,6 @@ class LTPLE_Client_Admin_API {
 				
 			break;
 			
-			case 'dropdown_categories':
-
-				$html .=wp_dropdown_categories(array(
-				
-					'show_option_none' => 'None',
-					'taxonomy'     => $field['taxonomy'],
-					'name'    	   => $field['name'],
-					'show_count'   => false,
-					'hierarchical' => true,
-					'selected'     => $field['selected'],
-					'echo'		   => false,
-					'hide_empty'   => false
-				));			
-			
-			break;
-			
 			case 'select':
 
 				if(isset($field['name'])){
@@ -595,7 +592,23 @@ class LTPLE_Client_Admin_API {
 				$html .= '</select> ';
 			break;
 			
-			case 'select_main_app':
+			case 'dropdown_categories':
+
+				$html .=wp_dropdown_categories(array(
+				
+					'show_option_none' => 'None',
+					'taxonomy'     => $field['taxonomy'],
+					'name'    	   => $field['name'],
+					'show_count'   => false,
+					'hierarchical' => true,
+					'selected'     => $field['selected'],
+					'echo'		   => false,
+					'hide_empty'   => false
+				));			
+			
+			break;			
+			
+			case 'dropdown_main_apps':
 			
 				//get admin IDs
 				
@@ -641,6 +654,7 @@ class LTPLE_Client_Admin_API {
 				foreach ( $options as $k => $v ) {
 					
 					$selected = false;
+					
 					if ( $k == $data ) {
 						
 						$selected = true;
@@ -649,11 +663,45 @@ class LTPLE_Client_Admin_API {
 						
 						$selected = true;
 					}
+					
 					$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $k ) . '">' . $v . '</option>';
 				}
 				$html .= '</select> ';
+
+			break;
+
+			case 'action_schedule':
+			
+				$action_schedule = array();
+			
+				if( isset($data['last']) && isset($data['every']) ){
+					
+					$action_schedule = $data;
+				}
+				else{
+					
+					$action_schedule['last']=10;
+					$action_schedule['every']=15;
+				}
 				
-				
+				$html .= '<div id="'.$option_name.'">';
+
+					$html .= ucfirst($field['action']).' ';
+					
+					$html .= 'last ';
+					
+					$html .= '<input type="number" step="1" min="0" max="100" placeholder="0" name="'.$option_name.'[last]" id="'.$option_name.'_last" style="width: 50px;" value="'.$action_schedule['last'].'"> ';
+						
+					$html .= ucfirst($field['unit']).' ';	
+						
+					$html .= 'every ';
+					
+					$html .= '<input type="number" step="5" min="15" max="60" placeholder="0" name="'.$option_name.'[every]" id="'.$option_name.'_every" style="width: 50px;" value="'.$action_schedule['every'].'"> ';
+					
+					$html .= 'minutes ';
+
+				$html .= '</div>';
+
 			break;
 
 			case 'image':

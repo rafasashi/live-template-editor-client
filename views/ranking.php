@@ -20,11 +20,15 @@
 			
 			<li class="active"><a href="#world-ranking" data-toggle="tab">World Ranking</a></li>
 			
-			<li><a href="#ranking-rules" data-toggle="tab">Rules & Points</a></li>
+			<?php if($this->user->loggedin){ ?>
 			
-			<li class="gallery_type_title">Referral Tools</li>
+				<li><a href="#ranking-rules" data-toggle="tab">Rules & Points</a></li>
+
+				<li class="gallery_type_title">Referral Tools</li>
 			
-			<li><a href="#my-ref-urls" data-toggle="tab">My Referral urls</a></li>
+				<li><a href="#my-ref-urls" data-toggle="tab">My Referral urls</a></li>
+			
+			<?php } ?>
 			
 		</ul>
 	</div>
@@ -133,101 +137,107 @@
 				
 			echo'</div>';
 			
-			//---------------------- output ranking system --------------------------
+			if($this->user->loggedin){
 			
-			echo'<div class="tab-pane" id="ranking-rules">';
-			
-				//output Tab panes
+				//---------------------- output ranking system --------------------------
 				
-				echo'<div class="tab-content row" style="margin:20px;">';
+				echo'<div class="tab-pane" id="ranking-rules">';
+				
+					//output Tab panes
+					
+					echo'<div class="tab-content row" style="margin:20px;">';
 
-					foreach( $this->stars->triggers as $group => $trigger ){
-						
-						echo'<table class="table table-striped table-bordered">';
+						foreach( $this->stars->triggers as $group => $trigger ){
 							
-							echo'<thead>';
-								echo'<tr>';
-									
-									echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;">'.ucfirst($group).'</th>';
-									echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:10%;text-align:center;">Stars</th>';
-									
-								echo'</tr>';
+							echo'<table class="table table-striped table-bordered">';
 								
-							echo'</thead>';
-							
-							echo'<tbody>';								
-								
-								foreach( $trigger as $key => $data){
+								echo'<thead>';
+									echo'<tr>';
+										
+										echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;">'.ucfirst($group).'</th>';
+										echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:10%;text-align:center;">Stars</th>';
+										
+									echo'</tr>';
 									
-									$stars = get_option($this->_base . $key . '_stars');
-									
-									if( !empty($stars) && $stars!==0 ){
-										
-										echo'<tr>';
-										
-											echo'<td>'.ucfirst($data['description']).'</td>';
-											echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;">'.( $stars > 0 ? '+ ' . $stars : $stars ).' <span class="glyphicon glyphicon-star" aria-hidden="true"></span></span></td>';
-										
-										echo'</tr>';
-									}									
-								}
+								echo'</thead>';
 								
-							echo'</tbody>';
-							
-						echo'</table>';									
-					}
+								echo'<tbody>';								
+									
+									foreach( $trigger as $key => $data){
+										
+										$stars = get_option($this->_base . $key . '_stars');
+										
+										if( !empty($stars) && $stars!==0 ){
+											
+											echo'<tr>';
+											
+												echo'<td>'.ucfirst($data['description']).'</td>';
+												echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;">'.( $stars > 0 ? '+ ' . $stars : $stars ).' <span class="glyphicon glyphicon-star" aria-hidden="true"></span></span></td>';
+											
+											echo'</tr>';
+										}									
+									}
+									
+								echo'</tbody>';
+								
+							echo'</table>';									
+						}
 
+					echo'</div>';
+					
 				echo'</div>';
 				
-			echo'</div>';
-			
-			//---------------------- output referral urls --------------------------
-			
-			echo'<div class="tab-pane" id="my-ref-urls">';
-			
-				//output Tab panes
+				//---------------------- output referral urls --------------------------
 				
-				echo'<div class="tab-content row" style="margin:20px;">';
+				
+				
+				echo'<div class="tab-pane" id="my-ref-urls">';
+				
+					//output Tab panes
+					
+					echo'<div class="tab-content row" style="margin:20px;">';
 
-					echo'<div class="col-xs-12 col-sm-6">';
+						echo'<div class="col-xs-12 col-sm-6">';
+							
+							echo'<div class="form-group">';
+							
+								echo'<h3>My Referral ID</h3>';
+							
+								echo'<input class="form-control" type="text" value="' . $this->user->refId . '" />';
+							
+							echo'</div>';
+							
+							echo'<div class="form-group">';
 						
-						echo'<div class="form-group">';
+								echo'<h3>My ref link to the main page</h3>';
+							
+								echo'<input class="form-control" type="text" value="' . $this->urls->editor . '?ri=' . $this->user->refId . '" />';
+							
+							echo'</div>';
+							
+							echo'<div class="form-group">';
 						
-							echo'<h3>My Referral ID</h3>';
+								echo'<h3>My ref link to the login page</h3>';
+							
+								echo'<input class="form-control" type="text" value="' . $this->urls->login . '?ri=' . $this->user->refId . '" />';
+							
+							echo'</div>';
+							
+							echo'<div class="form-group">';
 						
-							echo'<input class="form-control" type="text" value="' . $this->user->refId . '" />';
-						
-						echo'</div>';
-						
-						echo'<div class="form-group">';
-					
-							echo'<h3>My ref link to the main page</h3>';
-						
-							echo'<input class="form-control" type="text" value="' . $this->urls->editor . '?ri=' . $this->user->refId . '" />';
-						
-						echo'</div>';
-						
-						echo'<div class="form-group">';
-					
-							echo'<h3>My ref link to the login page</h3>';
-						
-							echo'<input class="form-control" type="text" value="' . $this->urls->login . '?ri=' . $this->user->refId . '" />';
-						
-						echo'</div>';
-						
-						echo'<div class="form-group">';
-					
-							echo'<h3>My ref link to the plans</h3>';
-						
-							echo'<input class="form-control" type="text" value="' . $this->urls->plans . '?ri=' . $this->user->refId . '" />';
-						
+								echo'<h3>My ref link to the plans</h3>';
+							
+								echo'<input class="form-control" type="text" value="' . $this->urls->plans . '?ri=' . $this->user->refId . '" />';
+							
+							echo'</div>';
+							
 						echo'</div>';
 						
 					echo'</div>';
 					
 				echo'</div>';
 				
-			echo'</div>';
+			}
 			
 			?>
 		  

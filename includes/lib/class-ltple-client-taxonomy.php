@@ -314,7 +314,42 @@ class LTPLE_Client_Taxonomy {
 		echo'</tr>';	
 
 		if($this->parent->user->is_admin){
+
+			echo'<tr class="form-field">';
 			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">API Client</label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$clients 					= array();
+					$clients ['None'] 			= 'None';
+					$clients ['scraper'] 		= 'Scraper';
+					$clients ['blogger'] 		= 'Blogger';
+					$clients ['google-plus']	= 'Google +';
+					$clients ['imgur'] 			= 'Imgur';
+					$clients ['tumblr'] 		= 'Tumblr';
+					$clients ['twitter'] 		= 'Twitter';
+					$clients ['wordpress'] 		= 'Wordpress';
+					$clients ['youtube'] 		= 'Youtube';
+					
+					$field = array(
+						'type'				=> 'select',
+						'id'				=> 'api_client_'.$term->slug,
+						'name'				=> $term->taxonomy . '-api-client',
+						'options' 			=> $clients,
+						'description'		=> '',
+					);
+					
+					$this->parent->admin->display_field( $field, false );
+					
+				echo'</td>';
+				
+			echo'</tr>';
+		
 			echo'<tr class="form-field">';
 			
 				echo'<th valign="top" scope="row">';
@@ -364,6 +399,11 @@ class LTPLE_Client_Taxonomy {
 			if(isset($_POST[$term->taxonomy . '-parameters'])){
 
 				update_option('parameters_'.$term->slug, $_POST[$term->taxonomy . '-parameters']);			
+			}
+			
+			if(isset($_POST[$term->taxonomy . '-api-client'])){
+
+				update_option('api_client_'.$term->slug, $_POST[$term->taxonomy . '-api-client']);			
 			}
 		}
 	}

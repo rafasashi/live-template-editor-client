@@ -65,13 +65,26 @@ class LTPLE_Client_Apps {
 						$app->slug
 					);
 					
-					$className = 'LTPLE_Client_App_'. ucfirst($string) ;
+					// get api client
+					
+					//$apiClient = ucfirst($string);
+					
+					$apiClient = get_option('api_client_'.$string);
+
+					// include api client
+					
+					$className = 'LTPLE_Client_App_'.  $apiClient;
 					
 					if(class_exists($className)){
 						
-						include($this->parent->vendor . '/autoload.php');
+						include( $this->parent->vendor . '/autoload.php' );
 
 						$this->{$app->slug} = new $className($app->slug, $parent, $this);
+					}
+					else{
+						
+						echo 'Could not found API Client...';
+						exit;
 					}
 					
 					break;
@@ -100,8 +113,8 @@ class LTPLE_Client_Apps {
 		
 		if( is_numeric($app_id) ){
 			
-			$app = get_post(($app_id));				
-			
+			$app = get_post($app_id);				
+
 			if( isset($app->post_author) ){
 				
 				if( is_numeric($user_id) && intval($app->post_author) != intval($user_id) ){
