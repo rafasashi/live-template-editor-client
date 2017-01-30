@@ -60,9 +60,13 @@
 	if( $mode == '-dev' ){
 		
 		ini_set('display_errors', 1);
-	}	
+	}
+	
+	// Load plugin functions
+	require_once( 'includes'.$mode.'/functions.php' );	
 	
 	// Load plugin class files
+
 	require_once( 'includes'.$mode.'/class-ltple-client.php' );
 	require_once( 'includes'.$mode.'/class-ltple-client-settings.php' );
 		

@@ -526,6 +526,20 @@ class LTPLE_Client_Settings {
 				)				
 			)
 		);
+		
+		$settings['wordpress'] = array(
+			'title'					=> __( 'Wordpress', $this->plugin->slug ),
+			'description'			=> __( 'Wordpress API settings', $this->plugin->slug ),
+			'fields'				=> array(
+				array(
+					'id' 			=> 'wpcom_main_account',
+					'label'			=> __( 'Wordpress Main Account' , $this->plugin->slug ),
+					'description'	=> 'Main connected account',
+					'type'			=> 'dropdown_main_apps',
+					'app'			=> 'wordpress'
+				)				
+			)
+		);
 
 		$settings = apply_filters( $this->parent->_token . '_settings_fields', $settings );
 

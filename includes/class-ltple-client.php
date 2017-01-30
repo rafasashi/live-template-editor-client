@@ -929,7 +929,7 @@ class LTPLE_Client {
 			'post_type'   => 'user-app',
 			'post_status' => 'publish',
 			'numberposts' => -1
-		));	
+		));
 		
 		// get triggers
 		
@@ -2522,7 +2522,7 @@ class LTPLE_Client {
 				
 				$app_item = get_page_by_title( $app_title, OBJECT, 'user-app' );
 				
-				if( empty($app_item) || intval($app_item->post_author) != $this->user->ID ){
+				if( empty($app_item) || ( intval( $app_item->post_author ) != $this->user->ID && !in_array_field($app_item->ID, 'ID', $this->apps->mainApps)) ){
 					
 					echo 'This image host doesn\'t exists...';
 					exit;

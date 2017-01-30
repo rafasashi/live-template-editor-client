@@ -6,6 +6,7 @@ class LTPLE_Client_Apps {
 	
 	var $parent;
 	var $app;
+	var $mainApps;
 	
 	/**
 	 * Constructor function
@@ -30,6 +31,16 @@ class LTPLE_Client_Apps {
 			$app->thumbnail = get_option('thumbnail_'.$app->slug);
 			$app->types 	= get_option('types_'.$app->slug);
 		}
+		
+		// get main apps
+		
+		$this->mainApps = get_posts(array(
+
+			'post_type'   	=> 'user-app',
+			'post_status' 	=> 'publish',
+			'post__in' 		=> array( get_option( $this->parent->_base . 'wpcom_main_account' ), get_option( $this->parent->_base . 'twt_main_account' ) ),
+			'numberposts' 	=> -1
+		));
 		
 		// get current app
 		
@@ -116,14 +127,14 @@ class LTPLE_Client_Apps {
 			$app = get_post($app_id);				
 
 			if( isset($app->post_author) ){
-				
-				if( is_numeric($user_id) && intval($app->post_author) != intval($user_id) ){
+
+				if( is_numeric($user_id) && ( intval($app->post_author) != intval($user_id) && !in_array_field($app->ID, 'ID', $this->mainApps) ) ){
 					
 					echo 'User app access restricted...';
 					exit;
 				}
 				else{
-					
+
 					$app_data = json_decode(get_post_meta( $app->ID, 'appData', true ),$array);
 				}
 			}

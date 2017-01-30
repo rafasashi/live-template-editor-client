@@ -122,6 +122,8 @@ class LTPLE_Client_App_Wordpress {
 
 		if( $this->app = $this->parent->apps->getAppData( $app_id, $this->parent->user->ID, false ) ){
 			
+			
+			
 			$this->client->set_auth_token($this->app->access_token);
 
 			$this->blog=str_replace('http://','',$this->app->blog_url);				
@@ -193,6 +195,11 @@ class LTPLE_Client_App_Wordpress {
 			}
 			
 			return true;
+		}
+		else{
+			
+			echo 'Could not find image host...';
+			exit;
 		}
 
 		return false;

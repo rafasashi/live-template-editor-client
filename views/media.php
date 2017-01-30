@@ -330,16 +330,26 @@
 
 							if( $app->slug == 'upload' ){
 								
-								$uploadable_apps 		= ['wordpress'];
-								$uploadable_user_apps	= [];
-											
+								$uploadable_appTypes = ['wordpress'];
+								$uploadable_apps	 = [];
+								
+								foreach( $this->apps->mainApps as $app ){
+									
+									$provider = explode( ' - ', $app->post_title );
+								
+									if( in_array($provider[0],$uploadable_appTypes) ){
+
+										$uploadable_apps[]	= $app;
+									}
+								}								
+								
 								foreach( $this->user->apps as $app ){
 									
 									$provider = explode( ' - ', $app->post_title );
 								
-									if(in_array($provider[0],$uploadable_apps)){
-										
-										$uploadable_user_apps[]	= $app;
+									if(in_array($provider[0],$uploadable_appTypes)){
+
+										$uploadable_apps[]	= $app;
 									}
 								}
 
@@ -349,7 +359,7 @@
 									
 									$disabled = '';
 									
-									if(empty($uploadable_user_apps)){
+									if(empty($uploadable_apps)){
 										
 										$disabled = ' disabled';
 									}
@@ -363,11 +373,20 @@
 											
 											echo'<select style="font-size:15px;padding:5px;margin:10px 0;" class="form-control" id="imgHost" name="imgHost"'.$disabled.'>';
 												
-												if(!empty($uploadable_user_apps)){
+												if(!empty($uploadable_apps)){
 													
-													foreach($uploadable_user_apps as $app){
+													foreach($uploadable_apps as $app){
 														
-														echo '<option value="' . $app->post_title . '">' . ucfirst($app->post_title) . '</option>';
+														if( in_array_field($app->ID, 'ID', $this->apps->mainApps) ){
+															
+															$provider = explode( ' - ', $app->post_title );
+															
+															echo '<option value="' . $app->post_title . '">'.$provider[0].' - Default Host</option>';
+														}
+														else{
+															
+															echo '<option value="' . $app->post_title . '">' . ucfirst($app->post_title) . '</option>';
+														}
 													}									
 												}
 												else{
@@ -395,7 +414,7 @@
 										
 										echo '<div style="display:block;">';
 
-											if(!empty($uploadable_user_apps)){
+											if(!empty($uploadable_apps)){
 												
 												echo '<button class="btn-lg btn-primary disabled" type="button">Upload</button>';
 											}
@@ -417,7 +436,7 @@
 										
 										foreach( $this->apps->appList as $app ){
 											
-											if(in_array($app->slug,$uploadable_apps)){
+											if(in_array($app->slug,$uploadable_appTypes)){
 												
 												echo '<a target="'.$target.'" href="'.$this->apps->getAppUrl($app->slug,'connect').'" style="width:100%;text-align:left;" class="btn btn-lg btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add a '.$app->name.' account</a>';
 											}

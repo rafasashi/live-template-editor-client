@@ -72,7 +72,7 @@
 									
 									if(strpos($user_app->post_name, $app->slug . '-')===0){
 										
-										$c .= '+ ' . str_replace($app->slug . ' - ','',$user_app->post_title) . '</br>'. PHP_EOL;
+										$c .= str_replace($app->slug . ' - ','',$user_app->post_title) . '</br>'. PHP_EOL;
 
 										$a++;
 									}
