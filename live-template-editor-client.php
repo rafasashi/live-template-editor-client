@@ -344,6 +344,27 @@
 		'menu_icon' 			=> 'dashicons-admin-post',
 	));
 	
+	LTPLE_Client($version)->register_post_type( 'lead', __( 'Leads', 'live-template-editor-client' ), __( 'Leads', 'live-template-editor-client' ), '', array(
+
+		'public' 				=> false,
+		'publicly_queryable' 	=> false,
+		'exclude_from_search' 	=> true,
+		'show_ui' 				=> true,
+		'show_in_menu' 			=> 'leads',
+		'show_in_nav_menus' 	=> true,
+		'query_var' 			=> true,
+		'can_export'			=> true,
+		'rewrite' 				=> false,
+		'capability_type' 		=> 'post',
+		'has_archive' 			=> true,
+		'hierarchical' 			=> false,
+		'show_in_rest' 			=> true,
+		//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+		'supports' 				=> array( 'title', 'author'),
+		'menu_position' 		=> 5,
+		'menu_icon' 			=> 'dashicons-admin-post'
+	));
+	
 	// Add custom taxonomy
 	
 	LTPLE_Client()->register_taxonomy( 'layer-type', __( 'Layer Type', 'live-template-editor-client' ), __( 'Layer Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer'), array(
@@ -545,6 +566,14 @@
 			'advanced'
 		);
 		
+		LTPLE_Client()->admin->add_meta_box (
+		
+			'lead_info',
+			__( 'Lead Info', 'live-template-editor-client' ), 
+			array("lead"),
+			'advanced'
+		);
+		 
 		LTPLE_Client()->admin->add_meta_box (
 		
 			'tagsdiv-image-type',
