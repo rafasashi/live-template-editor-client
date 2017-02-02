@@ -14,6 +14,8 @@ class LTPLE_Client_Admin_API {
 		$this->parent 	= $parent;
 		
 		add_action( 'save_post', array( $this, 'save_meta_boxes' ), 10, 1 );
+		
+		do_action( 'updated_option', array( $this, 'settings_updated' ), 10, 3 );
 	}
 
 	/**
@@ -128,9 +130,11 @@ class LTPLE_Client_Admin_API {
 			case 'email':
 				$html .= '<input' . $style . ' class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
 			break;
+			
 			case 'slug':
 				$html .= '<span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">'.home_url() . '/</span><input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/><span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">/</span>' . "\n";
-			break;			
+			break;
+			
 			case 'margin':
 				
 				$value = esc_attr( $data );
@@ -157,12 +161,13 @@ class LTPLE_Client_Admin_API {
 				}
 				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . ''.$required.$disabled.'/>' . "\n";
 			break;
+			
 			case 'text_secret':
 				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="" '.$required.$disabled.'/>' . "\n";
 			break;
 
 			case 'textarea':
-				$html .= '<textarea class="form-control" id="' . esc_attr( $field['id'] ) . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '"'.$required.$disabled.'>' . $data . '</textarea><br/>'. "\n";
+				$html .= '<textarea'.$style.' class="form-control" id="' . esc_attr( $field['id'] ) . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '"'.$required.$disabled.'>' . $data . '</textarea><br/>'. "\n";
 			break;
 
 			case 'checkbox':
@@ -671,32 +676,28 @@ class LTPLE_Client_Admin_API {
 			break;
 
 			case 'action_schedule':
-			
-				$action_schedule = array();
-			
-				if( isset($data['last']) && isset($data['every']) ){
-					
-					$action_schedule = $data;
-				}
-				else{
-					
-					$action_schedule['last']=10;
-					$action_schedule['every']=15;
-				}
 				
 				$html .= '<div id="'.$option_name.'">';
 
-					$html .= ucfirst($field['action']).' ';
+					$html .= ucfirst($field['action']).' ';				
 					
-					$html .= 'last ';
+					if( !empty($field['appId']) ){
+						
+						$html .= '<input type="hidden" name="'.$option_name.'[args][]" id="'.$option_name.'_app_id" value="'.$field['appId'].'"> ';
+					}							
 					
-					$html .= '<input type="number" step="1" min="0" max="100" placeholder="0" name="'.$option_name.'[last]" id="'.$option_name.'_last" style="width: 50px;" value="'.$action_schedule['last'].'"> ';
+					if( $field['last'] === true ){
+					
+						$html .= 'last ';
+					
+						$html .= '<input type="number" step="1" min="0" max="100" placeholder="0" name="'.$option_name.'[args][]" id="'.$option_name.'_last" style="width: 50px;" value="'.( !empty($data['args'][1]) ? $data['args'][1] : 10 ).'"> ';
 						
-					$html .= ucfirst($field['unit']).' ';	
-						
+						$html .= ucfirst($field['unit']).' ';
+					}
+					
 					$html .= 'every ';
 					
-					$html .= '<input type="number" step="5" min="15" max="60" placeholder="0" name="'.$option_name.'[every]" id="'.$option_name.'_every" style="width: 50px;" value="'.$action_schedule['every'].'"> ';
+					$html .= '<input type="number" step="5" min="15" max="60" placeholder="0" name="'.$option_name.'[every]" id="'.$option_name.'_every" style="width: 50px;" value="'.( isset($data['every']) ? $data['every'] : 15 ).'"> ';
 					
 					$html .= 'minutes ';
 

@@ -37,67 +37,70 @@
 			
 			$items = [];
 			
-			foreach( $this->apps->appList as $app ){ 
-				
-				$connect_url = $this->urls->editor . '?app='.$app->slug.'&action=connect';
-				
-				//get item
-				
-				$item='';
-				
-				$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$app->slug) ) . '" id="post-' . $app->slug . '">';
+			if( !empty($this->apps->appList) ){
+			
+				foreach( $this->apps->appList as $app ){ 
 					
-					$item.='<div class="panel panel-default" style="border-left:1px solid #DDD;">';
+					$connect_url = $this->urls->editor . '?app='.$app->slug.'&action=connect';
+					
+					//get item
+					
+					$item='';
+					
+					$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$app->slug) ) . '" id="post-' . $app->slug . '">';
 						
-						$item.='<div class="panel-heading">';
+						$item.='<div class="panel panel-default" style="border-left:1px solid #DDD;">';
+							
+							$item.='<div class="panel-heading">';
 
-							$item.='<b>' . $app->name . '</b>';
-							
-						$item.='</div>';
-
-						$item.='<div class="panel-body">';
-							
-							$item.='<div class="thumb_wrapper" style="height: 120px;margin-bottom: 20px;">';
-							    
-								$item.= '<img class="lazy" data-original="'.$app->thumbnail.'" />';
-							
-							$item.='</div>'; //thumb_wrapper
-							
-							$item.='<div class="col-xs-7 text-left">';
-							
-								$a 	= 0;
-								$c	= '<p>';
+								$item.='<b>' . $app->name . '</b>';
 								
-								foreach( $this->user->apps as $user_app){
+							$item.='</div>';
+
+							$item.='<div class="panel-body">';
+								
+								$item.='<div class="thumb_wrapper" style="height: 120px;margin-bottom: 20px;">';
 									
-									if(strpos($user_app->post_name, $app->slug . '-')===0){
+									$item.= '<img class="lazy" data-original="'.$app->thumbnail.'" />';
+								
+								$item.='</div>'; //thumb_wrapper
+								
+								$item.='<div class="col-xs-7 text-left">';
+								
+									$a 	= 0;
+									$c	= '<p>';
+									
+									foreach( $this->user->apps as $user_app){
 										
-										$c .= str_replace($app->slug . ' - ','',$user_app->post_title) . '</br>'. PHP_EOL;
+										if(strpos($user_app->post_name, $app->slug . '-')===0){
+											
+											$c .= str_replace($app->slug . ' - ','',$user_app->post_title) . '</br>'. PHP_EOL;
 
-										$a++;
+											$a++;
+										}
 									}
-								}
-								
-								$c .= '</p>';
-								
-								if($a>0){
 									
-									$item.='<a href="#" class="badge" data-html="true" data-toggle="popover" data-trigger="hover" data-placement="top" title="' . ucfirst($app->name) .' accounts" data-content="'.$c.'">'.$a.' <span class="glyphicon glyphicon-link" aria-hidden="true"></span></a>';	
-								}
-								else{
+									$c .= '</p>';
 									
-									$item.='<span class="badge">'.$a.' <span class="glyphicon glyphicon-link" aria-hidden="true"></span></span>';
-								}
-								
-							$item.='</div>';
-							$item.='<div class="col-xs-5 text-right">';
-								$item.='<a class="btn-sm btn-primary insert_media" href="'.$connect_url.'">Connect</a>';
-							$item.='</div>';
-						$item.='</div>'; //panel-body
+									if($a>0){
+										
+										$item.='<a href="#" class="badge" data-html="true" data-toggle="popover" data-trigger="hover" data-placement="top" title="' . ucfirst($app->name) .' accounts" data-content="'.$c.'">'.$a.' <span class="glyphicon glyphicon-link" aria-hidden="true"></span></a>';	
+									}
+									else{
+										
+										$item.='<span class="badge">'.$a.' <span class="glyphicon glyphicon-link" aria-hidden="true"></span></span>';
+									}
+									
+								$item.='</div>';
+								$item.='<div class="col-xs-5 text-right">';
+									$item.='<a class="btn-sm btn-primary insert_media" href="'.$connect_url.'">Connect</a>';
+								$item.='</div>';
+							$item.='</div>'; //panel-body
+						$item.='</div>';
 					$item.='</div>';
-				$item.='</div>';
-				//merge item
-				$items[$app->slug]=$item;
+					//merge item
+					$items[$app->slug]=$item;
+				}
 			}
 			
 			//---------------------- output default apps --------------------------

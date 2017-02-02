@@ -622,6 +622,14 @@
 			'advanced'
 		);
 		
+		LTPLE_Client()->admin->add_meta_box (
+			
+			'appSettings',
+			__( 'App Settings', 'live-template-editor-client' ), 
+			array("user-app"),
+			'advanced'
+		);
+		
 	});
 	
 	// Add layer custom fields
@@ -858,8 +866,9 @@
 				'options'	=>array(
 				
 					'bootstrap-3' 	=> 'Bootstrap 3',
-					'fontawesome-4' => 'Font Awesome 4'
-				
+					'fontawesome-4' => 'Font Awesome 4',
+					'animate' 		=> 'Animate',
+				 
 				),
 				//'checked'		=> array('bootstrap-3'),
 				'description'	=> ''
@@ -876,8 +885,7 @@
 				'options'	=>array(
 				
 					'jquery' 		=> 'JQuery',
-					'bootstrap-3' 	=> 'Bootstrap 3'
-				
+					'bootstrap-3' 	=> 'Bootstrap 3',
 				),
 				//'checked'	=>array('jquery'),
 				'description'=>''

@@ -11,10 +11,65 @@ class LTPLE_Client_Apps {
 	/**
 	 * Constructor function
 	 */
-	public function __construct ( $parent, $currentApp = '' ) {
+	public function __construct ( $parent) {
 		
 		$this->parent 	= $parent;
+		
+		// get current app
+		
+		if(!empty($_REQUEST['app'])){
+			
+			$this->app = $_REQUEST['app'];
+		}
+		elseif(!empty($_SESSION['app'])){
+			
+			$this->app = $_SESSION['app'];
+			
+			// flush app session
+			
+			$_SESSION['app'] = '';
+		}
+		
+		add_filter('wp_loaded', array( $this, 'apps_init'));
+		
+		add_filter("user-app_custom_fields", array( $this, 'add_app_data_custom_fields' ));		
+	}
+	
+	// Add app data custom fields
 
+	public function add_app_data_custom_fields(){
+		
+		$fields=[];
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"appData"),
+				'id'			=>	"appData",
+				'label'			=>	"",
+				'type'			=>	'textarea',
+				'placeholder'	=>	"JSON object",
+				'description'	=>	''
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"appSettings"),
+				'id'			=>	"appSettings",
+				'label'			=>	"",
+				'type'			=>	'textarea',
+				'placeholder'	=>	"JSON object",
+				'description'	=>	''
+		);
+		
+		return $fields;
+	}
+	
+	public function apps_init(){
+		
 		// get all apps
 		
 		$this->appList = get_terms( array(
@@ -42,66 +97,80 @@ class LTPLE_Client_Apps {
 			'numberposts' 	=> -1
 		));
 		
-		// get current app
-		
-		if(!empty($currentApp)){
-			
-			$this->app = $currentApp;
-		}		
-		elseif(!empty($_REQUEST['app'])){
-			
-			$this->app = $_REQUEST['app'];
-		}
-		elseif(!empty($_SESSION['app'])){
-			
-			$this->app = $_SESSION['app'];
-			
-			// flush app session
-			
-			$_SESSION['app'] = '';
-		}
-		
 		if(!empty($this->app)){
 			
 			foreach($this->appList as $app){
 				
 				if( $this->app == $app->slug ){
 					
-					$string = preg_replace_callback(
-						'/[-_](.)/', 
-						function ($matches) {
-							
-							return '_'.strtoupper($matches[1]);
-						},
-						$app->slug
-					);
-					
-					// get api client
-					
-					//$apiClient = ucfirst($string);
-					
-					$apiClient = get_option('api_client_'.$string);
-
-					// include api client
-					
-					$className = 'LTPLE_Client_App_'.  $apiClient;
-					
-					if(class_exists($className)){
-						
-						include( $this->parent->vendor . '/autoload.php' );
-
-						$this->{$app->slug} = new $className($app->slug, $parent, $this);
-					}
-					else{
-						
-						echo 'Could not found API Client...';
-						exit;
-					}
+					$this->includeApp($app->slug);
 					
 					break;
 				}
 			}
+		}		
+	}
+	
+	public function includeApp($appSlug){
+		
+		$string = preg_replace_callback(
+			'/[-_](.)/', 
+			function ($matches) {
+				
+				return '_'.strtoupper($matches[1]);
+			},
+			$appSlug
+		);
+		
+		// get api client
+		
+		//$apiClient = ucfirst($string);
+		
+		$apiClient = get_option('api_client_'.$string);
+
+		// include api client
+		
+		$className = 'LTPLE_Client_App_'.  $apiClient;
+		
+		if(class_exists($className)){
+			
+			include( $this->parent->vendor . '/autoload.php' );
+
+			$this->{$appSlug} = new $className($appSlug, $this->parent, $this);
 		}
+		else{
+
+			echo 'Could not found API Client: "'.$appSlug.'"';
+			exit;
+		}		
+	}
+
+	public function get_niche_terms(){
+	
+		$terms = get_option( $this->parent->_base . 'niche_terms' );
+		
+		if(is_string($terms)){
+			
+			$terms 	= explode( PHP_EOL, $terms );
+			$terms	= array_map('trim',$terms);
+			$terms 	= array_filter($terms);
+		}
+		
+		return $terms;
+	}
+	
+	public function get_niche_hashtags(){
+	
+		$terms = get_option( $this->parent->_base . 'niche_hashtags' );
+		
+		if(is_string($terms)){
+			
+			$terms 	= explode( PHP_EOL, $terms );
+			$terms	= array_map('trim',$terms);
+			$terms 	= array_filter($terms);
+		}
+		
+		return $terms;
 	}
 	
 	public function newAppConnected(){
@@ -118,6 +187,35 @@ class LTPLE_Client_Apps {
 		return $url;
 	}
 	
+	public function getUserApps($user_id = NULL, $app_slug=''){
+		
+		$apps = null;
+		
+		if(is_numeric($user_id)){
+			
+			$apps = get_posts(array(
+					
+				'author'      => $user_id,
+				'post_type'   => 'user-app',
+				'post_status' => 'publish',
+				'numberposts' => -1
+			));
+
+			if( !empty($apps) && !empty($app_slug) ){
+				
+				foreach($apps as $i => $app){
+
+					if( $app_slug != strtok($app->post_title, ' - ')){
+
+						unset($apps[$i]);
+					}
+				}
+			}
+		}
+		
+		return $apps;
+	}
+	
 	public function getAppData($app_id, $user_id = NULL, $array = false ){
 		
 		$app_data = NULL;
@@ -128,7 +226,7 @@ class LTPLE_Client_Apps {
 
 			if( isset($app->post_author) ){
 
-				if( is_numeric($user_id) && ( intval($app->post_author) != intval($user_id) && !in_array_field($app->ID, 'ID', $this->mainApps) ) ){
+				if( intval($app->post_author) != intval($user_id) && !in_array_field($app->ID, 'ID', $this->mainApps) ){
 					
 					echo 'User app access restricted...';
 					exit;

@@ -105,11 +105,61 @@ class LTPLE_Client_Settings {
 	 */
 	public function init_settings () {
 		
-		$this->settings = $this->settings_fields();
+		$this->settings = $this->settings_fields();		
 		
-		// TODO pre_update_op for 
-		// foreach if action schedule apply filter
-		// schedule cron
+		$this->schedule_actions();
+	}
+	
+	public function schedule_actions(){
+		
+		foreach($this->settings as $settings){
+
+			foreach($settings['fields'] as $fields){
+			
+				if( $fields['type'] == 'action_schedule'){
+					
+					$key = $this->parent->_base . $fields['id'];
+					
+					if( !empty($_POST[$key]['every']) ){
+						
+						// schedule cron event
+						
+						$every = intval($_POST[$key]['every']);
+
+						if( $every > 14 && $every < 60){
+							
+							// get recurrence
+							
+							$event 		= $this->parent->_base . $fields['id'];
+							$recurrence = $every.'min';	
+							
+							// get arguments
+							
+							$args = [];
+
+							if( !empty($_POST[$key]['args']) ){
+								
+								foreach($_POST[$key]['args'] as $arg){
+									
+									if(is_numeric($arg)){
+										
+										$args[] = floatval($arg);
+									}
+								}
+							}
+							
+							//remove existing event
+							
+							$this->parent->cron->remove_event($event);
+
+							//set new event
+							
+							wp_schedule_event( time(), $recurrence, $event, $args);
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -132,7 +182,7 @@ class LTPLE_Client_Settings {
 			'All Subscribers', 
 			'edit_pages',
 			'users.php?'.$this->parent->_base .'view=subscribers'
-		);		
+		);
 
 		add_submenu_page(
 			$this->plugin->slug,
@@ -141,6 +191,14 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'users.php?'.$this->parent->_base .'view=subscribers'
 		);
+		
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'All Leads', $this->plugin->slug ),
+			__( 'All Leads', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=lead'
+		);	
 		
 		add_submenu_page(
 			$this->plugin->slug,
@@ -345,99 +403,9 @@ class LTPLE_Client_Settings {
 					'type'			=> 'text',
 					'default'		=> '',
 					'placeholder'	=> __( 'UA-XXXXXXXX-1', $this->plugin->slug )
-				)				
-				
-				/*
-				array(
-					'id' 			=> 'password_field',
-					'label'			=> __( 'A Password' , $this->plugin->slug ),
-					'description'	=> __( 'This is a standard password field.', $this->plugin->slug ),
-					'type'			=> 'password',
-					'default'		=> '',
-					'placeholder'	=> __( 'Placeholder text', $this->plugin->slug )
 				),
-				array(
-					'id' 			=> 'secret_text_field',
-					'label'			=> __( 'Some Secret Text' , $this->plugin->slug ),
-					'description'	=> __( 'This is a secret text field - any data saved here will not be displayed after the page has reloaded, but it will be saved.', $this->plugin->slug ),
-					'type'			=> 'text_secret',
-					'default'		=> '',
-					'placeholder'	=> __( 'Placeholder text', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'text_block',
-					'label'			=> __( 'A Text Block' , $this->plugin->slug ),
-					'description'	=> __( 'This is a standard text area.', $this->plugin->slug ),
-					'type'			=> 'textarea',
-					'default'		=> '',
-					'placeholder'	=> __( 'Placeholder text for this textarea', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'single_checkbox',
-					'label'			=> __( 'An Option', $this->plugin->slug ),
-					'description'	=> __( 'A standard checkbox - if you save this option as checked then it will store the option as \'on\', otherwise it will be an empty string.', $this->plugin->slug ),
-					'type'			=> 'checkbox',
-					'default'		=> ''
-				),
-				array(
-					'id' 			=> 'select_box',
-					'label'			=> __( 'A Select Box', $this->plugin->slug ),
-					'description'	=> __( 'A standard select box.', $this->plugin->slug ),
-					'type'			=> 'select',
-					'options'		=> array( 'drupal' => 'Drupal', 'joomla' => 'Joomla', 'wordpress' => 'WordPress' ),
-					'default'		=> 'wordpress'
-				),
-				array(
-					'id' 			=> 'radio_buttons',
-					'label'			=> __( 'Some Options', $this->plugin->slug ),
-					'description'	=> __( 'A standard set of radio buttons.', $this->plugin->slug ),
-					'type'			=> 'radio',
-					'options'		=> array( 'superman' => 'Superman', 'batman' => 'Batman', 'ironman' => 'Iron Man' ),
-					'default'		=> 'batman'
-				),
-				array(
-					'id' 			=> 'multiple_checkboxes',
-					'label'			=> __( 'Some Items', $this->plugin->slug ),
-					'description'	=> __( 'You can select multiple items and they will be stored as an array.', $this->plugin->slug ),
-					'type'			=> 'checkbox_multi',
-					'options'		=> array( 'square' => 'Square', 'circle' => 'Circle', 'rectangle' => 'Rectangle', 'triangle' => 'Triangle' ),
-					'default'		=> array( 'circle', 'triangle' )
-				
-				),
-				array(
-					'id' 			=> 'number_field',
-					'label'			=> __( 'A Number' , $this->plugin->slug ),
-					'description'	=> __( 'This is a standard number field - if this field contains anything other than numbers then the form will not be submitted.', $this->plugin->slug ),
-					'type'			=> 'number',
-					'default'		=> '',
-					'placeholder'	=> __( '42', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'colour_picker',
-					'label'			=> __( 'Pick a colour', $this->plugin->slug ),
-					'description'	=> __( 'This uses WordPress\' built-in colour picker - the option is stored as the colour\'s hex code.', $this->plugin->slug ),
-					'type'			=> 'color',
-					'default'		=> '#21759B'
-				),
-				array(
-					'id' 			=> 'an_image',
-					'label'			=> __( 'An Image' , $this->plugin->slug ),
-					'description'	=> __( 'This will upload an image to your media library and store the attachment ID in the option field. Once you have uploaded an imge the thumbnail will display above these buttons.', $this->plugin->slug ),
-					'type'			=> 'image',
-					'default'		=> '',
-					'placeholder'	=> ''
-				)
-				*/
 			)
-		);		
-		
-		/*
-		$settings['apis'] = array(
-			'title'					=> __( 'APIs', $this->plugin->slug ),
-			'description'			=> __( 'Connected App settings', $this->plugin->slug ),
-			'fields'				=> array()
 		);
-		*/
 	
 		$settings['urls'] = array(
 			'title'					=> __( 'URLS', $this->plugin->slug ),
@@ -468,6 +436,47 @@ class LTPLE_Client_Settings {
 				)
 			)
 		);
+		
+		$settings['niche'] = array(
+			'title'					=> __( 'Niche', $this->plugin->slug ),
+			'description'			=> 'Some information about the targeted market',
+			'fields'				=> array(
+				array(
+					'id' 			=> 'niche_single',
+					'label'			=> __( 'Niche name (singular)' , $this->plugin->slug ),
+					'description'	=> 'Singular term representing the targeted group of people',
+					'type'			=> 'text',
+					'default'		=> 'user',
+					'placeholder'	=> __( 'user', $this->plugin->slug )
+				),					
+				array(
+					'id' 			=> 'niche_plural',
+					'label'			=> __( 'Niche name (plural)' , $this->plugin->slug ),
+					'description'	=> 'Plural term representing the targeted group of people',
+					'type'			=> 'text',
+					'default'		=> 'users',
+					'placeholder'	=> __( 'users', $this->plugin->slug )
+				),
+				array(
+					'id' 			=> 'niche_terms',
+					'label'			=> __( 'Niche terms' , $this->plugin->slug ),
+					'description'	=> 'List of key words separated by line break to describe the niche. This list is used to fetch leads, prospects and contacts across the connected apps.',
+					'type'			=> 'textarea',
+					'style'			=> 'height:100px;width:250px;',
+					'default'		=> '',
+					'placeholder'	=> __( 'user...', $this->plugin->slug )
+				),
+				array(
+					'id' 			=> 'niche_hashtags',
+					'label'			=> __( 'Niche hashtags' , $this->plugin->slug ),
+					'description'	=> 'List of hashtags to be used for automated actions such as auto retweet.',
+					'type'			=> 'textarea',
+					'style'			=> 'height:100px;width:250px;',
+					'default'		=> '',
+					'placeholder'	=> __( '#nicheTag...', $this->plugin->slug )
+				),
+			)
+		);	
 
 		$settings['stars'] = array(
 			'title'					=> __( 'Stars', $this->plugin->slug ),
@@ -509,6 +518,8 @@ class LTPLE_Client_Settings {
 					'type'			=> 'action_schedule',
 					'action' 		=> 'retweet',
 					'unit' 			=> 'tweets',
+					'appId' 		=> ( isset($_POST[$this->parent->_base .'twt_main_account']) ? intval($_POST[$this->parent->_base .'twt_main_account']) : intval(get_option( $this->parent->_base .'twt_main_account' )) ),
+					'last' 			=> true,
 				),
 				array(
 					'id' 			=> 'twt_welcome_tweet',

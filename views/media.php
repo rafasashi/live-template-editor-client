@@ -335,21 +335,17 @@
 								
 								foreach( $this->apps->mainApps as $app ){
 									
-									$provider = explode( ' - ', $app->post_title );
-								
-									if( in_array($provider[0],$uploadable_appTypes) ){
+									if( in_array(strtok( $app->post_title, ' - '), $uploadable_appTypes) ){
 
-										$uploadable_apps[]	= $app;
-									}
-								}								
+										$uploadable_apps[] = $app;
+									} 
+								}			 					
 								
 								foreach( $this->user->apps as $app ){
 									
-									$provider = explode( ' - ', $app->post_title );
-								
-									if(in_array($provider[0],$uploadable_appTypes)){
+									if( in_array(strtok($app->post_title, ' - '), $uploadable_appTypes) ){
 
-										$uploadable_apps[]	= $app;
+										$uploadable_apps[] = $app;
 									}
 								}
 
@@ -379,9 +375,7 @@
 														
 														if( in_array_field($app->ID, 'ID', $this->apps->mainApps) ){
 															
-															$provider = explode( ' - ', $app->post_title );
-															
-															echo '<option value="' . $app->post_title . '">'.$provider[0].' - Default Host</option>';
+															echo '<option value="' . $app->post_title . '">'.ucfirst(strtok($app->post_title, ' - ')).' - Default Host</option>';
 														}
 														else{
 															

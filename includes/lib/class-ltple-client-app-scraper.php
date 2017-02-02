@@ -17,7 +17,7 @@ class LTPLE_Client_App_Scraper {
 	 * Constructor function
 	 */
 	public function __construct ( $app_slug, $parent, $apps ) {
-		
+
 		$this->parent 		= $parent;
 		$this->parent->apps = $apps;
 
@@ -31,10 +31,6 @@ class LTPLE_Client_App_Scraper {
 
 		if( isset($this->parameters['key']) ){
 
-			// get app data
-			
-			$this->data = array();
-			
 			foreach($this->parameters['key'] as $i => $key){
 				
 				if( $key == 'resource' ){
@@ -75,6 +71,31 @@ class LTPLE_Client_App_Scraper {
 				$this->$methodName();
 			}
 		}
+	}
+	
+	public static function extractEmails( $string, $first_only = false ){
+		
+		$emails = ( $first_only ? '' : [] );
+		
+		// this regex handles more email address formats like a+b@google.com.sg, and the i makes it case insensitive
+		$pattern = '/[a-z0-9_\-\+]+@[a-z0-9\-]+\.([a-z]{2,3})(?:\.[a-z]{2})?/i';
+
+		// preg_match_all returns an associative array
+		preg_match_all($pattern, $string, $matches);
+
+		if(!empty($matches[0])){
+			
+			if($first_only){
+				
+				$emails = $matches[0][0];
+			}
+			else{
+				
+				$emails = $matches[0];
+			}
+		}
+		
+		return $emails;		
 	}
 	
 	public function appGetFields(){

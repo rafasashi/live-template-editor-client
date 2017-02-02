@@ -7,7 +7,8 @@ use Abraham\TwitterOAuth\TwitterOAuth;
 class LTPLE_Client_App_Twitter {
 	
 	var $parent;
-	var $apps;
+	var $action;
+	var $slug;
 	
 	/**
 	 * Constructor function
@@ -17,14 +18,16 @@ class LTPLE_Client_App_Twitter {
 		$this->parent 		= $parent;
 		$this->parent->apps = $apps;
 		
+		$this->slug = $app_slug;
+		
 		// get app term
 
-		$this->term = get_term_by('slug',$app_slug,'app-type');
+		$this->term = get_term_by('slug',$this->slug,'app-type');
 		
 		// get app parameters
 		
-		$parameters = get_option('parameters_'.$app_slug);
-		
+		$parameters = get_option('parameters_'.$this->slug);
+
 		if( isset($parameters['key']) ){
 			
 			$twt_consumer_key 		= array_search('twt_consumer_key', $parameters['key']);
@@ -47,7 +50,7 @@ class LTPLE_Client_App_Twitter {
 					
 					$this->action = $_SESSION['action'];
 				}
-				
+
 				$methodName = 'app'.ucfirst($this->action);
 
 				if(method_exists($this,$methodName)){
@@ -73,6 +76,272 @@ class LTPLE_Client_App_Twitter {
 		$str = str_replace($shortcodes,$data,$str);
 		
 		return $str;
+	}
+	
+	public function retweetLastTweet($appId = null, $count){
+		
+		if( is_numeric($appId) ){
+			
+			if( $app = json_decode(get_post_meta( $appId, 'appData', true ),false) ){
+
+				$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
+				
+				// get item
+				
+				$statuses = $connection->get('statuses/user_timeline', array( 
+				
+					'screen_name' 		=> $app->screen_name, 
+					'count' 			=> $count,
+					'trim_user'			=> true,
+					'exclude_replies'	=> true,
+					'include_entities' 	=> true,
+					'include_rts' 		=> false
+				));
+					
+				if(!empty($statuses)){
+				
+					$items = [];
+
+					// get niche hashtags
+					
+					$hashtags = $this->parent->apps->get_niche_hashtags();
+					
+					// fetch creation times
+
+					foreach( $statuses as $status ){
+						
+						$valid_status = false;
+						
+						if( empty($hashtags) ){
+							
+							$valid_status = true;
+						}
+						else{
+							
+							foreach($hashtags as $hashtag){
+
+								if(strpos($status->text . ' ', $hashtag.' ')!==false){
+									
+									$valid_status = true;
+								}
+							}
+						}
+						
+						if($valid_status){
+						
+							if($status->retweeted){
+								
+								// get retweets dates
+								
+								$retweets = $connection->get('statuses/retweets/'.$status->id);
+								
+								$time = strtotime($retweets[0]->created_at);
+							}
+							else{
+								
+								$time = strtotime($status->created_at);
+							}
+							
+							$items[$time] = $status;
+						}
+					}
+					
+					if(!empty($items)){
+					
+						// sort by time
+						
+						ksort($items, SORT_NUMERIC);
+						
+						// get the oldest status (first in list)
+						
+						$status = reset($items);
+						
+						// unretweet
+						
+						$connection->post('statuses/unretweet/'.$status->id);
+
+						// retweet
+						
+						$connection->post('statuses/retweet/'.$status->id);	
+					}					
+				}
+			}
+		}
+	}
+	
+	public function appImportLeads(){
+		
+		$user_id = $_REQUEST['user_id'];
+		
+		if(is_numeric($user_id)){
+		
+			$user_apps = $this->parent->apps->getUserApps($user_id,$this->slug);
+			
+			if( !empty($user_apps) ){
+				
+				foreach($user_apps as $app){
+					
+					$followers = $this->appGetFollowers($app->ID);
+					
+					if(!empty($followers)){
+						
+						foreach($followers as $follower){
+						
+							$lead_title = $this->slug . ' - ' . $follower->screen_name;
+		
+							$q = get_page_by_title( $lead_title, OBJECT, 'lead' );
+
+							if( empty($q) ){
+
+								if( $lead_id = wp_insert_post(array(
+							
+									'post_author' 	=> $user_id,
+									'post_title' 	=> $lead_title,
+									'post_type' 	=> 'lead',
+									'post_status' 	=> 'publish'
+								))){
+
+									update_post_meta( $lead_id, 'leadAppId', 		$app->ID);
+									update_post_meta( $lead_id, 'leadTwtName', 		$follower->screen_name);
+									update_post_meta( $lead_id, 'leadNicename',		$follower->name);
+									update_post_meta( $lead_id, 'leadPicture',		$follower->profile_image_url);
+									update_post_meta( $lead_id, 'leadEmail', 		LTPLE_Client_App_Scraper::extractEmails($follower->description,true));
+									update_post_meta( $lead_id, 'leadTwtFollowers',	$follower->followers_count);
+									update_post_meta( $lead_id, 'leadDescription',	$follower->description );
+									
+									if(!empty($follower->entities->urls->display_url) && !empty($follower->entities->urls->expanded_url)){
+										
+										update_post_meta( $lead_id, 'leadUrls', 		[ 'key' => [$follower->entities->urls->display_url], 'value' => [$follower->entities->urls->expanded_url] ] );
+									}
+								}
+							}
+						}
+						
+						break;
+					}
+				}
+			}
+			else{
+			
+				echo 'Error getting account id';
+				exit;
+			}
+		}
+		else{
+			
+			echo 'Error getting user id';
+			exit;			
+		}
+	}			
+	
+	public function appGetFollowers($app_id){
+		
+		$followers = [];
+		
+		if( $app = json_decode(get_post_meta( $app_id, 'appData', true ),false) ){
+			
+			// get app connection
+			
+			$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
+			
+			// get app settings
+			
+			if( !$settings = json_decode(get_post_meta( $app_id, 'appSettings', true ),false)){
+				
+				$settings = new stdClass();
+			}
+			
+			// set last cursor
+			
+			$cursor = -1;
+			
+			if(!empty($settings->cursor_import_followers)){
+				
+				$cursor = $settings->cursor_import_followers;
+			}
+			
+			// set request counts
+			
+			$r = 0;
+			$max_request = 15;
+			
+			// get followers
+		
+			do {
+		
+				$q = $connection->get('followers/list', array( 
+				
+					'screen_name' 		=> $app->screen_name, 
+					'count' 			=> 200,
+					'skip_status'		=> 1,
+					'cursor' 			=> $cursor,
+				));
+				
+				if( !empty($q->users) ){
+					
+					// get niche terms
+						
+					$terms = array_merge( $this->parent->apps->get_niche_terms(), $this->parent->apps->get_niche_hashtags() );					
+					
+					$count = count($q->users);
+					
+					// parse followers
+					
+					foreach($q->users as $i => $follower ){
+						
+						if( $cursor == -1 && $i == 0 ){
+							
+							$settings->last_to_follow = $follower->id;
+							
+							update_post_meta( $app_id, 'appSettings', json_encode($settings,JSON_PRETTY_PRINT));
+						}
+
+						//get corpus
+						
+						$corpus 	= [];
+						$corpus[] 	= trim($follower->name);
+						$corpus[] 	= trim($follower->screen_name);
+						$corpus[] 	= trim($follower->description);
+						$corpus[] 	= trim($follower->url);
+						
+						$corpus = array_filter($corpus);
+						$corpus = strtolower(implode(' ',$corpus));
+
+						foreach($terms as $term){
+							
+							if(strpos($corpus,strtolower($term))!==false){
+								
+								$followers[] = $follower;
+							}
+						}
+					}
+					
+					if( !empty($q->next_cursor) && intval($q->next_cursor) > 0 ){
+					
+						//set next_cursor
+						
+						$cursor = $settings->cursor_import_followers = $q->next_cursor;
+						
+						//update next_cursor
+						
+						update_post_meta( $app_id, 'appSettings', json_encode($settings,JSON_PRETTY_PRINT));
+					}
+					else{
+						
+						break;
+					}
+				}
+				else{
+					
+					break;
+				}
+				
+				$r++;
+				
+			} while( $r < $max_request );
+		}
+		
+		return $followers;
 	}
 	
 	public function appImportImg(){
@@ -141,7 +410,7 @@ class LTPLE_Client_App_Twitter {
 				
 				$this->request_token = $this->connection->oauth('oauth/request_token', array('oauth_callback' => OAUTH_CALLBACK));	
 
-				$_SESSION['app'] 				= 'twitter';
+				$_SESSION['app'] 				= $this->slug;
 				$_SESSION['action'] 			= $_REQUEST['action'];
 				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? 'http://'.urldecode($_REQUEST['ref']) : '');
 				$_SESSION['oauth_token'] 		= $this->request_token['oauth_token'];
@@ -279,7 +548,7 @@ class LTPLE_Client_App_Twitter {
 				
 				$this->request_token = $this->connection->oauth('oauth/request_token', array('oauth_callback' => OAUTH_CALLBACK));	
 
-				$_SESSION['app'] 				= 'twitter';
+				$_SESSION['app'] 				= $this->slug;
 				$_SESSION['action'] 			= $_REQUEST['action'];
 				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? 'http://'.urldecode($_REQUEST['ref']) : '');
 				$_SESSION['oauth_token'] 		= $this->request_token['oauth_token'];

@@ -104,6 +104,11 @@
 					
 					echo '<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>';
 				}
+				
+				if( in_array('animate',$cssLibraries)){
+					
+					echo '<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet" type="text/css"/>';
+				}
 			}
 			
 		echo '</head>';
@@ -150,21 +155,29 @@
 										
 							$('.modal').appendTo("body");
 							
-							$('[data-slide-to]').on('click',function(){
+							$('[data-slide-to]').on('click',function(e){
 
+								e.preventDefault();
+							
 								var carouselId 	= $(this).attr('data-target');
 								var slideTo 	= parseInt( $(this).attr('data-slide-to') );
 								
 								$(carouselId).carousel(slideTo);
 								
+								return false;
+								
 							});
 							
-							$('[data-slide]').on('click',function(){
+							$('[data-slide]').on('click',function(e){
 
+								e.preventDefault();
+							
 								var carouselId 	= $(this).attr('data-target');
 								var slideTo 	= $(this).attr('data-slide');
 								
 								$(carouselId).carousel(slideTo);
+								
+								return false;
 								
 							});
 						});

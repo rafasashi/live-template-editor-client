@@ -240,6 +240,7 @@
 			$column["plan"]			= 'Plan';
 			$column["channel"]		= 'Channel';
 			$column["stars"]		= 'Stars';
+			$column["leads"]		= 'Leads';
 			$column["spam"]			= 'Spam';
 			$column["sent"]			= 'Last emails sent';
 			
@@ -249,13 +250,18 @@
 		public function ltple_custom_subscribers_table_css() {
 			
 			echo '<style>';
-				
-				echo '.column-seen 			{width: 8%}';
-				echo '.column-subscription 	{width: 9%}';
-				echo '.column-plan 			{width: 10%}';
-				echo '.column-channel 		{width: 8%}';
-				echo '.column-stars 			{width: 5%}';
-				echo '.column-spam 			{width: 5%}';
+							
+				echo '.column-username img 		{display: inline-table;}';
+				echo '.column-username strong 	{display: inline-table;width: 100%;}';
+				echo '.column-username  		{width: 15%}';
+				echo '.column-email  			{width: 15%}';
+				echo '.column-seen 				{width: 8%}';
+				echo '.column-subscription 		{width: 9%}';
+				echo '.column-plan 				{width: 10%}';
+				echo '.column-channel 			{width: 8%}';
+				echo '.column-stars 			{width: 5%;text-align:center;}';
+				echo '.column-leads 			{width: 5%;text-align:center;}';
+				echo '.column-spam 				{width: 5%;text-align:center;}';
 				
 		    echo '</style>';
 		}
@@ -354,6 +360,15 @@
 			elseif ($column_name == "stars") {
 
 				$row .= $user_stars;
+			}
+			elseif ($column_name == "leads") {
+				
+				$row .= '<span>';
+						
+					$text = "<img src='" . $this->parent->assets_url . "/images/magnet.png' width=24 height=24>";
+					$row .= "<a title=\"Load leads from Twitter\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_twt_get_leads"), "app" => "twitter", "action" => "importLeads" , "ltple_view" => "subscribers", "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_load_leads", $text) . "</a>";
+					
+				$row .= '</span>';
 			}
 			elseif ($column_name == "spam") {
 				
@@ -599,8 +614,8 @@
 			
 			if( !is_null( $model_id ) && !empty($_REQUEST['users']) && is_array($_REQUEST['users'])){
 				
-				$this->email_sent	  =0;
-				$this->email_not_sent =0;
+				$this->email_sent	  = 0;
+				$this->email_not_sent = 0;
 				
 				foreach( $_REQUEST['users'] as $user_id){
 					

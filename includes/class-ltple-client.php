@@ -133,7 +133,12 @@ class LTPLE_Client {
 		// Load API for generic admin functions
 		
 		$this->admin 	= new LTPLE_Client_Admin_API( $this );
-			
+		$this->cron 	= new LTPLE_Client_Cron( $this );
+
+		$this->apps 	= new LTPLE_Client_Apps( $this );
+		
+		$this->leads 	= new LTPLE_Client_Leads( $this );
+		
 		if( is_admin() ) {
 			
 			// Load admin JS & CSS
@@ -188,7 +193,7 @@ class LTPLE_Client {
 
 		// add cron events
 			
-		add_action( 'ltple_send_email_event', array( $this, 'ltple_send_email_model'),1,2);
+		add_action( $this->_base . 'send_email_event', 	array( $this, 'ltple_send_email_model'),1,2);
 		
 		// Handle localisation
 		$this->load_plugin_textdomain();
@@ -222,11 +227,7 @@ class LTPLE_Client {
 		
 		// add user-plan
 		
-		add_filter("user-plan_custom_fields", array( $this, 'add_user_plan_custom_fields' ));			
-		
-		// add user-app
-		
-		add_filter("user-app_custom_fields", array( $this, 'add_app_data_custom_fields' ));		
+		add_filter("user-plan_custom_fields", array( $this, 'add_user_plan_custom_fields' ));
 		
 		// add user-image
 	
@@ -670,33 +671,12 @@ class LTPLE_Client {
 		
 			"metabox" =>
 			
-				array('name'=>"userPlanValue"),
+				array('name'	=>"userPlanValue"),
 				'id'			=>	"userPlanValue",
 				'label'			=>	"",
 				'type'			=>	'plan_value',
 				'plan'			=>	$layer_plan,
 				'placeholder'	=>	"Plan Value",
-				'description'	=>	''
-		);
-		
-		return $fields;
-	}	
-	
-	// Add app data custom fields
-
-	public function add_app_data_custom_fields(){
-		
-		$fields=[];
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"appData"),
-				'id'			=>	"appData",
-				'label'			=>	"",
-				'type'			=>	'textarea',
-				'placeholder'	=>	"JSON object",
 				'description'	=>	''
 		);
 		
@@ -917,19 +897,9 @@ class LTPLE_Client {
 		
 		$this->layer->price = ( !empty($this->layer->range) ? intval( get_option('price_amount_' . $this->layer->range->slug) ) : 0 );
 		
-		// get apps
-		
-		$this->apps = new LTPLE_Client_Apps( $this );
-		
 		// get user connected apps
 		
-		$this->user->apps = get_posts(array(
-				
-			'author'      => $this->user->ID,
-			'post_type'   => 'user-app',
-			'post_status' => 'publish',
-			'numberposts' => -1
-		));
+		$this->user->apps = $this->apps->getUserApps($this->user->ID);
 		
 		// get triggers
 		
@@ -1051,8 +1021,8 @@ class LTPLE_Client {
 				
 				include($this->views . $this->_dev .'/media.php');
 			}
-			elseif( isset($_GET['app']) || isset($_SESSION['app']) ){
-				
+			elseif( isset($_GET['app']) || !empty($_SESSION['app']) ){
+
 				include($this->views . $this->_dev .'/apps.php');
 			}	
 			elseif( isset($_GET['rank']) ){
@@ -1083,7 +1053,7 @@ class LTPLE_Client {
 		elseif( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
 
 			include($this->views . $this->_dev .'/profile.php');
-		}	
+		}
 		elseif( isset($_GET['rank']) ){
 			
 			include($this->views . $this->_dev .'/ranking.php');
@@ -2172,7 +2142,7 @@ class LTPLE_Client {
 											//var_dump($this->user->has_subscription);exit;
 											//var_dump($this->user_has_layer( $plan->ID ));exit;
 											
-											if( 1==2 && $this->user_has_plan( $plan->ID ) === true ){
+											if( $total_price_amount == 0 && $this->user_has_plan( $plan->ID ) === true ){
 												
 												$subscription_plan.='<div class="modal-body">'.PHP_EOL;
 											
@@ -2621,12 +2591,14 @@ class LTPLE_Client {
 										
 										// upload image to host
 										
-										if( !isset( $this->apps->{$app[0]} ) ){
+										$appSlug = $app[0];
+										
+										if( !isset( $this->apps->{$appSlug} ) ){
 											
-											$this->apps = new LTPLE_Client_Apps( $this, $app[0] );
+											$this->apps->includeApp($appSlug);
 										}
 
-										if($this->apps->{$app[0]}->appUploadImg( $app_item->ID, $image_url )){
+										if($this->apps->{$appSlug}->appUploadImg( $app_item->ID, $image_url )){
 											
 											// output success message
 											

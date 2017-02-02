@@ -81,8 +81,12 @@ if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 													echo '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
 												}
 												else{
+													
+													echo '<p>';
+													
+														echo str_replace(PHP_EOL,'</p><p>',strip_tags($meta));
 														
-													echo strip_tags($meta);
+													echo '</p>';
 												}
 											}
 											else{
