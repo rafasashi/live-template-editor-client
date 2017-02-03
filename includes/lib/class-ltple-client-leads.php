@@ -150,10 +150,10 @@ class LTPLE_Client_Leads {
 		$columns['cb'] 				= '<input type="checkbox" />';
 		$columns['leadPicture'] 	= 'Picture';
 		$columns['title'] 			= 'Title';
+		$columns['author'] 			= 'Via';		
 		$columns['leadEmail'] 		= 'Email';
 		$columns['leadTwtFollowers']= 'Followers';
 		$columns['leadDescription']	= 'Description';
-		$columns['author'] 			= 'Author';
 		$columns['date'] 			= 'Date';
 		
 		return $columns;

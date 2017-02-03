@@ -2,7 +2,7 @@
 
 if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 
-	echo'<div id="media_library" style="margin-top:15px;background:#FFF;display:inline-block;width:100%;">';
+	echo'<div id="media_library">';
 
 		echo'<div class="col-xs-3 col-sm-2">';
 		

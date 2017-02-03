@@ -257,7 +257,7 @@ class LTPLE_Client_Taxonomy {
 				
 			$types = LTPLE_Client()->get_app_types();
 			
-			foreach($types as $type){
+			foreach($types as $type => $app){
 				
 				echo'<div class="input-group">';
 					echo'<input type="checkbox" name="'.$taxonomy_name.'-types[]" id="'.$taxonomy_name.'-types" value="'.$type.'"/> '.ucfirst($type);
@@ -298,7 +298,7 @@ class LTPLE_Client_Taxonomy {
 				$types 		= LTPLE_Client()->get_app_types();
 				$app_types 	= get_option('types_'.$term->slug);
 				
-				foreach($types as $type){
+				foreach($types as $type => $app){
 					
 					$checked = ( ( !empty($app_types) && in_array($type,$app_types)) ? ' checked="checked"' : '' );
 					

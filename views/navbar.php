@@ -1,4 +1,4 @@
-<div class="row" style="background: #eee;padding: 10px 0;margin:0;position: relative;">
+<div class="row" style="background:rgb(35, 64, 88);padding: 8px 0;margin:0;position: relative;">
 
 	<div class="col-xs-6 col-sm-4" style="z-index:10;">				
 		

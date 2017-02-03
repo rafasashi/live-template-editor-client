@@ -14,7 +14,7 @@
 
 ?>
 
-<div id="media_library" style="margin-top:15px;background:#FFF;display:inline-block;width:100%;">
+<div id="media_library">
 
 	<div class="col-xs-3 col-sm-2">
 	
@@ -23,6 +23,8 @@
 			<li class="gallery_type_title">Applications</li>
 			
 			<li class="active"><a href="#app-library" data-toggle="tab">Connected Apps</a></li>
+
+			<!--<li><a href="#automation" data-toggle="tab">Automation</a></li>-->
 			
 		</ul>
 	</div>
@@ -103,6 +105,22 @@
 				}
 			}
 			
+			// ------------------ get all apps ----------------
+			
+			foreach( $app_types as $app_type => $a ){
+				
+				foreach($items as $slug => $item){									
+				
+					foreach( $this->apps->appList as $app ){ 
+
+						if( in_array($app_type,$app->types)){
+							
+							$app_types[$app_type][$app->slug] = $app;
+						}
+					}
+				}						
+			}
+			
 			//---------------------- output default apps --------------------------
 			
 			echo'<div class="tab-pane active" id="app-library">';
@@ -118,12 +136,13 @@
 					
 					$active=' class="active"';
 					
-					foreach($app_types as $app_type){
+					foreach($app_types as $app_type => $apps){
 						
 						if($app_type != ''){
 							
-							echo'<li role="presentation"'.$active.'><a href="#'.$app_type.'" aria-controls="'.$app_type.'" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$app_type)).'</a></li>';
+							echo'<li role="presentation"'.$active.'><a href="#'.$app_type.'" aria-controls="'.$app_type.'" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$app_type)).'<span class="badge">'.count($app_types[$app_type]).'</span></a></li>';
 						}
+						
 						$active='';
 					}
 					
@@ -135,34 +154,34 @@
 						
 						$active=' active';
 						
-						foreach( $app_types as $app_type ){
+						foreach( $app_types as $app_type => $apps ){
 							
 							echo'<div role="tabpanel" class="tab-pane'.$active.'" id="'.$app_type.'">';
 								
-								foreach($items as $slug => $item){									
+								foreach($apps as $slug => $app){									
 								
-									foreach( $this->apps->appList as $term ){ 
-									
-										if( $term->slug == $slug ){		
-											
-											$app = $term;
-											break;
-										}
-									}		
-									
-									if(in_array($app_type,$app->types)){
-										
-										echo $item;
-									}
+									echo $items[$slug];
 								}
 								
 							echo'</div>';
 							
 							$active='';
 						}
+						
 					echo'</div>';					
-				}				
+				}
+				
 			echo'</div>';
+			
+			
+			//---------------------- output automation --------------------------
+			
+			echo'<div class="tab-pane" id="automation">';
+
+				
+			
+			echo'</div>';			
+			
 			?>
 		  
 		</div>

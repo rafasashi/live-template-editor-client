@@ -10,7 +10,7 @@
 	}
 ?>
 
-<div id="media_library" style="margin-top:15px;background:#FFF;display:inline-block;width:100%;">
+<div id="media_library">
 
 	<div class="col-xs-3 col-sm-2">
 	

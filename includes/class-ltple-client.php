@@ -567,7 +567,13 @@ class LTPLE_Client {
 
 	public function get_app_types(){
 		
-		return ['networks','images','videos','blogs'];
+		return array(
+		
+			'networks'  => [],
+			'images'	=> [],
+			'videos' 	=> [],
+			'blogs' 	=> [],
+		);
 	}
 	
 	// Add campaign trigger custom fields
