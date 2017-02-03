@@ -10,8 +10,17 @@
 	}
 	//------------------ get app types ------------
 	
-	$app_types = $this->get_app_types();
+	if($this->user->is_admin && !empty($_GET['id']) && is_numeric($_GET['id']) ){
 
+		$user_id = $_GET['id'];
+	}
+	else{
+		
+		$user_id = $this->user->ID;
+	}
+	
+	$app_types 	= $this->get_app_types();
+	$leads 		= $this->leads->get_leads($user_id);
 ?>
 
 <div id="media_library">
@@ -24,8 +33,11 @@
 			
 			<li class="active"><a href="#app-library" data-toggle="tab">Connected Apps</a></li>
 
-			<!--<li><a href="#automation" data-toggle="tab">Automation</a></li>-->
+			<?php if($this->user->is_admin){ ?>
 			
+				<li><a href="#automation" data-toggle="tab">Automation</a></li>
+				
+			<?php } ?>
 		</ul>
 	</div>
 
@@ -176,11 +188,89 @@
 			
 			//---------------------- output automation --------------------------
 			
+			if($this->user->is_admin){
+			
 			echo'<div class="tab-pane" id="automation">';
 
-				
+				if(in_array_field( 'twitter', 'slug', $this->apps->appList )){
+					
+					echo '<h3>Twitter actions</h3>';
+					
+					echo 'An easy way to grow stars, engagements, quality followers, traffic and influence.';
+
+					echo '<div id="toolbar" class="btn-group">';
+						echo '<button type="button" class="btn btn-default">';
+							echo '<i class="glyphicon glyphicon-plus"></i>';
+						echo '</button>';
+						echo '<button type="button" class="btn btn-default">';
+							echo '<i class="glyphicon glyphicon-heart"></i>';
+						echo '</button>';
+						echo '<button type="button" class="btn btn-default">';
+							echo '<i class="glyphicon glyphicon-trash"></i>';
+						echo '</button>';
+					echo '</div>';				
+					
+					echo '<table id="eventsTable"';
+						echo 'data-toggle="table" ';
+						//echo 'data-height="400" ';
+						echo 'data-url="' . $this->api->get_url('get/leads',$user_id) . '" ';
+						echo 'data-pagination="true" ';
+						echo 'data-search="true" ';
+						echo 'data-show-header="true" ';
+						//echo 'data-side-pagination="server" ';
+						echo 'data-page-size="20" ';	
+						echo 'data-page-list="[20, 50, 100]" ';					
+						echo 'data-show-refresh="false" ';
+						echo 'data-show-toggle="true" ';
+						echo 'data-show-columns="true" ';
+						echo 'data-toolbar="#toolbar" ';
+						echo 'data-sort-order="desc" ';
+						echo 'data-sort-name="description" ';
+					echo '>';
+						echo '<thead>';
+						echo '<tr>';
+						
+							echo '<th ';
+								echo 'data-field="state" ';
+								echo 'data-checkbox="true" ';
+							echo '>';
+							echo '</th>';
+							
+							echo '<th ';
+								echo 'data-field="img" ';
+								echo 'data-sortable="false" ';
+							echo '>';
+								echo '';
+							echo '</th>';
+							
+							echo '<th ';
+								echo 'data-field="leadTwtName" ';
+								echo 'data-sortable="true" ';
+							echo '>';
+								echo 'Name';
+							echo '</th>';
+							
+							echo '<th ';
+								echo 'data-field="leadTwtFollowers" ';
+								echo 'data-sortable="true" ';
+							echo '>';
+								echo 'Followers';
+							echo '</th>';
+
+							echo '<th ';
+								echo 'data-field="leadDescription" ';
+								echo 'data-sortable="true" ';
+							echo '>';
+								echo 'Description';
+							echo '</th>';
+
+						echo '</tr>';
+						echo '</thead>';
+					echo '</table>';
+				}
 			
-			echo'</div>';			
+			echo'</div>';
+			}
 			
 			?>
 		  

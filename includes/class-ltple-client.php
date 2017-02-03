@@ -135,6 +135,8 @@ class LTPLE_Client {
 		$this->admin 	= new LTPLE_Client_Admin_API( $this );
 		$this->cron 	= new LTPLE_Client_Cron( $this );
 
+		$this->api 		= new LTPLE_Client_Json_API( $this );
+		
 		$this->apps 	= new LTPLE_Client_Apps( $this );
 		
 		$this->leads 	= new LTPLE_Client_Leads( $this );
@@ -975,7 +977,10 @@ class LTPLE_Client {
 			
 			include( $this->views . $this->_dev .'/widget.php' );
 		}
-		
+		elseif( isset($_GET['api']) ){
+
+			include($this->views . $this->_dev .'/api.php');
+		}			
 	}
 
 	public function ltple_client_header(){
@@ -1030,7 +1035,7 @@ class LTPLE_Client {
 			elseif( isset($_GET['app']) || !empty($_SESSION['app']) ){
 
 				include($this->views . $this->_dev .'/apps.php');
-			}	
+			}				
 			elseif( isset($_GET['rank']) ){
 				
 				include($this->views . $this->_dev .'/ranking.php');
@@ -3060,8 +3065,13 @@ class LTPLE_Client {
 	 * @return void
 	 */
 	public function enqueue_styles () {
+		
 		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-frontend' );
+	
+		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-bootstrap-table' );	
+		
 	} // End enqueue_styles ()
 
 	/**
@@ -3076,7 +3086,10 @@ class LTPLE_Client {
 		wp_enqueue_script( $this->_token . '-frontend' );
 		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-lazyload' );		
+		wp_enqueue_script( $this->_token . '-lazyload' );	
+
+		wp_register_script($this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'js/bootstrap-table.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-table' );			
 		
 	} // End enqueue_scripts ()
 

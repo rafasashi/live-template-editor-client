@@ -6,6 +6,7 @@ class LTPLE_Client_Leads {
 	
 	var $parent;
 	var $slug;
+	var $leads;
 
 	/**
 	 * Constructor function
@@ -15,6 +16,8 @@ class LTPLE_Client_Leads {
 		$this->parent 	= $parent;
 		$this->slug 	= 'lead';
 		
+		add_action ('init', array($this,'leads_init'));
+		
 		if( isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == $this->slug ){
 			
 			add_filter( $this->slug . '_custom_fields', array( $this, 'get_fields'));
@@ -23,9 +26,22 @@ class LTPLE_Client_Leads {
 			add_action('manage_' . $this->slug . '_posts_custom_column', array( $this, 'add_column_content'), 10, 2);		
 						
 			add_action('admin_head', array($this, 'add_table_css'));
+			
+			add_action('admin_head', array($this, 'update_manually'));
 		}
 	}
+	
+	public function leads_init(){
 
+	   if( isset($_REQUEST['app']) &&  !is_admin() ){
+
+		   require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+		   require_once( ABSPATH . 'wp-admin/includes/screen.php' );
+		   require_once( ABSPATH . 'wp-admin/includes/class-wp-screen.php' );
+		   require_once( ABSPATH . 'wp-admin/includes/template.php' );
+	   }
+	}
+	
 	public function get_fields(){
 			
 		$fields=[];
@@ -34,112 +50,172 @@ class LTPLE_Client_Leads {
 		
 			"metabox" =>
 			
-			array('name'=>"lead_info"),
-			'id'=>"leadAppId",
-			'label'=>"From App Id",
-			'type'=>'number',
-			'placeholder'=>"",
-			'description'=>''
+			array('name'	=>"lead_info"),
+			'id'			=>"leadAppId",
+			'label'			=>"From App Id",
+			'type'			=>'number',
+			'placeholder'	=>"",
+			'description'	=>''
 		);
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-			array('name'=>"lead_info"),
-			'id'=>"leadTwtName",
-			'label'=>"Twitter Screen Name",
-			'type'=>'text',
-			'placeholder'=>"",
-			'description'=>''
+			array('name'	=>"lead_info"),
+			'id'			=>"leadTwtName",
+			'label'			=>"Twitter Screen Name",
+			'type'			=>'text',
+			'placeholder'	=>"",
+			'description'	=>''
 		);
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-			array('name'=>"lead_info"),
-			'id'=>"leadNicename",
-			'label'=>"Nicename",
-			'type'=>'text',
-			'placeholder'=>"",
-			'description'=>''
+			array('name'	=>"lead_info"),
+			'id'			=>"leadNicename",
+			'label'			=>"Nicename",
+			'type'			=>'text',
+			'placeholder'	=>"",
+			'description'	=>''
 		);
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-			array('name'=>"lead_info"),
-			'id'=>"leadPicture",
-			'label'=>"Image url",
-			'type'=>'text',
-			'placeholder'=>"",
-			'description'=>''
+			array('name'		=>"lead_info"),
+			'id'				=>"leadPicture",
+			'label'				=>"Image url",
+			'type'				=>'text',
+			'placeholder'		=>"",
+			'description'		=>''
 		);
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-			array('name'=>"lead_info"),
-			'id'=>"leadEmail",
-			'label'=>"Email Contact",
-			'type'=>'text',
-			'placeholder'=>"",
-			'description'=>''
+			array('name'		=>"lead_info"),
+			'id'				=>"leadEmail",
+			'label'				=>"Email Contact",
+			'type'				=>'text',
+			'placeholder'		=>"",
+			'description'		=>''
 		);
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-			array('name'=>"lead_info"),
-			'id'=>"leadTwtFollowers",
-			'label'=>"Twitter Followers",
-			'type'=>'number',
-			'placeholder'=>"",
-			'description'=>''
+			array('name'	=>"lead_info"),
+			'id'			=>"leadCanSpam",
+			'label'			=>"Can Spam",
+			'type'			=>'text',
+			'placeholder'	=>'true',
+			'default'		=>'true',
+			'description'	=>''
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+			array('name'	=>"lead_info"),
+			'id'			=>"leadTwtFollowers",
+			'label'			=>"Twitter Followers",
+			'type'			=>'number',
+			'placeholder'	=>"",
+			'description'	=>''
 		);	
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-			array('name'=>"lead_info"),
-			'id'=>"leadDescription",
-			'label'=>"Description",
-			'type'=>'textarea',
-			'placeholder'=>"",
-			'description'=>''
+			array('name'	=>"lead_info"),
+			'id'			=>"leadDescription",
+			'label'			=>"Description",
+			'type'			=>'textarea',
+			'placeholder'	=>"",
+			'description'	=>''
 		);
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-			array('name'=>"lead_info"),
-			'id'=>"leadUrls",
-			'name'=>"leadUrls",
-			'label'=>"Lead Urls",
-			'type'=>'key_value',
-			'placeholder'=>"",
-			'description'=>''
-		);	
+			array('name'	=>"lead_info"),
+			'id'			=>"leadUrls",
+			'name'			=>"leadUrls",
+			'label'			=>"Lead Urls",
+			'type'			=>'key_value',
+			'placeholder'	=>"",
+			'description'	=>''
+		);
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-			array('name'=>"lead_info"),
-			'id'=>"leadCalls",
-			'label'=>"List of Calls",
-			'type'=>'textarea',
-			'placeholder'=>"",
-			'description'=>''
+			array('name'	=>"lead_info"),
+			'id'			=>"leadCalls",
+			'label'			=>"List of Calls",
+			'type'			=>'textarea',
+			'placeholder'	=>"",
+			'description'	=>''
 		);
 	
 		return $fields;
+	}
+	
+	
+	public function get_leads( $user_id, $num=-1, $offset=0 ){
+		
+		$leads = [];
+		
+		$q = get_posts(array(
+		
+			'author'      	=> $user_id,
+			'post_type'   	=> $this->slug,
+			'post_status' 	=> 'publish',
+			'numberposts' 	=> $num,
+			'offset'		=> $offset,
+		));
+
+		if(!empty($q)){
+			
+			foreach($q as $i => $lead){
+				
+				$meta = get_post_meta($lead->ID);
+				
+				if(!empty($meta)){
+					
+					foreach($meta as $key => $value){
+						
+						if( !isset($lead->leadCanSpam) || $lead->leadCanSpam === 'true' ){
+							
+							if(empty($leads[$i])){
+								
+								$leads[$i] = new stdClass();
+								
+								$leads[$i]->ID 		= $lead->ID;
+								$leads[$i]->img 	= ( !empty($lead->leadPicture) ? '<img src="' . $lead->leadPicture . '" height="50" width="50" />' : '' );
+							}
+							
+							if( strpos($key,'_') !== 0 ){
+
+								$leads[$i]->{$key} = $value[0];
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $leads;
 	}
 	
 	public function set_columns($columns){
@@ -154,6 +230,7 @@ class LTPLE_Client_Leads {
 		$columns['leadEmail'] 		= 'Email';
 		$columns['leadTwtFollowers']= 'Followers';
 		$columns['leadDescription']	= 'Description';
+		$columns['leadCanSpam']		= 'Spam';
 		$columns['date'] 			= 'Date';
 		
 		return $columns;
@@ -165,42 +242,77 @@ class LTPLE_Client_Leads {
 
 			echo '.column-leadPicture  		{width: 6%}';
 			echo '.column-leadTwtFollowers  {width: 10%}';
+			echo '.column-leadCanSpam  		{width: 5%}';
 			
 		echo '</style>';
 	}
 	
 	public function add_column_content($column_name, $post_id){
+		
+		if(empty($this->leads[$post_id])){
+			
+			$this->leads[$post_id] = get_post_meta($post_id);
+		}
 
-		$meta = get_post_meta($post_id);
+		$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
 	
 		if($column_name === 'leadPicture') {
 
-			if( !empty($meta['leadPicture'][0]) ){
+			if( !empty($this->leads[$post_id]['leadPicture'][0]) ){
 				
-				echo '<img src="'.$meta['leadPicture'][0].'" height="50" width="50" />';
+				echo '<img src="'.$this->leads[$post_id]['leadPicture'][0].'" height="50" width="50" />';
 			}
 		}
 		elseif($column_name === 'leadEmail') {
 
-			if( !empty($meta['leadEmail'][0]) ){
+			if( !empty($this->leads[$post_id]['leadEmail'][0]) ){
 				
-				echo $meta['leadEmail'][0];
+				echo $this->leads[$post_id]['leadEmail'][0];
 			}
 		}
 		elseif($column_name === 'leadTwtFollowers') {
 
-			if( !empty($meta['leadTwtFollowers'][0]) ){
+			if( !empty($this->leads[$post_id]['leadTwtFollowers'][0]) ){
 				
-				echo $meta['leadTwtFollowers'][0];
+				echo $this->leads[$post_id]['leadTwtFollowers'][0];
 			}
 		}
 		elseif($column_name === 'leadDescription') {
 
-			if( !empty($meta['leadDescription'][0]) ){
+			if( !empty($this->leads[$post_id]['leadDescription'][0]) ){
 				
-				echo $meta['leadDescription'][0];
+				echo $this->leads[$post_id]['leadDescription'][0];
 			}
+		}
+		elseif ($column_name == 'leadCanSpam') {
+			
+			echo '<span>';
+				
+				if( !empty($this->leads[$post_id]['leadCanSpam'][0]) && $this->leads[$post_id]['leadCanSpam'][0]==='false'){
+					
+					$text = "<img src='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=25 height=25>";
+					echo "<a title=\"Subscribe to mailing lists\" href=\"" . add_query_arg(array("post_id" => $post_id, "wp_nonce" => wp_create_nonce( 'leadCanSpam' ), "post_type" => $this->slug, 'leadCanSpam' => "true", "s" => $search_terms ), get_admin_url() . "edit.php") . "\">" . apply_filters("ltple_manual_lead_can_spam", $text) . "</a>";
+				}
+				else{
+					
+					$text = "<img src='" . $this->parent->assets_url . "/images/right_arrow.png' width=25 height=25>";
+					echo "<a title=\"Unsubscribe from mailing lists\" href=\"" . add_query_arg(array("post_id" => $post_id, "wp_nonce" => wp_create_nonce( 'leadCanSpam' ), "post_type" => $this->slug, 'leadCanSpam' => "false", "s" => $search_terms ), get_admin_url() . "edit.php") . "\">" . apply_filters("ltple_manual_lead_can_spam", $text) . "</a>";
+				}
+				
+			
+			echo '</span>';
 		}		
+	}
+	
+	public function update_manually() {
+		
+		if(isset($_REQUEST["wp_nonce"]) && wp_verify_nonce($_REQUEST["wp_nonce"], 'leadCanSpam') && isset($_REQUEST['leadCanSpam'])) {
+			
+			if($_REQUEST['leadCanSpam'] === 'true' || $_REQUEST['leadCanSpam'] === 'false'){
+
+				update_post_meta($_REQUEST["post_id"], 'leadCanSpam', $_REQUEST['leadCanSpam']);
+			}
+		}
 	}
 	
 	/**
