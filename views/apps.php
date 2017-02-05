@@ -213,7 +213,7 @@
 					echo '<table id="eventsTable"';
 						echo 'data-toggle="table" ';
 						//echo 'data-height="400" ';
-						echo 'data-url="' . $this->api->get_url('get/leads',$user_id) . '" ';
+						echo 'data-url="' . $this->api->get_url('leads/list',$user_id) . '" ';
 						echo 'data-pagination="true" ';
 						echo 'data-search="true" ';
 						echo 'data-show-header="true" ';

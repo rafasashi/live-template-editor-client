@@ -41,7 +41,7 @@
 						
 						echo '<li'.$class.'>';
 						
-							echo '<a href="#' . $term->slug . '" data-toggle="tab">' . $term->name . ' <span class="btn-xs btn-warning pull-right"> admin </span></a>';
+							echo '<a href="#' . $term->slug . '" data-toggle="tab">' . $term->name . ' <span class="label label-warning pull-right"> admin </span></a>';
 							
 						echo '</li>';	
 
