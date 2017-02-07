@@ -32,14 +32,12 @@ class LTPLE_Client_Apps {
 		
 		add_filter('wp_loaded', array( $this, 'apps_init'));
 		
-		add_filter("user-app_custom_fields", array( $this, 'add_app_data_custom_fields' ));		
+		add_filter("user-app_custom_fields", array( $this, 'get_fields' ));		
 	}
 	
 	// Add app data custom fields
 
-	public function add_app_data_custom_fields(){
-		
-		$fields=[];
+	public function get_fields($fields=[]){
 		
 		$fields[]=array(
 		
@@ -78,7 +76,7 @@ class LTPLE_Client_Apps {
 			'hide_empty' 	=> false,
 			'order' 		=> 'DESC',
 		));
-		
+
 		// get custom fields
 		
 		foreach($this->appList as $app){
@@ -96,19 +94,31 @@ class LTPLE_Client_Apps {
 			'post__in' 		=> array( get_option( $this->parent->_base . 'wpcom_main_account' ), get_option( $this->parent->_base . 'twt_main_account' ) ),
 			'numberposts' 	=> -1
 		));
-		
+
 		if(!empty($this->app)){
+			
 			
 			foreach($this->appList as $app){
 				
 				if( $this->app == $app->slug ){
 					
-					$this->includeApp($app->slug);
+					$this->includeApp($this->app);
 					
 					break;
 				}
 			}
-		}		
+		}
+		elseif( is_admin() && isset($_REQUEST['post']) ){
+			
+			$terms = wp_get_post_terms( $_REQUEST['post'], 'app-type' );
+			
+			if(isset($terms[0]->slug)){
+				
+				$this->app = $terms[0]->slug;
+				
+				$this->includeApp($this->app);
+			}
+		}
 	}
 	
 	public function includeApp($appSlug){

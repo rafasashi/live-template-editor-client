@@ -159,7 +159,15 @@
 
 								e.preventDefault();
 							
-								var carouselId 	= $(this).attr('data-target');
+								if( typeof $(this).attr('data-target') !== typeof undefined ){
+									
+									var carouselId 	= $(this).attr('data-target');
+								}
+								else{
+									
+									var carouselId 	= $(this).attr("href");
+								}
+								
 								var slideTo 	= parseInt( $(this).attr('data-slide-to') );
 								
 								$(carouselId).carousel(slideTo);
@@ -172,7 +180,15 @@
 
 								e.preventDefault();
 							
-								var carouselId 	= $(this).attr('data-target');
+								if( typeof $(this).attr('data-target') !== typeof undefined ){
+									
+									var carouselId 	= $(this).attr('data-target');
+								}
+								else{
+									
+									var carouselId 	= $(this).attr("href");
+								}
+
 								var slideTo 	= $(this).attr('data-slide');
 								
 								$(carouselId).carousel(slideTo);

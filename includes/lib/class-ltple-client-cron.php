@@ -16,10 +16,12 @@ class LTPLE_Client_Cron {
 		add_action( 'init', array($this,'cron_init'));
 		
 		// debug cron action from plugin settings
+		
 		/*
 		add_action( 'admin_init', function(){
 			
-			$this->ltple_twt_auto_retweet_event(3254, 10);
+			//$this->ltple_twt_auto_retweet_event(3254, 10);
+			//$this->ltple_twt_import_leads_event();
 		});
 		*/
 	}
@@ -27,6 +29,7 @@ class LTPLE_Client_Cron {
 	public function cron_init($event){
 		
 		add_action( $this->parent->_base . 'twt_auto_retweet', 	array( $this, 'ltple_twt_auto_retweet_event'),1,2);
+		add_action( $this->parent->_base . 'twt_import_leads', 	array( $this, 'ltple_twt_import_leads_event'),1);
 	}
 	
 	public function event_exists($event){
@@ -82,8 +85,8 @@ class LTPLE_Client_Cron {
 
 		return $schedules;
 	}
-	
-	public function ltple_twt_auto_retweet_event( $appId, $last){
+
+	public function ltple_twt_auto_retweet_event( $appId, $last ){
 		
 		$appSlug = 'twitter';
 		
@@ -93,6 +96,18 @@ class LTPLE_Client_Cron {
 		}
 		
 		$this->parent->apps->{$appSlug}->retweetLastTweet($appId, $last);
+	}
+	
+	public function ltple_twt_import_leads_event(){
+		
+		$appSlug = 'twitter';
+		
+		if( !isset( $this->parent->apps->{$appSlug} ) ){
+			
+			$this->parent->apps->includeApp($appSlug);
+		}
+		
+		$this->parent->apps->{$appSlug}->importPendingLeads();
 	}
 
 	/**

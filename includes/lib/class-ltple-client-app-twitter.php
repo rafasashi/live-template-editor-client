@@ -9,6 +9,7 @@ class LTPLE_Client_App_Twitter {
 	var $parent;
 	var $action;
 	var $slug;
+	var $connectedAppId;
 	
 	/**
 	 * Constructor function
@@ -17,6 +18,8 @@ class LTPLE_Client_App_Twitter {
 		
 		$this->parent 		= $parent;
 		$this->parent->apps = $apps;
+		
+		add_filter("user-app_custom_fields", array( $this, 'get_fields' ));
 		
 		$this->slug = $app_slug;
 		
@@ -27,7 +30,7 @@ class LTPLE_Client_App_Twitter {
 		// get app parameters
 		
 		$parameters = get_option('parameters_'.$this->slug);
-
+		
 		if( isset($parameters['key']) ){
 			
 			$twt_consumer_key 		= array_search('twt_consumer_key', $parameters['key']);
@@ -61,6 +64,52 @@ class LTPLE_Client_App_Twitter {
 		}
 	}
 	
+	// Add app data custom fields
+
+	public function get_fields( $fields=[] ){
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"appRequests"),
+				'id'			=>	"twtNextFollowersList",
+				'label'			=>	"Next followers/list",
+				'type'			=>	'text',
+				'disabled'		=>	true,
+				'placeholder'	=>	"",
+				'description'	=>	'Next time these credentials can be used to request any followers/list'
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"appRequests"),
+				'id'			=>	"twtCursorFollowersList",
+				'label'			=>	"Cursor followers/list",
+				'type'			=>	'text',
+				'disabled'		=>	true,
+				'placeholder'	=>	"",
+				'description'	=>	'Next cursor to proceed with the current app followers/list importation'
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"appRequests"),
+				'id'			=>	"twtLastImportedFollowers",
+				'label'			=>	"Last imported followers",
+				'type'			=>	'text',
+				'disabled'		=>	true,
+				'placeholder'	=>	"",
+				'description'	=>	'Last followers/list importation request made for the current app'
+		);
+		
+		return $fields;
+	}
+	
 	public function do_tweet_shortcodes( $str, $screen_name ){
 		
 		$shortcodes 	= [];
@@ -78,11 +127,67 @@ class LTPLE_Client_App_Twitter {
 		return $str;
 	}
 	
+	public function startConnectionFor( $request='' ){
+	
+		// get a valid connection
+
+		$args = array(
+			
+			'post_type' 	=> 'user-app',
+			'post_status' 	=> 'publish',
+			'numberposts' 	=> 1,
+			//'meta_key' 		=> 'leadTwtFollowers',
+			//'orderby' 		=> 'meta_value_num',
+			//'order' 		=> 'DESC',
+			'meta_query' 	=> array(
+				'relation' 	=> 'OR',
+				array(
+					'key' 		=> $request,
+					'value' 	=> time(),
+					'compare' 	=> '<',
+				),
+				array(
+					'key' 		=> $request,
+					'compare' 	=> 'NOT EXISTS',
+				)
+			),
+			'tax_query' => array(
+				array(
+				  'taxonomy' 		=> 'app-type',
+				  'field' 			=> 'slug',
+				  'terms' 			=> 'twitter',
+				  'include_children'=> false
+				)
+			)
+		);
+		
+		$q = get_posts( $args );
+
+		$connection = false;
+		
+		if(!empty($q[0]->ID)){
+		
+			if($app = json_decode(get_post_meta( $q[0]->ID, 'appData', true ),false)){
+			
+				$this->connectedAppId = $q[0]->ID;
+				
+				if( !empty( $app->oauth_token) && !empty( $app->oauth_token_secret) ){
+				
+					$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
+				}
+			}
+		}
+		
+		return $connection;
+	}
+	
 	public function retweetLastTweet($appId = null, $count){
 		
 		if( is_numeric($appId) ){
 			
 			if( $app = json_decode(get_post_meta( $appId, 'appData', true ),false) ){
+
+				// start connection
 
 				$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
 				
@@ -169,6 +274,148 @@ class LTPLE_Client_App_Twitter {
 		}
 	}
 	
+	public function get_pending_importation(){
+		
+		$app = null;
+		
+		// get customers only
+		
+		$q = get_posts(array(
+		
+			'posts_per_page'=> -1,
+			'post_type'		=> 'user-plan',
+			'fields' 		=> 'post_author',
+			'meta_query'	=> array(
+				array(
+					'key'		=> 'userPlanValue',
+					'value'		=> 0,
+					'type'		=> 'NUMERIC',
+					'compare'	=> '>'
+				)
+			)
+		));
+		
+		if(!empty($q)){
+			
+			$ids = [];
+			
+			foreach($q as $post){
+				
+				$ids[] = $post->post_author;
+			}
+			
+			$args = array(
+			
+				'post_type' 	=> 'user-app',
+				'post_status' 	=> 'publish',
+				'numberposts' 	=> -1,
+				'author' 		=> implode(',',$ids),
+				'orderby' 		=> 'date',
+				'order' 		=> 'DESC',
+				'meta_query' 	=> array(
+					'relation' 	=> 'OR',
+					array(
+						'key' 		=> 'twtCursorFollowersList',
+						'value' 	=> 0,
+						'compare' 	=> '>',
+					),
+					array(
+						'key' 		=> 'twtCursorFollowersList',
+						'compare' 	=> 'NOT EXISTS',
+					)
+				),
+				'tax_query' => array(
+					array(
+					  'taxonomy' 		=> 'app-type',
+					  'field' 			=> 'slug',
+					  'terms' 			=> 'twitter',
+					  'include_children'=> false
+					)
+				)
+			);
+			
+			$q = get_posts($args);
+		
+			if(!empty($q)){
+		
+				foreach($q as $i => $post){
+					
+					$lastImported = intval(get_post_meta($post->ID,'twtLastImportedFollowers',true));
+
+					if(empty($lastImported)){
+						
+						$lastImported = $i;
+					}
+
+					$apps[$lastImported]=$post;
+				}
+				
+				ksort($apps);
+				
+				$app = reset($apps);
+			}
+		}
+
+		return $app;
+	}
+	
+	public function importPendingLeads(){
+		
+		if( $app = $this->get_pending_importation() ){
+
+			$this->insert_leads($app);
+		}
+	}
+	
+	public function insert_leads($app){
+		
+		if(!empty($app->ID)){
+
+			$followers = $this->appGetFollowers($app->ID);
+			
+			if(!empty($followers)){
+				
+				foreach($followers as $follower){
+				
+					$lead_title = $this->slug . ' - ' . $follower->screen_name;
+
+					$q = get_page_by_title( $lead_title, OBJECT, 'lead' );
+
+					if( empty($q) ){
+
+						if( $lead_id = wp_insert_post(array(
+					
+							'post_author' 	=> $app->post_author,
+							'post_title' 	=> $lead_title,
+							'post_type' 	=> 'lead',
+							'post_status' 	=> 'publish'
+						))){
+
+							update_post_meta( $lead_id, 'leadAppId', 		$app->ID);
+							update_post_meta( $lead_id, 'leadTwtName', 		$follower->screen_name);
+							update_post_meta( $lead_id, 'leadNicename',		$follower->name);
+							update_post_meta( $lead_id, 'leadPicture',		$follower->profile_image_url);
+							update_post_meta( $lead_id, 'leadEmail', 		LTPLE_Client_App_Scraper::extractEmails($follower->description,true));
+							update_post_meta( $lead_id, 'leadTwtFollowers',	$follower->followers_count);
+							update_post_meta( $lead_id, 'leadDescription',	$follower->description );
+							update_post_meta( $lead_id, 'leadnCanSpam',		'true' );
+							update_post_meta( $lead_id, 'leadTwtProtected',$follower->protected );
+							
+							if(!empty($follower->entities->urls->display_url) && !empty($follower->entities->urls->expanded_url)){
+								
+								update_post_meta( $lead_id, 'leadUrls', 		[ 'key' => [$follower->entities->urls->display_url], 'value' => [$follower->entities->urls->expanded_url] ] );
+							}
+						}
+					}
+				}
+				
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
 	public function appImportLeads(){
 		
 		$user_id = $_REQUEST['user_id'];
@@ -181,41 +428,7 @@ class LTPLE_Client_App_Twitter {
 				
 				foreach($user_apps as $app){
 					
-					$followers = $this->appGetFollowers($app->ID);
-					
-					if(!empty($followers)){
-						
-						foreach($followers as $follower){
-						
-							$lead_title = $this->slug . ' - ' . $follower->screen_name;
-		
-							$q = get_page_by_title( $lead_title, OBJECT, 'lead' );
-
-							if( empty($q) ){
-
-								if( $lead_id = wp_insert_post(array(
-							
-									'post_author' 	=> $user_id,
-									'post_title' 	=> $lead_title,
-									'post_type' 	=> 'lead',
-									'post_status' 	=> 'publish'
-								))){
-
-									update_post_meta( $lead_id, 'leadAppId', 		$app->ID);
-									update_post_meta( $lead_id, 'leadTwtName', 		$follower->screen_name);
-									update_post_meta( $lead_id, 'leadNicename',		$follower->name);
-									update_post_meta( $lead_id, 'leadPicture',		$follower->profile_image_url);
-									update_post_meta( $lead_id, 'leadEmail', 		LTPLE_Client_App_Scraper::extractEmails($follower->description,true));
-									update_post_meta( $lead_id, 'leadTwtFollowers',	$follower->followers_count);
-									update_post_meta( $lead_id, 'leadDescription',	$follower->description );
-									
-									if(!empty($follower->entities->urls->display_url) && !empty($follower->entities->urls->expanded_url)){
-										
-										update_post_meta( $lead_id, 'leadUrls', 		[ 'key' => [$follower->entities->urls->display_url], 'value' => [$follower->entities->urls->expanded_url] ] );
-									}
-								}
-							}
-						}
+					if($this->insert_leads($app)){
 						
 						break;
 					}
@@ -238,108 +451,156 @@ class LTPLE_Client_App_Twitter {
 		
 		$followers = [];
 		
-		if( $app = json_decode(get_post_meta( $app_id, 'appData', true ),false) ){
-			
-			// get app connection
-			
-			$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
-			
-			// get app settings
-			
-			if( !$settings = json_decode(get_post_meta( $app_id, 'appSettings', true ),false)){
-				
-				$settings = new stdClass();
-			}
-			
-			// set last cursor
-			
-			$cursor = -1;
-			
-			if(!empty($settings->cursor_import_followers)){
-				
-				$cursor = $settings->cursor_import_followers;
-			}
-			
-			// set request counts
-			
-			$r = 0;
-			$max_request = 15;
-			
-			// get followers
-		
-			do {
-		
-				$q = $connection->get('followers/list', array( 
-				
-					'screen_name' 		=> $app->screen_name, 
-					'count' 			=> 200,
-					'skip_status'		=> 1,
-					'cursor' 			=> $cursor,
-				));
-				
-				if( !empty($q->users) ){
-					
-					// get niche terms
-						
-					$terms = array_merge( $this->parent->apps->get_niche_terms(), $this->parent->apps->get_niche_hashtags() );					
-					
-					$count = count($q->users);
-					
-					// parse followers
-					
-					foreach($q->users as $i => $follower ){
-						
-						if( $cursor == -1 && $i == 0 ){
-							
-							$settings->last_to_follow = $follower->id;
-							
-							update_post_meta( $app_id, 'appSettings', json_encode($settings,JSON_PRETTY_PRINT));
-						}
+		//$next_request = intval( get_post_meta( $app_id, 'twtNextFollowersList', true ));
 
-						//get corpus
+		//if( time() > $next_request ){
+		
+			if( $app = json_decode(get_post_meta( $app_id, 'appData', true ),false) ){
+				
+				// get app connection
+				// another pair of credentials is used to request the data
+			
+				if($connection = $this->startConnectionFor('twtNextFollowersList')){
+				
+					// get app settings
+					
+					if( !$settings = json_decode(get_post_meta( $app_id, 'appSettings', true ),false)){
 						
-						$corpus 	= [];
-						$corpus[] 	= trim($follower->name);
-						$corpus[] 	= trim($follower->screen_name);
-						$corpus[] 	= trim($follower->description);
-						$corpus[] 	= trim($follower->url);
-						
-						$corpus = array_filter($corpus);
-						$corpus = strtolower(implode(' ',$corpus));
-
-						foreach($terms as $term){
-							
-							if(strpos($corpus,strtolower($term))!==false){
-								
-								$followers[] = $follower;
-							}
-						}
+						$settings = new stdClass();
 					}
 					
-					if( !empty($q->next_cursor) && intval($q->next_cursor) > 0 ){
+					// set last cursor
 					
-						//set next_cursor
+					$cursor = -1;
+					
+					if(isset($settings->cursor_import_followers)){
 						
-						$cursor = $settings->cursor_import_followers = $q->next_cursor;
+						$cursor = $settings->cursor_import_followers;
+					}
+				
+					if( $cursor !==0 ){
+		
+						// set request counts
 						
-						//update next_cursor
+						$r = 0;
+						$max_request = 15;
+						$time_limit	 = 15;
 						
-						update_post_meta( $app_id, 'appSettings', json_encode($settings,JSON_PRETTY_PRINT));
+						// get followers
+					
+						do {
+					
+							$q = $connection->get('followers/list', array( 
+							
+								'screen_name' 		=> $app->screen_name, 
+								'count' 			=> 200,
+								'skip_status'		=> 1,
+								'cursor' 			=> $cursor,
+							));
+
+							if( !empty($q->users) ){
+
+								// get niche terms
+									
+								$terms = array_merge( $this->parent->apps->get_niche_terms(), $this->parent->apps->get_niche_hashtags() );					
+								
+								$count = count($q->users);
+								
+								// parse followers
+								
+								foreach($q->users as $i => $follower ){
+
+									if( $cursor == -1 && $i == 0 ){
+										
+										$settings->last_to_follow = $follower->id;
+										
+										//update settings
+										
+										update_post_meta( $app_id, 'appSettings', json_encode($settings,JSON_PRETTY_PRINT));
+									}
+
+									//get corpus
+									
+									$corpus 	= [];
+									$corpus[] 	= trim($follower->name);
+									$corpus[] 	= trim($follower->screen_name);
+									$corpus[] 	= trim($follower->description);
+									$corpus[] 	= trim($follower->url);
+									
+									$corpus = array_filter($corpus);
+									$corpus = strtolower(implode(' ',$corpus));
+
+									foreach($terms as $term){
+										
+										if(strpos($corpus,strtolower($term))!==false){
+											
+											$followers[] = $follower;
+										}
+									}
+								}
+
+								if( isset($q->next_cursor) ){
+								
+									//set next_cursor
+									
+									$cursor = $settings->cursor_import_followers = $q->next_cursor;
+									
+									//update settings
+									
+									update_post_meta( $app_id, 'appSettings', json_encode($settings,JSON_PRETTY_PRINT));
+									
+									//update cursor
+									
+									update_post_meta( $app_id, 'twtCursorFollowersList', $cursor );
+									
+									//update imported time
+									
+									update_post_meta( $app_id, 'twtLastImportedFollowers', time() );
+								}
+								else{
+									
+									break;
+								}
+							}
+							else{
+								
+								break;
+							}
+							
+							$r++;
+							
+						} while( $r < $max_request );
+						
+						update_post_meta( $this->connectedAppId, 'twtNextFollowersList', ( time() + $time_limit * 60 ) );
+						
 					}
 					else{
 						
-						break;
+						add_action( 'admin_notices', function(){				
+						
+							echo'<div class="notice notice-success">';
+							
+								echo'<p>All followers already imported...</p>';
+								
+							echo'</div>';	
+						});						
 					}
 				}
-				else{
-					
-					break;
-				}
-				
-				$r++;
-				
-			} while( $r < $max_request );
+			}
+		/*
 		}
+		else{
+			
+			add_action( 'admin_notices', function(){				
+			
+				echo'<div class="notice notice-warning">';
+				
+					echo'<p>Application request limit reached, wait few minutes...</p>';
+					
+				echo'</div>';	
+			});
+		}
+		*/
 		
 		return $followers;
 	}

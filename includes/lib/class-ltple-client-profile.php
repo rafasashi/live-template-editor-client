@@ -25,9 +25,7 @@ class LTPLE_Client_Profile {
 		}
 	}
 	
-	public function get_fields(){
-		
-		$fields = array();	
+	public function get_fields( $fields=[] ){
 		
 		/*
 		$fields['user_login'] = array(

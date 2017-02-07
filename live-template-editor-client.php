@@ -630,6 +630,14 @@
 			'advanced'
 		);
 		
+		LTPLE_Client()->admin->add_meta_box (
+			
+			'appRequests',
+			__( 'App Requests', 'live-template-editor-client' ), 
+			array("user-app"),
+			'advanced'
+		);
+		
 	});
 	
 	// Add layer custom fields

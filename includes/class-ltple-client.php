@@ -3088,8 +3088,17 @@ class LTPLE_Client {
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-lazyload' );	
 
+		wp_register_script($this->_token . '-sprintf', esc_url( $this->assets_url ) . 'js/sprintf.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-sprintf' );		
+		
 		wp_register_script($this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'js/bootstrap-table.min.js', array( 'jquery' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-bootstrap-table' );			
+		wp_enqueue_script( $this->_token . '-bootstrap-table' );
+
+		wp_register_script($this->_token . '-bootstrap-table-export', esc_url( $this->assets_url ) . 'js/bootstrap-table-export.js', array( 'jquery', $this->_token . 'sprintf' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-table-export' );
+		
+		wp_register_script($this->_token . '-table-export', esc_url( $this->assets_url ) . 'js/tableExport.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-table-export' ); 
 		
 	} // End enqueue_scripts ()
 

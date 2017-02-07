@@ -522,6 +522,14 @@ class LTPLE_Client_Settings {
 					'last' 			=> true,
 				),
 				array(
+					'id' 			=> 'twt_import_leads',
+					'label'			=> __( 'Import Leads' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'action_schedule',
+					'action' 		=> 'import leads',
+					'last' 			=> false,
+				),
+				array(
 					'id' 			=> 'twt_welcome_tweet',
 					'label'			=> __( 'Welcome Tweet' , $this->plugin->slug ),
 					'description'	=> 'Message to be tweeted when a new Twitter account is connected',

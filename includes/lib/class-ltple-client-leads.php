@@ -42,10 +42,8 @@ class LTPLE_Client_Leads {
 	   }
 	}
 	
-	public function get_fields(){
+	public function get_fields($fields=[]){
 			
-		$fields=[];
-		
 		$fields[]=array(
 		
 			"metabox" =>
@@ -124,6 +122,19 @@ class LTPLE_Client_Leads {
 			"metabox" =>
 			
 			array('name'	=>"lead_info"),
+			'id'			=>"leadTwtProtected",
+			'label'			=>"Can DM",
+			'type'			=>'text',
+			'placeholder'	=>'true',
+			'default'		=>'true',
+			'description'	=>''
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+			array('name'	=>"lead_info"),
 			'id'			=>"leadTwtFollowers",
 			'label'			=>"Twitter Followers",
 			'type'			=>'number',
@@ -171,44 +182,82 @@ class LTPLE_Client_Leads {
 		return $fields;
 	}
 	
-	
-	public function get_leads( $user_id, $num=-1, $offset=0 ){
+	public function list_leads( $user_id, $num=1000, $offset=0 ){
 		
 		$leads = [];
 		
-		$q = get_posts(array(
+		if(is_numeric($user_id)){
 		
-			'author'      	=> $user_id,
-			'post_type'   	=> $this->slug,
-			'post_status' 	=> 'publish',
-			'numberposts' 	=> $num,
-			'offset'		=> $offset,
-		));
-
-		if(!empty($q)){
+			// get args
 			
-			foreach($q as $i => $lead){
+			$args = array(
+			
+				'post_type'   	=> $this->slug,
+				'post_status' 	=> 'publish',
+				'numberposts' 	=> $num,
+				'offset'		=> $offset,
+				'meta_key' 		=> 'leadTwtFollowers',
+				'orderby' 		=> 'meta_value_num',
+				'order' 		=> 'DESC',
+				'meta_query' 	=> array(
+					'relation' => 'OR',
+					array(
+						'key' 		=> 'leadCanSpam',
+						'value' 	=> 'false',
+						'compare' 	=> '!=',
+					),
+					array(
+						'key' 		=> 'leadCanSpam',
+						'compare' 	=> 'NOT EXISTS',
+					)
+				)
+			);		
+			
+			if( $user_id > -1 ){
 				
-				$meta = get_post_meta($lead->ID);
-				
-				if(!empty($meta)){
-					
-					foreach($meta as $key => $value){
-						
-						if( !isset($lead->leadCanSpam) || $lead->leadCanSpam === 'true' ){
-							
-							if(empty($leads[$i])){
-								
-								$leads[$i] = new stdClass();
-								
-								$leads[$i]->ID 		= $lead->ID;
-								$leads[$i]->img 	= ( !empty($lead->leadPicture) ? '<img src="' . $lead->leadPicture . '" height="50" width="50" />' : '' );
-							}
-							
-							if( strpos($key,'_') !== 0 ){
+				$args['author'] = $user_id;
+			}
 
-								$leads[$i]->{$key} = $value[0];
+			$q = get_posts( $args );
+			
+			if(!empty($q)){
+				
+				foreach($q as $lead){
+					
+					$meta = get_post_meta($lead->ID);
+					
+					if(!empty($meta)){
+						
+						$item = new stdClass();
+						
+						foreach($meta as $key => $value){
+							
+							if( ( !isset($lead->leadCanSpam) || $lead->leadCanSpam === 'true' )){
+								
+								$item->id 			= intval($lead->ID);
+								$item->via 			= intval($lead->post_author);
+								$item->htmlImg 		= ( !empty($lead->leadPicture) ? '<img src="' . $lead->leadPicture . '" height="50" width="50" />' : '' );
+								$item->htmlTwtName 	= ( !empty($lead->leadTwtName) ? '<a href="http://twitter.com/' . $lead->leadTwtName . '" target="_blank">' . ( !empty($lead->leadNicename) ? $lead->leadNicename : $lead->leadTwtName ) . '</a>' : ( !empty($lead->leadNicename) ? $lead->leadNicename : '' ) );
+							
+								if( strpos($key,'_') !== 0 ){
+									
+									if( is_numeric($value[0]) ){
+										
+										$item->{$key} = floatval($value[0]);
+									}
+									else{
+										
+										$item->{$key} = $value[0];
+									}
+								}
+								
+								
 							}
+						}
+						
+						if(isset($item->id)){
+						
+							$leads[] = $item;
 						}
 					}
 				}
@@ -218,6 +267,22 @@ class LTPLE_Client_Leads {
 		return $leads;
 	}
 	
+	public function destroy_leads( $user_id ){
+		
+		if( is_numeric($user_id) && !empty($_POST['rows']) ){
+		
+			foreach( $_POST['rows'] as $lead ){
+				
+				if(!empty($lead['id'])){
+					
+					update_post_meta( $lead['id'], 'leadCanSpam', 'false' );
+				}
+			}
+		}
+		
+		return $this->list_leads( $user_id );
+	}	
+	
 	public function set_columns($columns){
 		
 		// Remove description, posts, wpseo columns
@@ -226,12 +291,17 @@ class LTPLE_Client_Leads {
 		$columns['cb'] 				= '<input type="checkbox" />';
 		$columns['leadPicture'] 	= 'Picture';
 		$columns['title'] 			= 'Title';
-		$columns['author'] 			= 'Via';		
-		$columns['leadEmail'] 		= 'Email';
+		$columns['author'] 			= 'Via';
 		$columns['leadTwtFollowers']= 'Followers';
 		$columns['leadDescription']	= 'Description';
+		$columns['leadTwtProtected']= 'Protect';
 		$columns['leadCanSpam']		= 'Spam';
 		$columns['date'] 			= 'Date';
+		
+		if( $this->user->is_admin ){
+			
+			$columns['leadEmail'] 	= 'Email';
+		}		
 		
 		return $columns;
 	}
@@ -242,6 +312,7 @@ class LTPLE_Client_Leads {
 
 			echo '.column-leadPicture  		{width: 6%}';
 			echo '.column-leadTwtFollowers  {width: 10%}';
+			echo '.column-leadTwtProtected  {width: 6%}';
 			echo '.column-leadCanSpam  		{width: 5%}';
 			
 		echo '</style>';
@@ -301,7 +372,68 @@ class LTPLE_Client_Leads {
 				
 			
 			echo '</span>';
+		}
+		elseif($column_name === 'leadTwtProtected') {
+
+			if( !empty($this->leads[$post_id]['leadTwtProtected'][0]) ){
+				
+				echo $this->leads[$post_id]['leadTwtProtected'][0];
+			}
 		}		
+	}
+
+	public function get_users_orderby_leads($order = 'DESC', $num = -1){
+		
+		$users = [];
+		
+		// get customers only
+		
+		$q = new WP_Query(array(
+		
+			'posts_per_page'=> -1,
+			'post_type'		=> 'user-plan',
+			'fields' 		=> 'post_author',
+			'meta_query'	=> array(
+				array(
+					'key'		=> 'userPlanValue',
+					'value'		=> 0,
+					'type'		=> 'NUMERIC',
+					'compare'	=> '>'
+				)
+			)
+		));
+
+		if(!empty($q->posts)){
+			
+			$ids = [];
+			
+			foreach($q->posts as $post){
+				
+				$ids[] = $post->post_author;
+			}
+			
+			add_action('pre_user_query', array($this, 'user_query_count_leads'));
+			
+			$args = array(
+			
+				'orderby'      => 'post_count',
+				'order'        => $order,
+				'count_total'  => false,
+				'number'       => $num,
+				'include'      => $ids,
+			);
+			
+			$users = get_users($args);
+			
+			remove_action('pre_user_query', array($this, 'user_query_count_leads'));
+		}
+		
+		return $users;
+	}
+
+	public function user_query_count_leads($args){
+	
+		$args->query_from = str_replace("post_type = 'post' AND", "post_type IN ('lead') AND", $args->query_from);	
 	}
 	
 	public function update_manually() {

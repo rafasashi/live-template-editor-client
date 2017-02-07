@@ -1,23 +1,41 @@
 <?php 
-	
+
 	header('Content-Type: application/json');
+	
+	$dataset = '';
 	
 	if($this->user->loggedin){
 	
-		list($action, $dataset, $id) = explode('/',$_GET['api']);
+		list($object, $action, $id) = explode('/',$_REQUEST['api']);
 		
-		if( $action == 'get' ){
+		if( $_SERVER['REQUEST_METHOD'] == 'GET' ){
+		
+			if( $action == 'list' ){
+				
+				$method = $action . '_'.$object;
+				
+				$dataset = $this->{$object}->$method($id);
+			}
+		} 
+		elseif( $_SERVER['REQUEST_METHOD'] == 'POST' ){
 			
-			$method = $action . '_'.$dataset;
+			if( $action == 'destroy' ){
+				
+				$method = $action . '_'.$object;
+				
+				$dataset = $this->{$object}->$method($id);
+			}			
+		}
+		else{
 			
-			$data = $this->{$dataset}->$method($id);
-			
-			echo json_encode($data,JSON_PRETTY_PRINT);
+			$dataset = 'Unsupported request method...';
 		}
 	}
 	else{
 		
-		echo 'You must be loggedin in to access the api...';
+		$dataset = 'You must be loggedin in to access the api...';
 	}
+	
+	echo json_encode($dataset,JSON_PRETTY_PRINT);
 	
 	exit;
