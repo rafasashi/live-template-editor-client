@@ -15,15 +15,14 @@ class LTPLE_Client_Cron {
 		
 		add_action( 'init', array($this,'cron_init'));
 		
-		// debug cron action from plugin settings
-		
-		/*
 		add_action( 'admin_init', function(){
+			
+			// debug cron action from plugin settings
 			
 			//$this->ltple_twt_auto_retweet_event(3254, 10);
 			//$this->ltple_twt_import_leads_event();
 		});
-		*/
+		
 	}
 	
 	public function cron_init($event){

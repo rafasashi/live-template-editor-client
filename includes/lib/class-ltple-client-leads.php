@@ -114,31 +114,6 @@ class LTPLE_Client_Leads {
 			'placeholder'	=>'true',
 			'default'		=>'true',
 			'description'	=>''
-		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-			array('name'	=>"lead_info"),
-			'id'			=>"leadTwtProtected",
-			'label'			=>"Can DM",
-			'type'			=>'text',
-			'placeholder'	=>'true',
-			'default'		=>'true',
-			'description'	=>''
-		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-			array('name'	=>"lead_info"),
-			'id'			=>"leadTwtFollowers",
-			'label'			=>"Twitter Followers",
-			'type'			=>'number',
-			'placeholder'	=>"",
-			'description'	=>''
 		);	
 		
 		$fields[]=array(
@@ -165,6 +140,46 @@ class LTPLE_Client_Leads {
 			'placeholder'	=>"",
 			'description'	=>''
 		);
+		
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+			array('name'	=>"lead_info"),
+			'id'			=>"leadTwtProtected",
+			'label'			=>"Twitter Protected",
+			'disabled'		=>true,
+			'type'			=>'text',
+			'placeholder'	=>'true',
+			'default'		=>'true',
+			'description'	=>''
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+			array('name'	=>"lead_info"),
+			'id'			=>"leadTwtFollowers",
+			'label'			=>"Twitter Followers",
+			'type'			=>'number',
+			'placeholder'	=>"",
+			'description'	=>''
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+			array('name'	=>"lead_info"),
+			'id'			=>"leadTwtLastDm",
+			'label'			=>"Twitter last DM",
+			'type'			=>'text',
+			//'disabled'		=>true,
+			'placeholder'	=>"",
+			'description'	=>''
+		);	
 		
 		$fields[]=array(
 		
@@ -258,15 +273,20 @@ class LTPLE_Client_Leads {
 		return $fields;
 	}
 	
-	public function list_leads( $user_id ){
+	public function list_leads( $user_id, $opportunity='' ){
 		
 		$leads 	= [];
 		$apps 	= [];
-
-		if(!empty($_GET['opportunity'])){
+		
+		if( empty($opportunity) && !empty($_REQUEST['opportunity'])){
 			
-			$user_id 	= 1;
-			//$user_id 	= $this->parent->user->ID;
+			$opportunity = $_REQUEST['opportunity'];
+		}
+
+		if(!empty($opportunity)){
+			
+			//$user_id 	= 1;
+			$user_id 	= $this->parent->user->ID;
 			$num 		= 5;
 			$offset 	= 0;
 		}
@@ -282,12 +302,12 @@ class LTPLE_Client_Leads {
 			
 			if(!empty($_GET['num'])){
 				
-				floatval($_GET['num']);
+				$num = floatval($_GET['num']);
 			}
 			
 			if(!empty($_GET['offset'])){
 				
-				intval($_GET['offset']);
+				$offset = intval($_GET['offset']);
 			}
 		}
 		
@@ -305,15 +325,33 @@ class LTPLE_Client_Leads {
 				'orderby' 		=> 'meta_value_num',
 				'order' 		=> 'DESC',
 				'meta_query' 	=> array(
-					'relation' => 'OR',
+				
+					'relation' => 'AND',
 					array(
-						'key' 		=> 'leadCanSpam',
-						'value' 	=> 'false',
-						'compare' 	=> '!=',
-					),
+					
+						'relation' => 'OR',
+						array(
+							'key' 		=> 'leadTwtLastDm',
+							'value' 	=> '',
+							'compare' 	=> '=',
+						),
+						array(
+							'key' 		=> 'leadTwtLastDm',
+							'compare' 	=> 'NOT EXISTS',
+						)
+					),				
 					array(
-						'key' 		=> 'leadCanSpam',
-						'compare' 	=> 'NOT EXISTS',
+					
+						'relation' => 'OR',
+						array(
+							'key' 		=> 'leadCanSpam',
+							'value' 	=> 'false',
+							'compare' 	=> '!=',
+						),
+						array(
+							'key' 		=> 'leadCanSpam',
+							'compare' 	=> 'NOT EXISTS',
+						)
 					)
 				)
 			);		
@@ -341,7 +379,7 @@ class LTPLE_Client_Leads {
 							$item->htmlImg 		= ( !empty($lead->leadPicture) ? '<img src="' . $lead->leadPicture . '" height="50" width="50" style="width:50px;min-width:50px;max-width:50px;height:50px;" />' : '' );
 							$item->htmlTwtName 	= ( !empty($lead->leadTwtName) ? '<a href="http://twitter.com/' . $lead->leadTwtName . '" target="_blank">' . ( !empty($lead->leadNicename) ? $lead->leadNicename : $lead->leadTwtName ) . '</a>' : ( !empty($lead->leadNicename) ? $lead->leadNicename : '' ) );
 							
-							if(!empty($_GET['opportunity'])){
+							if(!empty($opportunity)){
 								
 								$leadAppId = $meta['leadAppId'][0];
 								
@@ -355,11 +393,11 @@ class LTPLE_Client_Leads {
 								$item->htmlStars 	= '';
 								$item->htmlForm 	= '';
 								
-								if($_GET['opportunity'] == 'dms' ){
+								if($opportunity == 'dms' ){
 									
 									//stars
 									
-									$item->htmlStars .= '<span class="badge">+1 <span class="glyphicon glyphicon-star" aria-hidden="true"></span></span> ';
+									$item->htmlStars .= '<span class="badge">+'.get_option($this->parent->_base . 'ltple_twitter_dm_sent_stars').' <span class="glyphicon glyphicon-star" aria-hidden="true"></span></span> ';
 									
 									//form
 									
@@ -367,8 +405,12 @@ class LTPLE_Client_Leads {
 										
 										$item->htmlForm 	.= '<input type="hidden" name="app" value="twitter" />';
 										$item->htmlForm 	.= '<input type="hidden" name="action" value="appSendDm" />';
-										$item->htmlForm 	.= '<input type="hidden" name="row[id]" value="'.$leadAppId.'" />';
-									
+										$item->htmlForm 	.= '<input type="hidden" name="opportunity" value="dms" />';
+										$item->htmlForm 	.= '<input type="hidden" name="appId" value="'.$leadAppId.'" />';
+										$item->htmlForm 	.= '<input type="hidden" name="leadAppId" value="'.$lead->ID.'" />';
+										$item->htmlForm 	.= '<input type="hidden" name="screen_name" value="'.$lead->leadTwtName.'" />';
+										$item->htmlForm 	.= '<input type="hidden" name="skipIt" class="skip" value="false" />';
+										
 										$item->htmlForm 	.= '<textarea name="message" class="form-control" style="width:300px;height:150px;margin-bottom:5px;">';
 										
 											$item->htmlForm 	.= 'Hey ' . ucfirst($lead->leadTwtName) . '!' . PHP_EOL;
@@ -391,9 +433,11 @@ class LTPLE_Client_Leads {
 											//$item->htmlForm .= '<input type="text" class="form-control" value="@'.$item->via.'" disabled="disabled" />';
 											
 											$item->htmlForm .= '<span class="input-group-btn">';
-											
-												$item->htmlForm .= '<button class="engage btn btn-xs btn-primary" type="button"><i class="glyphicon glyphicon-send" aria-hidden="true"></i> DM</button>';
 												
+												$item->htmlForm .= '<button style="margin:0 1px;" class="engage btn btn-xs btn-default" type="button" data-skip="true"><i></i> skip</button>';
+																						
+												$item->htmlForm .= '<button style="margin:0 1px;" class="engage btn btn-xs btn-primary" type="button" data-skip="false"><i class="glyphicon glyphicon-send" aria-hidden="true"></i> DM</button>';
+
 											$item->htmlForm .= '</span>';
 											
 										$item->htmlForm .= '</div>';								
@@ -452,17 +496,36 @@ class LTPLE_Client_Leads {
 	
 	public function engage_leads(){
 		
-		$user_id = 1;
-		//$user_id = $this->parent->user->ID;
+		//$user_id = 1;
+		$user_id = $this->parent->user->ID;
 		
-		if( is_numeric($user_id) && !empty($_POST['row']['id']) ){
-		
-			//update_post_meta( $lead['id'], 'leadCanSpam', 'false' );
+		if( is_numeric($user_id) && !empty($_POST['screen_name']) && !empty($_POST['app'])&& !empty($_POST['appId']) && !empty($_POST['message'])  && !empty($_POST['action']) ){
+			
+			$app 			= $_POST['app'];
+			$appId 			= $_POST['appId'];
+			$leadAppId 		= $_POST['leadAppId'];
+			$screen_name 	= $_POST['screen_name'];
+			$message 		= $_POST['message'];
+			$action 		= $_POST['action'];
+			$opportunity 	= $_POST['opportunity'];
+			$skipIt			= ( $_POST['skipIt'] == 'true' ? true : false );
+			
+			if(isset($this->parent->apps->{$app}) && method_exists($this->parent->apps->{$app}, $action) ){
+				
+				if($this->parent->apps->{$app}->$action($appId,$leadAppId,$screen_name,$message,$skipIt)){
+					
+					return $this->list_leads( $user_id, $opportunity );
+				}
+			}
+			else{
+				
+				return 'Undefined leads/engage method...';
+			}
 		}
-		
-		return 'hello';
-		
-		//return $this->list_leads( $user_id );
+		else{
+			
+			return 'Malformed leads/engage request...';
+		}
 	}	
 	
 	public function set_columns($columns){

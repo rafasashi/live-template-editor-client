@@ -196,13 +196,13 @@ class LTPLE_Client_App_Twitter {
 				$statuses = $connection->get('statuses/user_timeline', array( 
 				
 					'screen_name' 		=> $app->screen_name, 
-					'count' 			=> $count,
+					'count' 			=> 200,
 					'trim_user'			=> true,
 					'exclude_replies'	=> true,
 					'include_entities' 	=> true,
 					'include_rts' 		=> false
 				));
-					
+				
 				if(!empty($statuses)){
 				
 					$items = [];
@@ -248,6 +248,11 @@ class LTPLE_Client_App_Twitter {
 							}
 							
 							$items[$time] = $status;
+							
+							if( count($items) == $count){
+								
+								break;
+							}
 						}
 					}
 					
@@ -603,6 +608,62 @@ class LTPLE_Client_App_Twitter {
 		*/
 		
 		return $followers;
+	}
+	
+	public function appSendDm($appId, $leadAppId, $screen_name, $message, $skipIt=false){
+		
+		if(is_numeric($leadAppId)){
+
+			if($skipIt){
+				
+				// update last dm date
+						
+				update_post_meta($leadAppId, 'leadTwtLastDm','false');
+
+				return true;				
+			}
+			elseif( is_numeric($appId) && !empty($screen_name) ){
+				
+				$message = trim($message);
+				
+				if( !empty($message) ){
+					
+					// add signature
+					
+					$message .= PHP_EOL . PHP_EOL . '_____________________';
+					$message .= PHP_EOL . 'via ' . $_SERVER['SERVER_NAME'];
+					$message .= PHP_EOL . 'tools for ' . get_option( $this->parent->_base . 'niche_business' ).' business';
+				}
+				
+				if( $app = json_decode(get_post_meta( $appId, 'appData', true ),false) ){
+
+					// start connection
+
+					$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
+					
+					$reponse = $connection->post('direct_messages/new', array( 
+					
+						'screen_name' 	=> $screen_name, 
+						'text' 			=> $message,
+					));
+
+					if(isset($reponse->created_at)){
+						
+						// store last dm date
+						
+						update_post_meta($leadAppId, 'leadTwtLastDm',time());
+						
+						// hook connected app
+							
+						do_action( 'ltple_twitter_dm_sent');
+						
+						return true;
+					}
+				}	
+			}
+		}
+
+		return false;		
 	}
 	
 	public function appImportImg(){

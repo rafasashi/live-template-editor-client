@@ -10,6 +10,24 @@
 		
 		$_SESSION['message'] ='';
 	}
+	
+	// get access message
+
+	$access_message = '<div class="modal-body">'.PHP_EOL;
+
+		$access_message .=  '<div class="alert alert-info">';
+			
+			$access_message .=  '<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> You must be a <b>PRO subscriber</b> to access this feature...';
+			
+			$access_message .=  '<div class="pull-right">';
+
+				$access_message .=  '<a class="btn-sm btn-success" href="' . $this->urls->plans . '" target="_parent">Subscribe now</a>';
+				
+			$access_message .=  '</div>';
+			
+		$access_message .=  '</div>';	
+
+	$access_message .= '</div>'.PHP_EOL;
 
 	// get current tab
 	
@@ -19,6 +37,8 @@
 		
 		$currentTab = $_GET['app'];
 	}
+	
+	
 
 	// ------------- output panel --------------------
 	
@@ -33,9 +53,9 @@
 				echo'<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app">Connected Apps</a></li>';
 
 				echo'<li class="gallery_type_title">My Community</li>';
-				if( $this->user->is_admin ){
+				
 				echo'<li'.( $currentTab == 'opportunities' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=opportunities">Opportunities <span class="label label-success pull-right"> pro </span></a></li>';
-				}
+				
 				echo'<li'.( $currentTab == 'members' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=members">Top Members <span class="label label-success pull-right"> pro </span></a></li>';
 				
 				echo'<li'.( $currentTab == 'leads' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=leads">Suggestions</a></li>';
@@ -191,7 +211,7 @@
 					echo'</div>';
 					
 				}
-				elseif( $this->user->is_admin && $currentTab == 'opportunities' ){
+				elseif( $currentTab == 'opportunities' ){
 					
 					echo'<div id="opportunities" class="panel-group" role="tablist" aria-multiselectable="true">';
 
@@ -210,12 +230,20 @@
 							echo'<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">';
 							 
 								echo'<div class="panel-body">';
+
+									if( $this->user->plan["info"]["total_price_amount"] > 0 ){
+										
+										$opp_url = $this->api->get_url('leads/list','',['app'=>'twitter','opportunity'=>'dms']);
 									
-									$opp_url = $this->api->get_url('leads/list','',['app'=>'twitter','opportunity'=>'dms']);
-								
-									$fields = $this->leads->get_fields_frontend(false, true);
-								
-									$this->api->get_table($opp_url, $fields, false, false, false, false, false, false, false, false);
+										$fields = $this->leads->get_fields_frontend(false, true);
+									
+										$this->api->get_table($opp_url, $fields, false, false, false, false, false, false, false, false);
+									
+									}
+									else{
+										
+										echo $access_message;
+									}
 								
 								echo'</div>';
 							  
@@ -300,40 +328,12 @@
 							}
 							else{
 								
-								echo '<div class="modal-body">'.PHP_EOL;
-							
-									echo  '<div class="alert alert-info">';
-										
-										echo  '<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> You must be a <b>PRO subscriber</b> to access this feature...';
-										
-										echo  '<div class="pull-right">';
-
-											echo  '<a class="btn-sm btn-success" href="' . $this->urls->plans . '" target="_parent">Subscribe now</a>';
-											
-										echo  '</div>';
-										
-									echo  '</div>';	
-
-								echo '</div>'.PHP_EOL;
+								echo $access_message;
 							}
 						}
 						else{
 							
-							echo '<div class="modal-body">'.PHP_EOL;
-						
-								echo  '<div class="alert alert-info">';
-									
-									echo  '<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> You must connect a <b>Twitter account</b> to access this feature...';
-									
-									echo  '<div class="pull-right">';
-
-										echo  '<a class="btn-sm btn-success" href="' . $this->urls->editor . '?app" target="_parent">Connect now</a>';
-										
-									echo  '</div>';
-									
-								echo  '</div>';	
-
-							echo '</div>'.PHP_EOL;							
+							echo $access_message;						
 						}
 					
 					echo'</div>';
@@ -411,37 +411,45 @@
 							}
 						});
 					});
-
-					$table.on('load-success.bs.table', function (e, name, args) {
-						
-						// set bootstrap-table engage
+					
+					function set_bootstrap_table_engage(){
 						
 						if( $('.engage').length  > 0 ){
 
 							$('.engage').click(function (e) {
 								
-								e.stopPropagation();
-								
 								// loading icon
 								
-								var $icon = $(this).find("i");
-								
-								console.log($icon);
+								var $icon 	= $(this).find("i");
+								var $form 	= $(this).closest("form");
+								var $skip 	= $form.find(".skip");
 								
 								var currentClasses = $icon.attr('class');
 								
 								$icon.attr('class', 'fa fa fa-circle-o-notch fa-spin fa-spin');
+
+								$skip.val($(this).attr('data-skip'));
 								
-								/*
-								$.post( "<?php echo $this->api->get_url('leads/list',$this->user->ID); ?>", { "rows" : checkedRows } )
+								$.post( "<?php echo $this->api->get_url('leads/engage'); ?>", $form.serialize())
 								 .done(function( data ) {
 
+									//console.log(data);
+								
 									$icon.attr('class', currentClasses);								
+									
 									$table.bootstrapTable("load", data);
-								});
-								*/						
+									
+									set_bootstrap_table_engage();
+								});							
 							});					
-						}
+						}						
+					}
+
+					$table.on('load-success.bs.table', function (e, name, args) {
+						
+						// set bootstrap-table engage
+						
+						set_bootstrap_table_engage();
 					});
 					
 					// set bootstrap-table export

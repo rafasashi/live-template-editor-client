@@ -83,6 +83,13 @@
 				'description' => 'when you connect a new Twitter account'
 			);
 			
+			// twitter triggers
+			
+			$triggers['twitter interaction']['ltple_twitter_dm_sent'] = array(
+					
+				'description' => 'when you send a DM via the community panel'
+			);
+			
 			// wpforo triggers
 			
 			if( is_plugin_active('wpforo/wpforo.php') ){
