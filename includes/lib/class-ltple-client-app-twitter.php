@@ -445,7 +445,7 @@ class LTPLE_Client_App_Twitter {
 			echo 'Error getting user id';
 			exit;			
 		}
-	}			
+	}	
 	
 	public function appGetFollowers($app_id){
 		

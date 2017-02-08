@@ -18,15 +18,14 @@ class LTPLE_Client_Leads {
 		
 		add_action ('init', array($this,'leads_init'));
 		
+		add_filter( $this->slug . '_custom_fields', array( $this, 'get_fields'));
+		
 		if( isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == $this->slug ){
 			
-			add_filter( $this->slug . '_custom_fields', array( $this, 'get_fields'));
-
 			add_filter('manage_' . $this->slug . '_posts_columns', array( $this, 'set_columns'));
 			add_action('manage_' . $this->slug . '_posts_custom_column', array( $this, 'add_column_content'), 10, 2);		
 						
 			add_action('admin_head', array($this, 'add_table_css'));
-			
 			add_action('admin_head', array($this, 'update_manually'));
 		}
 	}
@@ -182,9 +181,115 @@ class LTPLE_Client_Leads {
 		return $fields;
 	}
 	
-	public function list_leads( $user_id, $num=1000, $offset=0 ){
+	public function get_fields_frontend( $check=true, $opportunity=false ){
 		
-		$leads = [];
+		$fields=[];
+		
+		if( $check ){
+			
+			$fields[]=array(
+				
+				'field' 	=> 'state',
+				'checkbox' 	=> 'true',
+			
+			);
+		}
+		
+		$fields[]=array(
+			
+			'field' 	=> 'htmlImg',
+			'sortable' 	=> 'false',
+		
+		);
+					
+		$fields[]=array(
+			
+			'field' 	=> 'htmlTwtName',
+			'sortable' 	=> 'true',
+			'content' 	=> 'Name',
+		
+		);
+
+		$fields[]=array(
+			
+			'field' 	=> 'leadTwtFollowers',
+			'sortable' 	=> 'true',
+			'content' 	=> 'Followers',
+		
+		);			
+
+		if( $this->parent->user->is_admin && !$opportunity ){
+			
+			$fields[]=array(
+				
+				'field' 	=> 'leadEmail',
+				'sortable' 	=> 'true',
+				'content' 	=> 'Email <span class="label label-warning pull-right"> admin </span>',
+			);
+		}
+
+		$fields[]=array(
+			
+			'field' 	=> 'leadDescription',
+			'sortable' 	=> 'true',
+			'content' 	=> 'Description',
+		
+		);
+		
+		if($opportunity){
+
+			$fields[]=array(
+				
+				'field' 	=> 'htmlStars',
+				'sortable' 	=> 'false',
+				'content' 	=> 'Stars',
+			
+			);
+		
+			$fields[]=array(
+				
+				'field' 	=> 'htmlForm',
+				'sortable' 	=> 'false',
+				'content' 	=> 'Form',
+			
+			);
+		}
+		
+		return $fields;
+	}
+	
+	public function list_leads( $user_id ){
+		
+		$leads 	= [];
+		$apps 	= [];
+
+		if(!empty($_GET['opportunity'])){
+			
+			$user_id 	= 1;
+			//$user_id 	= $this->parent->user->ID;
+			$num 		= 5;
+			$offset 	= 0;
+		}
+		else{
+			
+			$num 		= 1000;
+			$offset 	= 0;
+			
+			if(!is_numeric($user_id)){
+				
+				$user_id = $this->parent->user->ID;
+			}			
+			
+			if(!empty($_GET['num'])){
+				
+				floatval($_GET['num']);
+			}
+			
+			if(!empty($_GET['offset'])){
+				
+				intval($_GET['offset']);
+			}
+		}
 		
 		if(is_numeric($user_id)){
 		
@@ -224,21 +329,85 @@ class LTPLE_Client_Leads {
 				
 				foreach($q as $lead){
 					
-					$meta = get_post_meta($lead->ID);
+					$item = new stdClass();
 					
-					if(!empty($meta)){
+					if(( !isset($lead->leadCanSpam) || $lead->leadCanSpam === 'true' )){
 						
-						$item = new stdClass();
+						$meta = get_post_meta($lead->ID);
 						
-						foreach($meta as $key => $value){
+						if(!empty($meta)){
 							
-							if( ( !isset($lead->leadCanSpam) || $lead->leadCanSpam === 'true' )){
+							$item->id 			= intval($lead->ID);
+							$item->htmlImg 		= ( !empty($lead->leadPicture) ? '<img src="' . $lead->leadPicture . '" height="50" width="50" style="width:50px;min-width:50px;max-width:50px;height:50px;" />' : '' );
+							$item->htmlTwtName 	= ( !empty($lead->leadTwtName) ? '<a href="http://twitter.com/' . $lead->leadTwtName . '" target="_blank">' . ( !empty($lead->leadNicename) ? $lead->leadNicename : $lead->leadTwtName ) . '</a>' : ( !empty($lead->leadNicename) ? $lead->leadNicename : '' ) );
+							
+							if(!empty($_GET['opportunity'])){
 								
-								$item->id 			= intval($lead->ID);
-								$item->via 			= intval($lead->post_author);
-								$item->htmlImg 		= ( !empty($lead->leadPicture) ? '<img src="' . $lead->leadPicture . '" height="50" width="50" />' : '' );
-								$item->htmlTwtName 	= ( !empty($lead->leadTwtName) ? '<a href="http://twitter.com/' . $lead->leadTwtName . '" target="_blank">' . ( !empty($lead->leadNicename) ? $lead->leadNicename : $lead->leadTwtName ) . '</a>' : ( !empty($lead->leadNicename) ? $lead->leadNicename : '' ) );
+								$leadAppId = $meta['leadAppId'][0];
+								
+								if(!isset($apps[$leadAppId])){
+									
+									$apps[$leadAppId] = json_decode(get_post_meta( $leadAppId, 'appData', true ),false);
+								}							
+
+								$item->via = $apps[$leadAppId]->screen_name;
+								
+								$item->htmlStars 	= '';
+								$item->htmlForm 	= '';
+								
+								if($_GET['opportunity'] == 'dms' ){
+									
+									//stars
+									
+									$item->htmlStars .= '<span class="badge">+1 <span class="glyphicon glyphicon-star" aria-hidden="true"></span></span> ';
+									
+									//form
+									
+									$item->htmlForm 	.= '<form action="'.$this->parent->api->get_url('leads/engage').'" method="post">';
+										
+										$item->htmlForm 	.= '<input type="hidden" name="app" value="twitter" />';
+										$item->htmlForm 	.= '<input type="hidden" name="action" value="appSendDm" />';
+										$item->htmlForm 	.= '<input type="hidden" name="row[id]" value="'.$leadAppId.'" />';
+									
+										$item->htmlForm 	.= '<textarea name="message" class="form-control" style="width:300px;height:150px;margin-bottom:5px;">';
+										
+											$item->htmlForm 	.= 'Hey ' . ucfirst($lead->leadTwtName) . '!' . PHP_EOL;
+											$item->htmlForm 	.= PHP_EOL;
+											$item->htmlForm 	.= 'Are you in the ' . get_option( $this->parent->_base . 'niche_business' ) . ' business?' . PHP_EOL;
+											$item->htmlForm 	.= PHP_EOL;
+											$item->htmlForm 	.= 'I am a ' . get_option( $this->parent->_base . 'niche_single' ) . '. Any new opportunities on your side?' . PHP_EOL;
+											$item->htmlForm 	.= PHP_EOL;
+											$item->htmlForm 	.= 'We should exchange info.' . PHP_EOL;
+											$item->htmlForm 	.= PHP_EOL;
+											$item->htmlForm 	.= 'Have a nice day,' . PHP_EOL;
+											$item->htmlForm 	.= $apps[$leadAppId]->screen_name . PHP_EOL;
+											
+										$item->htmlForm 	.= '</textarea>';
+										
+										$item->htmlForm .= '<div class="input-group">';
+										
+											$item->htmlForm .= '<i class="input-group">via @' . $apps[$leadAppId]->screen_name . '</i>';
+										
+											//$item->htmlForm .= '<input type="text" class="form-control" value="@'.$item->via.'" disabled="disabled" />';
+											
+											$item->htmlForm .= '<span class="input-group-btn">';
+											
+												$item->htmlForm .= '<button class="engage btn btn-xs btn-primary" type="button"><i class="glyphicon glyphicon-send" aria-hidden="true"></i> DM</button>';
+												
+											$item->htmlForm .= '</span>';
+											
+										$item->htmlForm .= '</div>';								
+											
+									$item->htmlForm .= '</form>';
+								}
+							}
+							else{
+								
+								$item->via = intval($lead->post_author);
+							}
 							
+							foreach($meta as $key => $value){
+								
 								if( strpos($key,'_') !== 0 ){
 									
 									if( is_numeric($value[0]) ){
@@ -250,16 +419,14 @@ class LTPLE_Client_Leads {
 										$item->{$key} = $value[0];
 									}
 								}
-								
-								
 							}
 						}
-						
-						if(isset($item->id)){
-						
-							$leads[] = $item;
-						}
 					}
+					
+					if(isset($item->id)){
+					
+						$leads[] = $item;
+					}					
 				}
 			}
 		}
@@ -281,6 +448,21 @@ class LTPLE_Client_Leads {
 		}
 		
 		return $this->list_leads( $user_id );
+	}
+	
+	public function engage_leads(){
+		
+		$user_id = 1;
+		//$user_id = $this->parent->user->ID;
+		
+		if( is_numeric($user_id) && !empty($_POST['row']['id']) ){
+		
+			//update_post_meta( $lead['id'], 'leadCanSpam', 'false' );
+		}
+		
+		return 'hello';
+		
+		//return $this->list_leads( $user_id );
 	}	
 	
 	public function set_columns($columns){

@@ -442,6 +442,13 @@ class LTPLE_Client_Settings {
 			'description'			=> 'Some information about the targeted market',
 			'fields'				=> array(
 				array(
+					'id' 			=> 'niche_business',
+					'label'			=> __( 'Niche business' , $this->plugin->slug ),
+					'description'	=> 'Singular term representing the targeted industry',
+					'type'			=> 'text',
+					'placeholder'	=> __( 'modeling', $this->plugin->slug )
+				),	
+				array(
 					'id' 			=> 'niche_single',
 					'label'			=> __( 'Niche name (singular)' , $this->plugin->slug ),
 					'description'	=> 'Singular term representing the targeted group of people',

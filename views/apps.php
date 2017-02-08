@@ -15,7 +15,7 @@
 	
 	$currentTab = 'apps';
 	
-	if( in_array($_GET['app'],['members','leads']) ){
+	if( in_array($_GET['app'],['opportunities','members','leads']) ){
 		
 		$currentTab = $_GET['app'];
 	}
@@ -33,7 +33,9 @@
 				echo'<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app">Connected Apps</a></li>';
 
 				echo'<li class="gallery_type_title">My Community</li>';
-				
+				if( $this->user->is_admin ){
+				echo'<li'.( $currentTab == 'opportunities' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=opportunities">Opportunities <span class="label label-success pull-right"> pro </span></a></li>';
+				}
 				echo'<li'.( $currentTab == 'members' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=members">Top Members <span class="label label-success pull-right"> pro </span></a></li>';
 				
 				echo'<li'.( $currentTab == 'leads' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=leads">Suggestions</a></li>';
@@ -138,7 +140,7 @@
 					
 					//---------------------- output default apps --------------------------
 					
-					echo'<div class="tab-pane active" id="app-library">';
+					echo'<div id="app-library">';
 					
 						if(!empty($this->message)){
 							
@@ -189,11 +191,94 @@
 					echo'</div>';
 					
 				}
+				elseif( $this->user->is_admin && $currentTab == 'opportunities' ){
+					
+					echo'<div id="opportunities" class="panel-group" role="tablist" aria-multiselectable="true">';
+
+						echo'<div class="panel-default">';
+							
+							echo'<div style="height:60px;border-bottom:1px solid #DDDDDD;" class="panel-heading" role="tab" id="headingOne">';
+								
+								echo'<button style="color:rgb(138, 206, 236);background:none;text-align:left;font-size:21px;width: 100%;padding:8px;border:none;" role="button" data-toggle="collapse" data-parent="#opportunities" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">';
+								  
+									echo'Start new conversations with followers';
+								
+								echo'</button>';
+							
+							echo'</div>';
+							
+							echo'<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">';
+							 
+								echo'<div class="panel-body">';
+									
+									$opp_url = $this->api->get_url('leads/list','',['app'=>'twitter','opportunity'=>'dms']);
+								
+									$fields = $this->leads->get_fields_frontend(false, true);
+								
+									$this->api->get_table($opp_url, $fields, false, false, false, false, false, false, false, false);
+								
+								echo'</div>';
+							  
+							echo'</div>';
+							
+						echo'</div>';
+						/*
+						echo'<div class="panel-default">';
+						
+							echo'<div style="height:60px;border-bottom:1px solid #DDDDDD;" class="panel-heading" role="tab" id="headingTwo">';
+								
+								echo'<button style="color:rgb(138, 206, 236);background:none;text-align:left;font-size:21px;width: 100%;padding:8px;border:none;" class="collapsed" role="button" data-toggle="collapse" data-parent="#opportunities" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">';
+									
+									echo'Collapsible Group Item #2';
+									
+								echo'</button>';
+								
+							echo'</div>';
+							
+							echo'<div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">';
+								
+								echo'<div class="panel-body">';
+									
+									echo'';
+								
+								echo'</div>';
+								
+							echo'</div>';
+							
+						echo'</div>';
+						
+						echo'<div class="panel-default">';
+						
+							echo'<div style="height:60px;border-bottom:1px solid #DDDDDD;" class="panel-heading" role="tab" id="headingThree">';
+								
+								echo'<button style="color:rgb(138, 206, 236);background:none;text-align:left;font-size:21px;width: 100%;padding:8px;border:none;" class="collapsed" role="button" data-toggle="collapse" data-parent="#opportunities" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">';
+								  
+									echo'Collapsible Group Item #3';
+								
+								echo'</button>';
+							
+							echo'</div>';
+							
+							echo'<div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">';
+								
+								echo'<div class="panel-body">';
+									
+									echo'';
+								
+								echo'</div>';
+							
+							echo'</div>';
+							
+						echo'</div>';
+						*/
+						
+					echo'</div>';
+				}
 				elseif( $currentTab == 'members' ){
 
 					//---------------------- output members --------------------------
 					
-					echo'<div class="tab-pane active" id="members">';
+					echo'<div id="members">';
 
 						if(in_array_field( 'twitter', 'slug', $this->apps->appList )){
 							
@@ -209,7 +294,9 @@
 								
 								$api_url = $this->api->get_url('leads/list',$this->user->ID);
 								
-								$this->api->get_table($api_url, true, true);
+								$fields = $this->leads->get_fields_frontend(true);
+
+								$this->api->get_table($api_url, $fields, true, true);
 							}
 							else{
 								
@@ -253,7 +340,7 @@
 				}
 				elseif( $currentTab == 'leads' ){
 
-					echo'<div class="tab-pane active" id="leads">';
+					echo'<div id="leads">';
 
 						echo'<div class="bs-callout bs-callout-primary">';
 
@@ -265,7 +352,9 @@
 
 						$api_url = $this->api->get_url('leads/list',-1);
 							
-						$this->api->get_table($api_url, false, true);
+						$fields = $this->leads->get_fields_frontend(false);
+							
+						$this->api->get_table($api_url, $fields, false, true);
 					
 					echo'</div>';				
 				}
@@ -291,9 +380,15 @@
 					this.closest( "form" ).submit();
 				});
 				
-				// set bootstrap-table export
+				// set bootstrap collapse
 				
-				if( $('#table').length  > 0 && $('#export').length  > 0 ){
+				if( $('.collapse').length  > 0 ){
+				
+					$('.collapse').collapse({"toggle": false});
+				
+				}
+				
+				if( $('#table').length  > 0 ){
 				
 					var $table 		= $('#table');
 					var checkedRows = [];
@@ -316,31 +411,73 @@
 							}
 						});
 					});
-					
-					$('#export').click(function () {
-						
-						$table.tableExport({
-							type: 'csv',
-							escape: false
-						});
-					});
-					
-					$('#trash').click(function () {
-						
-						// loading icon
-						
-						var $icon = $(this).find("i");
-						var currentClasses = $icon.attr('class');
-						
-						$icon.attr('class', 'fa fa fa-circle-o-notch fa-spin fa-spin');
-						
-						$.post( "<?php echo $this->api->get_url('leads/list',$this->user->ID); ?>", { "rows" : checkedRows } )
-						 .done(function( data ) {
 
-							$icon.attr('class', currentClasses);								
-							$table.bootstrapTable("load", data);
-						});
+					$table.on('load-success.bs.table', function (e, name, args) {
+						
+						// set bootstrap-table engage
+						
+						if( $('.engage').length  > 0 ){
+
+							$('.engage').click(function (e) {
+								
+								e.stopPropagation();
+								
+								// loading icon
+								
+								var $icon = $(this).find("i");
+								
+								console.log($icon);
+								
+								var currentClasses = $icon.attr('class');
+								
+								$icon.attr('class', 'fa fa fa-circle-o-notch fa-spin fa-spin');
+								
+								/*
+								$.post( "<?php echo $this->api->get_url('leads/list',$this->user->ID); ?>", { "rows" : checkedRows } )
+								 .done(function( data ) {
+
+									$icon.attr('class', currentClasses);								
+									$table.bootstrapTable("load", data);
+								});
+								*/						
+							});					
+						}
 					});
+					
+					// set bootstrap-table export
+					
+					if( $('#export').length  > 0 ){
+					
+						$('#export').click(function () {
+							
+							$table.tableExport({
+								type: 'csv',
+								escape: false
+							});
+						});
+					}
+					
+					// set bootstrap-table trash
+					
+					if( $('#trash').length  > 0 ){
+					
+						$('#trash').click(function () {
+							
+							// loading icon
+							
+							var $icon = $(this).find("i");
+							var currentClasses = $icon.attr('class');
+							
+							$icon.attr('class', 'fa fa fa-circle-o-notch fa-spin fa-spin');
+							
+							$.post( "<?php echo $this->api->get_url('leads/list',$this->user->ID); ?>", { "rows" : checkedRows } )
+							 .done(function( data ) {
+
+								$icon.attr('class', currentClasses);								
+								$table.bootstrapTable("load", data);
+							});
+						});
+					}
 				}
 			});
 			

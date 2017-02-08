@@ -5,26 +5,36 @@
 	$dataset = '';
 	
 	if($this->user->loggedin){
-	
-		list($object, $action, $id) = explode('/',$_REQUEST['api']);
+
+		$api = explode('/',$_REQUEST['api'].'/');
 		
+		list($object, $action, $id) = $api;
+			
 		if( $_SERVER['REQUEST_METHOD'] == 'GET' ){
-		
-			if( $action == 'list' ){
+
+			if( in_array($action,['list','engage']) ){
+
+				$method = $action . '_'.$object;
+				
+				$dataset = $this->{$object}->$method($id);
+			}
+			else{
+				
+				$dataset = 'This action doesn\'t exists...';
+			}
+		} 
+		elseif( $_SERVER['REQUEST_METHOD'] == 'POST' ){
+			
+			if( in_array($action,['destroy','engage']) ){
 				
 				$method = $action . '_'.$object;
 				
 				$dataset = $this->{$object}->$method($id);
 			}
-		} 
-		elseif( $_SERVER['REQUEST_METHOD'] == 'POST' ){
-			
-			if( $action == 'destroy' ){
+			else{
 				
-				$method = $action . '_'.$object;
-				
-				$dataset = $this->{$object}->$method($id);
-			}			
+				$dataset = 'This action doesn\'t exists...';
+			}
 		}
 		else{
 			
