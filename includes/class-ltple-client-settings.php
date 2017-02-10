@@ -252,6 +252,14 @@ class LTPLE_Client_Settings {
 		
 		add_submenu_page(
 			$this->plugin->slug,
+			__( 'User Domains', $this->plugin->slug ),
+			__( 'User Domains', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=user-domain'
+		);
+		
+		add_submenu_page(
+			$this->plugin->slug,
 			__( 'Layer Types', $this->plugin->slug ),
 			__( 'Layer Types', $this->plugin->slug ),
 			'edit_pages',

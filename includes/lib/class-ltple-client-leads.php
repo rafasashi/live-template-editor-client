@@ -323,8 +323,12 @@ class LTPLE_Client_Leads {
 				'offset'		=> $offset,
 				'meta_key' 		=> 'leadTwtFollowers',
 				'orderby' 		=> 'meta_value_num',
-				'order' 		=> 'DESC',
-				'meta_query' 	=> array(
+				'order' 		=> 'DESC'
+			);
+
+			if(!empty($opportunity)){
+
+				$args['meta_query'] = array(
 				
 					'relation' => 'AND',
 					array(
@@ -353,41 +357,74 @@ class LTPLE_Client_Leads {
 							'compare' 	=> 'NOT EXISTS',
 						)
 					)
-				)
-			);		
+				);				
+			}
+			else{
+				
+				$args['meta_query'] = array(
+				
+					'relation' => 'AND',				
+					array(
+					
+						'relation' => 'OR',
+						array(
+							'key' 		=> 'leadCanSpam',
+							'value' 	=> 'false',
+							'compare' 	=> '!=',
+						),
+						array(
+							'key' 		=> 'leadCanSpam',
+							'compare' 	=> 'NOT EXISTS',
+						)
+					)
+				);				
+			}	
 			
 			if( $user_id > -1 ){
 				
-				$args['author'] = $user_id;
+				if( $this->parent->user->is_admin && $user_id == $this->parent->user->ID ){
+					
+					$args['author'] = implode(',',get_users('role=administrator&fields=id'));
+				}
+				else{
+					
+					$args['author'] = $user_id;
+				}
+			}
+			else{
+				
+				// exclude current user followers from suggestions
+				
+				//$args['author'] = '-'.$this->parent->user->ID;
 			}
 
 			$q = get_posts( $args );
-			
+
 			if(!empty($q)){
 				
 				foreach($q as $lead){
 					
 					$item = new stdClass();
-					
-					if(( !isset($lead->leadCanSpam) || $lead->leadCanSpam === 'true' )){
-						
-						$meta = get_post_meta($lead->ID);
-						
-						if(!empty($meta)){
-							
-							$item->id 			= intval($lead->ID);
-							$item->htmlImg 		= ( !empty($lead->leadPicture) ? '<img src="' . $lead->leadPicture . '" height="50" width="50" style="width:50px;min-width:50px;max-width:50px;height:50px;" />' : '' );
-							$item->htmlTwtName 	= ( !empty($lead->leadTwtName) ? '<a href="http://twitter.com/' . $lead->leadTwtName . '" target="_blank">' . ( !empty($lead->leadNicename) ? $lead->leadNicename : $lead->leadTwtName ) . '</a>' : ( !empty($lead->leadNicename) ? $lead->leadNicename : '' ) );
-							
-							if(!empty($opportunity)){
-								
-								$leadAppId = $meta['leadAppId'][0];
-								
-								if(!isset($apps[$leadAppId])){
-									
-									$apps[$leadAppId] = json_decode(get_post_meta( $leadAppId, 'appData', true ),false);
-								}							
 
+					$meta = get_post_meta($lead->ID);
+					
+					if(!empty($meta)){
+						
+						$item->id 			= intval($lead->ID);
+						$item->htmlImg 		= ( !empty($lead->leadPicture) ? '<img src="' . $lead->leadPicture . '" height="50" width="50" style="width:50px;min-width:50px;max-width:50px;height:50px;" />' : '' );
+						$item->htmlTwtName 	= ( !empty($lead->leadTwtName) ? '<a href="http://twitter.com/' . $lead->leadTwtName . '" target="_blank">' . ( !empty($lead->leadNicename) ? $lead->leadNicename : $lead->leadTwtName ) . '</a>' : ( !empty($lead->leadNicename) ? $lead->leadNicename : '' ) );
+						
+						if(!empty($opportunity)){
+							
+							$leadAppId = $meta['leadAppId'][0];
+							
+							if(!isset($apps[$leadAppId])){
+								
+								$apps[$leadAppId] = json_decode(get_post_meta( $leadAppId, 'appData', true ),false);
+							}
+							
+							if(!empty($apps[$leadAppId]->screen_name)){
+							
 								$item->via = $apps[$leadAppId]->screen_name;
 								
 								$item->htmlStars 	= '';
@@ -417,8 +454,13 @@ class LTPLE_Client_Leads {
 											$item->htmlForm 	.= PHP_EOL;
 											$item->htmlForm 	.= 'Are you in the ' . get_option( $this->parent->_base . 'niche_business' ) . ' business?' . PHP_EOL;
 											$item->htmlForm 	.= PHP_EOL;
-											$item->htmlForm 	.= 'I am a ' . get_option( $this->parent->_base . 'niche_single' ) . '. Any new opportunities on your side?' . PHP_EOL;
-											$item->htmlForm 	.= PHP_EOL;
+											
+											if(!$this->parent->user->is_admin){
+												
+												$item->htmlForm 	.= 'I am a ' . get_option( $this->parent->_base . 'niche_single' ) . '. Any new opportunities on your side?' . PHP_EOL;
+												$item->htmlForm 	.= PHP_EOL;
+											}
+											
 											$item->htmlForm 	.= 'We should exchange info.' . PHP_EOL;
 											$item->htmlForm 	.= PHP_EOL;
 											$item->htmlForm 	.= 'Have a nice day,' . PHP_EOL;
@@ -445,23 +487,23 @@ class LTPLE_Client_Leads {
 									$item->htmlForm .= '</form>';
 								}
 							}
-							else{
-								
-								$item->via = intval($lead->post_author);
-							}
+						}
+						else{
 							
-							foreach($meta as $key => $value){
+							$item->via = intval($lead->post_author);
+						}
+						
+						foreach($meta as $key => $value){
+							
+							if( strpos($key,'_') !== 0 ){
 								
-								if( strpos($key,'_') !== 0 ){
+								if( is_numeric($value[0]) ){
 									
-									if( is_numeric($value[0]) ){
-										
-										$item->{$key} = floatval($value[0]);
-									}
-									else{
-										
-										$item->{$key} = $value[0];
-									}
+									$item->{$key} = floatval($value[0]);
+								}
+								else{
+									
+									$item->{$key} = $value[0];
 								}
 							}
 						}
@@ -512,9 +554,15 @@ class LTPLE_Client_Leads {
 			
 			if(isset($this->parent->apps->{$app}) && method_exists($this->parent->apps->{$app}, $action) ){
 				
-				if($this->parent->apps->{$app}->$action($appId,$leadAppId,$screen_name,$message,$skipIt)){
+				$response = $this->parent->apps->{$app}->$action($appId,$leadAppId,$screen_name,$message,$skipIt);
+				
+				if( $response === true ){
 					
 					return $this->list_leads( $user_id, $opportunity );
+				}
+				else{
+					
+					return $response;
 				}
 			}
 			else{

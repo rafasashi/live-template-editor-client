@@ -123,20 +123,16 @@ class LTPLE_Client_Apps {
 	
 	public function includeApp($appSlug){
 		
-		$string = preg_replace_callback(
+		// get api client
+		
+		$apiClient = preg_replace_callback(
 			'/[-_](.)/', 
 			function ($matches) {
 				
 				return '_'.strtoupper($matches[1]);
 			},
-			$appSlug
+			get_option('api_client_'.$appSlug)
 		);
-		
-		// get api client
-		
-		//$apiClient = ucfirst($string);
-		
-		$apiClient = get_option('api_client_'.$string);
 
 		// include api client
 		
@@ -150,7 +146,7 @@ class LTPLE_Client_Apps {
 		}
 		else{
 
-			echo 'Could not found API Client: "'.$appSlug.'"';
+			echo 'Could not found API Client: "'.$apiClient.'"';
 			exit;
 		}		
 	}

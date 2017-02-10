@@ -134,10 +134,12 @@ class LTPLE_Client {
 		
 		$this->admin 	= new LTPLE_Client_Admin_API( $this );
 		$this->cron 	= new LTPLE_Client_Cron( $this );
-
+		
 		$this->api 		= new LTPLE_Client_Json_API( $this );
 		
 		$this->apps 	= new LTPLE_Client_Apps( $this );
+		
+		$this->whois 	= new LTPLE_Client_Whois( $this );
 		
 		$this->leads 	= new LTPLE_Client_Leads( $this );
 		
@@ -916,6 +918,10 @@ class LTPLE_Client {
 		// get user profile
 			
 		$this->user->profile = new LTPLE_Client_User_Profile( $this );
+		
+		// get user domains
+			
+		$this->user->domains = new LTPLE_Client_User_Domains( $this );
 					
 		// get user marketing channel
 		

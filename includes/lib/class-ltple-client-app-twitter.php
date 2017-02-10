@@ -656,8 +656,12 @@ class LTPLE_Client_App_Twitter {
 						// hook connected app
 							
 						do_action( 'ltple_twitter_dm_sent');
-						
+
 						return true;
+					} 
+					else{
+						
+						return json_encode($reponse);
 					}
 				}	
 			}
@@ -822,7 +826,7 @@ class LTPLE_Client_App_Twitter {
 					}
 						
 					// update app item
-						
+											
 					update_post_meta( $app_id, 'appData', json_encode($this->access_token,JSON_PRETTY_PRINT));
 
 					if(!empty($_SESSION['ref'])){

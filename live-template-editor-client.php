@@ -214,8 +214,6 @@
 		'menu_icon' 			=> 'dashicons-admin-post',
 	));
 	
-	
-	
 	LTPLE_Client()->register_post_type( 'user-image', __( 'User images', 'live-template-editor-client' ), __( 'User image', 'live-template-editor-client' ), '', array(
 
 		'public' 				=> false,
@@ -233,6 +231,27 @@
 		'show_in_rest' 			=> false,
 		//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
 		'supports' 				=> array('title', 'editor', 'author'),
+		'menu_position' 		=> 5,
+		'menu_icon' 			=> 'dashicons-admin-post',
+	));
+	
+	LTPLE_Client()->register_post_type( 'user-domain', __( 'User domains', 'live-template-editor-client' ), __( 'User domains', 'live-template-editor-client' ), '', array(
+
+		'public' 				=> false,
+		'publicly_queryable' 	=> false,
+		'exclude_from_search' 	=> true,
+		'show_ui' 				=> true,
+		'show_in_menu' 			=> 'user-domains',
+		'show_in_nav_menus' 	=> true,
+		'query_var' 			=> true,
+		'can_export' 			=> true,
+		'rewrite' 				=> false,
+		'capability_type' 		=> 'post',
+		'has_archive' 			=> false,
+		'hierarchical' 			=> false,
+		'show_in_rest' 			=> false,
+		//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+		'supports' 				=> array('title','author'),
 		'menu_position' 		=> 5,
 		'menu_icon' 			=> 'dashicons-admin-post',
 	));
