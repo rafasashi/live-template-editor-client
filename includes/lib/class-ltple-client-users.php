@@ -621,7 +621,7 @@
 					
 					$user = get_userdata($user_id);
 				
-					if($this->parent->ltple_send_email_model( $model_id, $user)){
+					if($this->parent->email->send_model( $model_id, $user)){
 						
 						++$this->email_sent;	
 					}

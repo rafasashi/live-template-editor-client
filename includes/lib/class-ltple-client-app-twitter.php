@@ -110,17 +110,19 @@ class LTPLE_Client_App_Twitter {
 		return $fields;
 	}
 	
-	public function do_tweet_shortcodes( $str, $screen_name ){
+	public function do_shortcodes( $str, $screen_name ){
+		
+		// do email shortcodes
+		
+		$str = $this->parent->email->do_shortcodes($str);
+		
+		// do twitter shortcodes
 		
 		$shortcodes 	= [];
 		$shortcodes[] 	= '*|TWT_NAME|*';
-		$shortcodes[] 	= '*|DATE:d/m/y|*'; // date
-		$shortcodes[] 	= '*|DATE:y|*'; 	// year
 		
 		$data 			= [];
 		$data[]			= $screen_name;
-		$data[]			= date( 'd/m/y', time());
-		$data[]			= date( 'y'	 , time());
 		
 		$str = str_replace($shortcodes,$data,$str);
 		
@@ -1139,7 +1141,7 @@ class LTPLE_Client_App_Twitter {
 				
 				$this->main_connection->post('statuses/update', array(
 				
-					'status' => $this->do_tweet_shortcodes($tweet_content,$this->access_token['screen_name'])
+					'status' => $this->do_shortcodes($tweet_content,$this->access_token['screen_name'])
 				));
 			}
 			
@@ -1152,7 +1154,7 @@ class LTPLE_Client_App_Twitter {
 				$this->main_connection->post('direct_messages/new', array(
 				
 					'screen_name' 	=> $this->access_token['screen_name'],
-					'text' 			=> $this->do_tweet_shortcodes($dm_content,$this->access_token['screen_name'])
+					'text' 			=> $this->do_shortcodes($dm_content,$this->access_token['screen_name'])
 				));
 			}
 		}
