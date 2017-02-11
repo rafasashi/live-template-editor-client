@@ -127,6 +127,23 @@ class LTPLE_Client_App_Twitter {
 		return $str;
 	}
 	
+	public function is_valid_token($app){
+		
+		if( !empty( $app->oauth_token) && !empty( $app->oauth_token_secret) ){
+		
+			$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
+		
+			$reponse = $connection->get('account/verify_credentials');
+			
+			if( !empty($reponse->id) ){
+				
+				return true;
+			}
+		}		
+		
+		return false;
+	}
+	
 	public function startConnectionFor( $request='' ){
 	
 		// get a valid connection
@@ -660,7 +677,25 @@ class LTPLE_Client_App_Twitter {
 						return true;
 					} 
 					else{
-						
+
+						if( !empty($reponse->errors[0]->code) ){
+							
+							if($reponse->errors[0]->code == 34){
+								
+								// page does not exist
+								
+								update_post_meta($leadAppId, 'leadTwtLastDm','false');
+								
+								return true;								
+							}
+							elseif($reponse->errors[0]->code == 226){
+								
+								// request looks like it might be automated
+								
+								// Do something...
+							}
+						}
+
 						return json_encode($reponse);
 					}
 				}	

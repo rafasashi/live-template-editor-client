@@ -273,10 +273,15 @@ class LTPLE_Client_Leads {
 		return $fields;
 	}
 	
-	public function list_leads( $user_id, $opportunity='' ){
+	public function list_leads( $user_id, $opportunity='', $app='' ){
 		
 		$leads 	= [];
 		$apps 	= [];
+		
+		if( empty($app) && !empty($_REQUEST['app'])){
+			
+			$app = $_REQUEST['app'];
+		}
 		
 		if( empty($opportunity) && !empty($_REQUEST['opportunity'])){
 			
@@ -420,7 +425,13 @@ class LTPLE_Client_Leads {
 							
 							if(!isset($apps[$leadAppId])){
 								
+								// get lead app
+								
 								$apps[$leadAppId] = json_decode(get_post_meta( $leadAppId, 'appData', true ),false);
+							
+								// check lead app
+
+								$apps[$leadAppId]->refresh = ( $this->parent->apps->{$app}->is_valid_token($apps[$leadAppId]) ? false : true );
 							}
 							
 							if(!empty($apps[$leadAppId]->screen_name)){
@@ -438,53 +449,60 @@ class LTPLE_Client_Leads {
 									
 									//form
 									
-									$item->htmlForm 	.= '<form action="'.$this->parent->api->get_url('leads/engage').'" method="post">';
+									if($apps[$leadAppId]->refresh){
 										
-										$item->htmlForm 	.= '<input type="hidden" name="app" value="twitter" />';
-										$item->htmlForm 	.= '<input type="hidden" name="action" value="appSendDm" />';
-										$item->htmlForm 	.= '<input type="hidden" name="opportunity" value="dms" />';
-										$item->htmlForm 	.= '<input type="hidden" name="appId" value="'.$leadAppId.'" />';
-										$item->htmlForm 	.= '<input type="hidden" name="leadAppId" value="'.$lead->ID.'" />';
-										$item->htmlForm 	.= '<input type="hidden" name="screen_name" value="'.$lead->leadTwtName.'" />';
-										$item->htmlForm 	.= '<input type="hidden" name="skipIt" class="skip" value="false" />';
-										
-										$item->htmlForm 	.= '<textarea name="message" class="form-control" style="width:300px;height:150px;margin-bottom:5px;">';
-										
-											$item->htmlForm 	.= 'Hey ' . ucfirst($lead->leadTwtName) . '!' . PHP_EOL;
-											$item->htmlForm 	.= PHP_EOL;
-											$item->htmlForm 	.= 'Are you in the ' . get_option( $this->parent->_base . 'niche_business' ) . ' business?' . PHP_EOL;
-											$item->htmlForm 	.= PHP_EOL;
+										$item->htmlForm 	.= 'Reconnect @'.$apps[$leadAppId]->screen_name . '...';
+									}
+									else{
+									
+										$item->htmlForm 	.= '<form action="'.$this->parent->api->get_url('leads/engage').'" method="post">';
 											
-											if(!$this->parent->user->is_admin){
-												
-												$item->htmlForm 	.= 'I am a ' . get_option( $this->parent->_base . 'niche_single' ) . '. Any new opportunities on your side?' . PHP_EOL;
+											$item->htmlForm 	.= '<input type="hidden" name="app" value="twitter" />';
+											$item->htmlForm 	.= '<input type="hidden" name="action" value="appSendDm" />';
+											$item->htmlForm 	.= '<input type="hidden" name="opportunity" value="dms" />';
+											$item->htmlForm 	.= '<input type="hidden" name="appId" value="'.$leadAppId.'" />';
+											$item->htmlForm 	.= '<input type="hidden" name="leadAppId" value="'.$lead->ID.'" />';
+											$item->htmlForm 	.= '<input type="hidden" name="screen_name" value="'.$lead->leadTwtName.'" />';
+											$item->htmlForm 	.= '<input type="hidden" name="skipIt" class="skip" value="false" />';
+											
+											$item->htmlForm 	.= '<textarea name="message" class="form-control" style="width:300px;height:150px;margin-bottom:5px;">';
+											
+												$item->htmlForm 	.= 'Hey ' . ucfirst($lead->leadTwtName) . '!' . PHP_EOL;
 												$item->htmlForm 	.= PHP_EOL;
-											}
-											
-											$item->htmlForm 	.= 'We should exchange info.' . PHP_EOL;
-											$item->htmlForm 	.= PHP_EOL;
-											$item->htmlForm 	.= 'Have a nice day,' . PHP_EOL;
-											$item->htmlForm 	.= $apps[$leadAppId]->screen_name . PHP_EOL;
-											
-										$item->htmlForm 	.= '</textarea>';
-										
-										$item->htmlForm .= '<div class="input-group">';
-										
-											$item->htmlForm .= '<i class="input-group">via @' . $apps[$leadAppId]->screen_name . '</i>';
-										
-											//$item->htmlForm .= '<input type="text" class="form-control" value="@'.$item->via.'" disabled="disabled" />';
-											
-											$item->htmlForm .= '<span class="input-group-btn">';
+												$item->htmlForm 	.= 'Are you in the ' . get_option( $this->parent->_base . 'niche_business' ) . ' business?' . PHP_EOL;
+												$item->htmlForm 	.= PHP_EOL;
 												
-												$item->htmlForm .= '<button style="margin:0 1px;" class="engage btn btn-xs btn-default" type="button" data-skip="true"><i></i> skip</button>';
-																						
-												$item->htmlForm .= '<button style="margin:0 1px;" class="engage btn btn-xs btn-primary" type="button" data-skip="false"><i class="glyphicon glyphicon-send" aria-hidden="true"></i> DM</button>';
+												if(!$this->parent->user->is_admin){
+													
+													$item->htmlForm 	.= 'I am a ' . get_option( $this->parent->_base . 'niche_single' ) . '. Any new opportunities on your side?' . PHP_EOL;
+													$item->htmlForm 	.= PHP_EOL;
+												}
+												
+												$item->htmlForm 	.= 'We should exchange info.' . PHP_EOL;
+												$item->htmlForm 	.= PHP_EOL;
+												$item->htmlForm 	.= 'Have a nice day,' . PHP_EOL;
+												$item->htmlForm 	.= $apps[$leadAppId]->screen_name . PHP_EOL;
+												
+											$item->htmlForm 	.= '</textarea>';
+											
+											$item->htmlForm .= '<div class="input-group">';
+											
+												$item->htmlForm .= '<i class="input-group">via @' . $apps[$leadAppId]->screen_name . '</i>';
+											
+												//$item->htmlForm .= '<input type="text" class="form-control" value="@'.$item->via.'" disabled="disabled" />';
+												
+												$item->htmlForm .= '<span class="input-group-btn">';
+													
+													$item->htmlForm .= '<button style="margin:0 1px;" class="engage btn btn-xs btn-default" type="button" data-skip="true"><i></i> skip</button>';
+																							
+													$item->htmlForm .= '<button style="margin:0 1px;" class="engage btn btn-xs btn-primary" type="button" data-skip="false"><i class="glyphicon glyphicon-send" aria-hidden="true"></i> DM</button>';
 
-											$item->htmlForm .= '</span>';
-											
-										$item->htmlForm .= '</div>';								
-											
-									$item->htmlForm .= '</form>';
+												$item->htmlForm .= '</span>';
+												
+											$item->htmlForm .= '</div>';								
+												
+										$item->htmlForm .= '</form>';
+									}
 								}
 							}
 						}
@@ -738,6 +756,29 @@ class LTPLE_Client_Leads {
 				update_post_meta($_REQUEST["post_id"], 'leadCanSpam', $_REQUEST['leadCanSpam']);
 			}
 		}
+	}
+	
+	public function get_access_message(){
+		
+		$message = '';
+
+		$message = '<div class="modal-body">'.PHP_EOL;
+
+			$message .=  '<div class="alert alert-info">';
+				
+				$message .=  '<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> You must be a <b>PRO subscriber</b> to access this feature...';
+				
+				$message .=  '<div class="pull-right">';
+
+					$message .=  '<a class="btn-sm btn-success" href="' . $this->parent->urls->plans . '" target="_parent">Subscribe now</a>';
+					
+				$message .=  '</div>';
+				
+			$message .=  '</div>';	
+
+		$message .= '</div>'.PHP_EOL;
+
+		return 	$message;
 	}
 	
 	/**
