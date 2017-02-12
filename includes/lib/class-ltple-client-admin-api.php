@@ -106,8 +106,8 @@ class LTPLE_Client_Admin_API {
 		}
 
 		// Show default data if no option saved and default is supplied
-		
-		if ( $data === false && isset( $field['default'] ) ) {
+
+		if ( empty($data) && isset( $field['default'] ) ) {
 			
 			$data = $field['default'];
 			

@@ -467,22 +467,8 @@ class LTPLE_Client_Leads {
 											
 											$item->htmlForm 	.= '<textarea name="message" class="form-control" style="width:300px;height:150px;margin-bottom:5px;">';
 											
-												$item->htmlForm 	.= 'Hey ' . ucfirst($lead->leadTwtName) . '!' . PHP_EOL;
-												$item->htmlForm 	.= PHP_EOL;
-												$item->htmlForm 	.= 'Are you in the ' . get_option( $this->parent->_base . 'niche_business' ) . ' business?' . PHP_EOL;
-												$item->htmlForm 	.= PHP_EOL;
-												
-												if(!$this->parent->user->is_admin){
-													
-													$item->htmlForm 	.= 'I am a ' . get_option( $this->parent->_base . 'niche_single' ) . '. Any new opportunities on your side?' . PHP_EOL;
-													$item->htmlForm 	.= PHP_EOL;
-												}
-												
-												$item->htmlForm 	.= 'We should exchange info.' . PHP_EOL;
-												$item->htmlForm 	.= PHP_EOL;
-												$item->htmlForm 	.= 'Have a nice day,' . PHP_EOL;
-												$item->htmlForm 	.= $apps[$leadAppId]->screen_name . PHP_EOL;
-												
+												$item->htmlForm .= $this->parent->apps->{$app}->do_shortcodes( $this->parent->apps->{$app}->get_direct_message(), $lead->leadTwtName,$apps[$leadAppId]->screen_name );
+											
 											$item->htmlForm 	.= '</textarea>';
 											
 											$item->htmlForm .= '<div class="input-group">';

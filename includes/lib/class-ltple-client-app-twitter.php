@@ -62,6 +62,13 @@ class LTPLE_Client_App_Twitter {
 				}
 			}
 		}
+		
+		// store frontend options
+		
+		if(isset($_POST['leadTwtDm'])){
+			
+			update_user_meta($this->parent->user->ID , $this->parent->_base . 'leadTwtDm',implode( PHP_EOL, array_map( 'sanitize_text_field', explode( PHP_EOL, $_POST['leadTwtDm'] ) ) ));
+		}
 	}
 	
 	// Add app data custom fields
@@ -110,7 +117,7 @@ class LTPLE_Client_App_Twitter {
 		return $fields;
 	}
 	
-	public function do_shortcodes( $str, $screen_name ){
+	public function do_shortcodes( $str, $to='', $from='' ){
 		
 		// do email shortcodes
 		
@@ -120,13 +127,44 @@ class LTPLE_Client_App_Twitter {
 		
 		$shortcodes 	= [];
 		$shortcodes[] 	= '*|TWT_NAME|*';
+		$shortcodes[] 	= '*|TWT_FROM|*';
 		
 		$data 			= [];
-		$data[]			= $screen_name;
+		$data[]			= $to;
+		$data[]			= $from;
 		
 		$str = str_replace($shortcodes,$data,$str);
 		
 		return $str;
+	}
+	
+	public function get_direct_message(){
+		
+		$dm = get_user_meta($this->parent->user->ID , $this->parent->_base . 'leadTwtDm',true);
+		
+		if(empty($dm)){
+		
+			// default message
+			
+			$dm .= 'Hey *|TWT_NAME|*!' . PHP_EOL;
+			$dm .= PHP_EOL;
+			$dm .= 'Are you in the ' . get_option( $this->parent->_base . 'niche_business' ) . ' business?' . PHP_EOL;
+			$dm .= PHP_EOL;
+			
+			if(!$this->parent->user->is_admin){
+				
+				$dm .= 'I am a ' . get_option( $this->parent->_base . 'niche_single' ) . '. Any new opportunities on your side?' . PHP_EOL;
+				$dm .= PHP_EOL;
+			}
+			
+			$dm .= 'We should exchange info.' . PHP_EOL;
+			$dm .= PHP_EOL;
+			$dm .= 'Have a nice day,' . PHP_EOL;
+			$dm .= '*|TWT_FROM|*' . PHP_EOL;
+
+		}
+		
+		return $dm;
 	}
 	
 	public function is_valid_token($app){
@@ -1113,18 +1151,20 @@ class LTPLE_Client_App_Twitter {
 							
 		// get main account
 
-		if( $this->main_token = $this->parent->apps->getAppData( get_option( $this->parent->_base . 'twt_main_account' ))){
+		$appId = get_option( $this->parent->_base . 'twt_main_account' );
+		
+		if( $app = $this->parent->apps->getAppData($appId)){
 			
 			// new account follow main account
 			
 			$this->connection->post('friendships/create', array(
 			
-				'screen_name' => $this->main_token->screen_name
+				'screen_name' => $app->screen_name
 			));
 			
 			// start main account connection
 			
-			$this->main_connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $this->main_token->oauth_token, $this->main_token->oauth_token_secret);
+			$this->main_connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
 			
 			// main account follow new account
 			
@@ -1156,6 +1196,10 @@ class LTPLE_Client_App_Twitter {
 					'screen_name' 	=> $this->access_token['screen_name'],
 					'text' 			=> $this->do_shortcodes($dm_content,$this->access_token['screen_name'])
 				));
+				
+				// TODO get leadAppId and update leadTwtLastDm
+				
+				//update_post_meta($leadAppId, 'leadTwtLastDm', time());
 			}
 		}
 	}

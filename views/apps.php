@@ -10,24 +10,6 @@
 		
 		$_SESSION['message'] ='';
 	}
-	
-	// get access message
-
-	$access_message = '<div class="modal-body">'.PHP_EOL;
-
-		$access_message .=  '<div class="alert alert-info">';
-			
-			$access_message .=  '<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> You must be a <b>PRO subscriber</b> to access this feature...';
-			
-			$access_message .=  '<div class="pull-right">';
-
-				$access_message .=  '<a class="btn-sm btn-success" href="' . $this->urls->plans . '" target="_parent">Subscribe now</a>';
-				
-			$access_message .=  '</div>';
-			
-		$access_message .=  '</div>';	
-
-	$access_message .= '</div>'.PHP_EOL;
 
 	// get current tab
 	
@@ -38,8 +20,6 @@
 		$currentTab = $_GET['app'];
 	}
 	
-	
-
 	// ------------- output panel --------------------
 	
 	echo'<div id="media_library">';
@@ -212,7 +192,7 @@
 					
 				}
 				elseif( $currentTab == 'opportunities' ){
-					
+
 					echo'<div id="opportunities" class="panel-group" role="tablist" aria-multiselectable="true">';
 
 						echo'<div class="panel-default">';
@@ -233,6 +213,84 @@
 
 									if( $this->user->plan["info"]["total_price_amount"] > 0 ){
 										
+										// get edit message
+										
+										echo '<div class="well" style="display:inline-block;width:100%;">';
+										
+											echo '<div class="col-xs-12 col-md-6">';
+											
+												echo '<h4>Edit message</h4>';
+											
+												echo '<form action="" method="post">';
+												
+													if(!isset($this->apps->twitter)){
+														
+														$this->apps->includeApp('twitter');
+													}
+												
+													$this->admin->display_field( array(
+													
+														'id' 			=> 'leadTwtDm',
+														'label'			=> 'Edit message',
+														'description'	=> '',
+														'placeholder'	=> '',
+														'default'		=> $this->apps->twitter->get_direct_message(),
+														'type'			=> 'textarea',
+														'style'			=> 'width:100%;height:150px;',
+													), $this->user );
+												
+													echo '<button class="btn btn-xs btn-primary pull-right" type="submit">';
+														
+														echo 'Save';
+														
+													echo '</button>';
+												
+												echo '</form>';
+											
+											echo '</div>';
+											
+											echo '<div class="col-xs-12 col-md-6">';
+											
+												echo '<table class="table table-striped table-hover">';
+												
+													echo '<thead>';
+														echo '<tr>';
+															echo '<th>Shortcodes</th>';
+															echo '<th>Description</th>';
+														echo '</tr>';
+													echo '</thead>';
+													
+													echo '<tbody>';
+														echo '<tr>';
+															echo '<td>*|TWT_NAME|*</td>';
+															echo '<td>Name of the targeted account</td>';
+														echo '</tr>';
+														echo '<tr>';
+															echo '<td>*|TWT_FROM|*</td>';
+															echo '<td>Your name</td>';
+														echo '</tr>';
+														echo '<tr>';
+															echo '<td>*|DAY|*</td>';
+															echo '<td>The day of the week (text)</td>';
+														echo '</tr>';
+														echo '<tr>';
+															echo '<td>*|DATE:d/m/y|*</td>';
+															echo '<td>Today\'s date</td>';
+														echo '</tr>';
+														echo '<tr>';
+															echo '<td>*|DATE:y|*</td>';
+															echo '<td>Current year</td>';
+														echo '</tr>';															
+													echo '</tbody>';
+													
+												echo '</table>';				
+											
+											echo '</div>';
+										
+										echo '</div>';
+										
+										// get table
+										
 										$opp_url = $this->api->get_url('leads/list','',['app'=>'twitter','opportunity'=>'dms']);
 									
 										$fields = $this->leads->get_fields_frontend(false, true);
@@ -242,7 +300,7 @@
 									}
 									else{
 										
-										echo $access_message;
+										echo $this->leads->get_access_message();
 									}
 								
 								echo'</div>';
@@ -328,12 +386,12 @@
 							}
 							else{
 								
-								echo $access_message;
+								echo $this->leads->get_access_message();
 							}
 						}
 						else{
 							
-							echo $access_message;						
+							echo $this->leads->get_access_message();						
 						}
 					
 					echo'</div>';

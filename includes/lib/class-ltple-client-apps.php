@@ -97,7 +97,6 @@ class LTPLE_Client_Apps {
 
 		if(!empty($this->app)){
 			
-			
 			foreach($this->appList as $app){
 				
 				if( $this->app == $app->slug ){

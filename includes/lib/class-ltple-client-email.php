@@ -60,6 +60,7 @@ class LTPLE_Client_Email {
 	public function do_shortcodes( $str, $user=null){
 		
 		$shortcodes 	= [];
+		$shortcodes[] 	= '*|DAY|*'; 		// today
 		$shortcodes[] 	= '*|DATE:d/m/y|*'; // date
 		$shortcodes[] 	= '*|DATE:y|*'; 	// year
 		
@@ -71,6 +72,7 @@ class LTPLE_Client_Email {
 		}
 		
 		$data 			= [];
+		$data[]			= date( 'l', time());
 		$data[]			= date( 'd/m/y', time());
 		$data[]			= date( 'y'	 , time());
 		
