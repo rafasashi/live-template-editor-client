@@ -1819,7 +1819,7 @@ class LTPLE_Client {
 		return $price_fields;
 	}
 	
-	public function get_layer_taxonomy_storage_field($taxonomy_name,$args=[]){
+	public function get_layer_taxonomy_storage_fields($taxonomy_name,$args=[]){
 
 		//get storage units
 		
@@ -2962,8 +2962,12 @@ class LTPLE_Client {
 	 * @return  void
 	 */
 	public function admin_enqueue_scripts ( $hook = '' ) {
+		
+		wp_enqueue_script('jquery-ui-sortable');
+		
 		wp_register_script( $this->_token . '-admin', esc_url( $this->assets_url ) . 'js/admin' . $this->script_suffix . '.js', array( 'jquery' ), $this->_version );
 		wp_enqueue_script( $this->_token . '-admin' );
+
 	} // End admin_enqueue_scripts ()
 
 	/**

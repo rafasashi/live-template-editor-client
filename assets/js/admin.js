@@ -22,15 +22,15 @@
 			$(this).closest('.input-group-row').remove();
 		});	
 		
-		if( $( "#email_series .ui-sortable" ).length ){
+		if( $( ".sortable .ui-sortable" ).length ){
 		
-			$( "#email_series .ui-sortable" ).sortable({
+			$( ".sortable .ui-sortable" ).sortable({
 				
 				placeholder	: "ui-state-highlight",
 				items		: "li:not(.ui-state-disabled)"
 			});
 			
-			$( "#email_series .ui-sortable li" ).disableSelection();
+			$( ".sortable .ui-sortable li" ).disableSelection();
 		
 		}
 	});

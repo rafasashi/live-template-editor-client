@@ -1,5 +1,5 @@
-  #email_series .ui-sortable { list-style-type: none; margin: 0; padding: 0; }
-  #email_series .ui-sortable li { margin: 0 5px 5px 5px; padding: 5px; font-size: 13px; cursor: move; }
-  #email_series .ui-state-disabled { cursor: initial !important; }
+  .sortable .ui-sortable { list-style-type: none; margin: 0; padding: 0; }
+  .sortable .ui-sortable li { margin: 0 5px 5px 5px; padding: 5px; font-size: 13px; cursor: move; }
+  .sortable .ui-state-disabled { cursor: initial !important; }
   html>body #email_series .ui-sortable li { height: 1.5em; line-height: 1.2em; }
-  #email_series .ui-state-highlight { height: 1.5em; line-height: 1.2em; background-color:#fafafa; }
+  .sortable .ui-state-highlight { height: 1.5em; line-height: 1.2em; background-color:#fafafa; }

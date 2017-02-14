@@ -424,7 +424,7 @@ class LTPLE_Client_Taxonomy {
 			
 			echo'<label for="'.$taxonomy_name.'-storage-amount">Storage</label>';
 
-			echo LTPLE_Client()-> get_layer_taxonomy_storage_field($taxonomy_name,0);
+			echo LTPLE_Client()-> get_layer_taxonomy_storage_fields($taxonomy_name,0);
 			
 		echo'</div>';
 	}	
@@ -470,7 +470,7 @@ class LTPLE_Client_Taxonomy {
 			
 			echo'<td>';
 				
-				echo LTPLE_Client()-> get_layer_taxonomy_storage_field($term->taxonomy,$storage_amount);
+				echo LTPLE_Client()-> get_layer_taxonomy_storage_fields($term->taxonomy,$storage_amount);
 						
 			echo'</td>';
 			

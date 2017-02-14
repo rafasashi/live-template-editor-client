@@ -491,7 +491,7 @@
 								$.post( "<?php echo $this->api->get_url('leads/engage'); ?>", $form.serialize())
 								 .done(function( data ) {
 
-									//console.log(data);
+									console.log(data);
 								
 									$icon.attr('class', currentClasses);								
 									
