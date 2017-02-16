@@ -13,7 +13,7 @@
 		  
 			<div class="modal-body" style="height:350px;">
 				
-				<form target="_parent" action="<?php ?>" method="POST" style="width:300px;">
+				<form target="_parent" action="" method="POST" style="width:300px;">
 					
 					<label>How did you find us?</label>
 					

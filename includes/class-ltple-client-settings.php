@@ -379,7 +379,15 @@ class LTPLE_Client_Settings {
 			'title'					=> __( 'General settings', $this->plugin->slug ),
 			'description'			=> '',
 			'fields'				=> array(
-			
+
+				array(
+					'id' 			=> 'host_url',
+					'label'			=> __( 'Host Url' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'text',
+					'default'		=> '',
+					'placeholder'	=> __( 'http://', $this->plugin->slug )
+				),			
 				array(
 					'id' 			=> 'server_url',
 					'label'			=> __( 'Server Url' , $this->plugin->slug ),

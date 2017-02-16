@@ -20,9 +20,26 @@
 				
 				include( $this->views .'/apps.php' );
 			}
+			elseif( is_single() ){
+				
+				global $post;
+				
+				if(!empty($_SESSION['message'])){
+					
+					echo $_SESSION['message'].PHP_EOL;
+					
+					$_SESSION['message'] = '';
+				}				
+				
+				if( $post->post_type ==  'subscription-plan' ){
+					
+					echo do_shortcode( '[subscription-plan id="' . $post->ID . '" widget="true"]' );
+				}
+			}
+			
+			wp_footer(); 
+		 
 		?>
-		
-		<?php wp_footer(); ?>
 	
 	</body>
 </html>

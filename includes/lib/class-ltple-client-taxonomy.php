@@ -336,15 +336,15 @@ class LTPLE_Client_Taxonomy {
 					$clients ['wordpress'] 		= 'Wordpress';
 					$clients ['youtube'] 		= 'Youtube';
 					
-					$field = array(
+					$this->parent->admin->display_field( array(
+					
 						'type'				=> 'select',
 						'id'				=> 'api_client_'.$term->slug,
 						'name'				=> $term->taxonomy . '-api-client',
 						'options' 			=> $clients,
 						'description'		=> '',
-					);
-					
-					$this->parent->admin->display_field( $field, false );
+						
+					), false );
 					
 				echo'</td>';
 				
@@ -360,15 +360,15 @@ class LTPLE_Client_Taxonomy {
 				
 				echo'<td>';
 					
-					$field = array(
+					$this->parent->admin->display_field( array(
+					
 						'type'				=> 'key_value',
 						'id'				=> 'parameters_'.$term->slug,
 						'name'				=> $term->taxonomy . '-parameters',
 						'array' 			=> [],
 						'description'		=> ''
-					);
-					
-					$this->parent->admin->display_field( $field, false );
+						
+					), false );
 					
 				echo'</td>';
 				
@@ -431,16 +431,15 @@ class LTPLE_Client_Taxonomy {
 	
 	public function get_layer_taxonomy_fields($term){
 
-		//collect the term slug
-		$term_slug = $term->slug;
-
 		//collect our saved term field information
 		
-		$args=[];
-		$args['price_amount'] = get_option('price_amount_' . $term_slug); 
-		$args['price_period'] = get_option('price_period_' . $term_slug); 
-
-		$storage_amount = get_option('storage_amount_' . $term_slug);
+		$price=[];
+		$price['price_amount'] = get_option('price_amount_' . $term->slug); 
+		$price['price_period'] = get_option('price_period_' . $term->slug); 
+		
+		$storage=[];
+		$storage['storage_amount'] 	= get_option('storage_amount_' . $term->slug);
+		$storage['storage_unit'] 	= get_option('storage_unit_' . $term->slug);
 		
 		//output our additional fields
 		
@@ -454,7 +453,7 @@ class LTPLE_Client_Taxonomy {
 			
 			echo'<td>';
 				
-				echo LTPLE_Client()-> get_layer_taxonomy_price_fields($term->taxonomy,$args);
+				echo LTPLE_Client()-> get_layer_taxonomy_price_fields($term->taxonomy,$price);
 				
 			echo'</td>';
 			
@@ -470,49 +469,81 @@ class LTPLE_Client_Taxonomy {
 			
 			echo'<td>';
 				
-				echo LTPLE_Client()-> get_layer_taxonomy_storage_fields($term->taxonomy,$storage_amount);
+				echo LTPLE_Client()-> get_layer_taxonomy_storage_fields($term->taxonomy,$storage);
 						
 			echo'</td>';
 			
-		echo'</tr>';		
+		echo'</tr>';	
+
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Meta </label>';
+			
+			echo'</th>';
+			
+				echo'<td>';
+					
+					$this->parent->admin->display_field(array(
+					
+						'type'				=> 'form',
+						'id'				=> 'meta_'.$term->slug,
+						'name'				=> $term->taxonomy . '-meta',
+						'array' 			=> [],
+						'description'		=> ''
+						
+					), false );
+					
+				echo'</td>';	
+			
+		echo'</tr>';
 	}
 	
 	public function save_layer_taxonomy_fields($term_id){
 
-		//collect all term related data for this new taxonomy
-		$term = get_term($term_id);
-
-		//save our custom fields as wp-options
-		
-		if(isset($_POST[$term->taxonomy .'-price-amount'])&&is_numeric($_POST[$term->taxonomy .'-price-amount'])){
-
-			update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));			
-		}
-		
-		if(isset($_POST[$term->taxonomy .'-price-period'])){
-
-			$periods = LTPLE_Client()->get_price_periods();
-			$period = sanitize_text_field($_POST[$term->taxonomy . '-price-period']);
+		if($this->parent->user->is_admin){
 			
-			if(isset($periods[$period])){
-				
-				update_option('price_period_' . $term->slug, $period);	
+			//collect all term related data for this new taxonomy
+			$term = get_term($term_id);
+						
+			//save our custom fields as wp-options
+			
+			if(isset($_POST[$term->taxonomy .'-price-amount'])&&is_numeric($_POST[$term->taxonomy .'-price-amount'])){
+
+				update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));			
 			}
-		}
-		
-		if(isset($_POST[$term->taxonomy .'-storage-amount'])&&is_numeric($_POST[$term->taxonomy .'-storage-amount'])){
-
-			update_option('storage_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0));			
-		}
-		
-		if(isset($_POST[$term->taxonomy .'-storage-unit'])){
-
-			$storage_units = LTPLE_Client()->get_storage_units();
-			$storage_unit = sanitize_text_field($_POST[$term->taxonomy . '-storage-unit']);
 			
-			if(isset($periods[$period])){			
+			if(isset($_POST[$term->taxonomy .'-price-period'])){
+
+				$periods = LTPLE_Client()->get_price_periods();
+				$period = sanitize_text_field($_POST[$term->taxonomy . '-price-period']);
+				
+				if(isset($periods[$period])){
+					
+					update_option('price_period_' . $term->slug, $period);	
+				}
+			}
 			
-				update_option('storage_unit_' . $term->slug, $storage_unit);			
+			if(isset($_POST[$term->taxonomy .'-storage-amount'])&&is_numeric($_POST[$term->taxonomy .'-storage-amount'])){
+
+				update_option('storage_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0));			
+			}
+			
+			if(isset($_POST[$term->taxonomy .'-storage-unit'])){
+
+				$storage_units = LTPLE_Client()->get_storage_units();
+				$storage_unit = sanitize_text_field($_POST[$term->taxonomy . '-storage-unit']);
+				
+				if(isset($periods[$period])){			
+				
+					update_option('storage_unit_' . $term->slug, $storage_unit);			
+				}
+			}
+		
+			if(isset($_POST[$term->taxonomy . '-meta'])){
+
+				update_option('meta_'.$term->slug, $_POST[$term->taxonomy . '-meta']);			
 			}
 		}
 	}

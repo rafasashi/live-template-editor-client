@@ -1096,14 +1096,20 @@ class LTPLE_Client {
 		if(!$storage_unit = get_option('storage_unit_' . $term->slug)){
 			
 			$storage_unit = 'templates';
+		}
+		
+		if(!$form = get_option('meta_' . $term->slug)){
+			
+			$form = [];
 		} 
 		
 		$options=[];
-		$options['price_currency']=$price_currency;
-		$options['price_amount']=$price_amount;
-		$options['price_period']=$price_period;
-		$options['storage_amount']=$storage_amount;
-		$options['storage_unit']=$storage_unit;
+		$options['price_currency']	= $price_currency;
+		$options['price_amount']	= $price_amount;
+		$options['price_period']	= $price_period;
+		$options['storage_amount']	= $storage_amount;
+		$options['storage_unit']	= $storage_unit;
+		$options['form']			= $form;
 		
 		return $options;
 	}
@@ -1930,10 +1936,13 @@ class LTPLE_Client {
 	public function add_shortcode_subscription_plan( $atts ){
 		
 		$atts = shortcode_atts( array(
-			'id' => NULL,
-			'title' => NULL,
-			'content' => NULL,
-			'show-storage' => true
+		
+			'id'		 	=> NULL,
+			'widget' 		=> 'false',
+			'title' 		=> NULL,
+			'content' 		=> NULL,
+			'show-storage' 	=> true
+			
 		), $atts, 'subscription-plan' );		
 		
 		$subscription_plan = '';
@@ -1954,10 +1963,9 @@ class LTPLE_Client {
 			
 			if($data = get_post_meta( $id, $option_name, true )){
 				
-				$plan=get_post($id);
+				//get plan
 				
-				//var_dump($plan);exit;
-				//var_dump($data);exit;
+				$plan = get_post($id);
 				
 				//get plan title
 				
@@ -1974,207 +1982,252 @@ class LTPLE_Client {
 				
 				if(is_string($atts['content'])){
 					
-					$plan_content = $atts['content'];
+					$plan_form 		= '';
+					$plan_content 	= $atts['content'];
 					$style='font-weight: bold;color: rgb(138, 206, 236);';
 				}
 				else{
 					
-					$plan_content = $plan->post_content;
+					$plan_form 		= '';
+					$plan_content 	= $plan->post_content;
 					$style='padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);color: rgb(138, 206, 236);';
 				}
 
-				$subscription_plan.='<h2 id="plan_title" style="'.$style.'">' . $plan_title . '</h2>';
+				// get total_price_amount & total_storage
 				
-				$subscription_plan.=$plan_content;
-				
-				$subscription_plan.='<div id="plan_form">';
-				//$subscription_plan.='<form id="plan_form" action="" method="POST">'.PHP_EOL;
-
-					// get total_price_amount & total_storage
+				foreach( $options as $taxonomy => $terms ) {
 					
-					foreach( $options as $taxonomy => $terms ) {
-						
-						$taxonomy_options = [];
-						
-						foreach($terms as $i => $term){
-
-							$taxonomy_options[$i] = $this -> get_layer_taxonomy_options( $taxonomy, $term );
+					$taxonomy_options = [];
 					
-							//var_dump($taxonomy_options);exit;
+					foreach($terms as $i => $term){
 
-							if ( in_array( $term->slug, $data ) ) {
+						$taxonomy_options[$i] = $this -> get_layer_taxonomy_options( $taxonomy, $term );
+
+						if ( in_array( $term->slug, $data ) ) {						
+							
+							$total_price_amount = $this -> sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);	
+							$total_fee_amount 	= $this -> sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);				
+							$total_storage 		= $this -> sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
+						
+							if( !empty($taxonomy_options[$i]['form']) ){
 								
-								$total_price_amount = $this -> sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);	
-								$total_fee_amount 	= $this -> sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);				
-								$total_storage 		= $this -> sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
+								if( !empty($_POST['meta_'.$term->slug]) ){
+									
+									// store data in session
+									
+									$_SESSION['pm_' . $plan->ID]['meta_'.$term->slug] = $_POST['meta_'.$term->slug];
+								}
+								else{
+									
+									$plan_form .= $this->admin->display_field( array(
+							
+										'type'				=> 'form',
+										'id'				=> 'meta_'.$term->slug,
+										'name'				=> $term->taxonomy . '-meta',
+										'array' 			=> $taxonomy_options[$i],
+										'action' 			=> '',
+										'method' 			=> 'post',
+										'description'		=> ''
+										
+									), false, false );
+								}
 							}
 						}
 					}
-					
-					// round total_price_amount
-					
-					$total_fee_amount 	= round($total_fee_amount, 2);
-					$total_price_amount = round($total_price_amount, 2);
-					
-					//get current_user
-					
-					$current_user = wp_get_current_user();
-					
-					//get plan_data
-					
-					sort($data);
-					ksort($total_storage);
-					
-					$plan_data=[];
-					$plan_data['id'] 		= $plan->ID;
-					$plan_data['name'] 		= $plan->post_title;
-					$plan_data['options'] 	= $data;
-					$plan_data['price'] 	= $total_price_amount;
-					$plan_data['fee'] 		= $total_fee_amount;
-					$plan_data['currency']	= $total_price_currency;
-					$plan_data['period'] 	= $total_price_period;
-					$plan_data['fperiod']	= $total_fee_period;
-					$plan_data['storage'] 	= $total_storage;
-					$plan_data['subscriber']= $this->user->user_email;
-					
-					$plan_data=esc_attr( json_encode( $plan_data ) );
-					//var_dump($plan_data);exit;
+				}
+				
+				// round total_price_amount
+				
+				$total_fee_amount 	= round($total_fee_amount, 2);
+				$total_price_amount = round($total_price_amount, 2);
+				
+				//get plan_data
+				
+				sort($data);
+				ksort($total_storage);
+				
+				$plan_data=[];
+				$plan_data['id'] 		= $plan->ID;
+				$plan_data['name'] 		= $plan->post_title;
+				$plan_data['options'] 	= $data;
+				$plan_data['price'] 	= $total_price_amount;
+				$plan_data['fee'] 		= $total_fee_amount;
+				$plan_data['currency']	= $total_price_currency;
+				$plan_data['period'] 	= $total_price_period;
+				$plan_data['fperiod']	= $total_fee_period;
+				$plan_data['storage'] 	= $total_storage;
+				$plan_data['subscriber']= $this->user->user_email;
+				$plan_data['meta']		= ( !empty($_SESSION['pm_' . $plan->ID]) ? $_SESSION['pm_' . $plan->ID] : '' );
+				
+				$plan_data=esc_attr( json_encode( $plan_data ) );
+				
+				//var_dump($plan_data);exit;
 
-					$plan_key=md5( 'plan' . $plan_data . $this->_time . $this->user->user_email );
+				$plan_key=md5( 'plan' . $plan_data . $this->_time . $this->user->user_email );
+				
+				$agreement_url = $this->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->base64_urlencode($plan_data) . '&_=' . $this->_time;
+				
+				$iframe_height 	= 500;
+				
+				if( !is_null($atts['widget']) && $atts['widget']==='true' ){
 					
-					$iframe_url = $this->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->base64_urlencode($plan_data) . '&_=' . $this->_time;
-					$iframe_height = 500;
-					
-					// Output iframe
+					if( !empty($plan_form) ){
 						
-					if($atts['show-storage']===true){
-					
-						$subscription_plan.= '<div id="plan_storage" style="display:block;">';				
+						$subscription_plan.= '<div class="row panel-body" style="background:#fff;">';
+						
+							$subscription_plan.= '<div class="col-xs-12 col-md-6">';
+
+									$subscription_plan.= $plan_form;
+
+							$subscription_plan.= '</div>';
 							
-							foreach($total_storage as $storage_unit => $total_storage_amount){
-								
-								$subscription_plan.='<span style="display:block;">';
-								
-									if($storage_unit=='templates'&&$total_storage_amount==1){
-										
-										$subscription_plan.= $total_storage_amount.' template';
-									}
-									else{
-										
-										$subscription_plan.= $total_storage_amount.' '.$storage_unit;
-									}
-									
-								$subscription_plan.='</span>';
-							}
-
-						$subscription_plan.= '</div>';
-						
-						$subscription_plan.='<hr id="plan_hr" style="display:block;"></hr>';
+						$subscription_plan.= '</div>';						
 					}
-					
-					$subscription_plan.= '<div id="plan_price">';				
-						
-						if( $total_fee_amount > 0 ){
-							
-							$subscription_plan.= htmlentities(' ').$total_fee_amount.$total_price_currency.' '. ( $total_fee_period == 'once' ? 'one time fee' : $total_fee_period );
-							$subscription_plan.= '<br>+';
-						}
-						
-						$subscription_plan.= $total_price_amount.$total_price_currency.' / '.$total_price_period;
-					
-					$subscription_plan.= '</div>';
-					
-					$subscription_plan.= '</br>';
-					
-					$subscription_plan.= '<div id="plan_button">';				
-						
-						$subscription_plan.='<span class="payment-errors"></span>'.PHP_EOL;
-						
-						$modal_id='modal_'.md5($iframe_url);
-						
-						$subscription_plan.='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
-							
-							$subscription_plan.='Subscribe'.PHP_EOL;
-						
-						$subscription_plan.='</button>'.PHP_EOL;
+					else{
 
-						$subscription_plan.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
-							
-							$subscription_plan.='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+						$subscription_plan.= '<iframe src="'.$agreement_url.'" style="width:100%;bottom: 0;border:0;height:' . ($iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
+					}
+				}
+				else{
+					
+					$subscription_plan.='<h2 id="plan_title" style="'.$style.'">' . $plan_title . '</h2>';
+					
+					$subscription_plan.=$plan_content;
+					
+					$subscription_plan.='<div id="plan_form">';
+					//$subscription_plan.='<form id="plan_form" action="" method="POST">'.PHP_EOL;
+
+						// Output iframe
+						
+						if($atts['show-storage']===true){
+						
+							$subscription_plan.= '<div id="plan_storage" style="display:block;">';				
 								
-								$subscription_plan.='<div class="modal-content">'.PHP_EOL;
-								
-									$subscription_plan.='<div class="modal-header">'.PHP_EOL;
-										
-										$subscription_plan.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-										
-										$subscription_plan.='<h4 class="modal-title" id="myModalLabel">' . $plan->post_title . ' ('.$total_price_amount.$total_price_currency.' / '.$total_price_period.')</h4>'.PHP_EOL;
+								foreach($total_storage as $storage_unit => $total_storage_amount){
 									
-									$subscription_plan.='</div>'.PHP_EOL;
-
-										if( $this->user->loggedin ){
+									$subscription_plan.='<span style="display:block;">';
+									
+										if($storage_unit=='templates'&&$total_storage_amount==1){
 											
-											//echo '<pre>';
-											//var_dump($this->user->has_subscription);exit;
-											//var_dump($this->user_has_layer( $plan->ID ));exit;
-											
-											if( $total_price_amount == 0 && $this->user_has_plan( $plan->ID ) === true ){
-												
-												$subscription_plan.='<div class="modal-body">'.PHP_EOL;
-											
-													$subscription_plan.= '<div class="alert alert-info">';
-														
-														$subscription_plan.= 'You already have access to this set of features...';
-														
-														$subscription_plan.= '<div class="pull-right">';
-
-															$subscription_plan.= '<a class="btn-sm btn-success" href="' . $this->urls->editor . '" target="_parent">Start editing</a>';
-															
-														$subscription_plan.= '</div>';
-														
-													$subscription_plan.= '</div>';	
-
-												$subscription_plan.='</div>'.PHP_EOL;
-											}
-											else{
-												
-												$subscription_plan.= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
-
-												$subscription_plan.= '<iframe data-src="'.$iframe_url.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$iframe_height.'px;overflow: hidden;"></iframe>';													
-											}		
+											$subscription_plan.= $total_storage_amount.' template';
 										}
 										else{
 											
-											$subscription_plan.='<div class="modal-body">'.PHP_EOL;
-											
-												$subscription_plan.= '<div style="font-size:20px;padding:20px;" class="alert alert-warning">';
-													
-													$subscription_plan.= 'You need to log in first...';
-													
-													$subscription_plan.= '<div class="pull-right">';
-
-														$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-success" href="' . wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) . '">Login</a>';
-														
-														$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'&action=register">Register</a>';
-													
-													$subscription_plan.= '</div>';
-													
-												$subscription_plan.= '</div>';
-											
-											$subscription_plan.='</div>'.PHP_EOL;
+											$subscription_plan.= $total_storage_amount.' '.$storage_unit;
 										}
+										
+									$subscription_plan.='</span>';
+								}
 
+							$subscription_plan.= '</div>';
+							
+							$subscription_plan.='<hr id="plan_hr" style="display:block;"></hr>';
+						}
+						
+						$subscription_plan.= '<div id="plan_price">';				
+							
+							if( $total_fee_amount > 0 ){
+								
+								$subscription_plan.= htmlentities(' ').$total_fee_amount.$total_price_currency.' '. ( $total_fee_period == 'once' ? 'one time fee' : $total_fee_period );
+								$subscription_plan.= '<br>+';
+							}
+							
+							$subscription_plan.= $total_price_amount.$total_price_currency.' / '.$total_price_period;
+						
+						$subscription_plan.= '</div>';
+						
+						$subscription_plan.= '</br>';
+						
+						$subscription_plan.= '<div id="plan_button">';				
+							
+							$subscription_plan.='<span class="payment-errors"></span>'.PHP_EOL;
+							
+							$modal_id='modal_'.md5($agreement_url);
+							
+							$subscription_plan.='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+								
+								$subscription_plan.='Subscribe'.PHP_EOL;
+							
+							$subscription_plan.='</button>'.PHP_EOL;
+
+							$subscription_plan.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+								
+								$subscription_plan.='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+									
+									$subscription_plan.='<div class="modal-content">'.PHP_EOL;
+									
+										$subscription_plan.='<div class="modal-header">'.PHP_EOL;
+											
+											$subscription_plan.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+											
+											$subscription_plan.='<h4 class="modal-title" id="myModalLabel">' . $plan->post_title . ' ('.$total_price_amount.$total_price_currency.' / '.$total_price_period.')</h4>'.PHP_EOL;
+										
+										$subscription_plan.='</div>'.PHP_EOL;
+
+											if( $this->user->loggedin ){
+												
+												//echo '<pre>';
+												//var_dump($this->user->has_subscription);exit;
+												//var_dump($this->user_has_layer( $plan->ID ));exit;
+												
+												if( $total_price_amount == 0 && $this->user_has_plan( $plan->ID ) === true ){
+													
+													$subscription_plan.='<div class="modal-body">'.PHP_EOL;
+												
+														$subscription_plan.= '<div class="alert alert-info">';
+															
+															$subscription_plan.= 'You already have access to this set of features...';
+															
+															$subscription_plan.= '<div class="pull-right">';
+
+																$subscription_plan.= '<a class="btn-sm btn-success" href="' . $this->urls->editor . '" target="_parent">Start editing</a>';
+																
+															$subscription_plan.= '</div>';
+															
+														$subscription_plan.= '</div>';	
+
+													$subscription_plan.='</div>'.PHP_EOL;
+												}
+												else{
+													
+													$subscription_plan.= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
+
+													$subscription_plan.= '<iframe data-src="' . get_permalink( $plan->ID ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$iframe_height.'px;overflow: hidden;"></iframe>';													
+												}
+		
+											}
+											else{
+												
+												$subscription_plan.='<div class="modal-body">'.PHP_EOL;
+												
+													$subscription_plan.= '<div style="font-size:20px;padding:20px;" class="alert alert-warning">';
+														
+														$subscription_plan.= 'You need to log in first...';
+														
+														$subscription_plan.= '<div class="pull-right">';
+
+															$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-success" href="' . wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) . '">Login</a>';
+															
+															$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'&action=register">Register</a>';
+														
+														$subscription_plan.= '</div>';
+														
+													$subscription_plan.= '</div>';
+												
+												$subscription_plan.='</div>'.PHP_EOL;
+											}
+
+									$subscription_plan.='</div>'.PHP_EOL;
+									
 								$subscription_plan.='</div>'.PHP_EOL;
 								
 							$subscription_plan.='</div>'.PHP_EOL;
 							
-						$subscription_plan.='</div>'.PHP_EOL;
+						$subscription_plan.= '</div>'.PHP_EOL;
 						
-					$subscription_plan.= '</div>'.PHP_EOL;
-				
-				//$subscription_plan.='</form>'.PHP_EOL;
-				$subscription_plan.='</div>'.PHP_EOL;
-				
+					//$subscription_plan.='</form>'.PHP_EOL;
+					$subscription_plan.='</div>'.PHP_EOL;						
+				}
 			}
 		}		
 		
@@ -2820,12 +2873,13 @@ class LTPLE_Client {
 					$this->message .= '<div class="alert alert-success">';
 						
 						$this->message .= 'Congratulations, you have successfully subscribed to '.$this->plan->data['name'].'!';
-						
+						/*
 						$this->message .= '<div class="pull-right">';
 						
 							$this->message .= '<a class="btn-sm btn-success" href="' . $this->urls->editor . '" target="_parent">Start editing</a>';
 					
 						$this->message .= '</div>';
+						*/
 						
 					$this->message .= '</div>';
 					
