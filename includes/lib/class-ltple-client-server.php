@@ -9,8 +9,10 @@ class LTPLE_Client_Server {
 	/**
 	 * Constructor function
 	 */
-	public function __construct () {
+	public function __construct ( $parent ) {
 		
-		$this->url = get_option('ltple_server_url');
+		$this->parent = $parent;
+		
+		$this->url = get_option( $this->parent->_base . 'server_url');
 	}
 }

@@ -137,6 +137,7 @@ class LTPLE_Client {
 		$this->email 	= new LTPLE_Client_Email( $this );
 		
 		$this->api 		= new LTPLE_Client_Json_API( $this );
+		$this->server 	= new LTPLE_Client_Server( $this );
 		
 		$this->apps 	= new LTPLE_Client_Apps( $this );
 		
@@ -184,7 +185,6 @@ class LTPLE_Client {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 
-			$this->server 	= new LTPLE_Client_Server();
 			$this->layer 	= new LTPLE_Client_Layer();
 			$this->image 	= new LTPLE_Client_Image();
 			$this->profile 	= new LTPLE_Client_Profile( $this );
@@ -1941,6 +1941,7 @@ class LTPLE_Client {
 			'widget' 		=> 'false',
 			'title' 		=> NULL,
 			'content' 		=> NULL,
+			'button' 		=> NULL,
 			'show-storage' 	=> true
 			
 		), $atts, 'subscription-plan' );		
@@ -2057,6 +2058,7 @@ class LTPLE_Client {
 				$plan_data['fperiod']	= $total_fee_period;
 				$plan_data['storage'] 	= $total_storage;
 				$plan_data['subscriber']= $this->user->user_email;
+				$plan_data['client']	= $this->client->url;
 				$plan_data['meta']		= ( !empty($_SESSION['pm_' . $plan->ID]) ? $_SESSION['pm_' . $plan->ID] : '' );
 				
 				$plan_data=esc_attr( json_encode( $plan_data ) );
@@ -2105,18 +2107,21 @@ class LTPLE_Client {
 								
 								foreach($total_storage as $storage_unit => $total_storage_amount){
 									
-									$subscription_plan.='<span style="display:block;">';
-									
-										if($storage_unit=='templates'&&$total_storage_amount==1){
-											
-											$subscription_plan.= $total_storage_amount.' template';
-										}
-										else{
-											
-											$subscription_plan.= $total_storage_amount.' '.$storage_unit;
-										}
+									if($total_storage_amount > 0 ){
 										
-									$subscription_plan.='</span>';
+										$subscription_plan.='<span style="display:block;">';
+										
+											if($storage_unit=='templates' && $total_storage_amount==1 ){
+												
+												$subscription_plan.= $total_storage_amount.' template';
+											}
+											else{
+												
+												$subscription_plan.= $total_storage_amount.' '.$storage_unit;
+											}
+											
+										$subscription_plan.='</span>';
+									}
 								}
 
 							$subscription_plan.= '</div>';
@@ -2129,11 +2134,18 @@ class LTPLE_Client {
 							if( $total_fee_amount > 0 ){
 								
 								$subscription_plan.= htmlentities(' ').$total_fee_amount.$total_price_currency.' '. ( $total_fee_period == 'once' ? 'one time fee' : $total_fee_period );
-								$subscription_plan.= '<br>+';
+								
+								if($total_price_amount > 0 ){
+									
+									$subscription_plan.= '<br>+';
+								}
 							}
 							
-							$subscription_plan.= $total_price_amount.$total_price_currency.' / '.$total_price_period;
-						
+							if($total_price_amount > 0 ){
+							
+								$subscription_plan.= $total_price_amount.$total_price_currency.' / '.$total_price_period;
+							}
+							
 						$subscription_plan.= '</div>';
 						
 						$subscription_plan.= '</br>';
@@ -2146,8 +2158,15 @@ class LTPLE_Client {
 							
 							$subscription_plan.='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 								
-								$subscription_plan.='Subscribe'.PHP_EOL;
-							
+								if(!empty($atts['button'])){
+									
+									$subscription_plan.= ucfirst($atts['button']).PHP_EOL;
+								}
+								else{
+									
+									$subscription_plan.='Subscribe'.PHP_EOL;
+								}
+
 							$subscription_plan.='</button>'.PHP_EOL;
 
 							$subscription_plan.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
@@ -2160,7 +2179,17 @@ class LTPLE_Client {
 											
 											$subscription_plan.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 											
-											$subscription_plan.='<h4 class="modal-title" id="myModalLabel">' . $plan->post_title . ' ('.$total_price_amount.$total_price_currency.' / '.$total_price_period.')</h4>'.PHP_EOL;
+											$subscription_plan.= '<h4 class="modal-title" id="myModalLabel">';
+											
+												$subscription_plan.= $plan->post_title;
+												
+												if( $total_price_amount > 0 ){
+												
+													$subscription_plan.= ' ('.$total_price_amount.$total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
+											
+												}
+											
+											$subscription_plan.= '</h4>'.PHP_EOL;
 										
 										$subscription_plan.='</div>'.PHP_EOL;
 
@@ -2170,7 +2199,7 @@ class LTPLE_Client {
 												//var_dump($this->user->has_subscription);exit;
 												//var_dump($this->user_has_layer( $plan->ID ));exit;
 												
-												if( $total_price_amount == 0 && $this->user_has_plan( $plan->ID ) === true ){
+												if( $total_price_amount == 0 && $total_fee_amount == 0 && $this->user_has_plan( $plan->ID ) === true ){
 													
 													$subscription_plan.='<div class="modal-body">'.PHP_EOL;
 												
@@ -2840,7 +2869,16 @@ class LTPLE_Client {
 						
 						$user_plan_id = $this->get_user_plan_id( $this->user->ID, true );
 						
-						$response = wp_set_object_terms( $user_plan_id, $update_terms, $update_taxonomy );
+						$append = false;
+
+						if( $this->plan->data['price'] == 0 ){
+							
+							// demo or donation case
+							
+							$append = true;
+						}
+
+						$response = wp_set_object_terms( $user_plan_id, $update_terms, $update_taxonomy, $append );
 
 						clean_object_term_cache( $user_plan_id, $update_taxonomy );
 					}
@@ -2856,56 +2894,67 @@ class LTPLE_Client {
 						do_action('ltple_free_plan_subscription');
 					}
 					
-					//send admin notification
-						
-					wp_mail($this->settings->options->emailSupport, 'Plan edited on checkout - user id ' . $this->user->ID . ' - ip ' . $this->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);						
-					
-					// update user has subscription
-
-					update_user_meta( $this->user->ID , 'has_subscription', $user_has_subscription);
-					
 					// schedule email series
 					
 					$this->ltple_schedule_series( $this->plan->data['id'], $this->user);
+					
+					if( $this->plan->data['price'] > 0 ){
+						
+						//send admin notification
+							
+						wp_mail($this->settings->options->emailSupport, 'Plan edited on checkout - user id ' . $this->user->ID . ' - ip ' . $this->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);						
+						
+						// update user has subscription						
+						
+						update_user_meta( $this->user->ID , 'has_subscription', $user_has_subscription);
 
-					// store message
-					
-					$this->message .= '<div class="alert alert-success">';
+						// store message
 						
-						$this->message .= 'Congratulations, you have successfully subscribed to '.$this->plan->data['name'].'!';
-						/*
-						$this->message .= '<div class="pull-right">';
+						$this->message .= '<div class="alert alert-success">';
+							
+							$this->message .= 'Congratulations, you have successfully subscribed to '.$this->plan->data['name'].'!';
+							/*
+							$this->message .= '<div class="pull-right">';
+							
+								$this->message .= '<a class="btn-sm btn-success" href="' . $this->urls->editor . '" target="_parent">Start editing</a>';
 						
-							$this->message .= '<a class="btn-sm btn-success" href="' . $this->urls->editor . '" target="_parent">Start editing</a>';
-					
+							$this->message .= '</div>';
+							*/
+							
 						$this->message .= '</div>';
-						*/
+							
+						//Google Code for subscription completed Conversion Page
 						
-					$this->message .= '</div>';
-					
-					//Google Code for subscription completed Conversion Page
-					
-					$this->message.='<script type="text/javascript">' . PHP_EOL;
-						$this->message.='/* <![CDATA[ */' . PHP_EOL;
-						$this->message.='var google_conversion_id = 866030496;' . PHP_EOL;
-						$this->message.='var google_conversion_language = "en";' . PHP_EOL;
-						$this->message.='var google_conversion_format = "3";' . PHP_EOL;
-						$this->message.='var google_conversion_color = "ffffff";' . PHP_EOL;
-						$this->message.='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
-						$this->message.='var google_conversion_value = '.$this->plan->data['price'].'.00;' . PHP_EOL;
-						$this->message.='var google_conversion_currency = "USD";' . PHP_EOL;
-						$this->message.='var google_remarketing_only = false;' . PHP_EOL;
-						$this->message.='/* ]]> */' . PHP_EOL;
-					$this->message.='</script>' . PHP_EOL;
-					
-					$this->message.='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
-					$this->message.='</script>' . PHP_EOL;
-					
-					$this->message.='<noscript>' . PHP_EOL;
-						$this->message.='<div style="display:inline;">' . PHP_EOL;
-							$this->message.='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->plan->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
-						$this->message.='</div>' . PHP_EOL;
-					$this->message.='</noscript>' . PHP_EOL;
+						$this->message.='<script type="text/javascript">' . PHP_EOL;
+							$this->message.='/* <![CDATA[ */' . PHP_EOL;
+							$this->message.='var google_conversion_id = 866030496;' . PHP_EOL;
+							$this->message.='var google_conversion_language = "en";' . PHP_EOL;
+							$this->message.='var google_conversion_format = "3";' . PHP_EOL;
+							$this->message.='var google_conversion_color = "ffffff";' . PHP_EOL;
+							$this->message.='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
+							$this->message.='var google_conversion_value = '.$this->plan->data['price'].'.00;' . PHP_EOL;
+							$this->message.='var google_conversion_currency = "USD";' . PHP_EOL;
+							$this->message.='var google_remarketing_only = false;' . PHP_EOL;
+							$this->message.='/* ]]> */' . PHP_EOL;
+						$this->message.='</script>' . PHP_EOL;
+						
+						$this->message.='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
+						$this->message.='</script>' . PHP_EOL;
+						
+						$this->message.='<noscript>' . PHP_EOL;
+							$this->message.='<div style="display:inline;">' . PHP_EOL;
+								$this->message.='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->plan->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
+							$this->message.='</div>' . PHP_EOL;
+						$this->message.='</noscript>' . PHP_EOL;						
+					}
+					else{
+						
+						$this->message .= '<div class="alert alert-success">';
+							
+							$this->message .= 'Thanks for purchasing the '.$this->plan->data['name'].'!';
+
+						$this->message .= '</div>';						
+					}
 					
 					include( $this->views . $this->_dev .'/message.php' );
 				}
