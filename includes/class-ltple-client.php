@@ -145,6 +145,8 @@ class LTPLE_Client {
 		
 		$this->leads 	= new LTPLE_Client_Leads( $this );
 		
+		$this->plan 	= new LTPLE_Client_Plan( $this );		
+		
 		if( is_admin() ) {
 			
 			// Load admin JS & CSS
@@ -916,9 +918,9 @@ class LTPLE_Client {
 		
 		$this->update_user_image();
 		
-		//update user plan
+		//get user plan
 		
-		$this->update_user_plan();
+		$this->plan->update_user();
 		
 		// get editor iframe
 
@@ -2145,6 +2147,10 @@ class LTPLE_Client {
 							
 								$subscription_plan.= $total_price_amount.$total_price_currency.' / '.$total_price_period;
 							}
+							elseif($total_price_amount == 0 && $total_fee_amount == 0 ){
+								
+								$subscription_plan.= 'Free';
+							}
 							
 						$subscription_plan.= '</div>';
 						
@@ -2811,160 +2817,6 @@ class LTPLE_Client {
 				}
 			}			
 		}
-	}
-	
-	public function update_user_plan(){
-		
-		// get plan subscription
-
-		if( !empty( $this->user->ID ) && isset($_GET['pk'])&&isset($_GET['pd'])&&isset($_GET['pv'])){
-
-			$this->plan = new stdClass();
-		
-			$plan_data = sanitize_text_field($_GET['pd']);
-			$plan_data = $this -> base64_urldecode($plan_data);
-
-			$this->plan->key = sanitize_text_field($_GET['pk']);
-			$this->plan->subscribed = sanitize_text_field($_GET['pv']);
-			
-			// subscribed plan data
-			if( $this->plan->key == md5('plan' . $plan_data . $this->_time . $this->user->user_email ) && $this->plan->subscribed == md5('subscribed'.$_GET['pd'] . $this->_time . $this->user->user_email ) ){
-				
-				$plan_data = html_entity_decode($plan_data);
-				
-				$this->plan->data = json_decode($plan_data,true);
-					
-				//var_dump($this->plan->data);exit;
-				
-				if(!empty($this->plan->data['name'])){
-					
-					//var_dump($plan);exit;
-							
-					$options = $this -> get_layer_custom_taxonomies_options();
-					$user_has_subscription = 'false';
-					$all_updated_terms = [];
-					
-					foreach( $options as $taxonomy => $terms ) {
-						
-						$update_terms=[];
-						$update_taxonomy='';
-						
-						foreach($terms as $i => $term){
-
-							if ( in_array( $term->slug, $this->plan->data['options'] ) ) {
-								
-								$update_terms[]= $term->term_id;
-								$update_taxonomy=$term->taxonomy;
-								
-								if( $this->plan->data["price"] > 0 ){
-									
-									$user_has_subscription = 'true';
-								}
-								
-								$all_updated_terms[]=$term->slug;
-							}
-						}
-
-						// update current user custom taxonomy
-						
-						$user_plan_id = $this->get_user_plan_id( $this->user->ID, true );
-						
-						$append = false;
-
-						if( $this->plan->data['price'] == 0 ){
-							
-							// demo or donation case
-							
-							$append = true;
-						}
-
-						$response = wp_set_object_terms( $user_plan_id, $update_terms, $update_taxonomy, $append );
-
-						clean_object_term_cache( $user_plan_id, $update_taxonomy );
-					}
-					
-					// hook triggers
-					
-					if( intval($this->plan->data['price']) > 0 ){
-						
-						do_action('ltple_paid_plan_subscription');
-					}
-					else{
-						
-						do_action('ltple_free_plan_subscription');
-					}
-					
-					// schedule email series
-					
-					$this->ltple_schedule_series( $this->plan->data['id'], $this->user);
-					
-					if( $this->plan->data['price'] > 0 ){
-						
-						//send admin notification
-							
-						wp_mail($this->settings->options->emailSupport, 'Plan edited on checkout - user id ' . $this->user->ID . ' - ip ' . $this->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);						
-						
-						// update user has subscription						
-						
-						update_user_meta( $this->user->ID , 'has_subscription', $user_has_subscription);
-
-						// store message
-						
-						$this->message .= '<div class="alert alert-success">';
-							
-							$this->message .= 'Congratulations, you have successfully subscribed to '.$this->plan->data['name'].'!';
-							/*
-							$this->message .= '<div class="pull-right">';
-							
-								$this->message .= '<a class="btn-sm btn-success" href="' . $this->urls->editor . '" target="_parent">Start editing</a>';
-						
-							$this->message .= '</div>';
-							*/
-							
-						$this->message .= '</div>';
-							
-						//Google Code for subscription completed Conversion Page
-						
-						$this->message.='<script type="text/javascript">' . PHP_EOL;
-							$this->message.='/* <![CDATA[ */' . PHP_EOL;
-							$this->message.='var google_conversion_id = 866030496;' . PHP_EOL;
-							$this->message.='var google_conversion_language = "en";' . PHP_EOL;
-							$this->message.='var google_conversion_format = "3";' . PHP_EOL;
-							$this->message.='var google_conversion_color = "ffffff";' . PHP_EOL;
-							$this->message.='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
-							$this->message.='var google_conversion_value = '.$this->plan->data['price'].'.00;' . PHP_EOL;
-							$this->message.='var google_conversion_currency = "USD";' . PHP_EOL;
-							$this->message.='var google_remarketing_only = false;' . PHP_EOL;
-							$this->message.='/* ]]> */' . PHP_EOL;
-						$this->message.='</script>' . PHP_EOL;
-						
-						$this->message.='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
-						$this->message.='</script>' . PHP_EOL;
-						
-						$this->message.='<noscript>' . PHP_EOL;
-							$this->message.='<div style="display:inline;">' . PHP_EOL;
-								$this->message.='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->plan->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
-							$this->message.='</div>' . PHP_EOL;
-						$this->message.='</noscript>' . PHP_EOL;						
-					}
-					else{
-						
-						$this->message .= '<div class="alert alert-success">';
-							
-							$this->message .= 'Thanks for purchasing the '.$this->plan->data['name'].'!';
-
-						$this->message .= '</div>';						
-					}
-					
-					include( $this->views . $this->_dev .'/message.php' );
-				}
-			}
-			else{
-				
-				echo 'Wrong plan request...';
-				Exit;
-			}
-		}		
 	}
 	
 	/**

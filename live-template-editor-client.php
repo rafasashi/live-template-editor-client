@@ -857,7 +857,8 @@
 				
 					'inline-css'	=>'Inline Style',
 					'external-css'	=>'Style Sheet',
-					'self-hosted'	=>'Self Hosted',
+					'hosted-page'	=>'Hosted Page',
+					//'self-hosted'	=>'Self Hosted',
 					'canvas'		=>'Canvas'
 				),
 				'selected'	=>'inline-css',
