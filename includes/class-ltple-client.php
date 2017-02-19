@@ -2011,9 +2011,9 @@ class LTPLE_Client {
 							$total_price_amount = $this -> sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);	
 							$total_fee_amount 	= $this -> sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);				
 							$total_storage 		= $this -> sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
-						
-							if( !empty($taxonomy_options[$i]['form']) ){
-								
+
+							if( !empty($taxonomy_options[$i]['form']) && ( count($taxonomy_options[$i]['form']['input'])>1 || !empty($taxonomy_options[$i]['form']['name'][0]) ) ){
+
 								if( !empty($_POST['meta_'.$term->slug]) ){
 									
 									// store data in session
@@ -2074,7 +2074,7 @@ class LTPLE_Client {
 				$iframe_height 	= 500;
 				
 				if( !is_null($atts['widget']) && $atts['widget']==='true' ){
-					
+
 					if( !empty($plan_form) ){
 						
 						$subscription_plan.= '<div class="row panel-body" style="background:#fff;">';
