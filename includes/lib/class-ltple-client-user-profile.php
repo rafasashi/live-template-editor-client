@@ -202,11 +202,11 @@ class LTPLE_Client_User_Profile {
 			
 			$userApps = get_posts(array(
 					
-				'author'      => $user_id,
+				'author'      => $this->parent->user->ID,
 				'post_type'   => 'user-app',
 				'post_status' => 'publish',
 				'numberposts' => -1
-			));				
+			));
 		}
 		
 		foreach($this->parent->apps->appList as $app){

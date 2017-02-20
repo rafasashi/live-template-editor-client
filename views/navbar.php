@@ -33,6 +33,16 @@
 		</div>
 		
 		<div class="pull-left">
+
+			<a style="margin-left: 6px;background-color:#E91E63;border: 1px solid #9c4167;" class="btn btn-sm btn-primary" href="<?php echo $this->urls->editor . '?domain' ?>"  role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Domains and Urls" data-content="Manage your domains, add subdomains and assign urls to your hosted pages.">
+				
+				Domains
+				
+			</a>
+		
+		</div>
+		
+		<div class="pull-left">
  
 			<a class="btn btn-sm popover-btn" href="<?php echo $this->urls->editor . '?rank'; ?>" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Popularity score" data-content="Your stars determine your rank in our World Ranking, give you visibility and drive traffic.">
   

@@ -11,16 +11,23 @@
 		list($object, $action, $id) = $api;
 			
 		if( $_SERVER['REQUEST_METHOD'] == 'GET' ){
-
-			if( in_array($action,['list','engage']) ){
-
+			
+			if( isset($this->{$object}) ){
+			
 				$method = $action . '_'.$object;
-				
-				$dataset = $this->{$object}->$method($id);
+			
+				if( method_exists($this->{$object},$method) ){
+					
+					$dataset = $this->{$object}->$method($id);
+				}
+				else{
+					
+					$dataset = 'This action doesn\'t exist...';
+				}
 			}
 			else{
 				
-				$dataset = 'This action doesn\'t exists...';
+				$dataset = 'This object doesn\'t exist...';
 			}
 		} 
 		elseif( $_SERVER['REQUEST_METHOD'] == 'POST' ){

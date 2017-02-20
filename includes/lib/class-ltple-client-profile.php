@@ -18,7 +18,7 @@ class LTPLE_Client_Profile {
 		
 		if( isset($_GET['pr']) && is_numeric($_GET['pr']) ){
 
-			if( $layer = get_post( intval(get_user_meta( intval($_GET['pr']), 'ltple_profile_template', true )) ) ){
+			if( $layer = get_post( intval(get_user_meta( intval($_GET['pr']), $this->parent->_base . 'profile_template', true )) ) ){
 				
 				$this->layer = $layer;
 			}				

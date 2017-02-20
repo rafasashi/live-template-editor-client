@@ -1002,6 +1002,10 @@ class LTPLE_Client {
 			elseif( isset($_GET['app']) || !empty($_SESSION['app']) ){
 
 				include($this->views . $this->_dev .'/apps.php');
+			}
+			elseif( isset($_GET['domain']) || !empty($_SESSION['domain']) ){
+
+				include($this->views . $this->_dev .'/domains.php');
 			}				
 			elseif( isset($_GET['rank']) ){
 				
@@ -2378,10 +2382,25 @@ class LTPLE_Client {
 				
 				//include( $this->views . $this->_dev .'/message.php' );
 
-				//redirect to gallery
+				//redirect page
 				
-				wp_redirect($this->urls->editor);
-				exit;				
+				$parsed = parse_url($_SERVER['SCRIPT_URI'] .'?'. $_SERVER['QUERY_STRING']);
+
+				parse_str($parsed['query'], $params);
+
+				unset($params['uri'],$params['postAction']);
+				
+				$url = $_SERVER['SCRIPT_URI'];
+				
+				$query = http_build_query($params);
+				
+				if( !empty($query) ){
+					
+					$url .= '?'.$query;		
+				}
+
+				wp_redirect($url);
+				exit;
 			}
 			elseif( isset($_POST['postContent']) && !empty($this->layer->type) ){
 				
@@ -2468,24 +2487,21 @@ class LTPLE_Client {
 						
 						update_post_meta($post_id, 'defaultLayerId', $post_default_layer);
 						
-						if( $this->layer->type == 'user-layer' ){
-							
-							//redirect to user layer
-							
-							$user_layer_post = get_post($post_id);
-							
-							$user_layer_slug = get_post_field( 'post_name', $user_layer_post);
-							
-							$uri='user-layer/' .  $user_layer_slug . '/';
-							
-							$user_layer_url = $_SERVER['SCRIPT_URI'] . '?uri='.$uri;
-							
-							//var_dump($user_layer_url);exit;
-							
-							wp_redirect($user_layer_url);
-							echo 'Redirecting editor...';
-							exit;					
-						}
+						//redirect to user layer
+						
+						$user_layer_post = get_post($post_id);
+						
+						$user_layer_slug = get_post_field( 'post_name', $user_layer_post);
+						
+						$uri='user-layer/' .  $user_layer_slug . '/';
+						
+						$user_layer_url = $_SERVER['SCRIPT_URI'] . '?uri='.$uri;
+						
+						//var_dump($user_layer_url);exit;
+						
+						wp_redirect($user_layer_url);
+						echo 'Redirecting editor...';
+						exit;
 					}
 				}
 				else{

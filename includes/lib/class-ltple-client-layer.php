@@ -68,12 +68,42 @@ class LTPLE_Client_Layer {
 					//$this->margin 		= get_post_meta( $this->defaultId, 'layerMargin', true );
 					//$this->options 		= get_post_meta( $this->defaultId, 'layerOptions', true );					
 				}
-				else{
+			}
+		}
+	}
+	
+	public function show_layer(){
+		
+		$data = [];
+		
+		if( !empty($_GET['url']) ){
+			
+			$url = parse_url(urldecode(urldecode($_GET['url'])));
+			
+			if(!empty($url['host'])){
+			
+				$domain = get_page_by_title($url['host'], OBJECT, 'user-domain');
+			
+				if(!empty($domain)){
 					
-					echo 'Cannot find layer...';
-					exit;
+					$urls = get_post_meta($domain->ID,'domainUrls',true);
+					
+					foreach($urls as $layerId => $domainPath ){
+						
+						if( $url['path'] == '/'.$domainPath ){
+							
+							$layer = get_post($layerId);
+							
+							if( !empty($layer) ){
+								
+								$data['content'] = $layer->post_content;
+							}							
+						}
+					}
 				}
 			}
 		}
+		
+		return $data;
 	}
 }
