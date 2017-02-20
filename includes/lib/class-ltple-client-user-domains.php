@@ -68,13 +68,13 @@ class LTPLE_Client_User_Domains {
 	public function init_user_domains(){
 		
 		if( $this->parent->user->loggedin ){
-			
+
 			$this->list = get_posts(array(
 				
-				'post_author'   => $this->parent->user->ID,
+				'author'   => $this->parent->user->ID,
 				'post_type'   	=> 'user-domain',
 				'post_status' 	=> 'publish',
-				'numberposts' 	=> -1,
+				//'numberposts' 	=> -1,
 			));
 			
 			if( !empty($this->list) ){

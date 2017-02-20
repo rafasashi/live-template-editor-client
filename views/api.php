@@ -4,9 +4,11 @@
 	
 	$dataset = '';
 	
-	if($this->user->loggedin){
+	$api = $_REQUEST['api'];
+	
+	if($this->user->loggedin || in_array($api,['layer/show']) ){
 
-		$api = explode('/',$_REQUEST['api'].'/');
+		$api = explode('/',$api.'/');
 		
 		list($object, $action, $id) = $api;
 			

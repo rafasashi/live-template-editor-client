@@ -187,7 +187,7 @@ class LTPLE_Client {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 
-			$this->layer 	= new LTPLE_Client_Layer();
+			$this->layer 	= new LTPLE_Client_Layer( $this );
 			$this->image 	= new LTPLE_Client_Image();
 			$this->profile 	= new LTPLE_Client_Profile( $this );
 

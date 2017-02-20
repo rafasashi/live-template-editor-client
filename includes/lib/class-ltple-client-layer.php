@@ -4,6 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class LTPLE_Client_Layer {
 	
+	public $parent;
 	public $id			= -1;
 	public $defaultId	= -1;
 	public $uri			= '';
@@ -15,7 +16,9 @@ class LTPLE_Client_Layer {
 	/**
 	 * Constructor function
 	 */
-	public function __construct () {
+	public function __construct( $parent ) {
+		
+		$this->parent = $parent;
 		
 		if(isset($_GET['lk'])){
 			
@@ -92,18 +95,18 @@ class LTPLE_Client_Layer {
 						
 						if( $url['path'] == '/'.$domainPath ){
 							
-							$layer = get_post($layerId);
+							$post = get_post($layerId);
 							
-							if( !empty($layer) ){
+							if( !empty($post) ){
+
+								include($this->parent->views . $this->parent->_dev .'/layer.php');
 								
-								$data['content'] = $layer->post_content;
+								exit;
 							}							
 						}
 					}
 				}
 			}
 		}
-		
-		return $data;
 	}
 }
