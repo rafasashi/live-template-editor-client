@@ -893,9 +893,10 @@
 				'type'		=>'checkbox_multi',
 				'options'	=>array(
 				
-					'bootstrap-3' 	=> 'Bootstrap 3',
-					'fontawesome-4' => 'Font Awesome 4',
-					'animate' 		=> 'Animate',
+					'bootstrap-3' 		=> 'Bootstrap 3',
+					'fontawesome-4' 	=> 'Font Awesome 4',
+					'elementor-1.2.3' 	=> 'Elementor 1.2.3',
+					'animate' 			=> 'Animate',
 				 
 				),
 				//'checked'		=> array('bootstrap-3'),
