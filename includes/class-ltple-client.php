@@ -1623,4 +1623,1411 @@ class LTPLE_Client {
 										if( is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ) ){
 											
 											$total_fee_amount 	= $this -> sum_custom_taxonomy_total_price_amount( $total_fee_amount, $options[$i], $total_fee_period);
+											$total_price_amount = $this -> sum_custom_taxonomy_total_price_amount( $total_price_amount, $options[$i], $total_price_period);
+											$total_storage 		= $this -> sum_custom_taxonomy_total_storage( $total_storage, $options[$i]);
+										}
+										
+										echo '<span style="display:block;padding:1px 0;margin:0;">';
+											
+											if($options[$i]['storage_unit']=='templates'&&$options[$i]['storage_amount']==1){
+												
+												echo '+'.$options[$i]['storage_amount'].' template';
+											}
+											elseif($options[$i]['storage_amount']>0){
+												
+												echo '+'.$options[$i]['storage_amount'].' '.$options[$i]['storage_unit'];
+											}
+											else{
+												
+												echo $options[$i]['storage_amount'].' '.$options[$i]['storage_unit'];
+											}
+									
+										echo '</span>';	
+											
+									}
+
+									echo'</td>';
+									
+									echo '<td>';
+									
+										foreach ( $terms as $i => $term ) {
+									
+											echo '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
+											
+												echo $options[$i]['price_amount'].$options[$i]['price_currency'].' / '.$options[$i]['price_period'];
+											
+											echo '</span>';
+										}
+										
+									echo'</td>';
+									
+								}
+								else {
+									
+									echo '<td>';
+									
+										echo __( 'There are no layer-types available.', 'live-template-editor-client' );
+									
+									echo'</td>';
+								}
+
+							echo'</tr>';
+						}
+					}
+					
+					echo '<tr style="font-weight:bold;">';
+					
+						echo '<th style="font-weight:bold;"><label for="price">'. __( 'TOTALS', 'live-template-editor-client' ) . '</label></th>';
+
+						echo '<td style="width:120px;">';
+
+						echo'</td>';
+						
+						echo '<td>';
+							
+							if(isset($total_storage)){
+								
+								foreach($total_storage as $storage_unit => $total_storage_amount){
+									
+									echo '<span style="display:block;">';
+									
+										if($storage_unit=='templates'&&$total_storage_amount==1){
+											
+											echo '+'.$total_storage_amount.' template';
+										}
+										elseif($total_storage_amount>0){
+											
+											echo '+'.$total_storage_amount.' '.$storage_unit;
+										}
+										else{
+											
+											echo $total_storage_amount.' '.$storage_unit;
+										}
+										
+									echo '</span>';
+								}							
+							}
+							else{
+								
+								echo '<span style="display:block;">';
+									
+									echo '+0 templates';
+									
+								echo '</span>';
+							}
+							
+						echo'</td>';
+						
+						echo '<td>';
+						
+							echo '<span style="font-size:16px;">';
+							
+								if( $total_fee_amount > 0 ){
+									
+									echo htmlentities(' ').round($total_fee_amount, 2).$total_price_currency.' '.$total_fee_period;
+									echo '<br>+';
+								}
+								
+								echo round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;
+							
+							echo '</span>';
+							
+						echo'</td>';
+		
+					echo'</tr>';
+						
+				echo'</table>';
+				
+			echo'</div>';
+
+			//get list of emails sent to user
 			
+			echo '<div class="postbox" style="min-height:45px;">';
+				
+				echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Emails sent', 'live-template-editor-client' ) . '</h3>';
+				
+				$emails = get_user_meta($user->ID, $this->_base . '_email_sent', true);
+				
+				if( !empty($emails) ){
+					
+					$emails = json_decode($emails,true);
+					
+					echo '<ul style="padding-left:10px;">';
+					
+						foreach($emails as $slug => $time){
+							
+							echo '<li>';
+							
+								echo date( 'd/m/y', $time) . ' - ' . ucfirst(str_replace('-',' ',$slug));
+							
+							echo '</li>';
+						}
+					
+					echo '</ul>';
+				}				
+				
+			echo'</div>';			
+		}	
+	}
+	
+	public function get_layer_taxonomy_price_fields($taxonomy_name,$args=[]){
+		
+		//get periods
+		
+		$periods = $this -> get_price_periods();
+		
+		//get price_amount
+		
+		$price_amount=0;
+		if(isset($args['price_amount'])){
+			
+			$price_amount=$args['price_amount'];
+		}
+
+		//get price_period
+		
+		$price_period='';
+		if(isset($args['price_period'])&&is_string($args['price_period'])){
+			
+			$price_period=$args['price_period'];
+		}
+		
+		//get price_fields
+		
+		$price_fields='';
+
+		$price_fields.='<div class="input-group">';
+
+			$price_fields.='<span class="input-group-addon" style="color: #fff;padding: 5px 10px;background: #9E9E9E;">$</span>';
+			
+			$price_fields.='<input type="number" step="0.1" min="-1000" max="1000" placeholder="0" name="'.$taxonomy_name.'-price-amount" id="'.$taxonomy_name.'-price-amount" style="width: 60px;" value="'.$price_amount.'"/>';
+			
+			$price_fields.='<span> / </span>';
+			
+			$price_fields.='<select name="'.$taxonomy_name.'-price-period" id="'.$taxonomy_name.'-price-period">';
+				
+				foreach($periods as $k => $v){
+					
+					$selected='';
+					
+					if($k == $price_period){
+						
+						$selected='selected';
+					}
+					elseif($price_period=='' && $k=='month'){
+						
+						$selected='selected';
+					}
+					
+					$price_fields.='<option value="'.$k.'" '.$selected.'> '.$v.' </option>';
+				}
+				
+			$price_fields.='</select>';					
+			
+		$price_fields.='</div>';
+		
+		$price_fields.='<p class="description">The '.str_replace(array('-','_'),' ',$taxonomy_name).' price used in table pricing & plans </p>';
+		
+		return $price_fields;
+	}
+	
+	public function get_layer_taxonomy_storage_fields($taxonomy_name,$args=[]){
+
+		//get storage units
+		
+		$storage_units = $this -> get_storage_units();	
+	
+		//get storage_amount
+		
+		$storage_amount=0;
+		if(isset($args['storage_amount'])){
+			
+			$storage_amount=$args['storage_amount'];
+		}
+
+		//get storage_unit
+		
+		$storage_unit='';
+		if(isset($args['storage_unit'])&&is_string($args['storage_unit'])){
+			
+			$storage_unit=$args['storage_unit'];
+		}
+	
+		$storage_field='';
+		
+		$storage_field.='<div class="input-group">';
+
+			$storage_field.='<span class="input-group-addon" style="color: #fff;padding: 5px 10px;background: #9E9E9E;">+</span>';
+			
+			$storage_field.='<input type="number" step="1" min="-10" max="10" placeholder="0" name="'.$taxonomy_name.'-storage-amount" id="'.$taxonomy_name.'-storage-amount" style="width: 50px;" value="'.$storage_amount.'"/>';
+			
+			$storage_field.='<select name="'.$taxonomy_name.'-storage-unit" id="'.$taxonomy_name.'-storage-unit">';
+				
+				foreach($storage_units as $k => $v){
+					
+					$selected='';
+					
+					if($k == $storage_unit){
+						
+						$selected='selected';
+					}
+					elseif($storage_unit=='' && $k=='templates'){
+						
+						$selected='selected';
+					}
+					
+					$storage_field.='<option value="'.$k.'" '.$selected.'> '.$v.' </option>';
+				}
+				
+			$storage_field.='</select>';	
+			
+		$storage_field.='</div>';
+		
+		$storage_field.='<p class="description">The amount of additional user account storage</p>';
+		
+		return $storage_field;		
+	}
+	
+	public function save_custom_user_taxonomy_fields( $user_id ) {
+		
+		$taxonomies = $this -> get_user_plan_custom_taxonomies();
+		
+		$user_has_subscription = 'false';
+		
+		$all_updated_terms = [];
+		
+		foreach($taxonomies as $t){
+		
+			$taxonomy = $t['taxonomy'];
+			$taxonomy_name = $t['name'];
+			$is_hierarchical = $t['hierarchical'];
+			
+			$tax = get_taxonomy( $taxonomy );
+
+			/* Make sure the current user can edit the user and assign terms before proceeding. */
+			if ( !current_user_can( 'administrator', $user_id ) && current_user_can( $tax->cap->assign_terms ) )
+				return false;
+			
+			if(isset($_POST)){
+			
+				$terms = [];
+			
+				if(isset($_POST[$taxonomy]) && is_array($_POST[$taxonomy])){
+					
+					$terms = $_POST[$taxonomy];
+					
+					$all_updated_terms[]=$_POST[$taxonomy];
+
+					if(!empty($terms)){
+						
+						$user_has_subscription = 'true';
+					}						
+				}
+			
+				$user_plan_id = $this->get_user_plan_id( $user_id );
+			
+				wp_set_object_terms( $user_plan_id, $terms, $taxonomy);
+
+				clean_object_term_cache( $user_plan_id, $taxonomy );
+			}
+		}
+		
+		update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
+		
+		//send admin notification
+							
+		wp_mail($this->settings->options->emailSupport, 'Plan edited from dashboard - user id ' . $user_id . ' - ip ' . $this->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL  . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);
+	}
+	
+	public function add_shortcode_subscription_plan( $atts ){
+		
+		$atts = shortcode_atts( array(
+		
+			'id'		 	=> NULL,
+			'widget' 		=> 'false',
+			'title' 		=> NULL,
+			'content' 		=> NULL,
+			'button' 		=> NULL,
+			'show-storage' 	=> true
+			
+		), $atts, 'subscription-plan' );		
+		
+		$subscription_plan = '';
+		
+		if(!is_null($atts['id'])&&is_numeric($atts['id'])){
+			
+			$id=intval($atts['id']);
+			
+			$total_price_amount 	= 0;
+			$total_fee_amount 		= 0;
+			$total_price_period		='month';
+			$total_fee_period		='once';
+			$total_price_currency	='$';
+			
+			$option_name='plan_options';
+			
+			$options = $this -> get_layer_custom_taxonomies_options();
+			
+			if($data = get_post_meta( $id, $option_name, true )){
+				
+				//get plan
+				
+				$plan = get_post($id);
+				
+				//get plan title
+				
+				if(is_string($atts['title'])){
+					
+					$plan_title = $atts['title'];
+				}
+				else{
+					
+					$plan_title = $plan->post_title;
+				}
+				
+				//get plan content
+				
+				if(is_string($atts['content'])){
+					
+					$plan_form 		= '';
+					$plan_content 	= $atts['content'];
+					$style='font-weight: bold;color: rgb(138, 206, 236);';
+				}
+				else{
+					
+					$plan_form 		= '';
+					$plan_content 	= $plan->post_content;
+					$style='padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);color: rgb(138, 206, 236);';
+				}
+
+				// get total_price_amount & total_storage
+				
+				foreach( $options as $taxonomy => $terms ) {
+					
+					$taxonomy_options = [];
+					
+					foreach($terms as $i => $term){
+
+						$taxonomy_options[$i] = $this -> get_layer_taxonomy_options( $taxonomy, $term );
+
+						if ( in_array( $term->slug, $data ) ) {						
+							
+							$total_price_amount = $this -> sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);	
+							$total_fee_amount 	= $this -> sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);				
+							$total_storage 		= $this -> sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
+
+							if( !empty($taxonomy_options[$i]['form']) && ( count($taxonomy_options[$i]['form']['input'])>1 || !empty($taxonomy_options[$i]['form']['name'][0]) ) ){
+
+								if( !empty($_POST['meta_'.$term->slug]) ){
+									
+									// store data in session
+									
+									$_SESSION['pm_' . $plan->ID]['meta_'.$term->slug] = $_POST['meta_'.$term->slug];
+								}
+								else{
+									
+									$plan_form .= $this->admin->display_field( array(
+							
+										'type'				=> 'form',
+										'id'				=> 'meta_'.$term->slug,
+										'name'				=> $term->taxonomy . '-meta',
+										'array' 			=> $taxonomy_options[$i],
+										'action' 			=> '',
+										'method' 			=> 'post',
+										'description'		=> ''
+										
+									), false, false );
+								}
+							}
+						}
+					}
+				}
+				
+				// round total_price_amount
+				
+				$total_fee_amount 	= round($total_fee_amount, 2);
+				$total_price_amount = round($total_price_amount, 2);
+				
+				//get plan_data
+				
+				sort($data);
+				ksort($total_storage);
+				
+				$plan_data=[];
+				$plan_data['id'] 		= $plan->ID;
+				$plan_data['name'] 		= $plan->post_title;
+				$plan_data['options'] 	= $data;
+				$plan_data['price'] 	= $total_price_amount;
+				$plan_data['fee'] 		= $total_fee_amount;
+				$plan_data['currency']	= $total_price_currency;
+				$plan_data['period'] 	= $total_price_period;
+				$plan_data['fperiod']	= $total_fee_period;
+				$plan_data['storage'] 	= $total_storage;
+				$plan_data['subscriber']= $this->user->user_email;
+				$plan_data['client']	= $this->client->url;
+				$plan_data['meta']		= ( !empty($_SESSION['pm_' . $plan->ID]) ? $_SESSION['pm_' . $plan->ID] : '' );
+				
+				$plan_data=esc_attr( json_encode( $plan_data ) );
+				
+				//var_dump($plan_data);exit;
+
+				$plan_key=md5( 'plan' . $plan_data . $this->_time . $this->user->user_email );
+				
+				$agreement_url = $this->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->base64_urlencode($plan_data) . '&_=' . $this->_time;
+				
+				$iframe_height 	= 500;
+				
+				if( !is_null($atts['widget']) && $atts['widget']==='true' ){
+
+					if( !empty($plan_form) ){
+						
+						$subscription_plan.= '<div class="row panel-body" style="background:#fff;">';
+						
+							$subscription_plan.= '<div class="col-xs-12 col-md-6">';
+
+									$subscription_plan.= $plan_form;
+
+							$subscription_plan.= '</div>';
+							
+						$subscription_plan.= '</div>';						
+					}
+					else{
+
+						$subscription_plan.= '<iframe src="'.$agreement_url.'" style="width:100%;bottom: 0;border:0;height:' . ($iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
+					}
+				}
+				else{
+					
+					$subscription_plan.='<h2 id="plan_title" style="'.$style.'">' . $plan_title . '</h2>';
+					
+					$subscription_plan.=$plan_content;
+					
+					$subscription_plan.='<div id="plan_form">';
+					//$subscription_plan.='<form id="plan_form" action="" method="POST">'.PHP_EOL;
+
+						// Output iframe
+						
+						if($atts['show-storage']===true){
+						
+							$subscription_plan.= '<div id="plan_storage" style="display:block;">';				
+								
+								foreach($total_storage as $storage_unit => $total_storage_amount){
+									
+									if($total_storage_amount > 0 ){
+										
+										$subscription_plan.='<span style="display:block;">';
+										
+											if($storage_unit=='templates' && $total_storage_amount==1 ){
+												
+												$subscription_plan.= $total_storage_amount.' template';
+											}
+											else{
+												
+												$subscription_plan.= $total_storage_amount.' '.$storage_unit;
+											}
+											
+										$subscription_plan.='</span>';
+									}
+								}
+
+							$subscription_plan.= '</div>';
+							
+							$subscription_plan.='<hr id="plan_hr" style="display:block;"></hr>';
+						}
+						
+						$subscription_plan.= '<div id="plan_price">';				
+							
+							if( $total_fee_amount > 0 ){
+								
+								$subscription_plan.= htmlentities(' ').$total_fee_amount.$total_price_currency.' '. ( $total_fee_period == 'once' ? 'one time fee' : $total_fee_period );
+								
+								if($total_price_amount > 0 ){
+									
+									$subscription_plan.= '<br>+';
+								}
+							}
+							
+							if($total_price_amount > 0 ){
+							
+								$subscription_plan.= $total_price_amount.$total_price_currency.' / '.$total_price_period;
+							}
+							elseif($total_price_amount == 0 && $total_fee_amount == 0 ){
+								
+								$subscription_plan.= 'Free';
+							}
+							
+						$subscription_plan.= '</div>';
+						
+						$subscription_plan.= '</br>';
+						
+						$subscription_plan.= '<div id="plan_button">';				
+							
+							$subscription_plan.='<span class="payment-errors"></span>'.PHP_EOL;
+							
+							$modal_id='modal_'.md5($agreement_url);
+							
+							$subscription_plan.='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+								
+								if(!empty($atts['button'])){
+									
+									$subscription_plan.= ucfirst($atts['button']).PHP_EOL;
+								}
+								elseif($total_price_amount == 0 && $total_fee_amount == 0 ){
+									
+									$subscription_plan.='Start'.PHP_EOL;
+								}
+								elseif($total_price_amount == 0 && $total_fee_amount > 0 ){
+									
+									$subscription_plan.='Order'.PHP_EOL;
+								}
+								else{
+									
+									$subscription_plan.='Subscribe'.PHP_EOL;
+								}
+
+							$subscription_plan.='</button>'.PHP_EOL;
+
+							$subscription_plan.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+								
+								$subscription_plan.='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+									
+									$subscription_plan.='<div class="modal-content">'.PHP_EOL;
+									
+										$subscription_plan.='<div class="modal-header">'.PHP_EOL;
+											
+											$subscription_plan.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+											
+											$subscription_plan.= '<h4 class="modal-title" id="myModalLabel">';
+											
+												$subscription_plan.= $plan->post_title;
+												
+												if( $total_price_amount > 0 ){
+												
+													$subscription_plan.= ' ('.$total_price_amount.$total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
+											
+												}
+											
+											$subscription_plan.= '</h4>'.PHP_EOL;
+										
+										$subscription_plan.='</div>'.PHP_EOL;
+
+											if( $this->user->loggedin ){
+												
+												//echo '<pre>';
+												//var_dump($this->user->has_subscription);exit;
+												//var_dump($this->user_has_layer( $plan->ID ));exit;
+												
+												if( $total_price_amount == 0 && $total_fee_amount == 0 && $this->user_has_plan( $plan->ID ) === true ){
+													
+													$subscription_plan.='<div class="modal-body">'.PHP_EOL;
+												
+														$subscription_plan.= '<div class="alert alert-info">';
+															
+															$subscription_plan.= 'You already have access to this set of features...';
+															
+															$subscription_plan.= '<div class="pull-right">';
+
+																$subscription_plan.= '<a class="btn-sm btn-success" href="' . $this->urls->editor . '" target="_parent">Start editing</a>';
+																
+															$subscription_plan.= '</div>';
+															
+														$subscription_plan.= '</div>';	
+
+													$subscription_plan.='</div>'.PHP_EOL;
+												}
+												else{
+													
+													$subscription_plan.= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
+
+													$subscription_plan.= '<iframe data-src="' . get_permalink( $plan->ID ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$iframe_height.'px;overflow: hidden;"></iframe>';													
+												}
+		
+											}
+											else{
+												
+												$subscription_plan.='<div class="modal-body">'.PHP_EOL;
+												
+													$subscription_plan.= '<div style="font-size:20px;padding:20px;" class="alert alert-warning">';
+														
+														$subscription_plan.= 'You need to log in first...';
+														
+														$subscription_plan.= '<div class="pull-right">';
+
+															$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-success" href="' . wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) . '">Login</a>';
+															
+															$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'&action=register">Register</a>';
+														
+														$subscription_plan.= '</div>';
+														
+													$subscription_plan.= '</div>';
+												
+												$subscription_plan.='</div>'.PHP_EOL;
+											}
+
+									$subscription_plan.='</div>'.PHP_EOL;
+									
+								$subscription_plan.='</div>'.PHP_EOL;
+								
+							$subscription_plan.='</div>'.PHP_EOL;
+							
+						$subscription_plan.= '</div>'.PHP_EOL;
+						
+					//$subscription_plan.='</form>'.PHP_EOL;
+					$subscription_plan.='</div>'.PHP_EOL;						
+				}
+			}
+		}		
+		
+		return $subscription_plan;
+	}	
+	
+	public function ltple_get_dropdown_posts( $args ){
+		
+		$defaults = array(
+		
+			'post_type' 		=> 'post', 
+			'show_option_none'  => 'Select a post', 
+			'name' 				=> null, 
+			'selected' 			=> '',
+			'style' 			=> '', 
+			'echo' 				=> true, 
+			'orderby' 			=> 'title', 
+			'order' 			=> 'ASC' 
+		);
+
+		$args = array_merge($defaults, $args);
+		
+		$posts = get_posts(
+			array(
+			
+				'post_type'  	=> $args['post_type'],
+				'numberposts' 	=> -1,
+				'orderby'		=> $args['orderby'], 
+				'order' 		=> $args['order']
+			)
+		);
+		 
+		$dropdown = '';
+		
+		if( $posts ){
+			
+			if( !is_string($args['name']) ){
+				
+				$args['name'] = $args['post_type'].'_select';
+			}
+			
+			$dropdown .= '<select' . ( !empty($args['style']) ? ' style="' . $args['style'] . '"' : '' ).' id="'.$args['name'].'" name="'.$args['name'].'">';
+				
+				$dropdown .= '<option value="-1">'.$args['show_option_none'].'</option>';
+				
+				$args['selected'] = intval($args['selected']);
+				
+				foreach( $posts as $p ){
+					
+					$selected = '';
+					if( $p->ID == $args['selected'] ){
+						
+						$selected = ' selected';
+					}
+					
+					$dropdown .= '<option value="' . $p->ID . '"'.$selected.'>' . esc_html( $p->post_title ) . '</option>';
+				}
+			
+			$dropdown .= '</select>';			
+		}
+		
+		if($args['name'] === false){
+			
+			return $dropdown;
+		}
+		else{
+			
+			echo $dropdown;
+		}
+	}
+	
+	public function update_user_layer(){	
+		
+		if( $this->user->loggedin ){
+
+			if( $this->layer->type == 'user-layer' && empty( $this->user->layer ) ){
+				
+				//--------cannot be found --------
+				
+				$this->message ='<div class="alert alert-danger">';
+
+					$this->message .= 'This layer cannot be found...';
+
+				$this->message .='</div>';
+				
+				include( $this->views . $this->_dev .'/message.php' );					
+			}
+			elseif( $this->layer->type == 'user-layer' && $this->user->layer->post_author != $this->user->ID && !$this->user->is_admin ){
+				
+				//--------permission denied--------
+				
+				$this->message ='<div class="alert alert-danger">';
+
+					$this->message .= 'You don\'t have the permission to edit this template...';
+
+				$this->message .='</div>';
+				
+				include( $this->views . $this->_dev .'/message.php' );					
+			}
+			elseif( $this->layer->type == 'user-layer' && isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
+					
+				//--------delete layer--------
+				
+				wp_delete_post( $this->user->layer->ID, $bypass_trash = false );
+				
+				$this->layer->id = -1;
+					
+				$this->message ='<div class="alert alert-success">';
+
+					$this->message .= 'Template successfully deleted!';
+
+				$this->message .='</div>';
+				
+				//include( $this->views . $this->_dev .'/message.php' );
+
+				//redirect page
+				
+				$parsed = parse_url($_SERVER['SCRIPT_URI'] .'?'. $_SERVER['QUERY_STRING']);
+
+				parse_str($parsed['query'], $params);
+
+				unset($params['uri'],$params['postAction']);
+				
+				$url = $_SERVER['SCRIPT_URI'];
+				
+				$query = http_build_query($params);
+				
+				if( !empty($query) ){
+					
+					$url .= '?'.$query;		
+				}
+
+				wp_redirect($url);
+				exit;
+			}
+			elseif( isset($_POST['postContent']) && !empty($this->layer->type) ){
+				
+				//--------save layer--------
+				
+				$post_id=$post_title=$post_content='';
+				$post_default_layer=-1;
+				
+				if( $this->layer->type == 'user-layer' ){
+				
+					$post_id			= $this->user->layer->ID;
+					$post_title			= $this->user->layer->post_title;
+					$post_name			= $this->user->layer->post_name;
+					$post_default_layer	= intval(get_post_meta( $post_id, 'defaultLayerId', true));
+				}
+				elseif(isset($_POST['postTitle'])&&$_POST['postTitle']!=''){
+					
+					if( $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates'] ){
+						
+						$this->message ='<div class="alert alert-danger">';
+						
+							if( $this->user->plan['info']['total_storage']['templates'] == 1 ){
+								
+								$this->message .= 'You can\'t save more than ' . $this->user->plan['info']['total_storage']['templates'] . ' template with the current plan...';
+							}
+							elseif( $this->user->plan['info']['total_storage']['templates'] == 0 ){
+								
+								$this->message .= 'You can\'t save templates with the current plan...';
+							}
+							else{
+								
+								$this->message .= 'You can\'t save more than ' . $this->user->plan['info']['total_storage']['templates'] . ' templates with the current plan...';
+							}
+
+						$this->message .='</div>';
+						
+						include( $this->views . $this->_dev .'/message.php' );
+					}
+					else{
+						
+						$post_title 		= wp_strip_all_tags( $_POST['postTitle'] );
+						$post_name 			= $post_title;
+						$post_default_layer	= intval( get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer')->ID);					
+					}
+				}
+				else{
+					
+					echo 'Empty post title...';
+					exit;
+				}
+				
+				$post_content = $_POST['postContent'];
+				$post_content = stripslashes($post_content);
+				$post_content = str_replace('&quot;','',$post_content);
+				
+				//$post_content=html_entity_decode(stripslashes($post_content));
+				
+				if(isset($_POST['_wp_http_referer'])){
+					
+					$ref=parse_url($_POST['_wp_http_referer']);
+					
+					if(isset($ref['query'])){
+						
+						parse_str( $ref['query'], $args);
+					}
+				}
+				
+				if( $post_title!='' && $post_content!='' && is_int($post_default_layer) && $post_default_layer !== -1 ){
+					
+					$post_information = array(
+						
+						'post_author' 	=> $this->user->ID,
+						'ID' 			=> $post_id,
+						'post_title' 	=> $post_title,
+						'post_name' 	=> $post_name,
+						'post_content' 	=> $post_content,
+						'post_type' 	=> 'user-layer',
+						'post_status' 	=> 'publish'
+					);
+					
+					$post_id = wp_update_post( $post_information );
+
+					if( is_numeric($post_id) ){
+						
+						update_post_meta($post_id, 'defaultLayerId', $post_default_layer);
+						
+						//redirect to user layer
+						
+						$user_layer_post = get_post($post_id);
+						
+						$user_layer_slug = get_post_field( 'post_name', $user_layer_post);
+						
+						$uri='user-layer/' .  $user_layer_slug . '/';
+						
+						$user_layer_url = $_SERVER['SCRIPT_URI'] . '?uri='.$uri;
+						
+						//var_dump($user_layer_url);exit;
+						
+						wp_redirect($user_layer_url);
+						echo 'Redirecting editor...';
+						exit;
+					}
+				}
+				else{
+					
+					http_response_code(404);
+					
+					$this->message ='<div class="alert alert-danger">';
+							
+						$this->message .= 'Error saving user layer...';
+
+					$this->message .='</div>';
+					
+					include( $this->views . $this->_dev .'/message.php' );
+				}
+			}			
+		}
+	}
+
+	public function update_user_channel(){	
+		
+		if( $this->user->loggedin ){
+			
+			$taxonomy = 'marketing-channel';
+
+			if( isset($_POST[$taxonomy]) &&  is_numeric($_POST[$taxonomy]) ){
+				
+				//-------- save channel --------
+				
+				$terms = intval($_POST[$taxonomy]);		
+				
+				$response = wp_set_object_terms( $this->user->ID, $terms, $taxonomy);
+				
+				clean_object_term_cache( $this->user->ID, $taxonomy );	
+
+				if( empty($response) ){
+
+					echo 'Error saving user channel...';
+					exit;
+				}				
+			}			
+		}
+	}
+	
+	public function update_user_image(){	
+		
+		if( $this->user->loggedin ){
+
+			if( isset($_GET['imgAction']) && $_GET['imgAction']=='delete' ){
+				
+				//--------delete image--------
+				
+				wp_delete_post( $this->image->id, $bypass_trash = false );
+				
+				$this->image->id = -1;
+					
+				$this->message ='<div class="alert alert-success">';
+
+					$this->message .= 'Image url successfully deleted!';
+
+				$this->message .='</div>';
+				
+			}
+			elseif( isset($_POST['imgAction']) &&  $_POST['imgAction']=='upload' && isset($_POST['imgHost'])){
+				
+				// valid host
+				
+				$app_title = wp_strip_all_tags( $_POST['imgHost'] );
+				
+				$app_item = get_page_by_title( $app_title, OBJECT, 'user-app' );
+				
+				if( empty($app_item) || ( intval( $app_item->post_author ) != $this->user->ID && !in_array_field($app_item->ID, 'ID', $this->apps->mainApps)) ){
+					
+					echo 'This image host doesn\'t exists...';
+					exit;
+				}
+				elseif(!empty($_FILES)) {
+					
+					foreach ($_FILES as $file => $array) {
+						
+						if($_FILES[$file]['error'] !== UPLOAD_ERR_OK) {
+							
+							echo "upload error : " . $_FILES[$file]['error'];
+							exit;
+						}
+						else{
+							
+							$mime=explode('/',$_FILES[$file]['type']);
+							
+							if($mime[0] !== 'image') {
+								
+								echo 'This is not a valid image type...';
+								exit;							
+							}
+							
+							if( $data = file_get_contents($_FILES[$file]['tmp_name'])){
+								
+								// rename file
+								
+								$_FILES[$file]['name'] = md5($data) . '.' . $mime[1];
+
+								// get current app
+								
+								$app = explode(' - ', $app_title );
+								
+								// set session
+								
+								$_SESSION['app'] 	= $app[0];
+								$_SESSION['action'] = 'upload';
+								$_SESSION['file'] 	= $_FILES[$file]['name'];
+																		
+								//check if image exists
+								
+								$img_exists = false;
+								
+								$q = new WP_Query(array(
+									
+									'post_author' => $this->user->ID,
+									'post_type' => 'user-image',
+									'numberposts' => -1,
+								));
+
+								while ( $q->have_posts() ) : $q->the_post(); 
+							
+									global $post;
+									
+									if( $post->post_title == $_FILES[$file]['name'] ){
+										
+										$img_exists = true;
+										break;
+									}
+									
+								endwhile; wp_reset_query();
+								
+								if( !$img_exists ){
+									
+									//require the needed files
+									
+									require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+									require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+									require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+									
+									//upload image
+									
+									$attach_id = media_handle_upload( $file, 0 );
+									
+									if(is_numeric($attach_id)){
+									
+										// get image url
+										
+										$image_url = wp_get_attachment_url( $attach_id );
+										
+										// add local image	
+										
+										/*
+										if($post_id = wp_insert_post( array(
+											
+											'post_author' 	=> $this->user->ID,
+											'post_title' 	=> $_FILES[$file]['name'],
+											'post_name' 	=> $_FILES[$file]['name'],
+											'post_content' 	=> $image_url,
+											'post_type'		=> 'user-image',
+											'post_status' 	=> 'publish'
+										))){
+											
+										}
+										*/
+										
+										// upload image to host
+										
+										$appSlug = $app[0];
+										
+										if( !isset( $this->apps->{$appSlug} ) ){
+											
+											$this->apps->includeApp($appSlug);
+										}
+
+										if($this->apps->{$appSlug}->appUploadImg( $app_item->ID, $image_url )){
+											
+											// output success message
+											
+											$this->message ='<div class="alert alert-success">';
+													
+												$this->message .= 'Congratulations! Image succefully uploaded to your library.';
+
+											$this->message .='</div>';											
+										}
+										else{
+											
+											// output error message
+											
+											$this->message ='<div class="alert alert-danger">';
+													
+												$this->message .= 'Oops, something went wrong...';
+
+											$this->message .='</div>';													
+										}
+										
+										// remove image from local library
+										
+										wp_delete_attachment( $attach_id, $force_delete = true );
+									}
+									else{
+										
+										echo 'Error handling upload...';
+										exit;											
+									}
+								}
+								else{
+									
+									// output warning message
+									
+									$this->message ='<div class="alert alert-warning">';
+											
+										$this->message .= 'This image already exists...';
+
+									$this->message .='</div>';										
+								}
+							}
+							else{
+								
+								echo 'Error uploading your image...';
+								exit;									
+							}
+						}
+					}   
+				}				
+			}
+			elseif( isset($_POST['imgAction']) &&  $_POST['imgAction']=='save' && isset($_POST['imgTitle']) && isset($_POST['imgUrl']) ){
+				
+				//-------- save image --------
+				
+				$img_id = $img_title = $img_name = $img_content = '';
+				
+				if($_POST['imgTitle']!=''){
+
+					$img_title = $img_name = wp_strip_all_tags( $_POST['imgTitle'] );
+				}
+				else{ 
+					
+					echo 'Empty image title...';
+					exit;
+				}
+
+				if($_POST['imgUrl']!=''){
+				
+					$img_content=wp_strip_all_tags( $_POST['imgUrl'] );
+				}
+				else{
+					
+					echo 'Empty image url...';
+					exit;
+				}
+				
+				if( $img_title!='' && $img_content!=''){
+					
+					$img_valid = true;
+					
+					if($img_valid === true){
+						
+						// check if is valid url
+						
+						if (filter_var($img_content, FILTER_VALIDATE_URL) === FALSE) {
+							
+							$img_valid = false;
+						}
+					}
+					
+					if($img_valid === true){
+						
+						// check if image exists
+						
+						$q = new WP_Query(array(
+							
+							'post_author' => $this->user->ID,
+							'post_type' => 'user-image',
+							'numberposts' => -1,
+						));
+						
+						//var_dump($q);exit;
+						
+						while ( $q->have_posts() ) : $q->the_post(); 
+					
+							global $post;
+							
+							if( $post->post_content == $img_content ){
+								
+								$img_valid = false;
+								break;
+							}
+							
+						endwhile; wp_reset_query();	
+					}
+					
+					if( $img_valid === true ){
+					
+						if($post_id = wp_insert_post( array(
+							
+							'post_author' 	=> $this->user->ID,
+							'post_title' 	=> $img_title,
+							'post_name' 	=> $img_name,
+							'post_content' 	=> $img_content,
+							'post_type'		=> 'user-image',
+							'post_status' 	=> 'publish'
+						))){
+							
+							$this->message ='<div class="alert alert-success">';
+									
+								$this->message .= 'Congratulations! Image url succefully added to your library.';
+
+							$this->message .='</div>';						
+						}						
+					}
+					else{
+
+						$this->message ='<div class="alert alert-danger">';
+								
+							$this->message .= 'This image url already exists...';
+
+						$this->message .='</div>';
+					}
+				}
+				else{
+					
+					$this->message ='<div class="alert alert-danger">';
+							
+						$this->message .= 'Error saving user image...';
+
+					$this->message .='</div>';
+				}
+			}			
+		}
+	}
+	
+	/**
+	 * Wrapper function to register a new post type
+	 * @param  string $post_type   Post type name
+	 * @param  string $plural      Post type item plural name
+	 * @param  string $single      Post type item single name
+	 * @param  string $description Description of post type
+	 * @return object              Post type class object
+	 */
+	public function register_post_type ( $post_type = '', $plural = '', $single = '', $description = '', $options = array() ) {
+
+		if ( ! $post_type || ! $plural || ! $single ) return;
+
+		$post_type = new LTPLE_Client_Post_Type( $post_type, $plural, $single, $description, $options );
+
+		return $post_type;
+	}
+
+	/**
+	 * Wrapper function to register a new taxonomy
+	 * @param  string $taxonomy   Taxonomy name
+	 * @param  string $plural     Taxonomy single name
+	 * @param  string $single     Taxonomy plural name
+	 * @param  array  $post_types Post types to which this taxonomy applies
+	 * @return object             Taxonomy class object
+	 */
+	public function register_taxonomy ( $taxonomy = '', $plural = '', $single = '', $post_types = array(), $taxonomy_args = array() ) {
+
+		if ( ! $taxonomy || ! $plural || ! $single ) return;
+
+		$taxonomy = new LTPLE_Client_Taxonomy( $this, $taxonomy, $plural, $single, $post_types, $taxonomy_args );
+
+		return $taxonomy;
+	}
+
+	/**
+	 * Load frontend CSS.
+	 * @access  public
+	 * @since   1.0.0
+	 * @return void
+	 */
+	public function enqueue_styles () {
+		
+		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-frontend' );
+	
+		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-bootstrap-table' );	
+		
+	} // End enqueue_styles ()
+
+	/**
+	 * Load frontend Javascript.
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	public function enqueue_scripts () {
+		
+		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend' . $this->script_suffix . '.js', array( 'jquery' ), $this->_version );
+		wp_enqueue_script( $this->_token . '-frontend' );
+		
+		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-lazyload' );	
+
+		wp_register_script($this->_token . '-sprintf', esc_url( $this->assets_url ) . 'js/sprintf.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-sprintf' );		
+		
+		wp_register_script($this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'js/bootstrap-table.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-table' );
+
+		wp_register_script($this->_token . '-bootstrap-table-export', esc_url( $this->assets_url ) . 'js/bootstrap-table-export.js', array( 'jquery', $this->_token . 'sprintf' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-table-export' );
+		
+		wp_register_script($this->_token . '-table-export', esc_url( $this->assets_url ) . 'js/tableExport.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-table-export' ); 
+		
+	} // End enqueue_scripts ()
+
+	/**
+	 * Load admin CSS.
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	public function admin_enqueue_styles ( $hook = '' ) {
+		
+		wp_register_style( $this->_token . '-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-admin' );
+		
+	} // End admin_enqueue_styles ()
+
+	/**
+	 * Load admin Javascript.
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	public function admin_enqueue_scripts ( $hook = '' ) {
+		
+		wp_enqueue_script('jquery-ui-sortable');
+		
+		wp_register_script( $this->_token . '-admin', esc_url( $this->assets_url ) . 'js/admin' . $this->script_suffix . '.js', array( 'jquery' ), $this->_version );
+		wp_enqueue_script( $this->_token . '-admin' );
+
+	} // End admin_enqueue_scripts ()
+
+	/**
+	 * Load plugin localisation
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	public function load_localisation () {
+		load_plugin_textdomain( 'live-template-editor-client', false, dirname( plugin_basename( $this->file ) ) . '/lang/' );
+	} // End load_localisation ()
+
+	/**
+	 * Load plugin textdomain
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	public function load_plugin_textdomain () {
+	    $domain = 'live-template-editor-client';
+
+	    $locale = apply_filters( 'plugin_locale', get_locale(), $domain );
+
+	    load_textdomain( $domain, WP_LANG_DIR . '/' . $domain . '/' . $domain . '-' . $locale . '.mo' );
+	    load_plugin_textdomain( $domain, false, dirname( plugin_basename( $this->file ) ) . '/lang/' );
+	} // End load_plugin_textdomain ()
+
+	/**
+	 * Main LTPLE_Client Instance
+	 *
+	 * Ensures only one instance of LTPLE_Client is loaded or can be loaded.
+	 *
+	 * @since 1.0.0
+	 * @static
+	 * @see LTPLE_Client()
+	 * @return Main LTPLE_Client instance
+	 */
+	public static function instance ( $file = '', $version = '1.0.0' ) {
+		if ( is_null( self::$_instance ) ) {
+			self::$_instance = new self( $file, $version );
+		}
+		return self::$_instance;
+	} // End instance ()
+
+	/**
+	 * Cloning is forbidden.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __clone () {
+		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->_version );
+	} // End __clone ()
+
+	/**
+	 * Unserializing instances of this class is forbidden.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __wakeup () {
+		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->_version );
+	} // End __wakeup ()
+
+	/**
+	 * Installation. Runs on activation.
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	public function install () {
+		$this->_log_version_number();
+	} // End install ()
+
+	/**
+	 * Log the plugin version number.
+	 * @access  public
+	 * @since   1.0.0
+	 * @return  void
+	 */
+	private function _log_version_number () {
+		
+		update_option( $this->_token . '_version', $this->_version );
+	} 
+	// End _log_version_number ()
+}
