@@ -2412,104 +2412,137 @@ class LTPLE_Client {
 			}
 			elseif( isset($_POST['postContent']) && !empty($this->layer->type) ){
 				
-				//--------save layer--------
-				
-				$post_id=$post_title=$post_content='';
-				$post_default_layer=-1;
-				
-				if( $this->layer->type == 'user-layer' ){
-				
-					$post_id			= $this->user->layer->ID;
-					$post_title			= $this->user->layer->post_title;
-					$post_name			= $this->user->layer->post_name;
-					$post_default_layer	= intval(get_post_meta( $post_id, 'defaultLayerId', true));
-				}
-				elseif(isset($_POST['postTitle'])&&$_POST['postTitle']!=''){
-					
-					if( $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates'] ){
-						
-						$this->message ='<div class="alert alert-danger">';
-						
-							if( $this->user->plan['info']['total_storage']['templates'] == 1 ){
-								
-								$this->message .= 'You can\'t save more than ' . $this->user->plan['info']['total_storage']['templates'] . ' template with the current plan...';
-							}
-							elseif( $this->user->plan['info']['total_storage']['templates'] == 0 ){
-								
-								$this->message .= 'You can\'t save templates with the current plan...';
-							}
-							else{
-								
-								$this->message .= 'You can\'t save more than ' . $this->user->plan['info']['total_storage']['templates'] . ' templates with the current plan...';
-							}
-
-						$this->message .='</div>';
-						
-						include( $this->views . $this->_dev .'/message.php' );
-					}
-					else{
-						
-						$post_title 		= wp_strip_all_tags( $_POST['postTitle'] );
-						$post_name 			= $post_title;
-						$post_default_layer	= intval( get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer')->ID);					
-					}
-				}
-				else{
-					
-					echo 'Empty post title...';
-					exit;
-				}
+				// get post content
 				
 				$post_content = $_POST['postContent'];
 				$post_content = stripslashes($post_content);
 				$post_content = str_replace('&quot;','',$post_content);
-				
 				//$post_content=html_entity_decode(stripslashes($post_content));
 				
-				if(isset($_POST['_wp_http_referer'])){
+				if( $_POST['postAction'] == 'update' && $this->user->is_admin ){
 					
-					$ref=parse_url($_POST['_wp_http_referer']);
+					//update layer
 					
-					if(isset($ref['query'])){
-						
-						parse_str( $ref['query'], $args);
-					}
-				}
-				
-				if( $post_title!='' && $post_content!='' && is_int($post_default_layer) && $post_default_layer !== -1 ){
-					
-					$post_information = array(
-						
-						'post_author' 	=> $this->user->ID,
-						'ID' 			=> $post_id,
-						'post_title' 	=> $post_title,
-						'post_name' 	=> $post_name,
-						'post_content' 	=> $post_content,
-						'post_type' 	=> 'user-layer',
-						'post_status' 	=> 'publish'
-					);
-					
-					$post_id = wp_update_post( $post_information );
+					$defaultLayer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
+					$defaultLayerId	= intval( $defaultLayer->ID );
 
-					if( is_numeric($post_id) ){
+					global $wpdb;
+					
+					$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $defaultLayerId));				
+				}
+				elseif( $_POST['postAction'] == 'save'){				
+					
+					//save layer
+					
+					$post_id = $post_title = $post_content='';
+					$defaultLayerId = -1;
+					
+					if( $this->layer->type == 'user-layer' ){
+					
+						$post_id		= $this->user->layer->ID;
+						$post_title		= $this->user->layer->post_title;
+						$post_name		= $this->user->layer->post_name;
+						$defaultLayerId	= intval(get_post_meta( $post_id, 'defaultLayerId', true));
+					}
+					else{
 						
-						update_post_meta($post_id, 'defaultLayerId', $post_default_layer);
+						$defaultLayer = get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 						
-						//redirect to user layer
+						if( !empty($defaultLayer) ){
 						
-						$user_layer_post = get_post($post_id);
+							$post_title = ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) : '' );
+							
+							if( empty($post_title) ){
+							
+								$post_title = $defaultLayer->post_title;
+							}
+							
+							if( $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates'] ){
+								
+								$this->message ='<div class="alert alert-danger">';
+								
+									if( $this->user->plan['info']['total_storage']['templates'] == 1 ){
+										
+										$this->message .= 'You can\'t save more than ' . $this->user->plan['info']['total_storage']['templates'] . ' template with the current plan...';
+									}
+									elseif( $this->user->plan['info']['total_storage']['templates'] == 0 ){
+										
+										$this->message .= 'You can\'t save templates with the current plan...';
+									}
+									else{
+										
+										$this->message .= 'You can\'t save more than ' . $this->user->plan['info']['total_storage']['templates'] . ' templates with the current plan...';
+									}
+
+								$this->message .='</div>';
+								
+								include( $this->views . $this->_dev .'/message.php' );
+							}
+
+							$post_name 		= $post_title;
+							$defaultLayerId	= intval( $defaultLayer->ID );
+						}
+						else{
+							
+							http_response_code(404);
+							
+							$this->message ='<div class="alert alert-danger">';
+									
+								$this->message .= 'This default layer doesn\'t exists...';
+
+							$this->message .='</div>';
+							
+							include( $this->views . $this->_dev .'/message.php' );							
+						}
+					}
+
+					if( $post_title!='' && $post_content!='' && is_int($defaultLayerId) && $defaultLayerId !== -1 ){
 						
-						$user_layer_slug = get_post_field( 'post_name', $user_layer_post);
+						$post_information = array(
+							
+							'post_author' 	=> $this->user->ID,
+							'ID' 			=> $post_id,
+							'post_title' 	=> $post_title,
+							'post_name' 	=> $post_name,
+							'post_content' 	=> $post_content,
+							'post_type' 	=> 'user-layer',
+							'post_status' 	=> 'publish'
+						);
 						
-						$uri='user-layer/' .  $user_layer_slug . '/';
+						$post_id = wp_update_post( $post_information );
+
+						if( is_numeric($post_id) ){
+							
+							update_post_meta($post_id, 'defaultLayerId', $defaultLayerId);
+							
+							//redirect to user layer
+							
+							$user_layer_post = get_post($post_id);
+							
+							$user_layer_slug = get_post_field( 'post_name', $user_layer_post);
+							
+							$uri='user-layer/' .  $user_layer_slug . '/';
+							
+							$user_layer_url = $_SERVER['SCRIPT_URI'] . '?uri='.$uri;
+							
+							//var_dump($user_layer_url);exit;
+							
+							wp_redirect($user_layer_url);
+							echo 'Redirecting editor...';
+							exit;
+						}
+					}
+					else{
 						
-						$user_layer_url = $_SERVER['SCRIPT_URI'] . '?uri='.$uri;
+						http_response_code(404);
 						
-						//var_dump($user_layer_url);exit;
+						$this->message ='<div class="alert alert-danger">';
+								
+							$this->message .= 'Error saving user layer...';
+
+						$this->message .='</div>';
 						
-						wp_redirect($user_layer_url);
-						echo 'Redirecting editor...';
-						exit;
+						include( $this->views . $this->_dev .'/message.php' );
 					}
 				}
 				else{
@@ -2518,11 +2551,11 @@ class LTPLE_Client {
 					
 					$this->message ='<div class="alert alert-danger">';
 							
-						$this->message .= 'Error saving user layer...';
+						$this->message .= 'This action doesn\'t exists...';
 
 					$this->message .='</div>';
 					
-					include( $this->views . $this->_dev .'/message.php' );
+					include( $this->views . $this->_dev .'/message.php' );					
 				}
 			}			
 		}

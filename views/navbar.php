@@ -62,7 +62,7 @@
 				
 				<div class="input-group">
 					
-					<input type="text" name="postTitle" id="postTitle" value="" class="form-control required" placeholder="Layer Title" <?php if( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates'] ) echo 'disabled'; ?>>
+					<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" <?php if( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates'] ) echo 'disabled'; ?>>
 					<input type="hidden" name="postContent" id="postContent" value="">
 					<input type="hidden" name="postAction" id="postAction" value="save">
 					
@@ -73,15 +73,15 @@
 					
 					<span class="input-group-btn">
 						
-						<?php if( $this->user->plan["info"]["total_price_amount"]>0 ){ ?>
+						<?php if( $this->user->plan["info"]["total_price_amount"]>0 ){
 						
-						<button class="btn btn-sm btn-primary" type="button" id="saveBtn" style="height:34px;border-radius: 0 5px 5px 0;">Save</button>
+							echo'<button class="btn btn-sm btn-primary" type="button" id="saveBtn" style="border-radius: 0 3px 3px 0;">Save</button>';
 					
-						<?php }else{ ?>
+						}
+						else{
 						
-						<button class="btn btn-sm btn-primary" type="button" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan <?php echo PHP_EOL; ?> to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span>  Save</button>
-						
-						<?php } ?>
+							echo'<button class="btn btn-sm btn-primary" type="button" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan <?php echo PHP_EOL; ?> to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span>  Save</button>';
+						} ?>
 					
 					</span>
 					
@@ -128,9 +128,15 @@
 						
 						echo'<li style="position:relative;">';
 							
-							echo '<a target="_blank" href="' . get_edit_post_link( $this->layer->id ) . '"><span class="label label-warning">admin</span> Edit Layer</a>';
+							echo '<a id="updateBtn" href="#update-layer">Update Layer <span class="label label-warning pull-right">admin</span></a>';
 
-						echo'</li>';	
+						echo'</li>';
+						
+						echo'<li style="position:relative;">';
+							
+							echo '<a target="_blank" href="' . get_edit_post_link( $this->layer->id ) . '"> Edit Layer <span class="label label-warning pull-right">admin</span></a>';
+
+						echo'</li>';
 						
 					echo'</ul>';
 					

@@ -20,13 +20,13 @@
 			
 			<li class="active"><a href="#general-info" data-toggle="tab">General Info</a></li>
 			
-			<li><a href="#custom-profile" data-toggle="tab">Custom Profile</a></li>
+			<!--<li><a href="#custom-profile" data-toggle="tab">Custom Profile</a></li>
 			
 			<li><a href="#connected-apps" data-toggle="tab">Connected Apps</a></li>
 			
 			<li class="gallery_type_title">Design Rules</li>
 			
-			<li><a href="#html-markups" data-toggle="tab">HTML Markups</a></li>
+			<li><a href="#html-markups" data-toggle="tab">HTML Markups</a></li>-->
 			
 		</ul>
 	</div>
@@ -115,7 +115,7 @@
 	
 			
 			//---------------------- output Custom Profile --------------------------
-						
+			/*	
 			echo'<div class="tab-pane" id="custom-profile">';
 				
 				echo'<form action="" method="post" class="tab-content row" style="margin:20px;">';
@@ -173,7 +173,8 @@
 	
 				echo'</form>';
 				
-			echo'</div>';	
+			echo'</div>';
+			*/
 
 			//---------------------- output Connected Apps --------------------------
 			
@@ -237,7 +238,8 @@
 			echo'</div>';
 			
 			//---------------------- output HTML markups --------------------------
-						
+			
+			/*	
 			echo'<div class="tab-pane" id="html-markups">';
 			
 				echo'<h3>List of allowed HTML markups</h3>';
@@ -337,6 +339,7 @@
 				echo'</div>';				
 							
 			echo'</div>';
+			*/
 
 		?>
 		  

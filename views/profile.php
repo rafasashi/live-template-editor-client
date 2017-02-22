@@ -8,7 +8,7 @@ if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 		
 			echo'<ul class="nav nav-tabs tabs-left">';
 				
-				echo'<li class="gallery_type_title">About '.ucfirst($displayedUser->user_nicename).'</li>';
+				echo'<li class="gallery_type_title">About me</li>';
 				
 				echo'<li class="active"><a href="#general-info" data-toggle="tab">General Info</a></li>';
 				
