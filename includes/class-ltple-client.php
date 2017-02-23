@@ -773,9 +773,9 @@ class LTPLE_Client {
 		}	
 		elseif( is_single() ) {
 			
-			$post_type	= get_post_type();
-			$post_id	= get_the_ID();
-			$post_author= intval(get_post_field( 'post_author', $post_id ));
+			$post_type	 = get_post_type();
+			$post_id	 = get_the_ID();
+			$post_author = intval(get_post_field( 'post_author', $post_id ));
 			
 			$path = $template_path;
 			
@@ -793,7 +793,17 @@ class LTPLE_Client {
 			}
 			elseif( $post_type == 'cb-default-layer' ){
 				
-				if( $this->user->loggedin && $this->user_has_layer( $post_id ) === true ){
+				$visibility = get_post_meta( $post_id, 'layerVisibility', true );
+				
+				if( $visibility == 'anyone' ){
+					
+					$path = $this->views . $this->_dev .'/layer.php';
+				}
+				elseif( $visibility == 'registered' && $this->user->loggedin ){
+					
+					$path = $this->views . $this->_dev .'/layer.php';
+				}
+				elseif( $this->user_has_layer( $post_id ) === true && $this->user->loggedin ){
 					
 					$path = $this->views . $this->_dev .'/layer.php';
 				}
@@ -2423,12 +2433,26 @@ class LTPLE_Client {
 					
 					//update layer
 					
-					$defaultLayer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
-					$defaultLayerId	= intval( $defaultLayer->ID );
-
-					global $wpdb;
+					if( $this->layer->type == 'user-layer' ){
+						
+						$layer	= get_page_by_path( $this->layer->slug, OBJECT, $this->layer->type);
+					}
+					else{
+						
+						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
+					}
 					
-					$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $defaultLayerId));				
+					if(!empty($layer)){
+					
+						$layerId	= intval( $layer->ID );
+
+						if( is_int($layerId) && $layerId !== -1 ){
+						
+							global $wpdb;
+						
+							$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $layerId));
+						}
+					}
 				}
 				elseif( $_POST['postAction'] == 'save'){				
 					

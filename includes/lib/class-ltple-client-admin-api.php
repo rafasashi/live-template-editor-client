@@ -752,13 +752,32 @@ class LTPLE_Client_Admin_API {
 			break;			
 			
 			case 'radio':
-			
+				
+				$i = 0;
+				
 				foreach ( $field['options'] as $k => $v ) {
+					
 					$checked = false;
-					if ( $k == $data ) {
+					
+					if( $k == $data || ( empty($data) && $i == 0 ) ) {
+						
 						$checked = true;
 					}
-					$html .= '<label for="' . esc_attr( $field['id'] . '_' . $k ) . '"><input type="radio" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" /> ' . $v . '</label> ';
+					
+					$html .= '<label for="' . esc_attr( $field['id'] . '_' . $k ) . '">';
+					
+					$html .= '<input type="radio" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" /> ';
+						
+						$html .= $v; 
+						
+					$html .= '</label> ';
+					
+					if( isset($field['inline']) && $field['inline'] === false ){
+						
+						$html .= '<br>'; 
+					}
+					
+					$i++;
 				}
 				
 			break;

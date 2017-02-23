@@ -531,6 +531,14 @@
 		
 		LTPLE_Client()->admin->add_meta_box (
 			
+			'layer-visibility',
+			__( 'Layer Visibility', 'live-template-editor-client' ), 
+			array("cb-default-layer"),
+			'side'
+		);
+		
+		LTPLE_Client()->admin->add_meta_box (
+			
 			'layer-options',
 			__( 'Layer Options', 'live-template-editor-client' ), 
 			array("cb-default-layer"),
@@ -863,6 +871,24 @@
 				),
 				'selected'	=>'inline-css',
 				'description'=>''
+		);
+		
+		$fields[]=array( 
+		
+			"metabox" =>
+			
+				array('name'	=> "layer-visibility"),
+				'id'			=> "layerVisibility",
+				'label'			=> "",
+				'type'			=> 'radio',
+				'options'		=> array(
+				
+					'subscriber'	=> 'Subscriber',
+					'registered'	=> 'Registered',
+					'anyone'		=> 'Anyone',
+				),
+				'inline'		=> false,
+				'description'	=> ''
 		);
 		
 		$fields[]=array(
