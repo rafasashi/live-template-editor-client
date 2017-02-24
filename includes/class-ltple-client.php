@@ -2424,7 +2424,9 @@ class LTPLE_Client {
 				
 				// get post content
 				
-				$post_content = $this->layer->sanitize_content( $_POST['postContent'] );
+				$post_content 	= $this->layer->sanitize_content( $_POST['postContent'] );
+				$post_title 	= ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) : '' );
+				$post_name 		= $post_title;			
 
 				if( $_POST['postAction'] == 'update' && $this->user->is_admin ){
 					
@@ -2451,11 +2453,80 @@ class LTPLE_Client {
 						}
 					}
 				}
+				elseif( $_POST['postAction'] == 'duplicate' && $this->user->is_admin ){
+					
+					//duplicate layer
+					
+					if( $this->layer->type == 'user-layer' ){
+						
+						$layer	= get_page_by_path( $this->layer->slug, OBJECT, $this->layer->type);
+					}
+					else{
+						
+						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
+					}
+					
+					if(!empty($layer)){
+					
+						$layerId = intval( $layer->ID );
+
+						if( is_int($layerId) && $layerId !== -1 ){
+						
+							$post_information = array(
+								
+								'post_author' 	=> $this->user->ID,
+								'post_title' 	=> $post_title,
+								'post_name' 	=> $post_name,
+								'post_content' 	=> $layer->post_content,
+								'post_type' 	=> $layer->post_type,
+								'post_status' 	=> 'publish'
+							);
+							
+							$post_id = wp_insert_post( $post_information );
+
+							if( is_numeric($post_id) ){
+								
+								// duplicate all post meta
+								
+								$layerMeta = get_post_meta($layerId);
+						
+								foreach($layerMeta as $name => $value){
+									
+									if( isset($value[0]) ){
+										
+										update_post_meta( $post_id, $name, $value[0] );
+									}
+								}
+								
+								// duplicate all taxonomies
+								
+								$taxonomies = get_object_taxonomies($layer->post_type);
+								
+								foreach ($taxonomies as $taxonomy) {
+									
+									$layerTerms = wp_get_object_terms($layerId, $taxonomy, array('fields' => 'slugs'));
+									
+									wp_set_object_terms($post_id, $layerTerms, $taxonomy, false);
+								}					
+								
+								//redirect to user layer
+
+								$layer_url = $_SERVER['SCRIPT_URI'] . '?uri=' . $this->layer->type . '/' . get_post_field( 'post_name', $post_id ) . '/';
+								
+								//var_dump($layer_url);exit;
+								
+								wp_redirect($layer_url);
+								echo 'Redirecting editor...';
+								exit;
+							}							
+						}
+					}
+				}
 				elseif( $_POST['postAction'] == 'save'){				
 					
 					//save layer
 					
-					$post_id = $post_title = '';
+					$post_id = '';
 					$defaultLayerId = -1;
 					
 					if( $this->layer->type == 'user-layer' ){
@@ -2471,8 +2542,6 @@ class LTPLE_Client {
 						
 						if( !empty($defaultLayer) ){
 						
-							$post_title = ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) : '' );
-							
 							if( empty($post_title) ){
 							
 								$post_title = $defaultLayer->post_title;
@@ -2500,7 +2569,6 @@ class LTPLE_Client {
 								include( $this->views . $this->_dev .'/message.php' );
 							}
 
-							$post_name 		= $post_title;
 							$defaultLayerId	= intval( $defaultLayer->ID );
 						}
 						else{
@@ -2538,13 +2606,7 @@ class LTPLE_Client {
 							
 							//redirect to user layer
 							
-							$user_layer_post = get_post($post_id);
-							
-							$user_layer_slug = get_post_field( 'post_name', $user_layer_post);
-							
-							$uri='user-layer/' .  $user_layer_slug . '/';
-							
-							$user_layer_url = $_SERVER['SCRIPT_URI'] . '?uri='.$uri;
+							$user_layer_url = $_SERVER['SCRIPT_URI'] . '?uri=' . 'user-layer/' .  get_post_field( 'post_name', $post_id) . '/';
 							
 							//var_dump($user_layer_url);exit;
 							
@@ -2939,7 +3001,7 @@ class LTPLE_Client {
 	 */
 	public function enqueue_styles () {
 
-		wp_register_style( $this->_token . '-jquery-ui', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), $this->_version );
+		wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-jquery-ui' );		
 	
 		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), $this->_version );

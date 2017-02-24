@@ -56,24 +56,23 @@
 	
 	<div class="col-xs-6 col-sm-8 text-right">
 
-		<?php if( $this->layer->type == 'default-layer' ){ ?>
+		<?php if( $this->layer->type == 'default-layer' ){
 		
-			<form class="pull-left" style="width:250px;display:inline-block;" target="_parent" action="<?php echo $_SERVER['SCRIPT_URI'] . '?uri=default-layer/' . $this->layer->slug . '/'; ?>" id="savePostForm" method="POST">
+			echo'<form class="pull-left" style="width:250px;display:inline-block;" target="_parent" action="'. $_SERVER['SCRIPT_URI'] . '?uri=default-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
 				
-				<div class="input-group">
+				echo'<div class="input-group">';
 					
-					<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" <?php if( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates'] ) echo 'disabled'; ?>>
-					<input type="hidden" name="postContent" id="postContent" value="">
-					<input type="hidden" name="postAction" id="postAction" value="save">
+					echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" ' . ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? 'disabled' : '' ) .'>';
+					echo'<input type="hidden" name="postContent" id="postContent" value="">';
+					echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 					
-					<?php wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' ); ?>
+					wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 					
-					<input type="hidden" name="_wp_http_referer" value="<?php echo '/editor/?uri=default-layer/' . $this->layer->slug . '/&lk=' . md5( 'layer' . $this->layer->uri . $this->_time ) . '&_=' .  $this->_time; ?>">
-					<input type="hidden" name="submitted" id="submitted" value="true">
+					echo'<input type="hidden" name="submitted" id="submitted" value="true">';
 					
-					<span class="input-group-btn">
+					echo'<span class="input-group-btn">';
 						
-						<?php if( $this->user->plan["info"]["total_price_amount"]>0 ){
+						if( $this->user->plan["info"]["total_price_amount"]>0 ){
 						
 							echo'<button class="btn btn-sm btn-primary" type="button" id="saveBtn" style="border-radius: 0 3px 3px 0;">Save</button>';
 					
@@ -81,35 +80,29 @@
 						else{
 						
 							echo'<button class="btn btn-sm btn-primary" type="button" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan <?php echo PHP_EOL; ?> to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span>  Save</button>';
-						} ?>
+						}
 					
-					</span>
+					echo'</span>';
 					
-				</div>
-			</form>
+				echo'</div>';
+			echo'</form>';
 		
-		<?php 
 		}
 		elseif( $this->user->has_layer && $this->layer->type == 'user-layer'){
 			
-			?>
-			
-			<form style="display:inline-block;" target="_parent" action="<?php echo $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $this->layer->slug . '/'; ?>" id="savePostForm" method="POST">
+			echo'<form style="display:inline-block;" target="_parent" action="' . $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
 				
-				<input type="hidden" name="postTitle" id="postTitle" value="<?php echo $this->user->layer->post_title;  ?>" class="form-control required" placeholder="Layer Title">
-				<input type="hidden" name="postContent" id="postContent" value="">
-				<input type="hidden" name="postAction" id="postAction" value="save">
+				echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $this->user->layer->post_title . '" class="form-control required" placeholder="Layer Title">';
+				echo'<input type="hidden" name="postContent" id="postContent" value="">';
+				echo'<input type="hidden" name="postAction" id="postAction" value="save">';
+				 
+				wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 				
-				<?php wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' ); ?>
+				echo'<input type="hidden" name="submitted" id="submitted" value="true">';
 				
-				<input type="hidden" name="_wp_http_referer" value="<?php echo '/editor/?uri=user-layer/' . $this->layer->slug . '/&lk=' . md5( 'layer' . $this->layer->uri . $this->_time ) . '&_=' .  $this->_time; ?>">
-				<input type="hidden" name="submitted" id="submitted" value="true">
+				echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>';
 				
-				<button style="background-color: #3F51B5;border: 1px solid #5869ca;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>
-				
-			</form>			
-			
-			<?php
+			echo'</form>';
 			
 			echo '<a class="btn btn-sm btn-danger" href="' . $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $this->layer->slug . '/&postAction=delete">Delete</a>';
 		}
@@ -132,8 +125,24 @@
 
 							echo'<div id="duplicateLayer" title="Duplicate Layer">';
 								
-								echo'<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the icon.</p>';
-							
+								echo'<form class="" style="width:250px;display:inline-block;" target="_parent" action="" id="duplicatePostForm" method="post">';
+									
+									echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;">';
+									echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
+									echo'<input type="hidden" name="postContent" value="">';
+									
+									wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
+									
+									echo'<input type="hidden" name="submitted" id="submitted" value="true">';
+									
+									echo'<div class="ui-helper-clearfix ui-dialog-buttonset">';
+
+										echo'<button class="btn btn-xs btn-primary pull-right" type="submit" id="duplicateBtn" style="border-radius:3px;">Duplicate</button>';
+								 
+									echo'</div>';
+									
+								echo'</form>';								
+								
 							echo'</div>';						
 							
 						echo'</li>';
