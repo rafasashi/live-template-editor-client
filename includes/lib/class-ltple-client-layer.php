@@ -109,4 +109,48 @@ class LTPLE_Client_Layer {
 			}
 		}
 	}
+	
+	public static function sanitize_content($str){
+		
+		$str = stripslashes($str);
+		
+		//$str = str_replace(array('&quot;'),array(htmlentities('&quot;')),$str);
+		
+		$str = str_replace(array('cursor: pointer;','data-element_type="video.default"'),'',$str);
+		
+		$str = str_replace(array('<body','</body>'),array('<div id="main"','</div>'),$str);
+		
+		//$str = html_entity_decode(stripslashes($str));
+		
+		//$str = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $str);
+		
+		$str = preg_replace( array(
+		
+				'/<iframe(.*?)<\/iframe>/is',
+				'/<title(.*?)<\/title>/is',
+				'/<pre(.*?)<\/pre>/is',
+				'/<frame(.*?)<\/frame>/is',
+				'/<frameset(.*?)<\/frameset>/is',
+				'/<object(.*?)<\/object>/is',
+				'/<script(.*?)<\/script>/is',
+				'/<style(.*?)<\/style>/is',
+				'/<embed(.*?)<\/embed>/is',
+				'/<applet(.*?)<\/applet>/is',
+				'/<meta(.*?)>/is',
+				'/<!doctype(.*?)>/is',
+				'/<link(.*?)>/is',
+				//'/<body(.*?)>/is',
+				//'/<\/body>/is',
+				//'/<head(.*?)>/is',
+				//'/<\/head>/is',
+				'/onload="(.*?)"/is',
+				'/onunload="(.*?)"/is',
+				'/<html(.*?)>/is',
+				'/<\/html>/is'
+			), 
+			'', $str
+		);
+		
+		return $str;
+	}
 }

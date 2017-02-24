@@ -1,8 +1,8 @@
 ;(function($){
 
 	$(document).ready(function(){
-		
-		//modal always on top
+			
+		//modal always on top 
 		
 		$('.modal').appendTo("body");
 		
@@ -49,7 +49,15 @@
 				}
 			});
 		});
+		
+		// set collapse
 
+		if( $('.collapse').length  > 0 ){
+		
+			$('.collapse').collapse({"toggle": false});
+		
+		}
+		
 		// set tooltips & popovers
 			
 		$('[data-toggle="tooltip"]').tooltip();
@@ -77,7 +85,6 @@
 			});
 		});
 		*/
-		
 		
 		// show active tab
 

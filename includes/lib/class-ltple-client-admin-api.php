@@ -398,7 +398,7 @@ class LTPLE_Client_Admin_API {
 						
 								$html .= 'Send  ';
 								
-								$html .= '<select name="email_series[model][]" id="plan_email_model">';
+								$html .= '<select style="width:350px;" name="email_series[model][]" id="plan_email_model">';
 
 								foreach ( $field['email-models'] as $k => $v ) {
 									

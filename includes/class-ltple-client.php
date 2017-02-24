@@ -912,9 +912,9 @@ class LTPLE_Client {
 		
 		if($this->layer->type != '' && $this->layer->slug != ''){
 			
-			remove_all_filters("content_save_pre");
+			remove_all_filters('content_save_pre');
 			remove_filter( 'the_content', 'wpautop' );
-			
+
 			// update user layer
 			
 			$this->update_user_layer();
@@ -2424,11 +2424,8 @@ class LTPLE_Client {
 				
 				// get post content
 				
-				$post_content = $_POST['postContent'];
-				$post_content = stripslashes($post_content);
-				$post_content = str_replace('&quot;','',$post_content);
-				//$post_content=html_entity_decode(stripslashes($post_content));
-				
+				$post_content = $this->layer->sanitize_content( $_POST['postContent'] );
+
 				if( $_POST['postAction'] == 'update' && $this->user->is_admin ){
 					
 					//update layer
@@ -2458,7 +2455,7 @@ class LTPLE_Client {
 					
 					//save layer
 					
-					$post_id = $post_title = $post_content='';
+					$post_id = $post_title = '';
 					$defaultLayerId = -1;
 					
 					if( $this->layer->type == 'user-layer' ){
@@ -2941,7 +2938,10 @@ class LTPLE_Client {
 	 * @return void
 	 */
 	public function enqueue_styles () {
-		
+
+		wp_register_style( $this->_token . '-jquery-ui', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-jquery-ui' );		
+	
 		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-frontend' );
 	
@@ -2957,6 +2957,8 @@ class LTPLE_Client {
 	 * @return  void
 	 */
 	public function enqueue_scripts () {
+		
+		wp_enqueue_script('jquery-ui-dialog');
 		
 		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend' . $this->script_suffix . '.js', array( 'jquery' ), $this->_version );
 		wp_enqueue_script( $this->_token . '-frontend' );

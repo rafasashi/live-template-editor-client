@@ -923,6 +923,7 @@
 					'fontawesome-4' 	=> 'Font Awesome 4',
 					'elementor-1.2.3' 	=> 'Elementor 1.2.3',
 					'animate' 			=> 'Animate',
+					'slick' 			=> 'Slick',
 				 
 				),
 				//'checked'		=> array('bootstrap-3'),

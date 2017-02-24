@@ -127,6 +127,18 @@
 					echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 						
 						echo'<li style="position:relative;">';
+						
+							echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Layer <span class="label label-warning pull-right">admin</span></a>';
+
+							echo'<div id="duplicateLayer" title="Duplicate Layer">';
+								
+								echo'<p>This is an animated dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the icon.</p>';
+							
+							echo'</div>';						
+							
+						echo'</li>';
+						
+						echo'<li style="position:relative;">';
 							
 							echo '<a id="updateBtn" href="#update-layer">Update Layer <span class="label label-warning pull-right">admin</span></a>';
 
@@ -221,7 +233,7 @@ if( $this->user->plan["info"]["total_price_amount"] == 0 ){
 		
 		echo'<div class="col-xs-9">';
 
-			echo'You are using a Demo version of ' . strtoupper(get_bloginfo( 'name' )) . '. Many features are missing such as: </br>'.PHP_EOL;
+			echo'You are using a Demo version of ' . strtoupper(get_bloginfo( 'name' )) . '. Many features are missing such as: </br>';
 			echo'Save & Load templates, Generate Meme images, Insert images from the Media Library, Copy CSS...';
 		
 		echo'</div>';
