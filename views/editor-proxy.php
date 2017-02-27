@@ -12,9 +12,12 @@
 	
 	$iframe_key = md5( 'iframe' . $this->layer->key . $ref_key . $this->_time . $this->user->user_email );
 	
+	// NB: query unvisible for the final user
+	
 	$request_url = $this->server->url . '/editor/?uri=' . $this->layer->uri 
 												.'&lk=' . $this->layer->key 
-												.'&lo=' . $this->layer->outputMode 
+												.'&lo=' . $this->layer->outputMode
+												.'&lm=' . $this->layer->layerMode 												
 												.'&ref='. $ref 
 												.'&rk='	. $ref_key 
 												.'&_=' 	. $this->_time

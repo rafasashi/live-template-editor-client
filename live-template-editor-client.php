@@ -539,6 +539,14 @@
 		
 		LTPLE_Client()->admin->add_meta_box (
 			
+			'layer-mode',
+			__( 'Layer Mode', 'live-template-editor-client' ), 
+			array("cb-default-layer"),
+			'side'
+		);
+		
+		LTPLE_Client()->admin->add_meta_box (
+			
 			'layer-options',
 			__( 'Layer Options', 'live-template-editor-client' ), 
 			array("cb-default-layer"),
@@ -886,6 +894,23 @@
 					'subscriber'	=> 'Subscriber',
 					'registered'	=> 'Registered',
 					'anyone'		=> 'Anyone',
+				),
+				'inline'		=> false,
+				'description'	=> ''
+		);
+		
+		$fields[]=array( 
+		
+			"metabox" =>
+			
+				array('name'	=> "layer-mode"),
+				'id'			=> "layerMode",
+				'label'			=> "",
+				'type'			=> 'radio',
+				'options'		=> array(
+				
+					'production'	=> 'Production',
+					'demo'			=> 'Demo',
 				),
 				'inline'		=> false,
 				'description'	=> ''
