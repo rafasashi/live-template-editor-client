@@ -69,19 +69,6 @@ class LTPLE_Client_Layer {
 					
 					$this->outputMode 	= get_post_meta( $this->defaultId, 'layerOutput', true );
 					
-					// get layer mode
-					
-					$layerMode = get_post_meta( $this->defaultId, 'layerMode', true );
-					
-					if( !empty($layerMode) ){
-						
-						$this->layerMode = $layerMode;
-					}
-					else{
-						
-						$this->layerMode = 'production';
-					}
-					
 					// recalled in layer template...
 					//$this->margin 		= get_post_meta( $this->defaultId, 'layerMargin', true );
 					//$this->options 		= get_post_meta( $this->defaultId, 'layerOptions', true );					

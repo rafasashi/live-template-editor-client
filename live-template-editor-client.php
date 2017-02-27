@@ -539,11 +539,20 @@
 		
 		LTPLE_Client()->admin->add_meta_box (
 			
+			'layer-form',
+			__( 'Layer Form', 'live-template-editor-client' ), 
+			array("cb-default-layer"),
+			'side'
+		);		
+		/*
+		LTPLE_Client()->admin->add_meta_box (
+			
 			'layer-mode',
 			__( 'Layer Mode', 'live-template-editor-client' ), 
 			array("cb-default-layer"),
 			'side'
 		);
+		*/
 		
 		LTPLE_Client()->admin->add_meta_box (
 			
@@ -903,6 +912,23 @@
 		
 			"metabox" =>
 			
+				array('name'	=> "layer-form"),
+				'id'			=> "layerForm",
+				'label'			=> "",
+				'type'			=> 'radio',
+				'options'		=> array(
+				
+					'none'		=> 'None',
+					'importer'	=> 'Importer',
+				),
+				'inline'		=> false,
+				'description'	=> ''
+		);
+		/*
+		$fields[]=array( 
+		
+			"metabox" =>
+			
 				array('name'	=> "layer-mode"),
 				'id'			=> "layerMode",
 				'label'			=> "",
@@ -915,6 +941,7 @@
 				'inline'		=> false,
 				'description'	=> ''
 		);
+		*/
 		
 		$fields[]=array(
 		

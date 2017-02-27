@@ -403,17 +403,19 @@ class LTPLE_Client_Admin_API {
 								foreach ( $field['email-models'] as $k => $v ) {
 									
 									$selected = false;
+									
 									if ( $k == $model ) {
 										
 										$selected = true;
 									}
-									elseif(isset($field['model-selected']) && $field['model-selected'] == $k ){
+									elseif( isset($field['model-selected']) && $field['model-selected'] == $k ){
 										
 										$selected = true;
 									}
 									
 									$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $k ) . '">' . $v . '</option>';
 								}
+								
 								$html .= '</select> ';
 
 								$html .= ' + ';

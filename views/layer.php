@@ -47,9 +47,19 @@
 	
 	$cssLibraries = get_post_meta( $layer_id, 'cssLibraries', true );
 	
+	if(empty($cssLibraries)){
+		
+		$cssLibraries = [];
+	}
+	
 	//get js libraries
 	
 	$jsLibraries = get_post_meta( $layer_id, 'jsLibraries', true );
+	
+	if(empty($jsLibraries)){
+		
+		$jsLibraries = [];
+	}
 	
 	//get layer image proxy
 	

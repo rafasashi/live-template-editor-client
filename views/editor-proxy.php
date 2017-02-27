@@ -17,7 +17,7 @@
 	$request_url = $this->server->url . '/editor/?uri=' . $this->layer->uri 
 												.'&lk=' . $this->layer->key 
 												.'&lo=' . $this->layer->outputMode
-												.'&lm=' . $this->layer->layerMode 												
+												.'&pu=' . urlencode($this->urls->plans)												
 												.'&ref='. $ref 
 												.'&rk='	. $ref_key 
 												.'&_=' 	. $this->_time
