@@ -19,10 +19,6 @@
 	
 	$layerOutput = get_post_meta( $layer_id, 'layerOutput', true );
 	
-	//get style-sheet
-	
-	$layerCss = get_post_meta( $layer_id, 'layerCss', true );
-	
 	//get layer margin
 	
 	$layerMargin = get_post_meta( $layer_id, 'layerMargin', true );
@@ -71,7 +67,7 @@
 					
 	//get layer content
 	
-	if( !empty($_POST['importHtml']) ){
+	if( isset($_POST['importHtml']) ){
 
 		$layerContent = $_POST['importHtml'];
 	}
@@ -82,6 +78,17 @@
 	
 	$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
 	
+	//get style-sheet
+	
+	if( isset($_POST['importCss']) ){
+
+		$layerCss = $_POST['importCss'];
+	}
+	elseif(empty($_POST)){
+		
+		$layerCss = get_post_meta( $layer_id, 'layerCss', true );
+	}
+
 	if($layerOutput=='canvas'){
 		
 		// replace image sources
@@ -169,7 +176,7 @@
 			
 			//include layer
 			
-			if( empty($_POST) && !empty($layerForm) ){
+			if( empty($_POST) && !empty($layerForm) && $layerForm != 'none' ){
 				
 				echo '<div class="container">';
 				
@@ -177,9 +184,9 @@
 					
 					echo '<div class="panel-heading">';
 					
-						if( $layerForm == 'importer' ){
+						if( !empty($layerForm) ){
 							
-							echo'<h4>Import a template</h4>';
+							echo'<h4>'.ucfirst($post->post_title).'</h4>';
 						}
 						
 					echo '</div>';
@@ -205,6 +212,25 @@
 									echo '</div>';
 									
 								echo '</div>';
+								
+								if( $layerOutput == 'external-css' ){
+									
+									echo '<div class="col-xs-3">';
+									
+										echo'<label>CSS</label>';
+										
+									echo '</div>';
+									
+									echo '<div class="col-xs-9">';
+									
+										echo '<div class="form-group">';
+										
+											echo '<textarea class="form-control" name="importCss" style="min-height:100px;"></textarea>';
+											
+										echo '</div>';
+										
+									echo '</div>';									
+								}
 
 								echo '<div class="col-xs-12 text-right">';
 									
@@ -231,7 +257,7 @@
 
 			if(	is_array($jsLibraries) ){
 			
-				if( in_array('jquery',$jsLibraries)){
+				if( in_array('jquery',$jsLibraries) || !empty($layerForm)){
 					
 					echo '<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>' .PHP_EOL;
 				}

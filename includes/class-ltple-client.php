@@ -963,13 +963,35 @@ class LTPLE_Client {
 	public function ltple_client_header(){
 
 		//echo '<link rel="stylesheet" href="https://raw.githubusercontent.com/dbtek/bootstrap-vertical-tabs/master/bootstrap.vertical-tabs.css">';	
+		
+		?>
+		<!-- Facebook Pixel Code -->
+		
+		<script>
+		!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+		n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+		n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+		t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+		document,'script','https://connect.facebook.net/en_US/fbevents.js');
+		fbq('init', '135366043652148'); // Insert your pixel ID here.
+		fbq('track', 'PageView');
+		</script>
+		<noscript><img height="1" width="1" style="display:none"
+		src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"
+		/></noscript>
+		
+		<!-- End Facebook Pixel Code -->
+		
+		<?php
+	
 	}	
 	
 	public function ltple_client_footer(){
 		
 		?>
-
-		<script>
+		<script> 
+		
+			<!-- Google Analytics Code -->
 		
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -978,8 +1000,11 @@ class LTPLE_Client {
 
 			ga('create', '<?php echo $this->settings->options->analyticsId; ?>', 'auto');
 			ga('send', 'pageview');
-
+			
+			<!-- End Google Analytics Code -->
+			
 		</script>
+
 		<?php
 	}
 	

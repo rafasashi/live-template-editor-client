@@ -195,7 +195,7 @@ class LTPLE_Client_Plan {
 							
 						$this->message .= '</div>';
 							
-						//Google Code for subscription completed Conversion Page
+						//Google adwords Code for subscription completed
 						
 						$this->message .='<script type="text/javascript">' . PHP_EOL;
 							$this->message .='/* <![CDATA[ */' . PHP_EOL;
@@ -217,7 +217,31 @@ class LTPLE_Client_Plan {
 							$this->message .='<div style="display:inline;">' . PHP_EOL;
 								$this->message .='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
 							$this->message .='</div>' . PHP_EOL;
-						$this->message .='</noscript>' . PHP_EOL;						
+						$this->message .='</noscript>' . PHP_EOL;	
+
+						
+						//Facebook Pixel Code for subscription completed
+						
+						$this->message .='<script>' . PHP_EOL;	
+						
+							$this->message .='!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' . PHP_EOL;	
+							$this->message .='n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' . PHP_EOL;	
+							$this->message .='n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;' . PHP_EOL;	
+							$this->message .='t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,' . PHP_EOL;	
+							$this->message .='document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');' . PHP_EOL;	
+							$this->message .='fbq(\'init\', \'135366043652148\');' . PHP_EOL;	
+							//$this->message .='fbq(\'track\', \'PageView\');' . PHP_EOL;	
+							$this->message .='fbq(\'track\', \'Purchase\', {' . PHP_EOL;	
+								$this->message .='value: '.$this->data['price'].'.00,' . PHP_EOL;	
+								$this->message .='currency: \'USD\'' . PHP_EOL;
+							$this->message .='});' . PHP_EOL;
+							
+							$this->message .='<noscript><img height="1" width="1" style="display:none"' . PHP_EOL;	
+							$this->message .='src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"' . PHP_EOL;	
+							$this->message .='/></noscript>' . PHP_EOL;						
+
+						$this->message .='</script>' . PHP_EOL;	
+
 					}
 					else{
 						
