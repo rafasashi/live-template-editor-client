@@ -43,6 +43,10 @@
 	
 	$layerOptions = get_post_meta( $layer_id, 'layerOptions', true );
 	
+	//get layer form
+	
+	$layerForm = get_post_meta( $layer_id, 'layerForm', true );
+
 	//get css libraries
 	
 	$cssLibraries = get_post_meta( $layer_id, 'cssLibraries', true );
@@ -67,7 +71,16 @@
 					
 	//get layer content
 	
-	$layerContent = LTPLE_Client_Layer::sanitize_content( $post->post_content);
+	if( !empty($_POST['importHtml']) ){
+
+		$layerContent = $_POST['importHtml'];
+	}
+	else{
+		
+		$layerContent = $post->post_content;
+	}
+	
+	$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
 	
 	if($layerOutput=='canvas'){
 		
@@ -104,7 +117,7 @@
 
 			if( is_array($cssLibraries) ){
 				
-				if( in_array('bootstrap-3',$cssLibraries)){
+				if( in_array('bootstrap-3',$cssLibraries)|| !empty($layerForm) ){
 					
 					echo '<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>';
 				}
@@ -145,7 +158,7 @@
 			
 			//include style-sheet
 			
-			if($layerCss!=''){
+			if( $layerCss!='' ){
 
 				echo '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;	
 				
@@ -156,12 +169,66 @@
 			
 			//include layer
 			
-			echo '<layer class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
+			if( empty($_POST) && !empty($layerForm) ){
 				
-				echo $layerContent;
+				echo '<div class="container">';
+				
+					echo '<div class="panel panel-default" style="margin:50px;">';
+					
+					echo '<div class="panel-heading">';
+					
+						if( $layerForm == 'importer' ){
+							
+							echo'<h4>Import a template</h4>';
+						}
+						
+					echo '</div>';
+					
+					echo '<div class="panel-body">';
+					
+						echo '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
+						
+							if( $layerForm == 'importer' ){
+						
+								echo '<div class="col-xs-3">';
+								
+									echo'<label>HTML</label>';
+									
+								echo '</div>';
+								
+								echo '<div class="col-xs-9">';
+								
+									echo '<div class="form-group">';
+									
+										echo '<textarea class="form-control" name="importHtml" style="min-height:100px;"></textarea>';
+										
+									echo '</div>';
+									
+								echo '</div>';
 
-			echo '</layer>' .PHP_EOL;
-			
+								echo '<div class="col-xs-12 text-right">';
+									
+									echo '<input class="btn btn-primary btn-md" type="submit" value="Import" />';
+									
+								echo '</div>';
+							}
+						
+						echo '</form>';
+						
+					echo '</div>';
+					echo '</div>';
+				
+				echo '</div>';
+			}
+			else{
+
+				echo '<layer class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
+								
+					echo $layerContent;
+				
+				echo '</layer>' .PHP_EOL;
+			}	
+
 			if(	is_array($jsLibraries) ){
 			
 				if( in_array('jquery',$jsLibraries)){
@@ -169,7 +236,7 @@
 					echo '<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>' .PHP_EOL;
 				}
 				
-				if( in_array('bootstrap-3',$jsLibraries)){
+				if( in_array('bootstrap-3',$jsLibraries) || !empty($layerForm)){
 					
 					echo '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>' .PHP_EOL;
 				

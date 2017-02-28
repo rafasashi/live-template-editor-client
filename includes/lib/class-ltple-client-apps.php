@@ -172,6 +172,7 @@ class LTPLE_Client_Apps {
 			
 			$terms 	= explode( PHP_EOL, $terms );
 			$terms	= array_map('trim',$terms);
+			$terms	= array_map('strtolower',$terms);
 			$terms 	= array_filter($terms);
 		}
 		

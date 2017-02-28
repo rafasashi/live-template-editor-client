@@ -183,7 +183,7 @@ class LTPLE_Client_App_Twitter {
 		
 		return false;
 	}
-	
+
 	public function startConnectionFor( $request='' ){
 	
 		// get a valid connection
@@ -238,6 +238,191 @@ class LTPLE_Client_App_Twitter {
 		return $connection;
 	}
 	
+	public function followNextLeads($appId = null, $count = 1){
+		
+		if( is_numeric($appId) ){
+			
+			$user_id = intval(get_post_field( 'post_author', $appId ));
+			
+			if( $user_id > 0 ){
+			
+				if( $app = json_decode(get_post_meta( $appId, 'appData', true ),false) ){
+				
+					// start connection
+
+					$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
+					
+					// get next leads
+
+					$args = array(
+						
+						'author' 	 	=> - $user_id,
+						'post_type' 	=> 'lead',
+						'posts_per_page'=> 10,
+						'meta_query' 	=> array(
+							'relation' 	=> 'OR',
+							array(
+								'key' 		=> 'leadRequestedBy'.$appId,
+								'value' 	=> 0,
+								'compare' 	=> '>',
+							),
+							array(
+								'key' 		=> 'leadRequestedBy'.$appId,
+								'compare' 	=> 'NOT EXISTS',
+							)
+						)			
+					);
+					
+					$q = get_posts($args);
+					
+					if( !empty($q) ){
+						
+						$names = [];
+						
+						foreach( $q as $lead){
+							
+							$meta = get_post_meta($lead->ID);
+							
+							if( isset($meta['leadTwtName'][0]) ){
+								
+								//stack screen name
+
+								$names[$lead->ID] = $meta['leadTwtName'][0];								
+							}
+						}
+						
+						if( !empty($names) ){
+								
+							// check friendship 
+
+							$friendships = $connection->get( 'friendships/lookup', array(
+							
+								'screen_name' => implode(',',$names),
+							));
+							
+							if(!empty($friendships)){
+								
+								$followed = [];
+								
+								foreach( $friendships as $friendship ){
+								
+									if( !empty($friendship->screen_name) && isset( $friendship->connections ) ){
+
+										$lead_id = array_search($friendship->screen_name,$names);
+										
+										if( in_array('none',$friendship->connections) ){
+											
+											// follow user
+												
+											$friend = $connection->post( 'friendships/create', array(
+										
+												'screen_name' => $friendship->screen_name,
+											));
+											
+											// set request time
+											
+											if( !empty($friend->screen_name) ){
+												
+												$followed[] = '@'.$friend->screen_name;
+												
+												update_post_meta( $lead_id, 'leadRequestedBy'.$appId, time() );
+											}
+											else{
+												
+												echo'Error following user...';
+												exit;											
+											}
+										}
+										else{
+											
+											update_post_meta( $lead_id, 'leadRequestedBy'.$appId, -1 );
+										}
+									}
+									else{
+										
+										echo'Error getting user connections...';
+										exit;
+									}
+									
+									if( count($followed) == $count){
+										
+										break;
+									}
+								}
+								
+								if(!empty($followed)){
+
+									$startWith = array(
+									
+										'Following awesomeness',
+										'Hello everyone',
+										'What\'s up',
+										'Wassup',
+										'Good day to',
+										'Howdy!',
+										'Hi there!',
+										'How are you',
+										'How are things',
+										'How do you do',
+										'What\'s happening',
+										'Greetings',
+										'Warm Greetings',
+										'Welcoming',
+										'Warm welcome to',
+										'Happy to connect with',
+										'Connecting with',
+										'just discovered',
+										'Discovering',
+										'In love with',
+										'Found of',
+										'Crazy about',
+										'pleased to meet',
+										'D\'like to connect with',
+										'D\'like to know',
+										'D\'like to chat with ',
+										'D\'like to talk',
+										'Can we talk',
+										'#handshake',
+										'#acknowledgment',
+										'#wordOfGreeting',
+										'Good day to',
+									);
+									
+									shuffle($startWith);
+									
+									$endWith = array(
+										
+										'',
+										'RT','Thx!','Thanks',
+										':D',':)','👌','🤣','😃','🙃','😘','😋','🤗',
+										'😎','😺','👐','🙌','👍','✌️','🖐','👋','👥',
+										'🕶','😻','🐵','🐱','🐭','🐹','🌟','🌞','☀️',
+									);
+									
+									shuffle($endWith);
+									
+									// tweet a group status
+									
+									$status = reset($startWith) . ' ' . implode(' ',$followed) . ' ' . reset($endWith);
+									
+									$tweet = $connection->post( 'statuses/update', array(
+									
+										'status' => $status,
+									));									
+								}
+							}
+							else{
+								
+								echo'Error getting user firendship...';
+								exit;									
+							}								
+						}
+					}
+				}
+			}
+		}			
+	}
+	
 	public function retweetLastTweet($appId = null, $count){
 		
 		if( is_numeric($appId) ){
@@ -282,7 +467,7 @@ class LTPLE_Client_App_Twitter {
 							
 							foreach($hashtags as $hashtag){
 
-								if(strpos($status->text . ' ', $hashtag.' ')!==false){
+								if(strpos(strtolower($status->text) . ' ', $hashtag.' ')!==false){
 									
 									$valid_status = true;
 								}
@@ -460,7 +645,7 @@ class LTPLE_Client_App_Twitter {
 							update_post_meta( $lead_id, 'leadEmail', 		LTPLE_Client_App_Scraper::extractEmails($follower->description,true));
 							update_post_meta( $lead_id, 'leadTwtFollowers',	$follower->followers_count);
 							update_post_meta( $lead_id, 'leadDescription',	$follower->description );
-							update_post_meta( $lead_id, 'leadnCanSpam',		'true' );
+							update_post_meta( $lead_id, 'leadCanSpam',		'true' );
 							update_post_meta( $lead_id, 'leadTwtProtected',$follower->protected );
 							
 							if(!empty($follower->entities->urls->display_url) && !empty($follower->entities->urls->expanded_url)){
