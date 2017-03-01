@@ -509,7 +509,7 @@
 			
 			'layer-css',
 			__( 'Layer CSS', 'live-template-editor-client' ), 
-			array("cb-default-layer"),
+			array("cb-default-layer","user-layer"),
 			'advanced'
 		);
 		
@@ -517,7 +517,7 @@
 			
 			'layer-js',
 			__( 'Layer Javascript', 'live-template-editor-client' ), 
-			array("cb-default-layer"),
+			array("cb-default-layer","user-layer"),
 			'advanced'
 		);
 		
@@ -607,7 +607,7 @@
 			'default_layer_id',
 			__( 'Default Layer', 'live-template-editor-client' ), 
 			array("user-layer"),
-			'advanced'
+			'side'
 		);
 		
 		LTPLE_Client()->admin->add_meta_box (
@@ -1020,6 +1020,30 @@
 	add_filter("user-layer_custom_fields", 	function (){
 			
 		$fields=[];
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"layer-css"),
+				'id'=>"layerCss",
+				'label'=>"",
+				'type'=>'textarea',
+				'placeholder'=>"Internal CSS style sheet",
+				'description'=>'<i>without '.htmlentities('<style></style>').'</i>'
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"layer-js"),
+				'id'=>"layerJs",
+				'label'=>"",
+				'type'=>'textarea',
+				'placeholder'=>"Additional Javascript",
+				'description'=>'<i>without '.htmlentities('<script></script>').'</i>'
+		);		
 		
 		$fields[]=array(
 			"metabox" =>

@@ -64,6 +64,7 @@
 					
 					echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" ' . ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? 'disabled' : '' ) .'>';
 					echo'<input type="hidden" name="postContent" id="postContent" value="">';
+					echo'<input type="hidden" name="postCss" id="postCss" value="">';
 					echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 					
 					wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
@@ -94,6 +95,7 @@
 				
 				echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $this->user->layer->post_title . '" class="form-control required" placeholder="Layer Title">';
 				echo'<input type="hidden" name="postContent" id="postContent" value="">';
+				echo'<input type="hidden" name="postCss" id="postCss" value="">';
 				echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 				 
 				wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
@@ -130,6 +132,7 @@
 									echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;">';
 									echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
 									echo'<input type="hidden" name="postContent" value="">';
+									echo'<input type="hidden" name="postCss" value="">'; 
 									
 									wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 									

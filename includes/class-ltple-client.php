@@ -2450,6 +2450,7 @@ class LTPLE_Client {
 				// get post content
 				
 				$post_content 	= $this->layer->sanitize_content( $_POST['postContent'] );
+				$post_css 		= ( !empty($_POST['postCss']) 	? stripcslashes( $_POST['postCss'] ) : '' );
 				$post_title 	= ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) : '' );
 				$post_name 		= $post_title;			
 
@@ -2475,6 +2476,8 @@ class LTPLE_Client {
 							global $wpdb;
 						
 							$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $layerId));
+						
+							update_post_meta($layerId, 'layerCss', $post_css);
 						}
 					}
 				}
@@ -2628,6 +2631,8 @@ class LTPLE_Client {
 						if( is_numeric($post_id) ){
 							
 							update_post_meta($post_id, 'defaultLayerId', $defaultLayerId);
+							
+							update_post_meta($post_id, 'layerCss', $post_css);
 							
 							//redirect to user layer
 							
@@ -3093,6 +3098,9 @@ class LTPLE_Client {
 		wp_register_script( $this->_token . '-admin', esc_url( $this->assets_url ) . 'js/admin' . $this->script_suffix . '.js', array( 'jquery' ), $this->_version );
 		wp_enqueue_script( $this->_token . '-admin' );
 
+		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-lazyload' );			
+		
 	} // End admin_enqueue_scripts ()
 
 	/**

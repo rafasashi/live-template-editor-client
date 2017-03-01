@@ -33,6 +33,10 @@
 			$( ".sortable .ui-sortable li" ).disableSelection();
 		
 		}
+		
+		// lazyload images on scroll
+		
+		$("img.lazy").lazyload();
 	});
 	
 })(jQuery);

@@ -67,6 +67,8 @@
 					
 	//get layer content
 	
+	$layerContent = '';
+	
 	if( isset($_POST['importHtml']) ){
 
 		$layerContent = $_POST['importHtml'];
@@ -80,14 +82,18 @@
 	
 	//get style-sheet
 	
+	$layerCss = '';
+
 	if( isset($_POST['importCss']) ){
 
-		$layerCss = $_POST['importCss'];
+		$layerCss = stripcslashes($_POST['importCss']);
 	}
 	elseif(empty($_POST)){
 		
-		$layerCss = get_post_meta( $layer_id, 'layerCss', true );
+		$layerCss = get_post_meta( $post->ID, 'layerCss', true );
 	}
+	
+	$layerCss = sanitize_text_field($layerCss);
 
 	if($layerOutput=='canvas'){
 		

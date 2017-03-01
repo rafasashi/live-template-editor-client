@@ -22,6 +22,8 @@
 				
 				add_filter('admin_footer-users.php', array($this, 'ltple_add_users_table_view'));
 				
+				add_filter('get_avatar', array($this, 'get_user_avatar'), 1, 5);			
+				
 				if( method_exists($this, 'ltple_update_' . $this->view . '_table') ){
 					
 					//remove_filter('manage_users_columns');
@@ -203,6 +205,16 @@
 			endswitch;
 		}
 		
+		public function get_user_avatar($avatar, $id_or_email, $size, $alt, $args){
+
+		 
+			//$avatar = '<img alt="' . $alt . '" src="image.png" width="' . $size . '" height="' . $size . '" />';
+	
+			$avatar = str_replace(array('src=','srcset='),array('class="lazy" data-original=','disabled-srcset='),$avatar);
+	
+			return $avatar;
+		}	
+		
 		public function ltple_add_users_table_view() {
 		 
 			?>
@@ -365,7 +377,7 @@
 				
 				$row .= '<span>';
 						
-					$text = "<img src='" . $this->parent->assets_url . "/images/magnet.png' width=24 height=24>";
+					$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/magnet.png' width=24 height=24>";
 					$row .= "<a title=\"Load leads from Twitter\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_twt_get_leads"), "app" => "twitter", "action" => "importLeads" , "ltple_view" => "subscribers", "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_load_leads", $text) . "</a>";
 					
 				$row .= '</span>';
@@ -376,12 +388,12 @@
 					
 					if($can_spam==='false'){
 						
-						$text = "<img src='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=25 height=25>";
+						$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=25 height=25>";
 						$row .= "<a title=\"Subscribe to mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "true" , "ltple_view" => "subscribers", "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
 					}
 					else{
 						
-						$text = "<img src='" . $this->parent->assets_url . "/images/right_arrow.png' width=25 height=25>";
+						$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/right_arrow.png' width=25 height=25>";
 						$row .= "<a title=\"Unsubscribe from mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "false" , "ltple_view" => "subscribers", "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
 					}
 					
