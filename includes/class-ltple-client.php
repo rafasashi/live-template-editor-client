@@ -1322,7 +1322,7 @@ class LTPLE_Client {
 	
 	public function get_user_plan_info( $user_id ){	
 
-		$user_plan_id 	 = $this->get_user_plan_id( $user_id );
+		$user_plan_id = $this->get_user_plan_id( $user_id );
 
 		$taxonomies = $this -> get_user_plan_custom_taxonomies();
 		//var_dump($taxonomies);exit;

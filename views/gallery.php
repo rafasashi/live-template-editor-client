@@ -16,13 +16,13 @@
 			<?php
 				
 				$released 				= [];
-				$released['demo'] 		= true;
+				$released['quickstart'] = true;
 				$released['emails'] 	= true;
 				$released['chaturbate'] = true;
 				$released['myfreecams'] = true;
 				$released['standalone'] = true;
 				$released['memes'] 		= true;
-				
+				 
 				$class=' class="active"';
 				
 				foreach($this->all->layerType as $term){

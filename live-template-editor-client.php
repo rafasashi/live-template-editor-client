@@ -188,7 +188,7 @@
 		'hierarchical' 			=> true,
 		'show_in_rest' 			=> true,
 		//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail','page-attributes' ),
-		'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail'),
+		'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail','page-attributes'),
 		'menu_position' 		=> 5,
 		'menu_icon' 			=> 'dashicons-admin-post',
 	));

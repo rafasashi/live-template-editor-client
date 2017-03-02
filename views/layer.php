@@ -69,7 +69,7 @@
 	
 	$layerContent = '';
 	
-	if( isset($_POST['importHtml']) ){
+	if( $post->post_type != 'user-layer' && isset($_POST['importHtml']) ){
 
 		$layerContent = $_POST['importHtml'];
 	}
@@ -84,7 +84,7 @@
 	
 	$layerCss = '';
 
-	if( isset($_POST['importCss']) ){
+	if( $post->post_type != 'user-layer' && isset($_POST['importCss']) ){
 
 		$layerCss = stripcslashes($_POST['importCss']);
 	}
@@ -182,7 +182,7 @@
 			
 			//include layer
 			
-			if( empty($_POST) && !empty($layerForm) && $layerForm != 'none' ){
+			if( $post->post_type != 'user-layer' && empty($_POST) && !empty($layerForm) && $layerForm != 'none' ){
 				
 				echo '<div class="container">';
 				
