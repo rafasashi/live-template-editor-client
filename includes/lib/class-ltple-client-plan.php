@@ -98,9 +98,9 @@ class LTPLE_Client_Plan {
 						
 						$append = false;
 
-						if( $this->data['price'] == 0 ){
+						if( $this->data['price'] == 0 || !empty($this->data['upgrade']) ){
 							
-							// demo or donation case
+							// demo, upgrade or donation case
 							
 							$append = true;
 						}
