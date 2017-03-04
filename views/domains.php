@@ -231,7 +231,7 @@
 
 											echo'<td style="width:30px;">';
 											
-												echo '<a href="' . $_SERVER['SCRIPT_URI'] .'?'. $_SERVER['QUERY_STRING'] . '&uri=user-layer/' . $layer->post_name . '/&postAction=delete" target="_self" class="btn btn-danger btn-sm" style="font-weight: bold;">';
+												echo '<a href="' . $this->urls->editor .'?'. $_SERVER['QUERY_STRING'] . '&uri=user-layer/' . $layer->post_name . '/&postAction=delete" target="_self" class="btn btn-danger btn-sm" style="font-weight: bold;">';
 												
 													echo 'x';
 												

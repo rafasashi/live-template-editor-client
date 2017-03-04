@@ -91,6 +91,11 @@
 	elseif(empty($_POST)){
 		
 		$layerCss = get_post_meta( $post->ID, 'layerCss', true );
+		
+		if( $layerCss == '' && $post->ID != $layer_id){
+			
+			$layerCss = get_post_meta( $layer_id, 'layerCss', true );
+		}
 	}
 	
 	$layerCss = sanitize_text_field($layerCss);

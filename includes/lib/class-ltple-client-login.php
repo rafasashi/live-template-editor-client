@@ -91,7 +91,7 @@ class LTPLE_Client_Login {
 				$redirect_to = '&ref='.str_replace(array('http://','https://'),'',$_REQUEST['redirect_to']);
 			}
 
-			$this->twitterUrl = $_SERVER['SCRIPT_URI'] . '?app=twitter&action=login' . $redirect_to;
+			$this->twitterUrl = $this->parent->urls->editor . '?app=twitter&action=login' . $redirect_to;
 		}
 	}
 	

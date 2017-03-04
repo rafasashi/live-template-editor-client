@@ -258,14 +258,16 @@ class LTPLE_Client_App_Twitter {
 						
 						'author' 	 	=> - $user_id,
 						'post_type' 	=> 'lead',
-						'posts_per_page'=> 10,
+						'posts_per_page'=> 100,
 						'meta_query' 	=> array(
 							'relation' 	=> 'OR',
+							/*
 							array(
 								'key' 		=> 'leadRequestedBy'.$appId,
 								'value' 	=> 0,
 								'compare' 	=> '>',
 							),
+							*/
 							array(
 								'key' 		=> 'leadRequestedBy'.$appId,
 								'compare' 	=> 'NOT EXISTS',
@@ -422,6 +424,157 @@ class LTPLE_Client_App_Twitter {
 			}
 		}			
 	}
+
+	public function unfollowLastLeads($appId = null, $count = 1){
+		
+		if( is_numeric($appId) ){
+			
+			$user_id = intval(get_post_field( 'post_author', $appId ));
+			
+			if( $user_id > 0 ){
+			
+				if( $app = json_decode(get_post_meta( $appId, 'appData', true ),false) ){
+				
+					// start connection
+
+					$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
+					
+					// get last leads followed
+
+					$args = array(
+						
+						'author' 	 	=> - $user_id,
+						'post_type' 	=> 'lead',
+						'posts_per_page'=> 100,
+						'meta_key'      => 'leadRequestedBy'.$appId,
+						'order_by'      => 'meta_value_num',
+						'order'         => 'DESC', // older first				
+						'meta_query' 	=> array(
+							'relation' 	=> 'AND',
+							array(
+								'key' 		=> 'leadRequestedBy'.$appId,
+								'value' 	=> '-2',
+								'compare' 	=> '!=',
+							),
+							array(
+								'key' 		=> 'leadRequestedBy'.$appId,
+								'compare' 	=> 'EXISTS',
+							)
+						)			
+					);
+					
+					$q = get_posts($args);
+					
+					if( !empty($q) ){
+
+						$names 		= [];
+						$max_dms 	= 3;
+						
+						foreach( $q as $lead){
+							
+							$lead->meta = get_post_meta($lead->ID);
+							
+							if( isset($lead->meta['leadTwtName'][0]) ){
+								
+								//stack screen name
+
+								$names[$lead->ID] = $lead->meta['leadTwtName'][0];								
+							}
+						}
+						
+						if( !empty($names) ){
+								
+							// check friendship 
+
+							$friendships = $connection->get( 'friendships/lookup', array(
+							
+								'screen_name' => implode(',',$names),
+							));
+							
+							if(!empty($friendships)){							
+							
+								$dms = 0;
+							
+								foreach( $friendships as $friendship ){
+								
+									if( !empty($friendship->screen_name) && isset( $friendship->connections ) ){
+
+										$lead_id = array_search($friendship->screen_name,$names);
+										
+										if( !in_array('followed_by',$friendship->connections) ){
+											
+											// unfollow user
+												
+											$connection->post( 'friendships/destroy', array(
+										
+												'screen_name' => $friendship->screen_name,
+											));
+											
+											// set request 
+
+											update_post_meta( $lead_id, 'leadRequestedBy'.$appId, -2 );
+										}
+										else{
+											
+											// thanks for followingback DM on behalf of main account
+											
+											$dm_content = get_option( $this->parent->_base . 'twt_thanks_followback_dm' );
+								
+											if(!empty($dm_content)){
+												
+												$reponse = $connection->post('direct_messages/new', array(
+												
+													'screen_name' 	=> $friendship->screen_name,
+													'text' 			=> $this->do_shortcodes($dm_content,$friendship->screen_name)
+												));
+												
+												if(isset($reponse->created_at)){
+										
+													// set request 
+
+													update_post_meta( $lead_id, 'leadRequestedBy'.$appId, -2 );													
+										
+													sleep(1);
+										
+													++$dms;
+												} 
+												elseif( !empty($reponse->errors[0]->code) ){
+													
+													var_dump($reponse->errors[0]);
+													exit;
+												}
+											}
+										}
+									}
+									else{
+										
+										echo'Error getting user connections...';
+										exit;
+									}
+									
+									if( $dms == $max_dms){
+										
+										break;
+									}									
+								}
+							}
+							else{
+								
+								echo'Error getting user firendship...';
+								exit;									
+							}								
+						}
+					}
+					else{
+						
+						echo'No more firendships to analyse...';
+						exit;						
+					}
+				}
+			}
+		}
+	}
+	
 	
 	public function retweetLastTweet($appId = null, $count){
 		

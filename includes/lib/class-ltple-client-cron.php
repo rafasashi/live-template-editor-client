@@ -25,14 +25,17 @@ class LTPLE_Client_Cron {
 				//$this->ltple_twt_import_leads_event();
 			
 				//$this->ltple_twt_auto_follow_event(15167,5);
+				
+				//$this->ltple_twt_auto_unfollow_event(15167,5);
 			}
 		});
 	}
-	
+
 	public function cron_init($event){
 		
 		add_action( $this->parent->_base . 'twt_auto_retweet', 	array( $this, 'ltple_twt_auto_retweet_event'),1,2);
 		add_action( $this->parent->_base . 'twt_auto_follow', 	array( $this, 'ltple_twt_auto_follow_event'),1,2);
+		add_action( $this->parent->_base . 'twt_auto_unfollow', array( $this, 'ltple_twt_auto_follow_event'),1,2);
 		add_action( $this->parent->_base . 'twt_import_leads', 	array( $this, 'ltple_twt_import_leads_event'),1);
 	}
 	
@@ -112,6 +115,18 @@ class LTPLE_Client_Cron {
 		}
 		
 		$this->parent->apps->{$appSlug}->followNextLeads($appId, $next);
+	}
+	
+	public function ltple_twt_auto_unfollow_event( $appId, $last ){
+		
+		$appSlug = 'twitter';
+		
+		if( !isset( $this->parent->apps->{$appSlug} ) ){
+			
+			$this->parent->apps->includeApp($appSlug);
+		}
+		
+		$this->parent->apps->{$appSlug}->unfollowLastLeads($appId, $last);
 	}
 	
 	public function ltple_twt_import_leads_event(){

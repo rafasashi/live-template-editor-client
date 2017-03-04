@@ -1085,7 +1085,7 @@ class LTPLE_Client {
 
 					echo'<a style="margin:0 2px;" class="btn-lg btn-success" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'">Login</a>';
 					
-					echo'<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SCRIPT_URI'] ) .'&action=register">Register</a>';
+					echo'<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( $this->urls->editor ) .'&action=register">Register</a>';
 				
 				echo'</div>';
 				
@@ -2564,13 +2564,13 @@ class LTPLE_Client {
 
 				//redirect page
 				
-				$parsed = parse_url($_SERVER['SCRIPT_URI'] .'?'. $_SERVER['QUERY_STRING']);
+				$parsed = parse_url($this->urls->editor .'?'. $_SERVER['QUERY_STRING']);
 
 				parse_str($parsed['query'], $params);
 
 				unset($params['uri'],$params['postAction']);
 				
-				$url = $_SERVER['SCRIPT_URI'];
+				$url = $this->urls->editor;
 				
 				$query = http_build_query($params);
 				
@@ -2676,7 +2676,7 @@ class LTPLE_Client {
 								
 								//redirect to user layer
 
-								$layer_url = $_SERVER['SCRIPT_URI'] . '?uri=' . $this->layer->type . '/' . get_post_field( 'post_name', $post_id ) . '/';
+								$layer_url = $this->urls->editor . '?uri=' . $this->layer->type . '/' . get_post_field( 'post_name', $post_id ) . '/';
 								
 								//var_dump($layer_url);exit;
 								
@@ -2773,7 +2773,7 @@ class LTPLE_Client {
 							
 							//redirect to user layer
 							
-							$user_layer_url = $_SERVER['SCRIPT_URI'] . '?uri=' . 'user-layer/' .  get_post_field( 'post_name', $post_id) . '/';
+							$user_layer_url = $this->urls->editor . '?uri=' . 'user-layer/' .  get_post_field( 'post_name', $post_id) . '/';
 							
 							//var_dump($user_layer_url);exit;
 							

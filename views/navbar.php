@@ -4,7 +4,7 @@
 		
 		<div class="pull-left">
 
-			<a class="btn btn-sm btn-warning" href="<?php echo $_SERVER['SCRIPT_URI'] ?>" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Designs" data-content="The gallery is where you can find beautifull designs to start a project. New things are added every week.">
+			<a class="btn btn-sm btn-warning" href="<?php echo $this->urls->editor; ?>" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Designs" data-content="The gallery is where you can find beautifull designs to start a project. New things are added every week.">
 			
 				Gallery
 			
@@ -58,7 +58,7 @@
 
 		<?php if( $this->layer->type == 'default-layer' ){
 		
-			echo'<form class="pull-left" style="width:250px;display:inline-block;" target="_parent" action="'. $_SERVER['SCRIPT_URI'] . '?uri=default-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
+			echo'<form class="pull-left" style="width:250px;display:inline-block;" target="_parent" action="'. $this->urls->editor . '?uri=default-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
 				
 				echo'<div class="input-group">';
 					
@@ -91,7 +91,7 @@
 		}
 		elseif( $this->user->has_layer && $this->layer->type == 'user-layer'){
 			
-			echo'<form style="display:inline-block;" target="_parent" action="' . $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
+			echo'<form style="display:inline-block;" target="_parent" action="' . $this->urls->editor . '?uri=user-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
 				
 				echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $this->user->layer->post_title . '" class="form-control required" placeholder="Layer Title">';
 				echo'<input type="hidden" name="postContent" id="postContent" value="">';
@@ -106,7 +106,7 @@
 				
 			echo'</form>';
 			
-			echo '<a class="btn btn-sm btn-danger" href="' . $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $this->layer->slug . '/&postAction=delete">Delete</a>';
+			echo '<a class="btn btn-sm btn-danger" href="' . $this->urls->editor . '?uri=user-layer/' . $this->layer->slug . '/&postAction=delete">Delete</a>';
 		}
 		
 		if( $this->layer->type != '' ){
@@ -182,8 +182,8 @@
 								
 								echo'<li style="position:relative;">';
 									
-									echo '<a href="' . $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $layer->post_name . '/'. '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
-									echo '<a class="btn-xs btn-danger" href="' . $_SERVER['SCRIPT_URI'] . '?uri=user-layer/' . $layer->post_name . '/&postAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
+									echo '<a href="' . $this->urls->editor . '?uri=user-layer/' . $layer->post_name . '/'. '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
+									echo '<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?uri=user-layer/' . $layer->post_name . '/&postAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
 								
 								echo'</li>';						
 							}
@@ -217,7 +217,7 @@
 				
 				echo'<li style="position:relative;">';
 					
-					echo '<a href="'. wp_logout_url( $_SERVER['SCRIPT_URI'] ) .'"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout</a>';
+					echo '<a href="'. wp_logout_url( $this->urls->editor ) .'"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout</a>';
 
 				echo'</li>';	
 				

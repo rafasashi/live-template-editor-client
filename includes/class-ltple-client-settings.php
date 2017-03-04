@@ -555,6 +555,16 @@ class LTPLE_Client_Settings {
 					'last' 			=> true,
 				),
 				array(
+					'id' 			=> 'twt_auto_unfollow',
+					'label'			=> __( 'Auto Unfollow' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'action_schedule',
+					'action' 		=> 'unfollow',
+					'unit' 			=> 'leads',
+					'appId' 		=> ( isset($_POST[$this->parent->_base .'twt_main_account']) ? intval($_POST[$this->parent->_base .'twt_main_account']) : intval(get_option( $this->parent->_base .'twt_main_account' )) ),
+					'last' 			=> true,
+				),
+				array(
 					'id' 			=> 'twt_import_leads',
 					'label'			=> __( 'Import Leads' , $this->plugin->slug ),
 					'description'	=> '',
@@ -575,7 +585,14 @@ class LTPLE_Client_Settings {
 					'description'	=> 'Direct Message to be sent when a new Twitter account is connected',
 					'type'			=> 'textarea',
 					'placeholder'	=> __( 'Welcome DM', $this->plugin->slug )
-				)				
+				),
+				array(
+					'id' 			=> 'twt_thanks_followback_dm',
+					'label'			=> __( 'Thanks Followback DM' , $this->plugin->slug ),
+					'description'	=> 'Direct Message to be sent when a Twitter account followback',
+					'type'			=> 'textarea',
+					'placeholder'	=> __( 'Thanks Follow DM', $this->plugin->slug )
+				)					
 			)
 		);
 		
