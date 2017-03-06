@@ -127,7 +127,7 @@
 
 							echo'<div id="duplicateLayer" title="Duplicate Layer">';
 								
-								echo'<form class="" style="width:250px;display:inline-block;" target="_parent" action="" id="duplicatePostForm" method="post">';
+								echo'<form class="" style="width:250px;display:inline-block;" target="_parent" action="' . $this->urls->current . '" id="duplicatePostForm" method="post">';
 									
 									echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;">';
 									echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';

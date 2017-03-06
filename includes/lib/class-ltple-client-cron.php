@@ -21,7 +21,8 @@ class LTPLE_Client_Cron {
 			
 			if(isset($_GET['debug'])){
 			
-				//$this->ltple_twt_auto_retweet_event(15167, 10);
+				$this->ltple_twt_auto_retweet_event(15167, 10);
+				
 				//$this->ltple_twt_import_leads_event();
 			
 				//$this->ltple_twt_auto_follow_event(15167,5);
@@ -35,7 +36,7 @@ class LTPLE_Client_Cron {
 		
 		add_action( $this->parent->_base . 'twt_auto_retweet', 	array( $this, 'ltple_twt_auto_retweet_event'),1,2);
 		add_action( $this->parent->_base . 'twt_auto_follow', 	array( $this, 'ltple_twt_auto_follow_event'),1,2);
-		add_action( $this->parent->_base . 'twt_auto_unfollow', array( $this, 'ltple_twt_auto_follow_event'),1,2);
+		add_action( $this->parent->_base . 'twt_auto_unfollow', array( $this, 'ltple_twt_auto_unfollow_event'),1,2);
 		add_action( $this->parent->_base . 'twt_import_leads', 	array( $this, 'ltple_twt_import_leads_event'),1);
 	}
 	

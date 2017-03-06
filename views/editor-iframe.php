@@ -18,7 +18,7 @@
 			
 			$server_editor_url = $this->server->url . '/editor/?uri=' . $this->layer->uri . '&lk=' . $this->layer->key . '&ref=' . $ref . '&rk='. $ref_key . '&_=' . $this->_time;
 			
-			echo'<form id="editorIframe" action="' . $server_editor_url . '" method="POST">';
+			echo'<form id="editorIframe" action="' . $server_editor_url . '" method="post">';
 				
 				echo'<input type="hidden" name="ik" value="' . $iframe_key . '">';
 

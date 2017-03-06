@@ -38,6 +38,7 @@ class LTPLE_Client_Urls {
 		$this->editor 	= home_url().'/'.get_option( $this->parent->_base . 'editorSlug' ).'/';
 		$this->login 	= home_url().'/'.get_option( $this->parent->_base . 'loginSlug' ).'/';
 		$this->plans 	= home_url().'/'.get_option( $this->parent->_base . 'plansSlug' ).'/';
+		$this->current 	= 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 	}
 	
 	/**

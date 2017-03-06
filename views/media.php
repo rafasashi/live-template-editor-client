@@ -360,7 +360,7 @@
 										$disabled = ' disabled';
 									}
 									
-									echo '<form target="_self" action="' . $this->urls->editor . '?media" id="saveImageForm" method="POST" enctype="multipart/form-data">';
+									echo '<form target="_self" action="' . $this->urls->editor . '?media" id="saveImageForm" method="post" enctype="multipart/form-data">';
 									echo'<div class="col-xs-6">';
 
 										echo '<div style="padding-bottom:10px;display:block;">';
@@ -469,7 +469,7 @@
 											
 										$save_url = '';
 					
-										echo '<form style="padding:10px;" target="_self" action="' . $save_url . '" id="saveImageForm" method="POST">';
+										echo '<form style="padding:10px;" target="_self" action="' . $save_url . '" id="saveImageForm" method="post">';
 											
 											echo '<div style="padding-bottom:10px;display:block;">';
 

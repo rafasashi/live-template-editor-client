@@ -221,7 +221,7 @@
 											
 												echo '<h4>Edit message</h4>';
 											
-												echo '<form action="" method="post">';
+												echo '<form action="' . $this->urls->current . '" method="post">';
 												
 													if(!isset($this->apps->twitter)){
 														

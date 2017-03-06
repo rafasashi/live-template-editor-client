@@ -41,7 +41,7 @@
 			
 			echo'<div class="tab-pane active" id="general-info">';
 			
-				echo'<form action="" method="post" class="tab-content row" style="margin:20px;">';
+				echo'<form action="' . $this->urls->current . '" method="post" class="tab-content row" style="margin:20px;">';
 
 					echo'<div class="col-xs-12 col-sm-6">';
 				
@@ -118,7 +118,7 @@
 			/*	
 			echo'<div class="tab-pane" id="custom-profile">';
 				
-				echo'<form action="" method="post" class="tab-content row" style="margin:20px;">';
+				echo'<form action="' . $this->urls->current . '" method="post" class="tab-content row" style="margin:20px;">';
 
 					echo'<div class="col-xs-12 col-sm-6">';
 				
@@ -180,7 +180,7 @@
 			
 			echo'<div class="tab-pane" id="connected-apps">';
 			
-				echo'<form action="" method="post" class="tab-content row" style="margin:20px;">';
+				echo'<form action="' . $this->urls->current . '" method="post" class="tab-content row" style="margin:20px;">';
 
 					echo'<div class="col-xs-12 col-sm-6">';
 				

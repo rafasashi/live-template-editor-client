@@ -2271,7 +2271,7 @@ class LTPLE_Client {
 					$subscription_plan.=$plan_content;
 					
 					$subscription_plan.='<div id="plan_form">';
-					//$subscription_plan.='<form id="plan_form" action="" method="POST">'.PHP_EOL;
+					//$subscription_plan.='<form id="plan_form" action="" method="post">'.PHP_EOL;
 
 						// Output iframe
 						

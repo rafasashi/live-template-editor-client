@@ -47,7 +47,7 @@ class LTPLE_Client_Json_API {
 		
 		if($form){
 		
-			echo '<form id="tableForm" action="" method="post">';
+			echo '<form id="tableForm" action="' . $this->parent->urls->current . '" method="post">';
 		}
 	
 		echo '<div id="'.$toolbar.'" class="btn-group">';

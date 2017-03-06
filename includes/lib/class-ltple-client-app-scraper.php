@@ -336,7 +336,7 @@ class LTPLE_Client_App_Scraper {
 					$input = str_replace('{'.$k.'}',' '.$this->parent->admin->display_field( $field, false, false ).' ',$input);				
 				}
 				
-				$this->parent->message .= '<form action="" method="post">';
+				$this->parent->message .= '<form action="' . $this->parent->urls->current . '" method="post">';
 					
 					$this->parent->message .= '<div class="col-xs-8">';
 					

@@ -159,7 +159,7 @@
 
 											echo'<td style="width:550px;">';
 											
-												echo'<form action="" method="post">';
+												echo'<form action="' . $this->urls->current . '" method="post">';
 											
 													echo'<input type="hidden" name="layerId" value="' . $layer->ID . '" />';
 													

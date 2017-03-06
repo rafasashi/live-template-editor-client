@@ -427,6 +427,8 @@ class LTPLE_Client_App_Twitter {
 
 	public function unfollowLastLeads($appId = null, $count = 1){
 		
+		exit;
+		
 		if( is_numeric($appId) ){
 			
 			$user_id = intval(get_post_field( 'post_author', $appId ));
@@ -586,9 +588,14 @@ class LTPLE_Client_App_Twitter {
 
 				$connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $app->oauth_token, $app->oauth_token_secret);
 				
+				// get niche hashtags
+					
+				$hashtags = $this->parent->apps->get_niche_hashtags();			
+				
 				// get item
 				
-				$statuses = $connection->get('statuses/user_timeline', array( 
+				/*
+				$q->statuses = $connection->get('statuses/user_timeline', array( 
 				
 					'screen_name' 		=> $app->screen_name, 
 					'count' 			=> 200,
@@ -597,78 +604,66 @@ class LTPLE_Client_App_Twitter {
 					'include_entities' 	=> true,
 					'include_rts' 		=> false
 				));
+				*/
 				
-				if(!empty($statuses)){
+				$q = $connection->get('search/tweets', array( 
 				
+					'q' 				=> 'from:'.$app->screen_name . ' '. implode(' OR ',$hashtags), 
+					'count' 			=> 100,
+					'trim_user'			=> true,
+					'include_entities' 	=> true,
+					'result_type' 		=> 'recent',
+				));				
+				
+				if(!empty($q->statuses)){
+					
 					$items = [];
 
-					// get niche hashtags
-					
-					$hashtags = $this->parent->apps->get_niche_hashtags();
-					
 					// fetch creation times
 
-					foreach( $statuses as $status ){
-						
-						$valid_status = false;
-						
-						if( empty($hashtags) ){
-							
-							$valid_status = true;
-						}
-						else{
-							
-							foreach($hashtags as $hashtag){
+					foreach( $q->statuses as $status ){
 
-								if(strpos(strtolower($status->text) . ' ', $hashtag.' ')!==false){
-									
-									$valid_status = true;
-								}
-							}
-						}
-						
-						if($valid_status){
-						
-							if($status->retweeted){
-								
-								// get retweets dates
-								
-								$retweets = $connection->get('statuses/retweets/'.$status->id);
-								
-								$time = strtotime($retweets[0]->created_at);
-							}
-							else{
-								
-								$time = strtotime($status->created_at);
-							}
+						if( !empty($status->retweeted_status) ){
 							
+							$time = $status->created_at =  strtotime($status->created_at);
+
 							$items[$time] = $status;
 							
 							if( count($items) == $count){
-								
+									
 								break;
 							}
 						}
 					}
-					
+
 					if(!empty($items)){
 					
 						// sort by time
 						
 						ksort($items, SORT_NUMERIC);
-						
+							
 						// get the oldest status (first in list)
 						
 						$status = reset($items);
-						
+
 						// unretweet
 						
-						$connection->post('statuses/unretweet/'.$status->id);
+						$result = $connection->post('statuses/unretweet/'.$status->retweeted_status->id);
 
 						// retweet
 						
-						$connection->post('statuses/retweet/'.$status->id);	
+						$result = $connection->post('statuses/retweet/'.$status->retweeted_status->id);
+						
+						echo'<pre>';
+						var_dump($result);
+						exit;	
 					}					
+				}
+				elseif(!empty($q->errors)){
+					
+					echo'<pre>';
+					var_dump($q->errors);
+					exit;						
 				}
 			}
 		}
