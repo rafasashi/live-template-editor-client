@@ -44,7 +44,7 @@ class LTPLE_Client_Channels {
 			echo '<div class="postbox" style="min-height:45px;">';
 				
 				echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Marketing Channel', 'live-template-editor-client' ) . '</h3>';
-						
+				
 				$tax = get_taxonomy( $this->taxonomy );
 
 				/* Make sure the user can assign terms of the user taxonomy before proceeding. */

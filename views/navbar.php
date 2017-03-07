@@ -213,7 +213,16 @@
 					
 					echo '<a href="'. $this->urls->editor .'?my-profile"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Edit Settings</a>';
 
-				echo'</li>';				
+				echo'</li>';
+				
+				if( $this->user->is_affiliate ){
+		
+					echo'<li style="position:relative;">';
+						
+						echo '<a href="'. $this->urls->editor .'?affiliate"><span class="glyphicon glyphicon-usd" aria-hidden="true"></span> Affiliate Program</a>';
+
+					echo'</li>';					
+				}
 				
 				echo'<li style="position:relative;">';
 					

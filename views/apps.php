@@ -46,9 +46,9 @@
 
 		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;">';
 			
-			echo'<div class="tab-content">';
-
-				if( $currentTab == 'apps' ){
+			if( $currentTab == 'apps' ){
+				
+				echo'<div class="tab-content">';
 			
 					$app_types = $this->get_app_types();
 			
@@ -190,9 +190,12 @@
 						
 					echo'</div>';
 					
-				}
-				elseif( $currentTab == 'opportunities' ){
+				echo'</div>';
+			}
+			elseif( $currentTab == 'opportunities' ){
 
+				echo'<div class="tab-content row">';
+				
 					echo'<div id="opportunities" class="panel-group" role="tablist" aria-multiselectable="true">';
 
 						echo'<div class="panel-default">';
@@ -359,10 +362,14 @@
 						*/
 						
 					echo'</div>';
-				}
-				elseif( $currentTab == 'members' ){
-
-					//---------------------- output members --------------------------
+					
+				echo'</div>';
+			}
+			elseif( $currentTab == 'members' ){
+			
+				//---------------------- output members --------------------------
+				
+				echo'<div class="tab-content">';
 					
 					echo'<div id="members">';
 
@@ -395,9 +402,13 @@
 						}
 					
 					echo'</div>';
-				}
-				elseif( $currentTab == 'leads' ){
+					
+				echo'</div>';
+			}
+			elseif( $currentTab == 'leads' ){
 
+				echo'<div class="tab-content">';
+				
 					echo'<div id="leads">';
 
 						echo'<div class="bs-callout bs-callout-primary">';
@@ -414,11 +425,11 @@
 							
 						$this->api->get_table($api_url, $fields, false, true);
 					
-					echo'</div>';				
-				}
+					echo'</div>';
+					
+				echo'</div>';
+			}
 
-			echo'</div>';
-			
 		echo'</div>	';
 
 	echo'</div>';

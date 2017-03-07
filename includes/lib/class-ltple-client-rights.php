@@ -28,8 +28,8 @@ class LTPLE_Client_Rights {
 		
 		// save rights taxonomy custom fields
 		
-		add_action( 'personal_options_update', array( $this, 'save_custom_user_rights_fields' ) );
-		add_action( 'edit_user_profile_update', array( $this, 'save_custom_user_rights_fields' ) );
+		add_action( 'personal_options_update', array( $this, 'save_user_rights' ) );
+		add_action( 'edit_user_profile_update', array( $this, 'save_user_rights' ) );
 		
 		*/
 	}
@@ -60,7 +60,7 @@ class LTPLE_Client_Rights {
 		}	
 	}
 	
-	public function save_custom_user_rights_fields( $user_id ) {
+	public function save_user_rights( $user_id ) {
 		
 		if(isset($_POST[$this->parent->_base . 'user-rights'])){
 			

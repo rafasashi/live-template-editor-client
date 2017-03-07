@@ -189,8 +189,6 @@
 				
 				//---------------------- output referral urls --------------------------
 				
-				
-				
 				echo'<div class="tab-pane" id="my-ref-urls">';
 				
 					//output Tab panes

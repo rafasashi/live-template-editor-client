@@ -127,8 +127,10 @@ class LTPLE_Client {
 		$this->client 		= new LTPLE_Client_Client( $this );
 		$this->request 		= new LTPLE_Client_Request( $this );
 		$this->urls 		= new LTPLE_Client_Urls( $this );
+		$this->programs 	= new LTPLE_Client_Programs( $this );
 		$this->stars 		= new LTPLE_Client_Stars( $this );
 		$this->login 		= new LTPLE_Client_Login( $this );
+		
 		
 		// Load API for generic admin functions
 		
@@ -145,7 +147,9 @@ class LTPLE_Client {
 		
 		$this->leads 	= new LTPLE_Client_Leads( $this );
 		
-		$this->plan 	= new LTPLE_Client_Plan( $this );		
+		$this->plan 	= new LTPLE_Client_Plan( $this );
+
+		$this->rights 	= new LTPLE_Client_Rights( $this );		
 		
 		if( is_admin() ) {
 			
@@ -159,8 +163,6 @@ class LTPLE_Client {
 			$this->users 	= new LTPLE_Client_Users( $this );
 
 			$this->channels = new LTPLE_Client_Channels( $this );
-			
-			$this->rights 	= new LTPLE_Client_Rights( $this );
 			
 			add_action( 'init', array( $this, 'ltple_client_backend_init' ));	
 		}
@@ -376,9 +378,26 @@ class LTPLE_Client {
 			
 			$this->user->stars = $this->stars->get_count($this->user->ID);
 			
+			// get user programs
+		
+			$this->user->programs = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-programs',true) );
+			
+			// get user affiliate
+			
+			$this->user->is_affiliate = false;
+			
+			if( ( !empty($this->user->programs) && in_array('affiliate', $this->user->programs)) || $this->user->is_admin ){
+				
+				$this->user->is_affiliate = true;
+				
+				$this->user->affiliate_clicks 		= $this->programs->get_affiliate_counter($this->user->ID, 'clicks');
+				$this->user->affiliate_referrals 	= $this->programs->get_affiliate_counter($this->user->ID, 'referrals');
+				$this->user->affiliate_commission 	= $this->programs->get_affiliate_counter($this->user->ID, 'commission');
+			}
+					
 			// get user ref id
 			
-			$this->user->refId = $this->ltple_encrypt_uri( 'RI-' . $this->user->ID );
+			$this->user->refId = $this->ltple_encrypt_uri( 'RI-' . $this->user->ID );	
 			
 			// get user rights
 			
@@ -448,6 +467,10 @@ class LTPLE_Client {
 		
 		$this->user->stars = $this->stars->get_count($this->user->ID);		
 		
+		// get user programs
+		
+		$this->user->programs = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-programs',true) );
+		
 		// get user rights
 		
 		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
@@ -456,9 +479,9 @@ class LTPLE_Client {
 		
 		if(strpos($_SERVER['SCRIPT_NAME'],'user-edit.php')>0 && isset($_REQUEST['user_id']) ){
 			
-			$this->editedUser = get_userdata(intval($_REQUEST['user_id']));
-	
-			$this->editedUser->rights  = json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-rights',true) );
+			$this->editedUser 			= get_userdata(intval($_REQUEST['user_id']));
+			$this->editedUser->programs = json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-programs',true) );
+			$this->editedUser->rights   = json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-rights',true) );
 		}
 		else{
 			
@@ -1037,6 +1060,10 @@ class LTPLE_Client {
 			elseif( isset($_GET['app']) || !empty($_SESSION['app']) ){
 
 				include($this->views . $this->_dev .'/apps.php');
+			}
+			elseif( isset($_GET['affiliate']) ){
+
+				include($this->views . $this->_dev .'/affiliate.php');
 			}
 			elseif( isset($_GET['domain']) || !empty($_SESSION['domain']) ){
 
@@ -2550,7 +2577,9 @@ class LTPLE_Client {
 					
 				//--------delete layer--------
 				
-				wp_delete_post( $this->user->layer->ID, $bypass_trash = false );
+				//wp_delete_post( $this->user->layer->ID, false );
+				
+				wp_trash_post( $this->user->layer->ID );
 				
 				$this->layer->id = -1;
 					
@@ -2754,7 +2783,6 @@ class LTPLE_Client {
 						
 						$post_information = array(
 							
-							'post_author' 	=> $this->user->ID,
 							'ID' 			=> $post_id,
 							'post_title' 	=> $post_title,
 							'post_name' 	=> $post_name,
@@ -2844,7 +2872,7 @@ class LTPLE_Client {
 				
 				//--------delete image--------
 				
-				wp_delete_post( $this->image->id, $bypass_trash = false );
+				wp_delete_post( $this->image->id, true );
 				
 				$this->image->id = -1;
 					

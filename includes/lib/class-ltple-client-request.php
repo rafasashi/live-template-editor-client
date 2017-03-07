@@ -4,9 +4,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  
 class LTPLE_Client_Request {
 
-	public $parent;
-	public $url;
-	public $ref_id;
+	var $parent;
+	var $ip;
+	var $url;
+	var $ref_id;
 
 	/**
 	 * Constructor function

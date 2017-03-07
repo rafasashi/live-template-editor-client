@@ -446,8 +446,19 @@ class LTPLE_Client_Admin_API {
 					$data = ['key' => [ 0 => '' ], 'value' => [ 0 => '' ]];
 				}
 
-				$inputs = ['string','text','number','password'];
+				if( !empty($field['inputs']) && is_string($field['inputs']) ){
+					
+					$inputs = [$field['inputs']];
+				}
+				elseif(empty($field['inputs'])||!is_array($field['inputs'])) {
+					
+					$inputs = ['string','text','number','password'];
+				}				
+				else{
 				
+					$inputs = $field['inputs'];
+				}
+
 				$html .= '<div id="'.$field['id'].'" class="sortable">';
 					
 					$html .= ' <a href="#" class="add-input-group" style="line-height:40px;">Add field</a>';
@@ -469,7 +480,7 @@ class LTPLE_Client_Admin_API {
 									
 							$html .= '<li class="'.$class.'" style="display:inline-block;width:100%;">';
 						
-								$html .= '<select name="'.$field['name'].'[input][]" style="float:left;">';
+								$html .= '<select name="'.$option_name.'[input][]" style="float:left;">';
 
 								foreach ( $inputs as $input ) {
 									
@@ -484,7 +495,7 @@ class LTPLE_Client_Admin_API {
 								
 								$html .= '</select> ';
 						
-								$html .= '<input type="text" placeholder="key" name="'.$field['name'].'[key][]" style="width:30%;float:left;" value="'.$data['key'][$e].'">';
+								$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['key']) ? $field['placeholder']['key'] : 'key' ).'" name="'.$option_name.'[key][]" style="width:30%;float:left;" value="'.$data['key'][$e].'">';
 								
 								$html .= '<span style="float:left;"> => </span>';
 								
@@ -492,24 +503,24 @@ class LTPLE_Client_Admin_API {
 									
 									if($data['input'][$e] == 'number'){
 										
-										$html .= '<input type="number" placeholder="number" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+										$html .= '<input type="number" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'number' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 									}
 									elseif($data['input'][$e] == 'password'){
 										
-										$html .= '<input type="password" placeholder="password" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+										$html .= '<input type="password" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'password' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 									}
 									elseif($data['input'][$e] == 'text'){
 										
-										$html .= '<textarea placeholder="text" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:200px;">' . $value . '</textarea>';
+										$html .= '<textarea placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'text' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;height:200px;">' . $value . '</textarea>';
 									}										
 									else{
 										
-										$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+										$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'value' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 									}
 								}
 								else{
 									
-									$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+									$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'value' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 								}
 
 								if( $e > 0 ){

@@ -522,6 +522,32 @@ class LTPLE_Client_Settings {
 			 
 
 		}
+		
+		$settings['affiliate'] = array(
+			'title'					=> __( 'Affiliates', $this->plugin->slug ),
+			'description'			=> __( 'Affiliate settings & Marketing Material', $this->plugin->slug ),
+			'fields'				=> array(
+				array(
+					'id' 			=> 'affiliate_banners',
+					'name' 			=> 'affiliate_banners',
+					'label'			=> __( 'Affiliate banners' , $this->plugin->slug ),
+					'description'	=> '',
+					'inputs'		=> 'string',
+					'type'			=> 'key_value',
+					'placeholder'	=> ['key'=>'image title', 'value'=>'url'],
+				),
+				/*
+				array(
+					'id' 			=> 'affiliate_text',
+					'name' 			=> 'affiliate_text',
+					'label'			=> __( 'Affiliate text' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'textarea',
+					'placeholder'	=> __( '', $this->plugin->slug )
+				)
+				*/
+			)
+		);
 
 		$settings['twitter'] = array(
 			'title'					=> __( 'Twitter', $this->plugin->slug ),
