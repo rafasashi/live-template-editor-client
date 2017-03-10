@@ -289,10 +289,13 @@
 				$this->users->{$user_id}->stars 	= $this->parent->stars->get_count($user_id);
 				$this->users->{$user_id}->can_spam 	= get_user_meta($user_id, $this->parent->_base . '_can_spam',true);
 				$this->users->{$user_id}->sent 		= get_user_meta($user_id, $this->parent->_base . '_email_sent',true);
+				$this->users->{$user_id}->referredBy= get_user_meta($user_id, $this->parent->_base . 'referredBy',true);
 				
 				// user marketing channel
+				
 				$terms = wp_get_object_terms( $user_id, 'marketing-channel' );
-				$this->users->{$user_id}->channel 	= ( ( !isset($terms->errors) && isset($terms[0]->name) ) ? $terms[0]->name : '');
+				$this->users->{$user_id}->channel 	 = ( ( !isset($terms->errors) && isset($terms[0]->name) ) ? $terms[0]->name : '');
+				
 			}
 			
 			$user_role = $this->users->{$user_id}->role;
@@ -301,6 +304,7 @@
 			$user_stars= $this->users->{$user_id}->stars;
 			$can_spam  = $this->users->{$user_id}->can_spam;
 			$last_sent = $this->users->{$user_id}->sent;
+			$referredBy= $this->users->{$user_id}->referredBy;
 			$channel   = $this->users->{$user_id}->channel;
 			
 			$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
@@ -365,7 +369,14 @@
 				
 				$row .= '<span>';
 					
-					$row .= $channel;
+					if(!empty($referredBy)){
+						
+						$row .= '<a href="'.admin_url( 'user-edit.php' ).'?user_id='.key($referredBy).'">'.reset($referredBy).'</a>';
+					}
+					else{
+						
+						$row .= $channel;
+					}
 				
 				$row .= '</span>';
 			}

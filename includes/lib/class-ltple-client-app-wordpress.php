@@ -163,13 +163,11 @@ class LTPLE_Client_App_Wordpress {
 							'post_status' 	=> 'publish'
 						))){
 							
-							wp_set_object_terms( $image_id, $this->term->term_id, 'app-type' );
+							wp_set_object_terms( $image_id, $this->term->term_id, 'app-type' );	
+
+							// hook uploaded image
 							
-							// hook connected app
-							
-							do_action( 'ltple_wordpress_account_connected');
-							
-							$this->parent->apps->newAppConnected();							
+							do_action( 'ltple_wordpress_image_uploaded');									
 						}
 						else{
 							
@@ -271,6 +269,12 @@ class LTPLE_Client_App_Wordpress {
 						));
 						
 						wp_set_object_terms( $app_id, $this->term->term_id, 'app-type' );
+
+						// hook connected app
+							
+						do_action( 'ltple_wordpress_account_connected');		
+
+						$this->parent->apps->newAppConnected();
 					}
 					else{
 

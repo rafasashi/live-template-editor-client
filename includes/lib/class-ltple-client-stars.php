@@ -28,8 +28,6 @@
 				}
 			}
 			
-			add_action( 'user_register', 	array( $this, 'ref_user_register' ) );
-			
 			add_action( 'show_user_profile', array( $this, 'get_user_stars' ) );
 			add_action( 'edit_user_profile', array( $this, 'get_user_stars' ) );
 			
@@ -48,6 +46,11 @@
 					
 				'description' => 'when you register for the first time'
 			);
+			
+			$triggers['register & login']['ltple_referred_click'] = array(
+					
+				'description' => 'when someone click on your referral url (daily unique IPs)'
+			);			
 			
 			$triggers['register & login']['ltple_referred_registration'] = array(
 					
@@ -81,6 +84,11 @@
 			$triggers['connected apps']['ltple_twitter_account_connected'] = array(
 					
 				'description' => 'when you connect a new Twitter account'
+			);
+			
+			$triggers['connected apps']['ltple_wordpress_image_uploaded'] = array(
+					
+				'description' => 'when you upload a new image on an image host'
 			);
 			
 			// twitter triggers
@@ -182,20 +190,6 @@
 			$option_name = $this->parent->_base . current_filter().'_stars';
 
 			$this->add_stars( $user_id, $option_name );
-		}
-		
-		public function ref_user_register(){
-					
-			// we dont use do_action here
-			// because all hooks are attached to the current id
-			// and we want the referral id to be credited
-
-			if( is_numeric( $this->parent->request->ref_id ) && get_userdata( $this->parent->request->ref_id ) ){
-				
-				//add referral stars
-				
-				$this->add_stars( $this->parent->request->ref_id, $this->parent->_base . 'ltple_referred_registration_stars' );
-			}
 		}
 			
 		public function get_user_stars( $user ) {

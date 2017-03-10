@@ -235,6 +235,28 @@
 		'menu_icon' 			=> 'dashicons-admin-post',
 	));
 	
+	
+	LTPLE_Client()->register_post_type( 'user-url', __( 'User images', 'live-template-editor-client' ), __( 'User url', 'live-template-editor-client' ), '', array(
+
+		'public' 				=> false,
+		'publicly_queryable' 	=> false,
+		'exclude_from_search' 	=> true,
+		'show_ui' 				=> true,
+		'show_in_menu' 			=> 'user-url',
+		'show_in_nav_menus' 	=> true,
+		'query_var' 			=> true,
+		'can_export' 			=> true,
+		'rewrite' 				=> false,
+		'capability_type' 		=> 'post',
+		'has_archive' 			=> false,
+		'hierarchical' 			=> false,
+		'show_in_rest' 			=> false,
+		//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+		'supports' 				=> array('title', 'editor', 'author'),
+		'menu_position' 		=> 5,
+		'menu_icon' 			=> 'dashicons-admin-post',
+	));
+	
 	LTPLE_Client()->register_post_type( 'user-domain', __( 'User domains', 'live-template-editor-client' ), __( 'User domains', 'live-template-editor-client' ), '', array(
 
 		'public' 				=> false,
@@ -470,7 +492,7 @@
 		'sort'					=> '',
 	));
 	
-	LTPLE_Client()->register_taxonomy( 'app-type', __( 'App Type', 'live-template-editor-client' ), __( 'App Type', 'live-template-editor-client' ),  array('user-image','user-app'), array(
+	LTPLE_Client()->register_taxonomy( 'app-type', __( 'App Type', 'live-template-editor-client' ), __( 'App Type', 'live-template-editor-client' ),  array('user-image','user-url','user-app'), array(
 		'hierarchical' 			=> true,
 		'public' 				=> false,
 		'show_ui' 				=> true,

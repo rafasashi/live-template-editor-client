@@ -69,7 +69,7 @@
 
 							echo'<div class="col-xs-12 col-sm-4">';
 							
-								echo'<div class="panel panel-info">';
+								echo'<div class="panel panel-info text-info">';
 								
 									echo'<div class="panel-heading text-center">';
 										echo'<h3 style="margin:0;">Clicks</h3>';	
@@ -87,7 +87,7 @@
 							
 							echo'<div class="col-xs-12 col-sm-4">';
 							
-								echo'<div class="panel panel-warning">';
+								echo'<div class="panel panel-warning text-warning">';
 								
 									echo'<div class="panel-heading text-center">';
 										echo'<h3 style="margin:0;">Referrals</h3>';	
@@ -105,7 +105,7 @@
 
 							echo'<div class="col-xs-12 col-sm-4">';
 							
-								echo'<div class="panel panel-success">';
+								echo'<div class="panel panel-success text-success">';
 								
 									echo'<div class="panel-heading text-center">';
 										echo'<h3 style="margin:0;">Commission</h3>';	
@@ -119,10 +119,80 @@
 									echo'* new plan subscriptions';	
 								echo'</i>';										
 						
-							echo'</div>';							
-							
-						echo'</div>';							
+							echo'</div>';						
+
+						echo'</div>';
+
+						echo'<div class="row">';
+						echo'<div class="col-xs-12">';
 						
+							echo'<div class="well" style="display:inline-block;width:100%;margin-top:20px;">';
+								
+								echo'<div class="col-xs-3">';
+									
+									echo'Your referral url ';
+
+								echo'</div>';
+								
+								echo'<div class="col-xs-9">';
+									
+									echo'<input class="form-control" type="text" value="' . $this->urls->editor . '?ri=' . $this->user->refId . '" />';
+								
+								echo'</div>';
+								
+								echo'<div class="clearfix"></div>';
+								
+								echo'<hr></hr>';
+								
+								echo'<div class="col-xs-12 col-sm-6">';
+								
+									echo'<div class="row">';
+									
+										echo'<div class="col-xs-6">';
+										
+											echo'Commission rate';
+											
+										echo'</div>';
+										
+										echo'<div class="col-xs-6">';
+										
+											echo'<b>25%</b>';
+											
+										echo'</div>';	
+
+										echo'<div class="col-xs-6">';
+										
+											echo'Minimum payout';
+											
+										echo'</div>';
+										
+										echo'<div class="col-xs-6">';
+										
+											echo'<b>$50.00</b>';
+											
+										echo'</div>';											
+									
+									echo'</div>';
+
+								echo'</div>';
+
+								echo'<div class="col-xs-12 col-sm-6">';	
+
+									echo'You will receive a commission for referring these services:';
+									echo'<br>';
+									echo'- Tailored Basic';
+									echo'<br>';
+									echo'- Tailored Gold';
+									echo'<br>';
+									echo'- Tailored Premium';
+									
+								echo'</div>';
+								
+							echo'</div>';
+						
+						echo'</div>';
+						echo'</div>';						
+
 					echo'</div>';
 					
 					// ref urls

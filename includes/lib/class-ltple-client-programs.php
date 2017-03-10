@@ -26,12 +26,19 @@ class LTPLE_Client_Programs {
 
 		}
 		
-		add_action( 'init', array( $this, 'affiliate_init' ));	
+		add_action( 'user_register', 	array( $this, 'ref_user_register' ) );
 		
+		add_action( 'ltple_loaded', array( $this, 'affiliate_init' ));
+			
 		// add program field
 		
 		add_action( 'show_user_profile', array( $this, 'get_user_programs' ) );
 		add_action( 'edit_user_profile', array( $this, 'get_user_programs' ) );
+		
+		// add affiliate field
+		
+		add_action( 'show_user_profile', array( $this, 'get_user_referrals' ) );
+		add_action( 'edit_user_profile', array( $this, 'get_user_referrals' ) );		
 		
 		// save user programs
 		
@@ -41,10 +48,22 @@ class LTPLE_Client_Programs {
 	
 	public function affiliate_init(){
 	
-		if( !empty($this->parent->request->ref_id) ){
+		if( !empty($this->parent->request->ref_id) && !$this->parent->user->loggedin ){
 				
 			$this->set_affiliate_counter($this->parent->request->ref_id, 'clicks', $this->parent->request->ip );
+		
+			do_action( 'ltple_referred_click' );
 		}
+	}
+	
+	public function has_program( $program = 'affiliate', $user_id = 0, $programs = NULL ){
+		
+		if( is_null($programs) ){
+		
+			$programs = json_decode( get_user_meta( $user_id, $this->parent->_base . 'user-programs',true) );
+		}
+		
+		return ( !empty($programs) && in_array($program, $programs) );
 	}
 	
 	public function get_affiliate_counter($user_id, $type = 'clicks'){
@@ -140,6 +159,71 @@ class LTPLE_Client_Programs {
 		return $counter;
 	}
 	
+	public function ref_user_register( $user_id ){
+				
+		if( is_numeric( $this->parent->request->ref_id ) ){
+			
+			// get affiliate data
+			
+			$affiliate = get_userdata( $this->parent->request->ref_id );
+
+			if($affiliate){
+				
+				// get referral info
+				
+				$referral = get_userdata($user_id);
+			
+				if($referral){
+					
+					//set marketing channel
+					
+					$this->parent->update_user_channel($user_id,'Friend Recommendation');
+			
+					//assign affiliate to referral
+					
+					update_user_meta( $referral->ID, $this->parent->_base . 'referredBy', [ $affiliate->ID => $affiliate->user_login ] );
+					
+					//assign referral to affiliate
+					
+					$referrals = get_user_meta($affiliate->ID,$this->parent->_base . 'referrals', true);
+					
+					if( !is_array($referrals) ) {
+						
+						$referrals = [];
+					}
+					else{
+						
+						foreach( $referrals as $key => $val){
+							
+							if(!is_string($val)){
+								
+								unset($referrals[$key]);
+							}
+						}
+					}
+
+					$referrals[$referral->ID] = $referral->user_login;
+					
+					update_user_meta( $affiliate->ID, $this->parent->_base . 'referrals', $referrals );
+
+					//set referral counter
+					
+					$this->set_affiliate_counter($affiliate->ID, 'referrals', $referral->ID );
+					
+					//add referral stars
+					
+					/** 
+						we dont use do_action here
+						because all hooks are attached to the current id
+						and we want the referral id to be credited
+					**/
+					
+					$this->parent->stars->add_stars( $affiliate->ID, $this->parent->_base . 'ltple_referred_registration_stars' );
+				}
+			}
+		}
+	}
+	
 	public function get_affiliate_overview( $counter, $sum = false, $pre = '', $app = '' ){
 
 		$z 	= date('z'); //day of the year
@@ -153,7 +237,7 @@ class LTPLE_Client_Programs {
 				
 				// today
 				
-				echo'<tr>';
+				echo'<tr style="font-size:18px;font-weight:bold;">';
 				
 					echo'<td>';
 						echo'Today';
@@ -227,7 +311,7 @@ class LTPLE_Client_Programs {
 			echo'</tbody>';
 		
 		echo'</table>';		
-	}
+	}	
 	
 	public function get_user_programs( $user ) {
 		
@@ -252,6 +336,108 @@ class LTPLE_Client_Programs {
 				}				
 					
 			echo'</div>';
+		}	
+	}
+	
+	public function get_user_referrals( $user ) {
+		
+		if( current_user_can( 'administrator' ) ){
+			
+			echo '<div class="postbox" style="min-height:45px;">';
+				
+				//echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Referrals', 'live-template-editor-client' ) . '</h3>';
+				
+				echo '<table class="widefat fixed striped" style="border:none;">';
+					
+					echo '<thead>';
+					
+						echo'<tr>';
+						
+							echo'<td>';
+								echo'<h3 style="margin:0;">Clicks</h3>';
+							echo'</td>';
+						
+							echo'<td>';
+								echo'<h3 style="margin:0;">Referrals</h3>';
+							echo'</td>';
+						
+							echo'<td>';
+								echo'<h3 style="margin:0;">Commission</h3>';
+							echo'</td>';
+						
+						echo'</tr>';
+					
+					echo '</thead>';
+					
+					echo '<tbody>';
+					
+						echo'<tr>';
+						
+							echo'<td>';
+							
+								$this->get_affiliate_overview($this->parent->editedUser->affiliate_clicks);						
+								
+							echo'</td>';	
+							
+							echo'<td>';
+							
+								$this->get_affiliate_overview($this->parent->editedUser->affiliate_referrals);							
+								
+							echo'</td>';									
+							
+							echo'<td>';
+
+								$this->get_affiliate_overview($this->parent->editedUser->affiliate_commission,true,'$','.00');																	
+								
+							echo'</td>';
+
+						echo'</tr>';
+						
+						echo'<tr>';
+						
+							echo'<td>';
+								echo'<i>';
+									echo'* daily unique IPs';	
+								echo'</i>';
+							echo'</td>';
+						
+							echo'<td>';
+								echo'<i>';
+									echo'* new user registrations';	
+								echo'</i>';
+							echo'</td>';
+						
+							echo'<td>';
+								echo'<i>';
+									echo'* new plan subscriptions';	
+								echo'</i>';
+							echo'</td>';
+						
+						echo'</tr>';
+						
+					echo '</tbody>';
+
+				echo '</table>';
+					
+			echo'</div>';
+			
+			if(!empty($this->parent->editedUser->referrals)){
+				
+				echo '<div class="postbox" style="min-height:45px;">';
+					
+					echo '<h3 style="margin:10px;width:300px;display:inline-block;">' . __( 'All Referrals', 'live-template-editor-client' ) . '</h3>';
+					
+					foreach($this->parent->editedUser->referrals as $id => $name){
+						
+						if(is_string($name)){
+							
+							echo'<a href="'.admin_url( 'user-edit.php' ).'?user_id='.$id.'">'.$name.'</a>';
+							echo'<br>';
+						}
+					}
+					
+				echo'</div>';
+			}
 		}	
 	}
 	

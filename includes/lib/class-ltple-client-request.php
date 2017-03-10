@@ -35,12 +35,15 @@ class LTPLE_Client_Request {
 		
 		// get referral id
 		
-		$ref_id 	= '';
-		$ref_key 	= '_' . $this->parent->_base . 'ref_id';
+		$this->ref_key 	= '_' . $this->parent->_base . 'ref_id';
 		
-		if( !empty( $_COOKIE[$ref_key] ) ){
+		// get referral id
+		
+		$ref_id 	= '';
+
+		if( !empty( $_COOKIE[$this->ref_key] ) ){
 			
-			$ref_id = sanitize_text_field($_COOKIE[$ref_key]);
+			$ref_id = sanitize_text_field($_COOKIE[$this->ref_key]);
 		}
 		elseif( !empty( $_REQUEST['ri'] ) ){
 			
@@ -48,7 +51,7 @@ class LTPLE_Client_Request {
 			
 			// set cookie
 			
-			setcookie($ref_key, $ref_id, time() + 2678400, COOKIEPATH, COOKIE_DOMAIN); // for one month
+			setcookie($this->ref_key, $ref_id, time() + 2678400, COOKIEPATH, COOKIE_DOMAIN); // for one month
 		}
 
 		if( !empty( $ref_id ) ){
@@ -60,6 +63,24 @@ class LTPLE_Client_Request {
 				$this->ref_id = intval($ref[1]);
 			}
 		}
+		
+		add_action('wp_login', function(){
+			
+			// reset cookie
+			
+			setcookie($this->ref_key, '', time() + 2678400, COOKIEPATH, COOKIE_DOMAIN);
+			
+		}, 10, 2);
+		
+		add_action('ltple_loaded', function(){
+			
+			if( $this->parent->user->loggedin ){
+			
+				// reset cookie
+			
+				setcookie($this->ref_key, '', time() + 2678400, COOKIEPATH, COOKIE_DOMAIN);
+			}
+		});
 	}
 	
 	public function ltple_get_user_ip() {

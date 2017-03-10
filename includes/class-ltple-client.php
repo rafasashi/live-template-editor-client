@@ -384,12 +384,10 @@ class LTPLE_Client {
 			
 			// get user affiliate
 			
-			$this->user->is_affiliate = false;
+			$this->user->is_affiliate = $this->programs->has_program('affiliate', $this->user->ID, $this->user->programs);
 			
-			if( ( !empty($this->user->programs) && in_array('affiliate', $this->user->programs)) || $this->user->is_admin ){
-				
-				$this->user->is_affiliate = true;
-				
+			if( $this->user->is_affiliate ){
+
 				$this->user->affiliate_clicks 		= $this->programs->get_affiliate_counter($this->user->ID, 'clicks');
 				$this->user->affiliate_referrals 	= $this->programs->get_affiliate_counter($this->user->ID, 'referrals');
 				$this->user->affiliate_commission 	= $this->programs->get_affiliate_counter($this->user->ID, 'commission');
@@ -450,6 +448,10 @@ class LTPLE_Client {
 				$this->message .='</div>';
 			}
 		}
+		
+		// loaded hook
+		
+		do_action( 'ltple_loaded');
 	}
 	
 	
@@ -463,6 +465,10 @@ class LTPLE_Client {
 		
 		$this->user->is_admin = current_user_can( 'administrator', $this->user->ID );
 
+		// get user rights
+		
+		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
+				
 		// get user stars
 		
 		$this->user->stars = $this->stars->get_count($this->user->ID);		
@@ -471,22 +477,37 @@ class LTPLE_Client {
 		
 		$this->user->programs = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-programs',true) );
 		
-		// get user rights
+		// get user affiliate info
 		
-		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
+		$this->user->affiliate_clicks 		= $this->programs->get_affiliate_counter($this->user->ID, 'clicks');
+		$this->user->affiliate_referrals 	= $this->programs->get_affiliate_counter($this->user->ID, 'referrals');
+		$this->user->affiliate_commission 	= $this->programs->get_affiliate_counter($this->user->ID, 'commission');
+
+		// get user referrals
 		
-		// get editedUser
-		
-		if(strpos($_SERVER['SCRIPT_NAME'],'user-edit.php')>0 && isset($_REQUEST['user_id']) ){
+		$this->user->referrals = get_user_meta($this->user->ID,$this->_base . 'referrals',true);
+
+		if(strpos($_SERVER['SCRIPT_NAME'],'user-edit.php') > 0 && isset($_REQUEST['user_id']) ){
 			
-			$this->editedUser 			= get_userdata(intval($_REQUEST['user_id']));
-			$this->editedUser->programs = json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-programs',true) );
-			$this->editedUser->rights   = json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-rights',true) );
+			// get editedUser data
+			
+			$this->editedUser 						= get_userdata(intval($_REQUEST['user_id']));
+			$this->editedUser->rights   			= json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-rights',true) );
+			$this->editedUser->stars 				= $this->stars->get_count($this->editedUser->ID);
+			$this->editedUser->programs 			= json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-programs',true) );
+			$this->editedUser->affiliate_clicks 	= $this->programs->get_affiliate_counter($this->editedUser->ID, 'clicks');
+			$this->editedUser->affiliate_referrals 	= $this->programs->get_affiliate_counter($this->editedUser->ID, 'referrals');
+			$this->editedUser->affiliate_commission = $this->programs->get_affiliate_counter($this->editedUser->ID, 'commission');
+			$this->editedUser->referrals 			= get_user_meta($this->editedUser->ID,$this->_base . 'referrals',true);
 		}
 		else{
 			
 			$this->editedUser = $this->user;
 		}
+
+		// loaded hook
+		
+		do_action( 'ltple_loaded');
 	}
 	
 	public function remove_custom_post_quick_edition( $actions, $post ){
@@ -943,17 +964,20 @@ class LTPLE_Client {
 			$this->update_user_layer();
 		}
 		
-		//update user channel
+		if( $this->user->loggedin ){
 		
-		$this->update_user_channel();			
-		
-		//update user image
-		
-		$this->update_user_image();
-		
-		//get user plan
-		
-		$this->plan->update_user();
+			//update user channel
+			
+			$this->update_user_channel($this->user->ID);			
+			
+			//update user image
+			
+			$this->update_user_image();
+			
+			//get user plan
+			
+			$this->plan->update_user();
+		}
 		
 		// get editor iframe
 
@@ -2724,8 +2748,9 @@ class LTPLE_Client {
 					$defaultLayerId = -1;
 					
 					if( $this->layer->type == 'user-layer' ){
-					
+						
 						$post_id		= $this->user->layer->ID;
+						$post_author	= $this->user->layer->post_author;
 						$post_title		= $this->user->layer->post_title;
 						$post_name		= $this->user->layer->post_name;
 						$defaultLayerId	= intval(get_post_meta( $post_id, 'defaultLayerId', true));
@@ -2740,6 +2765,8 @@ class LTPLE_Client {
 							
 								$post_title = $defaultLayer->post_title;
 							}
+							
+							$post_author = $this->user->ID;
 							
 							if( $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates'] ){
 								
@@ -2784,6 +2811,7 @@ class LTPLE_Client {
 						$post_information = array(
 							
 							'ID' 			=> $post_id,
+							'post_author' 	=> $post_author,
 							'post_title' 	=> $post_title,
 							'post_name' 	=> $post_name,
 							'post_content' 	=> $post_content,
@@ -2839,29 +2867,55 @@ class LTPLE_Client {
 		}
 	}
 
-	public function update_user_channel(){	
+	public function update_user_channel( $user_id, $name = '' ){	
 		
-		if( $this->user->loggedin ){
+		$taxonomy = 'marketing-channel';
+
+		// get term_id
+		
+		if( isset($_POST[$taxonomy]) &&  is_numeric($_POST[$taxonomy]) ){
 			
-			$taxonomy = 'marketing-channel';
-
-			if( isset($_POST[$taxonomy]) &&  is_numeric($_POST[$taxonomy]) ){
-				
-				//-------- save channel --------
-				
-				$terms = intval($_POST[$taxonomy]);		
-				
-				$response = wp_set_object_terms( $this->user->ID, $terms, $taxonomy);
-				
-				clean_object_term_cache( $this->user->ID, $taxonomy );	
-
-				if( empty($response) ){
-
-					echo 'Error saving user channel...';
-					exit;
-				}				
-			}			
+			$term_id = intval($_POST[$taxonomy]);
 		}
+		elseif( !empty($name) ){
+			
+			$term = get_term_by('name', $name, $taxonomy);
+			
+			if( !empty($term->term_id) ){
+				
+				$term_id = intval($term->term_id);
+			}
+			elseif( strtolower($name) == 'friend recommendation' ){
+				
+				$term = wp_insert_term(
+				
+					ucfirst($name),
+					$taxonomy,
+					array(
+					
+						'description'	=> '',
+						'slug' 			=> str_replace(' ','-',$name),
+					)
+				);
+
+				$term_id = intval($term->term_id);
+			}
+		}
+		
+		if(!empty($term_id)){
+			
+			//-------- save channel --------
+			
+			$response = wp_set_object_terms( $user_id, $term_id, $taxonomy);
+			
+			clean_object_term_cache( $user_id, $taxonomy );	
+
+			if( empty($response) ){
+
+				echo 'Error saving user channel...';
+				exit;
+			}				
+		}			
 	}
 	
 	public function update_user_image(){	

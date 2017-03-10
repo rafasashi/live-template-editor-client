@@ -425,9 +425,7 @@ class LTPLE_Client_App_Twitter {
 		}			
 	}
 
-	public function unfollowLastLeads($appId = null, $count = 1){
-		
-		exit;
+	public function unfollowLastLeads($appId = null, $max_unf = 1){
 		
 		if( is_numeric($appId) ){
 			
@@ -495,7 +493,7 @@ class LTPLE_Client_App_Twitter {
 							
 							if(!empty($friendships)){							
 							
-								$dms = 0;
+								$dms = $unf = 0;
 							
 								foreach( $friendships as $friendship ){
 								
@@ -554,10 +552,14 @@ class LTPLE_Client_App_Twitter {
 										exit;
 									}
 									
-									if( $dms == $max_dms){
+									if( $dms == $max_dms || $unf == $max_unf){
 										
 										break;
-									}									
+									}
+									else{
+										
+										++$unf;
+									}	
 								}
 							}
 							else{
