@@ -427,6 +427,8 @@ class LTPLE_Client_App_Twitter {
 
 	public function unfollowLastLeads($appId = null, $max_unf = 1){
 		
+		exit;
+		
 		if( is_numeric($appId) ){
 			
 			$user_id = intval(get_post_field( 'post_author', $appId ));

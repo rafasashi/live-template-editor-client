@@ -85,6 +85,7 @@ class LTPLE_Client {
 	public $user;
 	public $layer;
 	public $message;
+	public $dialog;
 	public $triggers;
 	
 	/**
@@ -99,6 +100,7 @@ class LTPLE_Client {
 		$this->_version = $version;
 		$this->_token 	= 'ltple';
 		$this->_base 	= 'ltple_';
+		$this->dialog 	= new stdClass();	
 		
 		if( isset($_GET['_']) && is_numeric($_GET['_']) ){
 			
@@ -582,6 +584,7 @@ class LTPLE_Client {
 			'images'	=> [],
 			'videos' 	=> [],
 			'blogs' 	=> [],
+			'payment' 	=> [],
 		);
 	}
 	
@@ -883,7 +886,7 @@ class LTPLE_Client {
 	}
 	
 	public function editor_output() {
-			
+
 		$this->all = new stdClass();
 		
 		// get all layer types

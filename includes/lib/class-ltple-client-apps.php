@@ -83,6 +83,7 @@ class LTPLE_Client_Apps {
 		
 			$app->thumbnail = get_option('thumbnail_'.$app->slug);
 			$app->types 	= get_option('types_'.$app->slug);
+			//$app->parameters= get_option('parameters_'.$app->slug);
 		}
 		
 		// get main apps
@@ -148,6 +149,31 @@ class LTPLE_Client_Apps {
 			echo 'Could not found API Client: "'.$apiClient.'"';
 			exit;
 		}		
+	}
+	
+	public function parse_url_fields($url,$prefix='_'){
+		
+		$fields = array();
+	
+		preg_match_all('#{(.*?)}#', $url, $matches);
+		
+		if( isset($matches[1]) ){	
+
+			foreach($matches[1] as $match){
+					
+				$fields[$match] = array(
+				
+					'type'				=> 'text',
+					'id'				=> $prefix.$match,
+					'name'				=> $prefix.$match,
+					'placeholder'		=> $match,
+					'style'				=> 'width:100px;display:inline-block;',
+					'description'		=> ''
+				);
+			}
+		}
+		
+		return $fields;
 	}
 
 	public function get_niche_terms(){

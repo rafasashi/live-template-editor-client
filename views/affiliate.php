@@ -111,7 +111,7 @@
 										echo'<h3 style="margin:0;">Commission</h3>';	
 									echo'</div>';
 									
-									$this->programs->get_affiliate_overview($this->user->affiliate_commission,true,'$');									
+									$this->programs->get_affiliate_overview($this->user->affiliate_commission,true,'$','.00');									
 									
 								echo'</div>';
 

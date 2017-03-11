@@ -154,7 +154,6 @@ class LTPLE_Client_Admin_API {
 
 			case 'password':
 			case 'number':
-			case 'hidden':
 				$min = '';
 				if ( isset( $field['min'] ) ) {
 					$min = ' min="' . esc_attr( $field['min'] ) . '"';
@@ -166,7 +165,9 @@ class LTPLE_Client_Admin_API {
 				}
 				$html .= '<input class="form-control" id="' . $id . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . ''.$required.$disabled.'/>' . "\n";
 			break;
-			
+			case 'hidden':
+				$html .= '<input class="form-control" id="' . $id . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $field['value'] ) . '"'.$required.'/>' . "\n";
+			break;
 			case 'text_secret':
 				$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="" '.$required.$disabled.'/>' . "\n";
 			break;
@@ -452,7 +453,7 @@ class LTPLE_Client_Admin_API {
 				}
 				elseif(empty($field['inputs'])||!is_array($field['inputs'])) {
 					
-					$inputs = ['string','text','number','password'];
+					$inputs = ['string','text','number','password','url','parameter','xpath','attribute','folder','filename'];
 				}				
 				else{
 				

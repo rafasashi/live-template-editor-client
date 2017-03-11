@@ -86,6 +86,7 @@ class LTPLE_Client_Settings {
 				$custom_post_types['user-layer'] 		= '';
 				$custom_post_types['default-image'] 	= '';
 				$custom_post_types['user-image'] 		= '';
+				$custom_post_types['user-url'] 			= '';
 				$custom_post_types['email-model'] 		= '';
 				$custom_post_types['email-campaign'] 	= '';
 			
@@ -248,6 +249,14 @@ class LTPLE_Client_Settings {
 			__( 'User Images', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=user-image'
+		);
+		
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'User Bookmarks', $this->plugin->slug ),
+			__( 'User Bookmarks', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=user-bookmark'
 		);
 		
 		add_submenu_page(
