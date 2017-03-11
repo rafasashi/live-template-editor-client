@@ -368,9 +368,9 @@ echo'<div id="media_library">';
 			
 			echo '<div class="tab-pane" id="user-images">';
 
-				if( !empty($_GET['app']) && !empty($this->dialog->scraper) ){
+				if( !empty($_GET['app']) && !empty($this->apps->{$_GET['app']}->message) ){
 					
-					echo $this->dialog->scraper;
+					echo $this->apps->{$_GET['app']}->message;
 				}
 				else{	
 			
@@ -625,9 +625,9 @@ echo'<div id="media_library">';
 			
 			echo '<div class="tab-pane" id="user-payment-urls">';
 			
-				if( !empty($_GET['app']) && !empty($this->dialog->bookmark) ){
+				if( !empty($_GET['app']) && !empty($this->apps->{$_GET['app']}->message) ){
 					
-					echo $this->dialog->bookmark;
+					echo $this->apps->{$_GET['app']}->message;
 				}
 				else{			
 				
@@ -816,7 +816,7 @@ echo'<div id="media_library">';
 											echo '</form>';
 										}
 										
-										echo '<a target="'.$target.'" href="'.$this->apps->getAppUrl($app->slug,'connect').'" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
+										echo '<a target="_self" href="'.$this->apps->getAppUrl($app->slug,'connect') . ( $inWidget ? '&output=widget' : '' ) . '" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
 										
 									echo'</div>';//add-bookmark-wrapper
 									echo'</div>';//add-bookmark

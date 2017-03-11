@@ -78,7 +78,7 @@
 
 									$item.='<div class="panel-body">';
 										
-										$item.='<div class="thumb_wrapper" style="height: 120px;margin-bottom: 20px;">';
+										$item.='<div class="thumb_wrapper" style="background:#ffffff;height: 120px;margin-bottom: 20px;">';
 											
 											$item.= '<img class="lazy" data-original="'.$app->thumbnail.'" />';
 										
@@ -138,13 +138,35 @@
 						}						
 					}
 					
+					// get message
+					
+					$message = '';
+
+					if(!empty($this->message)){
+						
+						$message = $this->message;
+					}
+					else{
+							
+						foreach( $this->apps->appList as $app ){ 
+							
+							if(!empty($this->apps->{$app->slug}->message)){
+								
+								$message = $this->apps->{$app->slug}->message;
+								break;
+							}							
+						}
+					}					
+					
+
+					
 					//---------------------- output default apps --------------------------
 					
 					echo'<div id="app-library">';
 					
-						if(!empty($this->message)){
+						if(!empty($message)){
 							
-							echo $this->message;
+							echo $message;
 							
 						}
 						else{

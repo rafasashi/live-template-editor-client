@@ -117,7 +117,7 @@
 
 							$item.='<div class="panel-body">';
 								
-								$item.='<div class="thumb_wrapper">';
+								$item.='<div class="thumb_wrapper" style="background:#ffffff;">';
 								
 									//$item.= '<a class="entry-thumbnail" href="'. $permalink .'" target="_blank" title="'. $post_title .'">';
 

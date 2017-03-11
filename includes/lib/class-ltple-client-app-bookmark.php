@@ -10,6 +10,7 @@ class LTPLE_Client_App_Bookmark {
 	var $parameters;
 	var $data;
 	var $resourceUrl;
+	var $message;
 	
 	/**
 	 * Constructor function
@@ -18,8 +19,6 @@ class LTPLE_Client_App_Bookmark {
 
 		$this->parent 		= $parent;
 		$this->parent->apps = $apps;
-		
-		$this->parent->dialog->bookmark = '';
 
 		// get app term
 
@@ -132,11 +131,11 @@ class LTPLE_Client_App_Bookmark {
 				
 				if( $httpcode >= 300 ){
 					
-					$this->parent->dialog->bookmark .= '<div class="alert alert-warning">';
+					$this->message .= '<div class="alert alert-warning">';
 						
-						$this->parent->dialog->bookmark .= 'Resource not reachable...';
+						$this->message .= 'Resource not reachable...';
 							
-					$this->parent->dialog->bookmark .= '</div>';						
+					$this->message .= '</div>';						
 				}
 				else{
 				
@@ -193,11 +192,11 @@ class LTPLE_Client_App_Bookmark {
 					
 					$terms = array();
 					
-					$this->parent->dialog->bookmark .= '<div class="alert alert-warning">';
+					$this->message .= '<div class="alert alert-warning">';
 						
-						$this->parent->dialog->bookmark .= 'A field is missing...';
+						$this->message .= 'A field is missing...';
 							
-					$this->parent->dialog->bookmark .= '</div>';	
+					$this->message .= '</div>';	
 			
 					break;
 				}
@@ -207,11 +206,11 @@ class LTPLE_Client_App_Bookmark {
 			
 			$terms = array();
 			
-			$this->parent->dialog->bookmark .= '<div class="alert alert-warning">';
+			$this->message .= '<div class="alert alert-warning">';
 				
-				$this->parent->dialog->bookmark .= 'You must be the admin of this resource...';
+				$this->message .= 'You must be the admin of this resource...';
 					
-			$this->parent->dialog->bookmark .= '</div>';					
+			$this->message .= '</div>';					
 		}
 		
 		$outputForm = true;
@@ -239,11 +238,11 @@ class LTPLE_Client_App_Bookmark {
 			
 			if( $httpcode >= 300 ){
 				
-				$this->parent->dialog->bookmark .= '<div class="alert alert-warning">';
+				$this->message .= '<div class="alert alert-warning">';
 					
-					$this->parent->dialog->bookmark .= 'This resource couldn\'t be found...';
+					$this->message .= 'This resource couldn\'t be found...';
 						
-				$this->parent->dialog->bookmark .= '</div>';						
+				$this->message .= '</div>';						
 			}
 			else{
 				
@@ -267,30 +266,45 @@ class LTPLE_Client_App_Bookmark {
 						'post_author'   	=> $this->parent->user->ID
 					));
 					
-					wp_set_object_terms( $app_id, $this->term->term_id, 'app-type' );
-					
-					// hook connected app
-					
-					do_action( 'ltple_' . str_replace( '-', '_', $this->term->slug ) . '_account_connected');
-					
-					$this->parent->apps->newAppConnected();
+					if(is_numeric($app_id)){
+						
+						wp_set_object_terms( $app_id, $this->term->term_id, 'app-type' );
+						
+						// hook connected app
+						
+						do_action( 'ltple_' . str_replace( '-', '_', $this->term->slug ) . '_account_connected');
+						
+						$this->parent->apps->newAppConnected();
+						
+						$_SESSION['message'] = '<div class="alert alert-success">';
+							
+							$_SESSION['message'] .= 'Congratulations, you have successfully connected your ' . $this->term->name . ' account!';
+								
+						$_SESSION['message'] .= '</div>';
+					}
+					else{
+
+						$_SESSION['message'] = '<div class="alert alert-warning">';
+							
+							$_SESSION['message'] .= 'Something went wrong...';
+								
+						$_SESSION['message'] .= '</div>';						
+					}	
 				}
 				else{
 
 					$app_id = $app_item->ID;
+					
+					$_SESSION['message'] = '<div class="alert alert-info">';
+						
+						$_SESSION['message'] .= 'This app is already connected...';
+							
+					$_SESSION['message'] .= '</div>';
 				}
 
 				// update app item
 					
 				update_post_meta( $app_id, 'appData', json_encode($this->data,JSON_PRETTY_PRINT));
-				
-				// store success message
-
-				$_SESSION['message'] = '<div class="alert alert-success">';
-					
-					$_SESSION['message'] .= 'Congratulations, you have successfully connected your ' . $this->term->name . ' account!';
-						
-				$_SESSION['message'] .= '</div>';
 			}				
 		}
 		
@@ -305,27 +319,27 @@ class LTPLE_Client_App_Bookmark {
 				$input = str_replace('{'.$k.'}',' '.$this->parent->admin->display_field( $field, false, false ).' ',$input);				
 			}
 
-			$this->parent->dialog->bookmark .= '<form action="' . $this->parent->urls->current . '" method="post">';
+			$this->message .= '<form action="' . $this->parent->urls->current . '" method="post">';
 				
-				$this->parent->dialog->bookmark .= '<div class="col-xs-8">';
+				$this->message .= '<div class="col-xs-8">';
 				
-					$this->parent->dialog->bookmark .= '<h2>Add '.ucfirst($this->term->name).' account</h2>';
+					$this->message .= '<h2>Add '.ucfirst($this->term->name).' account</h2>';
 				
-					$this->parent->dialog->bookmark .= '<div class="well form-group">';
+					$this->message .= '<div class="well form-group">';
 				
-						$this->parent->dialog->bookmark .= '<label class="input-group">';
+						$this->message .= '<label class="input-group">';
 						
-							$this->parent->dialog->bookmark .= 'Account url';
+							$this->message .= 'Account url';
 						
-						$this->parent->dialog->bookmark .= '</label>';					
+						$this->message .= '</label>';					
 				
-						$this->parent->dialog->bookmark .= $input;
+						$this->message .= $input;
 						
-						$this->parent->dialog->bookmark .= '<div class="row">';
+						$this->message .= '<div class="row">';
 							
-							$this->parent->dialog->bookmark .= '<div class="col-xs-6 text-left" style="margin-top:10px;">';
+							$this->message .= '<div class="col-xs-6 text-left" style="margin-top:10px;">';
 								
-								$this->parent->dialog->bookmark .= $this->parent->admin->display_field( array(
+								$this->message .= $this->parent->admin->display_field( array(
 								
 									'type'				=> 'checkbox',
 									'id'				=> 'bookmark_is_admin',
@@ -335,23 +349,23 @@ class LTPLE_Client_App_Bookmark {
 						
 								), false, false );
 								
-								$this->parent->dialog->bookmark .= 'I am the admin of this resource';
+								$this->message .= 'I am the admin of this resource';
 								
-							$this->parent->dialog->bookmark .= '</div>';
+							$this->message .= '</div>';
 							
-							$this->parent->dialog->bookmark .= '<div class="col-xs-6 text-right" style="margin-top:10px;">';
+							$this->message .= '<div class="col-xs-6 text-right" style="margin-top:10px;">';
 							
-								$this->parent->dialog->bookmark .= '<button class="btn btn-sm btn-primary" type="submit">Connect</button>';
+								$this->message .= '<button class="btn btn-sm btn-primary" type="submit">Connect</button>';
 							
-							$this->parent->dialog->bookmark .= '</div>';
+							$this->message .= '</div>';
 							
-						$this->parent->dialog->bookmark .= '</div>';
+						$this->message .= '</div>';
 						
-					$this->parent->dialog->bookmark .= '</div>';
+					$this->message .= '</div>';
 					
-				$this->parent->dialog->bookmark .= '</div>';
+				$this->message .= '</div>';
 				
-			$this->parent->dialog->bookmark .= '</form>';				
+			$this->message .= '</form>';				
 		}
 	}
 } 

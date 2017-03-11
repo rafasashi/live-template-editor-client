@@ -12,6 +12,7 @@ class LTPLE_Client_App_Scraper {
 	var $resourceUrl;
 	var $xpath;
 	var $attr;
+	var $message;
 	
 	/**
 	 * Constructor function
@@ -21,8 +22,6 @@ class LTPLE_Client_App_Scraper {
 		$this->parent 		= $parent;
 		$this->parent->apps = $apps;
 		
-		$this->parent->dialog->scraper = '';
-
 		// get app term
 
 		$this->term = get_term_by('slug',$app_slug,'app-type');
@@ -116,11 +115,11 @@ class LTPLE_Client_App_Scraper {
 				
 				if( $httpcode >= 300 ){
 					
-					$this->parent->dialog->scraper .= '<div class="alert alert-warning">';
+					$this->message .= '<div class="alert alert-warning">';
 						
-						$this->parent->dialog->scraper .= 'Resource not reachable...';
+						$this->message .= 'Resource not reachable...';
 							
-					$this->parent->dialog->scraper .= '</div>';						
+					$this->message .= '</div>';						
 				}
 				else{
 					
@@ -200,11 +199,11 @@ class LTPLE_Client_App_Scraper {
 						
 						$terms = array();
 						
-						$this->parent->dialog->scraper .= '<div class="alert alert-warning">';
+						$this->message .= '<div class="alert alert-warning">';
 							
-							$this->parent->dialog->scraper .= 'A field is missing...';
+							$this->message .= 'A field is missing...';
 								
-						$this->parent->dialog->scraper .= '</div>';	
+						$this->message .= '</div>';	
 				
 						break;
 					}
@@ -214,11 +213,11 @@ class LTPLE_Client_App_Scraper {
 				
 				$terms = array();
 				
-				$this->parent->dialog->scraper .= '<div class="alert alert-warning">';
+				$this->message .= '<div class="alert alert-warning">';
 					
-					$this->parent->dialog->scraper .= 'You must be the admin of this resource...';
+					$this->message .= 'You must be the admin of this resource...';
 						
-				$this->parent->dialog->scraper .= '</div>';					
+				$this->message .= '</div>';					
 			}
 			
 			$outputForm = true;
@@ -246,11 +245,11 @@ class LTPLE_Client_App_Scraper {
 				
 				if( $httpcode >= 300 ){
 					
-					$this->parent->dialog->scraper .= '<div class="alert alert-warning">';
+					$this->message .= '<div class="alert alert-warning">';
 						
-						$this->parent->dialog->scraper .= 'This resource couldn\'t be found...';
+						$this->message .= 'This resource couldn\'t be found...';
 							
-					$this->parent->dialog->scraper .= '</div>';						
+					$this->message .= '</div>';						
 				}
 				else{
 					
@@ -312,27 +311,27 @@ class LTPLE_Client_App_Scraper {
 					$input = str_replace('{'.$k.'}',' '.$this->parent->admin->display_field( $field, false, false ).' ',$input);				
 				}
 				
-				$this->parent->dialog->scraper .= '<form action="' . $this->parent->urls->current . '" method="post">';
+				$this->message .= '<form action="' . $this->parent->urls->current . '" method="post">';
 					
-					$this->parent->dialog->scraper .= '<div class="col-xs-8">';
+					$this->message .= '<div class="col-xs-8">';
 					
-						$this->parent->dialog->scraper .= '<h2>Add '.ucfirst($this->term->name).' account</h2>';
+						$this->message .= '<h2>Add '.ucfirst($this->term->name).' account</h2>';
 					
-						$this->parent->dialog->scraper .= '<div class="well form-group">';
+						$this->message .= '<div class="well form-group">';
 					
-							$this->parent->dialog->scraper .= '<label class="input-group">';
+							$this->message .= '<label class="input-group">';
 							
-								$this->parent->dialog->scraper .= 'Account url';
+								$this->message .= 'Account url';
 							
-							$this->parent->dialog->scraper .= '</label>';					
+							$this->message .= '</label>';					
 					
-							$this->parent->dialog->scraper .= $input;
+							$this->message .= $input;
 							
-							$this->parent->dialog->scraper .= '<div class="row">';
+							$this->message .= '<div class="row">';
 								
-								$this->parent->dialog->scraper .= '<div class="col-xs-6 text-left" style="margin-top:10px;">';
+								$this->message .= '<div class="col-xs-6 text-left" style="margin-top:10px;">';
 									
-									$this->parent->dialog->scraper .= $this->parent->admin->display_field( array(
+									$this->message .= $this->parent->admin->display_field( array(
 									
 										'type'				=> 'checkbox',
 										'id'				=> 'scraper_is_admin',
@@ -342,28 +341,28 @@ class LTPLE_Client_App_Scraper {
 							
 									), false, false );
 									
-									$this->parent->dialog->scraper .= 'I am the admin of this resource';
+									$this->message .= 'I am the admin of this resource';
 									
-								$this->parent->dialog->scraper .= '</div>';
+								$this->message .= '</div>';
 								
-								$this->parent->dialog->scraper .= '<div class="col-xs-6 text-right" style="margin-top:10px;">';
+								$this->message .= '<div class="col-xs-6 text-right" style="margin-top:10px;">';
 								
-									$this->parent->dialog->scraper .= '<button class="btn btn-sm btn-primary" type="submit">Connect</button>';
+									$this->message .= '<button class="btn btn-sm btn-primary" type="submit">Connect</button>';
 								
-								$this->parent->dialog->scraper .= '</div>';
+								$this->message .= '</div>';
 								
-							$this->parent->dialog->scraper .= '</div>';
+							$this->message .= '</div>';
 							
-						$this->parent->dialog->scraper .= '</div>';
+						$this->message .= '</div>';
 						
-					$this->parent->dialog->scraper .= '</div>';
+					$this->message .= '</div>';
 					
-				$this->parent->dialog->scraper .= '</form>';				
+				$this->message .= '</form>';				
 			}
 		}
 		else{
 			
-			$this->parent->dialog->scraper .= 'Error getting app fields...';
+			$this->message .= 'Error getting app fields...';
 		}
 	}
 } 
