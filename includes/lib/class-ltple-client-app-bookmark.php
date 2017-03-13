@@ -276,7 +276,7 @@ class LTPLE_Client_App_Bookmark {
 						
 						$this->parent->apps->newAppConnected();
 						
-						$_SESSION['message'] = '<div class="alert alert-success">';
+						$_SESSION['message'] = '<div class="alert alert-success" style="margin-bottom:0;">';
 							
 							$_SESSION['message'] .= 'Congratulations, you have successfully connected your ' . $this->term->name . ' account!';
 								
@@ -284,7 +284,7 @@ class LTPLE_Client_App_Bookmark {
 					}
 					else{
 
-						$_SESSION['message'] = '<div class="alert alert-warning">';
+						$_SESSION['message'] = '<div class="alert alert-warning" style="margin-bottom:0;">';
 							
 							$_SESSION['message'] .= 'Something went wrong...';
 								
@@ -295,7 +295,7 @@ class LTPLE_Client_App_Bookmark {
 
 					$app_id = $app_item->ID;
 					
-					$_SESSION['message'] = '<div class="alert alert-info">';
+					$_SESSION['message'] = '<div class="alert alert-info" style="margin-bottom:0;">';
 						
 						$_SESSION['message'] .= 'This app is already connected...';
 							
