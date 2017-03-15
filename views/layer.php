@@ -102,22 +102,26 @@
 
 	if($layerOutput=='canvas'){
 		
+		$layerContent = str_replace(array($layerImgProxy),array(''),$layerContent);		
+		
 		// replace image sources
 		
 		$layerContent = str_replace(array('src =','src= "'),array('src=','src="'),$layerContent);
 		$layerContent = str_replace(array($layerImgProxy,'src="'),array('','src="'.$layerImgProxy),$layerContent);			
 		
 		// replace background images
-		
-		$regex = '/(background(?:-image)?: ?url\((["|\']?))(.+)(["|\']?\))/';
+
+		$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
 		$layerContent = preg_replace($regex, "$1$layerImgProxy$3$4", $layerContent);					
 	
 		if(!empty($layerCss)){
-			
+
+			$layerCss = str_replace(array($layerImgProxy),array(''),$layerCss);
+		
 			// replace background images
-			
-			$regex = '/(background(?:-image)?: ?url\((["|\']?))(.+)(["|\']?\))/';
-			$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);				
+
+			$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
+			$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);		
 		}
 	}
 

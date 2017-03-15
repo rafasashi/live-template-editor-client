@@ -1604,13 +1604,13 @@ class LTPLE_Client {
 							// get new term value
 							
 							$new_term_value = 0;
-
-							$new_term_options = $this -> get_layer_taxonomy_options( $taxonomy, $new_term );
 							
-							if( $new_term_options['price_amount'] > 0 ){
+							$new_term_options = $this -> get_layer_taxonomy_options( $taxonomy, $new_term );
+
+							if( $new_term_options['price_amount'] > 0 && $this->user->plan['info']['total_price_amount'] < $new_term_options['price_amount'] ){
 								
 								// get  term value
-
+								
 								foreach($this->user->plan['taxonomies'][$taxonomy]['terms'] as $curr_term){
 									
 									if($curr_term["has_term"] === true ){
@@ -1619,14 +1619,18 @@ class LTPLE_Client {
 											
 											$is_ancestor_upgrade = true;
 											
-											$curr_term_options = $this -> get_layer_taxonomy_options( $taxonomy, $curr_term );
-											
-											$new_term_value = $new_term_options['price_amount'] - $curr_term_options['price_amount'];
-										
 											break;
-										}										
+										}
+										
+										/*
+										$curr_term_options = $this -> get_layer_taxonomy_options( $taxonomy, $curr_term );
+											
+										$new_term_value = $new_term_value - $curr_term_options['price_amount'];										
+										*/
 									}
 								}
+								
+								$new_term_value = $new_term_options['price_amount'] - $this->user->plan['info']['total_price_amount'];
 								
 								if( $new_term_value == 0 ){
 									

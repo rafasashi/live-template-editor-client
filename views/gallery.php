@@ -15,13 +15,14 @@
 			
 			<?php
 				
-				$released 				= [];
-				$released['quickstart'] = true;
-				$released['emails'] 	= true;
-				$released['chaturbate'] = true;
-				$released['myfreecams'] = true;
-				$released['standalone'] = true;
-				$released['memes'] 		= true;
+				$released 					= [];
+				$released['quickstart'] 	= true;
+				$released['emails'] 		= true;
+				$released['chaturbate'] 	= true;
+				$released['myfreecams'] 	= true;
+				$released['standalone'] 	= true;
+				$released['memes'] 			= true;
+				$released['landing-page']	= true;
 				 
 				$class=' class="active"';
 				

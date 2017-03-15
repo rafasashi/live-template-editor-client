@@ -86,20 +86,6 @@
 		});
 		*/
 		
-		// show active tab
-
-		if(location.hash) {
-			
-			var tabs = location.hash.substring(1).split('_');
-			
-			$.each(tabs,function(n){
-
-				$('a[href=#' + tabs[n] + ']').tab('show');
-			});			
-			
-			$('a[href=' + location.hash + ']').tab('show');
-		}
-		
 		// set hash on click without jumb
 		
 		$(document.body).on("click", "a[data-toggle]", function(e) {
@@ -127,6 +113,40 @@
 			return false;
 		});
 		
+		// show active tab
+
+		if(location.hash) {
+			
+			var tabs = location.hash.substring(1).split('_');
+
+			$.each(tabs,function(n){
+
+				$('a[href=#' + tabs[n] + ']').tab('show');
+			});			
+			
+			$('a[href=' + location.hash + ']').tab('show');
+		}
+		else{
+			
+			// get active tabs from localStorage
+			
+			var selectedTab = localStorage.getItem('selectedTab');
+			
+			// restore active tabs
+			
+			if (selectedTab != null) {
+				
+				var tabs = selectedTab.substring(1).split('_');
+				
+				$.each(tabs,function(n){
+					
+					$('a[href=#' + tabs[n] + ']').tab('show');
+				});
+				
+				$('a[href=' + selectedTab + ']').tab('show');
+			}
+		}
+
 		// store active tabs in localStorage
 		
 		$('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
@@ -135,24 +155,7 @@
 			
 			localStorage.setItem('selectedTab', id);
 		});
-		
-		// get active tabs from localStorage
-		
-		var selectedTab = localStorage.getItem('selectedTab');
-		
-		// restore active tabs
-		
-		if (selectedTab != null) {
-			
-			var tabs = selectedTab.substring(1).split('_');
-			
-			$.each(tabs,function(n){
-				
-				$('a[href=#' + tabs[n] + ']').tab('show');
-			});
-			
-			$('a[href=' + selectedTab + ']').tab('show');
-		}
+
 	});
 	
 	// set hash on popstate
