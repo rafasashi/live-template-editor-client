@@ -12,6 +12,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $slug		= '';
 	public $type		= '';
 	public $outputMode	= '';
+	public $layerTypes	= '';
+	public $layerRanges	= '';
+	public $accountOptions	= '';
 	
 	/**
 	 * Constructor function
@@ -218,6 +221,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_filter('init', array( $this, 'init_layer' ));
 		
 		add_action('wp_loaded', array($this,'get_layer_types'));
+		add_action('wp_loaded', array($this,'get_layer_ranges'));
+		add_action('wp_loaded', array($this,'get_account_options'));
 	}
 	
 	public function get_layer_types(){
@@ -231,6 +236,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'tailored'  		=> 'Tailored',
 			'hosted'  			=> 'Hosted',
 			
+		));
+	}
+	
+	public function get_layer_ranges(){
+
+		$this->layerRanges = $this->get_terms( 'layer-range', array(
+				
+			'demo'  => 'Demo'
+		));
+	}
+	
+	public function get_account_options(){
+
+		$this->accountOptions = $this->get_terms( 'account-option', array(
+				
+			'1-template-storage'  => '+1 template storage'
 		));
 	}
 	
