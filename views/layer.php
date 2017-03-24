@@ -122,6 +122,21 @@
 
 			$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
 			$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);		
+		}	
+	}
+	
+	// get google fonts
+	
+	$googleFonts = [];
+	
+	if(!empty($layerCss)){
+		
+		$regex = '`https\:\/\/fonts\.googleapis\.com\/css\?family=([A-Za-z\|]+)`';
+		$fonts = preg_match($regex, $layerCss,$match);
+		
+		if(isset($match[1])){
+			
+			$googleFonts = explode('|',$match[1]);
 		}
 	}
 
@@ -173,6 +188,10 @@
 					echo '<style>.slick-slide{height:auto !important;}</style>';
 				}
 			}
+			
+			// font library
+			
+			echo '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet">';
 			
 		echo '</head>';
 

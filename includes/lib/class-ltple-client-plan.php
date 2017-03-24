@@ -17,8 +17,74 @@ class LTPLE_Client_Plan {
 
 		$this->parent 	= $parent;
 		
+		$this->parent->register_post_type( 'subscription-plan', __( 'Subscription Plans', 'live-template-editor-client' ), __( 'Subscription Plan', 'live-template-editor-client' ), '', array(
+
+			'public' 				=> true,
+			'publicly_queryable' 	=> true,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu'		 	=> 'subscription-plan',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> array('slug'=>'plan'),
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> true,
+			'show_in_rest' 			=> true,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail','page-attributes' ),
+			'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail','page-attributes'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));
+		
+		$this->parent->register_post_type( 'user-plan', __( 'User Plans', 'live-template-editor-client' ), __( 'User Plans', 'live-template-editor-client' ), '', array(
+
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> 'user-plan',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export'			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> true,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array( 'title'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post'
+		));
+		
+		add_action( 'add_meta_boxes', function(){
+		
+			$this->parent->admin->add_meta_box (
+			
+				'plan_options',
+				__( 'Plan options', 'live-template-editor-client' ), 
+				array("subscription-plan"),
+				'advanced'
+			);
+			
+			$this->parent->admin->add_meta_box (
+				
+				'userPlanValue',
+				__( 'Plan Info', 'live-template-editor-client' ), 
+				array("user-plan"),
+				'advanced'
+			);
+		});
+		
 		add_action( 'init', array( $this, 'init_plan' ));
 	}
+
+	public function init_plan(){
+		
+		return true;
+	}	
 	
 	public function hasHosting($plan){
 		
@@ -34,11 +100,6 @@ class LTPLE_Client_Plan {
 		}
 		
 		return false;
-	}
-	
-	public function init_plan(){
-		
-		return true;
 	}
 
 	public function update_user(){

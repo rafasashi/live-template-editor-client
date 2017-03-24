@@ -2,10 +2,11 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Channels {
+class LTPLE_Client_Channels extends LTPLE_Client_Object {
 	
 	var $parent;
 	var $taxonomy;
+	var $list;
 	
 	/**
 	 * Constructor function
@@ -15,26 +16,55 @@ class LTPLE_Client_Channels {
 		$this->parent 	= $parent;
 		
 		$this->taxonomy = 'marketing-channel';
+		
+		$this->parent->register_taxonomy( 'marketing-channel', __( 'Marketing Channel', 'live-template-editor-client' ), __( 'Marketing Channel', 'live-template-editor-client' ),  array('user'), array(
+			
+			'hierarchical' 			=> true,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> true,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort'					=> '',
+		));		
 	
-		// add channel taxonomy custom fields
+		add_action( 'init', array($this,'init_channels'));
+	}
+	
+	public function init_channels(){
 		
-		add_action( 'show_user_profile', array( $this, 'get_user_marketing_channel' ) );
-		add_action( 'edit_user_profile', array( $this, 'get_user_marketing_channel' ) );
-		
-		// save channel taxonomy custom fields
-		
-		add_action( 'personal_options_update', array( $this, 'save_custom_user_channel_taxonomy_fields' ) );
-		add_action( 'edit_user_profile_update', array( $this, 'save_custom_user_channel_taxonomy_fields' ) );
+		if( is_admin() ){
+			
+			// add channel taxonomy custom fields
+			
+			add_action( 'show_user_profile', array( $this, 'get_user_marketing_channel' ) );
+			add_action( 'edit_user_profile', array( $this, 'get_user_marketing_channel' ) );
+			
+			// save channel taxonomy custom fields
+			
+			add_action( 'personal_options_update', array( $this, 'save_custom_user_channel_taxonomy_fields' ) );
+			add_action( 'edit_user_profile_update', array( $this, 'save_custom_user_channel_taxonomy_fields' ) );
+				
+			add_action( 'admin_init', array($this,'get_marketing_channels'));
+		}
+	}
+	
+	public function get_marketing_channels(){
 
-		// prevent new term insertion on save
-		/*
-		add_action( 'pre_insert_term', function ( $term, $taxonomy ){
-
-			return ( $this->taxonomy === $taxonomy )
-				? new WP_Error( 'term_addition_blocked', __( 'You cannot add terms to this taxonomy' ) )
-				: $term;
-		}, 0, 2 );
-		*/
+		$this->list = $this->get_terms( $this->taxonomy, array(
+			
+			'blog' 					=> 'Blog',
+			'email-campaign' 		=> 'Email Campaign',
+			'forums' 				=> 'Forums',
+			'friend-recommendation' => 'Friend Recommendation',
+			'other' 				=> 'Other',
+			'search-engines' 		=> 'Search Engines',
+			'social-networks' 		=> 'Social Networks',
+		));
 	}
 	
 	public function get_user_marketing_channel( $user ) {

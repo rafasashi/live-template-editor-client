@@ -123,52 +123,15 @@ class LTPLE_Client {
 
 		//$this->script_suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 		$this->script_suffix = '';
-		
+
 		register_activation_hook( $this->file, array( $this, 'install' ) );
+		
+		// Handle localisation
+		$this->load_plugin_textdomain();
 
-		$this->client 		= new LTPLE_Client_Client( $this );
-		$this->request 		= new LTPLE_Client_Request( $this );
-		$this->urls 		= new LTPLE_Client_Urls( $this );
-		$this->programs 	= new LTPLE_Client_Programs( $this );
-		$this->stars 		= new LTPLE_Client_Stars( $this );
-		$this->login 		= new LTPLE_Client_Login( $this );
+		add_action( 'init', array( $this, 'load_localisation' ), 0 );			
 		
-		
-		// Load API for generic admin functions
-		
-		$this->admin 	= new LTPLE_Client_Admin_API( $this );
-		$this->cron 	= new LTPLE_Client_Cron( $this );
-		$this->email 	= new LTPLE_Client_Email( $this );
-		
-		$this->api 		= new LTPLE_Client_Json_API( $this );
-		$this->server 	= new LTPLE_Client_Server( $this );
-		
-		$this->apps 	= new LTPLE_Client_Apps( $this );
-		
-		$this->whois 	= new LTPLE_Client_Whois( $this );
-		
-		$this->leads 	= new LTPLE_Client_Leads( $this );
-		
-		$this->plan 	= new LTPLE_Client_Plan( $this );
-
-		$this->rights 	= new LTPLE_Client_Rights( $this );		
-		
-		if( is_admin() ) {
-			
-			// Load admin JS & CSS
-			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
-			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ), 10, 1 );
-			
-			add_filter( 'page_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
-			add_filter( 'post_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
-
-			$this->users 	= new LTPLE_Client_Users( $this );
-
-			$this->channels = new LTPLE_Client_Channels( $this );
-			
-			add_action( 'init', array( $this, 'ltple_client_backend_init' ));	
-		}
-		elseif(isset($_POST['imgData']) && isset($_POST["submitted"])&& isset($_POST["download_image_nonce_field"]) && $_POST["submitted"]=='true'){
+		if(isset($_POST['imgData']) && isset($_POST["submitted"])&& isset($_POST["download_image_nonce_field"]) && $_POST["submitted"]=='true'){
 			
 			// dowload meme image
 			
@@ -185,77 +148,60 @@ class LTPLE_Client {
 			
 			exit(base64_decode($data));
 		}
-		else{
+		else{		
 			
-			// Load frontend JS & CSS
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
+			$this->client 		= new LTPLE_Client_Client( $this );
+			$this->request 		= new LTPLE_Client_Request( $this );
+			$this->urls 		= new LTPLE_Client_Urls( $this );
+			$this->programs 	= new LTPLE_Client_Programs( $this );
+			$this->stars 		= new LTPLE_Client_Stars( $this );
+			$this->login 		= new LTPLE_Client_Login( $this );
+			
+			// Load API for generic admin functions
+			
+			$this->admin 	= new LTPLE_Client_Admin_API( $this );
+			$this->cron 	= new LTPLE_Client_Cron( $this );
+			$this->email 	= new LTPLE_Client_Email( $this );
+			$this->campaign = new LTPLE_Client_Campaign( $this );
+				
+			$this->api 		= new LTPLE_Client_Json_API( $this );
+			$this->server 	= new LTPLE_Client_Server( $this );
+			
+			$this->apps 	= new LTPLE_Client_Apps( $this );
+			
+			$this->whois 	= new LTPLE_Client_Whois( $this );
+			
+			$this->leads 	= new LTPLE_Client_Leads( $this );
+			
+			$this->plan 	= new LTPLE_Client_Plan( $this );
+
+			$this->imageType = new LTPLE_Client_Image_Type( $this );
+			
+			$this->rights 	= new LTPLE_Client_Rights( $this );
 
 			$this->layer 	= new LTPLE_Client_Layer( $this );
-			$this->image 	= new LTPLE_Client_Image();
+			
+			$this->image 	= new LTPLE_Client_Image( $this );
+
+			$this->domain 	= new LTPLE_Client_Domain( $this );
+					
+			$this->bookmark = new LTPLE_Client_Bookmark( $this );
+			
+			$this->users 	= new LTPLE_Client_Users( $this );
+			
+			$this->channels = new LTPLE_Client_Channels( $this );
+			
 			$this->profile 	= new LTPLE_Client_Profile( $this );
-
-			add_action( 'init', array( $this, 'ltple_client_frontend_init' ));	
 			
-			add_action( 'wp_head', array( $this, 'ltple_client_header') );
-			
-			add_action( 'wp_footer', array( $this, 'ltple_client_footer') );
-		}
-
-		// Handle localisation
-		$this->load_plugin_textdomain();
-		add_action( 'init', array( $this, 'load_localisation' ), 0 );
-
-		// add user taxonomy custom fields
-		
-		add_action( 'show_user_profile', array( $this, 'get_user_plan_and_pricing' ) );
-		add_action( 'edit_user_profile', array( $this, 'get_user_plan_and_pricing' ) );
-		
-		// save user taxonomy custom fields
-		
-		add_action( 'personal_options_update', array( $this, 'save_custom_user_taxonomy_fields' ) );
-		add_action( 'edit_user_profile_update', array( $this, 'save_custom_user_taxonomy_fields' ) );	
-		
-		// add editor shortcodes
-		
-		add_shortcode('ltple-client-editor', array( $this , 'add_shortcode_editor' ) );
-		add_shortcode('subscription-plan', array( $this, 'add_shortcode_subscription_plan' ) );
-		
-		// add subscription-plan
-		
-		add_filter("subscription-plan_custom_fields", array( $this, 'add_subscription_plan_custom_fields' ));		
-		add_filter('manage_subscription-plan_posts_columns', array( $this, 'set_subscription_plan_columns'));
-		add_action('manage_subscription-plan_posts_custom_column', array( $this, 'add_subscription_plan_column_content'), 10, 2);
-		add_filter('nav_menu_css_class', array( $this, 'change_subscription_plan_menu_classes'), 10,2 );
-		
-		// add email-campaign
-		
-		add_filter("email-campaign_custom_fields", array( $this, 'add_campaign_trigger_custom_fields' ));
-		
-		// add user-plan
-		
-		add_filter("user-plan_custom_fields", array( $this, 'add_user_plan_custom_fields' ));
-		
-		// add user-image
-	
-		add_filter('manage_user-image_posts_columns', array( $this, 'set_user_image_columns'));
-		add_action('manage_user-image_posts_custom_column', array( $this, 'add_user_image_column_content'), 10, 2);
-
-		// Custom default layer template
-
-		add_filter('template_include', array( $this, 'editor_templates'), 1 );
-		
-		add_action('template_redirect', array( $this, 'editor_output' ));
-
-		add_filter( 'pre_get_posts', function($query) {
-
-			if ($query->is_search && !is_admin() ) {
-				
-				$query->set('post_type',array('post','page'));
+			if( is_admin() ) {
+							
+				add_action( 'init', array( $this, 'init_backend' ));	
 			}
-
-			return $query;
-		});
+			else{
+				
+				add_action( 'init', array( $this, 'init_frontend' ));
+			}			
+		}
 
 	} // End __construct ()
 	
@@ -335,8 +281,37 @@ class LTPLE_Client {
 		return base64_decode(strtr($inputStr, '-_,', '+/='));
 	}
 	
-	public function ltple_client_frontend_init(){
+	public function init_frontend(){
 		
+		// Load frontend JS & CSS
+		
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
+
+		add_action( 'wp_head', array( $this, 'get_header') );
+		add_action( 'wp_footer', array( $this, 'get_footer') );				
+
+		// add editor shortcodes
+		
+		add_shortcode('ltple-client-editor', array( $this , 'add_shortcode_editor' ) );
+		add_shortcode('subscription-plan', array( $this, 'add_shortcode_subscription_plan' ) );
+
+		// Custom default layer template
+
+		add_filter('template_include', array( $this, 'editor_templates'), 1 );
+		
+		add_action('template_redirect', array( $this, 'editor_output' ));
+	
+		add_filter( 'pre_get_posts', function($query) {
+
+			if ($query->is_search ) {
+				
+				$query->set('post_type',array('post','page'));
+			}
+
+			return $query;
+		});	
+	
 		//get current user
 		
 		if( $this->request->is_remote ){
@@ -457,7 +432,46 @@ class LTPLE_Client {
 	}
 	
 	
-	public function ltple_client_backend_init(){
+	public function init_backend(){
+		
+		// Load admin JS & CSS
+		
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ), 10, 1 );
+		
+		add_filter( 'page_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
+		add_filter( 'post_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
+
+		// add user taxonomy custom fields
+		
+		add_action( 'show_user_profile', array( $this, 'get_user_plan_and_pricing' ) );
+		add_action( 'edit_user_profile', array( $this, 'get_user_plan_and_pricing' ) );
+		
+		// save user taxonomy custom fields
+		
+		add_action( 'personal_options_update', array( $this, 'save_custom_user_taxonomy_fields' ) );
+		add_action( 'edit_user_profile_update', array( $this, 'save_custom_user_taxonomy_fields' ) );	
+					
+		// add subscription-plan
+		
+		add_filter("subscription-plan_custom_fields", array( $this, 'add_subscription_plan_custom_fields' ));		
+		add_filter('manage_subscription-plan_posts_columns', array( $this, 'set_subscription_plan_columns'));
+		add_action('manage_subscription-plan_posts_custom_column', array( $this, 'add_subscription_plan_column_content'), 10, 2);
+		add_filter('nav_menu_css_class', array( $this, 'change_subscription_plan_menu_classes'), 10,2 );
+		
+		// add email-campaign
+		
+		add_filter("email-campaign_custom_fields", array( $this, 'add_campaign_trigger_custom_fields' ));
+		
+		// add user-plan
+		
+		add_filter("user-plan_custom_fields", array( $this, 'add_user_plan_custom_fields' ));
+		
+		// add user-image
+	
+		add_filter('manage_user-image_posts_columns', array( $this, 'set_user_image_columns'));
+		add_action('manage_user-image_posts_custom_column', array( $this, 'add_user_image_column_content'), 10, 2);
+
 		
 		//get current user
 		
@@ -621,7 +635,7 @@ class LTPLE_Client {
 
 		if(isset($terms[0]->slug)){
 			
-			$default=$terms[0]->slug;
+			$default = $terms[0]->slug;
 		}
 		
 		$fields[]=array(
@@ -904,12 +918,6 @@ class LTPLE_Client {
 			'taxonomy' => 'layer-range',
 			'hide_empty' => true,
 		));
-		
-		$this->all->imageType = get_terms( array(
-				
-			'taxonomy' => 'image-type',
-			'hide_empty' => true,
-		));
 			
 		// get layer type
 				
@@ -930,7 +938,7 @@ class LTPLE_Client {
 		$this->user->apps = $this->apps->getUserApps($this->user->ID);
 		
 		// get triggers
-		
+ 		
 		$this->triggers = new LTPLE_Client_Triggers( $this );
 
 		// get user profile
@@ -1010,7 +1018,7 @@ class LTPLE_Client {
 		}			
 	}
 
-	public function ltple_client_header(){
+	public function get_header(){
 
 		//echo '<link rel="stylesheet" href="https://raw.githubusercontent.com/dbtek/bootstrap-vertical-tabs/master/bootstrap.vertical-tabs.css">';	
 		
@@ -1036,7 +1044,7 @@ class LTPLE_Client {
 	
 	}	
 	
-	public function ltple_client_footer(){
+	public function get_footer(){
 		
 		?>
 		<script> 
@@ -1105,7 +1113,7 @@ class LTPLE_Client {
 				include($this->views . $this->_dev .'/settings.php');
 			}			
 			elseif( $this->layer->uri != ''){
-				
+			
 				if( $this->user->has_layer ){
 					
 					include( $this->views . $this->_dev .'/editor.php' );
@@ -3345,14 +3353,14 @@ class LTPLE_Client {
 	 * @since   1.0.0
 	 * @return  void
 	 */
-	public function load_plugin_textdomain () {
+	public function load_plugin_textdomain() {
 	    $domain = 'live-template-editor-client';
 
 	    $locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 
 	    load_textdomain( $domain, WP_LANG_DIR . '/' . $domain . '/' . $domain . '-' . $locale . '.mo' );
 	    load_plugin_textdomain( $domain, false, dirname( plugin_basename( $this->file ) ) . '/lang/' );
-	} // End load_plugin_textdomain ()
+	}
 
 	/**
 	 * Main LTPLE_Client Instance
@@ -3364,30 +3372,31 @@ class LTPLE_Client {
 	 * @see LTPLE_Client()
 	 * @return Main LTPLE_Client instance
 	 */
-	public static function instance ( $file = '', $version = '1.0.0' ) {
+	public static function instance( $file = '', $version = '1.0.0' ) {
+		
 		if ( is_null( self::$_instance ) ) {
 			self::$_instance = new self( $file, $version );
 		}
 		return self::$_instance;
-	} // End instance ()
+	}
 
 	/**
 	 * Cloning is forbidden.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __clone () {
+	public function __clone() {
 		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->_version );
-	} // End __clone ()
+	}
 
 	/**
 	 * Unserializing instances of this class is forbidden.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __wakeup () {
+	public function __wakeup() {
 		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->_version );
-	} // End __wakeup ()
+	}
 
 	/**
 	 * Installation. Runs on activation.
@@ -3395,9 +3404,12 @@ class LTPLE_Client {
 	 * @since   1.0.0
 	 * @return  void
 	 */
-	public function install () {
-		$this->_log_version_number();
-	} // End install ()
+	public static function install() {
+		
+		// store version number
+		
+		//$this->_log_version_number();
+	}
 
 	/**
 	 * Log the plugin version number.
@@ -3405,9 +3417,8 @@ class LTPLE_Client {
 	 * @since   1.0.0
 	 * @return  void
 	 */
-	private function _log_version_number () {
+	private function _log_version_number() {
 		
 		update_option( $this->_token . '_version', $this->_version );
-	} 
-	// End _log_version_number ()
+	}
 }

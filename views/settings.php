@@ -61,34 +61,40 @@
 
 							echo'<table class="form-table">';
 		
-								foreach( $this->user->profile->pictures as $field ){
-									
-									echo'<tr>';
-									
-										echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+								if(!empty($this->user->profile->pictures )){
+			
+									foreach( $this->user->profile->pictures as $field ){
 										
-										echo'<td>';
+										echo'<tr>';
 										
-											$this->admin->display_field( $field , $this->user );
-										
-										echo'</td>';
-										
-									echo'</tr>';
+											echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+											
+											echo'<td>';
+											
+												$this->admin->display_field( $field , $this->user );
+											
+											echo'</td>';
+											
+										echo'</tr>';
+									}
 								}
-		
-								foreach( $this->profile->fields as $field ){
+								
+								if(!empty($this->profile->fields )){
 									
-									echo'<tr>';
-									
-										echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+									foreach( $this->profile->fields as $field ){
 										
-										echo'<td>';
+										echo'<tr>';
 										
-											$this->admin->display_field( $field , $this->user );
-										
-										echo'</td>';
-										
-									echo'</tr>';
+											echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+											
+											echo'<td>';
+											
+												$this->admin->display_field( $field , $this->user );
+											
+											echo'</td>';
+											
+										echo'</tr>';
+									}
 								}
 								
 							echo'</table>';

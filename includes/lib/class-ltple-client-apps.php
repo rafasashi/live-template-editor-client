@@ -2,11 +2,13 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Apps {
+class LTPLE_Client_Apps extends LTPLE_Client_Object {
 	
 	var $parent;
 	var $app;
 	var $mainApps;
+	var $taxonomy;
+	var $list;
 	
 	/**
 	 * Constructor function
@@ -14,6 +16,72 @@ class LTPLE_Client_Apps {
 	public function __construct ( $parent) {
 		
 		$this->parent 	= $parent;
+		
+		$this->taxonomy = 'app-type';
+		
+		$this->parent->register_post_type( 'user-app', __( 'User Apps', 'live-template-editor-client' ), __( 'User Apps', 'live-template-editor-client' ), '', array(
+
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> 'user-app',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export'			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> true,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array( 'title', 'author'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));
+		
+		$this->parent->register_taxonomy( 'app-type', __( 'App Type', 'live-template-editor-client' ), __( 'App Type', 'live-template-editor-client' ),  array('user-image','user-bookmark','user-app'), array(
+			
+			'hierarchical' 			=> true,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> true,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort'					=> '',
+		));
+		
+		add_action( 'add_meta_boxes', function(){
+			
+			$this->parent->admin->add_meta_box (
+				
+				'appData',
+				__( 'App Data', 'live-template-editor-client' ), 
+				array("user-app"),
+				'advanced'
+			);
+			
+			$this->parent->admin->add_meta_box (
+				
+				'appSettings',
+				__( 'App Settings', 'live-template-editor-client' ), 
+				array("user-app"),
+				'advanced'
+			);
+			
+			$this->parent->admin->add_meta_box (
+				
+				'appRequests',
+				__( 'App Requests', 'live-template-editor-client' ), 
+				array("user-app"),
+				'advanced'
+			);
+			
+		});
 		
 		// get current app
 		
@@ -30,14 +98,14 @@ class LTPLE_Client_Apps {
 			$_SESSION['app'] = '';
 		}
 		
-		add_filter('wp_loaded', array( $this, 'apps_init'));
+		add_filter('wp_loaded', array( $this, 'init_apps'));
 		
-		add_filter("user-app_custom_fields", array( $this, 'get_fields' ));		
+		add_filter("user-app_custom_fields", array( $this, 'get_fields' ));
 	}
 	
 	// Add app data custom fields
 
-	public function get_fields($fields=[]){
+	public function get_fields( $fields = [] ){
 		
 		$fields[]=array(
 		
@@ -66,21 +134,163 @@ class LTPLE_Client_Apps {
 		return $fields;
 	}
 	
-	public function apps_init(){
+	public function init_apps(){
 		
 		// get all apps
 		
-		$this->appList = get_terms( array(
+		$this->list = $this->get_terms( $this->taxonomy, array(
+			
+			'blogger' => array(
+			
+				'name' 		=> 'Blogger',
+				'options' 	=> array(
 				
-			'taxonomy' 		=> 'app-type',
-			'hide_empty' 	=> false,
-			'order' 		=> 'DESC',
-		));
+					'thumbnail' => $this->parent->assets_url . 'images/apps/blogger.png',
+					'types' 	=> array('networks','images'),
+					'api_client'=> 'blogger',
+					'parameters'=> array (
+					
+						'input' => array ( 'password', 'password', 'password' ),
+						'key' 	=> array ( 'goo_api_project', 'goo_consumer_key', 'goo_consumer_secret' ),
+						'value' => array ( '', '', ''),
+					),
+				),
+			),
+			'google-plus' => array(
+			
+				'name' 		=> 'Google +',
+				'options' 	=> array(
+				
+					'thumbnail' => $this->parent->assets_url . 'images/apps/google-plus.png',
+					'types' 	=> array('networks','images'),
+					'api_client'=> 'google-plus',
+					'parameters'=> array (
+					
+						'input' => array ( 'password', 'password', 'password' ),
+						'key' 	=> array ( 'goo_api_project', 'goo_consumer_key', 'goo_consumer_secret' ),
+						'value' => array ( '', '', ''),
+					),
+				),
+			),
+			'imgur' => array(
+			
+				'name' 		=> 'Imgur',
+				'options' 	=> array(
+				
+					'thumbnail' => $this->parent->assets_url . 'images/apps/imgur.jpg',
+					'types' 	=> array('images'),
+					'api_client'=> 'imgur',
+					'parameters'=> array (
+					
+						'input' => array ( 'password', 'password' ),
+						'key' 	=> array ( 'imgur_consumer_key', 'imgur_consumer_secret' ),
+						'value' => array ( '', '' ),
+					),
+				),
+			),
+			'paypal-me' => array(
+			
+				'name' 		=> 'Paypal.me',
+				'options' 	=> array(
+				
+					'thumbnail' => $this->parent->assets_url . 'images/apps/payme.png',
+					'types' 	=> array('payment'),
+					'api_client'=> 'bookmark',
+					'parameters'=> array (
+					
+						'input' => array ( 'url', 'filename' ),
+						'key' 	=> array ( 'resource', 'amount' ),
+						'value' => array ( 'https://www.paypal.me/{username}', '0'),
+					),
+				),
+			),
+			'tumblr' => array(
+			
+				'name' 		=> 'Tumblr',
+				'options' 	=> array(
+				
+					'thumbnail' => $this->parent->assets_url . 'images/apps/tumblr.png',
+					'types' 	=> array('networks','images','blogs'),
+					'api_client'=> 'tumblr',
+					'parameters'=> array (
+					
+						'input' => array ( 'password', 'password' ),
+						'key' 	=> array ( 'tblr_consumer_key', 'tblr_consumer_secret' ),
+						'value' => array ( '', ''),
+					),
+				),
+			),
+			'twitter' => array(
+			
+				'name' 		=> 'Twitter',
+				'options' 	=> array(
+				
+					'thumbnail' => $this->parent->assets_url . 'images/apps/twitter.jpg',
+					'types' 	=> array('networks','images'),
+					'api_client'=> 'twitter',
+					'parameters'=> array (
+					
+						'input' => array ( 'password', 'password' ),
+						'key' 	=> array ( 'twt_consumer_key', 'twt_consumer_secret' ),
+						'value' => array ( '', ''),
+					),
+				),
+			),
+			'venmo' => array(
+			
+				'name' 		=> 'Venmo',
+				'options' 	=> array(
+				
+					'thumbnail' => $this->parent->assets_url . 'images/apps/venmo.jpg',
+					'types' 	=> array('payment'),
+					'api_client'=> 'bookmark',
+					'parameters'=> array (
+					
+						'input' => array ( 'url', 'parameter', 'parameter', 'parameter', 'parameter' ),
+						'key' 	=> array ( 'resource', 'txn', 'audience', 'amount', 'note' ),
+						'value' => array ( 'https://venmo.com/{username}', 'pay', 'public|friends|private', '0', ''),
+					),
+				),
+			),
+			'wordpress' => array(
+			
+				'name' 		=> 'Wordpress',
+				'options' 	=> array(
+				
+					'thumbnail' => $this->parent->assets_url . 'images/apps/wordpress.png',
+					'types' 	=> array('images','blogs'),
+					'api_client'=> 'wordpress',
+					'parameters'=> array (
+					
+						'input' => array ( 'password', 'password' ),
+						'key' 	=> array ( 'wpcom_consumer_key', 'wpcom_consumer_secret' ),
+						'value' => array ( '', ''),
+					),
+				),
+			),
+			'youtube' => array(
+			
+				'name' 		=> 'Youtube',
+				'options' 	=> array(
+				
+					'thumbnail' => $this->parent->assets_url . 'images/apps/youtube.jpg',
+					'types' 	=> array('images','videos'),
+					'api_client'=> 'youtube',
+					'parameters'=> array (
+					
+						'input' => array ( 'password', 'password', 'password' ),
+						'key' 	=> array ( 'goo_api_project', 'goo_consumer_key', 'goo_consumer_secret' ),
+						'value' => array ( '', '', ''),
+					),
+				),
+			),
+			
+		),'DESC');
 
 		// get custom fields
 		
-		foreach($this->appList as $app){
-		
+		foreach( $this->list as $app ){
+			
 			$app->thumbnail = get_option('thumbnail_'.$app->slug);
 			$app->types 	= get_option('types_'.$app->slug);
 			//$app->parameters= get_option('parameters_'.$app->slug);
@@ -98,7 +308,7 @@ class LTPLE_Client_Apps {
 
 		if(!empty($this->app)){
 			
-			foreach($this->appList as $app){
+			foreach($this->list as $app){
 				
 				if( $this->app == $app->slug ){
 					
@@ -110,7 +320,7 @@ class LTPLE_Client_Apps {
 		}
 		elseif( is_admin() && isset($_REQUEST['post']) ){
 			
-			$terms = wp_get_post_terms( $_REQUEST['post'], 'app-type' );
+			$terms = wp_get_post_terms( $_REQUEST['post'], $this->taxonomy );
 			
 			if(isset($terms[0]->slug)){
 				

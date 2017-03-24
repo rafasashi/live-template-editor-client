@@ -13,78 +13,86 @@ class LTPLE_Client_User_Profile {
 
 		$this->parent 	= $parent;
 		
-		if($this->parent->user->loggedin){
+		add_filter('init', array( $this, 'init_user_profile' ));
+	}
+
+	public function init_user_profile(){
+		
+		if( !is_admin() ){
 			
-			if( isset( $_REQUEST['my-profile'] ) || isset( $_GET['pr'] ) ){
-				 
-				$this->pictures = $this->get_pictures(); 
-				 
-				$this->customization = $this->get_customization();
-
-				$this->apps = $this->get_apps();
+			if( $this->parent->user->loggedin ){
 				
-				if(!empty($_POST)){
-					
-					// save general information
-					
-					foreach( $this->parent->profile->fields as $field){
-						
-						$id = $field['id'];
-						
-						if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
-							
-							$content = wp_kses_post($_POST[$id]);
-							
-							wp_update_user( array( 'ID' => $this->parent->user->ID, $id => $content ) );
-								
-							$this->parent->user->{$id} = $content;
-						}
-					}
-					
-					// save pictures
-					
-					foreach( $this->pictures as $field){
-						
-						$id = $field['id'];
-						
-						if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
-							
-							$content = wp_kses_post($_POST[$id]);
+				if( isset( $_REQUEST['my-profile'] ) || isset( $_GET['pr'] ) ){
+					 
+					$this->pictures = $this->get_pictures(); 
+					 
+					$this->customization = $this->get_customization();
 
-							update_user_meta( $this->parent->user->ID, $id, $content );
-						}
-					} 
+					$this->apps = $this->get_apps();
 					
-					// save displayed apps
-					
-					foreach( $this->apps as $field){
+					if(!empty($_POST)){
 						
-						$id = $field['id'];
+						// save general information
 						
-						if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
+						foreach( $this->parent->profile->fields as $field){
 							
-							$content = wp_kses_post($_POST[$id]);
-
-							update_user_meta( $this->parent->user->ID, $id, $content );
-						}
-					}
-					
-					// save profile customization
-					
-					foreach( $this->customization as $field){
-						
-						$id = $field['id'];
-						
-						if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
+							$id = $field['id'];
 							
-							$content = $_POST[$id]; //using here wp_kses_post break inline styling...
-							
-							if(isset($field['allowed_tags'])){
+							if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
 								
-								$content = strip_tags($content, $field['allowed_tags']);
+								$content = wp_kses_post($_POST[$id]);
+								
+								wp_update_user( array( 'ID' => $this->parent->user->ID, $id => $content ) );
+									
+								$this->parent->user->{$id} = $content;
 							}
+						}
+						
+						// save pictures
+						
+						foreach( $this->pictures as $field){
 							
-							update_user_meta( $this->parent->user->ID, $id, $content );
+							$id = $field['id'];
+							
+							if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
+								
+								$content = wp_kses_post($_POST[$id]);
+
+								update_user_meta( $this->parent->user->ID, $id, $content );
+							}
+						} 
+						
+						// save displayed apps
+						
+						foreach( $this->apps as $field){
+							
+							$id = $field['id'];
+							
+							if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
+								
+								$content = wp_kses_post($_POST[$id]);
+
+								update_user_meta( $this->parent->user->ID, $id, $content );
+							}
+						}
+						
+						// save profile customization
+						
+						foreach( $this->customization as $field){
+							
+							$id = $field['id'];
+							
+							if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
+								
+								$content = $_POST[$id]; //using here wp_kses_post break inline styling...
+								
+								if(isset($field['allowed_tags'])){
+									
+									$content = strip_tags($content, $field['allowed_tags']);
+								}
+								
+								update_user_meta( $this->parent->user->ID, $id, $content );
+							}
 						}
 					}
 				}
@@ -209,29 +217,32 @@ class LTPLE_Client_User_Profile {
 			));
 		}
 		
-		foreach($this->parent->apps->appList as $app){
-			
-			$key = 'display_'.str_replace('-','_',$app->slug);
-			
-			$accounts = array( 'none' => 'none' );
-			
-			foreach( $userApps as $userApp ){
+		if( !empty($this->parent->apps->list) ){
+		
+			foreach($this->parent->apps->list as $app){
 				
-				if( strpos($userApp->post_name, $app->slug . '-') === 0 ){
+				$key = 'display_'.str_replace('-','_',$app->slug);
+				
+				$accounts = array( 'none' => 'none' );
+				
+				foreach( $userApps as $userApp ){
 					
-					$accounts[$userApp->post_name] = $userApp->post_title;
+					if( strpos($userApp->post_name, $app->slug . '-') === 0 ){
+						
+						$accounts[$userApp->post_name] = $userApp->post_title;
+					}
 				}
-			}
-			
-			$fields[$key] = array(
+				
+				$fields[$key] = array(
 
-				'id' 			=> $this->parent->_base . $key,
-				'label'			=> ucfirst($app->name),
-				'description'	=> '',
-				'type'			=> 'select',
-				'options'		=> $accounts,
-				'required'		=> true,
-			);
+					'id' 			=> $this->parent->_base . $key,
+					'label'			=> ucfirst($app->name),
+					'description'	=> '',
+					'type'			=> 'select',
+					'options'		=> $accounts,
+					'required'		=> true,
+				);
+			}
 		}
 		
 		return $fields;

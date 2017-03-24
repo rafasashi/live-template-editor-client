@@ -4,6 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class LTPLE_Client_Image {
 	
+	public $parent;
 	public $id		= -1;
 	public $uri		= '';
 	public $slug	= '';
@@ -12,34 +13,152 @@ class LTPLE_Client_Image {
 	/**
 	 * Constructor function
 	 */
-	public function __construct () {
+	public function __construct ( $parent ) {
 		
-		if(isset($_GET['uri'])){
-			
-			$this->uri = sanitize_text_field($_GET['uri']);
-			
-			$args=explode('/',$_GET['uri']);
-			
-			if(isset($args[1])&&($args[0]=='default-image'||$args[0]=='user-image')){
+		$this->parent = $parent;
+		
+		$this->parent->register_post_type( 'default-image', __( 'Default images', 'live-template-editor-client' ), __( 'Default image', 'live-template-editor-client' ), '', array(
 
-				$this->type = $args[0];
-				$this->slug = $args[1];
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> 'default-image',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> false,
+			//'supports'			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array('title', 'editor'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));
+		
+		$this->parent->register_post_type( 'user-image', __( 'User images', 'live-template-editor-client' ), __( 'User image', 'live-template-editor-client' ), '', array(
 
-				$q = get_posts(array(
-					'post_type'      => $this->type,
-					'posts_per_page' => 1,
-					'post_name__in'  => [ urlencode($this->slug) ],
-					//'fields'       => 'ids' 
-				));
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> 'user-image',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> false,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array('title', 'editor', 'author'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));
+
+		$this->parent->register_taxonomy( 'image-type', __( 'Image Type', 'live-template-editor-client' ), __( 'Image Type', 'live-template-editor-client' ),  array('default-image'), array(
+			
+			'hierarchical' 			=> false,
+			'public' 				=> true,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> true,
+			'show_tagcloud' 		=> true,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort'					=> '',
+		));		
+	
+		add_filter("default-image_custom_fields", array( $this, 'get_fields' ));	
+		
+		add_filter('init', array( $this, 'init_image' ));
+	}
+	
+	public function init_image(){
+		
+		if( !is_admin() ) {
 				
-				//var_dump($q);exit;
+			if(isset($_GET['uri'])){
 				
-				if(isset($q[0])){
+				$this->uri = sanitize_text_field($_GET['uri']);
+				
+				$args=explode('/',$_GET['uri']);
+				
+				if(isset($args[1])&&($args[0]=='default-image'||$args[0]=='user-image')){
+
+					$this->type = $args[0];
+					$this->slug = $args[1];
+
+					$q = get_posts(array(
+						'post_type'      => $this->type,
+						'posts_per_page' => 1,
+						'post_name__in'  => [ urlencode($this->slug) ],
+						//'fields'       => 'ids' 
+					));
 					
-					$this->id = $q[0]->ID;
-					$this->content = $q[0]->post_content;
+					//var_dump($q);exit;
+					
+					if(isset($q[0])){
+						
+						$this->id = $q[0]->ID;
+						$this->content = $q[0]->post_content;
+					}
 				}
 			}
-		}	
+		}
+	}
+	
+	public function get_fields(){
+
+		$fields=[];
+		
+		//get post id
+		
+		$post_id=get_the_ID();
+		
+		//get image types
+
+		$terms = get_terms( array(
+				
+			'taxonomy' => 'image-type',
+			'hide_empty' => false,
+		));
+		
+		$image_types=[];
+		
+		foreach($terms as $term){
+			
+			$image_types[$term->slug]=$term->name;
+		}
+		
+		//get current image type
+		
+		$terms = wp_get_post_terms( $post_id, 'image-type' );
+		
+		$default_image_type='';
+
+		if(isset($terms[0]->slug)){
+			
+			$default_image_type=$terms[0]->slug;
+		}
+		
+		$fields[]=array(
+			"metabox" =>
+				array('name'=>"tagsdiv-image-type"),
+				'id'=>"new-tag-image-type",
+				'name'=>'tax_input[image-type]',
+				'label'=>"",
+				'type'=>'select',
+				'options'=>$image_types,
+				'selected'=>$default_image_type,
+				'description'=>''
+		);
+		
+		return $fields;
 	}
 }

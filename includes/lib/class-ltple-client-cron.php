@@ -13,7 +13,7 @@ class LTPLE_Client_Cron {
 
 		add_filter('cron_schedules', array($this,'add_cron_schedules'));
 		
-		add_action( 'init', array($this,'cron_init'));
+		add_action( 'init', array($this,'init_cron'));
 		
 		add_action( 'admin_init', function(){
 			
@@ -32,7 +32,7 @@ class LTPLE_Client_Cron {
 		});
 	}
 
-	public function cron_init($event){
+	public function init_cron($event){
 		
 		add_action( $this->parent->_base . 'twt_auto_retweet', 	array( $this, 'ltple_twt_auto_retweet_event'),1,2);
 		add_action( $this->parent->_base . 'twt_auto_follow', 	array( $this, 'ltple_twt_auto_follow_event'),1,2);

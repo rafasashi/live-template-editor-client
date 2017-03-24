@@ -39,7 +39,7 @@
 
 		$default_images = [];
 
-		foreach($this->all->imageType as $term){
+		foreach($this->imageType->list as $term){
 			
 			$default_images[$term->slug] = [];
 		}
@@ -428,7 +428,11 @@
 							
 							$apps[] = $item;
 
-							$apps = array_merge($apps,$this->apps->appList);
+							if( !empty($this->apps->list) ){
+								
+								$apps = array_merge($apps,$this->apps->list);
+							}
+							
 							
 							//output list
 							
@@ -558,7 +562,7 @@
 														
 														echo'<hr style="margin:10px 0;"></hr>';
 														
-														foreach( $this->apps->appList as $app ){
+														foreach( $this->apps->list as $app ){
 															
 															if(in_array($app->slug,$uploadable_appTypes)){
 																
@@ -672,7 +676,7 @@
 							
 							//get app list
 
-							$apps = $this->apps->appList;
+							$apps = $this->apps->list;
 							
 							//output list
 							

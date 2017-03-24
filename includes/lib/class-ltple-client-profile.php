@@ -13,15 +13,23 @@ class LTPLE_Client_Profile {
 	public function __construct ( $parent ) {
 
 		$this->parent 	= $parent;
-		
-		$this->fields 	= $this->get_fields();
-		
-		if( isset($_GET['pr']) && is_numeric($_GET['pr']) ){
 
-			if( $layer = get_post( intval(get_user_meta( intval($_GET['pr']), $this->parent->_base . 'profile_template', true )) ) ){
-				
-				$this->layer = $layer;
-			}				
+		add_filter('init', array( $this, 'init_profile' ));
+	}
+	
+	public function init_profile(){
+		
+		if( !is_admin() ){
+			
+			$this->fields 	= $this->get_fields();
+			
+			if( isset($_GET['pr']) && is_numeric($_GET['pr']) ){
+
+				if( $layer = get_post( intval(get_user_meta( intval($_GET['pr']), $this->parent->_base . 'profile_template', true )) ) ){
+					
+					$this->layer = $layer;
+				}				
+			}			
 		}
 	}
 	

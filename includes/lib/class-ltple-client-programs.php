@@ -28,7 +28,7 @@ class LTPLE_Client_Programs {
 		
 		add_action( 'user_register', 	array( $this, 'ref_user_register' ) );
 		
-		add_action( 'ltple_loaded', array( $this, 'affiliate_init' ));
+		add_action( 'ltple_loaded', array( $this, 'init_affiliate' ));
 			
 		// add program field
 		
@@ -46,7 +46,7 @@ class LTPLE_Client_Programs {
 		add_action( 'edit_user_profile_update', array( $this, 'save_user_programs' ) );
 	}
 	
-	public function affiliate_init(){
+	public function init_affiliate(){
 	
 		if( !empty($this->parent->request->ref_id) && !$this->parent->user->loggedin ){
 				

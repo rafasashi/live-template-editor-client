@@ -14,59 +14,6 @@ class LTPLE_Client_User_Domains {
 
 		$this->parent 	= $parent;
 		
-		$this->init_user_domains();
-		
-		//add_action( 'init', array( $this, 'init_user_domains' ));
-		
-		if( !empty($_POST['layerId']) && !empty($_POST['domainUrl']['domainId']) && isset($_POST['domainUrl']['domainPath']) && !empty($_POST['domainAction']) ){
-			
-			$layerId 	= floatval($_POST['layerId']);
-			
-			$domainId 	= floatval($_POST['domainUrl']['domainId']);
-			
-			$domainPath = sanitize_text_field($_POST['domainUrl']['domainPath']);
-			
-			if( $_POST['domainAction'] == 'assign' && $layerId > 0 && is_numeric($domainId) ){
-				
-				if( $this->parent->user->is_admin || in_array_field($layerId, 'ID', $this->parent->user->layers) ){
-					
-					foreach( $this->list as $list ){
-						
-						if( $domainId == $list->ID ){
-							
-							if( in_array( $domainPath, $list->domainUrls) ){
-								
-								$this->parent->message .= '<div class="alert alert-warning">';
-								
-									$this->parent->message .= 'This url already exists...';
-									
-								$this->parent->message .= '</div>';
-							}
-							else{
-								
-								// update new domain
-
-								$list->domainUrls[$layerId] = $domainPath;
-							
-								update_post_meta( $list->ID, 'domainUrls', $list->domainUrls );
-							}
-						}
-						elseif( isset($list->domainUrls[$layerId]) ){
-							
-							// update previous domain
-							
-							unset($list->domainUrls[$layerId]);
-							
-							update_post_meta( $list->ID, 'domainUrls', $list->domainUrls );
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	public function init_user_domains(){
-		
 		if( $this->parent->user->loggedin ){
 
 			$this->list = get_posts(array(
@@ -84,7 +31,61 @@ class LTPLE_Client_User_Domains {
 					$list->domainUrls = get_post_meta($list->ID ,'domainUrls', true);
 				}				
 			}
-		}	
+		}
+		
+		add_action( 'init', array( $this, 'init_user_domains' ));
+	}
+	
+	public function init_user_domains(){
+		
+		if( !is_admin() ){
+		
+			if( !empty($_POST['layerId']) && !empty($_POST['domainUrl']['domainId']) && isset($_POST['domainUrl']['domainPath']) && !empty($_POST['domainAction']) ){
+				
+				$layerId 	= floatval($_POST['layerId']);
+				
+				$domainId 	= floatval($_POST['domainUrl']['domainId']);
+				
+				$domainPath = sanitize_text_field($_POST['domainUrl']['domainPath']);
+				
+				if( $_POST['domainAction'] == 'assign' && $layerId > 0 && is_numeric($domainId) ){
+					
+					if( $this->parent->user->is_admin || in_array_field($layerId, 'ID', $this->parent->user->layers) ){
+						
+						foreach( $this->list as $list ){
+							
+							if( $domainId == $list->ID ){
+								
+								if( in_array( $domainPath, $list->domainUrls) ){
+									
+									$this->parent->message .= '<div class="alert alert-warning">';
+									
+										$this->parent->message .= 'This url already exists...';
+										
+									$this->parent->message .= '</div>';
+								}
+								else{
+									
+									// update new domain
+
+									$list->domainUrls[$layerId] = $domainPath;
+								
+									update_post_meta( $list->ID, 'domainUrls', $list->domainUrls );
+								}
+							}
+							elseif( isset($list->domainUrls[$layerId]) ){
+								
+								// update previous domain
+								
+								unset($list->domainUrls[$layerId]);
+								
+								update_post_meta( $list->ID, 'domainUrls', $list->domainUrls );
+							}
+						}
+					}
+				}
+			}
+		}		
 	}
 	
 	/**

@@ -14,6 +14,67 @@ class LTPLE_Client_Email {
 		
 		$this->parent 	= $parent;
 		
+		$this->parent->register_post_type( 'email-model', __( 'Email models', 'live-template-editor-client' ), __( 'Email model', 'live-template-editor-client' ), '', array(
+
+			'public' 				=> true,
+			'publicly_queryable' 	=> true,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> 'email-model',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> array('slug'=>'email-model'),
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> false,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array('title', 'editor'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));	
+		
+		$this->parent->register_post_type( 'email-campaign', __( 'Email Campaigns', 'live-template-editor-client' ), __( 'Email Campaign', 'live-template-editor-client' ), '', array(
+
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> 'email-campaign',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> false,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array('title'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));		
+		
+		add_action( 'add_meta_boxes', function(){
+		
+			$this->parent->admin->add_meta_box (
+			
+				'email_series',
+				__( 'Email series', 'live-template-editor-client' ), 
+				array("subscription-plan", "email-campaign"),
+				'advanced'
+			);
+				
+			$this->parent->admin->add_meta_box (
+			
+				'tagsdiv-campaign-trigger',
+				__( 'Campaign Trigger', 'live-template-editor-client' ), 
+				array("email-campaign"),
+				'advanced'
+			);
+		});		
+			
 		// add cron events
 			
 		add_action( $this->parent->_base . 'send_email_event', 	array( $this, 'send_model'),1,2);

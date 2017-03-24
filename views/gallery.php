@@ -303,8 +303,7 @@
 							
 						echo'</div>';
 						
-						
-						if(!$this->user->loggedin){
+						if( !$this->user->loggedin ){
 
 							// login modal
 						

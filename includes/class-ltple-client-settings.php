@@ -104,7 +104,7 @@ class LTPLE_Client_Settings {
 	 * Initialise settings
 	 * @return void
 	 */
-	public function init_settings () {
+	public function init_settings(){
 		
 		$this->settings = $this->settings_fields();		
 		
@@ -217,16 +217,6 @@ class LTPLE_Client_Settings {
 			'edit.php?post_type=default-image'
 		);
 		
-		/*
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'User profile', $this->plugin->slug ),
-			__( 'User profile', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=user-profile'
-		);
-		*/
-		
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'User Layers', $this->plugin->slug ),
@@ -323,6 +313,7 @@ class LTPLE_Client_Settings {
 			'edit.php?post_type=email-campaign'
 		);
 		
+		/*
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'Campaign Triggers', $this->plugin->slug ),
@@ -330,6 +321,7 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit-tags.php?post_type=email-campaign&taxonomy=campaign-trigger'
 		);
+		*/
 		
 		add_submenu_page(
 			$this->plugin->slug,
@@ -655,6 +647,7 @@ class LTPLE_Client_Settings {
 	 * @return void
 	 */
 	public function register_settings () {
+		
 		if ( is_array( $this->settings ) ) {
 
 			// Check posted/selected tab

@@ -19,14 +19,6 @@ class LTPLE_Client_Triggers {
 	 * @since 	1.0.0
 	 */
 	public $parent = null;	
-
-	/**
-	 * Available settings for plugin.
-	 * @var     array
-	 * @access  public
-	 * @since   1.0.0
-	 */
-	public $triggers = array();	
 	
 	/**
 	 * Constructor function
@@ -34,7 +26,7 @@ class LTPLE_Client_Triggers {
 	public function __construct ( $parent ) {
 
 		$this->parent = $parent;
-	
+ 
 		if( $this->parent->user->loggedin ){
 
 			if( $this->parent->user->last_seen == 0 ){
@@ -49,11 +41,10 @@ class LTPLE_Client_Triggers {
 
 					'tax_query' => array(
 						array(
-						  'taxonomy' => 'campaign-trigger',
-						  'field' => 'slug',
-						  'terms' => 'user-registration'
+							'taxonomy' => 'campaign-trigger',
+							'field' => 'slug',
+							'terms' => 'user-registration'
 					))
-			
 				));
 
 				foreach( $q as $campaign){
@@ -69,10 +60,10 @@ class LTPLE_Client_Triggers {
 			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->_time);
 		}	
 	
-		add_action('user_register', array( $this, 'ltple_trigger_after_user_register'), 10, 1);
+		add_action('user_register', array( $this, 'trigger_after_user_register'), 10, 1);
 	}
 	
-	public function ltple_trigger_after_user_register( $user_id ){
+	public function trigger_after_user_register( $user_id ){
 
 		// the new user just registered but never logged in yet
 		add_user_meta($user_id, $this->parent->_base . '_last_seen', 'false');

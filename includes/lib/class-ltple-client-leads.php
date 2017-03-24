@@ -5,8 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Leads {
 	
 	var $parent;
-	var $slug;
-	var $leads;
+	var $taxonomy;
+	var $list;
 
 	/**
 	 * Constructor function
@@ -14,23 +14,56 @@ class LTPLE_Client_Leads {
 	public function __construct ( $parent ) {
 		
 		$this->parent 	= $parent;
-		$this->slug 	= 'lead';
 		
-		add_action ('init', array($this,'leads_init'));
+		$this->taxonomy = 'lead';
 		
-		add_filter( $this->slug . '_custom_fields', array( $this, 'get_fields'));
+		$this->parent->register_post_type( 'lead', __( 'Leads', 'live-template-editor-client' ), __( 'Leads', 'live-template-editor-client' ), '', array(
+
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> 'leads',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export'			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> true,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> true,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array( 'title', 'author'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post'
+		));
 		
-		if( isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == $this->slug ){
+		add_action( 'add_meta_boxes', function(){
+
+			$this->parent->admin->add_meta_box (
 			
-			add_filter('manage_' . $this->slug . '_posts_columns', array( $this, 'set_columns'));
-			add_action('manage_' . $this->slug . '_posts_custom_column', array( $this, 'add_column_content'), 10, 2);		
+				'lead_info',
+				__( 'Lead Info', 'live-template-editor-client' ), 
+				array("lead"),
+				'advanced'
+			);
+		});
+		
+		add_action ('init', array($this,'init_leads'));
+		
+		add_filter( $this->taxonomy . '_custom_fields', array( $this, 'get_fields'));
+		
+		if( isset($_REQUEST['post_type']) && $_REQUEST['post_type'] == $this->taxonomy ){
+			
+			add_filter('manage_' . $this->taxonomy . '_posts_columns', array( $this, 'set_columns'));
+			add_action('manage_' . $this->taxonomy . '_posts_custom_column', array( $this, 'add_column_content'), 10, 2);		
 						
 			add_action('admin_head', array($this, 'add_table_css'));
 			add_action('admin_head', array($this, 'update_manually'));
 		}
 	}
 	
-	public function leads_init(){
+	public function init_leads(){
 
 	   if( isset($_REQUEST['app']) &&  !is_admin() ){
 
@@ -322,7 +355,7 @@ class LTPLE_Client_Leads {
 			
 			$args = array(
 			
-				'post_type'   	=> $this->slug,
+				'post_type'   	=> $this->taxonomy,
 				'post_status' 	=> 'publish',
 				'numberposts' 	=> $num,
 				'offset'		=> $offset,
@@ -617,54 +650,54 @@ class LTPLE_Client_Leads {
 	
 	public function add_column_content($column_name, $post_id){
 		
-		if(empty($this->leads[$post_id])){
+		if(empty($this->list[$post_id])){
 			
-			$this->leads[$post_id] = get_post_meta($post_id);
+			$this->list[$post_id] = get_post_meta($post_id);
 		}
 
 		$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
 	
 		if($column_name === 'leadPicture') {
 
-			if( !empty($this->leads[$post_id]['leadPicture'][0]) ){
+			if( !empty($this->list[$post_id]['leadPicture'][0]) ){
 				
-				echo '<img src="'.$this->leads[$post_id]['leadPicture'][0].'" height="50" width="50" />';
+				echo '<img src="'.$this->list[$post_id]['leadPicture'][0].'" height="50" width="50" />';
 			}
 		}
 		elseif($column_name === 'leadEmail') {
 
-			if( !empty($this->leads[$post_id]['leadEmail'][0]) ){
+			if( !empty($this->list[$post_id]['leadEmail'][0]) ){
 				
-				echo $this->leads[$post_id]['leadEmail'][0];
+				echo $this->list[$post_id]['leadEmail'][0];
 			}
 		}
 		elseif($column_name === 'leadTwtFollowers') {
 
-			if( !empty($this->leads[$post_id]['leadTwtFollowers'][0]) ){
+			if( !empty($this->list[$post_id]['leadTwtFollowers'][0]) ){
 				
-				echo $this->leads[$post_id]['leadTwtFollowers'][0];
+				echo $this->list[$post_id]['leadTwtFollowers'][0];
 			}
 		}
 		elseif($column_name === 'leadDescription') {
 
-			if( !empty($this->leads[$post_id]['leadDescription'][0]) ){
+			if( !empty($this->list[$post_id]['leadDescription'][0]) ){
 				
-				echo $this->leads[$post_id]['leadDescription'][0];
+				echo $this->list[$post_id]['leadDescription'][0];
 			}
 		}
 		elseif ($column_name == 'leadCanSpam') {
 			
 			echo '<span>';
 				
-				if( !empty($this->leads[$post_id]['leadCanSpam'][0]) && $this->leads[$post_id]['leadCanSpam'][0]==='false'){
+				if( !empty($this->list[$post_id]['leadCanSpam'][0]) && $this->list[$post_id]['leadCanSpam'][0]==='false'){
 					
 					$text = "<img src='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=25 height=25>";
-					echo "<a title=\"Subscribe to mailing lists\" href=\"" . add_query_arg(array("post_id" => $post_id, "wp_nonce" => wp_create_nonce( 'leadCanSpam' ), "post_type" => $this->slug, 'leadCanSpam' => "true", "s" => $search_terms ), get_admin_url() . "edit.php") . "\">" . apply_filters("ltple_manual_lead_can_spam", $text) . "</a>";
+					echo "<a title=\"Subscribe to mailing lists\" href=\"" . add_query_arg(array("post_id" => $post_id, "wp_nonce" => wp_create_nonce( 'leadCanSpam' ), "post_type" => $this->taxonomy, 'leadCanSpam' => "true", "s" => $search_terms ), get_admin_url() . "edit.php") . "\">" . apply_filters("ltple_manual_lead_can_spam", $text) . "</a>";
 				}
 				else{
 					
 					$text = "<img src='" . $this->parent->assets_url . "/images/right_arrow.png' width=25 height=25>";
-					echo "<a title=\"Unsubscribe from mailing lists\" href=\"" . add_query_arg(array("post_id" => $post_id, "wp_nonce" => wp_create_nonce( 'leadCanSpam' ), "post_type" => $this->slug, 'leadCanSpam' => "false", "s" => $search_terms ), get_admin_url() . "edit.php") . "\">" . apply_filters("ltple_manual_lead_can_spam", $text) . "</a>";
+					echo "<a title=\"Unsubscribe from mailing lists\" href=\"" . add_query_arg(array("post_id" => $post_id, "wp_nonce" => wp_create_nonce( 'leadCanSpam' ), "post_type" => $this->taxonomy, 'leadCanSpam' => "false", "s" => $search_terms ), get_admin_url() . "edit.php") . "\">" . apply_filters("ltple_manual_lead_can_spam", $text) . "</a>";
 				}
 				
 			
@@ -672,9 +705,9 @@ class LTPLE_Client_Leads {
 		}
 		elseif($column_name === 'leadTwtProtected') {
 
-			if( !empty($this->leads[$post_id]['leadTwtProtected'][0]) ){
+			if( !empty($this->list[$post_id]['leadTwtProtected'][0]) ){
 				
-				echo $this->leads[$post_id]['leadTwtProtected'][0];
+				echo $this->list[$post_id]['leadTwtProtected'][0];
 			}
 		}		
 	}

@@ -56,9 +56,9 @@
 					
 					$items = [];
 					
-					if( !empty($this->apps->appList) ){
+					if( !empty($this->apps->list) ){
 					
-						foreach( $this->apps->appList as $app ){ 
+						foreach( $this->apps->list as $app ){ 
 							
 							$connect_url = $this->urls->editor . '?app='.$app->slug.'&action=connect';
 							
@@ -128,7 +128,7 @@
 						
 						foreach($items as $slug => $item){									
 						
-							foreach( $this->apps->appList as $app ){ 
+							foreach( $this->apps->list as $app ){ 
 
 								if( in_array($app_type,$app->types)){
 									
@@ -146,9 +146,9 @@
 						
 						$message = $this->message;
 					}
-					else{
+					elseif( !empty($this->apps->list) ){
 							
-						foreach( $this->apps->appList as $app ){ 
+						foreach( $this->apps->list as $app ){ 
 							
 							if(!empty($this->apps->{$app->slug}->message)){
 								
@@ -395,7 +395,7 @@
 					
 					echo'<div id="members">';
 
-						if(in_array_field( 'twitter', 'slug', $this->apps->appList )){
+						if(in_array_field( 'twitter', 'slug', $this->apps->list )){
 							
 							echo'<div class="bs-callout bs-callout-primary">';
 
