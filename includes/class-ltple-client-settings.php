@@ -447,9 +447,16 @@ class LTPLE_Client_Settings {
 				array(
 					'id' 			=> 'plansSlug',
 					'label'			=> __( 'Plans' , $this->plugin->slug ),
-					'description'	=> '',
+					'description'	=> 'no shortcode',
 					'type'			=> 'slug',
 					'placeholder'	=> __( 'plans', $this->plugin->slug )
+				),
+				array(
+					'id' 			=> 'productSlug',
+					'label'			=> __( 'Product' , $this->plugin->slug ),
+					'description'	=> '[ltple-client-product]',
+					'type'			=> 'slug',
+					'placeholder'	=> __( 'product', $this->plugin->slug )
 				)
 			)
 		);
@@ -524,10 +531,18 @@ class LTPLE_Client_Settings {
 
 		}
 		
-		$settings['affiliate'] = array(
-			'title'					=> __( 'Affiliates', $this->plugin->slug ),
-			'description'			=> __( 'Affiliate settings & Marketing Material', $this->plugin->slug ),
+		$settings['marketing'] = array(
+			'title'					=> __( 'Marketing', $this->plugin->slug ),
+			'description'			=> __( 'Marketing Material & Affiliate settings', $this->plugin->slug ),
 			'fields'				=> array(
+				array(
+					'id' 			=> 'main_video',
+					'name' 			=> 'main_video',
+					'label'			=> __( 'Main video' , $this->plugin->slug ),
+					'description'	=> 'Main youtube video',
+					'type'			=> 'text',
+					'placeholder'	=> 'http://',
+				),			
 				array(
 					'id' 			=> 'affiliate_banners',
 					'name' 			=> 'affiliate_banners',

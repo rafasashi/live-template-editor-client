@@ -67,13 +67,13 @@
 			while ( $loop->have_posts() ) : $loop->the_post(); 
 				
 				global $post;
-				
-				$editor_url = $this->urls->editor . '?uri='.str_replace(home_url().'/','',get_permalink());
 
 				//get permalink
 				
 				$permalink = get_permalink($post);
-				
+					
+				$editor_url = $this->urls->editor . '?uri='.str_replace(home_url().'/','',$permalink);
+			
 				//get post_title
 				
 				$post_title = the_title('','',false);
@@ -179,7 +179,7 @@
 										  
 											$item.='<div class="modal-body">'.PHP_EOL;
 												
-												if( $this->user->loggedin && $this->user_has_layer( $post->ID ) === true ){
+												if( $this->user->loggedin && $this->plan->user_has_layer( $post->ID ) === true ){
 													
 													$item.= '<iframe data-src="'.$permalink.'" style="width: 100%;position:relative;bottom: 0;border:0;height: 350px;overflow: hidden;"></iframe>';											
 												}
@@ -215,7 +215,7 @@
 							
 								if($this->user->loggedin){
 									
-									if($this->user_has_layer( $post->ID ) === true){
+									if($this->plan->user_has_layer( $post->ID ) === true){
 										
 										$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
 									}

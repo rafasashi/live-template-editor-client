@@ -21,24 +21,21 @@ class LTPLE_Client_Urls {
 	public $parent = null;	
 
 	/**
-	 * Available settings for plugin.
-	 * @var     array
-	 * @access  public
-	 * @since   1.0.0
-	 */
-	public $Urls = array();	
-	
-	/**
 	 * Constructor function
 	 */
 	public function __construct ( $parent ) {
 
 		$this->parent = $parent;
 		
-		$this->editor 	= home_url().'/'.get_option( $this->parent->_base . 'editorSlug' ).'/';
-		$this->login 	= home_url().'/'.get_option( $this->parent->_base . 'loginSlug' ).'/';
-		$this->plans 	= home_url().'/'.get_option( $this->parent->_base . 'plansSlug' ).'/';
 		$this->current 	= 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+		$this->home 	= home_url();
+		
+		$this->editor 	= $this->home . '/' . get_option( $this->parent->_base . 'editorSlug' ) . '/';
+		$this->login 	= $this->home . '/' . get_option( $this->parent->_base . 'loginSlug' )  . '/';
+		$this->plans 	= $this->home . '/' . get_option( $this->parent->_base . 'plansSlug' )  . '/';
+		$this->product 	= $this->home . '/' . get_option( $this->parent->_base . 'productSlug' ). '/';
+		
+		
 	}
 	
 	/**

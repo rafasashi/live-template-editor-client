@@ -255,7 +255,7 @@ class LTPLE_Client_Taxonomy {
 		
 			echo'<label for="'.$taxonomy_name.'-types">Types</label>';
 				
-			$types = LTPLE_Client()->get_app_types();
+			$types = $this->parent->get_app_types();
 			
 			foreach($types as $type => $app){
 				
@@ -295,7 +295,7 @@ class LTPLE_Client_Taxonomy {
 			
 			echo'<td>';
 				
-				$types 		= LTPLE_Client()->get_app_types();
+				$types 		= $this->parent->get_app_types();
 				$app_types 	= get_option('types_'.$term->slug);
 				
 				foreach($types as $type => $app){
@@ -326,7 +326,7 @@ class LTPLE_Client_Taxonomy {
 				echo'<td>';
 					
 					$clients 					= array();
-					$clients ['None'] 			= 'None';
+					$clients ['none'] 			= 'None';
 					$clients ['scraper'] 		= 'Scraper';
 					$clients ['bookmark'] 		= 'Bookmark';
 					$clients ['blogger'] 		= 'Blogger';
@@ -417,7 +417,7 @@ class LTPLE_Client_Taxonomy {
 			
 			echo'<label for="'.$taxonomy_name.'-price-amount">Price</label>';
 
-			echo LTPLE_Client()-> get_layer_taxonomy_price_fields($taxonomy_name,[]);
+			echo $this->parent->plan->get_layer_taxonomy_price_fields($taxonomy_name,[]);
 			
 		echo'</div>';
 		
@@ -425,7 +425,7 @@ class LTPLE_Client_Taxonomy {
 			
 			echo'<label for="'.$taxonomy_name.'-storage-amount">Storage</label>';
 
-			echo LTPLE_Client()-> get_layer_taxonomy_storage_fields($taxonomy_name,0);
+			echo $this->parent->plan->get_layer_taxonomy_storage_fields($taxonomy_name,0);
 			
 		echo'</div>';
 	}	
@@ -454,7 +454,7 @@ class LTPLE_Client_Taxonomy {
 			
 			echo'<td>';
 				
-				echo LTPLE_Client()-> get_layer_taxonomy_price_fields($term->taxonomy,$price);
+				echo $this->parent->plan->get_layer_taxonomy_price_fields($term->taxonomy,$price);
 				
 			echo'</td>';
 			
@@ -470,7 +470,7 @@ class LTPLE_Client_Taxonomy {
 			
 			echo'<td>';
 				
-				echo LTPLE_Client()-> get_layer_taxonomy_storage_fields($term->taxonomy,$storage);
+				echo $this->parent->plan->get_layer_taxonomy_storage_fields($term->taxonomy,$storage);
 						
 			echo'</td>';
 			
@@ -517,7 +517,7 @@ class LTPLE_Client_Taxonomy {
 			
 			if(isset($_POST[$term->taxonomy .'-price-period'])){
 
-				$periods = LTPLE_Client()->get_price_periods();
+				$periods = $this->parent->plan->get_price_periods();
 				$period = sanitize_text_field($_POST[$term->taxonomy . '-price-period']);
 				
 				if(isset($periods[$period])){
@@ -533,7 +533,7 @@ class LTPLE_Client_Taxonomy {
 			
 			if(isset($_POST[$term->taxonomy .'-storage-unit'])){
 
-				$storage_units = LTPLE_Client()->get_storage_units();
+				$storage_units = $this->parent->plan->get_storage_units();
 				$storage_unit = sanitize_text_field($_POST[$term->taxonomy . '-storage-unit']);
 				
 				if(isset($periods[$period])){			

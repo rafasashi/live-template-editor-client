@@ -292,12 +292,12 @@
 			
 				$this->list->{$user_id} = new stdClass();
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
-				$this->list->{$user_id}->plan 		= $this->parent->get_user_plan_info( $user_id, true );
-				$this->list->{$user_id}->last_seen = get_user_meta($user_id, $this->parent->_base . '_last_seen',true);
-				$this->list->{$user_id}->stars 	= $this->parent->stars->get_count($user_id);
+				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
+				$this->list->{$user_id}->last_seen 	= get_user_meta($user_id, $this->parent->_base . '_last_seen',true);
+				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
 				$this->list->{$user_id}->can_spam 	= get_user_meta($user_id, $this->parent->_base . '_can_spam',true);
 				$this->list->{$user_id}->sent 		= get_user_meta($user_id, $this->parent->_base . '_email_sent',true);
-				$this->list->{$user_id}->referredBy= get_user_meta($user_id, $this->parent->_base . 'referredBy',true);
+				$this->list->{$user_id}->referredBy	= get_user_meta($user_id, $this->parent->_base . 'referredBy',true);
 				
 				// user marketing channel
 				

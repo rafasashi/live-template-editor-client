@@ -39,7 +39,7 @@
 
 		$default_images = [];
 
-		foreach($this->imageType->list as $term){
+		foreach($this->image->types as $term){
 			
 			$default_images[$term->slug] = [];
 		}

@@ -12,9 +12,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $slug		= '';
 	public $type		= '';
 	public $outputMode	= '';
-	public $layerTypes	= '';
-	public $layerRanges	= '';
-	public $accountOptions	= '';
+	public $types		= '';
+	public $ranges		= '';
+	public $options		= '';
 	
 	/**
 	 * Constructor function
@@ -223,11 +223,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('wp_loaded', array($this,'get_layer_types'));
 		add_action('wp_loaded', array($this,'get_layer_ranges'));
 		add_action('wp_loaded', array($this,'get_account_options'));
+		//add_action('wp_loaded', array($this,'get_default_layers'));
 	}
 	
 	public function get_layer_types(){
 
-		$this->layerTypes = $this->get_terms( 'layer-type', array(
+		$this->types = $this->get_terms( 'layer-type', array(
 				
 			'emails'  			=> 'Emails',
 			'memes'  			=> 'Memes',
@@ -241,7 +242,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_layer_ranges(){
 
-		$this->layerRanges = $this->get_terms( 'layer-range', array(
+		$this->ranges = $this->get_terms( 'layer-range', array(
 				
 			'demo'  => 'Demo'
 		));
@@ -249,7 +250,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_account_options(){
 
-		$this->accountOptions = $this->get_terms( 'account-option', array(
+		$this->options = $this->get_terms( 'account-option', array(
 				
 			'1-template-storage'  => '+1 template storage'
 		));
@@ -329,7 +330,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$layer_types=[];
 		
-		foreach($this->layerTypes as $term){
+		foreach($this->types as $term){
 			
 			$layer_types[$term->slug]=$term->name;
 		}
@@ -679,6 +680,53 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		);
 		
 		return $fields;
+	}
+		
+	public function get_options($taxonomy,$term,$price_currency='$'){
+		
+		if(is_array($term)){
+			
+			$term_slug = $term['slug'];
+		}
+		else{
+		
+			$term_slug = $term->slug;
+		}
+	
+		if(!$price_amount = get_option('price_amount_' . $term_slug)){
+			
+			$price_amount = 0;
+		} 
+		
+		if(!$price_period = get_option('price_period_' . $term_slug)){
+			
+			$price_period = 'month';
+		}
+		
+		if(!$storage_amount = get_option('storage_amount_' . $term_slug)){
+			
+			$storage_amount = 0;
+		}
+		
+		if(!$storage_unit = get_option('storage_unit_' . $term_slug)){
+			
+			$storage_unit = 'templates';
+		}
+		
+		if(!$form = get_option('meta_' . $term_slug)){
+			
+			$form = [];
+		} 
+		
+		$options=[];
+		$options['price_currency']	= $price_currency;
+		$options['price_amount']	= $price_amount;
+		$options['price_period']	= $price_period;
+		$options['storage_amount']	= $storage_amount;
+		$options['storage_unit']	= $storage_unit;
+		$options['form']			= $form;
+		
+		return $options;
 	}
 	
 	public function show_layer(){

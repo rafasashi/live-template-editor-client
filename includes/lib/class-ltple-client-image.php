@@ -2,13 +2,14 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Image {
+class LTPLE_Client_Image extends LTPLE_Client_Object {
 	
 	public $parent;
 	public $id		= -1;
 	public $uri		= '';
 	public $slug	= '';
 	public $type	= '';
+	public $types	= '';
 	
 	/**
 	 * Constructor function
@@ -72,11 +73,37 @@ class LTPLE_Client_Image {
 			'show_in_rest'          => true,
 			'rewrite' 				=> true,
 			'sort'					=> '',
-		));		
+		));
+
+		add_action( 'add_meta_boxes', function(){
+			 
+			$this->parent->admin->add_meta_box (
+			
+				'tagsdiv-image-type',
+				__( 'Image Type', 'live-template-editor-client' ), 
+				array("default-image"),
+				'side'
+			);
+		});		
 	
 		add_filter("default-image_custom_fields", array( $this, 'get_fields' ));	
 		
 		add_filter('init', array( $this, 'init_image' ));
+		
+		add_action('wp_loaded', array($this,'get_images_types'));
+	}
+	
+	public function get_images_types(){
+
+		$this->types = $this->get_terms( 'image-type', array(
+			
+			'backgrounds' 	=> 'Backgrounds',
+			'buttons' 		=> 'Buttons',
+			'dividers' 		=> 'Dividers',
+			'headers' 		=> 'Headers',
+			'icons' 		=> 'Icons',
+			'footers' 		=> 'Footers',
+		));
 	}
 	
 	public function init_image(){
@@ -122,16 +149,10 @@ class LTPLE_Client_Image {
 		$post_id=get_the_ID();
 		
 		//get image types
-
-		$terms = get_terms( array(
-				
-			'taxonomy' => 'image-type',
-			'hide_empty' => false,
-		));
 		
 		$image_types=[];
 		
-		foreach($terms as $term){
+		foreach($this->image->types as $term){
 			
 			$image_types[$term->slug]=$term->name;
 		}
@@ -149,14 +170,14 @@ class LTPLE_Client_Image {
 		
 		$fields[]=array(
 			"metabox" =>
-				array('name'=>"tagsdiv-image-type"),
-				'id'=>"new-tag-image-type",
-				'name'=>'tax_input[image-type]',
-				'label'=>"",
-				'type'=>'select',
-				'options'=>$image_types,
-				'selected'=>$default_image_type,
-				'description'=>''
+				array('name'	=> "tagsdiv-image-type"),
+				'id'			=> "new-tag-image-type",
+				'name'			=> 'tax_input[image-type]',
+				'label'			=> "",
+				'type'			=> 'select',
+				'options'		=> $image_types,
+				'selected'		=> $default_image_type,
+				'description'	=> ''
 		);
 		
 		return $fields;

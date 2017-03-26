@@ -487,4 +487,10 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 
 		return $app_data;
 	}
+		
+	public function get_youtube_id($url){
+			
+		preg_match( "#(?<=v=)[a-zA-Z0-9-]+(?=&)|(?<=v\/)[^&\n]+|(?<=v=)[^&\n]+|(?<=youtu.be/)[^&\n]+#", $url, $matches );
+        return $matches[0];
+	}
 } 

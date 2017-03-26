@@ -266,15 +266,13 @@ class LTPLE_Client_Admin_API {
 							
 							foreach($terms as $i => $term){
 							
-								$taxonomy_options[$i] = LTPLE_Client()->get_layer_taxonomy_options( $taxonomy, $term );
+								$taxonomy_options[$i] = $this->parent->layer->get_options( $taxonomy, $term );
 								
 								if ( in_array( $term->slug, (array) $data ) ) {
 									
-									$total_fee_amount 	= LTPLE_Client()->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);
-									
-									$total_price_amount = LTPLE_Client()->sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);
-
-									$total_storage = LTPLE_Client()->sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
+									$total_fee_amount 	= $this->parent->plan->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);
+									$total_price_amount = $this->parent->plan->sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);
+									$total_storage 		= $this->parent->plan->sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
 								}
 
 								$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
