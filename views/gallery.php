@@ -153,6 +153,8 @@
 							
 							$item.='<div class="panel-footer text-right">';
 
+								$item.='<a class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $this->urls->product .'?id=' . $post->ID . '" title="More info about '. $post_title .' template">Info</a>';
+							
 								//$item.='<a class="btn btn-sm btn-warning" href="'. $permalink .'" target="_blank" title="'. $post_title .'">Preview</a>';
 							
 								$modal_id='modal_'.md5($permalink);

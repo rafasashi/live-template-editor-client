@@ -896,7 +896,7 @@ class LTPLE_Client_Plan {
 						
 				echo'</table>';
 				
-			echo'</div>';
+			echo'</div>';				
 
 			//get list of emails sent to user
 			
@@ -1108,9 +1108,13 @@ class LTPLE_Client_Plan {
 						do_action('ltple_free_plan_subscription');
 					}
 					
+					// handle affiliate commission
+					
+					$this->parent->programs->set_affiliate_commission($this->parent->user->ID, ( $this->data['price'] + $this->data['fee'] ), $this->data['currency'] );
+					
 					// schedule email series
 					
-					$this->parent->ltple_schedule_series( $this->data['id'], $this->parent->user);
+					$this->parent->email->schedule_series( $this->data['id'], $this->parent->user);
 					
 					if( $this->data['price'] > 0 ){
 						

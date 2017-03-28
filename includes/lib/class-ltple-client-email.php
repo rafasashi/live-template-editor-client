@@ -253,6 +253,37 @@ class LTPLE_Client_Email {
 		return false;
 	}
 	
+	
+	public function schedule_series( $series_id, $user){
+					
+		$email_series = get_post_meta( $series_id, 'email_series',true);
+
+		// trigger register email
+
+		if( isset( $email_series['model'] ) && isset( $email_series['days'] ) ){
+			
+			foreach($email_series['model'] as $e => $model_id){
+				
+				if( is_numeric($model_id) ){
+					
+					$model_id = intval($model_id);
+					
+					if( $model_id > 0 ){
+						
+						if( intval($email_series['days'][$e]) == 0){
+							
+							wp_schedule_single_event( ( time() + ( 60 * 1 ) ) , 'ltple_send_email_event' , [$model_id,$user->user_email] );
+						}
+						else{
+							
+							wp_schedule_single_event( ( time() + ( intval( $email_series['days'][$e] ) * 3600 * 24 ) ), 'ltple_send_email_event', [$model_id,$user->user_email] );
+						}									
+					}
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Main LTPLE_Client_Email Instance
 	 *

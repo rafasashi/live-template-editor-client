@@ -49,7 +49,7 @@ class LTPLE_Client_Triggers {
 
 				foreach( $q as $campaign){
 					
-					$this->parent->ltple_schedule_series( $campaign->ID,  $this->parent->user);					
+					$this->parent->email->schedule_series( $campaign->ID,  $this->parent->user);					
 				}
 			}
 			elseif(( date('Y.m.d',$this->parent->user->last_seen) != date('Y.m.d') )){

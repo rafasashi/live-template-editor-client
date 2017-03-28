@@ -131,25 +131,50 @@ class LTPLE_Client_Programs {
 		
 		if( empty($counter) || !isset($counter['today'][$y][$z]) || !in_array($id,$counter['today'][$y][$z]) ){
 		
-			// set today
-			
-			$counter['today'][$y][$z][] = $id;
-			
-			// set week
+			if($type == 'commission'){
+				
+				// set today
+				
+				$counter['today'][$y][$z][] = $id;
+				
+				// set week
 
-			++$counter['week'][$y][$w];
-			
-			// set month
-			
-			++$counter['month'][$y][$m];
-			
-			// set year
-			
-			++$counter['year'][$y];
-			
-			// set total
-			
-			++$counter['total'];
+				$counter['week'][$y][$w] += $id;
+				
+				// set month
+				
+				$counter['month'][$y][$m] += $id;
+				
+				// set year
+				
+				$counter['year'][$y] += $id;
+				
+				// set total
+				
+				$counter['total'] += $id;				
+			}
+			else{
+				
+				// set today
+				
+				$counter['today'][$y][$z][] = $id;
+				
+				// set week
+
+				++$counter['week'][$y][$w];
+				
+				// set month
+				
+				++$counter['month'][$y][$m];
+				
+				// set year
+				
+				++$counter['year'][$y];
+				
+				// set total
+				
+				++$counter['total'];				
+			}
 			
 			// update counter
 			
@@ -157,6 +182,29 @@ class LTPLE_Client_Programs {
 		}
 		
 		return $counter;
+	}
+	
+	public function set_affiliate_commission($user_id, $amount=0, $currency='$'){
+		
+		$amount = floatval($amount);
+
+		if( $amount > 0 ){
+			
+			// handle affiliate commission
+
+			$affiliate = get_user_meta($user_id, $this->parent->_base . 'referredBy', true);
+		
+			if(!empty($affiliate)){
+				
+				$affiliate_id = key($affiliate);
+				
+				$commission_pourcent = 25;
+				
+				$commission =  $amount * ( $commission_pourcent / 100 );
+				
+				$this->set_affiliate_counter($affiliate_id, 'commission', $commission);
+			}
+		}
 	}
 	
 	public function ref_user_register( $user_id ){
@@ -253,8 +301,8 @@ class LTPLE_Client_Programs {
 								
 								$sum += $value;
 							}
-							
-							echo $pre.$sum.$app;
+
+							echo $pre . number_format($sum, 2, '.', '').$app;
 						}
 						else{
 							
@@ -275,7 +323,16 @@ class LTPLE_Client_Programs {
 					echo'</td>';
 
 					echo'<td>';
-						echo $pre.$counter['week'][$y][$w].$app;
+						
+						if($sum){
+							
+							echo $pre.number_format($counter['week'][$y][$w], 2, '.', '').$app;
+						}
+						else{
+							
+							echo $pre.$counter['week'][$y][$w].$app;
+						}
+						
 					echo'</td>';													
 				
 				echo'</tr>';
@@ -289,7 +346,15 @@ class LTPLE_Client_Programs {
 					echo'</td>';
 
 					echo'<td>';
-						echo $pre.$counter['month'][$y][$m].$app;
+					
+						if($sum){
+							
+							echo $pre.number_format($counter['month'][$y][$m], 2, '.', '').$app;
+						}
+						else{
+							
+							echo $pre.$counter['month'][$y][$m].$app;
+						}
 					echo'</td>';													
 				
 				echo'</tr>';
@@ -303,7 +368,16 @@ class LTPLE_Client_Programs {
 					echo'</td>';
 
 					echo'<td>';
-						echo $pre.$counter['total'].$app;
+					
+						if($sum){
+							
+							echo $pre.number_format($counter['total'], 2, '.', '').$app;
+						}
+						else{
+							
+							echo $pre.$counter['total'].$app;
+						}
+						
 					echo'</td>';													
 				
 				echo'</tr>';
@@ -387,7 +461,7 @@ class LTPLE_Client_Programs {
 							
 							echo'<td>';
 
-								$this->get_affiliate_overview($this->parent->editedUser->affiliate_commission,true,'$','.00');																	
+								$this->get_affiliate_overview($this->parent->editedUser->affiliate_commission,true,'$');																	
 								
 							echo'</td>';
 

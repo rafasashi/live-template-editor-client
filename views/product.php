@@ -13,7 +13,7 @@
 	
 	$modal_id='modal_'.md5($permalink);
 
-	echo'<h1>' . $this->post_title . '</h1>';
+	echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> ' . $this->post_title . ' template</h1>';
 	
 	echo'<div id="layer_detail" class="col-xs-12">';
 
@@ -222,13 +222,104 @@
 			
 		echo'</div>';
 		
-
-		
 		echo'<div class="row">';
-			echo'<div class="col-md-4">';
-				echo'<h2>More information</h2>';
-				echo'<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe rem nisi accusamus error velit animi non ipsa placeat. Recusandae, suscipit, soluta quibusdam accusamus a veniam quaerat eveniet eligendi dolor consectetur.</p>';
+		
+			//output more info
+		
+			echo'<div id="about_tool" class="col-md-4">';
+
+				echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" class="panel-heading" role="tab" id="heading1">';
+					
+					echo'<button style="background:none;text-align:left;font-size:18px;width:100%;padding:5px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">';
+					  
+						echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
+					  
+						echo'Live Edition';
+					
+					echo'</button>';
+				
+				echo'</div>';
+				
+				echo'<div id="collapse1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading1">';
+					
+					echo '<p style="margin: 0 5px;">';
+					
+						echo 'Edit <b>' . $this->post_title . '</b> code, duplicate or remove parts, save your custom version and export the result online directly from the editor.';
+					
+					echo '</p>';
+					
+				echo'</div>';
+			
+				echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" class="panel-heading" role="tab" id="heading2">';
+					
+					echo'<button style="background:none;text-align:left;font-size:18px;width:100%;padding:5px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">';
+					  
+						echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
+					  
+						echo'Media Library';
+					
+					echo'</button>';
+				
+				echo'</div>';
+				
+				echo'<div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">';
+					
+					echo '<p style="margin: 0 5px;">';
+					
+						echo 'Insert your contents into <b>' . $this->post_title . '</b> template directly form the editor, import images to your library, build custom payment links and add them to your list of bookmarks.';
+
+					echo '</p>';
+					
+				echo'</div>';
+
+				echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" class="panel-heading" role="tab" id="heading3">';
+					
+					echo'<button style="background:none;text-align:left;font-size:18px;width:100%;padding:5px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">';
+					  
+						echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
+					  
+						echo'Connected Apps';
+					
+					echo'</button>';
+				
+				echo'</div>';
+				
+				echo'<div id="collapse3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading3">';
+					
+					echo '<p style="margin: 0 5px;">';
+					
+						echo 'Connect third party apps to import or upload your communication material, take advantage of advance features and gain stars';
+					
+					echo '</p>';
+					
+				echo'</div>';
+
+			
+				echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" class="panel-heading" role="tab" id="heading4">';
+					
+					echo'<button style="background:none;text-align:left;font-size:18px;width:100%;padding:5px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">';
+					  
+						echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
+					  
+						echo'Custom Url';
+					
+					echo'</button>';
+				
+				echo'</div>';
+				
+				echo'<div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">';
+					
+					echo '<p style="margin: 0 5px;">';
+					
+						echo 'Add and manage dedicated domain names and assign custom urls to your saved templates.';
+					
+					echo '</p>';
+					
+				echo'</div>';				
+			
 			echo'</div>';
+			
+			//output video tutorial
 			
 			echo'<div class="col-md-4">';
 				
@@ -240,6 +331,8 @@
 				}
 				
 			echo'</div>';
+			
+			//output related templates
 			
 			echo'<div class="col-md-4">';
 			
