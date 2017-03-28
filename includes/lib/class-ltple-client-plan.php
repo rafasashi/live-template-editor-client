@@ -1110,7 +1110,11 @@ class LTPLE_Client_Plan {
 					
 					// handle affiliate commission
 					
-					$this->parent->programs->set_affiliate_commission($this->parent->user->ID, ( $this->data['price'] + $this->data['fee'] ), $this->data['currency'] );
+					if(!empty($_GET['pk'])){
+					
+						$this->parent->programs->set_affiliate_commission($this->parent->user->ID, ( $this->data['price'] + $this->data['fee'] ), $_GET['pk'] );
+					}
+					
 					
 					// schedule email series
 					

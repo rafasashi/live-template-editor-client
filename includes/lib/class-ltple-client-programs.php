@@ -129,29 +129,33 @@ class LTPLE_Client_Programs {
 			$counter = $this->get_affiliate_counter( $user_id, $type );
 		}
 		
-		if( empty($counter) || !isset($counter['today'][$y][$z]) || !in_array($id,$counter['today'][$y][$z]) ){
+		if( !isset($counter['today'][$y][$z]) || !in_array($id,$counter['today'][$y][$z]) ){
 		
 			if($type == 'commission'){
 				
+				$amount = explode('_',$id);
+				
+				$amount = floatval($amount[1]);
+				
 				// set today
 				
-				$counter['today'][$y][$z][] = $id;
+				$counter['today'][$y][$z][$id] = $amount;
 				
 				// set week
 
-				$counter['week'][$y][$w] += $id;
+				$counter['week'][$y][$w] += $amount;
 				
 				// set month
 				
-				$counter['month'][$y][$m] += $id;
+				$counter['month'][$y][$m] += $amount;
 				
 				// set year
 				
-				$counter['year'][$y] += $id;
+				$counter['year'][$y] += $amount;
 				
 				// set total
 				
-				$counter['total'] += $id;				
+				$counter['total'] += $amount;				
 			}
 			else{
 				
@@ -184,8 +188,8 @@ class LTPLE_Client_Programs {
 		return $counter;
 	}
 	
-	public function set_affiliate_commission($user_id, $amount=0, $currency='$'){
-		
+	public function set_affiliate_commission($user_id, $amount=0, $id){
+
 		$amount = floatval($amount);
 
 		if( $amount > 0 ){
@@ -202,7 +206,7 @@ class LTPLE_Client_Programs {
 				
 				$commission =  $amount * ( $commission_pourcent / 100 );
 				
-				$this->set_affiliate_counter($affiliate_id, 'commission', $commission);
+				$this->set_affiliate_counter($affiliate_id, 'commission', $id . '_' . $commission);
 			}
 		}
 	}
