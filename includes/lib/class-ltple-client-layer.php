@@ -545,6 +545,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					'none'		=> 'None',
 					'importer'	=> 'Importer',
+					'scraper'	=> 'Scraper',
 				),
 				'inline'		=> false,
 				'description'	=> ''

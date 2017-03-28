@@ -19,22 +19,6 @@
 	
 	$layerOutput = get_post_meta( $layer_id, 'layerOutput', true );
 	
-	//get layer margin
-	
-	$layerMargin = get_post_meta( $layer_id, 'layerMargin', true );
-	
-	if( empty($layerMargin) ){
-		
-		$layerMargin = '-120px 0px -20px 0px';
-	}
-	
-	$layerMinWidth = get_post_meta( $layer_id, 'layerMinWidth', true );
-	
-	if( empty($layerMinWidth) ){
-		
-		$layerMinWidth = '1000px';
-	}
-	
 	//get layer options
 	
 	$layerOptions = get_post_meta( $layer_id, 'layerOptions', true );
@@ -64,65 +48,159 @@
 	//get layer image proxy
 	
 	$layerImgProxy = 'http://'.$_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
-					
-	//get layer content
 	
-	$layerContent = '';
+	$layerHead 		= '';
+	$layerContent 	= '';
+	$layerCss 		= '';
+	$layerMargin	= '';
+	$layerMinWidth	= '';
 	
-	if( $post->post_type != 'user-layer' && isset($_POST['importHtml']) ){
+	if( $post->post_type != 'user-layer' && isset($_POST['scrapeUrl']) ){
 
-		$layerContent = $_POST['importHtml'];
+		$source = urldecode($_POST['scrapeUrl']);
+	
+		$ch = curl_init($source);
+		curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT,10);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		$output = curl_exec($ch);
+		$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
+		
+		// parse dom elements
+		
+		libxml_use_internal_errors( true );
+		
+		$dom= new DOMDocument();
+		$dom->loadHTML('<?xml encoding="UTF-8">' . $output);  
+		
+		// absolute urls to relative
+		
+		$parse = parse_url($source);
+		
+		$elements = array(
+		
+			'link' 	=> 'href',
+			'a' 	=> 'href',
+			'img' 	=> 'src',
+			'script'=> 'src',
+		);
+		
+		foreach( $elements as $tagname => $attr){
+		
+			foreach($dom->getElementsByTagName($tagname) as $link) {
+			
+				$u = $link->getAttribute($attr);
+
+				if( !empty($u) && $u[0] != '#' && parse_url($u, PHP_URL_SCHEME) == ''){
+					
+					if( $u[0] == '/' ){
+						
+						$link->setAttribute( $attr,  $parse['scheme'].'://'.$parse['host']. $u );
+					}
+					elseif( $u[0].$u[1] == './'){
+						
+						$link->setAttribute( $attr,  dirname($source) . substr($u, 2) );
+					}
+					elseif($u[0].$u[1].$u[2] == '../'){
+						
+						$link->setAttribute( $attr,  dirname(dirname($source)) . substr($u, 2) );
+					}
+					else{
+						
+						$link->setAttribute( $attr,  $parse['scheme'].'://'.$parse['host']. '/' . $u );
+					}
+				}
+			}
+		}		
+		
+		$xpath = new DOMXPath($dom);
+		
+		// get head
+		
+		$layerHead = $dom->saveHtml( $xpath->query('/html/head')->item(0) );			
+		$layerHead = preg_replace('~<(?:!DOCTYPE|/?(?:head))[^>]*>\s*~i', '', $layerHead);
+		
+		// get body
+		
+		$layerContent = $dom->saveHtml( $xpath->query('/html/body')->item(0) );
+		$layerContent = preg_replace('~<(?:!DOCTYPE|/?(?:body))[^>]*>\s*~i', '', $layerContent);
+		
 	}
 	else{
 		
-		$layerContent = $post->post_content;
-	}
-	
-	$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
-	
-	//get style-sheet
-	
-	$layerCss = '';
-
-	if( $post->post_type != 'user-layer' && isset($_POST['importCss']) ){
-
-		$layerCss = stripcslashes($_POST['importCss']);
-	}
-	elseif(empty($_POST)){
+		//get layer margin
 		
-		$layerCss = get_post_meta( $post->ID, 'layerCss', true );
+		$layerMargin = get_post_meta( $layer_id, 'layerMargin', true );
 		
-		if( $layerCss == '' && $post->ID != $layer_id){
+		if( empty($layerMargin) ){
 			
-			$layerCss = get_post_meta( $layer_id, 'layerCss', true );
+			$layerMargin = '-120px 0px -20px 0px';
 		}
-	}
-	
-	$layerCss = sanitize_text_field($layerCss);
+		
+		$layerMinWidth = get_post_meta( $layer_id, 'layerMinWidth', true );
+		
+		if( empty($layerMinWidth) ){
+			
+			$layerMinWidth = '1000px';
+		}		
+		
+		//get layer content
+		
+		if( $post->post_type != 'user-layer' && isset($_POST['importHtml']) ){
 
-	if($layerOutput=='canvas'){
+			$layerContent = $_POST['importHtml'];
+		}
+		else{
+			
+			$layerContent = $post->post_content;
+		}
 		
-		$layerContent = str_replace(array($layerImgProxy),array(''),$layerContent);		
+		$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
 		
-		// replace image sources
+		//get style-sheet
 		
-		$layerContent = str_replace(array('src =','src= "'),array('src=','src="'),$layerContent);
-		$layerContent = str_replace(array($layerImgProxy,'src="'),array('','src="'.$layerImgProxy),$layerContent);			
-		
-		// replace background images
+		if( $post->post_type != 'user-layer' && isset($_POST['importCss']) ){
 
-		$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
-		$layerContent = preg_replace($regex, "$1$layerImgProxy$3$4", $layerContent);					
-	
-		if(!empty($layerCss)){
-
-			$layerCss = str_replace(array($layerImgProxy),array(''),$layerCss);
+			$layerCss = stripcslashes($_POST['importCss']);
+		}
+		elseif(empty($_POST)){
+			
+			$layerCss = get_post_meta( $post->ID, 'layerCss', true );
+			
+			if( $layerCss == '' && $post->ID != $layer_id){
+				
+				$layerCss = get_post_meta( $layer_id, 'layerCss', true );
+			}
+		}
 		
+		$layerCss = sanitize_text_field($layerCss);
+
+		if($layerOutput=='canvas'){
+			
+			$layerContent = str_replace(array($layerImgProxy),array(''),$layerContent);		
+			
+			// replace image sources
+			
+			$layerContent = str_replace(array('src =','src= "'),array('src=','src="'),$layerContent);
+			$layerContent = str_replace(array($layerImgProxy,'src="'),array('','src="'.$layerImgProxy),$layerContent);			
+			
 			// replace background images
 
 			$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
-			$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);		
-		}	
+			$layerContent = preg_replace($regex, "$1$layerImgProxy$3$4", $layerContent);					
+		
+			if(!empty($layerCss)){
+
+				$layerCss = str_replace(array($layerImgProxy),array(''),$layerCss);
+			
+				// replace background images
+
+				$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
+				$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);		
+			}	
+		}
 	}
 	
 	// get google fonts
@@ -145,48 +223,55 @@
 
 		echo '<head>';
 		
-			echo '<title>'.ucfirst($post->post_title).'</title>';
-		
-			echo '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
-			echo '<!--[if lt IE 9]>';
-			echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
-			echo '<![endif]-->';
+			if( !empty($layerHead) ){
+				
+				echo $layerHead;
+			}
+			else{
+				
+				echo '<title>'.ucfirst($post->post_title).'</title>';
+				
+				echo '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
+				echo '<!--[if lt IE 9]>';
+				echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
+				echo '<![endif]-->';
 
-			if( is_array($cssLibraries) ){
-				
-				if( in_array('bootstrap-3',$cssLibraries)|| !empty($layerForm) ){
+				if( is_array($cssLibraries) ){
 					
-					echo '<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>';
-				}
+					if( in_array('bootstrap-3',$cssLibraries)|| !empty($layerForm) ){
+						
+						echo '<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>';
+					}
 
-				if( in_array('fontawesome-4',$cssLibraries)){
+					if( in_array('fontawesome-4',$cssLibraries)){
+						
+						echo '<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>';
+					}
 					
-					echo '<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>';
-				}
-				
-				if( in_array('elementor-1.2.3',$cssLibraries) ){
+					if( in_array('elementor-1.2.3',$cssLibraries) ){
 
-					// elementor
+						// elementor
+						
+						echo '<link href="' . plugins_url('elementor/assets/css/animations.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>';
+						echo '<link href="' . plugins_url('elementor/assets/css/frontend.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>';
+						
+						//echo '<link href="' . plugins_url('elementor/assets/css/global.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>';
+						echo '<style>.elementor-widget-heading .elementor-heading-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image .widget-image-caption{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-text-editor{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-button .elementor-button{font-family:Roboto,sans-serif;font-weight:500;background-color:#61ce70}.elementor-widget-divider .elementor-divider-separator{border-top-color:#7a7a7a}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-icon.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon.elementor-view-framed .elementor-icon,.elementor-widget-icon.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-framed .elementor-icon,.elementor-widget-icon-box.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-image-gallery .gallery-item .gallery-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-image-carousel .elementor-image-carousel-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-icon-list .elementor-icon-list-icon i{color:#6ec1e4}.elementor-widget-icon-list .elementor-icon-list-text{color:#54595f;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-counter .elementor-counter-number-wrapper{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-counter .elementor-counter-title{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-progress .elementor-progress-wrapper .elementor-progress-bar{background-color:#6ec1e4}.elementor-widget-progress .elementor-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-name{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-testimonial .elementor-testimonial-job{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-tabs .elementor-tab-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-tabs .elementor-tab-title.active{color:#61ce70}.elementor-widget-tabs .elementor-tab-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title.active{color:#61ce70}.elementor-widget-accordion .elementor-accordion .elementor-accordion-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title.active{color:#61ce70}.elementor-widget-toggle .elementor-toggle .elementor-toggle-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-alert .elementor-alert-title{font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-alert .elementor-alert-description{font-family:Roboto,sans-serif;font-weight:400}</style>';
+					}
 					
-					echo '<link href="' . plugins_url('elementor/assets/css/animations.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>';
-					echo '<link href="' . plugins_url('elementor/assets/css/frontend.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>';
+					if( in_array('animate',$cssLibraries)){
+						
+						echo '<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet" type="text/css"/>';
+					}
 					
-					//echo '<link href="' . plugins_url('elementor/assets/css/global.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>';
-					echo '<style>.elementor-widget-heading .elementor-heading-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image .widget-image-caption{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-text-editor{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-button .elementor-button{font-family:Roboto,sans-serif;font-weight:500;background-color:#61ce70}.elementor-widget-divider .elementor-divider-separator{border-top-color:#7a7a7a}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-icon.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon.elementor-view-framed .elementor-icon,.elementor-widget-icon.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-framed .elementor-icon,.elementor-widget-icon-box.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-image-gallery .gallery-item .gallery-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-image-carousel .elementor-image-carousel-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-icon-list .elementor-icon-list-icon i{color:#6ec1e4}.elementor-widget-icon-list .elementor-icon-list-text{color:#54595f;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-counter .elementor-counter-number-wrapper{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-counter .elementor-counter-title{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-progress .elementor-progress-wrapper .elementor-progress-bar{background-color:#6ec1e4}.elementor-widget-progress .elementor-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-name{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-testimonial .elementor-testimonial-job{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-tabs .elementor-tab-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-tabs .elementor-tab-title.active{color:#61ce70}.elementor-widget-tabs .elementor-tab-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title.active{color:#61ce70}.elementor-widget-accordion .elementor-accordion .elementor-accordion-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title.active{color:#61ce70}.elementor-widget-toggle .elementor-toggle .elementor-toggle-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-alert .elementor-alert-title{font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-alert .elementor-alert-description{font-family:Roboto,sans-serif;font-weight:400}</style>';
-				}
-				
-				if( in_array('animate',$cssLibraries)){
+					if( in_array('slick',$jsLibraries) || in_array('elementor-1.2.3',$cssLibraries) ){
+						
+						echo '<link href="http://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css" rel="stylesheet" type="text/css"/>';
+						//echo '<link href="http://cdn.jsdelivr.net/jquery.slick/1.6.0/slick-theme.css" rel="stylesheet" type="text/css"/>';
 					
-					echo '<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet" type="text/css"/>';
-				}
-				
-				if( in_array('slick',$jsLibraries) || in_array('elementor-1.2.3',$cssLibraries) ){
-					
-					echo '<link href="http://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css" rel="stylesheet" type="text/css"/>';
-					//echo '<link href="http://cdn.jsdelivr.net/jquery.slick/1.6.0/slick-theme.css" rel="stylesheet" type="text/css"/>';
-				
-					echo '<style>.slick-slide{height:auto !important;}</style>';
-				}
+						echo '<style>.slick-slide{height:auto !important;}</style>';
+					}
+				}				
 			}
 			
 			// font library
@@ -272,6 +357,30 @@
 									
 								echo '</div>';
 							}
+							elseif( $layerForm == 'scraper' ){
+						
+								echo '<div class="col-xs-3">';
+								
+									echo'<label>Page Url</label>';
+									
+								echo '</div>';
+								
+								echo '<div class="col-xs-9">';
+								
+									echo '<div class="form-group">';
+									
+										echo '<input type="text" placeholder="http://" class="form-control" name="scrapeUrl"/>';
+										
+									echo '</div>';
+									
+								echo '</div>';
+
+								echo '<div class="col-xs-12 text-right">';
+									
+									echo '<input class="btn btn-primary btn-md" type="submit" value="Scrape" />';
+									
+								echo '</div>';
+							}							
 						
 						echo '</form>';
 						
