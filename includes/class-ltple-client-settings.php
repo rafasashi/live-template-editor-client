@@ -192,14 +192,22 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'users.php?'.$this->parent->_base .'view=subscribers'
 		);
-		
+
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'All Leads', $this->plugin->slug ),
 			__( 'All Leads', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=lead'
-		);	
+		);
+
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'Affiliate Commissions', $this->plugin->slug ),
+			__( 'Affiliate Commissions', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=affiliate-commission'
+		);			
 		
 		add_submenu_page(
 			$this->plugin->slug,

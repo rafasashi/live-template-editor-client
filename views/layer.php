@@ -109,7 +109,7 @@
 					}
 					else{
 						
-						$link->setAttribute( $attr,  $parse['scheme'].'://'.$parse['host']. '/' . $u );
+						$link->setAttribute( $attr,  $source . $u );
 					}
 				}
 			}

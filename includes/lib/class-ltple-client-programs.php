@@ -2,10 +2,11 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Programs {
+class LTPLE_Client_Programs extends LTPLE_Client_Object {
 	
 	var $parent;
 	var $list;
+	var $status;
 	
 	/**
 	 * Constructor function
@@ -20,39 +21,188 @@ class LTPLE_Client_Programs {
 			//'partner'	=>'Partner',
 		);
 		
-		if(isset($_GET['affiliate'])){
-			
-			$this->banners = get_option($this->parent->_base . 'affiliate_banners');
+		$this->parent->register_post_type( 'affiliate-commission', __( 'Affiliate commissions', 'live-template-editor-client' ), __( 'Affiliate commission', 'live-template-editor-client' ), '', array(
 
-		}
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu'		 	=> 'affiliate-commission',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> true,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail','page-attributes' ),
+			'supports' 				=> array( 'title','author' ),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));
 		
-		add_action( 'user_register', 	array( $this, 'ref_user_register' ) );
+		$this->parent->register_taxonomy( 'commission-status', __( 'Status', 'live-template-editor-client' ), __( 'Commision status', 'live-template-editor-client' ),  array('affiliate-commission'), array(
+			'hierarchical' 			=> false,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> false,
+			'sort' 					=> '',
+		));		
+		
+		add_action( 'add_meta_boxes', function(){
+		
+			$this->parent->admin->add_meta_box (
+			
+				'commission_amount',
+				__( 'Amount', 'live-template-editor-client' ), 
+				array("affiliate-commission"),
+				'side'
+			);
+			
+			$this->parent->admin->add_meta_box (
+			
+				'tagsdiv-commission-status',
+				__( 'Status', 'live-template-editor-client' ), 
+				array("affiliate-commission"),
+				'side'
+			);
+			
+			$this->parent->admin->add_meta_box (
+			
+				'commission_details',
+				__( 'Commission Details', 'live-template-editor-client' ), 
+				array("affiliate-commission"),
+				'advanced'
+			);
+		});		
+		
+		add_action('wp_loaded', array($this,'get_commission_status'));
 		
 		add_action( 'ltple_loaded', array( $this, 'init_affiliate' ));
+		
+		add_action( 'user_register', 	array( $this, 'ref_user_register' ) );
+	}
+	
+	public function get_commission_status(){
+
+		$this->status = $this->get_terms( 'commission-status', array(
+				
+			'pending'  	=> 'Pending',
+			'paid'  	=> 'Paid',
+		));
+	}
+	
+	public function get_affiliate_commission_fields(){
+				
+		$fields=[];
+		
+		// get post id
+		
+		$post_id=get_the_ID();
+
+		// get commission status
+		
+		$status = [];
+		
+		foreach($this->status as $term){
 			
-		// add program field
+			$status[$term->slug] = $term->name;
+		}
 		
-		add_action( 'show_user_profile', array( $this, 'get_user_programs' ) );
-		add_action( 'edit_user_profile', array( $this, 'get_user_programs' ) );
+		$terms = wp_get_post_terms( $post_id, 'commission-status' );
 		
-		// add affiliate field
+		$default_status='';
+
+		if( isset($terms[0]->slug) ){
+			
+			$default_status=$terms[0]->slug;
+		}		
 		
-		add_action( 'show_user_profile', array( $this, 'get_user_referrals' ) );
-		add_action( 'edit_user_profile', array( $this, 'get_user_referrals' ) );		
+		$fields[]=array(
+			"metabox" =>
+				array('name'		=>"tagsdiv-commission-status"),
+				'id'				=>"new-tag-commission-status",
+				'name'				=>'tax_input[commission-status]',
+				'label'				=>"",
+				'type'				=>'select',
+				'options'			=>$status,
+				'selected'			=>$default_status,
+				'description'		=>''
+		);
 		
-		// save user programs
+		// get commission amount
 		
-		add_action( 'personal_options_update', array( $this, 'save_user_programs' ) );
-		add_action( 'edit_user_profile_update', array( $this, 'save_user_programs' ) );
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'	=>"commission_amount"),
+				'id'			=>"commission_amount",
+				'label'			=>"",
+				'type'			=>'number',
+				'placeholder'	=>"0",
+				'description'	=>''
+		);		
+		
+		// get commission details
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'	=> "commission_details"),
+				'id'			=> "commission_details",
+				'label'			=> "",
+				'type'			=> 'textarea',
+				'placeholder'	=> "JSON",
+				'description'	=> ''
+		);
+		
+		return $fields;
 	}
 	
 	public function init_affiliate(){
-	
-		if( !empty($this->parent->request->ref_id) && !$this->parent->user->loggedin ){
-				
-			$this->set_affiliate_counter($this->parent->request->ref_id, 'clicks', $this->parent->request->ip );
 		
-			do_action( 'ltple_referred_click' );
+		if( is_admin() ){
+			
+			add_filter('affiliate-commission_custom_fields', array( $this, 'get_affiliate_commission_fields' ));
+		
+
+			// add program field
+			
+			add_action( 'show_user_profile', array( $this, 'get_user_programs' ) );
+			add_action( 'edit_user_profile', array( $this, 'get_user_programs' ) );
+			
+			// add affiliate field
+			
+			add_action( 'show_user_profile', array( $this, 'get_user_referrals' ) );
+			add_action( 'edit_user_profile', array( $this, 'get_user_referrals' ) );		
+			
+			// save user programs
+			
+			add_action( 'personal_options_update', array( $this, 'save_user_programs' ) );
+			add_action( 'edit_user_profile_update', array( $this, 'save_user_programs' ) );			
+		}
+		else{
+			
+			if(isset($_GET['affiliate'])){
+				
+				$this->banners = get_option($this->parent->_base . 'affiliate_banners');
+			}	
+		
+			if( !empty($this->parent->request->ref_id) && !$this->parent->user->loggedin ){
+					
+				$this->set_affiliate_counter($this->parent->request->ref_id, 'clicks', $this->parent->request->ip );
+			
+				do_action( 'ltple_referred_click' );
+			}			
 		}
 	}
 	
@@ -188,11 +338,11 @@ class LTPLE_Client_Programs {
 		return $counter;
 	}
 	
-	public function set_affiliate_commission($user_id, $amount=0, $id){
+	public function set_affiliate_commission($user_id, $data, $id, $pourcent = 25, $currency='$'){
 
-		$amount = floatval($amount);
+		$total = floatval(( $data['price'] + $data['fee'] ));
 
-		if( $amount > 0 ){
+		if( $total > 0 ){
 			
 			// handle affiliate commission
 
@@ -200,13 +350,67 @@ class LTPLE_Client_Programs {
 		
 			if(!empty($affiliate)){
 				
-				$affiliate_id = key($affiliate);
+				$amount =  $total * ( $pourcent / 100 );
 				
-				$commission_pourcent = 25;
+				// get commission
 				
-				$commission =  $amount * ( $commission_pourcent / 100 );
+				$q = get_posts(array(
 				
-				$this->set_affiliate_counter($affiliate_id, 'commission', $id . '_' . $commission);
+					'name'        => $id . '_' . $amount,
+					'post_type'   => 'affiliate-commission',
+					'post_status' => 'publish',
+					'numberposts' => 1
+				));
+				
+				if( empty($q) ){
+					
+					// get pending term id
+					
+					$pending_id = false;
+					
+					foreach($this->status as $status){
+						
+						if( $status->slug == 'pending' ){
+							
+							$pending_id = $status->term_id;
+							break;
+						}
+					}
+					
+					if($pending_id){
+				
+						// insert commission
+						
+						$affiliate_id = key($affiliate);
+
+						if($commission_id = wp_insert_post(array(
+					
+							'post_author' 	=> $affiliate_id,
+							'post_title' 	=> $currency.$amount.' over '.$currency.$total.' ('.$pourcent.'%)',
+							'post_name' 	=> $id . '_' . $amount,
+							'post_type' 	=> 'affiliate-commission',
+							'post_status' 	=> 'publish'
+						))){
+
+							// update commission details
+
+							wp_set_object_terms($commission_id, $pending_id, 'commission-status' );
+							
+							update_post_meta( $commission_id, 'commission_details', json_encode($data,JSON_PRETTY_PRINT));	
+
+							update_post_meta( $commission_id, 'commission_amount', $amount);
+						
+							// set commission counter
+						
+							$this->set_affiliate_counter($affiliate_id, 'commission', $id . '_' . $amount);
+						}
+					}
+					else{
+						
+						//echo 'Error getting pending term...';
+						//exit;
+					}
+				}
 			}
 		}
 	}
@@ -299,14 +503,14 @@ class LTPLE_Client_Programs {
 					
 						if($sum){
 							
-							$sum = 0;
+							$today = 0;
 							
 							foreach( $counter['today'][$y][$z] as $value){
 								
-								$sum += $value;
+								$today += $value;
 							}
 
-							echo $pre . number_format($sum, 2, '.', '').$app;
+							echo $pre . number_format($today, 2, '.', '').$app;
 						}
 						else{
 							
@@ -314,6 +518,7 @@ class LTPLE_Client_Programs {
 							
 							echo $pre.count($counter['today'][$y][$z]).$app;
 						}
+						
 					echo'</td>';													
 				
 				echo'</tr>';
