@@ -95,21 +95,29 @@
 
 				if( !empty($u) && $u[0] != '#' && parse_url($u, PHP_URL_SCHEME) == ''){
 					
-					if( $u[0] == '/' ){
+					if( !empty($u[1]) && $u[0].$u[1] == '//'){
+
+						$link->setAttribute( $attr,  $parse['scheme'].'://'.substr($u, 2) );
+					}
+					elseif( $u[0] == '/' ){
 						
 						$link->setAttribute( $attr,  $parse['scheme'].'://'.$parse['host']. $u );
 					}
-					elseif( $u[0].$u[1] == './'){
+					elseif( !empty($u[1]) && $u[0].$u[1] == './'){
 						
 						$link->setAttribute( $attr,  dirname($source) . substr($u, 2) );
 					}
-					elseif($u[0].$u[1].$u[2] == '../'){
+					elseif( !empty($u[1]) && !empty($u[2]) && $u[0].$u[1].$u[2] == '../'){
 						
 						$link->setAttribute( $attr,  dirname(dirname($source)) . substr($u, 2) );
 					}
-					else{
+					elseif( substr($source, -1) == '/' ){
 						
 						$link->setAttribute( $attr,  $source . $u );
+					}
+					else{
+						
+						$link->setAttribute( $attr,  dirname($source) . '/' . $u );
 					}
 				}
 			}
@@ -276,7 +284,10 @@
 			
 			// font library
 			
-			echo '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet">';
+			if( !empty($googleFonts) ){
+			
+				echo '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet">';
+			}
 			
 		echo '</head>';
 

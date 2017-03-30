@@ -111,18 +111,46 @@
 										echo'<h3 style="margin:0;">Commission</h3>';	
 									echo'</div>';
 									
-									$this->programs->get_affiliate_overview($this->user->affiliate_commission,true,'$','.00');									
+									$this->programs->get_affiliate_overview($this->user->affiliate_commission,true,'$');									
 									
 								echo'</div>';
 
 								echo'<i>';
-									echo'* new plan subscriptions';	
-								echo'</i>';										
+									echo'* new plan subscriptions';
+								echo'</i>';					
 						
-							echo'</div>';						
+							echo'</div>';	
 
 						echo'</div>';
+						
+						echo'<div class="clearfix"></div>';	
+						echo'<hr></hr>';							
 
+						echo'<div class="row">';
+						echo'<div class="col-xs-12">';
+						
+							echo'<div class=" panel panel-default" style="margin-bottom:0;">';
+							
+								echo'<table class="table table-striped table-hover">';
+								
+								echo'<tbody>';
+									
+									echo'<tr style="font-size:18px;font-weight:bold;">';
+										
+										echo'<td>Pending balance</td>';
+										
+										echo'<td>' . $this->programs->get_affiliate_balance($this->user->ID) . '</td>';
+									echo'</tr>';
+								
+								echo'</tbody>';
+								
+								echo'</table>';
+							
+							echo'</div>';
+							
+						echo'</div>';
+						echo'</div>';
+						
 						echo'<div class="row">';
 						echo'<div class="col-xs-12">';
 						
@@ -139,26 +167,39 @@
 									echo'<input class="form-control" type="text" value="' . $this->urls->editor . '?ri=' . $this->user->refId . '" />';
 								
 								echo'</div>';
-								
+						
 								echo'<div class="clearfix"></div>';
 								
 								echo'<hr></hr>';
 								
-								echo'<div class="col-xs-12 col-sm-6">';
+								echo'<div class="col-xs-12 col-sm-7">';
 								
 									echo'<div class="row">';
 									
 										echo'<div class="col-xs-6">';
 										
-											echo'Commission rate';
+											echo'Sale Commission';
 											
 										echo'</div>';
 										
 										echo'<div class="col-xs-6">';
 										
-											echo'<b>25%</b>';
+											echo'<b>50%</b> on the first month of any subscription';
+											echo'<br>';
+											echo'<b>25%</b> on any one-time fee charges';
 											
 										echo'</div>';	
+
+									echo'</div>';
+
+								echo'</div>';
+								
+								echo'<div class="clearfix"></div>';	
+								echo'<hr></hr>';								
+								
+								echo'<div class="col-xs-12 col-sm-7">';
+								
+									echo'<div class="row">';
 
 										echo'<div class="col-xs-6">';
 										
@@ -175,17 +216,53 @@
 									echo'</div>';
 
 								echo'</div>';
+								
+								echo'<div class="clearfix"></div>';	
+								echo'<hr></hr>';								
+								
+								echo'<div class="col-xs-12 col-sm-12">';
+								
+									echo'<div class="row">';
 
-								echo'<div class="col-xs-12 col-sm-6">';	
+										echo'<div class="col-xs-3">';
+										
+											echo'Paypal Account';
+											
+										echo'</div>';
+										
+										echo'<div class="col-xs-6">';
+										
+											echo'<form action="' . $this->urls->current . '" method="post" class="tab-content row">';
+				
+												echo'<div class="row">';
 
-									echo'You will receive a commission for referring these services:';
-									echo'<br>';
-									echo'- Tailored Basic';
-									echo'<br>';
-									echo'- Tailored Gold';
-									echo'<br>';
-									echo'- Tailored Premium';
+													echo'<div class="col-xs-6">';				
+				
+														$this->admin->display_field( array(
 									
+															'type'				=> 'text',
+															'id'				=> $this->_base . '_paypal_email',
+															'placeholder' 		=> 'myemail@example.com',
+															'description'		=> ''
+															
+														), $this->user );
+							
+													echo'</div>';
+								
+													echo'<div class="col-xs-6">';				
+				
+														echo'<button class="btn btn-sm btn-warning" style="width:50px;">Save</button>';
+								
+													echo'</div>';								
+								
+												echo'</div>';
+								
+											echo'</form>';											
+											
+										echo'</div>';											
+									
+									echo'</div>';
+
 								echo'</div>';
 								
 							echo'</div>';

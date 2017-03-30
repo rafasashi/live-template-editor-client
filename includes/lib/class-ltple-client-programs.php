@@ -195,6 +195,16 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 			if(isset($_GET['affiliate'])){
 				
 				$this->banners = get_option($this->parent->_base . 'affiliate_banners');
+			
+				if( !empty($_POST['paypal_email']) ){
+					
+					$email = sanitize_email( $_POST['paypal_email'] );
+					
+					if(is_email($email)){
+						
+						update_user_meta($this->parent->user->ID, $this->parent->_base . '_paypal_email', $email);
+					}
+				}
 			}	
 		
 			if( !empty($this->parent->request->ref_id) && !$this->parent->user->loggedin ){
@@ -338,81 +348,150 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 		return $counter;
 	}
 	
-	public function set_affiliate_commission($user_id, $data, $id, $pourcent = 25, $currency='$'){
+	public function set_affiliate_commission($user_id, $data, $id, $currency='$'){
+	
+		$pourcent_price = 50;
+		$pourcent_fee 	= 25;
+		
+		$total = ( $data['price'] + $data['fee'] );
 
-		$total = floatval(( $data['price'] + $data['fee'] ));
-
-		if( $total > 0 ){
+		$amount =  ( ( $data['price'] * ( $pourcent_price / 100 ) ) + ( $data['fee'] * ( $pourcent_fee / 100 ) ) );
+		
+		if( $amount > 0 ){
 			
 			// handle affiliate commission
 
-			$affiliate = get_user_meta($user_id, $this->parent->_base . 'referredBy', true);
-		
-			if(!empty($affiliate)){
-				
-				$amount =  $total * ( $pourcent / 100 );
-				
-				// get commission
-				
-				$q = get_posts(array(
-				
-					'name'        => $id . '_' . $amount,
-					'post_type'   => 'affiliate-commission',
-					'post_status' => 'publish',
-					'numberposts' => 1
-				));
-				
-				if( empty($q) ){
+			if( $referredBy = get_user_meta($user_id, $this->parent->_base . 'referredBy', true) ){
+
+				if( $affiliate = get_userdata(key($referredBy)) ){
 					
-					// get pending term id
+					// get commission
 					
-					$pending_id = false;
+					$q = get_posts(array(
 					
-					foreach($this->status as $status){
+						'name'        => $id . '_' . $amount,
+						'post_type'   => 'affiliate-commission',
+						'post_status' => 'publish',
+						'numberposts' => 1
+					));
+					
+					if( empty($q) ){
 						
-						if( $status->slug == 'pending' ){
+						// get pending term id
+						
+						$pending_id = false;
+						
+						foreach($this->status as $status){
 							
-							$pending_id = $status->term_id;
-							break;
+							if( $status->slug == 'pending' ){
+								
+								$pending_id = $status->term_id;
+								break;
+							}
 						}
-					}
-					
-					if($pending_id){
-				
-						// insert commission
 						
-						$affiliate_id = key($affiliate);
-
-						if($commission_id = wp_insert_post(array(
+						if($pending_id){
 					
-							'post_author' 	=> $affiliate_id,
-							'post_title' 	=> $currency.$amount.' over '.$currency.$total.' ('.$pourcent.'%)',
-							'post_name' 	=> $id . '_' . $amount,
-							'post_type' 	=> 'affiliate-commission',
-							'post_status' 	=> 'publish'
-						))){
+							// insert commission
 
-							// update commission details
+							if($commission_id = wp_insert_post(array(
+						
+								'post_author' 	=> $affiliate->ID,
+								'post_title' 	=> $currency.$amount.' over '.$currency.$total.' ('.$pourcent.'%)',
+								'post_name' 	=> $id . '_' . $amount,
+								'post_type' 	=> 'affiliate-commission',
+								'post_status' 	=> 'publish'
+							))){
 
-							wp_set_object_terms($commission_id, $pending_id, 'commission-status' );
+								// update commission details
+
+								wp_set_object_terms($commission_id, $pending_id, 'commission-status' );
+								
+								update_post_meta( $commission_id, 'commission_details', json_encode($data,JSON_PRETTY_PRINT));	
+
+								update_post_meta( $commission_id, 'commission_amount', $amount);
 							
-							update_post_meta( $commission_id, 'commission_details', json_encode($data,JSON_PRETTY_PRINT));	
+								// set commission counter
+							
+								$this->set_affiliate_counter($affiliate->ID, 'commission', $id . '_' . $amount);
+								
+								// send notification
+								
+								$company	= ucfirst(get_bloginfo('name'));
+								
+								$dashboard_url = $this->parent->urls->editor . '?affiliate';
+								
+								$title 		= 'Commission of ' . $currency . $amount . ' from ' . $company;
+								
+								$content 	= '';
+								$content 	.= 'Congratulations! You have just received a commission of ' . $currency . $amount . '. You can view the full details of this commission in your dashboard:' . PHP_EOL . PHP_EOL;
 
-							update_post_meta( $commission_id, 'commission_amount', $amount);
-						
-							// set commission counter
-						
-							$this->set_affiliate_counter($affiliate_id, 'commission', $id . '_' . $amount);
+								$content 	.= '	' . $dashboard_url . '#overview' . PHP_EOL . PHP_EOL;
+
+								$content 	.= 'We\'ll be here to help you with any step along the way. You can find answers to most questions and get in touch with us at '. $dashboard_url . '#rules' . PHP_EOL . PHP_EOL;
+
+								$content 	.= 'Yours,' . PHP_EOL;
+								$content 	.= 'The ' . $company . ' team' . PHP_EOL . PHP_EOL;
+
+								$content 	.= '==== Commission Summary ====' . PHP_EOL . PHP_EOL;
+
+								$content 	.= 'Plan purchased: ' . $data['name'] . PHP_EOL;
+								$content 	.= 'Total amount: ' . $currency . $total . PHP_EOL;
+								$content 	.= 'Pourcentage: ' . $pourcent . '%' . PHP_EOL;
+								$content 	.= 'Your commission: ' . $currency . $amount . PHP_EOL;
+								$content 	.= 'Customer email: ' . $data['subscriber'] . PHP_EOL;
+								
+								wp_mail($affiliate->user_email, $title, $content);
+								
+								if( $this->parent->settings->options->emailSupport != $affiliate->user_email ){
+									
+									wp_mail($this->parent->settings->options->emailSupport, $title, $content);
+								}
+							}
 						}
-					}
-					else{
-						
-						//echo 'Error getting pending term...';
-						//exit;
+						else{
+							
+							//echo 'Error getting pending term...';
+							//exit;
+						}
 					}
 				}
 			}
 		}
+	}
+	
+	public function get_affiliate_balance($user_id, $currency='$'){
+		
+		$balance = 0;
+		
+		$q = get_posts(array(
+		
+			'author'      	=> $user_id,
+			'post_type'   	=> 'affiliate-commission',
+			'post_status' 	=> 'publish',
+			'numberposts' 	=> -1,
+			'tax_query'  	=> array(
+			
+				array(
+				
+					'taxonomy' 	=> 'commission-status',
+					'field' 	=> 'slug',
+					'terms' 	=> 'pending',	
+				),
+			),
+		));
+		
+		if( !empty($q) ){
+			
+			foreach( $q as $commission ){
+				
+				$amount = get_post_meta( $commission->ID, 'commission_amount', true );
+				
+				$balance += floatval($amount);
+			}
+		}
+		
+		return $currency . number_format($balance, 2, '.', '');
 	}
 	
 	public function ref_user_register( $user_id ){
@@ -475,6 +554,36 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 					**/
 					
 					$this->parent->stars->add_stars( $affiliate->ID, $this->parent->_base . 'ltple_referred_registration_stars' );
+				
+					// send notification
+					
+					$company	= ucfirst(get_bloginfo('name'));
+					
+					$dashboard_url = $this->parent->urls->editor . '?affiliate';
+					
+					$title 		= 'New referral user registration on ' . $company;
+					
+					$content 	= '';
+					$content 	.= 'Congratulations! A new user registration has been made using your affiliate ID. You can view the full details of your affiliate program in your dashboard:' . PHP_EOL . PHP_EOL;
+
+					$content 	.= '	' . $dashboard_url . '#overview' . PHP_EOL . PHP_EOL;
+
+					$content 	.= 'We\'ll be here to help you with any step along the way. You can find answers to most questions and get in touch with us at '. $dashboard_url . '#rules' . PHP_EOL . PHP_EOL;
+
+					$content 	.= 'Yours,' . PHP_EOL;
+					$content 	.= 'The ' . $company . ' team' . PHP_EOL . PHP_EOL;
+
+					$content 	.= '==== Registration Summary ====' . PHP_EOL . PHP_EOL;
+
+					$content 	.= 'Referral name: ' . ucfirst($referral->user_nicename) . PHP_EOL;
+					$content 	.= 'Referral email: ' . $referral->user_email . PHP_EOL;
+					
+					wp_mail($affiliate->user_email, $title, $content);
+					
+					if( $this->parent->settings->options->emailSupport != $affiliate->user_email ){
+						
+						wp_mail($this->parent->settings->options->emailSupport, $title, $content);
+					}
 				}
 			}
 		}
@@ -709,15 +818,44 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 				echo '<div class="postbox" style="min-height:45px;">';
 					
 					echo '<h3 style="margin:10px;width:300px;display:inline-block;">' . __( 'All Referrals', 'live-template-editor-client' ) . '</h3>';
-					
-					foreach($this->parent->editedUser->referrals as $id => $name){
-						
-						if(is_string($name)){
 							
-							echo'<a href="'.admin_url( 'user-edit.php' ).'?user_id='.$id.'">'.$name.'</a>';
-							echo'<br>';
-						}
-					}
+					echo '<table class="widefat fixed striped" style="border:none;">';
+							
+						echo '<tbody>';					
+						
+							$i=0;
+							
+							foreach($this->parent->editedUser->referrals as $id => $name){
+								
+								if(is_string($name)){
+									
+									if($i==0){
+										
+										echo'<tr>';
+									}
+									
+									echo'<td>';
+									
+										echo'<a href="'.admin_url( 'user-edit.php' ).'?user_id='.$id.'">'.$name.'</a>';
+									
+									echo'</td>';
+
+									if( $i < 4 ){
+										
+										++$i;
+									}
+									else{
+										
+										$i=0;
+										
+										echo'</tr>';
+									}	
+								}
+							}
+						
+						echo '</tbody>';
+
+					echo '</table>';
 					
 				echo'</div>';
 			}
