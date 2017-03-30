@@ -209,7 +209,7 @@
 										
 										echo'<div class="col-xs-6">';
 										
-											echo'<b>$50.00</b>';
+											echo'<b>$50.00</b> <i style="font-size:11px;">( payout fee 3,4% + $0,30 )</i>';
 											
 										echo'</div>';											
 									
@@ -426,8 +426,10 @@
 								echo'<div id="collapse_'.$tab.'" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_'.$tab.'">';
 								 
 									echo'<div class="panel-body">';
-											
-										echo'<b>25% commission</b> for the purchase of a Tailored plan';
+									
+										echo'<b>50% commission</b> on the first month of any subscription';
+										echo'<br>';
+										echo'<b>25% commission</b> on any one-time fee charges';
 									
 									echo'</div>';
 								  
@@ -452,7 +454,7 @@
 										echo'<ul style="margin-left:10px;">';	
 											
 											echo'<li>Refer to our range of services, software and tools by "<b>'.$company_name.'</b>"</li>'.PHP_EOL;
-											echo'<li>Commission payout will happen <b>once a week</b></li>'.PHP_EOL;
+											echo'<li>Commission payout will happen <b>at the end of the month</b></li>'.PHP_EOL;
 											echo'<li>The minimum payout is <b>$50</b></li>'.PHP_EOL;
 											echo'<li>Please share your affiliate discount through closed channels that you own and manage</li>'.PHP_EOL;
 										

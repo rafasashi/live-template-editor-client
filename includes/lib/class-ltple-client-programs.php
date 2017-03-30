@@ -83,11 +83,11 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 			);
 		});		
 		
-		add_action('wp_loaded', array($this,'get_commission_status'));
+		add_action( 'wp_loaded', array($this,'get_commission_status'));
 		
 		add_action( 'ltple_loaded', array( $this, 'init_affiliate' ));
 		
-		add_action( 'user_register', 	array( $this, 'ref_user_register' ) );
+		add_action( 'user_register', array( $this, 'ref_user_register' ));
 	}
 	
 	public function get_commission_status(){
@@ -866,7 +866,12 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 		
 		if(isset($_POST[$this->parent->_base . 'user-programs'])){
 			
-			update_user_meta( $user_id, $this->parent->_base . 'user-programs', json_encode($_POST[$this->parent->_base . 'user-programs']));			
+			update_user_meta( $user_id, $this->parent->_base . 'user-programs', json_encode($_POST[$this->parent->_base . 'user-programs']));	
+
+			if( in_array( 'affiliate', $_POST[$this->parent->_base . 'user-programs']) ){
+				
+				$this->parent->email->schedule_trigger( 'affiliate-approved',  $user_id);
+			}
 		}
 	}	
 }  

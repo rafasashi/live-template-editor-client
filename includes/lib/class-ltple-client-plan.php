@@ -1117,7 +1117,7 @@ class LTPLE_Client_Plan {
 
 					// schedule email series
 					
-					$this->parent->email->schedule_series( $this->data['id'], $this->parent->user);
+					$this->parent->email->schedule_campaign( $this->data['id'], $this->parent->user);
 					
 					if( $this->data['price'] > 0 ){
 						

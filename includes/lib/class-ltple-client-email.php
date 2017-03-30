@@ -253,15 +253,63 @@ class LTPLE_Client_Email {
 		return false;
 	}
 	
+	public function schedule_trigger( $trigger_slug, $user){
+
+		if( is_numeric($user) ){
+			
+			$user = get_user_by( 'id', $user );
+		}	
 	
-	public function schedule_series( $series_id, $user){
-					
+		// schedule all campaigns linked to a trigger
+	
+		$q = get_posts(array(
+		
+			'post_type'   => 'email-campaign',
+			'post_status' => 'publish',
+			'numberposts' => -1,
+
+			'tax_query' => array(
+				array(
+					'taxonomy' => 'campaign-trigger',
+					'field' => 'slug',
+					'terms' => $trigger_slug
+			))
+		));
+		
+		foreach( $q as $campaign){
+			
+			$this->schedule_campaign( $campaign->ID,  $user);					
+		}	
+	}
+	
+	public function schedule_campaign( $series_id, $user){
+		
+		if( is_numeric($user) ){
+			
+			$user = get_user_by( 'id', $user );
+		}
+			
+		// schedule a campaign by id
+			
 		$email_series = get_post_meta( $series_id, 'email_series',true);
 
 		// trigger register email
 
 		if( isset( $email_series['model'] ) && isset( $email_series['days'] ) ){
 			
+			/*
+			$emails_sent = get_user_meta($user->ID, $this->parent->_base . '_email_sent', true);
+			
+			if( empty($emails_sent) ){
+				
+				$emails_sent=[];
+			}
+			else{
+				
+				$emails_sent=json_decode($emails_sent,true);
+			}
+			*/
+
 			foreach($email_series['model'] as $e => $model_id){
 				
 				if( is_numeric($model_id) ){

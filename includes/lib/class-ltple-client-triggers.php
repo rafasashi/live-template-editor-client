@@ -31,26 +31,9 @@ class LTPLE_Client_Triggers {
 
 			if( $this->parent->user->last_seen == 0 ){
 				
-				// get email series
-				
-				$q = get_posts(array(
-				
-					'post_type'   => 'email-campaign',
-					'post_status' => 'publish',
-					'numberposts' => -1,
+				// schedule user registration emails
 
-					'tax_query' => array(
-						array(
-							'taxonomy' => 'campaign-trigger',
-							'field' => 'slug',
-							'terms' => 'user-registration'
-					))
-				));
-
-				foreach( $q as $campaign){
-					
-					$this->parent->email->schedule_series( $campaign->ID,  $this->parent->user);					
-				}
+				$this->parent->email->schedule_trigger( 'user-registration',  $this->parent->user);
 			}
 			elseif(( date('Y.m.d',$this->parent->user->last_seen) != date('Y.m.d') )){
 
@@ -89,7 +72,7 @@ class LTPLE_Client_Triggers {
 		return self::$_instance;
 		
 	} // End instance()
-
+	
 	/**
 	 * Cloning is forbidden.
 	 *
