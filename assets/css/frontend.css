@@ -1,3 +1,15 @@
+.modal-header{
+	
+	padding: 8px 15px !important;
+    background: #eee !important;
+    border-bottom: 1px solid #dddddd !important;	
+}
+
+.modal-content{
+	
+	border-radius: 0 !important;	
+}
+
 @media (min-width: 992px){
 	
 	.modal-lg {
@@ -30,16 +42,16 @@
 	display: block;
 }
 
-.entry-content, #media_library, .beforefooter {
+.entry-content, .beforefooter {
 
     background: #ffffff;
 }
 
-#media_library {
+#media_library, #domains, #layer_gallery {
 
-	margin-top:15px;
-	display:inline-block;
-	width:100%;
+    display: inline-block;
+    width: 100%;
+    background: rgb(249, 249, 249);
 }
 
 .beforefooter {

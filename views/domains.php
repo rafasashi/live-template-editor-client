@@ -34,7 +34,7 @@
 			
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;">';
+		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-top:15px;padding-bottom:15px;min-height:500px;">';
 			
 			echo'<div class="tab-content">';
 
@@ -157,7 +157,7 @@
 											
 											echo'</td>';
 
-											echo'<td style="width:550px;">';
+											echo'<td style="width:545px;">';
 											
 												echo'<form action="' . $this->urls->current . '" method="post">';
 											
@@ -204,11 +204,11 @@
 													
 													echo'<input type="text" name="domainUrl[domainPath]" value="'.$domainPath.'" placeholder="category/page-title" class="form-control input-sm" style="width:300px;display:inline-block;" />';
 												
-													echo' <button type="submit" class="btn btn-primary btn-sm" >Assign</button>';
+													echo' <button type="submit" class="btn btn-primary btn-sm" >assign</button>';
 												
 												echo'</form>';
 												
-											echo'</td>';											
+											echo'</td>';	
 											
 											echo'<td style="width:50px;">';
 											
@@ -221,13 +221,23 @@
 													$domainUrl = get_permalink($layer->ID);
 												}
 
-												echo '<a href="' . $domainUrl . '" target="_blank" class="btn btn-success btn-sm">';
+												echo '<a href="' . $domainUrl . '" target="_blank" class="btn btn-success btn-sm" style="margin-left: 4px;border-color: #9c6433;color: #fff;background-color: rgb(189, 120, 61);">';
 												
 													echo 'view';
 												
 												echo '</a>';
 											
 											echo'</td>';
+											
+											echo'<td style="width:50px;">';
+											
+												echo '<a href="' . $this->urls->editor .'?uri=user-layer/' . $layer->post_name . '/" target="_blank" class="btn btn-success btn-sm">';
+												
+													echo 'edit';
+												
+												echo '</a>';
+
+											echo'</td>';											
 
 											echo'<td style="width:30px;">';
 											

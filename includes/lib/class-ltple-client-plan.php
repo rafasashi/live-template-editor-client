@@ -259,7 +259,7 @@ class LTPLE_Client_Plan {
 								}
 								else{
 									
-									$plan_form .= $this->admin->display_field( array(
+									$plan_form .= $this->parent->admin->display_field( array(
 							
 										'type'				=> 'form',
 										'id'				=> 'meta_'.$term->slug,

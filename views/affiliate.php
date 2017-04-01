@@ -41,7 +41,7 @@
 				
 			echo'</div>';
 
-			echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;">';
+			echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-top:15px;padding-bottom:15px;min-height:500px;">';
 				
 				echo'<div class="tab-content">';
 
@@ -874,10 +874,14 @@
 	}
 	else{
 		
-		echo '<div class="alert alert-warning">';
+		echo '<div class="panel-body" style="min-height:300px;">';
 		
-			echo 'You need to be a member of the Affiliate Program to access this area. Please contact us.';
-		
+			echo '<div class="alert alert-warning">';
+			
+				echo 'You need to be a member of the Affiliate Program to access this area. Please contact us.';
+			
+			echo '</div>';
+			
 		echo '</div>';
 	}
 	

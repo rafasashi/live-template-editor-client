@@ -423,9 +423,9 @@
 					?>	
 					
 					<script>
-					
-					;(function($){
 						
+					;(function($){
+
 						$(document).ready(function(){						
 										
 							$('.modal').appendTo("body");
@@ -522,7 +522,7 @@
 			}
 
 			echo'<script>' .PHP_EOL;
-				
+
 				//include layer Output
 				
 				if($layerOutput!=''){

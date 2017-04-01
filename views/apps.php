@@ -34,7 +34,10 @@
 
 				echo'<li class="gallery_type_title">My Community</li>';
 				
-				echo'<li'.( $currentTab == 'opportunities' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=opportunities">Opportunities <span class="label label-success pull-right"> pro </span></a></li>';
+				if($this->user->is_admin){
+				
+					echo'<li'.( $currentTab == 'opportunities' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=opportunities">Opportunities <span class="label label-warning pull-right"> admin </span></a></li>';
+				}
 				
 				echo'<li'.( $currentTab == 'members' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=members">Top Members <span class="label label-success pull-right"> pro </span></a></li>';
 				
@@ -44,7 +47,7 @@
 			
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;">';
+		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-top:15px;padding-bottom:15px;min-height:500px;">';
 			
 			if( $currentTab == 'apps' ){
 				

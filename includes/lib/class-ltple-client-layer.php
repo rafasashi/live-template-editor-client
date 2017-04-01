@@ -15,6 +15,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $types		= '';
 	public $ranges		= '';
 	public $options		= '';
+	public $released	= '';
 	
 	/**
 	 * Constructor function
@@ -238,6 +239,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'hosted'  			=> 'Hosted',
 			
 		));
+		
+		$this->released 				= [];
+		$this->released['quickstart'] 	= true;
+		$this->released['emails'] 		= true;
+		$this->released['chaturbate'] 	= true;
+		$this->released['myfreecams'] 	= true;
+		$this->released['standalone'] 	= true;
+		$this->released['memes'] 		= true;
+		$this->released['landing-page']	= true;		
 	}
 	
 	public function get_layer_ranges(){

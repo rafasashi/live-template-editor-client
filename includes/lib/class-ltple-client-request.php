@@ -16,6 +16,11 @@ class LTPLE_Client_Request {
 		
 		$this->parent = $parent;
 		
+		if(!isset($_SERVER['HTTP_USER_AGENT'])){
+			
+			$_SERVER['HTTP_USER_AGENT'] = '';
+		}
+		
 		// get user ip
 		
 		$this->ip = $this->ltple_get_user_ip();

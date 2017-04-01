@@ -1,4 +1,4 @@
-<div class="row" style="background:rgb(35, 64, 88);padding: 8px 0;margin:0;position: relative;">
+<div class="row" style="box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);background: rgb(236, 236, 236);padding: 8px 0;margin: 0;border-bottom: 1px solid #ddd;position: relative;">
 
 	<div class="col-xs-6 col-sm-4" style="z-index:10;">				
 		
@@ -215,14 +215,11 @@
 
 				echo'</li>';
 				
-				if( $this->user->is_affiliate ){
-		
-					echo'<li style="position:relative;">';
-						
-						echo '<a href="'. $this->urls->editor .'?affiliate"><span class="glyphicon glyphicon-usd" aria-hidden="true"></span> Affiliate Program</a>';
+				echo'<li style="position:relative;">';
+					
+					echo '<a href="'. $this->urls->editor .'?affiliate"><span class="glyphicon glyphicon-usd" aria-hidden="true"></span> Affiliate Program</a>';
 
-					echo'</li>';					
-				}
+				echo'</li>';
 				
 				echo'<li style="position:relative;">';
 					

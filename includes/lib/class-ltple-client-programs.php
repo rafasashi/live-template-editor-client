@@ -424,7 +424,7 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 								$title 		= 'Commission of ' . $currency . $amount . ' from ' . $company;
 								
 								$content 	= '';
-								$content 	.= 'Congratulations! You have just received a commission of ' . $currency . $amount . '. You can view the full details of this commission in your dashboard:' . PHP_EOL . PHP_EOL;
+								$content 	.= 'Congratulations ' . ucfirst($affiliate->user_nicename) . '! You have just received a commission of ' . $currency . $amount . '. You can view the full details of this commission in your dashboard:' . PHP_EOL . PHP_EOL;
 
 								$content 	.= '	' . $dashboard_url . '#overview' . PHP_EOL . PHP_EOL;
 
@@ -564,7 +564,7 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 					$title 		= 'New referral user registration on ' . $company;
 					
 					$content 	= '';
-					$content 	.= 'Congratulations! A new user registration has been made using your affiliate ID. You can view the full details of your affiliate program in your dashboard:' . PHP_EOL . PHP_EOL;
+					$content 	.= 'Congratulations ' . ucfirst($affiliate->user_nicename) . '! A new user registration has been made using your affiliate ID. You can view the full details of your affiliate program in your dashboard:' . PHP_EOL . PHP_EOL;
 
 					$content 	.= '	' . $dashboard_url . '#overview' . PHP_EOL . PHP_EOL;
 

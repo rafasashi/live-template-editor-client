@@ -107,14 +107,10 @@ class LTPLE_Client_Product {
 			}
 			else{
 				
-				echo '<div class="alert alert-warning">';
-				
-					echo 'This product page doesn\'t exists...';
-					
-				echo '</div>';
+				include($this->parent->views . $this->parent->_dev .'/products.php');
 			}
 			
-		echo '</div>';
+		echo '</div>'; 
 	}
 	
 	/**

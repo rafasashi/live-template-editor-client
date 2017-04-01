@@ -6,7 +6,7 @@
 	}
 ?>
 
-<div id="layer_gallery" style="margin-top:20px;">
+<div id="layer_gallery">
 
 	<div class="col-xs-3 col-sm-2">
 		<ul class="nav nav-tabs tabs-left">
@@ -14,21 +14,12 @@
 			<li class="gallery_type_title">Template library</li>
 			
 			<?php
-				
-				$released 					= [];
-				$released['quickstart'] 	= true;
-				$released['emails'] 		= true;
-				$released['chaturbate'] 	= true;
-				$released['myfreecams'] 	= true;
-				$released['standalone'] 	= true;
-				$released['memes'] 			= true;
-				$released['landing-page']	= true;
 				 
 				$class=' class="active"';
 				
 				foreach($this->all->layerType as $term){
 					
-					if(isset($released[$term->slug])){
+					if(isset($this->layer->released[$term->slug])){
 						
 						echo '<li'.$class.'>';
 						
@@ -54,7 +45,7 @@
 		</ul>
 	</div>
 
-	<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;">
+	<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-top:15px;padding-bottom:15px;min-height:500px;">
 		
 		<div class="tab-content">
 			
@@ -89,7 +80,7 @@
 					$layer_type=$terms[0]->slug;
 				}
 				
-				if( isset($released[$layer_type]) || $this->user->is_admin ){
+				if( isset($this->layer->released[$layer_type]) || $this->user->is_admin ){
 					
 					//get layer_range
 					
@@ -256,7 +247,7 @@
 			
 			foreach($this->all->layerType as $term){
 				
-				if( isset($released[$term->slug]) || $this->user->is_admin ){
+				if( isset($this->layer->released[$term->slug]) || $this->user->is_admin ){
 					
 					echo'<div class="tab-pane'.$active_pane.'" id="' . $term->slug . '">';
 						
