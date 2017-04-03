@@ -14,7 +14,7 @@ class LTPLE_Client_Object {
 		$this->parent 	= $parent;
 	}
 	
-	public function get_terms( $taxonomy, $default = [], $order = 'ASC', $hide_empty = false ){
+	public function get_terms( $taxonomy, $default = [], $order = 'ASC', $hide_empty = false, $parent = 0 ){
 
 		$list =  get_terms(array(
 		
@@ -44,7 +44,7 @@ class LTPLE_Client_Object {
 				
 					if( !empty($name) ){
 						
-						$term = wp_insert_term($name, $taxonomy, array('slug' => $slug));
+						$term = wp_insert_term($name, $taxonomy, array( 'slug' => $slug, 'parent' => $parent ));
 
 						if( !empty($data['options']) ){
 							
@@ -57,6 +57,16 @@ class LTPLE_Client_Object {
 						}
 				
 						$list[] = get_term_by( 'id', $term['term_id'], $taxonomy );
+					}
+				}
+				
+				// insert children
+
+				foreach($list as $term){
+					
+					if(!empty($default[$term->slug]['children'])){
+						
+						$list = array_merge( $list, $this->get_terms($taxonomy, $default[$term->slug]['children'], $order, $hide_empty, $term->term_id) );
 					}
 				}			
 			}

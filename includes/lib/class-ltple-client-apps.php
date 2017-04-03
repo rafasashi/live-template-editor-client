@@ -286,6 +286,24 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			),
 			
 		),'DESC');
+		
+		if(is_admin()){
+			
+			add_filter( 'app_row_actions', array($this, 'remove_app_taxonomy_quick_edition'), 10, 2 );				
+			
+			// add taxonomy custom fields
+			
+			add_action('app_add_form_fields', array( $this, 'get_new_app_taxonomy_fields' ) );
+			add_action('app_edit_form_fields', array( $this, 'get_app_taxonomy_fields' ) );
+
+			add_filter('manage_edit-app_columns', array( $this, 'set_app_taxonomy_columns' ) );
+			add_filter('manage_app_custom_column', array( $this, 'add_app_taxonomy_column_content' ),10,3);			
+
+			// save taxonomy custom fields
+			
+			add_action('create_app', array( $this, 'save_app_taxonomy_fields' ) );
+			add_action('edit_app', array( $this, 'save_app_taxonomy_fields' ) );
+		}
 
 		// get custom fields
 		
@@ -492,5 +510,240 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 		preg_match( "#(?<=v=)[a-zA-Z0-9-]+(?=&)|(?<=v\/)[^&\n]+|(?<=v=)[^&\n]+|(?<=youtu.be/)[^&\n]+#", $url, $matches );
         return $matches[0];
+	}
+	
+	public function remove_app_taxonomy_quick_edition( $actions, $term ){
+
+		//unset( $actions['edit'] );
+		unset( $actions['view'] );
+		unset( $actions['trash'] );
+		unset( $actions['inline hide-if-no-js'] );
+		
+		return $actions;
+	}	
+	
+	public function set_app_taxonomy_columns($columns) {
+
+		// Remove description, posts, wpseo columns
+		$columns = [];
+		
+		// Add artist-website, posts columns
+
+		$columns['cb'] 			= '<input type="checkbox" />';
+		$columns['thumbnail'] 	= 'Thumb';
+		$columns['name'] 		= 'Name';
+		$columns['slug'] 		= 'Slug';
+		$columns['types'] 		= 'Types';
+		
+		return $columns;
+	}
+		
+	public function add_app_taxonomy_column_content($content, $column_name, $term_id){
+	
+		$term= get_term($term_id);
+	
+		if($column_name == 'thumbnail') {
+
+			$thumb_url = get_option('thumbnail_' . $term->slug);
+			
+			if(!empty($thumb_url)){
+				
+				$content.='<img style="width: 70px;" src="'.$thumb_url.'" />';
+			}
+			else{
+				
+				$content.='<div style="width: 70px;text-align:center;">null</div>';
+			}
+		}
+		elseif($column_name == 'types'){
+			
+			$types = get_option('types_' . $term->slug);
+			
+			if(!empty($types)){
+				
+				$content.='<ul style="margin:0;font-size:11px;">';
+				
+					foreach($types as $type){
+						
+						$content.='<li>'.$type.'</li>';
+					}
+				
+				$content.='</ul>';				
+			}
+		}
+
+		return $content;
+	}
+	
+	public function get_new_app_taxonomy_fields($taxonomy_name){
+		
+		echo'<div class="form-field">';
+			
+			echo'<label for="'.$taxonomy_name.'-thumbnail">Thumbnail</label>';
+
+			echo'<div class="input-group">';
+
+				echo'<input type="text" name="'.$taxonomy_name.'-thumbnail" id="'.$taxonomy_name.'-thumbnail" value=""/>';
+
+			echo'</div>';
+			
+		echo'</div>';
+		
+		echo'<div class="form-field">';
+		
+			echo'<label for="'.$taxonomy_name.'-types">Types</label>';
+				
+			$types = $this->parent->get_app_types();
+			
+			foreach($types as $type => $app){
+				
+				echo'<div class="input-group">';
+					echo'<input type="checkbox" name="'.$taxonomy_name.'-types[]" id="'.$taxonomy_name.'-types" value="'.$type.'"/> '.ucfirst($type);
+				echo'</div>';				
+			}
+				
+		echo'</div>';
+	}	
+	
+	public function get_app_taxonomy_fields($term){
+
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Thumbnail</label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+				
+				echo'<input type="text" name="' . $term->taxonomy . '-thumbnail" id="' . $term->taxonomy . '-thumbnail" value="'.get_option('thumbnail_'.$term->slug).'"/>';
+						
+			echo'</td>';
+			
+		echo'</tr>';
+
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Types</label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+				
+				$types 		= $this->parent->get_app_types();
+				$app_types 	= get_option('types_'.$term->slug);
+				
+				foreach($types as $type => $app){
+					
+					$checked = ( ( !empty($app_types) && in_array($type,$app_types)) ? ' checked="checked"' : '' );
+					
+					echo'<div class="input-group">';
+					
+						echo'<input type="checkbox" name="'.$term->taxonomy.'-types[]" id="'.$term->taxonomy.'-types" value="'.$type.'"'.$checked.'/> '.ucfirst($type);
+					
+					echo'</div>';				
+				}
+						
+			echo'</td>';
+			
+		echo'</tr>';	
+
+		if($this->parent->user->is_admin){
+
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">API Client</label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$clients 					= array();
+					$clients ['none'] 			= 'None';
+					$clients ['scraper'] 		= 'Scraper';
+					$clients ['bookmark'] 		= 'Bookmark';
+					$clients ['blogger'] 		= 'Blogger';
+					$clients ['google-plus']	= 'Google +';
+					$clients ['imgur'] 			= 'Imgur';
+					$clients ['tumblr'] 		= 'Tumblr';
+					$clients ['twitter'] 		= 'Twitter';
+					$clients ['wordpress'] 		= 'Wordpress';
+					$clients ['youtube'] 		= 'Youtube';
+					
+					$this->parent->admin->display_field( array(
+					
+						'type'				=> 'select',
+						'id'				=> 'api_client_'.$term->slug,
+						'name'				=> 'api_client_'.$term->slug,
+						'options' 			=> $clients,
+						'description'		=> '',
+						
+					), false );
+					
+				echo'</td>';
+				
+			echo'</tr>';
+		
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Parameters (admin)</label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$this->parent->admin->display_field( array(
+					
+						'type'				=> 'key_value',
+						'id'				=> 'parameters_'.$term->slug,
+						'name'				=> 'parameters_'.$term->slug,
+						'array' 			=> [],
+						'description'		=> ''
+						
+					), false );
+					
+				echo'</td>';
+				
+			echo'</tr>';
+		}		
+	}
+	
+	public function save_app_taxonomy_fields($term_id){
+
+		//collect all term related data for this new taxonomy
+		
+		$term = get_term($term_id);
+
+		//save our custom fields as wp-options
+		
+		if(isset($_POST[$term->taxonomy . '-thumbnail'])){
+
+			update_option('thumbnail_'.$term->slug, sanitize_text_field($_POST[$term->taxonomy . '-thumbnail'],1));			
+		}
+
+		if(isset($_POST[$term->taxonomy . '-types'])){
+
+			update_option('types_'.$term->slug, $_POST[$term->taxonomy . '-types']);			
+		}
+		
+		if($this->parent->user->is_admin){
+		
+			if(isset($_POST['parameters_'.$term->slug])){
+
+				update_option('parameters_'.$term->slug, $_POST['parameters_'.$term->slug]);			
+			}
+			
+			if(isset($_POST['api_client_'.$term->slug])){
+
+				update_option('api_client_'.$term->slug, $_POST['api_client_'.$term->slug]);			
+			}
+		}
 	}
 } 

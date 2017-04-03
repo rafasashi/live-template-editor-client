@@ -283,6 +283,22 @@ class LTPLE_Client_Settings {
 		
 		add_submenu_page(
 			$this->plugin->slug,
+			__( 'CSS Libraries', $this->plugin->slug ),
+			__( 'CSS Libraries', $this->plugin->slug ),
+			'edit_pages',
+			'edit-tags.php?post_type=cb-default-layer&taxonomy=css-library'
+		);
+		
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'JS Libraries', $this->plugin->slug ),
+			__( 'JS Libraries', $this->plugin->slug ),
+			'edit_pages',
+			'edit-tags.php?post_type=cb-default-layer&taxonomy=js-library'
+		);
+		
+		add_submenu_page(
+			$this->plugin->slug,
 			__( 'Image Types', $this->plugin->slug ),
 			__( 'Image Types', $this->plugin->slug ),
 			'edit_pages',

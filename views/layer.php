@@ -28,23 +28,13 @@
 	$layerForm = get_post_meta( $layer_id, 'layerForm', true );
 
 	//get css libraries
-	
-	$cssLibraries = get_post_meta( $layer_id, 'cssLibraries', true );
-	
-	if(empty($cssLibraries)){
-		
-		$cssLibraries = [];
-	}
+
+	$cssLibraries = wp_get_post_terms( $layer_id, 'css-library' );
 	
 	//get js libraries
 	
-	$jsLibraries = get_post_meta( $layer_id, 'jsLibraries', true );
-	
-	if(empty($jsLibraries)){
-		
-		$jsLibraries = [];
-	}
-	
+	$jsLibraries = wp_get_post_terms( $layer_id, 'js-library' );
+
 	//get layer image proxy
 	
 	$layerImgProxy = 'http://'.$_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
@@ -134,7 +124,6 @@
 		
 		$layerContent = $dom->saveHtml( $xpath->query('/html/body')->item(0) );
 		$layerContent = preg_replace('~<(?:!DOCTYPE|/?(?:body))[^>]*>\s*~i', '', $layerContent);
-		
 	}
 	else{
 		
@@ -244,40 +233,23 @@
 				echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
 				echo '<![endif]-->';
 
-				if( is_array($cssLibraries) ){
+				if( !empty($cssLibraries) ){
 					
-					if( in_array('bootstrap-3',$cssLibraries)|| !empty($layerForm) ){
+					foreach($cssLibraries as $term){
 						
-						echo '<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>';
-					}
-
-					if( in_array('fontawesome-4',$cssLibraries)){
+						$css_url = get_option( 'css_url_' . $term->slug);
+ 
+						if( !empty($css_url) ){
+							
+							echo '<link href="'.$css_url.'" rel="stylesheet" type="text/css"/>';
+						}
 						
-						echo '<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>';
-					}
-					
-					if( in_array('elementor-1.2.3',$cssLibraries) ){
-
-						// elementor
+						$css_content = get_option( 'css_content_' . $term->slug);
 						
-						echo '<link href="' . plugins_url('elementor/assets/css/animations.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>';
-						echo '<link href="' . plugins_url('elementor/assets/css/frontend.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>';
+						if( !empty($css_content) ){
 						
-						//echo '<link href="' . plugins_url('elementor/assets/css/global.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>';
-						echo '<style>.elementor-widget-heading .elementor-heading-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image .widget-image-caption{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-text-editor{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-button .elementor-button{font-family:Roboto,sans-serif;font-weight:500;background-color:#61ce70}.elementor-widget-divider .elementor-divider-separator{border-top-color:#7a7a7a}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-icon.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon.elementor-view-framed .elementor-icon,.elementor-widget-icon.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-framed .elementor-icon,.elementor-widget-icon-box.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-image-gallery .gallery-item .gallery-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-image-carousel .elementor-image-carousel-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-icon-list .elementor-icon-list-icon i{color:#6ec1e4}.elementor-widget-icon-list .elementor-icon-list-text{color:#54595f;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-counter .elementor-counter-number-wrapper{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-counter .elementor-counter-title{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-progress .elementor-progress-wrapper .elementor-progress-bar{background-color:#6ec1e4}.elementor-widget-progress .elementor-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-name{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-testimonial .elementor-testimonial-job{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-tabs .elementor-tab-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-tabs .elementor-tab-title.active{color:#61ce70}.elementor-widget-tabs .elementor-tab-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title.active{color:#61ce70}.elementor-widget-accordion .elementor-accordion .elementor-accordion-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title.active{color:#61ce70}.elementor-widget-toggle .elementor-toggle .elementor-toggle-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-alert .elementor-alert-title{font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-alert .elementor-alert-description{font-family:Roboto,sans-serif;font-weight:400}</style>';
-					}
-					
-					if( in_array('animate',$cssLibraries)){
-						
-						echo '<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet" type="text/css"/>';
-					}
-					
-					if( in_array('slick',$jsLibraries) || in_array('elementor-1.2.3',$cssLibraries) ){
-						
-						echo '<link href="http://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css" rel="stylesheet" type="text/css"/>';
-						//echo '<link href="http://cdn.jsdelivr.net/jquery.slick/1.6.0/slick-theme.css" rel="stylesheet" type="text/css"/>';
-					
-						echo '<style>.slick-slide{height:auto !important;}</style>';
+							echo $css_content;
+						}
 					}
 				}				
 			}
@@ -399,7 +371,7 @@
 					echo '</div>';
 				
 				echo '</div>';
-			}
+			} 
 			else{
 
 				echo '<layer class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
@@ -409,117 +381,25 @@
 				echo '</layer>' .PHP_EOL;
 			}	
 
-			if(	is_array($jsLibraries) ){
-			
-				if( in_array('jquery',$jsLibraries) || !empty($layerForm)){
-					
-					echo '<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>' .PHP_EOL;
-				}
+			if( !empty($jsLibraries) ){
 				
-				if( in_array('bootstrap-3',$jsLibraries) || !empty($layerForm)){
+				foreach($jsLibraries as $term){
 					
-					echo '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>' .PHP_EOL;
-				
-					?>	
+					$js_url = get_option( 'js_url_' . $term->slug);
 					
-					<script>
+					if( !empty($js_url) ){
 						
-					;(function($){
-
-						$(document).ready(function(){						
-										
-							$('.modal').appendTo("body");
-							
-							$('[data-slide-to]').on('click',function(e){
-
-								e.preventDefault();
-							
-								if( typeof $(this).attr('data-target') !== typeof undefined ){
-									
-									var carouselId 	= $(this).attr('data-target');
-								}
-								else{
-									
-									var carouselId 	= $(this).attr("href");
-								}
-								
-								var slideTo 	= parseInt( $(this).attr('data-slide-to') );
-								
-								$(carouselId).carousel(slideTo);
-								
-								return false;
-								
-							});
-							
-							$('[data-slide]').on('click',function(e){
-
-								e.preventDefault();
-							
-								if( typeof $(this).attr('data-target') !== typeof undefined ){
-									
-									var carouselId 	= $(this).attr('data-target');
-								}
-								else{
-									
-									var carouselId 	= $(this).attr("href");
-								}
-
-								var slideTo 	= $(this).attr('data-slide');
-								
-								$(carouselId).carousel(slideTo);
-								
-								return false;
-								
-							});
-						});
-						
-					})(jQuery);	
+						echo '<script src="'.$js_url.'"></script>' .PHP_EOL;
+					}
 					
-					</script>
+					$js_content = get_option( 'js_content_' . $term->slug);
 					
-					<?php
+					if( !empty($js_content) ){
+					
+						echo $js_content;
+					}
 				}
-
-				if( in_array('slick',$jsLibraries) || in_array('elementor-1.2.3',$cssLibraries) ){
-					
-					//echo '<script src="http://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.min.js"></script>' .PHP_EOL;
-					echo '<script src="' . plugins_url('elementor/assets/lib/slick/slick.min.js?ver=1.6.0') . '"></script>' .PHP_EOL;			
-					
-				}
-				
-				if( in_array('elementor-1.2.3',$cssLibraries) ){
-					
-					?>
-					
-					<script type='text/javascript'>//<![CDATA[
-						var elementorFrontendConfig={"isEditMode":"","stretchedSectionContainer":"","is_rtl":""};
-					//]]></script>
-					
-					<?php
-				
-					echo '<script src="' . plugins_url('elementor/assets/lib/waypoints/waypoints.min.js?ver=4.0.2') . '"></script>' .PHP_EOL;
-					echo '<script src="' . plugins_url('elementor/assets/lib/jquery-numerator/jquery-numerator.min.js?ver=0.2.1') . '"></script>' .PHP_EOL;
-					echo '<script src="' . plugins_url('elementor/assets/js/frontend.min.js?ver=1.2.3') . '"></script>' .PHP_EOL;								
-				
-					?>	
-					
-					<script>
-					
-					;(function($){
-						
-						$(document).ready(function(){						
-
-							//$('.slick-slider').slick("unslick"); // works
-						});
-						
-					})(jQuery);	
-					
-					</script>
-					
-					<?php					
-				}
-				
-			}
+			}			
 
 			echo'<script>' .PHP_EOL;
 

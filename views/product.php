@@ -340,9 +340,9 @@
 			
 					$q = get_posts( array(
 					
-						'post_type' => $this->post_type,
-						'numberposts' => -1,
-						'tax_query' => array(
+						'post_type' 	=> $this->post_type,
+						'numberposts' 	=> -1,
+						'tax_query' 	=> array(
 							array(
 								'taxonomy' => 'layer-range',
 								'field' => 'name',

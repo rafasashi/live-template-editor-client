@@ -68,7 +68,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$this->parent->register_taxonomy( 'layer-type', __( 'Layer Type', 'live-template-editor-client' ), __( 'Layer Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> false,
-			'public' 				=> true,
+			'public' 				=> false,
 			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> true,
 			'show_tagcloud' 		=> false,
@@ -82,7 +82,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->parent->register_taxonomy( 'layer-range', __( 'Layer Range', 'live-template-editor-client' ), __( 'Layer Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> true,
-			'public' 				=> true,
+			'public' 				=> false,
 			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> true,
 			'show_tagcloud' 		=> false,
@@ -106,7 +106,35 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'show_in_rest'          => true,
 			'rewrite' 				=> true,
 			'sort' 					=> '',
-		));	
+		));
+		
+		$this->parent->register_taxonomy( 'css-library', __( 'CSS Library', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
+			'hierarchical' 			=> true,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> true,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort' 					=> '',
+		));
+		
+		$this->parent->register_taxonomy( 'js-library', __( 'JS Library', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
+			'hierarchical' 			=> true,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> true,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort' 					=> '',
+		));
 
 		add_action( 'add_meta_boxes', function(){
 
@@ -216,14 +244,56 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		});		
 		
 		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ));
-		
 		add_filter('user-layer_custom_fields', array( $this, 'get_user_layer_fields' ));
 
+		add_action('account-option_add_form_fields', array( $this, 'get_new_layer_fields' ) );
+		add_action('account-option_edit_form_fields', array( $this, 'get_layer_fields' ) );	
+	
+		add_filter('manage_edit-account-option_columns', array( $this, 'set_account_taxonomy_columns' ) );
+		add_filter('manage_account-option_custom_column', array( $this, 'add_account_taxonomy_column_content' ),10,3);			
+	
+		add_action('create_account-option', array( $this, 'save_layer_fields' ) );
+		add_action('edit_account-option', array( $this, 'save_layer_fields' ) );	
+
+		add_action('layer-type_add_form_fields', array( $this, 'get_new_layer_fields' ) );
+		add_action('layer-type_edit_form_fields', array( $this, 'get_layer_fields' ) );
+	
+		add_filter('manage_edit-layer-type_columns', array( $this, 'set_layer_taxonomy_columns' ) );
+		add_filter('manage_layer-type_custom_column', array( $this, 'add_layer_taxonomy_column_content' ),10,3);		
+		
+		add_action('create_layer-type', array( $this, 'save_layer_fields' ) );
+		add_action('edit_layer-type', array( $this, 'save_layer_fields' ) );	
+
+		add_action('layer-range_add_form_fields', array( $this, 'get_new_layer_fields' ) );
+		add_action('layer-range_edit_form_fields', array( $this, 'get_layer_fields' ) );
+	
+		add_filter('manage_edit-layer-range_columns', array( $this, 'set_layer_taxonomy_columns' ) );
+		add_filter('manage_layer-range_custom_column', array( $this, 'add_layer_taxonomy_column_content' ),10,3);
+	
+		add_action('create_layer-range', array( $this, 'save_layer_fields' ) );
+		add_action('edit_layer-range', array( $this, 'save_layer_fields' ) );			
+
+		//add_action('css-library_add_form_fields', array( $this, 'get_new_library_fields' ) );
+		add_action('css-library_edit_form_fields', array( $this, 'get_css_library_fields' ) );	
+		
+		add_action('create_css-library', array( $this, 'save_library_fields' ) );
+		add_action('edit_css-library', array( $this, 'save_library_fields' ) );	
+
+		//add_action('js-library_add_form_fields', array( $this, 'get_new_library_fields' ) );
+		add_action('js-library_edit_form_fields', array( $this, 'get_js_library_fields' ) );	
+				
+		add_action('create_js-library', array( $this, 'save_library_fields' ) );
+		add_action('edit_js-library', array( $this, 'save_library_fields' ) );	
+
+	
+	
 		add_filter('init', array( $this, 'init_layer' ));
 		
 		add_action('wp_loaded', array($this,'get_layer_types'));
 		add_action('wp_loaded', array($this,'get_layer_ranges'));
 		add_action('wp_loaded', array($this,'get_account_options'));
+		add_action('wp_loaded', array($this,'get_js_libraries'));
+		add_action('wp_loaded', array($this,'get_css_libraries'));
 		//add_action('wp_loaded', array($this,'get_default_layers'));
 	}
 	
@@ -263,6 +333,155 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->options = $this->get_terms( 'account-option', array(
 				
 			'1-template-storage'  => '+1 template storage'
+		));
+	}
+	
+	
+	public function get_css_libraries(){
+		
+		$this->cssLibraries = $this->get_terms( 'css-library', array(
+			
+			'bootstrap-3-3-7' => array(
+			
+				'name' 		=> 'Bootstrap 3.3.7',
+				'options' 	=> array(
+				
+					'css_url'	 => 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
+					'css_content' => '',
+				),
+			),
+			'font-awesome-4-7-0' => array(
+			
+				'name' 		=> 'Font Awesome 4.7.0',
+				'options' 	=> array(
+				
+					'css_url'	 => 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+					'css_content' => '',
+				),
+			),
+			'elementor-1-2-3' => array(
+			
+				'name' 		=> 'Elementor 1.2.3',
+				'options' 	=> array(
+				
+					'css_url'	 => '',
+					'css_content' =>''
+						. '<link href="' . plugins_url('elementor/assets/css/animations.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>'
+						. '<link href="' . plugins_url('elementor/assets/css/frontend.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>'
+						. '<style>.elementor-widget-heading .elementor-heading-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image .widget-image-caption{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-text-editor{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-button .elementor-button{font-family:Roboto,sans-serif;font-weight:500;background-color:#61ce70}.elementor-widget-divider .elementor-divider-separator{border-top-color:#7a7a7a}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-icon.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon.elementor-view-framed .elementor-icon,.elementor-widget-icon.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-framed .elementor-icon,.elementor-widget-icon-box.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-image-gallery .gallery-item .gallery-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-image-carousel .elementor-image-carousel-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-icon-list .elementor-icon-list-icon i{color:#6ec1e4}.elementor-widget-icon-list .elementor-icon-list-text{color:#54595f;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-counter .elementor-counter-number-wrapper{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-counter .elementor-counter-title{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-progress .elementor-progress-wrapper .elementor-progress-bar{background-color:#6ec1e4}.elementor-widget-progress .elementor-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-name{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-testimonial .elementor-testimonial-job{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-tabs .elementor-tab-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-tabs .elementor-tab-title.active{color:#61ce70}.elementor-widget-tabs .elementor-tab-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title.active{color:#61ce70}.elementor-widget-accordion .elementor-accordion .elementor-accordion-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title.active{color:#61ce70}.elementor-widget-toggle .elementor-toggle .elementor-toggle-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-alert .elementor-alert-title{font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-alert .elementor-alert-description{font-family:Roboto,sans-serif;font-weight:400}</style>'		
+					,
+				),
+			),			
+			'animate-3-5-2' => array(
+			
+				'name' 		=> 'Animate 3.5.2',
+				'options' 	=> array(
+				
+					'css_url'	  => 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css',
+					'css_content' => '',
+				),
+			),
+			'slick-1-6-0' => array(
+			
+				'name' 		=> 'Slick 1.6.0',
+				'options' 	=> array(
+				
+					'css_url'	  => 'http://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css',
+					'css_content' => '<style>.slick-slide{height:auto !important;}</style>',
+				),
+			),
+		));
+	}
+	
+	public function get_js_libraries(){
+
+		$this->jsLibraries = $this->get_terms( 'js-library', array(
+			'jquery-3-1-1' => array(
+			
+				'name' 		=> 'Jquery 3.1.1',
+				'options' 	=> array(
+				
+					'js_url'	 => 'https://code.jquery.com/jquery-3.1.1.min.js',
+					'js_content' => '',
+				),
+				'children'	=> array(
+				
+					'bootstrap-3-3-7' => array(
+					
+						'name' 		=> 'Bootstrap 3.3.7',
+						'options' 	=> array(
+
+							'js_url'		=> 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js',
+							'js_content'	=> '
+								<script>
+								;(function($){
+									$(document).ready(function(){							
+										$(\'.modal\').appendTo("body");
+										$(\'[data-slide-to]\').on(\'click\',function(e){
+											e.preventDefault();
+											if( typeof $(this).attr(\'data-target\') !== typeof undefined ){
+												var carouselId 	= $(this).attr(\'data-target\');
+											}
+											else{
+												var carouselId 	= $(this).attr("href");
+											}
+											var slideTo 	= parseInt( $(this).attr(\'data-slide-to\') );
+											$(carouselId).carousel(slideTo);
+											return false;
+										});
+										
+										$(\'[data-slide]\').on(\'click\',function(e){
+											e.preventDefault();
+											if( typeof $(this).attr(\'data-target\') !== typeof undefined ){
+												var carouselId 	= $(this).attr(\'data-target\');
+											}
+											else{
+												var carouselId 	= $(this).attr("href");
+											}
+											var slideTo 	= $(this).attr(\'data-slide\');
+											$(carouselId).carousel(slideTo);
+											return false;
+										});
+									});
+								})(jQuery);
+								</script>
+							',
+						),
+					),
+					'slick-1-6-0' => array(
+					
+						'name' 		=> 'Slick 1.6.0',
+						'options' 	=> array(
+						
+							'js_url'		=> plugins_url('elementor/assets/lib/slick/slick.min.js?ver=1.6.0'),
+							'js_content'	=> '',
+						),
+					),					
+					'elementor-1-2-3' => array(
+					
+						'name' 		=> 'Elementor 1.2.3',
+						'options' 	=> array(
+						
+							'js_url'		=> '',
+							'js_content'	=> '
+								<script>//<![CDATA[
+									var elementorFrontendConfig={"isEditMode":"","stretchedSectionContainer":"","is_rtl":""};
+								//]]></script>'
+								. '<script src="' . plugins_url('elementor/assets/lib/waypoints/waypoints.min.js?ver=4.0.2') . '"></script>' . PHP_EOL
+								. '<script src="' . plugins_url('elementor/assets/lib/jquery-numerator/jquery-numerator.min.js?ver=0.2.1') . '"></script>' . PHP_EOL
+								. '<script src="' . plugins_url('elementor/assets/js/frontend.min.js?ver=1.2.3') . '"></script>' . PHP_EOL								
+								. '<script>
+								;(function($){
+									$(document).ready(function(){
+										//$(\'.slick-slider\').slick("unslick");
+									});
+								})(jQuery);	
+								</script>
+							',
+						),
+					),					
+				)
+			),
 		));
 	}
 	
@@ -541,7 +760,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				),
 				'inline'		=> false,
 				'description'	=> ''
-		);
+		); 
 		
 		$fields[]=array( 
 		
@@ -560,25 +779,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'inline'		=> false,
 				'description'	=> ''
 		);
-		/*
-		$fields[]=array( 
-		
-			"metabox" =>
-			
-				array('name'	=> "layer-mode"),
-				'id'			=> "layerMode",
-				'label'			=> "",
-				'type'			=> 'radio',
-				'options'		=> array(
-				
-					'production'	=> 'Production',
-					'demo'			=> 'Demo',
-				),
-				'inline'		=> false,
-				'description'	=> ''
-		);
-		*/
-		
+
 		$fields[]=array(
 		
 			"metabox" =>
@@ -594,44 +795,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				),
 				'checked'	=>array('margin-top'),
-				'description'=>''
-		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"css-libraries"),
-				'id'		=>"cssLibraries",
-				'label'		=>"",
-				'type'		=>'checkbox_multi',
-				'options'	=>array(
-				
-					'bootstrap-3' 		=> 'Bootstrap 3',
-					'fontawesome-4' 	=> 'Font Awesome 4',
-					'elementor-1.2.3' 	=> 'Elementor 1.2.3',
-					'animate' 			=> 'Animate',
-					'slick' 			=> 'Slick',
-				 
-				),
-				//'checked'		=> array('bootstrap-3'),
-				'description'	=> ''
-		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"js-libraries"),
-				'id'		=>"jsLibraries",
-				'label'		=>"",
-				'type'		=>'checkbox_multi',
-				'options'	=>array(
-				
-					'jquery' 		=> 'JQuery',
-					'bootstrap-3' 	=> 'Bootstrap 3',
-				),
-				//'checked'	=>array('jquery'),
 				'description'=>''
 		);
 		
@@ -791,7 +954,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$str = preg_replace( array(
 		
-				'/<iframe(.*?)<\/iframe>/is',
+				//'/<iframe(.*?)<\/iframe>/is',
 				'/<title(.*?)<\/title>/is',
 				'/<pre(.*?)<\/pre>/is',
 				'/<frame(.*?)<\/frame>/is',
@@ -817,5 +980,378 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		);
 		
 		return $str;
+	}
+	
+	public function get_new_layer_fields($taxonomy_name){
+		
+		echo'<div class="form-field">';
+			
+			echo'<label for="'.$taxonomy_name.'-price-amount">Price</label>';
+
+			echo $this->parent->plan->get_layer_taxonomy_price_fields($taxonomy_name,[]);
+			
+		echo'</div>';
+		
+		echo'<div class="form-field">';
+			
+			echo'<label for="'.$taxonomy_name.'-storage-amount">Storage</label>';
+
+			echo $this->parent->plan->get_layer_taxonomy_storage_fields($taxonomy_name,0);
+			
+		echo'</div>';
+	}
+	
+	public function get_layer_fields($term){
+
+		//collect our saved term field information
+		
+		$price=[];
+		$price['price_amount'] = get_option('price_amount_' . $term->slug); 
+		$price['price_period'] = get_option('price_period_' . $term->slug); 
+		
+		$storage=[];
+		$storage['storage_amount'] 	= get_option('storage_amount_' . $term->slug);
+		$storage['storage_unit'] 	= get_option('storage_unit_' . $term->slug);
+		
+		//output our additional fields
+		
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Price </label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+				
+				echo $this->parent->plan->get_layer_taxonomy_price_fields($term->taxonomy,$price);
+				
+			echo'</td>';
+			
+		echo'</tr>';
+
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Storage </label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+				
+				echo $this->parent->plan->get_layer_taxonomy_storage_fields($term->taxonomy,$storage);
+						
+			echo'</td>';
+			
+		echo'</tr>';	
+
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Meta </label>';
+			
+			echo'</th>';
+			
+				echo'<td>';
+					
+					$this->parent->admin->display_field(array(
+					
+						'type'				=> 'form',
+						'id'				=> 'meta_'.$term->slug,
+						'name'				=> $term->taxonomy . '-meta',
+						'array' 			=> [],
+						'description'		=> ''
+						
+					), false );
+					
+				echo'</td>';	
+			
+		echo'</tr>';
+	}
+	
+	public function get_css_library_fields($term){
+
+		//output our additional fields
+		
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Url </label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+				
+				$this->parent->admin->display_field(array(
+				
+					'type'				=> 'text',
+					'id'				=> 'css_url_'.$term->slug,
+					'name'				=> 'css_url_'.$term->slug,
+					'placeholder'		=> 'http://',
+					'description'		=> '',
+					
+				), false );					
+				
+			echo'</td>';
+			
+		echo'</tr>';
+
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Content </label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+					
+				$this->parent->admin->display_field(array(
+				
+					'type'				=> 'textarea',
+					'id'				=> 'css_content_'.$term->slug,
+					'name'				=> 'css_content_'.$term->slug,
+					'placeholder'		=> htmlentities('<style></style>'),
+					'description'		=> '<i>with ' . htmlentities('<style></style>') . ' or ' . htmlentities('<link></link>') . '</i>'
+					
+				), false );				
+					
+			echo'</td>';
+			
+		echo'</tr>';
+	}
+	
+	
+	public function get_js_library_fields($term){
+
+		//output our additional fields
+		
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Url </label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+				
+				$this->parent->admin->display_field(array(
+				
+					'type'				=> 'text',
+					'id'				=> 'js_url_'.$term->slug,
+					'name'				=> 'js_url_'.$term->slug,
+					'placeholder'		=> 'http://',
+					'description'		=> ''
+					
+				), false );					
+				
+			echo'</td>';
+			
+		echo'</tr>';
+
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Content </label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+					
+				$this->parent->admin->display_field(array(
+				
+					'type'				=> 'textarea',
+					'id'				=> 'js_content_'.$term->slug,
+					'name'				=> 'js_content_'.$term->slug,
+					'placeholder'		=> htmlentities('<script></script>'),
+					'description'		=> '<i>with '.htmlentities('<script></script>').'</i>'
+					
+				), false );				
+					
+			echo'</td>';
+			
+		echo'</tr>';
+	}	
+	
+	public function set_layer_taxonomy_columns($columns) {
+
+		// Remove description, posts, wpseo columns
+		$columns = [];
+		
+		// Add artist-website, posts columns
+
+		$columns['cb'] = '<input type="checkbox" />';
+		$columns['name'] = 'Name';
+		//$columns['slug'] = 'Slug';
+		$columns['description'] = 'Description';
+		$columns['price'] = 'Price';
+		$columns['storage'] = 'Storage';
+		//$columns['posts'] = 'Layers';
+		//$columns['users'] = 'Users';
+
+		return $columns;
+	}
+	
+	public function set_account_taxonomy_columns($columns) {
+
+		// Remove description, posts, wpseo columns
+		$columns = [];
+		
+		// Add artist-website, posts columns
+
+		$columns['cb'] = '<input type="checkbox" />';
+		$columns['name'] = 'Name';
+		//$columns['slug'] = 'Slug';
+		$columns['description'] = 'Description';
+		$columns['price'] = 'Price';
+		$columns['storage'] = 'Storage';
+		//$columns['posts'] = 'Layers';
+		//$columns['users'] = 'Users';
+
+		return $columns;
+	}
+		
+	public function add_layer_taxonomy_column_content($content, $column_name, $term_id){
+	
+		$term= get_term($term_id);
+
+		if($column_name === 'price') {
+			
+			if(!$price_amount = get_option('price_amount_' . $term->slug)){
+				
+				$price_amount = 0;
+			} 
+			
+			if(!$price_period = get_option('price_period_' . $term->slug)){
+				
+				$price_period = 'month';
+			} 	
+			
+			$content.=$price_amount.'$'.' / '.$price_period;
+		}
+		elseif($column_name === 'storage') {
+			
+			if(!$storage_amount = get_option('storage_amount_' . $term->slug)){
+				
+				$storage_amount = 0;
+			}
+			
+			if(!$storage_unit = get_option('storage_unit_' . $term->slug)){
+				
+				$storage_unit = 'templates';
+			} 
+			
+			if($storage_unit=='templates'&&$storage_amount==1){
+				
+				$content.='+'.$storage_amount.' template';
+			}
+			elseif($storage_amount > 0){
+				
+				$content.='+'.$storage_amount.' '.$storage_unit;
+			}
+			else{
+				
+				$content.=$storage_amount.' '.$storage_unit;
+			}
+			
+		}
+		elseif($column_name === 'users') {
+			
+			$users=0;
+			
+			$content.=$users;
+		}
+
+		return $content;
+	}
+	
+	public function add_account_taxonomy_column_content($content, $column_name, $term_id){
+		
+		return $this->add_layer_taxonomy_column_content($content, $column_name, $term_id);
+	}
+	
+	public function save_layer_fields($term_id){
+
+		if($this->parent->user->is_admin){
+			
+			//collect all term related data for this new taxonomy
+			$term = get_term($term_id);
+						
+			//save our custom fields as wp-options
+			
+			if(isset($_POST[$term->taxonomy .'-price-amount'])&&is_numeric($_POST[$term->taxonomy .'-price-amount'])){
+
+				update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));			
+			}
+			
+			if(isset($_POST[$term->taxonomy .'-price-period'])){
+
+				$periods = $this->parent->plan->get_price_periods();
+				$period = sanitize_text_field($_POST[$term->taxonomy . '-price-period']);
+				
+				if(isset($periods[$period])){
+					
+					update_option('price_period_' . $term->slug, $period);	
+				}
+			}
+			
+			if(isset($_POST[$term->taxonomy .'-storage-amount'])&&is_numeric($_POST[$term->taxonomy .'-storage-amount'])){
+
+				update_option('storage_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0));			
+			}
+			
+			if(isset($_POST[$term->taxonomy .'-storage-unit'])){
+
+				$storage_units = $this->parent->plan->get_storage_units();
+				$storage_unit = sanitize_text_field($_POST[$term->taxonomy . '-storage-unit']);
+				
+				if(isset($periods[$period])){			
+				
+					update_option('storage_unit_' . $term->slug, $storage_unit);			
+				}
+			}
+		
+			if(isset($_POST[$term->taxonomy . '-meta'])){
+
+				update_option('meta_'.$term->slug, $_POST[$term->taxonomy . '-meta']);			
+			}
+		}
+	}
+	
+	public function save_library_fields($term_id){
+
+		if($this->parent->user->is_admin){
+			
+			//collect all term related data for this new taxonomy
+			$term = get_term($term_id);
+
+			//save our custom fields as wp-options
+
+			if(isset($_POST['css_url_'.$term->slug])){
+
+				update_option('css_url_'.$term->slug, $_POST['css_url_'.$term->slug]);			
+			}
+			
+			if(isset($_POST['css_content_'.$term->slug])){
+
+				update_option('css_content_'.$term->slug, $_POST['css_content_'.$term->slug]);			
+			}
+			
+			if(isset($_POST['js_url_'.$term->slug])){
+
+				update_option('js_url_'.$term->slug, $_POST['js_url_'.$term->slug]);			
+			}
+			
+			if(isset($_POST['js_content_'.$term->slug])){
+
+				update_option('js_content_'.$term->slug, $_POST['js_content_'.$term->slug]);			
+			}
+		}
 	}
 }
