@@ -610,6 +610,7 @@ class LTPLE_Client_Settings {
 					'appId' 		=> ( isset($_POST[$this->parent->_base .'twt_main_account']) ? intval($_POST[$this->parent->_base .'twt_main_account']) : intval(get_option( $this->parent->_base .'twt_main_account' )) ),
 					'last' 			=> true,
 				),
+				/*
 				array(
 					'id' 			=> 'twt_auto_follow',
 					'label'			=> __( 'Auto Follow' , $this->plugin->slug ),
@@ -630,6 +631,7 @@ class LTPLE_Client_Settings {
 					'appId' 		=> ( isset($_POST[$this->parent->_base .'twt_main_account']) ? intval($_POST[$this->parent->_base .'twt_main_account']) : intval(get_option( $this->parent->_base .'twt_main_account' )) ),
 					'last' 			=> true,
 				),
+				*/
 				array(
 					'id' 			=> 'twt_import_leads',
 					'label'			=> __( 'Import Leads' , $this->plugin->slug ),

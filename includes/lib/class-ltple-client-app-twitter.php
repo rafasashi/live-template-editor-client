@@ -616,36 +616,43 @@ class LTPLE_Client_App_Twitter {
 					'count' 			=> 100,
 					'trim_user'			=> true,
 					'include_entities' 	=> true,
-					'result_type' 		=> 'recent',
-				));				
-				
+					'result_type' 		=> 'mixed',
+				));
+
 				if(!empty($q->statuses)){
 					
-					$items = [];
+					$items 	= [];
+					$skip 	= [];
 
 					// fetch creation times
 
 					foreach( $q->statuses as $status ){
-
-						if( !empty($status->retweeted_status) ){
-							
-							$time = $status->created_at =  strtotime($status->created_at);
-
-							$items[$time] = $status;
-							
-							if( count($items) == $count){
-									
-								break;
+	
+						if( !isset($skip[$status->id]) ){
+	
+							$time = strtotime($status->created_at);
+		
+							if( empty($status->retweeted_status) ){
+								
+								$status->retweeted_status = new stdClass();
+								
+								$status->retweeted_status->id = $status->id;
 							}
+							else{
+								
+								$skip[$status->retweeted_status->id] = true;
+							}
+							
+							$items[$time] = $status;
 						}
 					}
-
+				
 					if(!empty($items)){
 					
 						// sort by time
 						
 						ksort($items, SORT_NUMERIC);
-							
+						
 						// get the oldest status (first in list)
 						
 						$status = reset($items);
@@ -1424,7 +1431,7 @@ class LTPLE_Client_App_Twitter {
 								
 								//echo'Error creating a new Twitter user...';
 								exit;
-							}							
+							}						
 						}
 						else{
 							
@@ -1435,6 +1442,10 @@ class LTPLE_Client_App_Twitter {
 					else{
 						
 						$this->userId = intval( $app_item->post_author );
+						
+						// refresh app token
+									
+						update_post_meta( $app_item->ID, 'appData', json_encode($this->access_token,JSON_PRETTY_PRINT));						
 					}
 					
 					if(is_numeric($this->userId)){
@@ -1442,6 +1453,7 @@ class LTPLE_Client_App_Twitter {
 						// set current user
 						
 						$this->parent->user = wp_set_current_user( $this->userId );
+						$this->parent->user->loggedin = true;
 						
 						// set auth cookie
 						

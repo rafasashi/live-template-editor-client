@@ -289,20 +289,20 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		if(is_admin()){
 			
-			add_filter( 'app_row_actions', array($this, 'remove_app_taxonomy_quick_edition'), 10, 2 );				
+			add_filter( 'app-type_row_actions', array($this, 'remove_app_taxonomy_quick_edition'), 10, 2 );				
 			
 			// add taxonomy custom fields
 			
-			add_action('app_add_form_fields', array( $this, 'get_new_app_taxonomy_fields' ) );
-			add_action('app_edit_form_fields', array( $this, 'get_app_taxonomy_fields' ) );
+			add_action('app-type_add_form_fields', array( $this, 'get_new_app_taxonomy_fields' ) );
+			add_action('app-type_edit_form_fields', array( $this, 'get_app_taxonomy_fields' ) );
 
-			add_filter('manage_edit-app_columns', array( $this, 'set_app_taxonomy_columns' ) );
-			add_filter('manage_app_custom_column', array( $this, 'add_app_taxonomy_column_content' ),10,3);			
+			add_filter('manage_edit-app-type_columns', array( $this, 'set_app_taxonomy_columns' ) );
+			add_filter('manage_app-type_custom_column', array( $this, 'add_app_taxonomy_column_content' ),10,3);			
 
 			// save taxonomy custom fields
 			
-			add_action('create_app', array( $this, 'save_app_taxonomy_fields' ) );
-			add_action('edit_app', array( $this, 'save_app_taxonomy_fields' ) );
+			add_action('create_app-type', array( $this, 'save_app_taxonomy_fields' ) );
+			add_action('edit_app-type', array( $this, 'save_app_taxonomy_fields' ) );
 		}
 
 		// get custom fields

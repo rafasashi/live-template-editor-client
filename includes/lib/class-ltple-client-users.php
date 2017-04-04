@@ -27,40 +27,40 @@
 					
 					$this->view = $_REQUEST[$this->parent->_base .'view'];
 					
-					add_filter('admin_footer-users.php', array($this, 'ltple_add_users_table_view'));
+					add_filter('admin_footer-users.php', array($this, 'add_users_table_view'));
 					
 					add_filter('get_avatar', array($this, 'get_user_avatar'), 1, 5);			
 					
-					if( method_exists($this, 'ltple_update_' . $this->view . '_table') ){
+					if( method_exists($this, 'update_' . $this->view . '_table') ){
 						
 						//remove_filter('manage_users_columns');
 						
-						add_filter('manage_users_columns', array($this, 'ltple_update_' . $this->view . '_table'), 100, 1);
+						add_filter('manage_users_columns', array($this, 'update_' . $this->view . '_table'), 100, 1);
 					}
 					
-					if( method_exists($this, 'ltple_custom_' . $this->view . '_table_css') ){
+					if( method_exists($this, 'custom_' . $this->view . '_table_css') ){
 						
-						add_action('admin_head', array($this, 'ltple_custom_' . $this->view . '_table_css'));
+						add_action('admin_head', array($this, 'custom_' . $this->view . '_table_css'));
 					}
 					
-					if( method_exists($this, 'ltple_update_' . $this->view . '_manually') ){
+					if( method_exists($this, 'update_' . $this->view . '_manually') ){
 						
-						add_action('admin_head', array($this, 'ltple_update_' . $this->view . '_manually'));
+						add_action('admin_head', array($this, 'update_' . $this->view . '_manually'));
 					}
 					
-					if( method_exists($this, 'ltple_modify_' . $this->view . '_table_row') ){
+					if( method_exists($this, 'modify_' . $this->view . '_table_row') ){
 						
-						add_filter('manage_users_custom_column', array($this, 'ltple_modify_' . $this->view . '_table_row'), 100, 3);	
+						add_filter('manage_users_custom_column', array($this, 'modify_' . $this->view . '_table_row'), 100, 3);	
 					}			
 					
-					if( method_exists($this, 'ltple_add_' . $this->view . '_bulk_action') ){
+					if( method_exists($this, 'add_' . $this->view . '_bulk_action') ){
 
-						add_action( 'admin_footer-users.php', array( $this, 'ltple_add_' . $this->view . '_bulk_action') );				
+						add_action( 'admin_footer-users.php', array( $this, 'add_' . $this->view . '_bulk_action') );				
 					}
 
-					if( method_exists($this, 'ltple_load_' . $this->view . '_bulk_action') ){
+					if( method_exists($this, 'load_' . $this->view . '_bulk_action') ){
 
-						add_action('load-users.php', array( $this, 'ltple_load_' . $this->view . '_bulk_action') );				
+						add_action('load-users.php', array( $this, 'load_' . $this->view . '_bulk_action') );				
 					}
 					
 					// custom bulk actions
@@ -171,10 +171,10 @@
 						
 					} );
 					
-					add_filter( 'pre_get_users', array( $this, 'ltple_filter_users_by_marketing_channel') );
-					add_filter( 'pre_get_users', array( $this, 'ltple_filter_users_by_plan_value') );
-					add_filter( 'pre_get_users', array( $this, 'ltple_bulk_send_email_model') );
-					add_filter( 'pre_get_users', array( $this, 'ltple_bulk_add_stars') );
+					add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
+					add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
+					add_filter( 'pre_get_users', array( $this, 'bulk_send_email_model') );
+					add_filter( 'pre_get_users', array( $this, 'bulk_add_stars') );
 				}				
 			}
 		}
@@ -223,7 +223,7 @@
 			return $avatar;
 		}	
 		
-		public function ltple_add_users_table_view() {
+		public function add_users_table_view() {
 		 
 			?>
 			<script type="text/javascript">
@@ -246,7 +246,7 @@
 			<?php
 		}
 		
-		public function ltple_update_subscribers_table($column) {
+		public function update_subscribers_table($column) {
 			
 			$column=[];
 			$column["cb"]			= '<input type="checkbox" />';
@@ -267,10 +267,12 @@
 			return $column;
 		}
 		
-		public function ltple_custom_subscribers_table_css() {
+		public function custom_subscribers_table_css() {
 			
 			echo '<style>';
 							
+				echo '.wrap						{margin:0 !important;}';	
+				echo '#wpcontent, #wpfooter 	{margin-left: 150px;}';
 				echo '.column-username img 		{display: inline-table;}';
 				echo '.column-username strong 	{display: inline-table;width: 100%;}';
 				echo '.column-username  		{width: 15%}';
@@ -286,7 +288,7 @@
 		    echo '</style>';
 		}
 
-		public function ltple_modify_subscribers_table_row($val, $column_name, $user_id) {
+		public function modify_subscribers_table_row($val, $column_name, $user_id) {
 			
 			if(!isset($this->list->{$user_id})){
 			
@@ -321,6 +323,8 @@
 			
 			if ($column_name == "subscription") { 
 					
+				$row .= '<span style="margin: 0px;font-size: 10px;line-height: 14px;">';	
+					
 				if ($user_role->roles[0] != "administrator") {
 					
 					if( $user_plan['info']['total_fee_amount'] > 0 ){
@@ -335,6 +339,8 @@
 					
 					$row .= "Admin";
 				}
+				
+				$row .= '</span>';
 			}
 			elseif ($column_name == "plan") {
 					
@@ -371,11 +377,15 @@
 			}
 			elseif ($column_name == "seen") {
 				
-				$row .= $this->time_ago( '@' . $user_seen );
+				$row .= '<span style="margin: 0px;font-size: 10px;line-height: 14px;">';
+				
+					$row .= $this->time_ago( '@' . $user_seen );
+					
+				$row .= '</span>';
 			}
 			elseif ($column_name == "channel") {
 				
-				$row .= '<span>';
+				$row .= '<span style="margin: 0px;font-size: 10px;line-height: 14px;">';
 					
 					if(!empty($referredBy)){
 						
@@ -389,8 +399,12 @@
 				$row .= '</span>';
 			}
 			elseif ($column_name == "stars") {
-
-				$row .= $user_stars;
+				
+				$row .= '<span style="margin: 0px;font-size: 10px;line-height: 14px;">';
+					
+					$row .= $user_stars;
+					
+				$row .= '</span>';
 			}
 			elseif ($column_name == "leads") {
 				
@@ -445,7 +459,7 @@
 			return $row;
 		}
 		
-		public function ltple_update_subscribers_manually() {
+		public function update_subscribers_manually() {
 			
 			if(isset($_REQUEST["user_id"]) && isset($_REQUEST["wp_nonce"]) && wp_verify_nonce($_REQUEST["wp_nonce"], "ltple_can_spam") && isset($_REQUEST["ltple_can_spam"])) {
 				
@@ -456,9 +470,10 @@
 			}
 		}
 		
-		public function ltple_add_subscribers_bulk_action() {
+		public function add_subscribers_bulk_action() {
 		 
 			?>
+			
 			<script type="text/javascript">
 			
 				jQuery(document).ready(function() {
@@ -476,7 +491,7 @@
 			<?php
 		}
 
-		public function ltple_load_subscribers_bulk_action() {
+		public function load_subscribers_bulk_action() {
 		 
 			// get the action
 			$wp_list_table = _get_list_table('WP_Posts_List_Table');
@@ -539,7 +554,7 @@
 			exit();
 		}			
 		
-		public function ltple_get_filter_value($filter) {
+		public function get_filter_value($filter) {
 			
 			$value=null;
 			
@@ -555,10 +570,10 @@
 			return $value;
 		}
 		
-		public function ltple_filter_users_by_marketing_channel( $query ) {
+		public function filter_users_by_marketing_channel( $query ) {
 			
 			$taxonomy = 'marketing-channel';
-			$term_id = $this->ltple_get_filter_value($taxonomy);
+			$term_id = $this->get_filter_value($taxonomy);
 			
 			if(!is_null($term_id)){
 				
@@ -578,10 +593,10 @@
 		}
 		
 		
-		public function ltple_filter_users_by_plan_value( $query ) {
+		public function filter_users_by_plan_value( $query ) {
 
-			$userPlanValue		= $this->ltple_get_filter_value('userPlanValue');
-			$planValueOperator	= $this->ltple_get_filter_value('planValueOperator');
+			$userPlanValue		= $this->get_filter_value('userPlanValue');
+			$planValueOperator	= $this->get_filter_value('planValueOperator');
 			
 			$comparition = [];
 			
@@ -629,7 +644,7 @@
 			}
 		}
 		
-		public function ltple_bulk_send_email_model( $query ) {
+		public function bulk_send_email_model( $query ) {
 			
 			$post_type = 'email-model';
 			$model_id=null;
@@ -696,7 +711,7 @@
 		}
 		
 		
-		public function ltple_bulk_add_stars() {
+		public function bulk_add_stars() {
 			
 			$field = 'addStars';
 			$addStars=0;
@@ -775,3 +790,4 @@
 			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->parent->_version );
 		} // End __wakeup()
 	}
+	

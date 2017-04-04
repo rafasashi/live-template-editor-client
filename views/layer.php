@@ -29,11 +29,11 @@
 
 	//get css libraries
 
-	$cssLibraries = wp_get_post_terms( $layer_id, 'css-library' );
+	$cssLibraries = wp_get_post_terms( $layer_id, 'css-library', array( 'orderby' => 'term_id' ) );
 	
 	//get js libraries
 	
-	$jsLibraries = wp_get_post_terms( $layer_id, 'js-library' );
+	$jsLibraries = wp_get_post_terms( $layer_id, 'js-library', array( 'orderby' => 'term_id' ) );
 
 	//get layer image proxy
 	
@@ -42,6 +42,7 @@
 	$layerHead 		= '';
 	$layerContent 	= '';
 	$layerCss 		= '';
+	$layerJS 		= '';
 	$layerMargin	= '';
 	$layerMinWidth	= '';
 	
@@ -170,9 +171,17 @@
 				
 				$layerCss = get_post_meta( $layer_id, 'layerCss', true );
 			}
+			
+			$layerJs = get_post_meta( $post->ID, 'layerJs', true );
+			
+			if( $layerJs == '' && $post->ID != $layer_id){
+				
+				$layerJs = get_post_meta( $layer_id, 'layerJs', true );
+			}
 		}
 		
-		$layerCss = sanitize_text_field($layerCss);
+		$layerCss 	= sanitize_text_field($layerCss);
+		$layerJs	= sanitize_text_field($layerJs);
 
 		if($layerOutput=='canvas'){
 			
@@ -241,7 +250,7 @@
  
 						if( !empty($css_url) ){
 							
-							echo '<link href="'.$css_url.'" rel="stylesheet" type="text/css"/>';
+							echo '<link href="'.$css_url.'" rel="stylesheet" type="text/css" />';
 						}
 						
 						$css_content = get_option( 'css_content_' . $term->slug);
@@ -402,6 +411,13 @@
 			}			
 
 			echo'<script>' .PHP_EOL;
+			
+				//include layer script
+				
+				if( $layerJs!='' ){
+
+					//echo $layerJs .PHP_EOL;				
+				}
 
 				//include layer Output
 				
@@ -460,12 +476,9 @@
 				
 				$enableIcons = 'false';
 				
-				if( is_array($cssLibraries) ){
-
-					if( in_array('fontawesome-4',$cssLibraries)){
-						
-						$enableIcons = 'true';
-					}
+				if( in_array_field( 'font-awesome-4-7-0', 'slug', $cssLibraries ) ){
+					
+					$enableIcons = 'true';
 				}
 				
 				echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;

@@ -35,8 +35,8 @@ class LTPLE_Client_Cron {
 	public function init_cron($event){
 		
 		add_action( $this->parent->_base . 'twt_auto_retweet', 	array( $this, 'ltple_twt_auto_retweet_event'),1,2);
-		add_action( $this->parent->_base . 'twt_auto_follow', 	array( $this, 'ltple_twt_auto_follow_event'),1,2);
-		add_action( $this->parent->_base . 'twt_auto_unfollow', array( $this, 'ltple_twt_auto_unfollow_event'),1,2);
+		//add_action( $this->parent->_base . 'twt_auto_follow', 	array( $this, 'ltple_twt_auto_follow_event'),1,2);
+		//add_action( $this->parent->_base . 'twt_auto_unfollow', array( $this, 'ltple_twt_auto_unfollow_event'),1,2);
 		add_action( $this->parent->_base . 'twt_import_leads', 	array( $this, 'ltple_twt_import_leads_event'),1);
 	}
 	

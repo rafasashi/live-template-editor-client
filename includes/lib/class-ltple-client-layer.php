@@ -196,22 +196,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$this->parent->admin->add_meta_box (
 				
-				'css-libraries',
-				__( 'CSS Libraries', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'side'
-			);
-			
-			$this->parent->admin->add_meta_box (
-				
-				'js-libraries',
-				__( 'Javascript Libraries', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'side'
-			);
-			
-			$this->parent->admin->add_meta_box (
-				
 				'layer-margin',
 				__( 'Layer Margin', 'live-template-editor-client' ), 
 				array("cb-default-layer"),
