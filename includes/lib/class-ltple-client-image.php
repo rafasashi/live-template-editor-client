@@ -152,7 +152,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		
 		$image_types=[];
 		
-		foreach($this->image->types as $term){
+		foreach($this->types as $term){
 			
 			$image_types[$term->slug]=$term->name;
 		}

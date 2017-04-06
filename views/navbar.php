@@ -205,7 +205,7 @@
 				
 				echo'<li style="position:relative;">';
 					
-					echo '<a href="'. $this->urls->editor .'?apps"><span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Connected Apps</a>';
+					echo '<a href="'. $this->urls->editor .'?app"><span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Connected Apps</a>';
 
 				echo'</li>';
 				

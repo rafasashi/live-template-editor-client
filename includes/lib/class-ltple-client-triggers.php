@@ -26,7 +26,9 @@ class LTPLE_Client_Triggers {
 	public function __construct ( $parent ) {
 
 		$this->parent = $parent;
- 
+		
+		add_action('user_register', array( $this, 'trigger_after_user_register'), 10, 1);
+		
 		if( $this->parent->user->loggedin ){
 
 			if( $this->parent->user->last_seen == 0 ){
@@ -41,9 +43,7 @@ class LTPLE_Client_Triggers {
 			}
 			
 			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->_time);
-		}	
-	
-		add_action('user_register', array( $this, 'trigger_after_user_register'), 10, 1);
+		}
 	}
 	
 	public function trigger_after_user_register( $user_id ){

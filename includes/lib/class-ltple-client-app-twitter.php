@@ -651,7 +651,8 @@ class LTPLE_Client_App_Twitter {
 					
 						// sort by time
 						
-						ksort($items, SORT_NUMERIC);
+						//ksort($items, SORT_NUMERIC);
+						shuffle($items);
 						
 						// get the oldest status (first in list)
 						

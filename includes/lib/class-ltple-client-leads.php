@@ -628,7 +628,7 @@ class LTPLE_Client_Leads {
 		$columns['leadCanSpam']		= 'Spam';
 		$columns['date'] 			= 'Date';
 		
-		if( $this->user->is_admin ){
+		if( $this->parent->user->is_admin ){
 			
 			$columns['leadEmail'] 	= 'Email';
 		}		
