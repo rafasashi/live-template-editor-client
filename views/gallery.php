@@ -8,7 +8,7 @@
 	$layer_type = ( !empty($_GET['gallery']) ? $_GET['gallery'] : '' );
 	
 	if( empty($layer_type) ){
-		
+
 		foreach($this->all->layerType as $term){
 						
 			if( isset($this->layer->released[$term->slug]) || $this->user->is_admin ){
@@ -72,14 +72,14 @@
 					'posts_per_page'=> -1,
 					'tax_query' 	=> array(
 						array(
-							'taxonomy' => 'layer-type',
-							'field' => 'name',
-							'terms' => $layer_type,
+							'taxonomy' 	=> 'layer-type',
+							'field' 	=> 'slug',
+							'terms' 	=> $layer_type,
 							'include_children' => false
 						)
 					)					
 				));
-				
+			
 				while ( $loop->have_posts() ) : $loop->the_post(); 
 					
 					global $post;

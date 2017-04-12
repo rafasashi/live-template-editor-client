@@ -437,10 +437,6 @@ class LTPLE_Client {
 		
 		add_filter("email-campaign_custom_fields", array( $this, 'add_campaign_trigger_custom_fields' ));
 		
-		// add user-plan
-		
-		add_filter("user-plan_custom_fields", array( $this, 'add_user_plan_custom_fields' ));
-		
 		// add user-image
 	
 		add_filter('manage_user-image_posts_columns', array( $this, 'set_user_image_columns'));
@@ -978,7 +974,7 @@ class LTPLE_Client {
 		}
 		else{
 			
-			echo'<div style="font-size:20px;padding:20px;" class="alert alert-warning">';
+			echo'<div style="font-size:20px;padding:20px;margin:0;" class="alert alert-warning">';
 				
 				echo'You need to log in first...';
 				

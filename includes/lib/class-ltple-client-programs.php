@@ -357,6 +357,8 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 
 		$amount =  ( ( $data['price'] * ( $pourcent_price / 100 ) ) + ( $data['fee'] * ( $pourcent_fee / 100 ) ) );
 		
+		$pourcent = ( ( $amount / $total ) * 100 );
+		
 		if( $amount > 0 ){
 			
 			// handle affiliate commission
@@ -397,7 +399,7 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 							if($commission_id = wp_insert_post(array(
 						
 								'post_author' 	=> $affiliate->ID,
-								'post_title' 	=> $currency.$amount.' over '.$currency.$total.' ('.$pourcent.'%)',
+								'post_title' 	=> $currency . $amount . ' over ' . $currency . $total . ' (' . $pourcent . '%)',
 								'post_name' 	=> $id . '_' . $amount,
 								'post_type' 	=> 'affiliate-commission',
 								'post_status' 	=> 'publish'
@@ -714,7 +716,18 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 			if(!is_array($user_programs)){
 				
 				$user_programs = [];
-			}			
+			}
+			
+			if( user_can( $user->ID, 'administrator' ) ){
+				
+				echo '<div class="postbox" style="min-height:45px;">';
+					
+					echo '<h3 style="float:left;margin:10px;width:300px;display: inline-block;">' . __( 'Stripe Account', 'live-template-editor-client' ) . '</h3>';
+					
+					echo '<iframe src="' . $this->parent->server->url . '/endpoint/?connect=' . $this->parent->ltple_encrypt_uri($user->user_email) . '" style="width:250px;height:50px;overflow:hidden;"></iframe>';				
+						
+				echo'</div>';
+			}
 			
 			echo '<div class="postbox" style="min-height:45px;">';
 				

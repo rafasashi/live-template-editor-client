@@ -78,6 +78,10 @@ class LTPLE_Client_Plan {
 			);
 		});
 		
+		// add user-plan
+		
+		add_filter("user-plan_custom_fields", array( $this, 'add_user_plan_custom_fields' ));		
+		
 		add_action( 'init', array( $this, 'init_plan' ));
 	}
 
@@ -526,7 +530,7 @@ class LTPLE_Client_Plan {
 													
 													$subscription_plan.='<div class="modal-body">'.PHP_EOL;
 													
-														$subscription_plan.= '<div style="font-size:20px;padding:20px;" class="alert alert-warning">';
+														$subscription_plan.= '<div style="font-size:20px;padding:20px;margin:0px;" class="alert alert-warning">';
 															
 															$subscription_plan.= 'You need to log in first...';
 															
@@ -699,7 +703,7 @@ class LTPLE_Client_Plan {
 		
 		if( current_user_can( 'administrator' ) ){
 				
-			$user_plan_id = $this->get_user_plan_id($user->ID);
+			$user_plan_id = $this->get_user_plan_id( $user->ID, true );
 			
 			$total_price_amount 	= 0;
 			$total_fee_amount 		= 0;
@@ -715,122 +719,119 @@ class LTPLE_Client_Plan {
 			
 				echo '<table class="widefat fixed striped" style="border:none;">';
 					
-					if( $user_plan_id > 0 ){
+					foreach($taxonomies as $t){
 					
-						foreach($taxonomies as $t){
+						$taxonomy = $t['taxonomy'];
+						$taxonomy_name = $t['name'];
+						$is_hierarchical = $t['hierarchical'];
+					
+						$tax = get_taxonomy( $taxonomy );
+
+						/* Make sure the user can assign terms of the user taxonomy before proceeding. */
+						if ( !current_user_can( $tax->cap->assign_terms ) )
+							return;
+
+						/* Get the terms of the user taxonomy. */
+						$terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
+
+						echo '<tr>';
 						
-							$taxonomy = $t['taxonomy'];
-							$taxonomy_name = $t['name'];
-							$is_hierarchical = $t['hierarchical'];
-						
-							$tax = get_taxonomy( $taxonomy );
-
-							/* Make sure the user can assign terms of the user taxonomy before proceeding. */
-							if ( !current_user_can( $tax->cap->assign_terms ) )
-								return;
-
-							/* Get the terms of the user taxonomy. */
-							$terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
-
-							echo '<tr>';
-							
-								echo '<th style="width:300px;">';
-									
-									echo '<label for="'.$taxonomy.'">'. __( $taxonomy_name, 'live-template-editor-client' ) . '</label>';
+							echo '<th style="width:300px;">';
 								
-								echo '</th>';
+								echo '<label for="'.$taxonomy.'">'. __( $taxonomy_name, 'live-template-editor-client' ) . '</label>';
+							
+							echo '</th>';
 
-								/* If there are any layer-type terms, loop through them and display checkboxes. */
-								if ( !empty( $terms ) ) {
-									
-									echo '<td style="width:250px;">';
-									
-										foreach ( $terms as $term ) {							
+							/* If there are any layer-type terms, loop through them and display checkboxes. */
+							if ( !empty( $terms ) ) {
+								
+								echo '<td style="width:250px;">';
+								
+									foreach ( $terms as $term ) {							
+										
+										$input_name = $taxonomy.'[]';
+										$input_value = esc_attr( $term->slug );
+										$input_label =  $term->name;
+										
+										$checked = checked( true, is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ), false );
+										
+										if( 1==1 ){
 											
-											$input_name = $taxonomy.'[]';
-											$input_value = esc_attr( $term->slug );
-											$input_label =  $term->name;
+											$disabled = '';
+										}
+										else{
 											
-											$checked = checked( true, is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ), false );
-											
-											if( 1==1 ){
-												
-												$disabled = '';
-											}
-											else{
-												
-												$disabled = disabled( true, true, false ); // untill subscription edition implemented	
-											}
+											$disabled = disabled( true, true, false ); // untill subscription edition implemented	
+										}
 
-											echo '<input type="checkbox" name="'.$input_name.'" id="'.$taxonomy.'-'. $input_value .'" value="'. $input_value .'" '.$disabled.' '. $checked .' />'; 
-											echo '<label for="'.$taxonomy.'-'. $input_value .'">'. $input_label .'</label> ';
-											echo '<br />';
-										
-										}
+										echo '<input type="checkbox" name="'.$input_name.'" id="'.$taxonomy.'-'. $input_value .'" value="'. $input_value .'" '.$disabled.' '. $checked .' />'; 
+										echo '<label for="'.$taxonomy.'-'. $input_value .'">'. $input_label .'</label> ';
+										echo '<br />';
 									
-									echo'</td>';
-									
-									echo '<td style="width:120px;">';
-									
-									$options=[];
-									
-									foreach ( $terms as $i => $term ) {
-										
-										$options[$i] = $this->parent->layer->get_options( $taxonomy, $term );
-										
-										if( is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ) ){
-											
-											$total_fee_amount 	= $this->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $options[$i], $total_fee_period);
-											$total_price_amount = $this->sum_custom_taxonomy_total_price_amount( $total_price_amount, $options[$i], $total_price_period);
-											$total_storage 		= $this->sum_custom_taxonomy_total_storage( $total_storage, $options[$i]);
-										}
-										
-										echo '<span style="display:block;padding:1px 0;margin:0;">';
-											
-											if($options[$i]['storage_unit']=='templates'&&$options[$i]['storage_amount']==1){
-												
-												echo '+'.$options[$i]['storage_amount'].' template';
-											}
-											elseif($options[$i]['storage_amount']>0){
-												
-												echo '+'.$options[$i]['storage_amount'].' '.$options[$i]['storage_unit'];
-											}
-											else{
-												
-												echo $options[$i]['storage_amount'].' '.$options[$i]['storage_unit'];
-											}
-									
-										echo '</span>';	
-											
 									}
-
-									echo'</td>';
+								
+								echo'</td>';
+								
+								echo '<td style="width:120px;">';
+								
+								$options=[];
+								
+								foreach ( $terms as $i => $term ) {
 									
-									echo '<td>';
+									$options[$i] = $this->parent->layer->get_options( $taxonomy, $term );
 									
-										foreach ( $terms as $i => $term ) {
-									
-											echo '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
-											
-												echo $options[$i]['price_amount'].$options[$i]['price_currency'].' / '.$options[$i]['price_period'];
-											
-											echo '</span>';
-										}
+									if( is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ) ){
 										
-									echo'</td>';
+										$total_fee_amount 	= $this->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $options[$i], $total_fee_period);
+										$total_price_amount = $this->sum_custom_taxonomy_total_price_amount( $total_price_amount, $options[$i], $total_price_period);
+										$total_storage 		= $this->sum_custom_taxonomy_total_storage( $total_storage, $options[$i]);
+									}
 									
-								}
-								else {
-									
-									echo '<td>';
-									
-										echo __( 'There are no layer-types available.', 'live-template-editor-client' );
-									
-									echo'</td>';
+									echo '<span style="display:block;padding:1px 0;margin:0;">';
+										
+										if($options[$i]['storage_unit']=='templates'&&$options[$i]['storage_amount']==1){
+											
+											echo '+'.$options[$i]['storage_amount'].' template';
+										}
+										elseif($options[$i]['storage_amount']>0){
+											
+											echo '+'.$options[$i]['storage_amount'].' '.$options[$i]['storage_unit'];
+										}
+										else{
+											
+											echo $options[$i]['storage_amount'].' '.$options[$i]['storage_unit'];
+										}
+								
+									echo '</span>';	
+										
 								}
 
-							echo'</tr>';
-						}
+								echo'</td>';
+								
+								echo '<td>';
+								
+									foreach ( $terms as $i => $term ) {
+								
+										echo '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
+										
+											echo $options[$i]['price_amount'].$options[$i]['price_currency'].' / '.$options[$i]['price_period'];
+										
+										echo '</span>';
+									}
+									
+								echo'</td>';
+								
+							}
+							else {
+								
+								echo '<td>';
+								
+									echo __( 'There are no layer-types available.', 'live-template-editor-client' );
+								
+								echo'</td>';
+							}
+
+						echo'</tr>';
 					}
 					
 					echo '<tr style="font-weight:bold;">';
