@@ -55,7 +55,6 @@
 		if( $('.collapse').length  > 0 ){
 		
 			$('.collapse').collapse({"toggle": false});
-		
 		}
 		
 		// set tooltips & popovers

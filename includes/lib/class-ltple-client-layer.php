@@ -11,6 +11,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $key			= ''; // gives the server proxy access to the layer
 	public $slug		= '';
 	public $type		= '';
+	public $form		= '';
 	public $outputMode	= '';
 	public $types		= '';
 	public $ranges		= '';
@@ -159,6 +160,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'layer-js',
 				__( 'Layer Javascript', 'live-template-editor-client' ), 
 				array("cb-default-layer","user-layer"),
+				'advanced'
+			); 
+			
+			$this->parent->admin->add_meta_box (
+				
+				'layer-meta',
+				__( 'Layer Meta Data', 'live-template-editor-client' ), 
+				array("cb-default-layer"),
 				'advanced'
 			);
 			
@@ -325,6 +334,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->cssLibraries = $this->get_terms( 'css-library', array(
 			
+			'jquery-ui-1-12-1' => array(
+			
+				'name' 		=> 'Jquery UI 1.12.1',
+				'options' 	=> array(
+				
+					'css_url'	 => 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css',
+					'css_content' => '',
+				),
+			),			
 			'bootstrap-3-3-7' => array(
 			
 				'name' 		=> 'Bootstrap 3.3.7',
@@ -390,6 +408,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				),
 				'children'	=> array(
 				
+					'jquery-ui-1-12-1' => array(
+					
+						'name' 		=> 'Jquery UI 1.12.1',
+						'options' 	=> array(
+
+							'js_url'		=> 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
+							'js_content'	=> '
+								<script>
+								;(function($){
+									$(document).ready(function(){						
+										if($("#scrapeLayer").length){
+											$("#scrapeLayer").dialog({autoOpen: true});
+										}								
+									});
+								})(jQuery);
+								</script>
+							',
+						),
+					),				
 					'bootstrap-3-3-7' => array(
 					
 						'name' 		=> 'Bootstrap 3.3.7',
@@ -516,6 +553,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						else{
 							
 							$this->defaultId = $this->id;
+							$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );
 						}
 
 						// get output mode
@@ -706,6 +744,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'type'=>'textarea',
 				'placeholder'=>"Additional Javascript",
 				'description'=>'<i>without '.htmlentities('<script></script>').'</i>'
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"layer-meta"),
+				'id'=>"layerMeta",
+				'label'=>"",
+				'type'=>'textarea',
+				'placeholder'=>"JSON",
+				'description'=>'<i>Additional Meta Data</i>'
 		);
 		
 		$fields[]=array(

@@ -44,27 +44,51 @@
 	
 	<div class="col-xs-6 col-sm-8 text-right">
 
-		<?php if( $this->layer->type == 'default-layer' ){
+		<?php 
+		
+		if( $this->layer->type == 'default-layer' ){
 		
 			echo'<form class="pull-left" style="width:250px;display:inline-block;" target="_parent" action="'. $this->urls->editor . '?uri=default-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
 				
 				echo'<div class="input-group">';
 					
+					if( $this->layer->form == 'scraper' ){
+
+						echo'<div style="margin:0 2px;" class="input-group-btn">';
+						
+							echo'<button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Sources <span class="caret"></span></button>';
+							
+							echo'<div id="postSources" class="dropdown-menu dropdown-menu-right" style="width:100%;">';
+								
+								echo'none';
+								
+							echo'</div>';
+							
+						echo'</div>';
+					}					
+					
 					echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" ' . ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? 'disabled' : '' ) .'>';
 					echo'<input type="hidden" name="postContent" id="postContent" value="">';
 					echo'<input type="hidden" name="postCss" id="postCss" value="">';
-					echo'<input type="hidden" name="postAction" id="postAction" value="save">';
-					
+					echo'<input type="hidden" name="postJs" id="postJs" value="">';
+
 					wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
-					
+
 					echo'<input type="hidden" name="submitted" id="submitted" value="true">';
 					
 					echo'<span class="input-group-btn">';
-						
-						if( $this->user->plan["info"]["total_price_amount"]>0 ){
-						
-							echo'<button class="btn btn-sm btn-primary" type="button" id="saveBtn" style="border-radius: 0 3px 3px 0;">Save</button>';
 					
+						if( $this->layer->form == 'scraper' ){
+							
+							echo'<input type="hidden" name="postAction" id="postAction" value="import">';
+							
+							echo'<button class="btn btn-sm btn-primary" type="button" id="importBtn" style="border-radius: 0 3px 3px 0;">Import</button>';
+						}					
+						elseif( $this->user->plan["info"]["total_price_amount"]>0 ){
+							
+							echo'<input type="hidden" name="postAction" id="postAction" value="save">';
+							
+							echo'<button class="btn btn-sm btn-primary" type="button" id="saveBtn" style="border-radius: 0 3px 3px 0;">Save</button>';
 						}
 						else{
 						
@@ -77,13 +101,14 @@
 			echo'</form>';
 		
 		}
-		elseif( $this->user->has_layer && $this->layer->type == 'user-layer'){
+		elseif( $this->layer->type == 'user-layer' && $this->user->has_layer ){
 			
 			echo'<form style="display:inline-block;" target="_parent" action="' . $this->urls->editor . '?uri=user-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
 				
 				echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $this->user->layer->post_title . '" class="form-control required" placeholder="Layer Title">';
 				echo'<input type="hidden" name="postContent" id="postContent" value="">';
 				echo'<input type="hidden" name="postCss" id="postCss" value="">';
+				echo'<input type="hidden" name="postJs" id="postJs" value="">';
 				echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 				 
 				wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
@@ -109,40 +134,44 @@
 										
 					echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 						
-						echo'<li style="position:relative;">';
-						
-							echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Layer <span class="label label-warning pull-right">admin</span></a>';
+						if( $this->layer->form != 'scraper' ){
 
-							echo'<div id="duplicateLayer" title="Duplicate Layer">';
-								
-								echo'<form class="" style="width:250px;display:inline-block;" target="_parent" action="' . $this->urls->current . '" id="duplicatePostForm" method="post">';
-									
-									echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;">';
-									echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
-									echo'<input type="hidden" name="postContent" value="">';
-									echo'<input type="hidden" name="postCss" value="">'; 
-									
-									wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
-									
-									echo'<input type="hidden" name="submitted" id="submitted" value="true">';
-									
-									echo'<div class="ui-helper-clearfix ui-dialog-buttonset">';
-
-										echo'<button class="btn btn-xs btn-primary pull-right" type="submit" id="duplicateBtn" style="border-radius:3px;">Duplicate</button>';
-								 
-									echo'</div>';
-									
-								echo'</form>';								
-								
-							echo'</div>';						
+							echo'<li style="position:relative;">';
 							
-						echo'</li>';
-						
-						echo'<li style="position:relative;">';
-							
-							echo '<a id="updateBtn" href="#update-layer">Update Layer <span class="label label-warning pull-right">admin</span></a>';
+								echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Layer <span class="label label-warning pull-right">admin</span></a>';
 
-						echo'</li>';
+								echo'<div id="duplicateLayer" title="Duplicate Layer">';
+									
+									echo'<form class="" style="width:250px;display:inline-block;" target="_parent" action="' . $this->urls->current . '" id="duplicatePostForm" method="post">';
+										
+										echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;">';
+										echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
+										echo'<input type="hidden" name="postContent" value="">';
+										echo'<input type="hidden" name="postCss" value="">'; 
+										echo'<input type="hidden" name="postJs" value="">'; 
+										
+										wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
+										
+										echo'<input type="hidden" name="submitted" id="submitted" value="true">';
+										
+										echo'<div class="ui-helper-clearfix ui-dialog-buttonset">';
+
+											echo'<button class="btn btn-xs btn-primary pull-right" type="submit" id="duplicateBtn" style="border-radius:3px;">Duplicate</button>';
+									 
+										echo'</div>';
+										
+									echo'</form>';								
+									
+								echo'</div>';						
+								
+							echo'</li>';
+							
+							echo'<li style="position:relative;">';
+								
+								echo '<a id="updateBtn" href="#update-layer">Update Layer <span class="label label-warning pull-right">admin</span></a>';
+
+							echo'</li>';
+						}
 						
 						echo'<li style="position:relative;">';
 							

@@ -1101,7 +1101,6 @@ class LTPLE_Client_Admin_API {
 		}
 
 		echo '</div>' . "\n";
-
 	}
 
 	/**

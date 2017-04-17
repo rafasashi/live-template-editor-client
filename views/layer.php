@@ -10,7 +10,7 @@
 		
 		$layer_id = $post->ID;
 	}
-	
+
 	//get page def
 	
 	$pageDef = get_post_meta( $layer_id, 'pageDef', true );
@@ -42,9 +42,11 @@
 	$layerHead 		= '';
 	$layerContent 	= '';
 	$layerCss 		= '';
-	$layerJS 		= '';
+	$layerJs 		= '';
+	$layerMeta 		= '';
 	$layerMargin	= '';
 	$layerMinWidth	= '';
+	$layerSources	= [];
 	
 	if( $post->post_type != 'user-layer' && isset($_POST['scrapeUrl']) ){
 
@@ -67,9 +69,7 @@
 		$dom->loadHTML('<?xml encoding="UTF-8">' . $output);  
 		
 		// absolute urls to relative
-		
-		$parse = parse_url($source);
-		
+
 		$elements = array(
 		
 			'link' 	=> 'href',
@@ -77,38 +77,29 @@
 			'img' 	=> 'src',
 			'script'=> 'src',
 		);
-		
+
 		foreach( $elements as $tagname => $attr){
 		
 			foreach($dom->getElementsByTagName($tagname) as $link) {
-			
+				
 				$u = $link->getAttribute($attr);
-
-				if( !empty($u) && $u[0] != '#' && parse_url($u, PHP_URL_SCHEME) == ''){
+				$u = LTPLE_Client::get_absolute_url( $u, $source );
+				
+				$link->setAttribute( $attr, $u );
+				
+				if( $tagname == 'link' || $tagname == 'script' ){
 					
-					if( !empty($u[1]) && $u[0].$u[1] == '//'){
+					if( !empty($u) ){
 
-						$link->setAttribute( $attr,  $parse['scheme'].'://'.substr($u, 2) );
+						$layerSources[$tagname][] = $u;						
 					}
-					elseif( $u[0] == '/' ){
+					elseif( $tagname == 'link'){
 						
-						$link->setAttribute( $attr,  $parse['scheme'].'://'.$parse['host']. $u );
+						$layerCss .= PHP_EOL . $link->nodeValue;
 					}
-					elseif( !empty($u[1]) && $u[0].$u[1] == './'){
-						
-						$link->setAttribute( $attr,  dirname($source) . substr($u, 2) );
-					}
-					elseif( !empty($u[1]) && !empty($u[2]) && $u[0].$u[1].$u[2] == '../'){
-						
-						$link->setAttribute( $attr,  dirname(dirname($source)) . substr($u, 2) );
-					}
-					elseif( substr($source, -1) == '/' ){
-						
-						$link->setAttribute( $attr,  $source . $u );
-					}
-					else{
-						
-						$link->setAttribute( $attr,  dirname($source) . '/' . $u );
+					elseif( $tagname == 'script' ){
+
+						$layerJs .= PHP_EOL . $link->nodeValue;
 					}
 				}
 			}
@@ -178,11 +169,22 @@
 				
 				$layerJs = get_post_meta( $layer_id, 'layerJs', true );
 			}
+			
+			$layerMeta = get_post_meta( $post->ID, 'layerMeta', true );
+			
+			if( $layerMeta == '' && $post->ID != $layer_id){
+				
+				$layerMeta = get_post_meta( $layer_id, 'layerMeta', true );
+			}
+			
+			if(!empty($layerMeta)){
+				
+				$layerMeta = json_decode($layerMeta,true);
+			}
 		}
-		
-		$layerCss 	= sanitize_text_field($layerCss);
-		$layerJs	= sanitize_text_field($layerJs);
 
+		$layerCss = sanitize_text_field($layerCss);
+		
 		if($layerOutput=='canvas'){
 			
 			$layerContent = str_replace(array($layerImgProxy),array(''),$layerContent);		
@@ -229,38 +231,46 @@
 
 		echo '<head>';
 		
+			echo '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
+			echo '<!--[if lt IE 9]>';
+			echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
+			echo '<![endif]-->';			
+		
+			if( !empty($cssLibraries) ){
+				
+				foreach($cssLibraries as $term){
+					
+					$css_url = get_option( 'css_url_' . $term->slug);
+
+					if( !empty($css_url) ){
+						
+						echo '<link href="'.$css_url.'" rel="stylesheet" type="text/css" />';
+					}
+					
+					$css_content = get_option( 'css_content_' . $term->slug);
+					
+					if( !empty($css_content) ){
+					
+						echo $css_content;
+					}
+				}
+			}
+
+			if(!empty($layerMeta['link'])){
+				
+				foreach($layerMeta['link'] as $source){
+					
+					echo '<link href="'.$source.'" rel="stylesheet" type="text/css" />';
+				}
+			}
+		
 			if( !empty($layerHead) ){
 				
 				echo $layerHead;
 			}
 			else{
 				
-				echo '<title>'.ucfirst($post->post_title).'</title>';
-				
-				echo '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
-				echo '<!--[if lt IE 9]>';
-				echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
-				echo '<![endif]-->';
-
-				if( !empty($cssLibraries) ){
-					
-					foreach($cssLibraries as $term){
-						
-						$css_url = get_option( 'css_url_' . $term->slug);
- 
-						if( !empty($css_url) ){
-							
-							echo '<link href="'.$css_url.'" rel="stylesheet" type="text/css" />';
-						}
-						
-						$css_content = get_option( 'css_content_' . $term->slug);
-						
-						if( !empty($css_content) ){
-						
-							echo $css_content;
-						}
-					}
-				}				
+				echo '<title>'.ucfirst($post->post_title).'</title>';		
 			}
 			
 			// font library
@@ -276,14 +286,14 @@
 			
 			//include style-sheet
 			
+			echo '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
+			
 			if( $layerCss!='' ){
 
-				echo '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;	
-				
-					echo $layerCss .PHP_EOL;
-					
-				echo '</style>'.PHP_EOL;					
+				echo $layerCss .PHP_EOL;
 			}
+				
+			echo '</style>'.PHP_EOL;		
 			
 			//include layer
 			
@@ -383,6 +393,39 @@
 			} 
 			else{
 
+				if( $layerForm == 'scraper' ){
+					
+					echo'<div id="scrapeLayer" title="Scrape Layer" style="display:none;z-index:10000;">';
+						 
+						echo '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
+							
+							echo '<div class="col-xs-3">';
+							
+								echo'<label style="font-size:12px;">Page Url</label>';
+								
+							echo '</div>';
+							
+							echo '<div class="col-xs-9">';
+							
+								echo '<div class="form-group">';
+								
+									echo '<input type="text" placeholder="http://" class="form-control" name="scrapeUrl" value="'.$_POST['scrapeUrl'].'"/>';
+									
+								echo '</div>';
+								
+							echo '</div>';
+
+							echo '<div class="col-xs-12 text-right">';
+								
+								echo '<input class="btn btn-primary btn-xs" type="submit" value="Scrape" />';
+								
+							echo '</div>';
+							
+						echo'</form>';			
+						
+					echo'</div>';
+				}
+
 				echo '<layer class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
 								
 					echo $layerContent;
@@ -405,22 +448,34 @@
 					
 					if( !empty($js_content) ){
 					
-						echo $js_content;
+						echo $js_content .PHP_EOL;	
 					}
 				}
-			}			
-
-			echo'<script>' .PHP_EOL;
+			}
 			
-				//include layer script
+			if( !empty($layerMeta['script']) ){
 				
-				if( $layerJs!='' ){
-
-					//echo $layerJs .PHP_EOL;				
+				foreach($layerMeta['script'] as $source){
+					
+					echo '<script src="'.$source.'"></script>' .PHP_EOL;
 				}
+			}
+			
+			//include layer script
+			
+			echo'<script id="LiveTplEditorScript">' .PHP_EOL;
+			
+				if( $layerJs != '' ){
 
-				//include layer Output
+					echo $layerJs .PHP_EOL;				
+				}				
 				
+			echo'</script>' .PHP_EOL;
+
+			//include layer Output
+			
+			echo'<script>' .PHP_EOL;
+
 				if($layerOutput!=''){
 					
 					echo ' var layerOutput = "' . $layerOutput . '";' .PHP_EOL;
@@ -430,7 +485,7 @@
 				
 				if($layerImgProxy!=''){
 				
-					echo ' var imgProxy = "' . $layerImgProxy . '";' .PHP_EOL;				
+					echo ' var imgProxy = " ' . $layerImgProxy . '";' .PHP_EOL;				
 				}
 				
 				//include page def
@@ -466,7 +521,7 @@
 						
 						echo ' var autoWrapText = true;' .PHP_EOL;
 					}
-					else{
+					else{ 
 						
 						echo ' var autoWrapText = false;' .PHP_EOL;
 					}
@@ -483,10 +538,21 @@
 				
 				echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
 				
+				//include list of external sources
+				
+				if( !empty($layerSources) ){
+					
+					echo ' var layerSources = ' . json_encode($layerSources) . ';' .PHP_EOL;
+				}
+				else{
+					
+					echo ' var layerSources = {};' .PHP_EOL;
+				}
+				
 				//include medium editor
 				
-				//echo file_get_contents( trailingslashit(dirname(dirname( __FILE__ ))) . 'assets/js/medium-editor.custom.js' ).PHP_EOL;
-				
+				//echo file_get_contents( trailingslashit(dirname(dirname( __FILE__ ))) . 'assets/js/medium-editor.custom.js' ).PHP_EOL;			
+						
 			echo'</script>' .PHP_EOL;
 			
 		echo'</body>' .PHP_EOL;

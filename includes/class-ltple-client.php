@@ -120,7 +120,7 @@ class LTPLE_Client {
 		$this->vendor  		= WP_CONTENT_DIR . '/vendor';
 		$this->assets_dir 	= trailingslashit( $this->dir ) . 'assets';
 		$this->assets_url 	= esc_url( trailingslashit( plugins_url( '/assets/', $this->file ) ) );
-
+		
 		//$this->script_suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 		$this->script_suffix = '';
 
@@ -1129,6 +1129,7 @@ class LTPLE_Client {
 				
 				$post_content 	= $this->layer->sanitize_content( $_POST['postContent'] );
 				$post_css 		= ( !empty($_POST['postCss']) 	? stripcslashes( $_POST['postCss'] ) : '' );
+				$post_js 		= ( !empty($_POST['postJs']) 	? stripcslashes( $_POST['postJs'] ) : '' );
 				$post_title 	= ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) : '' );
 				$post_name 		= $post_title;			
 
@@ -1156,6 +1157,8 @@ class LTPLE_Client {
 							$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $layerId));
 						
 							update_post_meta($layerId, 'layerCss', $post_css);
+							
+							update_post_meta($layerId, 'layerJs', $post_js);
 						}
 					}
 				}
@@ -1226,6 +1229,199 @@ class LTPLE_Client {
 								exit;
 							}							
 						}
+					}
+				}
+				elseif( $_POST['postAction'] == 'import' ){
+					
+					if( $this->user->is_admin ){
+												
+						// duplicate scraper layer
+						
+						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
+						
+						if( !empty($layer) ){
+						
+							$layerId = intval( $layer->ID );
+
+							if( is_int($layerId) && $layerId !== -1 ){
+							
+								$post_information = array(
+									
+									'post_author' 	=> $this->user->ID,
+									'post_title' 	=> $post_title,
+									'post_name' 	=> $post_name,
+									'post_content' 	=> $post_content,
+									'post_type' 	=> $layer->post_type,
+									'post_status' 	=> 'publish'
+								);
+								
+								$post_id = wp_insert_post( $post_information );
+
+								if( is_numeric($post_id) ){							
+									
+									// duplicate all taxonomies
+									
+									$taxonomies = get_object_taxonomies($layer->post_type);
+									
+									foreach ($taxonomies as $taxonomy) {
+										
+										$layerTerms = wp_get_object_terms($layerId, $taxonomy, array('fields' => 'slugs'));
+										
+										wp_set_object_terms($post_id, $layerTerms, $taxonomy, false);
+									}
+									
+									update_post_meta( $post_id, 'layerMargin', '0px' );
+
+									update_post_meta($post_id, 'layerCss', $post_css);
+									
+									update_post_meta($post_id, 'layerJs', $post_js);									
+									
+									if(!empty($_POST['postSources'])){
+										
+										$postSources = $_POST['postSources'];
+										
+										$upload_dir = wp_upload_dir();
+										
+										$valid_hosts = array(
+										
+											'fonts.googleapis.com',
+										);										
+										
+										foreach($postSources as $tagname => $sources){
+											
+											foreach($sources as $i => $source){
+												
+												// search source
+												
+												if( !in_array(parse_url($source,PHP_URL_HOST),$valid_hosts) ){
+
+													$source_name = strtolower(basename($source));
+													
+													$source_name = preg_replace('/[^\da-z]/i', '-', $source_name);
+													
+													if( !empty($source_name) ){
+														
+														$source_name = $source_name . ( $tagname == 'link' ? '.css' : '.js');
+							
+														if( file_exists( $upload_dir['path'] . '/' . $source_name ) ){
+															
+															unlink( $upload_dir['path'] . '/' . $source_name );
+														}
+							
+														if( file_exists( $upload_dir['path'] . '/' . $source_name ) ){
+															
+															// upload file
+															
+															$postSources[$tagname][$i] = $upload_dir['url'] . '/' . $source_name;	
+														}
+														else{
+							
+															// get file contents
+								
+															$file = file_get_contents($source);
+								
+															// remove comments in file
+								
+															$regex = array(
+															"`^([\t\s]+)`ism"=>'',
+															"`^\/\*(.+?)\*\/`ism"=>"",
+															"`([\n\A;]+)\/\*(.+?)\*\/`ism"=>"$1",
+															"`([\n\A;\s]+)//(.+?)[\n\r]`ism"=>"$1\n",
+															"`(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+`ism"=>"\n"
+															);
+															
+															$file = preg_replace(array_keys($regex),$regex,$file);		
+															
+															$css_urls = $this->extract_css_urls($file);
+															
+															if( !empty($css_urls) ){
+																
+																foreach($css_urls as $type => $urls){
+																	
+																	if( !empty($urls) ){
+																		
+																		foreach($urls as $url){
+																			
+																			$abs_url = $this->get_absolute_url( $url, $source );
+																			
+																			$filename = strtolower(basename($abs_url));
+																			
+																			if( !empty($filename) ){
+																				
+																				$filename = md5($source) . '_' . $filename;
+																				
+																				if( !file_exists( $upload_dir['path'] . '/' . $filename ) ){
+																					
+																					$content = file_get_contents($abs_url);
+																					$upload  = wp_upload_bits( $filename, null, $content );
+																					
+																					if( !empty($upload['url']) ){
+																						
+																						$abs_url = $upload['url'];
+																					}
+																					else{
+																						
+																						//var_dump($content);
+																					}
+																				}
+																				else{
+																					
+																					$abs_url = $upload_dir['url'] . '/' . $filename;
+																				}
+													
+																				$file = str_replace( $url, $abs_url, $file );
+																			}
+																		}
+																	}
+																}
+															}
+															
+															// upload file
+															
+															$upload = wp_upload_bits($source_name, null, $file);
+															
+															// set new url
+								
+															$postSources[$tagname][$i] = $upload['url'];										
+														}
+													}
+													else{
+														
+														unset($postSources[$tagname][$i]);
+													}
+												}
+											}
+										}
+										
+										// update meta
+
+										update_post_meta($post_id, 'layerMeta', json_encode($postSources,JSON_PRETTY_PRINT));
+									}									
+
+									// get layer url
+										
+									$layer_url = $this->urls->editor . '?uri=' . $this->layer->type . '/' . get_post_field( 'post_name', $post_id ) . '/';
+									
+									//redirect to user layer
+
+									wp_redirect($layer_url);
+									echo 'Redirecting editor...';
+									exit;
+								}							
+							}
+						}
+					}
+					else{
+						
+						http_response_code(404);
+						
+						$this->message ='<div class="alert alert-danger">';
+								
+							$this->message .= 'You don\'t have enough right to perform this action...';
+
+						$this->message .='</div>';
+						
+						include( $this->views . $this->_dev .'/message.php' );							
 					}
 				}
 				elseif( $_POST['postAction'] == 'save'){				
@@ -1314,6 +1510,8 @@ class LTPLE_Client {
 							update_post_meta($post_id, 'defaultLayerId', $defaultLayerId);
 							
 							update_post_meta($post_id, 'layerCss', $post_css);
+							
+							update_post_meta($post_id, 'layerJs', $post_js);
 							
 							//redirect to user layer
 							
@@ -1694,6 +1892,85 @@ class LTPLE_Client {
 				}
 			}			
 		}
+	}
+	
+	public function extract_css_urls( $text ){
+		
+		$urls = array( );
+	 
+		$url_pattern     = '(([^\\\\\'", \(\)]*(\\\\.)?)+)';
+		$urlfunc_pattern = 'url\(\s*[\'"]?' . $url_pattern . '[\'"]?\s*\)';
+		$pattern         = '/(' .
+			 '(@import\s*[\'"]' . $url_pattern     . '[\'"])' .
+			'|(@import\s*'      . $urlfunc_pattern . ')'      .
+			'|('                . $urlfunc_pattern . ')'      .  ')/iu';
+		if ( !preg_match_all( $pattern, $text, $matches ) )
+			return $urls;
+	 
+		// @import '...'
+		// @import "..."
+		foreach ( $matches[3] as $match )
+			if ( !empty($match) )
+				$urls['import'][] = 
+					preg_replace( '/\\\\(.)/u', '\\1', $match );
+	 
+		// @import url(...)
+		// @import url('...')
+		// @import url("...")
+		foreach ( $matches[7] as $match )
+			if ( !empty($match) )
+				$urls['import'][] = 
+					preg_replace( '/\\\\(.)/u', '\\1', $match );
+	 
+		// url(...)
+		// url('...')
+		// url("...")
+		foreach ( $matches[11] as $match )
+			if ( !empty($match) )
+				$urls['property'][] = 
+					preg_replace( '/\\\\(.)/u', '\\1', $match );
+	 
+		return $urls;
+	}
+	
+	public static function get_absolute_url($u, $source){
+		
+		$parse = parse_url($source);
+		
+		if( !empty($u) && $u[0] != '#' && parse_url($u, PHP_URL_SCHEME) == ''){
+		
+			if( !empty($u[1]) && $u[0].$u[1] == '//'){
+
+				$u =  $parse['scheme'].'://'.substr($u, 2);
+			}
+			elseif( $u[0] == '/' ){
+				
+				$u = $parse['scheme'].'://'.$parse['host']. $u;
+			}
+			elseif( !empty($u[1]) && $u[0].$u[1] == './'){
+				
+				$u = dirname($source) . substr($u, 2);
+			}
+			elseif( !empty($u[1]) && !empty($u[2]) && $u[0].$u[1].$u[2] == '../'){
+				
+				$u = dirname(dirname($source)) . substr($u, 2);
+			}
+			elseif( substr($source, -1) == '/' ){
+				
+				$u = $source . $u;
+			}
+			else{
+				
+				$u = dirname($source) . '/' . $u;
+			}
+		}
+		
+		if( strpos($u,'#') ){
+		
+			$u = strstr($u, '#', true);
+		}
+
+		return $u;		
 	}
 	
 	/**
