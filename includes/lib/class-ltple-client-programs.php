@@ -357,9 +357,9 @@ class LTPLE_Client_Programs extends LTPLE_Client_Object {
 
 		$amount =  ( ( $data['price'] * ( $pourcent_price / 100 ) ) + ( $data['fee'] * ( $pourcent_fee / 100 ) ) );
 		
-		$pourcent = ( ( $amount / $total ) * 100 );
-		
 		if( $amount > 0 ){
+			
+			$pourcent = ( $total > 0 ? ( ( $amount / $total ) * 100 ) : 0 );
 			
 			// handle affiliate commission
 

@@ -173,7 +173,8 @@
 					
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
-					add_filter( 'pre_get_users', array( $this, 'bulk_send_email_model') );
+					//add_filter( 'pre_get_users', array( $this, 'bulk_send_email_model') );
+					add_filter( 'pre_get_users', array( $this, 'bulk_schedule_email_model') );
 					add_filter( 'pre_get_users', array( $this, 'bulk_add_stars') );
 				}				
 			}
@@ -346,7 +347,7 @@
 					
 				if ($user_role->roles[0] != "administrator") {
 					
-					$row .= '<pre style="margin: 0px;font-size: 10px;line-height: 14px;">';
+					$row .= '<pre style="margin: 0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
 					
 					//$row .= $user_plan['id'].PHP_EOL;
 					
@@ -441,7 +442,7 @@
 					
 					$emails = array_slice($emails, 0, 5);					
 					
-					$row .= '<pre style="margin: 0px;font-size: 10px;line-height: 14px;">';
+					$row .= '<pre style="margin: 0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
 
 						foreach($emails as $slug => $date){
 							
@@ -681,6 +682,45 @@
 			}
 		}
 		
+		public function bulk_schedule_email_model( $query ) {
+			
+			$post_type 	= 'email-model';
+			$model_id 	= null;
+			
+			if ( isset( $_REQUEST[$post_type.'1'] ) && is_numeric( $_REQUEST[$post_type.'1'] ) && $_REQUEST[$post_type.'1'] != '-1' ) {
+				
+				$model_id = intval($_REQUEST[$post_type.'1']);
+			}
+			elseif ( isset( $_REQUEST[$post_type.'2'] ) && is_numeric( $_REQUEST[$post_type.'2'] ) && $_REQUEST[$post_type.'2'] != '-1' ) {
+				
+				$model_id = intval($_REQUEST[$post_type.'2']);
+			}
+			
+			if( !is_null( $model_id ) && !empty($_REQUEST['users']) && is_array($_REQUEST['users'])){
+				
+				$m = 0;
+				
+				foreach( $_REQUEST['users'] as $i => $user_id){
+					
+					$user = get_userdata($user_id);
+					
+					$can_spam = get_user_meta( $user->ID, $this->parent->_base . '_can_spam',true);
+					
+					if($can_spam !== 'false'){
+
+						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , 'ltple_send_email_event' , [$model_id,$user->user_email] );
+					
+						if ($i % 10 == 0) {
+							
+							++$m;
+						}
+					}
+				}
+				
+				add_action( 'admin_notices', array( $this, 'output_schedule_email_admin_notice'));
+			}
+		}		
+		
 		public function output_send_email_admin_notice(){
 			
 			if( $this->email_sent > 0 ){
@@ -710,6 +750,18 @@
 			}			
 		}
 		
+		public function output_schedule_email_admin_notice(){
+			
+			echo'<div class="notice notice-success">';
+			
+				echo'<p>';
+				
+					echo 'Email(s) have been succesfully scheduled';
+					
+				echo'</p>';
+				
+			echo'</div>';
+		}		
 		
 		public function bulk_add_stars() {
 			

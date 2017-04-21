@@ -137,7 +137,11 @@ class LTPLE_Client_Admin_API {
 			break;
 			
 			case 'slug':
-				$html .= '<span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">'.home_url() . '/</span><input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/><span style="background: #e5e5e5;padding: 3px 7px;color: #666;border: 1px solid #ddd;">/</span>' . "\n";
+				$html .= '<div class="input-group">' . "\n";
+					$html .= '<span class="input-group-addon">'.home_url() . '/</span>' . "\n";
+					$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+					$html .= '<span class="input-group-addon">/</span>' . "\n";
+				$html .= '</div>' . "\n";
 			break;
 			
 			case 'margin':
@@ -193,7 +197,7 @@ class LTPLE_Client_Admin_API {
 						$checked = true;
 					}
 					
-					$html .= '<label for="' . esc_attr( $field['id'] . '_' . $k ) . '" class="checkbox_multi"><input class="form-control" type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" '.$required.$disabled.'/> ' . $v . '</label> ';
+					$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" class="checkbox_multi"><input class="form-control" type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" '.$required.$disabled.'/> ' . $v . '</div> ';
 					$html .= '<br>';
 				}
 			break;
@@ -236,7 +240,7 @@ class LTPLE_Client_Admin_API {
 						
 						$html .= '<th style="width:200px;">';
 							
-							$html .= '<label for="' . $taxonomy . '">'.$taxonomy.'</label> ';
+							$html .= '<div for="' . $taxonomy . '">'.$taxonomy.'</div> ';
 								
 						$html .= '</th>';
 						
@@ -253,7 +257,7 @@ class LTPLE_Client_Admin_API {
 							
 							$html .= '<span style="display:block;padding:1px 0;margin:0;">';
 								
-								$html .= '<label for="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" class="checkbox_multi"><input type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $term->slug ) . '" id="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" /> ' . $term->name . '</label> ';
+								$html .= '<div for="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" class="checkbox_multi"><input type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $term->slug ) . '" id="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" /> ' . $term->name . '</div> ';
 							
 							$html .= '</span>';
 						}
@@ -316,7 +320,7 @@ class LTPLE_Client_Admin_API {
 					
 					$html .= '<th style="width:200px;">';
 						
-						$html .= '<label style="font-weight:bold;" for="totals">TOTALS</label> ';
+						$html .= '<div style="font-weight:bold;" for="totals">TOTALS</div> ';
 							
 					$html .= '</th>';
 					
@@ -717,7 +721,7 @@ class LTPLE_Client_Admin_API {
 								}
 								elseif($data['input'][$e] == 'label'){
 									
-									$html .= '<label id="'.ucfirst($name).'">'.ucfirst(ucfirst($data['value'][$e])).'</label>';
+									$html .= '<div id="'.ucfirst($name).'">'.ucfirst(ucfirst($data['value'][$e])).'</div>';
 								}
 								elseif($data['input'][$e] == 'submit'){
 									
@@ -776,13 +780,13 @@ class LTPLE_Client_Admin_API {
 						$checked = true;
 					}
 					
-					$html .= '<label for="' . esc_attr( $field['id'] . '_' . $k ) . '">';
+					$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '">';
 					
 					$html .= '<input type="radio" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" /> ';
 						
 						$html .= $v; 
 						
-					$html .= '</label> ';
+					$html .= '</div> ';
 					
 					if( isset($field['inline']) && $field['inline'] === false ){
 						
@@ -818,13 +822,13 @@ class LTPLE_Client_Admin_API {
 				
 				foreach ( $field['options'] as $k => $v ) {
 
-					$html .= '<label for="' . esc_attr( $field['id'] . '_' . $k ) . '" style="width:50px;text-align:center;">';
+					$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" style="width:50px;text-align:center;">';
 					
 						$html .= '<img src="'.$v.'" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
 					
 						$html .= '<input type="radio" ' . checked( $checked[$k], true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $v ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" />';
 
-					$html .= '</label> ';
+					$html .= '</div> ';
 				}
 				
 			break;
@@ -1010,13 +1014,13 @@ class LTPLE_Client_Admin_API {
 
 			default:
 				if ( ! $item ) {
-					$html .= '<label for="' . $id . '">' . "\n";
+					$html .= '<div for="' . $id . '">' . "\n";
 				}
 
 				$html .= '<div><i style="color:#aaa;">' . $field['description'] . '</i></div>' . "\n";
 
 				if ( ! $item ) {
-					$html .= '</label>' . "\n";
+					$html .= '</div>' . "\n";
 				}
 			break;
 		}
@@ -1115,7 +1119,7 @@ class LTPLE_Client_Admin_API {
 
 		$meta_box  = '<p class="form-field form-group">' . PHP_EOL;
 		
-			$meta_box .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label> ' . PHP_EOL;
+			$meta_box .= '<div for="' . $field['id'] . '">' . $field['label'] . '</div> ' . PHP_EOL;
 			
 			$meta_box .= $this->display_field( $field, $post, false ) . PHP_EOL;
 			

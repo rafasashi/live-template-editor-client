@@ -530,7 +530,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		// Add artist-website, posts columns
 
 		$columns['cb'] 			= '<input type="checkbox" />';
-		$columns['thumbnail'] 	= 'Thumb';
+		$columns['thumb'] 	= 'Thumb';
 		$columns['name'] 		= 'Name';
 		$columns['slug'] 		= 'Slug';
 		$columns['types'] 		= 'Types';
@@ -542,7 +542,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 	
 		$term= get_term($term_id);
 	
-		if($column_name == 'thumbnail') {
+		if($column_name == 'thumb') {
 
 			$thumb_url = get_option('thumbnail_' . $term->slug);
 			

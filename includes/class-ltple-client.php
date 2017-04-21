@@ -1317,72 +1317,94 @@ class LTPLE_Client {
 														else{
 							
 															// get file contents
-								
-															$file = file_get_contents($source);
-								
-															// remove comments in file
-								
-															$regex = array(
-															"`^([\t\s]+)`ism"=>'',
-															"`^\/\*(.+?)\*\/`ism"=>"",
-															"`([\n\A;]+)\/\*(.+?)\*\/`ism"=>"$1",
-															"`([\n\A;\s]+)//(.+?)[\n\r]`ism"=>"$1\n",
-															"`(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+`ism"=>"\n"
-															);
 															
-															$file = preg_replace(array_keys($regex),$regex,$file);		
+															$ch = curl_init($source);
+															curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+															curl_setopt($ch, CURLOPT_TIMEOUT,20);
+															curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+															curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+															$file = curl_exec($ch);
+															$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+															curl_close($ch);
 															
-															$css_urls = $this->extract_css_urls($file);
-															
-															if( !empty($css_urls) ){
+															//if( $file = file_get_contents($source) ){
+															if( $httpcode >= 300 ){
 																
-																foreach($css_urls as $type => $urls){
+																// remove comments in file
+									
+																$regex = array(
+																"`^([\t\s]+)`ism"=>'',
+																"`^\/\*(.+?)\*\/`ism"=>"",
+																"`([\n\A;]+)\/\*(.+?)\*\/`ism"=>"$1",
+																"`([\n\A;\s]+)//(.+?)[\n\r]`ism"=>"$1\n",
+																"`(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+`ism"=>"\n"
+																);
+																
+																$file = preg_replace(array_keys($regex),$regex,$file);		
+																
+																$css_urls = $this->extract_css_urls($file);
+																
+																if( !empty($css_urls) ){
 																	
-																	if( !empty($urls) ){
+																	foreach($css_urls as $type => $urls){
 																		
-																		foreach($urls as $url){
+																		if( !empty($urls) ){
 																			
-																			$abs_url = $this->get_absolute_url( $url, $source );
-																			
-																			$filename = strtolower(basename($abs_url));
-																			
-																			if( !empty($filename) ){
+																			foreach($urls as $url){
 																				
-																				$filename = md5($source) . '_' . $filename;
+																				$abs_url = $this->get_absolute_url( $url, $source );
 																				
-																				if( !file_exists( $upload_dir['path'] . '/' . $filename ) ){
+																				$filename = strtolower(basename($abs_url));
+																				
+																				if( !empty($filename) ){
 																					
-																					$content = file_get_contents($abs_url);
-																					$upload  = wp_upload_bits( $filename, null, $content );
+																					$filename = md5($source) . '_' . $filename;
 																					
-																					if( !empty($upload['url']) ){
+																					if( !file_exists( $upload_dir['path'] . '/' . $filename ) ){
 																						
-																						$abs_url = $upload['url'];
+																						$ch = curl_init($abs_url);
+																						curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+																						curl_setopt($ch, CURLOPT_TIMEOUT,20);
+																						curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+																						curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+																						$content = curl_exec($ch);
+																						$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+																						curl_close($ch);
+																						
+																						if( $httpcode >= 300 ){																						
+																							
+																							$upload  = wp_upload_bits( $filename, null, $content );
+																							
+																							if( !empty($upload['url']) ){
+																								
+																								$abs_url = $upload['url'];
+																							}
+																							else{
+																								
+																								//var_dump($content);
+																							}
+																						}
 																					}
 																					else{
 																						
-																						//var_dump($content);
+																						$abs_url = $upload_dir['url'] . '/' . $filename;
 																					}
+														
+																					$file = str_replace( $url, $abs_url, $file );
 																				}
-																				else{
-																					
-																					$abs_url = $upload_dir['url'] . '/' . $filename;
-																				}
-													
-																				$file = str_replace( $url, $abs_url, $file );
 																			}
 																		}
 																	}
 																}
+																
+																// upload file
+																
+																$upload = wp_upload_bits($source_name, null, $file);
+																
+																// set new url
+									
+																$postSources[$tagname][$i] = $upload['url'];
 															}
-															
-															// upload file
-															
-															$upload = wp_upload_bits($source_name, null, $file);
-															
-															// set new url
-								
-															$postSources[$tagname][$i] = $upload['url'];										
 														}
 													}
 													else{
@@ -2067,6 +2089,9 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-admin' );
 		
+		wp_register_style( $this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'css/bootstrap.min.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-bootstrap' );	
+		
 	} // End admin_enqueue_styles ()
 
 	/**
@@ -2083,7 +2108,10 @@ class LTPLE_Client {
 		wp_enqueue_script( $this->_token . '-admin' );
 
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-lazyload' );			
+		wp_enqueue_script( $this->_token . '-lazyload' );
+
+		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-lazyload' );		
 		
 	} // End admin_enqueue_scripts ()
 

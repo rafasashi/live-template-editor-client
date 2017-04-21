@@ -786,24 +786,34 @@ class LTPLE_Client_Settings {
 
 				$html .= '</h2>' . "\n";
 			}
+			
+			$html .= '<div class="col-xs-9">' . "\n";
 
-			$html .= '<form style="margin:15px;" method="post" action="options.php" enctype="multipart/form-data">' . "\n";
+				$html .= '<form style="margin:15px;" method="post" action="options.php" enctype="multipart/form-data">' . "\n";
 
-				// Get settings fields
-				
-				ob_start();
-				
-				settings_fields( $this->parent->_token . '_settings' );
-				
-				do_settings_sections( $this->parent->_token . '_settings' );
-				
-				$html .= ob_get_clean();
+					// Get settings fields
+					
+					ob_start();
+					
+					settings_fields( $this->parent->_token . '_settings' );
+					
+					do_settings_sections( $this->parent->_token . '_settings' );
+					
+					$html .= ob_get_clean();
 
-				$html .= '<p class="submit">' . "\n";
-					$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
-					$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , $this->plugin->slug ) ) . '" />' . "\n";
-				$html .= '</p>' . "\n";
-			$html .= '</form>' . "\n";
+					$html .= '<p class="submit">' . "\n";
+						$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
+						$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , $this->plugin->slug ) ) . '" />' . "\n";
+					$html .= '</p>' . "\n";
+				$html .= '</form>' . "\n";
+				
+			$html .= '</div>' . "\n";
+			
+			$html .= '<div class="col-xs-3">' . "\n";
+			
+				
+			
+			$html .= '</div>' . "\n";
 			
 		$html .= '</div>' . "\n";
 
