@@ -449,7 +449,7 @@ class LTPLE_Client_Settings {
 		);
 	
 		$settings['urls'] = array(
-			'title'					=> __( 'URLS', $this->plugin->slug ),
+			'title'					=> __( 'URLs', $this->plugin->slug ),
 			'description'			=> __( '', $this->plugin->slug ),
 			'fields'				=> array(
 
@@ -482,6 +482,44 @@ class LTPLE_Client_Settings {
 					'type'			=> 'slug',
 					'placeholder'	=> __( 'product', $this->plugin->slug )
 				)
+			)
+		);
+		
+		$settings['style'] = array(
+			'title'					=> __( 'Style', $this->plugin->slug ),
+			'description'			=> '',
+			'fields'				=> array(
+				array(
+					'id' 			=> 'homeLogo',
+					'label'			=> __( 'Home Logo' , $this->plugin->slug ),
+					'description'	=> 'Logo url 80 x 50 recommended',
+					'type'			=> 'text',
+					'placeholder'	=> 'http://',
+				),
+				array(
+					'id' 			=> 'mainColor',
+					'label'			=> __( 'Main Color' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'text',
+					'placeholder'	=> '#F86D18',
+					'default'		=> '#F86D18',
+				),
+				array(
+					'id' 			=> 'linkColor',
+					'label'			=> __( 'Link Color' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'text',
+					'placeholder'	=> '#F86D18',
+					'default'		=> '#F86D18',
+				),
+				array(
+					'id' 			=> 'borderColor',
+					'label'			=> __( 'Border Color' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'text',
+					'placeholder'	=> '#ff5722',
+					'default'		=> '#ff5722',
+				),
 			)
 		);
 		

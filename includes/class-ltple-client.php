@@ -281,6 +281,7 @@ class LTPLE_Client {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 
 		add_action( 'wp_head', array( $this, 'get_header') );
+		add_filter( 'wp_nav_menu', array( $this, 'get_menu' ), 10, 2);
 		add_action( 'wp_footer', array( $this, 'get_footer') );				
 
 		// add editor shortcodes
@@ -857,6 +858,93 @@ class LTPLE_Client {
 
 		//echo '<link rel="stylesheet" href="https://raw.githubusercontent.com/dbtek/bootstrap-vertical-tabs/master/bootstrap.vertical-tabs.css">';	
 		
+		$mainColor 	 = get_option( $this->_base . 'mainColor' );
+		$borderColor = get_option( $this->_base . 'borderColor' );
+		$linkColor 	 = get_option( $this->_base . 'linkColor' );
+		
+		echo'<style>'.PHP_EOL;
+			
+			echo'#header_logo {';
+				
+				echo'max-width:90px;';
+				echo'width:100%;';
+				echo'height: 50px;';
+				echo'z-index: 9999;';
+				echo'position: absolute;';
+				echo'overflow: hidden;';
+				echo'display: inline-block;';
+				echo'background-position: center left;';				
+				echo'background-image:url(' . $this->assets_url . 'images/header_small.png);';
+			
+			echo'}';
+			
+			echo'#header_logo a {';
+			
+				echo'padding:8px 4px;';
+				echo'height:50px;';
+				echo'width:100%;';
+				echo'border:none;';
+				echo'display:inline-block;';
+				echo'text-align:center;';
+				
+			echo'}';
+			
+			echo'#header_logo a img {';
+				
+				echo'width: auto;';
+				echo'height: 35px;';
+				echo'margin-left: -10px;';
+				
+			echo'}';
+			
+			echo'#main-menu {';
+			
+				echo'padding-left:72px;';
+			
+			echo'}';	
+			
+			if( !empty($mainColor) ){
+		
+				echo' .navbar-collapse .nav>li>a:hover, .navbar-nav>.active, #search a, .nav-next a:link, .nav-next a:visited, .nav-previous a:link, .nav-previous a:visited {';
+
+					echo'background-color:'.$mainColor.' !important;';
+				
+				echo'}';
+				
+				echo'.nav-next a:hover, .nav-next a:hover, .nav-previous a:hover, .nav-previous a:hover{';
+					
+					echo'color:#fff !important;';
+					
+				echo'}';
+					
+				echo' span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {';
+					echo'background-color: '.$mainColor.' !important;';
+					
+					if( !empty($borderColor) ){
+						
+						echo'border: 1px solid '.$borderColor.' !important;';
+					}
+					
+				echo'}';
+				
+				echo ' .bs-callout-primary, .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
+				
+					echo'border-left: 5px solid '.$mainColor.' !important;';
+				
+				echo'}';
+			}
+			
+			if( !empty($linkColor) ){
+				
+				echo' a, .colortext, code, .infoareaicon, .fontawesome-icon.circle-white, .wowmetaposts span a:hover, h1.widget-title, .testimonial-name, .mainthemetextcolor, .primarycolor, footer#colophon a:hover, .icon-box-top h1:hover, .icon-box-top.active a h1{';
+					
+					echo'color:'.$linkColor.';';
+					
+				echo'}';				
+			}
+		
+		echo'</style>'.PHP_EOL;
+		
 		?>
 		<!-- Facebook Pixel Code -->
 		
@@ -869,6 +957,7 @@ class LTPLE_Client {
 		fbq('init', '135366043652148'); // Insert your pixel ID here.
 		fbq('track', 'PageView');
 		</script>
+		
 		<noscript><img height="1" width="1" style="display:none"
 		src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"
 		/></noscript>
@@ -877,7 +966,26 @@ class LTPLE_Client {
 		
 		<?php
 	
-	}	
+	}
+	
+	public function get_menu( $items, $args ) {
+		
+		$homeLogo = get_option( $this->_base . 'homeLogo' );
+		
+		$home  = '<div id="header_logo">';
+		
+			$home .= '<a href="' . $this->urls->home . '">';
+				
+				$home .= '<img src="' . ( !empty($homeLogo) ? $homeLogo : $this->assets_url . 'images/home.png' ) . '">';
+
+			$home .= '</a>';
+			
+		$home .= '</div>';
+				
+		$items = $home . $items;
+		
+		return $items;
+	}
 	
 	public function get_footer(){
 		

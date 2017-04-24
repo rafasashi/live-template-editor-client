@@ -135,22 +135,26 @@ class LTPLE_Client_Plan {
 	public function add_user_plan_custom_fields(){
 		
 		$user_plan  = get_post();
-		$layer_plan = $this->get_user_plan_info( intval($user_plan->post_author) );
+		
+		if( !empty($user_plan->post_author) ){
+		
+			$layer_plan = $this->get_user_plan_info( intval($user_plan->post_author) );
 
-		$fields=[];
-		
-		$fields[]=array(
-		
-			"metabox" =>
+			$fields=[];
 			
-				array('name'	=>"userPlanValue"),
-				'id'			=>	"userPlanValue",
-				'label'			=>	"",
-				'type'			=>	'plan_value',
-				'plan'			=>	$layer_plan,
-				'placeholder'	=>	"Plan Value",
-				'description'	=>	''
-		);
+			$fields[]=array(
+			
+				"metabox" =>
+				
+					array('name'	=>"userPlanValue"),
+					'id'			=>	"userPlanValue",
+					'label'			=>	"",
+					'type'			=>	'plan_value',
+					'plan'			=>	$layer_plan,
+					'placeholder'	=>	"Plan Value",
+					'description'	=>	''
+			);
+		}
 		
 		return $fields;
 	}

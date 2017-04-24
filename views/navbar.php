@@ -19,16 +19,6 @@
 			</a>
 		
 		</div>
-
-		<div class="pull-left">
-
-			<a style="margin-left: 6px;background-color:#E91E63;border: 1px solid #9c4167;" class="btn btn-sm btn-primary" href="<?php echo $this->urls->editor . '?domain' ?>"  role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Domains and Urls" data-content="Manage your domains, add subdomains and assign urls to your hosted pages.">
-				
-				Domains
-				
-			</a>
-		
-		</div>
 		
 		<div class="pull-left">
  
@@ -231,6 +221,12 @@
 					echo '<a href="'. $this->urls->editor .'?my-profile"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Edit Settings</a>';
 
 				echo'</li>';
+
+				echo'<li style="position:relative;">';
+					
+					echo '<a href="'. $this->urls->editor . '?domain"><span class="glyphicon glyphicon-link" aria-hidden="true"></span> Domains & URLs</a>';
+
+				echo'</li>';				
 				
 				echo'<li style="position:relative;">';
 					
