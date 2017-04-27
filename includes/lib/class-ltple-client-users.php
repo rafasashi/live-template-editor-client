@@ -95,6 +95,7 @@
 									'hierarchical' 		=> true,
 									'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
 									'echo'		   		=> false,
+									'class'		   		=> 'form-control',
 									'hide_empty'   		=> false
 								));	
 

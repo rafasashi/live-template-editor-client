@@ -92,6 +92,7 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 					'hierarchical' => true,
 					'selected'     => ( ( !isset($terms->errors) && isset($terms[0]->term_taxonomy_id) ) ? $terms[0]->term_taxonomy_id : ''),
 					'echo'		   => false,
+					'class'		   => 'form-control',
 					'hide_empty'   => false
 				));
 					

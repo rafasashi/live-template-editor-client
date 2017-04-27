@@ -107,4 +107,11 @@
 	
 	// start plugin
 	
-	LTPLE_Client('1.1.0');
+	if( $mode == '-dev' ){
+		
+		LTPLE_Client('1.1.1');
+	}
+	else{
+		
+		LTPLE_Client('1.1.0');
+	}

@@ -224,6 +224,180 @@ class LTPLE_Client_Admin_API {
 				
 			break;
 			
+			case 'edit_layer':
+				
+				$html .= '<div class="row">';
+					
+					$html .= '<div class="col-xs-6">';
+					
+						$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+					
+					$html .= '</div>';
+					
+					$html .= '<div class="col-xs-6 text-center">';
+					
+						if( !empty($data) && is_numeric($data) ){
+							
+							$html .= '<a href="' . $this->parent->urls->editor . '?uri=' . $_GET['post'] . '" target="_blank" class="button button-primary button-hero">';
+								
+								$html .= 'Edit with LTPLE';
+								
+							$html .= '</a>';
+						}
+					
+					$html .= '</div>';
+					
+				$html .= '</div>';
+				
+				//$html .= '<hr/>';
+				
+				if( empty($data) || !is_numeric($data) ){
+
+					$layers = get_posts(array( 
+				
+						'post_type' 	=> 'cb-default-layer', 
+						'posts_per_page'=> -1				
+					));
+					
+					if( !empty( $layers ) ){
+						
+						$items = [];
+						
+						foreach( $layers as $layer ){
+							
+							$terms = wp_get_object_terms( $layer->ID, 'layer-type' );
+							
+							if(!empty($terms[0]->slug)){
+								
+								$layer_type=$terms[0]->slug;
+							}
+							else{
+								
+								$layer_type = 'Layer';
+							}
+							
+							$item = '';
+							
+							$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4",$layer->ID) ) . '" id="post-' . $layer->ID . '">';
+								
+								$item.='<div class="panel panel-default" style="border-left:1px solid #DDD;">';
+									
+									$item.='<div class="panel-heading">';
+										
+										$item.='<b>' . $layer->post_title . '</b>';
+										
+									$item.='</div>';
+
+									$item.='<div class="panel-body">';
+										
+										$item.='<div class="thumb_wrapper" style="background:#ffffff;height:125px;overflow:hidden;">';
+										
+											//$item.= '<a class="entry-thumbnail" href="'. $permalink .'" target="_blank" title="'. $layer_title .'">';
+
+											if ( $image_id = get_post_thumbnail_id( $layer->ID ) ){
+												
+												if ($src = wp_get_attachment_image_src( $image_id, 'full' )){
+
+													$item.= '<img style="width:100%;" class="lazy" data-original="' . $src[0] . '"/>';
+												}
+											
+											}
+											//$item.= '</a>';
+										
+										$item.='</div>'; //thumb_wrapper
+										
+									$item.='</div>';
+									
+									$item.='<div class="panel-footer text-right">';
+										
+										if( intval($data) == $layer->ID ){
+
+											$item.='<button type="button" class="btn btn-xs btn-success layer-selected" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
+												
+												$item.='Selected'.PHP_EOL;
+											
+											$item.='</button>'.PHP_EOL;																			
+										}
+										else{
+											
+											$item.='<button type="button" class="btn btn-xs btn-warning" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
+												
+												$item.='Select'.PHP_EOL;
+											
+											$item.='</button>'.PHP_EOL;										
+										}
+
+									$item.='</div>';
+								
+								$item.='</div>';
+								
+							$item.='</div>';
+
+							$items[$layer_type][]=$item;
+						}
+						
+						if( !empty($items) ){
+							
+							$html .= '<ul class="nav nav-tabs" role="tablist" style="margin-top:10px;">';
+
+								$active=' class="active"';
+								
+								foreach($items as $type => $type_items){
+									
+									$html .= '<li role="presentation"'.$active.'><a href="#' . $type . '" aria-controls="' . $type . '" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$type)).'</a></li>';
+									
+									$active='';
+								}
+
+							$html .= '</ul>';	
+
+							$html .= '<div class="tab-content row" style="margin-top:10px;">';
+
+								$active=' active';
+							
+								foreach($items as $type => $type_items){
+									
+									$html .= '<div role="tabpanel" class="tab-pane'.$active.'" id="' . $type . '">';
+									
+									foreach($type_items as $item){
+
+										$html .= $item;
+									}
+									
+									$html .= '</div>';
+									
+									$active='';
+								}
+								
+							$html .= '</div>';
+							
+							$html .= '<script>';
+							
+								$html .= ';(function($){';
+									
+									$html .= '$(document).ready(function(){';
+
+										$html .= '$(\'[data-toggle="layer"]\').on(\'click\', function (e) {';
+											
+											$html .= '$(".layer-selected").html("Select").removeClass("btn-success layer-selected").addClass("btn-warning");';
+											
+											$html .= '$(this).html("Selected").removeClass("btn-warning").addClass("btn-success layer-selected");';
+											
+											$html .= '$("#defaultLayerId").val($(this).data(\'target\'));';
+											
+										$html .= '});';							
+									
+									$html .= '});';
+									
+								$html .= '})(jQuery);';								
+							
+							$html .= '</script>';
+						}
+					}
+				}
+
+			break;
+			
 			case 'checkbox_multi_plan_options':
 				
 				$total_price_amount 	= 0;
@@ -884,6 +1058,7 @@ class LTPLE_Client_Admin_API {
 					'hierarchical' => true,
 					'selected'     => $field['selected'],
 					'echo'		   => false,
+					'class'		   => 'form-control',
 					'hide_empty'   => false
 				));			
 			

@@ -139,105 +139,153 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		add_action( 'add_meta_boxes', function(){
 
-			$this->parent->admin->add_meta_box (
-				
-				'metabox_1',
-				__( 'Layer configuration', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'advanced'
-			);
+			global $post;
 			
-			$this->parent->admin->add_meta_box (
-				
-				'layer-css',
-				__( 'Layer CSS', 'live-template-editor-client' ), 
-				array("cb-default-layer","user-layer"),
-				'advanced'
-			);
+			if( $post->post_type == 'cb-default-layer' ){
 			
-			$this->parent->admin->add_meta_box (
+				$this->parent->admin->add_meta_box (
+					
+					'metabox_1',
+					__( 'Layer configuration', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				);
 				
-				'layer-js',
-				__( 'Layer Javascript', 'live-template-editor-client' ), 
-				array("cb-default-layer","user-layer"),
-				'advanced'
-			); 
-			
-			$this->parent->admin->add_meta_box (
+				$this->parent->admin->add_meta_box (
+					
+					'layer-css',
+					__( 'Layer CSS', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				);
 				
-				'layer-meta',
-				__( 'Layer Meta Data', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'advanced'
-			);
-			
-			$this->parent->admin->add_meta_box (
+				$this->parent->admin->add_meta_box (
+					
+					'layer-js',
+					__( 'Layer Javascript', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				); 
 				
-				'layer-output',
-				__( 'Layer Output', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'side'
-			);
-			
-			$this->parent->admin->add_meta_box (
+				$this->parent->admin->add_meta_box (
+					
+					'layer-meta',
+					__( 'Layer Meta Data', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				);
 				
-				'layer-visibility',
-				__( 'Layer Visibility', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'side'
-			);
-			
-			$this->parent->admin->add_meta_box (
+				$this->parent->admin->add_meta_box (
+					
+					'layer-output',
+					__( 'Layer Output', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'side'
+				);
 				
-				'layer-form',
-				__( 'Layer Form', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'side'
-			);		
+				$this->parent->admin->add_meta_box (
+					
+					'layer-visibility',
+					__( 'Layer Visibility', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'side'
+				);
+				
+				$this->parent->admin->add_meta_box (
+					
+					'layer-form',
+					__( 'Layer Form', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'side'
+				);		
 
-			$this->parent->admin->add_meta_box (
+				$this->parent->admin->add_meta_box (
+					
+					'layer-options',
+					__( 'Layer Options', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'side'
+				);
 				
-				'layer-options',
-				__( 'Layer Options', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'side'
-			);
+				$this->parent->admin->add_meta_box (
+					
+					'layer-margin',
+					__( 'Layer Margin', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'side'
+				);
 			
-			$this->parent->admin->add_meta_box (
+				$this->parent->admin->add_meta_box (
 				
-				'layer-margin',
-				__( 'Layer Margin', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'side'
-			);
-		
-			$this->parent->admin->add_meta_box (
-			
-				'tagsdiv-layer-type',
-				__( 'Layer Type', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'side'
-			);
-			
-			$this->parent->admin->add_meta_box ( 
-			
-				'layer-rangediv',
-				__( 'Layer Range', 'live-template-editor-client' ), 
-				array("cb-default-layer"),
-				'side'
-			);
-		
-			$this->parent->admin->add_meta_box (
-			
-				'default_layer_id',
-				__( 'Default Layer', 'live-template-editor-client' ), 
-				array("user-layer"),
-				'side'
-			);
+					'tagsdiv-layer-type',
+					__( 'Layer Type', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'side'
+				);
+				
+				$this->parent->admin->add_meta_box ( 
+				
+					'layer-rangediv',
+					__( 'Layer Range', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'side'
+				);
+			}
+			elseif( $post->post_type == 'user-layer' || $post->post_type == 'post' || $post->post_type == 'page' ){
+				
+				$this->parent->admin->add_meta_box (
+				
+					'default_layer_id',
+					__( 'Default Layer', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				);				
+				
+				if( $post->post_type == 'post' || $post->post_type == 'page' ){
+				
+					// get default layer id
+					
+					$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
+					
+					if( $post->layer_id == 0 ){
+						
+						return;
+					}
+				}
+				
+				$this->parent->admin->add_meta_box (
+					
+					'layer-css',
+					__( 'Layer CSS', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				);
+				
+				$this->parent->admin->add_meta_box (
+					
+					'layer-js',
+					__( 'Layer Javascript', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				);
+				
+				/*
+				$this->parent->admin->add_meta_box (
+				
+					'attached_layer_id',
+					__( 'Attached User Layer', 'live-template-editor-client' ), 
+					array('post','page'),
+					'advanced'
+				);
+				*/
+			}
 		});		
 		
 		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ));
+		
 		add_filter('user-layer_custom_fields', array( $this, 'get_user_layer_fields' ));
+		add_filter('post_custom_fields', array( $this, 'get_user_layer_fields' ));
+		add_filter('page_fields', array( $this, 'get_user_layer_fields' ));
 
 		add_action('account-option_add_form_fields', array( $this, 'get_new_layer_fields' ) );
 		add_action('account-option_edit_form_fields', array( $this, 'get_layer_fields' ) );	
@@ -278,8 +326,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('create_js-library', array( $this, 'save_library_fields' ) );
 		add_action('edit_js-library', array( $this, 'save_library_fields' ) );	
 
-	
-	
 		add_filter('init', array( $this, 'init_layer' ));
 		
 		add_action('wp_loaded', array($this,'get_layer_types'));
@@ -517,37 +563,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if(isset($_GET['uri'])){
 				
-				$this->uri = sanitize_text_field($_GET['uri']);
+				$this->uri = intval($_GET['uri']);
+
+				if( $this->uri > 0 ){
 				
-				$args=explode('/',$_GET['uri']);
+					$q = get_post($this->uri);
 
-				if( isset($args[1]) && ( $args[0]=='default-layer' || $args[0]=='user-layer' ) ){
-
-					$this->type = $args[0];
-					$this->slug = $args[1];
-		
-					$layer_type=$this->type;
-					if($layer_type == 'default-layer'){
-						
-						$layer_type = 'cb-' . $layer_type;
-					}
-		
-					$q = get_posts(array(
-						'post_type'      => $layer_type,
-						'posts_per_page' => 1,
-						'post_name__in'  => [ $this->slug ],
-						//'fields'         => 'ids' 
-					));
+					if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || $q->post_type == 'post' || $q->post_type == 'page' ){
 					
-					//var_dump($q);exit;
+						$this->id 		= $q->ID;
+						$this->type 	= $q->post_type;
+						$this->slug 	= $q->post_name;
 					
-					if(isset($q[0])){
-						
-						$this->id = $q[0]->ID;
-
 						if( $this->type == 'user-layer' ){
 						
-							$this->content 	 = $q[0]->post_content;
+							$this->content 	 = $q->post_content;
 							$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
 						}
 						else{
@@ -562,9 +592,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						// recalled in layer template...
 						//$this->margin 		= get_post_meta( $this->defaultId, 'layerMargin', true );
-						//$this->options 		= get_post_meta( $this->defaultId, 'layerOptions', true );					
+						//$this->options 		= get_post_meta( $this->defaultId, 'layerOptions', true );
 					}
-				}
+				}				
 			}
 		}
 	}
@@ -874,18 +904,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'type'=>'textarea',
 				'placeholder'=>"Additional Javascript",
 				'description'=>'<i>without '.htmlentities('<script></script>').'</i>'
-		);		
-		
+		);
+
 		$fields[]=array(
 			"metabox" =>
 			
 				array('name'=>"default_layer_id"),
 				'id'=>"defaultLayerId",
 				'label'=>"Default Layer ID",
-				'type'=>'text',
+				'type'=>'edit_layer',
 				'placeholder'=>"",
 				'description'=>''
-		);
+		);		
 		
 		return $fields;
 	}

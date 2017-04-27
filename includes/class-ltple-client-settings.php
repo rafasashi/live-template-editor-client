@@ -492,7 +492,7 @@ class LTPLE_Client_Settings {
 				array(
 					'id' 			=> 'homeLogo',
 					'label'			=> __( 'Home Logo' , $this->plugin->slug ),
-					'description'	=> 'Logo url 80 x 50 recommended',
+					'description'	=> 'Logo url 100 x 50 recommended',
 					'type'			=> 'text',
 					'placeholder'	=> 'http://',
 				),

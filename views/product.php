@@ -7,7 +7,7 @@
 	
 	$permalink = get_permalink($this);
 	
-	$editor_url = $this->parent->urls->editor . '?uri='.str_replace( $this->parent->urls->home . '/','',$permalink);
+	$editor_url = $this->parent->urls->editor . '?uri=' . $this->ID;
 	
 	$product_url = $this->parent->urls->product . '?id=' . $this->ID;
 	

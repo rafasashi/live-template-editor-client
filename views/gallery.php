@@ -84,11 +84,9 @@
 					
 					global $post;
 
-					//get permalink
-					
-					$permalink = get_permalink($post);
-						
-					$editor_url = $this->urls->editor . '?uri='.str_replace(home_url().'/','',$permalink);
+					//get editor_url
+
+					$editor_url = $this->urls->editor . '?uri='.$post->ID;
 				
 					//get post_title
 					
@@ -275,7 +273,6 @@
 							}							
 						}
 
-						
 						echo'</ul>';
 
 						//output Tab panes

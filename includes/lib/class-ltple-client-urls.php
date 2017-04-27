@@ -30,12 +30,98 @@ class LTPLE_Client_Urls {
 		$this->current 	= 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 		$this->home 	= home_url();
 		
-		$this->editor 	= $this->home . '/' . get_option( $this->parent->_base . 'editorSlug' ) . '/';
-		$this->login 	= $this->home . '/' . get_option( $this->parent->_base . 'loginSlug' )  . '/';
-		$this->plans 	= $this->home . '/' . get_option( $this->parent->_base . 'plansSlug' )  . '/';
-		$this->product 	= $this->home . '/' . get_option( $this->parent->_base . 'productSlug' ). '/';
+		add_filter('wp_loaded', array( $this, 'init_urls'));
+	}
+	
+	public function init_urls(){
 		
+		// get editor url
 		
+		$editor = get_option( $this->parent->_base . 'editorSlug' );
+		
+		if( empty( $editor ) ){
+			
+			$post_id = wp_insert_post( array(
+			
+				'post_title' 		=> 'Editor',
+				'post_type'     	=> 'page',
+				'comment_status' 	=> 'closed',
+				'ping_status' 		=> 'closed',
+				'post_content' 		=> '[ltple-client-editor]',
+				'post_status' 		=> 'publish',
+				'menu_order' 		=> 0
+			));
+			
+			$editor = update_option( $this->parent->_base . 'editorSlug', get_post($post_id)->post_name );
+		}
+		
+		$this->editor 	= $this->home . '/' . $editor . '/';
+		
+		// get login url
+		
+		$login = get_option( $this->parent->_base . 'loginSlug' );
+		
+		if( empty( $login ) ){
+			
+			$post_id = wp_insert_post( array(
+			
+				'post_title' 		=> 'Login',
+				'post_type'     	=> 'page',
+				'comment_status' 	=> 'closed',
+				'ping_status' 		=> 'closed',
+				'post_content' 		=> '[ltple-client-login]',
+				'post_status' 		=> 'publish',
+				'menu_order' 		=> 0
+			));
+			
+			$login = update_option( $this->parent->_base . 'loginSlug', get_post($post_id)->post_name );
+		}
+		
+		$this->login 	= $this->home . '/' . $login . '/';
+		
+		// get plans url
+		
+		$plans = get_option( $this->parent->_base . 'plansSlug' );
+		
+		if( empty( $plans ) ){
+			
+			$post_id = wp_insert_post( array(
+			
+				'post_title' 		=> 'Plans',
+				'post_type'     	=> 'page',
+				'comment_status' 	=> 'closed',
+				'ping_status' 		=> 'closed',
+				'post_content' 		=> 'Right an article listing your plans here. Use the plan shortcodes to generate a checkout button.',
+				'post_status' 		=> 'publish',
+				'menu_order' 		=> 0
+			));
+			
+			$plans = update_option( $this->parent->_base . 'plansSlug', get_post($post_id)->post_name );
+		}
+		
+		$this->plans 	= $this->home . '/' . $plans . '/';
+		
+		// get product url
+		
+		$product = get_option( $this->parent->_base . 'productSlug' );
+		
+		if( empty( $product ) ){
+			
+			$post_id = wp_insert_post( array(
+			
+				'post_title' 		=> 'Product',
+				'post_type'     	=> 'page',
+				'comment_status' 	=> 'closed',
+				'ping_status' 		=> 'closed',
+				'post_content' 		=> '[ltple-client-product]',
+				'post_status' 		=> 'publish',
+				'menu_order' 		=> 0
+			));
+			
+			$product = update_option( $this->parent->_base . 'productSlug', get_post($post_id)->post_name );
+		}
+		
+		$this->product 	= $this->home . '/' . $product . '/';	
 	}
 	
 	/**

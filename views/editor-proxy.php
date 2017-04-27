@@ -14,7 +14,7 @@
 	
 	// NB: query unvisible for the final user
 	
-	$request_url = $this->server->url . '/editor/?uri=' . $this->layer->uri 
+	$request_url = $this->server->url . '/editor/?uri=' . $this->layer->id 
 												.'&lk=' . $this->layer->key 
 												.'&lo=' . $this->layer->outputMode
 												.'&pu=' . urlencode($this->urls->plans)												

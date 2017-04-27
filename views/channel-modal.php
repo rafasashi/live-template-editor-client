@@ -29,8 +29,8 @@
 								'show_count'   => false,
 								'hierarchical' => true,
 								'selected'     => '',
-								'class'        => 'form-control',
 								'echo'		   => true,
+								'class'        => 'form-control',
 								'hide_empty'   => false
 							));							
 						?>

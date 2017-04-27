@@ -37,6 +37,34 @@
 		// lazyload images on scroll
 		
 		$("img.lazy").lazyload();
+		
+	
+		// activate tabs 
+		 
+		$('a[data-toggle="tab"]').on('click', function (e) {
+			
+			e.preventDefault();
+			
+			$(this).tab('show');
+		});
+	
+		// lazyload tab images 
+		
+		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+			
+			var images = 0;
+			
+			$(e.target.hash).find('.lazy').each(function(){
+				
+				if( images < 8 ){
+					
+					var imageSrc = $(this).attr("data-original");
+					$(this).attr("src", imageSrc).removeAttr("data-original");
+					
+					images++;						
+				}
+			});
+		});
 	});
 	
 })(jQuery);

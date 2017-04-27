@@ -231,7 +231,7 @@
 											
 											echo'<td style="width:50px;">';
 											
-												echo '<a href="' . $this->urls->editor .'?uri=user-layer/' . $layer->post_name . '/" target="_blank" class="btn btn-success btn-sm">';
+												echo '<a href="' . $this->urls->editor .'?uri=' . $layer->ID . '" target="_blank" class="btn btn-success btn-sm">';
 												
 													echo 'edit';
 												
@@ -241,7 +241,7 @@
 
 											echo'<td style="width:30px;">';
 											
-												echo '<a href="' . $this->urls->editor .'?'. $_SERVER['QUERY_STRING'] . '&uri=user-layer/' . $layer->post_name . '/&postAction=delete" target="_self" class="btn btn-danger btn-sm" style="font-weight: bold;">';
+												echo '<a href="' . $this->urls->editor .'?'. $_SERVER['QUERY_STRING'] . '&uri=' . $layer->ID . '&postAction=delete" target="_self" class="btn btn-danger btn-sm" style="font-weight: bold;">';
 												
 													echo 'x';
 												

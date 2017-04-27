@@ -1,39 +1,28 @@
 <?php 
 
-	//get current layer id
-
-	if( $post->post_type == 'user-layer' ){
-	
-		$layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
-	}
-	else{
-		
-		$layer_id = $post->ID;
-	}
-
 	//get page def
 	
-	$pageDef = get_post_meta( $layer_id, 'pageDef', true );
+	$pageDef = get_post_meta( $post->layer_id, 'pageDef', true );
 	
 	//get output config
 	
-	$layerOutput = get_post_meta( $layer_id, 'layerOutput', true );
+	$layerOutput = get_post_meta( $post->layer_id, 'layerOutput', true );
 	
 	//get layer options
 	
-	$layerOptions = get_post_meta( $layer_id, 'layerOptions', true );
+	$layerOptions = get_post_meta( $post->layer_id, 'layerOptions', true );
 	
 	//get layer form
 	
-	$layerForm = get_post_meta( $layer_id, 'layerForm', true );
+	$layerForm = get_post_meta( $post->layer_id, 'layerForm', true );
 
 	//get css libraries
 
-	$cssLibraries = wp_get_post_terms( $layer_id, 'css-library', array( 'orderby' => 'term_id' ) );
+	$cssLibraries = wp_get_post_terms( $post->layer_id, 'css-library', array( 'orderby' => 'term_id' ) );
 	
 	//get js libraries
 	
-	$jsLibraries = wp_get_post_terms( $layer_id, 'js-library', array( 'orderby' => 'term_id' ) );
+	$jsLibraries = wp_get_post_terms( $post->layer_id, 'js-library', array( 'orderby' => 'term_id' ) );
 
 	//get layer image proxy
 	
@@ -121,14 +110,14 @@
 		
 		//get layer margin
 		
-		$layerMargin = get_post_meta( $layer_id, 'layerMargin', true );
+		$layerMargin = get_post_meta( $post->layer_id, 'layerMargin', true );
 		
 		if( empty($layerMargin) ){
 			
 			$layerMargin = '-120px 0px -20px 0px';
 		}
 		
-		$layerMinWidth = get_post_meta( $layer_id, 'layerMinWidth', true );
+		$layerMinWidth = get_post_meta( $post->layer_id, 'layerMinWidth', true );
 		
 		if( empty($layerMinWidth) ){
 			
@@ -141,8 +130,19 @@
 
 			$layerContent = $_POST['importHtml'];
 		}
-		else{
+		elseif( !empty($post->post_content) ){
 			
+			$layerContent = $post->post_content;
+		}
+		elseif( $post->layer_id != $post->ID ){
+			
+			if( $layer = get_post( $post->layer_id ) ){
+			
+				$layerContent = $layer->post_content;
+			}
+		}
+		else{
+
 			$layerContent = $post->post_content;
 		}
 		
@@ -158,23 +158,23 @@
 			
 			$layerCss = get_post_meta( $post->ID, 'layerCss', true );
 			
-			if( $layerCss == '' && $post->ID != $layer_id){
+			if( $layerCss == '' && $post->ID != $post->layer_id){
 				
-				$layerCss = get_post_meta( $layer_id, 'layerCss', true );
+				$layerCss = get_post_meta( $post->layer_id, 'layerCss', true );
 			}
 			
 			$layerJs = get_post_meta( $post->ID, 'layerJs', true );
 			
-			if( $layerJs == '' && $post->ID != $layer_id){
+			if( $layerJs == '' && $post->ID != $post->layer_id){
 				
-				$layerJs = get_post_meta( $layer_id, 'layerJs', true );
+				$layerJs = get_post_meta( $post->layer_id, 'layerJs', true );
 			}
 			
 			$layerMeta = get_post_meta( $post->ID, 'layerMeta', true );
 			
-			if( $layerMeta == '' && $post->ID != $layer_id){
+			if( $layerMeta == '' && $post->ID != $post->layer_id){
 				
-				$layerMeta = get_post_meta( $layer_id, 'layerMeta', true );
+				$layerMeta = get_post_meta( $post->layer_id, 'layerMeta', true );
 			}
 			
 			if(!empty($layerMeta)){
@@ -234,7 +234,15 @@
 			echo '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
 			echo '<!--[if lt IE 9]>';
 			echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
-			echo '<![endif]-->';			
+			echo '<![endif]-->';	
+
+			echo '<meta charset="UTF-8">';
+			echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+			
+			echo '<link rel="profile" href="http://gmpg.org/xfn/11">';
+			
+			echo '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
+			echo '<link rel="dns-prefetch" href="//s.w.org">';
 		
 			if( !empty($cssLibraries) ){
 				
@@ -426,7 +434,8 @@
 					echo'</div>';
 				}
 
-				echo '<layer class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
+				//echo '<layer class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
+				echo '<layer class="editable" style="width:100%;margin:'.$layerMargin.';">';
 								
 					echo $layerContent;
 				

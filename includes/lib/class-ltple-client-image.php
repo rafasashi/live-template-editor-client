@@ -112,12 +112,13 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				
 			if(isset($_GET['uri'])){
 				
-				$this->uri = sanitize_text_field($_GET['uri']);
+				$this->uri = intval($_GET['uri']);
 				
-				$args=explode('/',$_GET['uri']);
+				//$args=explode('/',$_GET['uri']);
 				
-				if(isset($args[1])&&($args[0]=='default-image'||$args[0]=='user-image')){
-
+				if( $this->uri > 0 ){
+					
+					/*
 					$this->type = $args[0];
 					$this->slug = $args[1];
 
@@ -127,13 +128,24 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 						'post_name__in'  => [ urlencode($this->slug) ],
 						//'fields'       => 'ids' 
 					));
-					
+
 					//var_dump($q);exit;
 					
 					if(isset($q[0])){
 						
 						$this->id = $q[0]->ID;
 						$this->content = $q[0]->post_content;
+					}
+					*/
+					
+					$q = get_post($this->uri);	
+
+					if( $q->post_type == 'default-image' ){
+					
+						$this->id 		= $q->ID;
+						$this->content 	= $q->post_content;
+						$this->type 	= $q->post_type;
+						$this->slug 	= $q->post_name;
 					}
 				}
 			}

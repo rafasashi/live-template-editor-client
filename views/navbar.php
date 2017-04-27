@@ -36,9 +36,9 @@
 
 		<?php 
 		
-		if( $this->layer->type == 'default-layer' ){
-		
-			echo'<form class="pull-left" style="width:250px;display:inline-block;" target="_parent" action="'. $this->urls->editor . '?uri=default-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
+		if( $this->layer->type == 'cb-default-layer' ){
+
+			echo'<form class="pull-left" style="width:250px;display:inline-block;" target="_parent" action="'. $this->urls->editor . '?uri=' . $this->layer->id . '" id="savePostForm" method="post">';
 				
 				echo'<div class="input-group">';
 					
@@ -91,11 +91,13 @@
 			echo'</form>';
 		
 		}
-		elseif( $this->layer->type == 'user-layer' && $this->user->has_layer ){
+		elseif( $this->user->has_layer || $this->user->is_admin ){
 			
-			echo'<form style="display:inline-block;" target="_parent" action="' . $this->urls->editor . '?uri=user-layer/' . $this->layer->slug . '/' . '" id="savePostForm" method="post">';
+			$post_title = $this->user->layer->post_title;
+
+			echo'<form style="display:inline-block;" target="_parent" action="' . $this->urls->editor . '?uri=' . $this->layer->id . '" id="savePostForm" method="post">';
 				
-				echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $this->user->layer->post_title . '" class="form-control required" placeholder="Layer Title">';
+				echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Layer Title">';
 				echo'<input type="hidden" name="postContent" id="postContent" value="">';
 				echo'<input type="hidden" name="postCss" id="postCss" value="">';
 				echo'<input type="hidden" name="postJs" id="postJs" value="">';
@@ -109,7 +111,7 @@
 				
 			echo'</form>';
 			
-			echo '<a class="btn btn-sm btn-danger" href="' . $this->urls->editor . '?uri=user-layer/' . $this->layer->slug . '/&postAction=delete">Delete</a>';
+			echo '<a class="btn btn-sm btn-danger" href="' . $this->urls->editor . '?uri=' . $this->layer->id . '&postAction=delete">Delete</a>';
 		}
 		
 		if( $this->layer->type != '' ){
@@ -189,8 +191,8 @@
 								
 								echo'<li style="position:relative;">';
 									
-									echo '<a href="' . $this->urls->editor . '?uri=user-layer/' . $layer->post_name . '/'. '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
-									echo '<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?uri=user-layer/' . $layer->post_name . '/&postAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
+									echo '<a href="' . $this->urls->editor . '?uri=' . $layer->ID . '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
+									echo '<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?uri=' . $layer->ID . '&postAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
 								
 								echo'</li>';						
 							}

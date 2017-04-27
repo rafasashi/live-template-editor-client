@@ -1432,11 +1432,11 @@ class LTPLE_Client_Plan {
 		return $user_plan;	
 	}
 	
-	public function user_has_layer( $item_id, $layer_type = 'default-layer' ){
+	public function user_has_layer( $item_id, $layer_type = 'cb-default-layer' ){
 		
 		$user_has_layer = false;
 		
-		if($layer_type == 'default-layer'){
+		if($layer_type == 'cb-default-layer'){
 			
 			$user_has_layer = false;
 			
@@ -1469,7 +1469,7 @@ class LTPLE_Client_Plan {
 				}		
 			}			
 		}
-		elseif($layer_type == 'user-layer'){
+		elseif( $this->parent->user->is_admin || $layer_type == 'user-layer' ){
 			
 			$user_has_layer = true;
 		}
@@ -1480,8 +1480,8 @@ class LTPLE_Client_Plan {
 	public function user_has_plan( $plan_id ){
 		
 		$user_has_plan = false;
-		
-		if(!empty($this->parent->user->plan['taxonomies'])){
+	
+		if( !empty($this->parent->user->plan['taxonomies']) ){
 			
 			$plan_options = get_post_meta( $plan_id, 'plan_options', true );
 						

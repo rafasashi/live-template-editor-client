@@ -55,7 +55,7 @@
 			global $post;
 			$image = $post;
 
-			$editor_url = $this->urls->editor . '?uri='.str_replace(home_url().'/','',get_permalink());
+			$editor_url = $this->urls->editor . '?uri=' . $image->ID;
 
 			//get permalink
 			
@@ -152,7 +152,7 @@
 				global $post;
 				$image = $post;
 
-				$editor_url = $this->urls->editor . 'editor/?uri='.str_replace(home_url().'/','',get_permalink());
+				$editor_url = $this->urls->editor . 'editor/?uri=' . $image->ID;
 
 				//get permalink
 				
@@ -189,7 +189,7 @@
 							
 							if(!$inWidget){
 							
-								$item.='<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?media=user-images&output='.$output.'&uri=user-image/' . $image->post_name . '/&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
+								$item.='<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?media=user-images&output='.$output.'&uri=' . $image->ID . '&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
 							}
 							
 						$item.='</div>';
@@ -262,7 +262,7 @@
 				global $post;
 				$bookmark = $post;
 
-				$editor_url = $this->urls->editor . 'editor/?uri='.str_replace(home_url().'/','',get_permalink());
+				$editor_url = $this->urls->editor . 'editor/?uri=' . $bookmark->ID;
 
 				//get permalink
 				

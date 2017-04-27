@@ -1,4 +1,4 @@
-#wpcontent, #wpwrap {background:#f9f9f9 !important;}
+#wpcontent, #wpwrap,#wp-content-editor-tools {background:#f9f9f9 !important;}
 .sortable .ui-sortable { list-style-type: none; margin: 0; padding: 0; }
 .sortable .ui-sortable li { margin: 0 5px 5px 5px; padding: 5px; font-size: 13px; cursor: move; }
 .sortable .ui-state-disabled { cursor: initial !important; }
