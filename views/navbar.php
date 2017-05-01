@@ -93,25 +93,29 @@
 		}
 		elseif( $this->user->has_layer || $this->user->is_admin ){
 			
-			$post_title = $this->user->layer->post_title;
-
-			echo'<form style="display:inline-block;" target="_parent" action="' . $this->urls->editor . '?uri=' . $this->layer->id . '" id="savePostForm" method="post">';
-				
-				echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Layer Title">';
-				echo'<input type="hidden" name="postContent" id="postContent" value="">';
-				echo'<input type="hidden" name="postCss" id="postCss" value="">';
-				echo'<input type="hidden" name="postJs" id="postJs" value="">';
-				echo'<input type="hidden" name="postAction" id="postAction" value="save">';
-				 
-				wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
-				
-				echo'<input type="hidden" name="submitted" id="submitted" value="true">';
-				
-				echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>';
-				
-			echo'</form>';
+			if( !empty($this->user->layer->post_title) ){
 			
-			echo '<a class="btn btn-sm btn-danger" href="' . $this->urls->editor . '?uri=' . $this->layer->id . '&postAction=delete">Delete</a>';
+				$post_title = $this->user->layer->post_title;
+
+				echo'<form style="display:inline-block;" target="_parent" action="' . $this->urls->editor . '?uri=' . $this->layer->id . '" id="savePostForm" method="post">';
+					
+					echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Layer Title">';
+					echo'<input type="hidden" name="postContent" id="postContent" value="">';
+					echo'<input type="hidden" name="postCss" id="postCss" value="">';
+					echo'<input type="hidden" name="postJs" id="postJs" value="">';
+					echo'<input type="hidden" name="postAction" id="postAction" value="save">';
+					 
+					wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
+					
+					echo'<input type="hidden" name="submitted" id="submitted" value="true">';
+					
+					echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>';
+					
+				echo'</form>';
+				
+				echo '<a class="btn btn-sm btn-danger" href="' . $this->urls->editor . '?uri=' . $this->layer->id . '&postAction=delete">Delete</a>';
+				
+			}
 		}
 		
 		if( $this->layer->type != '' ){

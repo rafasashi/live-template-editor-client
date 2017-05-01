@@ -83,6 +83,8 @@
 				while ( $loop->have_posts() ) : $loop->the_post(); 
 					
 					global $post;
+					
+					$permalink = get_permalink($post);
 
 					//get editor_url
 
