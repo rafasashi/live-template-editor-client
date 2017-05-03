@@ -185,7 +185,7 @@ class LTPLE_Client {
 			$this->channels = new LTPLE_Client_Channels( $this );			
 			$this->profile 	= new LTPLE_Client_Profile( $this );
 			
-			if( is_admin() ) {
+			if( is_admin() ) {		
 				
 				add_action( 'init', array( $this, 'init_backend' ));
 				
@@ -401,10 +401,9 @@ class LTPLE_Client {
 		// loaded hook
 		
 		do_action( 'ltple_loaded');
-	}
+	}	
 	
-	
-	public function init_backend(){
+	public function init_backend(){				
 		
 		// Load admin JS & CSS
 		
@@ -413,7 +412,7 @@ class LTPLE_Client {
 		
 		add_filter( 'page_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
 		add_filter( 'post_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
-
+		
 		// add email-campaign
 		
 		add_filter("email-campaign_custom_fields", array( $this, 'add_campaign_trigger_custom_fields' ));
@@ -705,7 +704,7 @@ class LTPLE_Client {
 					exit;
 				}				
 			}
-			elseif( $post->post_type == 'post' || $post->post_type == 'page' ){
+			elseif( in_array( $post->post_type, $this->settings->options->postTypes ) ){
 				
 				if(!is_numeric($post->layer_id)){
 				
@@ -715,34 +714,13 @@ class LTPLE_Client {
 				if( $post->layer_id > 0 ){
 					
 					$path = $this->views . $this->_dev .'/layer.php';
-				}				
-				
-				/*
-				$user_layer_id	= intval(get_post_meta( $post->ID, 'userLayerId', true));
-				
-				if( $user_layer_id > 0 ){
-					
-					$user_layer_id	= intval(get_post_meta( $post->ID, 'userLayerId', true));
-				
-					$post = get_post($user_layer_id);
-					
-					if(!isset($post->layer_id)){
-					
-						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
-					}
-					
-					if( $post->layer_id > 0 ){
-						
-						$path = $this->views . $this->_dev .'/layer.php';
-					}
 				}
-				*/
 			}
 			elseif( file_exists($this->views . $this->_dev .'/'.$post->post_type.'.php') ){
 				
 				$path = $this->views . $this->_dev .'/'.$post->post_type.'.php';
 			}
-			
+
 			if( file_exists( $path ) ) {
 
 				$template_path = $path;

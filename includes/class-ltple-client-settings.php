@@ -29,13 +29,7 @@ class LTPLE_Client_Settings {
 
 	public $plugin;
 
-	/**
-	 * Available settings for plugin.
-	 * @var     array
-	 * @access  public
-	 * @since   1.0.0
-	 */
-	public $settings = array();
+	public $tabs;
 	
 	public function __construct ( $parent ) {
 
@@ -50,7 +44,45 @@ class LTPLE_Client_Settings {
 		$this->options 				 = new stdClass();
 		$this->options->analyticsId  = get_option( $this->parent->_base . 'analytics_id');
 		$this->options->emailSupport = get_option( $this->parent->_base . 'email_support');	
+		$this->options->postTypes 	 = get_option( $this->parent->_base . 'post_types');	
 		
+		// get tabs
+		
+		$this->tabs = array (
+		
+			array(
+			
+				'cb-default-layer' 	=> array( 'name' => 'Layers'),
+				'default-image' 	=> array( 'name' => 'Images'),
+			),
+			array(
+			
+				'user-layer' 	=> array( 'name' => 'Layers'),
+				'user-image' 	=> array( 'name' => 'Images'),
+				'user-bookmark' => array( 'name' => 'Bookmarks'),
+				'user-app' 		=> array( 'name' => 'Apps'),
+				'user-domain' 	=> array( 'name' => 'Domains'),
+			),
+			array(
+			
+				'email-model' 		=> array( 'name' => 'Models'),
+				'email-campaign' 	=> array( 'name' => 'Campaigns'),
+			),
+			array(
+			
+				'layer-type' 		=> array( 'name' => 'Types', 	'post-type' => 'cb-default-layer' ),
+				'layer-range' 		=> array( 'name' => 'Ranges', 	'post-type' => 'cb-default-layer' ),
+				'account-option' 	=> array( 'name' => 'Options', 	'post-type' => 'cb-default-layer' ),
+				'image-type' 		=> array( 'name' => 'Images', 	'post-type' => 'default-image' ),
+				'app-type' 			=> array( 'name' => 'Apps', 	'post-type' => 'user-app' ),
+			),
+			array(
+			
+				'css-library' 		=> array( 'name' => 'CSS', 	'post-type' => 'cb-default-layer' ),
+				'js-library' 		=> array( 'name' => 'JS', 	'post-type' => 'cb-default-layer' ),
+			),
+		);
+							
 		// Initialise settings
 		add_action( 'init', array( $this, 'init_settings' ), 11 );
 
@@ -100,6 +132,30 @@ class LTPLE_Client_Settings {
 		});
 	}
 	
+	public function post_type_tabs() {
+		
+		echo '<h2 class="nav-tab-wrapper" style="margin-bottom:20px;">';
+		
+			foreach( $this->tabs[$this->tabIndex] as $tab => $data ){
+				
+				echo '<a class="nav-tab '.( $tab == $_GET['post_type'] ? 'nav-tab-active' : '' ).'" href="edit.php?post_type='.$tab.'">'.$data['name'].'</a>';
+			}
+			
+		echo '</h2>';
+	}
+	
+	public function taxonomy_tabs($taxonomy) {
+		
+		echo '<h2 class="nav-tab-wrapper" style="margin-bottom:20px;">';
+		
+			foreach( $this->tabs[$this->tabIndex] as $tab => $data ){
+				
+				echo '<a class="nav-tab '.( $tab == $taxonomy ? 'nav-tab-active' : '' ).'" href="edit-tags.php?post_type='.$data['post-type'].'&taxonomy='.$tab.'">'.$data['name'].'</a>';
+			}
+			
+		echo '</h2>';
+	}	
+	
 	/**
 	 * Initialise settings
 	 * @return void
@@ -109,6 +165,41 @@ class LTPLE_Client_Settings {
 		$this->settings = $this->settings_fields();		
 		
 		$this->schedule_actions();
+		
+		if( is_admin() ){
+			
+			add_action( 'load-edit.php', function() {
+				
+				if( !empty($_GET['post_type']) ){			
+					
+					foreach($this->tabs as $t => $tabs){
+					
+						if(isset($tabs[$_GET['post_type']])){
+							
+							$this->tabIndex = $t;
+							
+							add_filter( 'views_edit-' . $_GET['post_type'], array( $this, 'post_type_tabs') );						
+						}
+					}
+				}
+			});	
+
+			add_action( 'load-edit-tags.php', function() {
+				
+				if( !empty($_GET['taxonomy']) ){
+
+					foreach($this->tabs as $t => $tabs){
+
+						if(isset($tabs[$_GET['taxonomy']])){
+							
+							$this->tabIndex = $t;
+							
+							add_filter( $_GET['taxonomy'].'_pre_add_form', array( $this, 'taxonomy_tabs') );						
+						}
+					}
+				}
+			});			
+		}
 	}
 	
 	public function schedule_actions(){
@@ -199,118 +290,38 @@ class LTPLE_Client_Settings {
 			__( 'All Leads', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=lead'
-		);
-
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Affiliate Commissions', $this->plugin->slug ),
-			__( 'Affiliate Commissions', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=affiliate-commission'
-		);			
+		);		
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Default Layers', $this->plugin->slug ),
-			__( 'Default Layers', $this->plugin->slug ),
+			__( 'Default Contents', $this->plugin->slug ),
+			__( 'Default Contents', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=cb-default-layer'
 		);
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Default Images', $this->plugin->slug ),
-			__( 'Default Images', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=default-image'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'User Layers', $this->plugin->slug ),
-			__( 'User Layers', $this->plugin->slug ),
+			__( 'User Contents', $this->plugin->slug ),
+			__( 'User Contents', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=user-layer'
 		);
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'User Apps', $this->plugin->slug ),
-			__( 'User Apps', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=user-app'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'User Images', $this->plugin->slug ),
-			__( 'User Images', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=user-image'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'User Bookmarks', $this->plugin->slug ),
-			__( 'User Bookmarks', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=user-bookmark'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'User Domains', $this->plugin->slug ),
-			__( 'User Domains', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=user-domain'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Layer Types', $this->plugin->slug ),
-			__( 'Layer Types', $this->plugin->slug ),
+			__( 'Gallery Settings', $this->plugin->slug ),
+			__( 'Gallery Settings', $this->plugin->slug ),
 			'edit_pages',
 			'edit-tags.php?post_type=cb-default-layer&taxonomy=layer-type'
 		);
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Layer Ranges', $this->plugin->slug ),
-			__( 'Layer Ranges', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=cb-default-layer&taxonomy=layer-range'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'CSS Libraries', $this->plugin->slug ),
-			__( 'CSS Libraries', $this->plugin->slug ),
+			__( 'CSS, JS & Fonts', $this->plugin->slug ),
+			__( 'CSS, JS & Fonts', $this->plugin->slug ),
 			'edit_pages',
 			'edit-tags.php?post_type=cb-default-layer&taxonomy=css-library'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'JS Libraries', $this->plugin->slug ),
-			__( 'JS Libraries', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=cb-default-layer&taxonomy=js-library'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Image Types', $this->plugin->slug ),
-			__( 'Image Types', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=default-image&taxonomy=image-type'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Account Options', $this->plugin->slug ),
-			__( 'Account Options', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=user-plan&taxonomy=account-option'
 		);
 		
 		add_submenu_page(
@@ -323,29 +334,11 @@ class LTPLE_Client_Settings {
 
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Email Models', $this->plugin->slug ),
-			__( 'Email Models', $this->plugin->slug ),
+			__( 'Email Settings', $this->plugin->slug ),
+			__( 'Email Settings', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=email-model'
 		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Email Campaigns', $this->plugin->slug ),
-			__( 'Email Campaigns', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=email-campaign'
-		);
-		
-		/*
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Campaign Triggers', $this->plugin->slug ),
-			__( 'Campaign Triggers', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=email-campaign&taxonomy=campaign-trigger'
-		);
-		*/
 		
 		add_submenu_page(
 			$this->plugin->slug,
@@ -357,11 +350,11 @@ class LTPLE_Client_Settings {
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Connected Apps', $this->plugin->slug ),
-			__( 'Connected Apps', $this->plugin->slug ),
+			__( 'Affiliate Commissions', $this->plugin->slug ),
+			__( 'Affiliate Commissions', $this->plugin->slug ),
 			'edit_pages',
-			'edit-tags.php?post_type=user-app&taxonomy=app-type'
-		);
+			'edit.php?post_type=affiliate-commission'
+		);	
 	}
 	
 	/**
@@ -389,6 +382,7 @@ class LTPLE_Client_Settings {
 	 * @return array 		Modified links
 	 */
 	public function add_settings_link ( $links ) {
+		
 		$settings_link = '<a href="options-general.php?page=' . $this->parent->_token . '_settings">' . __( 'Settings', $this->plugin->slug ) . '</a>';
   		array_push( $links, $settings_link );
   		return $links;
@@ -399,7 +393,7 @@ class LTPLE_Client_Settings {
 	 * @return array Fields to be displayed on settings page
 	 */
 	private function settings_fields () {
-
+	
 		$settings['settings'] = array(
 			'title'					=> __( 'General settings', $this->plugin->slug ),
 			'description'			=> '',
@@ -444,6 +438,18 @@ class LTPLE_Client_Settings {
 					'type'			=> 'text',
 					'default'		=> '',
 					'placeholder'	=> __( 'UA-XXXXXXXX-1', $this->plugin->slug )
+				),
+				array(
+					'id' 			=> 'post_types',
+					'label'			=> __( 'Post Types' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'checkbox_multi',
+					'options'		=> array(
+					
+						'post' 			=> 'Post',
+						'page' 			=> 'Page',
+						'email-model' 	=> 'Email Model',
+					),
 				),
 			)
 		);
@@ -523,8 +529,8 @@ class LTPLE_Client_Settings {
 			)
 		);
 		
-		$settings['niche'] = array(
-			'title'					=> __( 'Niche', $this->plugin->slug ),
+		$settings['Marketing'] = array(
+			'title'					=> __( 'Marketing', $this->plugin->slug ),
 			'description'			=> 'Some information about the targeted market',
 			'fields'				=> array(
 				array(
@@ -568,6 +574,14 @@ class LTPLE_Client_Settings {
 					'default'		=> '',
 					'placeholder'	=> __( '#nicheTag...', $this->plugin->slug )
 				),
+				array(
+					'id' 			=> 'main_video',
+					'name' 			=> 'main_video',
+					'label'			=> __( 'Main video' , $this->plugin->slug ),
+					'description'	=> 'Main youtube video',
+					'type'			=> 'text',
+					'placeholder'	=> 'http://',
+				),
 			)
 		);	
 
@@ -593,18 +607,10 @@ class LTPLE_Client_Settings {
 
 		}
 		
-		$settings['marketing'] = array(
-			'title'					=> __( 'Marketing', $this->plugin->slug ),
-			'description'			=> __( 'Marketing Material & Affiliate settings', $this->plugin->slug ),
-			'fields'				=> array(
-				array(
-					'id' 			=> 'main_video',
-					'name' 			=> 'main_video',
-					'label'			=> __( 'Main video' , $this->plugin->slug ),
-					'description'	=> 'Main youtube video',
-					'type'			=> 'text',
-					'placeholder'	=> 'http://',
-				),			
+		$settings['affiliate'] = array(
+			'title'					=> __( 'Affiliate', $this->plugin->slug ),
+			'description'			=> __( 'Affiliate settings', $this->plugin->slug ),
+			'fields'				=> array(		
 				array(
 					'id' 			=> 'affiliate_banners',
 					'name' 			=> 'affiliate_banners',
@@ -614,16 +620,6 @@ class LTPLE_Client_Settings {
 					'type'			=> 'key_value',
 					'placeholder'	=> ['key'=>'image title', 'value'=>'url'],
 				),
-				/*
-				array(
-					'id' 			=> 'affiliate_text',
-					'name' 			=> 'affiliate_text',
-					'label'			=> __( 'Affiliate text' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'textarea',
-					'placeholder'	=> __( '', $this->plugin->slug )
-				)
-				*/
 			)
 		);
 
@@ -648,28 +644,6 @@ class LTPLE_Client_Settings {
 					'appId' 		=> ( isset($_POST[$this->parent->_base .'twt_main_account']) ? intval($_POST[$this->parent->_base .'twt_main_account']) : intval(get_option( $this->parent->_base .'twt_main_account' )) ),
 					'last' 			=> true,
 				),
-				/*
-				array(
-					'id' 			=> 'twt_auto_follow',
-					'label'			=> __( 'Auto Follow' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'action_schedule',
-					'action' 		=> 'follow',
-					'unit' 			=> 'leads',
-					'appId' 		=> ( isset($_POST[$this->parent->_base .'twt_main_account']) ? intval($_POST[$this->parent->_base .'twt_main_account']) : intval(get_option( $this->parent->_base .'twt_main_account' )) ),
-					'last' 			=> true,
-				),
-				array(
-					'id' 			=> 'twt_auto_unfollow',
-					'label'			=> __( 'Auto Unfollow' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'action_schedule',
-					'action' 		=> 'unfollow',
-					'unit' 			=> 'leads',
-					'appId' 		=> ( isset($_POST[$this->parent->_base .'twt_main_account']) ? intval($_POST[$this->parent->_base .'twt_main_account']) : intval(get_option( $this->parent->_base .'twt_main_account' )) ),
-					'last' 			=> true,
-				),
-				*/
 				array(
 					'id' 			=> 'twt_import_leads',
 					'label'			=> __( 'Import Leads' , $this->plugin->slug ),
@@ -712,6 +686,17 @@ class LTPLE_Client_Settings {
 					'description'	=> 'Main connected account',
 					'type'			=> 'dropdown_main_apps',
 					'app'			=> 'wordpress'
+				)				
+			)
+		);
+		
+		$settings['addons'] = array(
+			'title'					=> __( 'Addons', $this->plugin->slug ),
+			'description'			=> '',
+			'fields'				=> array(
+				array(
+					'id' 			=> 'addon_plugins',
+					'type'			=> 'addon_plugins'
 				)				
 			)
 		);
@@ -787,6 +772,7 @@ class LTPLE_Client_Settings {
 
 			$tab = '';
 			if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {
+				
 				$tab .= $_GET['tab'];
 			}
 
@@ -811,8 +797,11 @@ class LTPLE_Client_Settings {
 					}
 
 					// Set tab link
+					
 					$tab_link = add_query_arg( array( 'tab' => $section ) );
+					
 					if ( isset( $_GET['settings-updated'] ) ) {
+						
 						$tab_link = remove_query_arg( 'settings-updated', $tab_link );
 					}
 
@@ -835,14 +824,20 @@ class LTPLE_Client_Settings {
 					
 					settings_fields( $this->parent->_token . '_settings' );
 					
-					do_settings_sections( $this->parent->_token . '_settings' );
+					//do_settings_sections( $this->parent->_token . '_settings' );
+
+					$this->do_addon_section( $this->parent->_token . '_settings' );
 					
 					$html .= ob_get_clean();
 
-					$html .= '<p class="submit">' . "\n";
-						$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
-						$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , $this->plugin->slug ) ) . '" />' . "\n";
-					$html .= '</p>' . "\n";
+					if( isset($_GET['tab']) && $_GET['tab'] != 'addons' ){
+					
+						$html .= '<p class="submit">' . "\n";
+							$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
+							$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , $this->plugin->slug ) ) . '" />' . "\n";
+						$html .= '</p>' . "\n";
+					}
+					
 				$html .= '</form>' . "\n";
 				
 			$html .= '</div>' . "\n";
@@ -857,6 +852,78 @@ class LTPLE_Client_Settings {
 
 		echo $html;
 	}
+	
+	public function do_addon_section($page) {
+		
+		global $wp_settings_sections, $wp_settings_fields;
+
+		if ( !isset($wp_settings_sections) || !isset($wp_settings_sections[$page]) )
+			return;
+
+		foreach( (array) $wp_settings_sections[$page] as $section ) {
+			
+			echo '<h3 style="margin-bottom:25px;">' . $section['title'] . '</h3>'.PHP_EOL;
+			
+			call_user_func($section['callback'], $section);
+			
+			if ( !isset($wp_settings_fields) ||
+				 !isset($wp_settings_fields[$page]) ||
+				 !isset($wp_settings_fields[$page][$section['id']]) )
+					continue;
+					
+			echo '<div class="settings-form-wrapper" style="margin-top:25px;">';
+
+				$this->do_settings_fields($page, $section['id']);
+			
+			echo '</div>';
+		}
+	}
+
+	public function do_settings_fields($page, $section) {
+		
+		global $wp_settings_fields;
+
+		if ( !isset($wp_settings_fields) ||
+			 !isset($wp_settings_fields[$page]) ||
+			 !isset($wp_settings_fields[$page][$section]) )
+			return;
+
+		foreach ( (array) $wp_settings_fields[$page][$section] as $field ) {
+			
+			echo '<div class="settings-form-row row">';
+
+				if ( !empty($field['title']) ){
+			
+					echo '<div class="col-xs-3" style="margin-bottom:15px;">';
+					
+						if ( !empty($field['args']['label_for']) ){
+							
+							echo '<label style="font-weight:bold;" for="' . $field['args']['label_for'] . '">' . $field['title'] . '</label>';
+						}
+						else{
+							
+							echo '<b>' . $field['title'] . '</b>';		
+						}
+					
+					echo '</div>';
+					echo '<div class="col-xs-9" style="margin-bottom:15px;">';
+						
+						call_user_func($field['callback'], $field['args']);
+							
+					echo '</div>';
+				}
+				else{
+					
+					echo '<div class="col-xs-12" style="margin-bottom:15px;">';
+						
+						call_user_func($field['callback'], $field['args']);
+							
+					echo '</div>';					
+				}
+					
+			echo '</div>';
+		}
+	}	
 	
 	public function set_default_editor() {
 		

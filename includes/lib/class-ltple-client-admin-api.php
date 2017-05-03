@@ -543,6 +543,108 @@ class LTPLE_Client_Admin_API {
 				
 			break;
 			
+			case 'addon_plugins':
+				
+				$addons = array(
+					
+					array(
+					
+						'title' 		=> 'Addon Plugin',
+						'addon_link' 	=> '#',
+						'addon_name' 	=> 'live-template-editor-addon',
+						'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-addon/archive/master.zip',
+						'description'	=> 'This is a first test of addon plugin for live template editor.',
+						'author' 		=> 'Rafasashi',
+						'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+					),
+				);
+				
+				$html .= '<div id="the-list">';
+				
+					foreach( $addons as $addon ){
+				
+						$html .= '<div class="panel panel-default plugin-card plugin-card-akismet">';
+						
+							$html .= '<div class="panel-body plugin-card-top">';
+							
+								$html .= '<h3>';
+								
+									$html .= '<a href="'.$addon['addon_link'].'" class="thickbox open-plugin-details-modal">';
+										
+										$html .= $addon['title'];	
+										
+									$html .= '</a>';
+									
+								$html .= '</h3>';
+								
+								$html .= '<p>'.$addon['description'].'</p>';
+								$html .= '<p class="authors"> <cite>By <a target="_blank" href="'.$addon['author_link'].'">'.$addon['author'].'</a></cite></p>';
+								
+							$html .= '</div>';
+							
+							$html .= '<div class="panel-footer plugin-card-bottom text-right">';
+								
+								$plugin_file = $addon['addon_name'] . '/' . $addon['addon_name'] . '.php';
+								
+								if( !file_exists( WP_PLUGIN_DIR . '/' . $addon['addon_name'] . '/' . $addon['addon_name'] . '.php' ) ){
+									
+									$url = $addon['source_url'];
+									
+									$html .= '<a href="' . $url . '" class="button install-now" aria-label="Install">Install Now</a>';
+								}
+								else{
+									
+									if( !empty($_GET['action']) && !empty($_GET['plugin']) && file_exists( WP_PLUGIN_DIR . '/' . $_GET['plugin'] ) ){
+										
+										// do activation deactivation
+
+										$is_activate = is_plugin_active( $_GET['plugin'] );
+										
+										if( $_GET['action'] == 'activate' && !$is_activate ){
+											
+											activate_plugin($_GET['plugin']);
+										}
+										elseif( $_GET['action'] == 'deactivate' && $is_activate ){
+											
+											deactivate_plugins($_GET['plugin']);
+										}
+									}
+									
+									// output button
+									
+									if( is_plugin_active( $addon['addon_name'] . '/' . $addon['addon_name'] . '.php' ) ){
+
+										//$url = wp_nonce_url( 'http://ltple.recuweb.com/wp-admin/plugins.php?action=deactivate&plugin='.urlencode( $plugin_file ), 'deactivate-plugin_' . $plugin_file );
+									
+										$url = add_query_arg( array(
+											'action' => 'deactivate',
+											'plugin' => urlencode( $plugin_file ),
+										), $this->parent->urls->current );
+											
+										$html .= '<a href="'.$url.'" class="button deactivate-now" aria-label="Deactivate">Deactivate</a>';
+									}
+									else{
+										
+										//$url = wp_nonce_url( 'http://ltple.recuweb.com/wp-admin/plugins.php?action=activate&plugin='.urlencode( $plugin_file ), 'activate-plugin_' . $plugin_file );
+										
+										$url = add_query_arg( array(
+											'action' => 'activate',
+											'plugin' => urlencode( $plugin_file ),
+										), $this->parent->urls->current );									
+										
+										$html .= '<a href="'.$url.'" class="button activate-now" aria-label="Activate">Activate</a>';
+									}
+								}
+							
+							$html .= '</div>';
+						
+						$html .= '</div>';
+					}
+				
+				$html .= '</div>';
+			
+			break;
+			
 			case 'email_series':
 			
 				if( isset($data['model']) && isset($data['days']) ){

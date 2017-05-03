@@ -231,8 +231,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'side'
 				);
 			}
-			elseif( $post->post_type == 'user-layer' || $post->post_type == 'post' || $post->post_type == 'page' ){
-				
+			elseif( $post->post_type == 'user-layer' || in_array( $post->post_type, $this->parent->settings->options->postTypes ) ){
+
 				$this->parent->admin->add_meta_box (
 				
 					'default_layer_id',
@@ -241,7 +241,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'advanced'
 				);				
 				
-				if( $post->post_type == 'post' || $post->post_type == 'page' ){
+				if( in_array( $post->post_type, $this->parent->settings->options->postTypes ) ){
 				
 					// get default layer id
 					
@@ -268,24 +268,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					array($post->post_type),
 					'advanced'
 				);
-				
-				/*
-				$this->parent->admin->add_meta_box (
-				
-					'attached_layer_id',
-					__( 'Attached User Layer', 'live-template-editor-client' ), 
-					array('post','page'),
-					'advanced'
-				);
-				*/
 			}
 		});		
-		
-		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ));
-		
-		add_filter('user-layer_custom_fields', array( $this, 'get_user_layer_fields' ));
-		add_filter('post_custom_fields', array( $this, 'get_user_layer_fields' ));
-		add_filter('page_fields', array( $this, 'get_user_layer_fields' ));
 
 		add_action('account-option_add_form_fields', array( $this, 'get_new_layer_fields' ) );
 		add_action('account-option_edit_form_fields', array( $this, 'get_layer_fields' ) );	
@@ -554,7 +538,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function init_layer(){
 
-		if( !is_admin() ) {
+		if( is_admin() ) {
+			
+			add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ));
+			
+			add_filter('user-layer_custom_fields', array( $this, 'get_user_layer_fields' ));
+
+			foreach( $this->parent->settings->options->postTypes as $post_type ){
+				
+				add_filter( $post_type . '_custom_fields', array( $this, 'get_user_layer_fields' ));
+			}			
+		}
+		else{
 				
 			if(isset($_GET['lk'])){
 				
@@ -569,7 +564,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					$q = get_post($this->uri);
 
-					if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || $q->post_type == 'post' || $q->post_type == 'page' ){
+					if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
 					
 						$this->id 		= $q->ID;
 						$this->type 	= $q->post_type;
