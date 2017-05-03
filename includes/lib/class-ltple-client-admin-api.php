@@ -1293,9 +1293,10 @@ class LTPLE_Client_Admin_API {
 				if ( ! $item ) {
 					$html .= '<div for="' . $id . '">' . "\n";
 				}
-
-				$html .= '<div><i style="color:#aaa;">' . $field['description'] . '</i></div>' . "\n";
-
+				if(!empty($field['description'])){
+					
+					$html .= '<div><i style="color:#aaa;">' . $field['description'] . '</i></div>' . "\n";
+				}
 				if ( ! $item ) {
 					$html .= '</div>' . "\n";
 				}

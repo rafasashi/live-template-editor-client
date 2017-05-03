@@ -544,10 +544,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			add_filter('user-layer_custom_fields', array( $this, 'get_user_layer_fields' ));
 
-			foreach( $this->parent->settings->options->postTypes as $post_type ){
-				
-				add_filter( $post_type . '_custom_fields', array( $this, 'get_user_layer_fields' ));
-			}			
+			if( !empty($this->parent->settings->options->postTypes) ){
+			
+				foreach( $this->parent->settings->options->postTypes as $post_type ){
+					
+					add_filter( $post_type . '_custom_fields', array( $this, 'get_user_layer_fields' ));
+				}
+			}
 		}
 		else{
 				

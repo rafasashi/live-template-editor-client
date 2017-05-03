@@ -733,6 +733,11 @@ class LTPLE_Client_Settings {
 
 				foreach ( $data['fields'] as $field ) {
 
+					if(!isset($field['label'])){
+						
+						$field['label'] = '';
+					}
+				
 					// Validation callback for field
 					$validation = '';
 					if ( isset( $field['callback'] ) ) {
