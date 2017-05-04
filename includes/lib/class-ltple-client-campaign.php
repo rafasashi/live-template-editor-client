@@ -40,8 +40,9 @@ class LTPLE_Client_Campaign extends LTPLE_Client_Object {
 		$this->triggers = $this->get_terms( $this->taxonomy, array(
 			
 			'user-registration' 	=> 'User Registration',
-			'affiliate-approved' 	=> 'Affiliate Approved',
 		));
+		
+		do_action('ltple_campaign_triggers');
 	}
 
 	/**

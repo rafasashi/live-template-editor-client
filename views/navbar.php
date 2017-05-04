@@ -130,7 +130,7 @@
 										
 					echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 						
-						if( $this->layer->form != 'scraper' ){
+						if( $this->layer->form != 'scraper' && $this->layer->type == 'cb-default-layer' ){
 
 							echo'<li style="position:relative;">';
 							
@@ -240,11 +240,7 @@
 
 				echo'</li>';
 				
-				echo'<li style="position:relative;">';
-					
-					echo '<a href="'. $this->urls->editor .'?affiliate"><span class="glyphicon glyphicon-usd" aria-hidden="true"></span> Affiliate Program</a>';
-
-				echo'</li>';
+				do_action('ltple_view_my_profile');
 				
 				echo'<li style="position:relative;">';
 					

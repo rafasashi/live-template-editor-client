@@ -28,7 +28,8 @@ class LTPLE_Client_Settings {
 	 */
 
 	public $plugin;
-
+	
+	public $settings;
 	public $tabs;
 	
 	public function __construct ( $parent ) {
@@ -162,7 +163,9 @@ class LTPLE_Client_Settings {
 	 */
 	public function init_settings(){
 		
-		$this->settings = $this->settings_fields();		
+		$this->settings = $this->settings_fields();
+		
+		do_action('ltple_addon_settings');
 		
 		$this->schedule_actions();
 		
@@ -273,7 +276,7 @@ class LTPLE_Client_Settings {
 			'All Subscribers', 
 			'All Subscribers', 
 			'edit_pages',
-			'users.php?'.$this->parent->_base .'view=subscribers'
+			'users.php?' . $this->parent->_base .'view=subscribers'
 		);
 
 		add_submenu_page(
@@ -281,7 +284,14 @@ class LTPLE_Client_Settings {
 			__( 'All Subscribers', $this->plugin->slug ),
 			__( 'All Subscribers', $this->plugin->slug ),
 			'edit_pages',
-			'users.php?'.$this->parent->_base .'view=subscribers'
+			'users.php?' . $this->parent->_base .'view=subscribers'
+		);
+		
+		add_plugins_page( 
+			'Live Editor Addons', 
+			'Live Editor Addons', 
+			'edit_pages',
+			'admin.php?page=' . $this->plugin->slug . '&tab=addons'
 		);
 
 		add_submenu_page(
@@ -347,14 +357,8 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit-tags.php?post_type=user&taxonomy=marketing-channel'
 		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Affiliate Commissions', $this->plugin->slug ),
-			__( 'Affiliate Commissions', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=affiliate-commission'
-		);	
+
+		do_action('ltple_admin_menu');
 	}
 	
 	/**
@@ -393,7 +397,7 @@ class LTPLE_Client_Settings {
 	 * @return array Fields to be displayed on settings page
 	 */
 	private function settings_fields () {
-	
+		
 		$settings['settings'] = array(
 			'title'					=> __( 'General settings', $this->plugin->slug ),
 			'description'			=> '',
@@ -606,22 +610,6 @@ class LTPLE_Client_Settings {
 			 
 
 		}
-		
-		$settings['affiliate'] = array(
-			'title'					=> __( 'Affiliate', $this->plugin->slug ),
-			'description'			=> __( 'Affiliate settings', $this->plugin->slug ),
-			'fields'				=> array(		
-				array(
-					'id' 			=> 'affiliate_banners',
-					'name' 			=> 'affiliate_banners',
-					'label'			=> __( 'Affiliate banners' , $this->plugin->slug ),
-					'description'	=> '',
-					'inputs'		=> 'string',
-					'type'			=> 'key_value',
-					'placeholder'	=> ['key'=>'image title', 'value'=>'url'],
-				),
-			)
-		);
 
 		$settings['twitter'] = array(
 			'title'					=> __( 'Twitter', $this->plugin->slug ),

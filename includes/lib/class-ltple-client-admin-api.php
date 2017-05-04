@@ -550,10 +550,20 @@ class LTPLE_Client_Admin_API {
 					array(
 					
 						'title' 		=> 'Addon Plugin',
-						'addon_link' 	=> '#',
+						'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-addon',
 						'addon_name' 	=> 'live-template-editor-addon',
 						'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-addon/archive/master.zip',
 						'description'	=> 'This is a first test of addon plugin for live template editor.',
+						'author' 		=> 'Rafasashi',
+						'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+					),
+					array(
+					
+						'title' 		=> 'Affiliate Program',
+						'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate',
+						'addon_name' 	=> 'live-template-editor-affiliate',
+						'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate/archive/master.zip',
+						'description'	=> 'Affiliate program inluding click tracking and commissions.',
 						'author' 		=> 'Rafasashi',
 						'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 					),

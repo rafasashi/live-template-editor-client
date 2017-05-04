@@ -153,7 +153,7 @@ class LTPLE_Client {
 			$this->client 		= new LTPLE_Client_Client( $this );
 			$this->request 		= new LTPLE_Client_Request( $this );
 			$this->urls 		= new LTPLE_Client_Urls( $this );
-			$this->programs 	= new LTPLE_Client_Programs( $this );
+
 			$this->stars 		= new LTPLE_Client_Stars( $this );
 			$this->login 		= new LTPLE_Client_Login( $this );
 			$this->rights 		= new LTPLE_Client_Rights( $this );
@@ -348,21 +348,6 @@ class LTPLE_Client {
 			// get user stars
 			
 			$this->user->stars = $this->stars->get_count($this->user->ID);
-			
-			// get user programs
-		
-			$this->user->programs = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-programs',true) );
-			
-			// get user affiliate
-			
-			$this->user->is_affiliate = $this->programs->has_program('affiliate', $this->user->ID, $this->user->programs);
-			
-			if( $this->user->is_affiliate ){
-
-				$this->user->affiliate_clicks 		= $this->programs->get_affiliate_counter($this->user->ID, 'clicks');
-				$this->user->affiliate_referrals 	= $this->programs->get_affiliate_counter($this->user->ID, 'referrals');
-				$this->user->affiliate_commission 	= $this->programs->get_affiliate_counter($this->user->ID, 'commission');
-			}
 					
 			// get user ref id
 			
@@ -378,6 +363,8 @@ class LTPLE_Client {
 				
 				$this->user->layer = get_post($this->layer->id);
 			}
+			
+			do_action('ltple_user_loaded');
 		}
 		
 		// newsletter unsubscription
@@ -403,8 +390,8 @@ class LTPLE_Client {
 		do_action( 'ltple_loaded');
 	}	
 	
-	public function init_backend(){				
-		
+	public function init_backend(){	
+
 		// Load admin JS & CSS
 		
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
@@ -437,20 +424,6 @@ class LTPLE_Client {
 		// get user stars
 		
 		$this->user->stars = $this->stars->get_count($this->user->ID);		
-		
-		// get user programs
-		
-		$this->user->programs = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-programs',true) );
-		
-		// get user affiliate info
-		
-		$this->user->affiliate_clicks 		= $this->programs->get_affiliate_counter($this->user->ID, 'clicks');
-		$this->user->affiliate_referrals 	= $this->programs->get_affiliate_counter($this->user->ID, 'referrals');
-		$this->user->affiliate_commission 	= $this->programs->get_affiliate_counter($this->user->ID, 'commission');
-
-		// get user referrals
-		
-		$this->user->referrals = get_user_meta($this->user->ID,$this->_base . 'referrals',true);
 
 		if(strpos($_SERVER['SCRIPT_NAME'],'user-edit.php') > 0 && isset($_REQUEST['user_id']) ){
 			
@@ -459,16 +432,13 @@ class LTPLE_Client {
 			$this->editedUser 						= get_userdata(intval($_REQUEST['user_id']));
 			$this->editedUser->rights   			= json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-rights',true) );
 			$this->editedUser->stars 				= $this->stars->get_count($this->editedUser->ID);
-			$this->editedUser->programs 			= json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-programs',true) );
-			$this->editedUser->affiliate_clicks 	= $this->programs->get_affiliate_counter($this->editedUser->ID, 'clicks');
-			$this->editedUser->affiliate_referrals 	= $this->programs->get_affiliate_counter($this->editedUser->ID, 'referrals');
-			$this->editedUser->affiliate_commission = $this->programs->get_affiliate_counter($this->editedUser->ID, 'commission');
-			$this->editedUser->referrals 			= get_user_meta($this->editedUser->ID,$this->_base . 'referrals',true);
 		}
 		else{
 			
 			$this->editedUser = $this->user;
 		}
+		
+		do_action('ltple_user_loaded');
 
 		// loaded hook
 		
@@ -1024,52 +994,71 @@ class LTPLE_Client {
 			if( empty( $this->user->channel ) && !isset($_POST['marketing-channel']) ){
 				
 				include($this->views . $this->_dev .'/channel-modal.php');
-			}			
+			}
+
+			$this->viewIncluded = false;			
 
 			if( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
 
 				include($this->views . $this->_dev .'/profile.php');
+				
+				$this->viewIncluded = true;	
 			}				
 			elseif( isset($_GET['media']) ){
 				
 				include($this->views . $this->_dev .'/media.php');
+								
+				$this->viewIncluded = true;	
 			}
 			elseif( isset($_GET['app']) || !empty($_SESSION['app']) ){
 
 				include($this->views . $this->_dev .'/apps.php');
-			}
-			elseif( isset($_GET['affiliate']) ){
-
-				include($this->views . $this->_dev .'/affiliate.php');
+								
+				$this->viewIncluded = true;	
 			}
 			elseif( isset($_GET['domain']) || !empty($_SESSION['domain']) ){
 
 				include($this->views . $this->_dev .'/domains.php');
+								
+				$this->viewIncluded = true;	
 			}				
 			elseif( isset($_GET['rank']) ){
 				
 				include($this->views . $this->_dev .'/ranking.php');
+								
+				$this->viewIncluded = true;	
 			}
 			elseif( isset($_GET['my-profile']) ){
 				
 				include($this->views . $this->_dev .'/settings.php');
+								
+				$this->viewIncluded = true;	
 			}			
 			elseif( $this->layer->id > 0){
 				
 				if( $this->user->has_layer ){
 					
 					include( $this->views . $this->_dev .'/editor.php' );
+									
+					$this->viewIncluded = true;	
 				}
 				else{
 					
 					include($this->views . $this->_dev .'/upgrade.php');
-					include($this->views . $this->_dev .'/gallery.php');					
+					include($this->views . $this->_dev .'/gallery.php');
+					
+					$this->viewIncluded = true;	
 				}
 			}
 			else{
 				
-				include($this->views . $this->_dev .'/gallery.php');		
+				do_action('ltple_editor');
 			}			
+			
+			if(!$this->viewIncluded){
+				
+				include($this->views . $this->_dev .'/gallery.php');
+			}
 		}
 		elseif( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
 

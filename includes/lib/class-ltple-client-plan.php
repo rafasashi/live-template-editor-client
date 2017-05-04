@@ -1113,12 +1113,7 @@ class LTPLE_Client_Plan {
 						do_action('ltple_free_plan_subscription');
 					}
 					
-					// handle affiliate commission
-					
-					if(!empty($_GET['pk'])){
-					
-						$this->parent->programs->set_affiliate_commission($this->parent->user->ID, $this->data, $_GET['pk'] );
-					}
+					do_action('ltple_plan_subscribed');
 
 					// schedule email series
 					
