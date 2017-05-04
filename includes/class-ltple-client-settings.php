@@ -31,6 +31,7 @@ class LTPLE_Client_Settings {
 	
 	public $settings;
 	public $tabs;
+	public $addons;
 	
 	public function __construct ( $parent ) {
 
@@ -81,6 +82,32 @@ class LTPLE_Client_Settings {
 			
 				'css-library' 		=> array( 'name' => 'CSS', 	'post-type' => 'cb-default-layer' ),
 				'js-library' 		=> array( 'name' => 'JS', 	'post-type' => 'cb-default-layer' ),
+			),
+		);
+		
+		//get addons
+	
+		$this->addons = array(
+			
+			'addon-plugin' 		=> array(
+			
+				'title' 		=> 'Addon Plugin',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-addon',
+				'addon_name' 	=> 'live-template-editor-addon',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-addon/archive/master.zip',
+				'description'	=> 'This is a first test of addon plugin for live template editor.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
+			'affiliate-program' => array(
+			
+				'title' 		=> 'Affiliate Program',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate',
+				'addon_name' 	=> 'live-template-editor-affiliate',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate/archive/master.zip',
+				'description'	=> 'Affiliate program inluding click tracking and commissions.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),
 		);
 							
@@ -165,7 +192,7 @@ class LTPLE_Client_Settings {
 		
 		$this->settings = $this->settings_fields();
 		
-		do_action('ltple_addon_settings');
+		do_action('ltple_plugin_settings');
 		
 		$this->schedule_actions();
 		
@@ -355,7 +382,7 @@ class LTPLE_Client_Settings {
 			__( 'Marketing Channels', $this->plugin->slug ),
 			__( 'Marketing Channels', $this->plugin->slug ),
 			'edit_pages',
-			'edit-tags.php?post_type=user&taxonomy=marketing-channel'
+			'edit-tags.php?post_type=post&taxonomy=marketing-channel'
 		);
 
 		do_action('ltple_admin_menu');
