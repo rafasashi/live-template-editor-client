@@ -1,5 +1,13 @@
 <?php 
+	
+	// get embedded url
+	
+	global $post;
+	
+	$embedded_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['p'].'&action=edit';
 
+	// get message
+	
 	if(!empty($this->message)){ 
 	
 		echo $this->message;
@@ -30,8 +38,8 @@
 					
 					foreach($this->all->layerType as $term){
 						
-						$gallery_url = $this->urls->editor . '?gallery=' . $term->slug;
-
+						$gallery_url = $this->urls->current . '&gallery=' . $term->slug;
+						
 						if( $term->slug == $layer_type ){
 							
 							$class=' class="active"';
@@ -107,8 +115,8 @@
 						if(!empty($terms[0]->slug)){
 							
 							$layer_range=$terms[0]->slug;
-						}				
-						
+						}	
+
 						//get item
 						
 						$item='';
@@ -160,10 +168,6 @@
 								
 								$item.='<div class="panel-footer text-right">';
 
-									$item.='<a class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $this->urls->product .'?id=' . $post->ID . '" title="More info about '. $post_title .' template">Info</a>';
-								
-									//$item.='<a class="btn btn-sm btn-warning" href="'. $permalink .'" target="_blank" title="'. $post_title .'">Preview</a>';
-								
 									$modal_id='modal_'.md5($permalink);
 									
 									$item.='<button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
@@ -203,7 +207,15 @@
 												
 													if($this->user->loggedin){
 
-														$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+														//$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+													
+														$item.='<form target="_top"  method="post" action="'.$embedded_url.'" style="display:inline-block;">';
+														
+															$item.='<input type="hidden" name="defaultLayerId" value="' . $post->ID . '" />';
+															
+															$item.='<button class="btn btn-sm btn-success" title="Edit layer">Edit</button>';
+														
+														$item.='</form>';
 													}
 													else{
 														
@@ -226,7 +238,15 @@
 										
 										if($this->plan->user_has_layer( $post->ID ) === true){
 											
-											$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+											//$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+		
+											$item.='<form target="_top" method="post" action="'.$embedded_url.'" style="display:inline-block;">';
+											
+												$item.='<input type="hidden" name="defaultLayerId" value="' . $post->ID . '" />';
+
+												$item.='<button class="btn btn-sm btn-success" title="Edit layer">Edit</button>';
+											
+											$item.='</form>';
 										}
 										else{
 											

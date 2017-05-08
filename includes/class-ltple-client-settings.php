@@ -47,6 +47,7 @@ class LTPLE_Client_Settings {
 		$this->options->analyticsId  = get_option( $this->parent->_base . 'analytics_id');
 		$this->options->emailSupport = get_option( $this->parent->_base . 'email_support');	
 		$this->options->postTypes 	 = get_option( $this->parent->_base . 'post_types');	
+		$this->options->logo_url 	 = get_option( $this->parent->_base . 'homeLogo' );
 		
 		// get tabs
 		
@@ -846,11 +847,11 @@ class LTPLE_Client_Settings {
 					
 					//do_settings_sections( $this->parent->_token . '_settings' );
 
-					$this->do_addon_section( $this->parent->_token . '_settings' );
+					$this->do_settings_sections( $this->parent->_token . '_settings' );
 					
 					$html .= ob_get_clean();
 
-					if( isset($_GET['tab']) && $_GET['tab'] != 'addons' ){
+					if( !isset($_GET['tab']) || $_GET['tab'] != 'addons' ){
 					
 						$html .= '<p class="submit">' . "\n";
 							$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
@@ -873,7 +874,7 @@ class LTPLE_Client_Settings {
 		echo $html;
 	}
 	
-	public function do_addon_section($page) {
+	public function do_settings_sections($page) {
 		
 		global $wp_settings_sections, $wp_settings_fields;
 

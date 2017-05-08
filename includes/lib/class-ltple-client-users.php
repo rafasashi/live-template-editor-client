@@ -74,7 +74,21 @@
 					add_action( 'ltple_restrict_manage_users', function( $which ){
 						
 						echo '</div>'; //close previous actions div
-						echo '<div class="actions" style="display:inline-block;">';
+						
+						if( $which == 'top' ){
+							
+							echo '<div style="width:100%;display: inline-block;">';
+							
+								echo '<h2 class="nav-tab-wrapper" style="margin-bottom: 10px;margin-top: 15px;">';
+									
+									echo '<a class="nav-tab nav-tab-active" href="users.php?ltple_view=subscribers">Subscribers</a>';
+								
+								echo '</h2>';						
+							
+							echo '</div>';
+						}
+						
+						echo '<div class="actions" style="display:inline;">';
 							
 							// add marketing-channel filter
 							

@@ -13,6 +13,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $type		= '';
 	public $form		= '';
 	public $outputMode	= '';
+	public $embedded	= '';
 	public $types		= '';
 	public $ranges		= '';
 	public $options		= '';
@@ -557,7 +558,41 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			if(isset($_GET['lk'])){
 				
 				$this->key = sanitize_text_field($_GET['lk']);
-			}			
+			}
+
+			// get embedded layer
+			
+			$embedded_url = '';
+			
+			if(isset($_GET['le'])){
+				
+				$embedded_url = sanitize_text_field($_GET['le']);
+			}
+			elseif(isset($_POST['postEmbedded'])){
+				
+				$embedded_url = sanitize_text_field($_POST['postEmbedded']);
+			}
+			
+			if( !empty($embedded_url) ){
+				
+				$embedded = parse_url($embedded_url);
+
+				parse_str($embedded['query'],$query);
+
+				$embedded = array_merge($embedded,$query);
+
+				foreach($embedded as $i => $e){
+					
+					if(is_numeric($e)){
+						
+						$embedded[$i]=intval($e);
+					}
+				}			
+				
+				$embedded['url'] = $embedded_url;
+				
+				$this->embedded = $embedded;
+			}				
 			
 			if(isset($_GET['uri'])){
 				
@@ -988,6 +1023,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$post = get_post($layerId);
 							
 							if( !empty($post) ){
+								
+								if(!isset($post->layer_id)){
+									
+									$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+								}
 
 								include($this->parent->views . $this->parent->_dev .'/layer.php');
 								
@@ -995,6 +1035,27 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							}							
 						}
 					}
+				}
+			}
+		}
+		elseif( !empty($_GET['uid']) ){
+			
+			$layerId = intval($_GET['uid']);
+			 
+			if( $layerId > 0 ){
+				
+				$post = get_post($layerId);
+				
+				if( !empty($post) ){
+					
+					if(!isset($post->layer_id)){
+						
+						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+					}						
+
+					include($this->parent->views . $this->parent->_dev .'/layer.php');
+					
+					exit;
 				}
 			}
 		}

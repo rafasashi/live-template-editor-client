@@ -33,7 +33,7 @@
 		</ul>
 	</div>
 
-	<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-top:15px;padding-bottom:15px;min-height:500px;">
+	<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-top:15px;padding-bottom:15px;min-height:700px;">
 		
 		<div class="tab-content">
 		  

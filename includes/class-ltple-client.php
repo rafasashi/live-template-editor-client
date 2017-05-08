@@ -164,7 +164,7 @@ class LTPLE_Client {
 			$this->cron 	= new LTPLE_Client_Cron( $this );
 			$this->email 	= new LTPLE_Client_Email( $this );
 			$this->campaign = new LTPLE_Client_Campaign( $this );
-				
+			
 			$this->api 		= new LTPLE_Client_Json_API( $this );
 			$this->server 	= new LTPLE_Client_Server( $this );
 			 
@@ -391,7 +391,7 @@ class LTPLE_Client {
 	}	
 	
 	public function init_backend(){	
-
+	
 		// Load admin JS & CSS
 		
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
@@ -701,7 +701,7 @@ class LTPLE_Client {
 	}
 	
 	public function editor_output() {
-
+		
 		$this->all = new stdClass();
 		
 		// get all layer types
@@ -813,6 +813,10 @@ class LTPLE_Client {
 		if( isset( $_GET['output']) && $_GET['output'] == 'widget' ){
 			
 			include( $this->views . $this->_dev .'/widget.php' );
+		}
+		elseif( isset( $_GET['output']) && $_GET['output'] == 'embedded' ){		
+			
+			include( $this->views . $this->_dev .'/editor-embedded.php' );
 		}
 		elseif( isset($_GET['api']) ){
 
@@ -937,8 +941,8 @@ class LTPLE_Client {
 	public function get_menu( $items, $args ){
 		
 		if($args->menu_id == 'main-menu'){
-		
-			$homeLogo = get_option( $this->_base . 'homeLogo' );
+			
+			$homeLogo = $this->settings->options->logo_url;
 			
 			$home  = '<div id="header_logo">';
 			
@@ -988,8 +992,15 @@ class LTPLE_Client {
 		echo '</style>';	
 		
 		if($this->user->loggedin){		
-
-			include( $this->views . $this->_dev .'/navbar.php' );	
+			
+			if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
+				
+				include($this->views . $this->_dev .'/navbar-embedded.php');
+			}
+			else{
+				
+				include($this->views . $this->_dev .'/navbar.php');
+			}
 			
 			if( empty( $this->user->channel ) && !isset($_POST['marketing-channel']) ){
 				
@@ -1034,7 +1045,7 @@ class LTPLE_Client {
 								
 				$this->viewIncluded = true;	
 			}			
-			elseif( $this->layer->id > 0){
+			elseif( $this->layer->id > 0 ){
 				
 				if( $this->user->has_layer ){
 					
@@ -1045,7 +1056,15 @@ class LTPLE_Client {
 				else{
 					
 					include($this->views . $this->_dev .'/upgrade.php');
-					include($this->views . $this->_dev .'/gallery.php');
+					
+					if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
+						
+						include($this->views . $this->_dev .'/gallery-embedded.php');
+					}
+					else{
+						
+						include($this->views . $this->_dev .'/gallery.php');
+					}
 					
 					$this->viewIncluded = true;	
 				}
@@ -1057,7 +1076,14 @@ class LTPLE_Client {
 			
 			if(!$this->viewIncluded){
 				
-				include($this->views . $this->_dev .'/gallery.php');
+				if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
+					
+					include($this->views . $this->_dev .'/gallery-embedded.php');
+				}
+				else{
+					
+					include($this->views . $this->_dev .'/gallery.php');
+				}
 			}
 		}
 		elseif( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
@@ -1084,7 +1110,14 @@ class LTPLE_Client {
 				
 			echo'</div>';		
 			
-			include($this->views . $this->_dev .'/gallery.php');
+			if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
+				
+				include($this->views . $this->_dev .'/gallery-embedded.php');
+			}
+			else{
+				
+				include($this->views . $this->_dev .'/gallery.php');
+			}
 		}
 	}
 
@@ -1154,9 +1187,9 @@ class LTPLE_Client {
 	}
 	
 	public function update_user_layer(){	
-		
-		if( $this->user->loggedin ){
 
+		if( $this->user->loggedin ){
+			
 			if( $this->layer->type == 'user-layer' && empty( $this->user->layer ) ){
 				
 				//--------cannot be found --------
@@ -1224,9 +1257,12 @@ class LTPLE_Client {
 				// get post content
 				
 				$post_content 	= $this->layer->sanitize_content( $_POST['postContent'] );
-				$post_css 		= ( !empty($_POST['postCss']) 	? stripcslashes( $_POST['postCss'] ) : '' );
-				$post_js 		= ( !empty($_POST['postJs']) 	? stripcslashes( $_POST['postJs'] ) : '' );
-				$post_title 	= ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) : '' );
+				
+				$post_css 		= ( !empty($_POST['postCss']) 		? stripcslashes( $_POST['postCss'] ) 		 : '' );
+				$post_js 		= ( !empty($_POST['postJs']) 		? stripcslashes( $_POST['postJs'] ) 		 : '' );
+				$post_title 	= ( !empty($_POST['postTitle']) 	? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
+				$post_embedded 	= ( !empty($_POST['postEmbedded']) 	? sanitize_text_field($_POST['postEmbedded']): '' );
+				
 				$post_name 		= $post_title;			
 
 				if( $_POST['postAction'] == 'update' && $this->user->is_admin ){
@@ -1633,11 +1669,18 @@ class LTPLE_Client {
 							
 							update_post_meta($post_id, 'layerJs', $post_js);
 							
+							update_post_meta($post_id, 'layerEmbedded', $post_embedded);
+							
 							//redirect to user layer
-							
-							$user_layer_url = $this->urls->editor . '?uri=' . $post_id;
-							
-							//var_dump($user_layer_url);exit;
+
+							if( !empty($post_embedded) ){
+								
+								$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['p'].'&action=edit&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id);
+							}
+							else{
+								
+								$user_layer_url = $this->urls->editor . '?uri=' . $post_id;
+							}
 							
 							wp_redirect($user_layer_url);
 							echo 'Redirecting editor...';

@@ -309,7 +309,7 @@ class LTPLE_Client_Admin_API {
 									$item.='</div>';
 									
 									$item.='<div class="panel-footer text-right">';
-										
+
 										if( intval($data) == $layer->ID ){
 
 											$item.='<button type="button" class="btn btn-xs btn-success layer-selected" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
@@ -545,33 +545,9 @@ class LTPLE_Client_Admin_API {
 			
 			case 'addon_plugins':
 				
-				$addons = array(
-					
-					array(
-					
-						'title' 		=> 'Addon Plugin',
-						'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-addon',
-						'addon_name' 	=> 'live-template-editor-addon',
-						'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-addon/archive/master.zip',
-						'description'	=> 'This is a first test of addon plugin for live template editor.',
-						'author' 		=> 'Rafasashi',
-						'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-					),
-					array(
-					
-						'title' 		=> 'Affiliate Program',
-						'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate',
-						'addon_name' 	=> 'live-template-editor-affiliate',
-						'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate/archive/master.zip',
-						'description'	=> 'Affiliate program inluding click tracking and commissions.',
-						'author' 		=> 'Rafasashi',
-						'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-					),
-				);
-				
 				$html .= '<div id="the-list">';
 				
-					foreach( $addons as $addon ){
+					foreach( $this->parent->settings->addons as $addon ){
 				
 						$html .= '<div class="panel panel-default plugin-card plugin-card-akismet">';
 						

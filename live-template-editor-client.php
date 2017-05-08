@@ -35,6 +35,10 @@
 				
 				return true;
 			}
+			elseif( isset($_GET['debug']) && $_GET['debug'] == '1' ){
+				
+				return true;
+			}
 
 			return false;		
 		}			
@@ -96,7 +100,7 @@
 			
 			$instance->_dev = ( is_dev_env() ? '-dev' : '');
 		}				
- 
+
 		if ( is_null( $instance->settings ) ) {
 			
 			$instance->settings = LTPLE_Client_Settings::instance( $instance );
