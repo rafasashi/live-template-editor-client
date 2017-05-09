@@ -1675,7 +1675,7 @@ class LTPLE_Client {
 
 							if( !empty($post_embedded) ){
 								
-								$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['p'].'&action=edit&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id);
+								$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['p'].'&action=edit&ult='.urlencode($post_title).'&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id.$post_title);
 							}
 							else{
 								

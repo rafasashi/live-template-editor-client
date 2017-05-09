@@ -10,6 +10,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $uri			= '';
 	public $key			= ''; // gives the server proxy access to the layer
 	public $slug		= '';
+	public $title		= '';
 	public $type		= '';
 	public $form		= '';
 	public $outputMode	= '';
@@ -589,7 +590,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					}
 				}			
 				
+				// get url
+				
 				$embedded['url'] = $embedded_url;
+				
+				// get title
+				
+				$embedded_title = '';
+				
+				if(!empty($_GET['title'])){
+					
+					$embedded_title = sanitize_text_field($_GET['title']);
+				}
+				
+				$embedded['title'] = $embedded_title;
+				
+				// set embedded info
 				
 				$this->embedded = $embedded;
 			}				
@@ -601,13 +617,26 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				if( $this->uri > 0 ){
 				
 					$q = get_post($this->uri);
-
+					
+					if( $q->post_status == 'trash' && $q->post_type == 'user-layer' ){
+						
+						// get default template instead
+						
+						$this->defaultId = intval(get_post_meta( $q->ID, 'defaultLayerId', true ));
+						
+						if( $this->defaultId > 0 ){
+							
+							$q = get_post($this->defaultId);
+						}
+					}
+					
 					if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
 					
 						$this->id 		= $q->ID;
 						$this->type 	= $q->post_type;
 						$this->slug 	= $q->post_name;
-					
+						$this->title 	= $q->post_title;
+						
 						if( $this->type == 'user-layer' ){
 						
 							$this->content 	 = $q->post_content;
@@ -1046,14 +1075,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$post = get_post($layerId);
 				
-				if( !empty($post) ){
+				if( !empty($post) && $post->post_type == 'user-layer' ){
 					
-					if(!isset($post->layer_id)){
+					if( $post->post_status == 'publish' ){
 						
-						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
-					}						
+						if(!isset($post->layer_id)){
+							
+							$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+						}						
 
-					include($this->parent->views . $this->parent->_dev .'/layer.php');
+						include($this->parent->views . $this->parent->_dev .'/layer.php');
+					}
+					elseif( $post->post_status == 'draft' ){
+						
+						echo 'This page is in draft mode...';
+					}
+					else{
+						
+						echo 'This page has been removed...';
+					}
 					
 					exit;
 				}

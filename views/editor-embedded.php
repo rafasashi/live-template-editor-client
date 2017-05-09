@@ -52,7 +52,7 @@
 				
 				echo'#main-menu li {';
 				
-					echo'display:inline-block;';
+					echo'display:inline-flex;';
 					echo'margin-left: 5px;';
 				
 				echo'}';
