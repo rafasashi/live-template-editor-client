@@ -61,11 +61,6 @@
 	
 	$mode = ( is_dev_env() ? '-dev' : '');
 	
-	if( $mode == '-dev' ){
-		
-		ini_set('display_errors', 1);
-	}
-	
 	// Load plugin functions
 	require_once( 'includes'.$mode.'/functions.php' );	
 	
