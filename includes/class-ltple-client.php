@@ -173,7 +173,8 @@ class LTPLE_Client {
 			
 			$this->leads 	= new LTPLE_Client_Leads( $this );
 			
-			$this->layer 	= new LTPLE_Client_Layer( $this );			
+			$this->layer 	= new LTPLE_Client_Layer( $this );
+			$this->services = new LTPLE_Client_Services( $this );			
 			$this->plan 	= new LTPLE_Client_Plan( $this );
 			$this->product 	= new LTPLE_Client_Product( $this );
 
@@ -1963,8 +1964,7 @@ class LTPLE_Client {
 				}
 				else{ 
 					
-					echo 'Empty image title...';
-					exit;
+					$img_title = $img_name = 'image_' . time();
 				}
 
 				if($_POST['imgUrl']!=''){

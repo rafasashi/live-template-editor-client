@@ -233,7 +233,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'side'
 				);
 			}
-			elseif( $post->post_type == 'user-layer' || in_array( $post->post_type, $this->parent->settings->options->postTypes ) ){
+			elseif( $post->post_type == 'user-layer' || ( !empty($this->parent->settings->options->postTypes) && in_array( $post->post_type, $this->parent->settings->options->postTypes ) ) ){
 
 				$this->parent->admin->add_meta_box (
 				
@@ -349,15 +349,124 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$this->ranges = $this->get_terms( 'layer-range', array(
 				
-			'demo'  => 'Demo'
+			'demo'  => 'Demo',
+			'single-page' => array(
+			
+				'name' 		=> 'Single Page',
+				'options' 	=> array(
+				
+					'price_amount'	=> 10,
+					'price_period' 	=> 'month',
+					'storage_amount'=> 1,
+					'storage_unit' 	=> 'templates',
+				),
+			),
+			'multi-page' => array(
+			
+				'name' 		=> 'Multi-Page',
+				'options' 	=> array(
+				
+					'price_amount'	=> 15,
+					'price_period' 	=> 'month',
+					'storage_amount'=> 1,
+					'storage_unit' 	=> 'templates',
+				),
+			),
+			'tailored-single-page' => array(
+			
+				'name' 		=> 'Tailored Single Page',
+				'options' 	=> array(
+				
+					'price_amount'	=> 10,
+					'price_period' 	=> 'month',
+					'storage_amount'=> 1,
+					'storage_unit' 	=> 'templates',
+				),
+			),
+			'tailored-multi-page' => array(
+			
+				'name' 		=> 'Tailored Multi-Page',
+				'options' 	=> array(
+				
+					'price_amount'	=> 15,
+					'price_period' 	=> 'month',
+					'storage_amount'=> 0,
+					'storage_unit' 	=> 'templates',
+				),
+			),
 		));
 	}
 	
 	public function get_account_options(){
 
 		$this->options = $this->get_terms( 'account-option', array(
+
+			'1-template-storage' => array(
+			
+				'name' 		=> '+1 template storage',
+				'options' 	=> array(
 				
-			'1-template-storage'  => '+1 template storage'
+					'price_amount'	=> 0,
+					'price_period' 	=> 'month',
+					'storage_amount'=> 1,
+					'storage_unit' 	=> 'templates',
+				),
+			),
+			'5-template-storage' => array(
+			
+				'name' 		=> '+5 template storage',
+				'options' 	=> array(
+				
+					'price_amount'	=> 0,
+					'price_period' 	=> 'month',
+					'storage_amount'=> 5,
+					'storage_unit' 	=> 'templates',
+				),
+			),
+			'10-template-storage' => array(
+			
+				'name' 		=> '+10 template storage',
+				'options' 	=> array(
+				
+					'price_amount'	=> 0,
+					'price_period' 	=> 'month',
+					'storage_amount'=> 10,
+					'storage_unit' 	=> 'templates',
+				),
+			),	
+			'tailored-page-fee' => array(
+			
+				'name' 		=> 'Tailored Page Fee',
+				'options' 	=> array(
+				
+					'price_amount'	=> 200,
+					'price_period' 	=> 'once',
+					'storage_amount'=> 0,
+					'storage_unit' 	=> 'templates',
+				),
+			),
+			'tailored-multi-page-fee' => array(
+			
+				'name' 		=> 'Tailored Multi-Page Fee',
+				'options' 	=> array(
+				
+					'price_amount'	=> 400,
+					'price_period' 	=> 'once',
+					'storage_amount'=> 0,
+					'storage_unit' 	=> 'templates',
+				),
+			),			
+			'seo-basic' => array(
+			
+				'name' 		=> 'SEO Basic',
+				'options' 	=> array(
+				
+					'price_amount'	=> 100,
+					'price_period' 	=> 'month',
+					'storage_amount'=> 0,
+					'storage_unit' 	=> 'templates',
+				),
+			),
 		));
 	}
 	

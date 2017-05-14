@@ -77,12 +77,16 @@ class LTPLE_Client_Settings {
 				'layer-range' 		=> array( 'name' => 'Ranges', 	'post-type' => 'cb-default-layer' ),
 				'account-option' 	=> array( 'name' => 'Options', 	'post-type' => 'cb-default-layer' ),
 				'image-type' 		=> array( 'name' => 'Images', 	'post-type' => 'default-image' ),
-				'app-type' 			=> array( 'name' => 'Apps', 	'post-type' => 'user-app' ),
 			),
 			array(
 			
 				'css-library' 		=> array( 'name' => 'CSS', 	'post-type' => 'cb-default-layer' ),
 				'js-library' 		=> array( 'name' => 'JS', 	'post-type' => 'cb-default-layer' ),
+			),
+			array(
+			
+				'addon-service' 	=> array( 'name' => 'Services', 'post-type' => 'subscription-plan' ),
+				'app-type' 			=> array( 'name' => 'Apps', 	'post-type' => 'user-app' ),
 			),
 		);
 		
@@ -353,7 +357,7 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit-tags.php?post_type=cb-default-layer&taxonomy=layer-type'
 		);
-		
+
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'CSS, JS & Fonts', $this->plugin->slug ),
@@ -361,6 +365,14 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit-tags.php?post_type=cb-default-layer&taxonomy=css-library'
 		);
+		 
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'Services & Apps', $this->plugin->slug ),
+			__( 'Services & Apps', $this->plugin->slug ),
+			'edit_pages',
+			'edit-tags.php?post_type=subscription-plan&taxonomy=addon-service'
+		); 		
 		
 		add_submenu_page(
 			$this->plugin->slug,
