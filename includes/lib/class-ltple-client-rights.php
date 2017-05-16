@@ -23,7 +23,7 @@ class LTPLE_Client_Rights {
 		
 		// add rights taxonomy custom fields
 		
-		add_action( 'show_user_profile', array( $this, 'get_user_rights' ) );
+		add_action( 'show_user_profile', array( $this, 'get_user_rights' ),2,10 );
 		add_action( 'edit_user_profile', array( $this, 'get_user_rights' ) );
 		
 		// save rights taxonomy custom fields

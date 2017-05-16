@@ -1,3 +1,4 @@
+select, input[type=text], input[type=number] {width: auto !important;display: inline-block !important;}
 #wpcontent, #wpwrap,#wp-content-editor-tools {background:#f9f9f9 !important;}
 #message.fade {opacity:initial;}
 .sortable .ui-sortable { list-style-type: none; margin: 0; padding: 0; }

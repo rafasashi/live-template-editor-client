@@ -332,7 +332,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sandbox'  			=> 'Sandbox',
 			'tailored'  		=> 'Tailored',
 			'hosted'  			=> 'Hosted',
-			
 		));
 		
 		$this->released 				= [];
@@ -342,7 +341,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->released['myfreecams'] 	= true;
 		$this->released['standalone'] 	= true;
 		$this->released['memes'] 		= true;
-		$this->released['landing-page']	= true;		
+		$this->released['landing-page']	= true;
+		$this->released['tailored']		= true;		
 	}
 	
 	public function get_layer_ranges(){

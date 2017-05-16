@@ -95,7 +95,7 @@ class LTPLE_Client_Plan {
 
 			// add user taxonomy custom fields
 			
-			add_action( 'show_user_profile', array( $this, 'get_user_plan_and_pricing' ) );
+			add_action( 'show_user_profile', array( $this, 'get_user_plan_and_pricing' ),2,10 );
 			add_action( 'edit_user_profile', array( $this, 'get_user_plan_and_pricing' ) );
 			
 			// save user taxonomy custom fields
@@ -857,10 +857,11 @@ class LTPLE_Client_Plan {
 											
 											$disabled = disabled( true, true, false ); // untill subscription edition implemented	
 										}
-
-										echo '<input type="checkbox" name="'.$input_name.'" id="'.$taxonomy.'-'. $input_value .'" value="'. $input_value .'" '.$disabled.' '. $checked .' />'; 
-										echo '<label for="'.$taxonomy.'-'. $input_value .'">'. $input_label .'</label> ';
-										echo '<br />';
+										
+										echo '<div style="height:20px;">';
+											echo '<input type="checkbox" name="'.$input_name.'" id="'.$taxonomy.'-'. $input_value .'" value="'. $input_value .'" '.$disabled.' '. $checked .' />'; 
+											echo '<label style="margin-bottom:0px; for="'.$taxonomy.'-'. $input_value .'">'. $input_label .'</label> ';
+										echo '</div>';
 									
 									}
 								
@@ -881,7 +882,7 @@ class LTPLE_Client_Plan {
 										$total_storage 		= $this->sum_custom_taxonomy_total_storage( $total_storage, $options[$i]);
 									}
 									
-									echo '<span style="display:block;padding:1px 0;margin:0;">';
+									echo '<span style="height:20px;display:block;padding:1px 0;margin:0;">';
 										
 										if($options[$i]['storage_unit']=='templates'&&$options[$i]['storage_amount']==1){
 											
@@ -906,7 +907,7 @@ class LTPLE_Client_Plan {
 								
 									foreach ( $terms as $i => $term ) {
 								
-										echo '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
+										echo '<span style="height:20px;display:block;padding:1px 0 3px 0;margin:0;">';
 										
 											echo $options[$i]['price_amount'].$options[$i]['price_currency'].' / '.$options[$i]['price_period'];
 										

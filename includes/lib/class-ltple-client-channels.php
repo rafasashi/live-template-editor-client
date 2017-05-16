@@ -41,7 +41,7 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 			
 			// add channel taxonomy custom fields
 			
-			add_action( 'show_user_profile', array( $this, 'get_user_marketing_channel' ) );
+			add_action( 'show_user_profile', array( $this, 'get_user_marketing_channel' ),2,10 );
 			add_action( 'edit_user_profile', array( $this, 'get_user_marketing_channel' ) );
 			
 			// save channel taxonomy custom fields

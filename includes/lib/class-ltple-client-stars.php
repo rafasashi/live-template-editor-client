@@ -28,7 +28,7 @@
 				}
 			}
 			
-			add_action( 'show_user_profile', array( $this, 'get_user_stars' ) );
+			add_action( 'show_user_profile', array( $this, 'get_user_stars' ),2,10 );
 			add_action( 'edit_user_profile', array( $this, 'get_user_stars' ) );
 			
 			add_action( 'edit_user_profile_update', array( $this, 'save_user_stars' ) );
