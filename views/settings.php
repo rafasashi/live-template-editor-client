@@ -19,14 +19,6 @@
 				
 				echo'<li class="active"><a href="#general-info" data-toggle="tab">General Info</a></li>';
 				
-				//echo'<li><a href="#custom-profile" data-toggle="tab">Custom Profile</a></li>';
-				
-				//echo'<li><a href="#connected-apps" data-toggle="tab">Connected Apps</a></li>';
-				
-				//echo'<li class="gallery_type_title">Design Rules</li>';
-				
-				//echo'<li><a href="#html-markups" data-toggle="tab">HTML Markups</a></li>';
-				
 			echo'</ul>';
 			
 		echo'</div>';

@@ -209,13 +209,16 @@ class LTPLE_Client {
 		return $secret_iv;
 	}	
 	
-	private function ltple_encrypt_str($string){
+	private function ltple_encrypt_str($string, $secret_key = ''){
 		
 		$output = false;
 
 		$encrypt_method = "AES-256-CBC";
 		
-		$secret_key = md5( $this->client->key );
+		if( empty($secret_key) ){
+		
+			$secret_key = md5( $this->client->key );
+		}
 		
 		$secret_iv = $this->ltple_get_secret_iv();
 		
@@ -231,13 +234,16 @@ class LTPLE_Client {
 		return $output;
 	}
 	
-	private function ltple_decrypt_str($string){
+	private function ltple_decrypt_str($string, $secret_key = ''){
 		
 		$output = false;
 
 		$encrypt_method = "AES-256-CBC";
 		
-		$secret_key = md5( $this->client->key );
+		if( empty($secret_key) ){
+			
+			$secret_key = md5( $this->client->key );
+		}
 		
 		$secret_iv = $this->ltple_get_secret_iv();
 
@@ -712,6 +718,11 @@ class LTPLE_Client {
 			'taxonomy' => 'layer-type',
 			'hide_empty' => true,
 		));
+		
+		foreach( $this->all->layerType as $term ){
+		
+			$term->visibility = get_option('visibility_'.$term->slug,'anyone');
+		}
 		
 		// get all layer ranges
 		

@@ -11,9 +11,9 @@
 		
 		echo'<div class="row">';	
 		
-			foreach($this->parent->layer->types as $term){
+			foreach($this->parent->all->layerType as $term){
 				
-				if(isset($this->parent->layer->released[$term->slug])){
+				if($term->visibility == 'anyone'){
 					
 					//output related templates
 					

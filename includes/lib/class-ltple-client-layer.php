@@ -18,7 +18,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $types		= '';
 	public $ranges		= '';
 	public $options		= '';
-	public $released	= '';
 	
 	/**
 	 * Constructor function
@@ -273,29 +272,29 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		});		
 
-		add_action('account-option_add_form_fields', array( $this, 'get_new_layer_fields' ) );
-		add_action('account-option_edit_form_fields', array( $this, 'get_layer_fields' ) );	
+		add_action('account-option_add_form_fields', array( $this, 'add_layer_fields' ) );
+		add_action('account-option_edit_form_fields', array( $this, 'get_layer_type_fields' ) );	
 	
-		add_filter('manage_edit-account-option_columns', array( $this, 'set_account_taxonomy_columns' ) );
-		add_filter('manage_account-option_custom_column', array( $this, 'add_account_taxonomy_column_content' ),10,3);			
+		add_filter('manage_edit-account-option_columns', array( $this, 'set_account_columns' ) );
+		add_filter('manage_account-option_custom_column', array( $this, 'add_account_column_content' ),10,3);			
 	
 		add_action('create_account-option', array( $this, 'save_layer_fields' ) );
 		add_action('edit_account-option', array( $this, 'save_layer_fields' ) );	
 
-		add_action('layer-type_add_form_fields', array( $this, 'get_new_layer_fields' ) );
-		add_action('layer-type_edit_form_fields', array( $this, 'get_layer_fields' ) );
+		add_action('layer-type_add_form_fields', array( $this, 'add_layer_fields' ) );
+		add_action('layer-type_edit_form_fields', array( $this, 'get_layer_type_fields' ) );
 	
-		add_filter('manage_edit-layer-type_columns', array( $this, 'set_layer_taxonomy_columns' ) );
-		add_filter('manage_layer-type_custom_column', array( $this, 'add_layer_taxonomy_column_content' ),10,3);		
+		add_filter('manage_edit-layer-type_columns', array( $this, 'set_layer_type_columns' ) );
+		add_filter('manage_layer-type_custom_column', array( $this, 'add_layer_column_content' ),10,3);		
 		
 		add_action('create_layer-type', array( $this, 'save_layer_fields' ) );
 		add_action('edit_layer-type', array( $this, 'save_layer_fields' ) );	
 
-		add_action('layer-range_add_form_fields', array( $this, 'get_new_layer_fields' ) );
-		add_action('layer-range_edit_form_fields', array( $this, 'get_layer_fields' ) );
+		add_action('layer-range_add_form_fields', array( $this, 'add_layer_fields' ) );
+		add_action('layer-range_edit_form_fields', array( $this, 'get_layer_type_fields' ) );
 	
-		add_filter('manage_edit-layer-range_columns', array( $this, 'set_layer_taxonomy_columns' ) );
-		add_filter('manage_layer-range_custom_column', array( $this, 'add_layer_taxonomy_column_content' ),10,3);
+		add_filter('manage_edit-layer-range_columns', array( $this, 'set_layer_range_columns' ) );
+		add_filter('manage_layer-range_custom_column', array( $this, 'add_layer_column_content' ),10,3);
 	
 		add_action('create_layer-range', array( $this, 'save_layer_fields' ) );
 		add_action('edit_layer-range', array( $this, 'save_layer_fields' ) );			
@@ -332,17 +331,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sandbox'  			=> 'Sandbox',
 			'tailored'  		=> 'Tailored',
 			'hosted'  			=> 'Hosted',
-		));
-		
-		$this->released 				= [];
-		$this->released['quickstart'] 	= true;
-		$this->released['emails'] 		= true;
-		$this->released['chaturbate'] 	= true;
-		$this->released['myfreecams'] 	= true;
-		$this->released['standalone'] 	= true;
-		$this->released['memes'] 		= true;
-		$this->released['landing-page']	= true;
-		$this->released['tailored']		= true;		
+		));		
 	}
 	
 	public function get_layer_ranges(){
@@ -1254,13 +1243,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $str;
 	}
 	
-	public function get_new_layer_fields($taxonomy_name){
+	public function add_layer_fields($taxonomy_name){
 		
 		echo'<div class="form-field">';
 			
 			echo'<label for="'.$taxonomy_name.'-price-amount">Price</label>';
 
-			echo $this->parent->plan->get_layer_taxonomy_price_fields($taxonomy_name,[]);
+			echo $this->parent->plan->get_layer_price_fields($taxonomy_name,[]);
 			
 		echo'</div>';
 		
@@ -1268,12 +1257,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			echo'<label for="'.$taxonomy_name.'-storage-amount">Storage</label>';
 
-			echo $this->parent->plan->get_layer_taxonomy_storage_fields($taxonomy_name,0);
+			echo $this->parent->plan->get_layer_storage_fields($taxonomy_name,0);
 			
 		echo'</div>';
 	}
 	
-	public function get_layer_fields($term){
+	public function get_layer_type_fields($term){
 
 		//collect our saved term field information
 		
@@ -1297,7 +1286,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			echo'<td>';
 				
-				echo $this->parent->plan->get_layer_taxonomy_price_fields($term->taxonomy,$price);
+				echo $this->parent->plan->get_layer_price_fields($term->taxonomy,$price);
 				
 			echo'</td>';
 			
@@ -1313,11 +1302,45 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			echo'<td>';
 				
-				echo $this->parent->plan->get_layer_taxonomy_storage_fields($term->taxonomy,$storage);
+				echo $this->parent->plan->get_layer_storage_fields($term->taxonomy,$storage);
 						
 			echo'</td>';
 			
-		echo'</tr>';	
+		echo'</tr>';
+		
+		if( $term->taxonomy == 'layer-type' ){
+		
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Visibility </label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$this->parent->admin->display_field( array(			
+						
+						'name'			=> 'visibility_'.$term->slug,
+						'id'			=> 'visibility_'.$term->slug,
+						'label'			=> "",
+						'type'			=> 'radio',
+						'options'		=> array(
+							
+							'admin'			=> 'Admin',
+							'anyone'		=> 'Anyone',
+						),
+						'inline'		=> false,
+						'default'		=> 'anyone',
+						'description'	=> ''
+						
+					), false );
+					
+				echo'</td>';	
+				
+			echo'</tr>';
+		}
 
 		echo'<tr class="form-field">';
 		
@@ -1451,49 +1474,86 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		echo'</tr>';
 	}	
 	
-	public function set_layer_taxonomy_columns($columns) {
+	public function set_layer_type_columns($columns) {
 
 		// Remove description, posts, wpseo columns
 		$columns = [];
 		
 		// Add artist-website, posts columns
 
-		$columns['cb'] = '<input type="checkbox" />';
-		$columns['name'] = 'Name';
-		//$columns['slug'] = 'Slug';
+		$columns['cb'] 			= '<input type="checkbox" />';
+		$columns['name'] 		= 'Name';
+		$columns['visibility'] 	= 'Visibility';
+		//$columns['slug'] 		= 'Slug';
 		$columns['description'] = 'Description';
-		$columns['price'] = 'Price';
-		$columns['storage'] = 'Storage';
-		//$columns['posts'] = 'Layers';
-		//$columns['users'] = 'Users';
+		$columns['price'] 		= 'Price';
+		$columns['storage'] 	= 'Storage';
+		//$columns['posts'] 	= 'Layers';
+		//$columns['users'] 	= 'Users';
+
+		return $columns;
+	}	
+	
+	public function set_layer_range_columns($columns) {
+
+		// Remove description, posts, wpseo columns
+		$columns = [];
+		
+		// Add artist-website, posts columns
+
+		$columns['cb'] 			= '<input type="checkbox" />';
+		$columns['name'] 		= 'Name';
+		//$columns['slug'] 		= 'Slug';
+		$columns['description'] = 'Description';
+		$columns['price'] 		= 'Price';
+		$columns['storage'] 	= 'Storage';
+		//$columns['posts'] 	= 'Layers';
+		//$columns['users'] 	= 'Users';
 
 		return $columns;
 	}
 	
-	public function set_account_taxonomy_columns($columns) {
+	public function set_account_columns($columns) {
 
 		// Remove description, posts, wpseo columns
 		$columns = [];
 		
 		// Add artist-website, posts columns
 
-		$columns['cb'] = '<input type="checkbox" />';
-		$columns['name'] = 'Name';
-		//$columns['slug'] = 'Slug';
+		$columns['cb'] 			= '<input type="checkbox" />';
+		$columns['name'] 		= 'Name';
+		//$columns['slug'] 		= 'Slug';
 		$columns['description'] = 'Description';
-		$columns['price'] = 'Price';
-		$columns['storage'] = 'Storage';
-		//$columns['posts'] = 'Layers';
-		//$columns['users'] = 'Users';
+		$columns['price'] 		= 'Price';
+		$columns['storage'] 	= 'Storage';
+		//$columns['posts'] 	= 'Layers';
+		//$columns['users'] 	= 'Users';
 
 		return $columns;
 	}
 		
-	public function add_layer_taxonomy_column_content($content, $column_name, $term_id){
+	public function add_layer_column_content($content, $column_name, $term_id){
 	
 		$term= get_term($term_id);
-
-		if($column_name === 'price') {
+		
+		if($column_name === 'visibility') {
+			
+			if(!$visibility = get_option('visibility_' . $term->slug)){
+				
+				$visibility = 'anyone';
+			}
+			
+			if( $visibility == 'admin' ){
+				
+				$content.='<span class="label label-warning">'.$visibility.'</span>';
+			}
+			else{
+				
+				$content.='<span class="label label-success">'.$visibility.'</span>';
+			}
+			
+		}
+		elseif($column_name === 'price') {
 			
 			if(!$price_amount = get_option('price_amount_' . $term->slug)){
 				
@@ -1543,9 +1603,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $content;
 	}
 	
-	public function add_account_taxonomy_column_content($content, $column_name, $term_id){
+	public function add_account_column_content($content, $column_name, $term_id){
 		
-		return $this->add_layer_taxonomy_column_content($content, $column_name, $term_id);
+		return $this->add_layer_column_content($content, $column_name, $term_id);
 	}
 	
 	public function save_layer_fields($term_id){
@@ -1588,7 +1648,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					update_option('storage_unit_' . $term->slug, $storage_unit);			
 				}
 			}
-		
+
+			if(isset($_POST['visibility_'.$term->slug])){
+
+				update_option('visibility_'.$term->slug, $_POST['visibility_'.$term->slug]);			
+			}
+			
 			if(isset($_POST[$term->taxonomy . '-meta'])){
 
 				update_option('meta_'.$term->slug, $_POST[$term->taxonomy . '-meta']);			

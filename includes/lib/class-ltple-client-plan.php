@@ -1697,7 +1697,7 @@ class LTPLE_Client_Plan {
 		return $units;
 	}
 	
-	public function get_layer_taxonomy_price_fields($taxonomy_name,$args=[]){
+	public function get_layer_price_fields($taxonomy_name,$args=[]){
 		
 		//get periods
 		
@@ -1758,7 +1758,7 @@ class LTPLE_Client_Plan {
 		return $price_fields;
 	}
 	
-	public function get_layer_taxonomy_storage_fields($taxonomy_name,$args=[]){
+	public function get_layer_storage_fields($taxonomy_name,$args=[]){
 
 		//get storage units
 		

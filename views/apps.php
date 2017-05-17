@@ -15,7 +15,7 @@
 	
 	$currentTab = 'apps';
 	
-	if( in_array($_GET['app'],['opportunities','members','leads']) ){
+	if( in_array($_GET['app'],['embedded','opportunities','members','leads']) ){
 		
 		$currentTab = $_GET['app'];
 	}
@@ -31,7 +31,10 @@
 				echo'<li class="gallery_type_title">Applications</li>';
 				
 				echo'<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app">Connected Apps</a></li>';
-
+				
+				echo'<li'.( $currentTab == 'embedded' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=embedded">Embedded Plugin</a></li>';
+				
+				/*
 				echo'<li class="gallery_type_title">My Community</li>';
 				
 				if($this->user->is_admin){
@@ -42,6 +45,7 @@
 				echo'<li'.( $currentTab == 'members' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=members">Top Members <span class="label label-success pull-right"> pro </span></a></li>';
 				
 				echo'<li'.( $currentTab == 'leads' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=leads">Suggestions</a></li>';
+				*/
 				
 			echo'</ul>';
 			
@@ -212,6 +216,35 @@
 								
 							echo'</div>';					
 						}
+						
+					echo'</div>';
+					
+				echo'</div>';
+			}
+			elseif( $currentTab == 'embedded' ){
+
+				echo'<div class="tab-content">';
+				
+					echo'<div id="leads">';
+
+						echo'<div class="bs-callout bs-callout-primary">';
+
+							echo '<h4>Embedded Plugin</h4>';
+
+							echo '<p>Setup your Wordpress Embedded Plugin</p>';
+						
+						echo'</div>';
+
+						echo'<div class="col-xs-12 col-sm-6">';
+							
+							echo'<div class="form-group">';
+							
+								echo'<h3>Embedded User Key</h3>';
+								
+								echo'<input class="form-control" type="text" value="' . $this->_base . $this->ltple_encrypt_str( $this->user->user_email ) . '_' . $this->ltple_encrypt_str( $this->urls->editor, $this->_base ) . '">';
+							
+							echo'</div>';
+						echo'</div>';
 						
 					echo'</div>';
 					

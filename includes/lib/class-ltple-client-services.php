@@ -106,7 +106,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 			
 			echo'<label for="'.$taxonomy_name.'-price-amount">Price</label>';
 
-			echo $this->parent->plan->get_layer_taxonomy_price_fields($taxonomy_name,[]);
+			echo $this->parent->plan->get_layer_price_fields($taxonomy_name,[]);
 			
 		echo'</div>';
 		/*
@@ -114,7 +114,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 			
 			echo'<label for="'.$taxonomy_name.'-storage-amount">Storage</label>';
 
-			echo $this->parent->plan->get_layer_taxonomy_storage_fields($taxonomy_name,0);
+			echo $this->parent->plan->get_layer_storage_fields($taxonomy_name,0);
 			
 		echo'</div>';
 		*/
@@ -146,7 +146,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 			
 			echo'<td>';
 				
-				echo $this->parent->plan->get_layer_taxonomy_price_fields($term->taxonomy,$price);
+				echo $this->parent->plan->get_layer_price_fields($term->taxonomy,$price);
 				
 			echo'</td>';
 			
@@ -163,7 +163,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 			
 			echo'<td>';
 				
-				echo $this->parent->plan->get_layer_taxonomy_storage_fields($term->taxonomy,$storage);
+				echo $this->parent->plan->get_layer_storage_fields($term->taxonomy,$storage);
 						
 			echo'</td>';
 			

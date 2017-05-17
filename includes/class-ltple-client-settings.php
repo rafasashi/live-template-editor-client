@@ -632,7 +632,7 @@ class LTPLE_Client_Settings {
 		$settings['stars'] = array(
 			'title'					=> __( 'Stars', $this->plugin->slug ),
 			'description'			=> __( 'Amount of stars rewarded', $this->plugin->slug )
-		);
+		);	
 		
 		foreach( $this->parent->stars->triggers as $group => $trigger ){
 			
