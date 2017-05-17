@@ -2,10 +2,10 @@
 
 $iframe_url = $this->urls->editor . '?uri=' . $this->layer->id . '&lk=' . md5( 'layer' . $this->layer->id . $this->_time ) . '&_=' . $this->_time;
 
-if( isset($_GET['output']) && $_GET['output'] == 'embedded' && !empty($this->layer->embedded) ){
+if( !empty($_GET['key']) && isset($_GET['output']) && $_GET['output'] == 'embedded' && !empty($this->layer->embedded) ){
 	
 	$iframe_url .= '&le=' . urlencode($_GET['le']);
-}
+} 
 
 echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
 

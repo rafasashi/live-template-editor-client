@@ -118,34 +118,15 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				
 				if( $this->uri > 0 ){
 					
-					/*
-					$this->type = $args[0];
-					$this->slug = $args[1];
+					if( $q = get_post($this->uri) ){	
 
-					$q = get_posts(array(
-						'post_type'      => $this->type,
-						'posts_per_page' => 1,
-						'post_name__in'  => [ urlencode($this->slug) ],
-						//'fields'       => 'ids' 
-					));
-
-					//var_dump($q);exit;
-					
-					if(isset($q[0])){
+						if( $q->post_type == 'default-image' ){
 						
-						$this->id = $q[0]->ID;
-						$this->content = $q[0]->post_content;
-					}
-					*/
-					
-					$q = get_post($this->uri);	
-
-					if( $q->post_type == 'default-image' ){
-					
-						$this->id 		= $q->ID;
-						$this->content 	= $q->post_content;
-						$this->type 	= $q->post_type;
-						$this->slug 	= $q->post_name;
+							$this->id 		= $q->ID;
+							$this->content 	= $q->post_content;
+							$this->type 	= $q->post_type;
+							$this->slug 	= $q->post_name;
+						}
 					}
 				}
 			}

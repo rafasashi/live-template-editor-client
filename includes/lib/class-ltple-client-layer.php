@@ -328,9 +328,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'emails'  			=> 'Emails',
 			'memes'  			=> 'Memes',
 			'pricing-tables'	=> 'Pricing Tables',
-			'sandbox'  			=> 'Sandbox',
-			'tailored'  		=> 'Tailored',
 			'hosted'  			=> 'Hosted',
+			'sandbox' => array(
+			
+				'name' 		=> 'Sandbox',
+				'options' 	=> array(
+				
+					'visibility'	=> 'admin',
+				),
+			),			
+			'tailored' => array(
+			
+				'name' 		=> 'Tailored',
+				'options' 	=> array(
+				
+					'visibility'	=> 'admin',
+				),
+			),
 		));		
 	}
 	
@@ -713,46 +727,47 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->uri = intval($_GET['uri']);
 
 				if( $this->uri > 0 ){
-				
-					$q = get_post($this->uri);
-					
-					if( $q->post_status == 'trash' && $q->post_type == 'user-layer' ){
-						
-						// get default template instead
-						
-						$this->defaultId = intval(get_post_meta( $q->ID, 'defaultLayerId', true ));
-						
-						if( $this->defaultId > 0 ){
-							
-							$q = get_post($this->defaultId);
-						}
-					}
-					
-					if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
-					
-						$this->id 		= $q->ID;
-						$this->type 	= $q->post_type;
-						$this->slug 	= $q->post_name;
-						$this->title 	= $q->post_title;
-						
-						if( $this->type == 'user-layer' ){
-						
-							$this->content 	 = $q->post_content;
-							$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
-						}
-						else{
-							
-							$this->defaultId = $this->id;
-							$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );
-						}
 
-						// get output mode
+					if( $q = get_post($this->uri) ){
 						
-						$this->outputMode 	= get_post_meta( $this->defaultId, 'layerOutput', true );
+						if( $q->post_status == 'trash' && $q->post_type == 'user-layer' ){
+							
+							// get default template instead
+							
+							$this->defaultId = intval(get_post_meta( $q->ID, 'defaultLayerId', true ));
+							
+							if( $this->defaultId > 0 ){
+								
+								$q = get_post($this->defaultId);
+							}
+						}
 						
-						// recalled in layer template...
-						//$this->margin 		= get_post_meta( $this->defaultId, 'layerMargin', true );
-						//$this->options 		= get_post_meta( $this->defaultId, 'layerOptions', true );
+						if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
+						
+							$this->id 		= $q->ID;
+							$this->type 	= $q->post_type;
+							$this->slug 	= $q->post_name;
+							$this->title 	= $q->post_title;
+							
+							if( $this->type == 'user-layer' ){
+							
+								$this->content 	 = $q->post_content;
+								$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
+							}
+							else{
+								
+								$this->defaultId = $this->id;
+								$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );
+							}
+
+							// get output mode
+							
+							$this->outputMode 	= get_post_meta( $this->defaultId, 'layerOutput', true );
+							
+							// recalled in layer template...
+							//$this->margin 		= get_post_meta( $this->defaultId, 'layerMargin', true );
+							//$this->options 		= get_post_meta( $this->defaultId, 'layerOptions', true );
+						}
 					}
 				}				
 			}
@@ -1330,6 +1345,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 							'admin'			=> 'Admin',
 							'anyone'		=> 'Anyone',
+							'none'			=> 'None',
 						),
 						'inline'		=> false,
 						'default'		=> 'anyone',
@@ -1546,6 +1562,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			if( $visibility == 'admin' ){
 				
 				$content.='<span class="label label-warning">'.$visibility.'</span>';
+			}
+			elseif( $visibility == 'none' ){
+				
+				$content.='<span class="label label-danger">'.$visibility.'</span>';
 			}
 			else{
 				

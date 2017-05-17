@@ -239,9 +239,9 @@
 							
 							echo'<div class="form-group">';
 							
-								echo'<h3>Embedded User Key</h3>';
+								echo'<h3>Customer Key</h3>';
 								
-								echo'<input class="form-control" type="text" value="' . $this->_base . $this->ltple_encrypt_str( $this->user->user_email ) . '_' . $this->ltple_encrypt_str( $this->urls->editor, $this->_base ) . '">';
+								echo'<input class="form-control" type="text" value="' . get_option($this->_base . 'embedded_prefix', $this->_base) . $this->ltple_encrypt_str( $this->user->user_email ) . '_' . $this->ltple_encrypt_str( $this->urls->api_embedded, $this->_base ) . '">';
 							
 							echo'</div>';
 						echo'</div>';

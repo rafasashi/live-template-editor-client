@@ -12,8 +12,6 @@ class LTPLE_Client_Json_API {
 	public function __construct ( $parent ) {
 		
 		$this->parent 	= $parent;
-
-		
 	}
 
 	public function get_url( $action='leads/list', $user_id = 0, $args=[] ){

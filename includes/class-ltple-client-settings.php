@@ -39,7 +39,7 @@ class LTPLE_Client_Settings {
 		
 		$this->plugin 			= new stdClass();
 		$this->plugin->slug  	= 'live-template-editor-client';
-		$this->plugin->title 	= 'Live Template Editor Client';
+		$this->plugin->title 	= 'Live Template Editor';
 		$this->plugin->short 	= 'Live Editor';
 		
 		// get options
@@ -163,6 +163,43 @@ class LTPLE_Client_Settings {
 				}
 			}
 		});
+		
+		
+		//Add Custom API Endpoints
+		
+		add_action( 'rest_api_init', function () {
+			
+			register_rest_route( 'ltple-embedded/v1', '/info', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_embedded_info'),
+			) );
+		} );
+	}
+	
+	public function get_embedded_info( $rest = NULL ) {
+		
+		$embedded_info 	= array();
+		
+		// default values
+		
+		$embedded_info['prefix'] 		= $this->parent->_base;
+		$embedded_info['short_title'] 	= $this->plugin->short;
+		$embedded_info['long_title'] 	= $this->plugin->title;
+		$embedded_info['description'] 	= 'Setup your '.ucfirst($this->plugin->short).' customer key to start importing and editing any template directly from your wordpress installation.';
+					
+		if( !is_null($rest) ){
+			
+			// values from settings
+
+			$embedded_info['prefix'] 		= get_option($this->parent->_base . 'embedded_prefix', 		$embedded_info['prefix']);
+			$embedded_info['short_title'] 	= get_option($this->parent->_base . 'embedded_short', 		$embedded_info['short_title']);
+			$embedded_info['long_title'] 	= get_option($this->parent->_base . 'embedded_title', 		$embedded_info['long_title']);
+			$embedded_info['description'] 	= get_option($this->parent->_base . 'embedded_description', $embedded_info['description']);
+			$embedded_info['editor_url'] 	= $this->parent->urls->editor;
+		}
+		
+		return $embedded_info;
 	}
 	
 	public function post_type_tabs() {
@@ -627,12 +664,63 @@ class LTPLE_Client_Settings {
 					'placeholder'	=> 'http://',
 				),
 			)
-		);	
+		);
+	
+		$embedded_info = $this->get_embedded_info();
+	
+		$settings['embedded'] = array(
+			'title'					=> __( 'Embedded', $this->plugin->slug ),
+			'description'			=> __( 'Embedded plugin settings', $this->plugin->slug ),
+			'fields'				=> array(
+				array(
+					'id' 			=> 'embedded_prefix',
+					'label'			=> __( 'Prefix' , $this->plugin->slug ),
+					'description'	=> 'Prefix for embedded data storage',
+					'type'			=> 'text',
+					'default'		=> $embedded_info['prefix'],
+					'placeholder'	=> $embedded_info['prefix'],
+				),
+				array(
+					'id' 			=> 'embedded_short',
+					'label'			=> __( 'Short title' , $this->plugin->slug ),
+					'description'	=> 'Short service title',
+					'type'			=> 'text',
+					'default'		=> $embedded_info['short_title'],
+					'placeholder'	=> $embedded_info['short_title'],
+				),
+				array(
+					'id' 			=> 'embedded_title',
+					'label'			=> __( 'Long title' , $this->plugin->slug ),
+					'description'	=> 'Long service title',
+					'type'			=> 'text',
+					'default'		=> $embedded_info['long_title'],
+					'placeholder'	=> $embedded_info['long_title'],
+				),
+				array(
+					'id' 			=> 'embedded_description',
+					'label'			=> __( 'Description' , $this->plugin->slug ),
+					'description'	=> 'Service description',
+					'type'			=> 'textarea',
+					'default'		=> $embedded_info['description'],
+					'placeholder'	=> 'Description',
+				),
+				array(
+				
+					'id' 			=> 'embedded_endpoint',
+					'label'			=> __( 'Endpoint' , $this->plugin->slug ),
+					'description'	=> 'REST API endpoint',
+					'type'			=> 'text',
+					'default'		=> $this->parent->urls->api_embedded,
+					'placeholder'	=> 'http://',
+					'disabled'		=> true,
+				),
+			)
+		);			
 
 		$settings['stars'] = array(
 			'title'					=> __( 'Stars', $this->plugin->slug ),
 			'description'			=> __( 'Amount of stars rewarded', $this->plugin->slug )
-		);	
+		);
 		
 		foreach( $this->parent->stars->triggers as $group => $trigger ){
 			

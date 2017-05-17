@@ -27,8 +27,11 @@ class LTPLE_Client_Urls {
 
 		$this->parent = $parent;
 		
-		$this->current 	= 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-		$this->home 	= home_url();
+		$this->current 		= 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+		$this->home 		= home_url();
+		
+		$this->api 			= $this->home . '/wp-json/';
+		$this->api_embedded	= $this->api . 'ltple-embedded/v1/info';
 		
 		add_filter('wp_loaded', array( $this, 'init_urls'));
 	}
@@ -121,7 +124,7 @@ class LTPLE_Client_Urls {
 			$product = update_option( $this->parent->_base . 'productSlug', get_post($post_id)->post_name );
 		}
 		
-		$this->product 	= $this->home . '/' . $product . '/';	
+		$this->product 	= $this->home . '/' . $product . '/';
 	}
 	
 	/**

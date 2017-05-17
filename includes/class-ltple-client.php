@@ -315,15 +315,35 @@ class LTPLE_Client {
 	
 		//get current user
 		
-		if( $this->request->is_remote ){
+		if( !empty($_GET['key']) && !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
+			
+			$this->user = get_user_by( 'email', $this->ltple_decrypt_str($_GET['key']));
 
-			$this->user = wp_set_current_user( get_user_by( 'id', $this->ltple_decrypt_str($_SERVER['HTTP_X_FORWARDED_USER'])));
+			if( !empty($this->user->ID) ){
+				
+				wp_set_current_user($this->user->ID);
+				
+				wp_set_auth_cookie($this->user->ID, true);
+			}
+			else{
+				
+				echo 'Wrong embedded request...';
+				exit;				
+			}
 		}
-		elseif(1==2 && !empty($this->_dev) ){
-			
-			//debug user session
-			
-			$this->user = wp_set_current_user(15);
+		elseif( $this->request->is_remote ){
+
+			$this->user = get_user_by( 'id', $this->ltple_decrypt_str($_SERVER['HTTP_X_FORWARDED_USER']));
+		
+			if( !empty($this->user->ID) ){
+				
+				wp_set_current_user($this->user->ID);
+			}
+			else{
+				
+				echo 'Wrong remote request...';
+				exit;				
+			}			
 		}
 		else{
 			

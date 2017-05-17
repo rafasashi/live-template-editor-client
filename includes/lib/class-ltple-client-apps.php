@@ -81,7 +81,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				'advanced'
 			);
 			
-		});
+		});		
 		
 		// get current app
 		
@@ -101,7 +101,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		add_filter('wp_loaded', array( $this, 'init_apps'));
 		
 		add_filter("user-app_custom_fields", array( $this, 'get_fields' ));
-	}
+	}	
 	
 	// Add app data custom fields
 
