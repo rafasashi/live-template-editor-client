@@ -27,39 +27,9 @@
 	
 	if ( ! defined( 'ABSPATH' ) ) exit;
 	
-	if(!function_exists('is_dev_env')){
+	$dev_ip = '109.28.69.143';
 		
-		function is_dev_env( $dev_ip = '109.28.69.143' ){ 
-			
-			if( $_SERVER['REMOTE_ADDR'] == $dev_ip || ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] == $dev_ip ) ){
-				
-				return true;
-			}
-			elseif( isset($_GET['debug']) && $_GET['debug'] == '1' ){
-				
-				return true;
-			}
-
-			return false;		
-		}			
-	}	
-	
-	if(!function_exists('ltple_row_meta')){
-	
-		function ltple_row_meta( $links, $file ){
-			
-			if ( strpos( $file, basename( __FILE__ ) ) !== false ) {
-				
-				$new_links = array( '<a href="https://github.com/rafasashi" target="_blank">' . __( 'Documentation', 'cleanlogin' ) . '</a>' );
-				$links = array_merge( $links, $new_links );
-			}
-			return $links;
-		}
-	}
-	
-	add_filter('plugin_row_meta', 'ltple_row_meta', 10, 2);
-	
-	$mode = ( is_dev_env() ? '-dev' : '');
+	$mode = ( ($_SERVER['REMOTE_ADDR'] == $dev_ip || ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] == $dev_ip )) ? '-dev' : '');
 	
 	// Load plugin functions
 	require_once( 'includes'.$mode.'/functions.php' );	
@@ -85,7 +55,7 @@
 	 * @since  1.0.0
 	 * @return object LTPLE_Client
 	 */
-	function LTPLE_Client ( $version = '1.0.0' ) {
+	function LTPLE_Client ( $version = '1.0.0', $mode = '' ) {
 		
 		register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );
 		
@@ -93,7 +63,7 @@
 		
 		if ( is_null( $instance->_dev ) ) {
 			
-			$instance->_dev = ( is_dev_env() ? '-dev' : '');
+			$instance->_dev = $mode;
 		}				
 
 		if ( is_null( $instance->settings ) ) {
@@ -108,9 +78,9 @@
 	
 	if( $mode == '-dev' ){
 		
-		LTPLE_Client('1.1.2');
+		LTPLE_Client( '1.1.2', $mode );
 	}
 	else{
 		
-		LTPLE_Client('1.1.1');
+		LTPLE_Client( '1.1.1', $mode );
 	}
