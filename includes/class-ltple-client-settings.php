@@ -43,11 +43,12 @@ class LTPLE_Client_Settings {
 		$this->plugin->short 	= 'Live Editor';
 		
 		// get options
-		$this->options 				 = new stdClass();
-		$this->options->analyticsId  = get_option( $this->parent->_base . 'analytics_id');
-		$this->options->emailSupport = get_option( $this->parent->_base . 'email_support');	
-		$this->options->postTypes 	 = get_option( $this->parent->_base . 'post_types');	
-		$this->options->logo_url 	 = get_option( $this->parent->_base . 'homeLogo' );
+		$this->options 				 	= new stdClass();
+		$this->options->analyticsId  	= get_option( $this->parent->_base . 'analytics_id');
+		$this->options->emailSupport 	= get_option( $this->parent->_base . 'email_support');	
+		$this->options->postTypes 	 	= get_option( $this->parent->_base . 'post_types');	
+		$this->options->logo_url 	 	= get_option( $this->parent->_base . 'homeLogo' );
+		$this->options->enable_ranking 	= get_option( $this->parent->_base . 'enable_ranking','off');
 		
 		// get tabs
 		
@@ -479,15 +480,7 @@ class LTPLE_Client_Settings {
 			'title'					=> __( 'General settings', $this->plugin->slug ),
 			'description'			=> '',
 			'fields'				=> array(
-
-				array(
-					'id' 			=> 'host_url',
-					'label'			=> __( 'Host Url' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'text',
-					'default'		=> '',
-					'placeholder'	=> __( 'http://', $this->plugin->slug )
-				),			
+		
 				array(
 					'id' 			=> 'server_url',
 					'label'			=> __( 'Server Url' , $this->plugin->slug ),
@@ -503,7 +496,16 @@ class LTPLE_Client_Settings {
 					'type'			=> 'password',
 					'default'		=> '',
 					'placeholder'	=> __( '', $this->plugin->slug )
-				),
+				),				
+				array(
+					'id' 			=> 'host_url',
+					'label'			=> __( 'Host Url' , $this->plugin->slug ),
+					'description'	=> 'Leave it empty to disable dedicated domain names and hosting features',
+					'type'			=> 'text',
+					'default'		=> '',
+					'placeholder'	=> __( 'http://host.recuweb.com', $this->plugin->slug )
+				),					
+
 				array(
 					'id' 			=> 'email_support',
 					'label'			=> __( 'Support email' , $this->plugin->slug ),
@@ -719,7 +721,15 @@ class LTPLE_Client_Settings {
 
 		$settings['stars'] = array(
 			'title'					=> __( 'Stars', $this->plugin->slug ),
-			'description'			=> __( 'Amount of stars rewarded', $this->plugin->slug )
+			'description'			=> __( 'Amount of stars rewarded', $this->plugin->slug ),
+			'fields'				=> array(
+				array(
+					'id' 			=> 'enable_ranking',
+					'label'			=> __( 'Enable Ranking' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'switch',
+				),
+			)
 		);
 		
 		foreach( $this->parent->stars->triggers as $group => $trigger ){

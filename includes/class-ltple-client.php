@@ -1059,13 +1059,13 @@ class LTPLE_Client {
 								
 				$this->viewIncluded = true;	
 			}
-			elseif( isset($_GET['domain']) || !empty($_SESSION['domain']) ){
+			elseif( !empty($this->urls->host) && ( isset($_GET['domain']) || !empty($_SESSION['domain']) ) ){
 
 				include($this->views . $this->_dev .'/domains.php');
 								
 				$this->viewIncluded = true;	
 			}				
-			elseif( isset($_GET['rank']) ){
+			elseif( isset($_GET['rank']) && $this->settings->options->enable_ranking == 'on' ){
 				
 				include($this->views . $this->_dev .'/ranking.php');
 								
@@ -2218,6 +2218,9 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-bootstrap-table' );	
 		
+		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-toggle-switch' );	
+		
 	} // End enqueue_styles ()
 
 	/**
@@ -2284,7 +2287,10 @@ class LTPLE_Client {
 		wp_enqueue_script( $this->_token . '-bootstrap' );		
 		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-lazyload' );	
+		wp_enqueue_script( $this->_token . '-lazyload' );
+		
+		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-toggle-switch' );
 		
 	} // End admin_enqueue_scripts ()
 

@@ -38,6 +38,10 @@ class LTPLE_Client_Urls {
 	
 	public function init_urls(){
 		
+		// get host url
+		
+		$this->host = get_option( $this->parent->_base . 'host_url' );
+		
 		// get editor url
 		
 		$editor = get_option( $this->parent->_base . 'editorSlug' );

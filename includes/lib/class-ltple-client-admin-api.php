@@ -179,6 +179,25 @@ class LTPLE_Client_Admin_API {
 			case 'textarea':
 				$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '"'.$required.$disabled.'>' . $data . '</textarea><br/>'. "\n";
 			break;
+			
+			case 'switch':
+				
+				$checked = '';
+				
+				if ( $data && 'on' == $data ) {
+					
+					$checked = 'checked="checked"';
+				
+				}
+				
+				$html .= '<label class="switch">';
+				
+					$html .= '<input'.$style.' class="form-control" id="' . $id . '" type="checkbox" name="' . esc_attr( $option_name ) . '" ' . $checked . ''.$required.$disabled.'/>' . "\n";
+					$html .= '<div class="slider round"></div>';
+				
+				$html .= '</label>';
+				
+			break;
 
 			case 'checkbox':
 				$checked = '';

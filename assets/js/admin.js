@@ -2,6 +2,16 @@
 	
 	$(document).ready(function(){
 		
+		// bootstrap + screen options compatibility
+		
+		$("#contextual-help-link").click(function () {
+			$("#contextual-help-wrap").css("cssText", "display: block !important;");
+		});
+		
+		$("#show-settings-link").click(function () {
+			$("#screen-options-wrap").css("cssText", "display: block !important;");
+		});		
+		
 		//input group add row
 
 		$(".add-input-group").on('click', function(e){
