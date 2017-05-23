@@ -73,7 +73,9 @@ class LTPLE_Client_Admin_API {
 		elseif ( !empty($item->ID) ) {
 
 			// Get saved field data
+			
 			$option_name .= $field['id'];
+			
 			$option = get_post_meta( $item->ID, $field['id'], true );
 
 			// Get data to display in field
@@ -87,6 +89,7 @@ class LTPLE_Client_Admin_API {
 			// Get saved option
 			
 			$option_name .= $field['id'];
+			
 			$option = get_option( $option_name );
 
 			// Get data to display in field

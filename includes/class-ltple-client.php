@@ -290,7 +290,9 @@ class LTPLE_Client {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 
 		add_action( 'wp_head', array( $this, 'get_header') );
+		
 		add_filter( 'wp_nav_menu', array( $this, 'get_menu' ), 10, 2);
+		
 		add_action( 'wp_footer', array( $this, 'get_footer') );				
 
 		// add editor shortcodes
@@ -858,7 +860,110 @@ class LTPLE_Client {
 
 	public function get_header(){
 
-		//echo '<link rel="stylesheet" href="https://raw.githubusercontent.com/dbtek/bootstrap-vertical-tabs/master/bootstrap.vertical-tabs.css">';	
+		global $post;
+
+		if( !empty($post) ){
+		
+			// output default meta tags
+			
+			$title = ucfirst($post->post_title);
+			
+			echo '<title>'.$title.'</title>'.PHP_EOL;
+			echo '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
+			echo '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
+			echo '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;
+			
+			$author_name = get_the_author_meta('display_name', $post->post_author );
+			$author_mail = get_the_author_meta('user_email', $post->post_author );
+			
+			echo '<meta name="author" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
+			echo '<meta name="creator" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
+			echo '<meta name="owner" content="' . $author_name . '" />' . PHP_EOL;
+			echo '<meta name="reply-to" content="'.$author_mail.'" />' . PHP_EOL;
+			
+			$locale = get_locale();
+			
+			echo '<meta name="language" content="' . $locale . '" />'.PHP_EOL;
+			
+			$robots = 'index,follow';
+			
+			echo '<meta name="robots" content="'.$robots.'" />' . PHP_EOL;
+			
+			$revised = $post->post_date;
+			
+			echo '<meta name="revised" content="' . $revised . '" />' . PHP_EOL;
+			
+			//get description
+			
+			if( !empty($post->post_excerpt) ){
+				
+				$content = ucfirst($post->post_excerpt);
+			}
+			elseif( !empty($post->post_content) ){
+				
+				$content = ucfirst($post->post_content);
+			}
+			else{
+				
+				$content = ucfirst($post->post_title);
+			}
+			
+			//normalize description
+			
+			$content = strip_tags(strip_shortcodes($content));
+			$content = preg_replace( '/\r|\n/', '', $content);
+			$content = preg_replace('/\s+/', ' ',$content);
+			
+			//shorten description
+			
+			$length = 35;
+			
+			$words = explode(' ', $content, $length + 1);
+
+			if(count($words) > $length) :
+			
+				array_pop($words);
+				array_push($words, '…');
+				
+				$content = implode(' ', $words);
+				
+			endif;
+			
+			echo '<meta name="description" content="'.$content.'" />'.PHP_EOL;
+			echo '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
+			echo '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
+			echo '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
+			echo '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
+			
+			echo '<meta name="classification" content="Business" />' . PHP_EOL;
+			//echo '<meta name="classification" content="products, product classifications, company classification, company type, industry" />' . PHP_EOL;
+			
+			$service_name = get_bloginfo( 'name' );
+			
+			echo '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
+			echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
+			
+			$url = get_permalink( $post->ID );
+			
+			echo '<meta name="url" content="'.$url.'" />' . PHP_EOL;
+			echo '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
+			echo '<meta name="original-source" content="'.$url.'" />' . PHP_EOL;
+			echo '<link rel="original-source" href="'.$url.'" />' . PHP_EOL;
+			echo '<meta property="og:url" content="'.$url.'" />' . PHP_EOL;
+			echo '<meta name="twitter:url" content="'.$url.'" />' . PHP_EOL;
+			
+			echo '<meta name="rating" content="General" />' . PHP_EOL;
+			echo '<meta name="directory" content="submission" />' . PHP_EOL;
+			echo '<meta name="coverage" content="Worldwide" />' . PHP_EOL;
+			echo '<meta name="distribution" content="Global" />' . PHP_EOL;
+			echo '<meta name="target" content="all" />' . PHP_EOL;
+			echo '<meta name="medium" content="blog" />' . PHP_EOL;
+			echo '<meta property="og:type" content="article" />' . PHP_EOL;
+			echo '<meta name="twitter:card" content="summary" />' . PHP_EOL;
+			
+		}
+		
+		// output custom style
 		
 		$mainColor 	 = get_option( $this->_base . 'mainColor' );
 		$borderColor = get_option( $this->_base . 'borderColor' );
@@ -1294,6 +1399,7 @@ class LTPLE_Client {
 				$post_js 		= ( !empty($_POST['postJs']) 		? stripcslashes( $_POST['postJs'] ) 		 : '' );
 				$post_title 	= ( !empty($_POST['postTitle']) 	? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
 				$post_embedded 	= ( !empty($_POST['postEmbedded']) 	? sanitize_text_field($_POST['postEmbedded']): '' );
+				$post_settings 	= ( !empty($_POST['postSettings']) 	? json_decode(stripcslashes($_POST['postSettings']),true): '' );
 				
 				$post_name 		= $post_title;			
 
@@ -1692,7 +1798,7 @@ class LTPLE_Client {
 						);
 						
 						$post_id = wp_update_post( $post_information );
-
+						
 						if( is_numeric($post_id) ){
 							
 							update_post_meta($post_id, 'defaultLayerId', $defaultLayerId);
@@ -1702,6 +1808,8 @@ class LTPLE_Client {
 							update_post_meta($post_id, 'layerJs', $post_js);
 							
 							update_post_meta($post_id, 'layerEmbedded', $post_embedded);
+							
+							update_post_meta($post_id, 'layerSettings', $post_settings);
 							
 							//redirect to user layer
 

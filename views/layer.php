@@ -12,10 +12,20 @@
 	
 	$layerOptions = get_post_meta( $post->layer_id, 'layerOptions', true );
 	
+	//get layer settings
+	
+	$layerSettings = get_post_meta( $post->ID, 'layerSettings', true );
+	
+	//get layer embedded
+	
+	$layerEmbedded = get_post_meta( $post->ID, 'layerEmbedded', true );	
+	
 	//get layer form
 	
 	$layerForm = get_post_meta( $post->layer_id, 'layerForm', true );
+	
 
+	
 	//get css libraries
 
 	$cssLibraries = wp_get_post_terms( $post->layer_id, 'css-library', array( 'orderby' => 'term_id' ) );
@@ -263,14 +273,8 @@
 					}
 				}
 			}
-
-			if(!empty($layerMeta['link'])){
-				
-				foreach($layerMeta['link'] as $source){
-					
-					echo '<link href="'.$source.'" rel="stylesheet" type="text/css" />';
-				}
-			}
+			
+			echo PHP_EOL;
 		
 			if( !empty($layerHead) ){
 				
@@ -278,8 +282,168 @@
 			}
 			else{
 				
-				echo '<title>'.ucfirst($post->post_title).'</title>';		
+				// output custom meta tags
+				
+				if( !empty($layerSettings) ){
+					
+					foreach($layerSettings as $key => $content){
+						
+						if( $key == 'meta_title' ){
+							
+							$content = ucfirst($content);
+							
+							echo '<title>'.$content.'</title>'.PHP_EOL;
+							echo '<meta name="subject" content="'.$content.'" />'.PHP_EOL;
+							echo '<meta property="og:title" content="'.$content.'" />'.PHP_EOL;
+							echo '<meta name="twitter:title" content="'.$content.'" />'.PHP_EOL;		
+						}
+						elseif( $key == 'meta_keywords' ){
+
+							$content = implode(',',explode(PHP_EOL,$content));
+						
+							echo '<meta name="keywords" content="'.$content.'" />'.PHP_EOL;
+							
+						}
+						elseif( $key == 'meta_description' ){
+							
+							echo '<meta name="description" content="'.$content.'" />'.PHP_EOL;
+							echo '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
+							echo '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
+							echo '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
+							echo '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
+						}
+						elseif( $key == 'link_author' ){
+							
+							echo '<link rel="author" href="'.$content.'" />'.PHP_EOL;
+							echo '<link rel="publisher" href="'.$content.'" />'.PHP_EOL;
+						}
+						elseif( $key == 'meta_image' ){
+							
+							echo '<meta property="og:image" content="'.$content.'" />'.PHP_EOL;
+							echo '<meta name="twitter:image" content="'.$content.'" />'.PHP_EOL;
+							
+						}
+						elseif( $key == 'meta_facebook-id' ){
+							
+							echo '<meta property="fb:admins" content="'.$content.'"/>'.PHP_EOL;
+							
+						}				
+						else{
+							
+							list($markup,$name) = explode('_',$key);
+							
+							if( $markup == 'meta' ){
+								
+								echo '<meta name="'.$name.'" content="'.$content.'" />'.PHP_EOL;
+							}
+							elseif( $markup == 'link' ){
+								
+								echo '<link rel="'.$name.'" href="'.$content.'" />'.PHP_EOL;
+							}
+						}
+					}
+				}
+				
+				// output default meta tags
+				
+				$title = ucfirst($post->post_title);
+				
+				if( empty($layerSettings['meta_title']) ){
+					
+					echo '<title>'.$title.'</title>'.PHP_EOL;
+					echo '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
+					echo '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
+					echo '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;					
+				}
+				
+				$author_name = get_the_author_meta('display_name', $post->post_author );
+				$author_mail = get_the_author_meta('user_email', $post->post_author );
+				
+				if( empty($layerSettings['meta_author']) ){
+					
+					echo '<meta name="author" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
+					echo '<meta name="creator" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
+					echo '<meta name="owner" content="' . $author_name . '" />' . PHP_EOL;
+					echo '<meta name="reply-to" content="'.$author_mail.'" />' . PHP_EOL;					
+				}
+				
+				$locale = get_locale();
+				
+				if( empty($layerSettings['meta_language']) ){
+					
+					echo '<meta name="language" content="' . $locale . '" />'.PHP_EOL;
+				}
+				
+				$robots = 'index,follow';
+				
+				if( empty($layerSettings['meta_robots']) ){
+					
+					echo '<meta name="robots" content="'.$robots.'" />' . PHP_EOL;
+				}
+				
+				$revised = $post->post_date;
+				
+				if( empty($layerSettings['meta_revised']) ){
+				
+					echo '<meta name="revised" content="' . $revised . '" />' . PHP_EOL;
+				}
+				
+				$content = ucfirst($post->post_title);
+				
+				if( empty($layerSettings['meta_description']) ){
+					
+					echo '<meta name="description" content="'.$content.'" />'.PHP_EOL;
+					echo '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
+					echo '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
+					echo '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
+					echo '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
+				}
+				
+				echo '<meta name="classification" content="Business" />' . PHP_EOL;
+				//echo '<meta name="classification" content="products, product classifications, company classification, company type, industry" />' . PHP_EOL;
+				
+				$service_name = get_bloginfo( 'name' );
+				
+				echo '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
+				echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
+				
+				if( !empty($layerEmbedded) ){
+				
+					$url = $layerEmbedded;
+					
+					echo '<meta name="url" content="'.$url.'" />' . PHP_EOL;
+					//echo '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
+					echo '<meta name="original-source" content="'.$url.'" />' . PHP_EOL;
+					echo '<link rel="original-source" href="'.$url.'" />' . PHP_EOL;
+					echo '<meta property="og:url" content="'.$url.'" />' . PHP_EOL;
+					echo '<meta name="twitter:url" content="'.$url.'" />' . PHP_EOL;
+				}
+				
+				echo '<meta name=viewport content="width=device-width, initial-scale=1">' . PHP_EOL;
+				
+				echo '<meta name="rating" content="General" />' . PHP_EOL;
+				echo '<meta name="directory" content="submission" />' . PHP_EOL;
+				echo '<meta name="coverage" content="Worldwide" />' . PHP_EOL;
+				echo '<meta name="distribution" content="Global" />' . PHP_EOL;
+				echo '<meta name="target" content="all" />' . PHP_EOL;
+				echo '<meta name="medium" content="blog" />' . PHP_EOL;
+				echo '<meta property="og:type" content="article" />' . PHP_EOL;
+				echo '<meta name="twitter:card" content="summary" />' . PHP_EOL;
+				
+				/*
+				echo '<meta name="geo.position" content="latitude; longitude" />' . PHP_EOL;
+				echo '<meta name="geo.placename" content="Place Name" />' . PHP_EOL;
+				echo '<meta name="geo.region" content="Country Subdivision Code" />' . PHP_EOL;
+				*/
 			}
+
+			if(!empty($layerMeta['link'])){
+				
+				foreach($layerMeta['link'] as $source){
+					
+					echo '<link href="'.$source.'" rel="stylesheet" type="text/css" />';
+				}
+			}			
 			
 			// font library
 			
@@ -489,6 +653,8 @@
 					
 					echo ' var layerOutput = "' . $layerOutput . '";' .PHP_EOL;
 				}
+				
+				echo ' var layerSettings = ' . json_encode($layerSettings) . ';' .PHP_EOL;
 				
 				//include image proxy
 				

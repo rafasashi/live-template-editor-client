@@ -65,6 +65,7 @@
 					echo'<input type="hidden" name="postContent" id="postContent" value="">';
 					echo'<input type="hidden" name="postCss" id="postCss" value="">';
 					echo'<input type="hidden" name="postJs" id="postJs" value="">';
+					echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
 
 					wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 
@@ -108,6 +109,7 @@
 					echo'<input type="hidden" name="postCss" id="postCss" value="">';
 					echo'<input type="hidden" name="postJs" id="postJs" value="">';
 					echo'<input type="hidden" name="postAction" id="postAction" value="save">';
+					echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
 					 
 					wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 					
@@ -148,7 +150,8 @@
 										echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
 										echo'<input type="hidden" name="postContent" value="">';
 										echo'<input type="hidden" name="postCss" value="">'; 
-										echo'<input type="hidden" name="postJs" value="">'; 
+										echo'<input type="hidden" name="postJs" value="">'; 									
+										echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
 										
 										wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 										
@@ -165,12 +168,16 @@
 								echo'</div>';						
 								
 							echo'</li>';
+							/*
+							
+							// TODO repare breaking update layer
 							
 							echo'<li style="position:relative;">';
 								
 								echo '<a id="updateBtn" href="#update-layer">Update Layer <span class="label label-warning pull-right">admin</span></a>';
 
 							echo'</li>';
+							*/
 						}
 						
 						echo'<li style="position:relative;">';

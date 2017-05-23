@@ -57,7 +57,8 @@
 												echo'<input type="hidden" name="postCss" id="postCss" value="">';
 												echo'<input type="hidden" name="postJs" id="postJs" value="">';
 												echo'<input type="hidden" name="postEmbedded" id="postEmbedded" value="' . $this->layer->embedded['url'] . '">';
-
+												echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
+												
 												wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 
 												echo'<input type="hidden" name="submitted" id="submitted" value="true">';
@@ -84,7 +85,8 @@
 												echo'<input type="hidden" name="postCss" id="postCss" value="">';
 												echo'<input type="hidden" name="postJs" id="postJs" value="">';
 												echo'<input type="hidden" name="postEmbedded" id="postEmbedded" value="' . $this->layer->embedded['url'] . '">';
-
+												echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
+												
 												wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 
 												echo'<input type="hidden" name="submitted" id="submitted" value="true">';
@@ -137,6 +139,7 @@
 											echo'<input type="hidden" name="postJs" id="postJs" value="">';
 											echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 											echo'<input type="hidden" name="postEmbedded" id="postEmbedded" value="' . $this->layer->embedded['url'] . '">';
+											echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
 											 
 											wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 											

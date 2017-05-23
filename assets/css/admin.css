@@ -1,5 +1,3 @@
-select, input[type=text], input[type=number], input[type=password] {width: auto !important;display: inline-block !important;}
-.input-group input {width: 100% !important;}
 #wpcontent, #wpwrap,#wp-content-editor-tools {background:#f9f9f9 !important;}
 #message.fade {opacity:initial;}
 .sortable .ui-sortable { list-style-type: none; margin: 0; padding: 0; }
