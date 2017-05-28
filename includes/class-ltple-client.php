@@ -1432,20 +1432,22 @@ class LTPLE_Client {
 						}
 					}
 				}
-				elseif( $_POST['postAction'] == 'duplicate' && $this->user->is_admin ){
+				elseif( $_POST['postAction'] == 'duplicate' ){
 					
 					//duplicate layer
+
+					$layer = '';
 					
 					if( $this->layer->type == 'user-layer' ){
 						
 						$layer	= get_page_by_path( $this->layer->slug, OBJECT, $this->layer->type);
 					}
-					else{
+					elseif( $this->user->is_admin ){
 						
 						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 					}
 					
-					if(!empty($layer)){
+					if( !empty($layer) ){
 					
 						$layerId = intval( $layer->ID );
 

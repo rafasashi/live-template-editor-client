@@ -23,9 +23,12 @@
 				
 				global $pagenow;
 				
-				if( is_admin() && 'users.php' == $pagenow && isset($_REQUEST[$this->parent->_base .'view']) ){
+				if( is_admin() && $pagenow == 'users.php' ){
 					
-					$this->view = $_REQUEST[$this->parent->_base .'view'];
+					if(isset($_REQUEST[$this->parent->_base .'view'])){
+					
+						$this->view = $_REQUEST[$this->parent->_base .'view'];
+					}
 					
 					add_filter('admin_footer-users.php', array($this, 'add_users_table_view'));
 					
@@ -67,7 +70,8 @@
 
 					add_action( 'restrict_manage_users', function(){
 						
-						static $instance = 0;   
+						static $instance = 0;
+						
 						do_action( 'ltple_restrict_manage_users', 1 === ++$instance ? 'top' : 'bottom'  );
 					});
 
@@ -81,109 +85,113 @@
 							
 								echo '<h2 class="nav-tab-wrapper" style="margin-bottom: 10px;margin-top: 15px;">';
 									
-									echo '<a class="nav-tab nav-tab-active" href="users.php?ltple_view=subscribers">Subscribers</a>';
+									echo '<a class="nav-tab ' . ( empty($this->view) ? 'nav-tab-active' : '' ) . '" href="users.php">Users</a>';
+									
+									echo '<a class="nav-tab ' . ( $this->view == 'subscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=subscribers">Subscribers</a>';
 								
-								echo '</h2>';						
+									do_action('ltple_user_tab');
+								
+								echo '</h2>';				
 							
 							echo '</div>';
 						}
 						
 						echo '<div class="actions" style="display:inline;">';
 							
-							// add marketing-channel filter
+							if( 1==1 || $this->view == 'subscribers' ){
 							
-							$taxonomy = 'marketing-channel';
-							
-							$name = 'top' === $which ? $taxonomy.'1' : $taxonomy.'2';
-							
-							echo '<input type="hidden" name="ltple_view" value="subscribers">';
-							
-							echo '<span>';
+								// add marketing-channel filter
 								
-								echo wp_dropdown_categories(array(
+								$taxonomy = 'marketing-channel';
 								
-									'show_option_none'  => 'All Channels',
-									'taxonomy'     		=> $taxonomy,
-									'name'    	  		=> $name,
-									'show_count'  		=> false,
-									'hierarchical' 		=> true,
-									'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-									'echo'		   		=> false,
-									'class'		   		=> 'form-control',
-									'hide_empty'   		=> false
-								));	
-
-								echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
-							
-							echo '</span>';
-							
-							// add plan value filter
-							
-							echo '<span>';
+								$name = 'top' === $which ? $taxonomy.'1' : $taxonomy.'2';
 								
-								echo '<label style="padding:7px;float:left;">';
-									echo ' Plan';
-								echo '</label>';
+								echo '<input type="hidden" name="ltple_view" value="subscribers">';
 								
-								$filter = 'planValueOperator';
-								$name = 'top' === $which ? $filter.'1' : $filter.'2';							
+								echo '<span>';
+									
+									echo wp_dropdown_categories(array(
+									
+										'show_option_none'  => 'All Channels',
+										'taxonomy'     		=> $taxonomy,
+										'name'    	  		=> $name,
+										'show_count'  		=> false,
+										'hierarchical' 		=> true,
+										'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+										'echo'		   		=> false,
+										'class'		   		=> 'form-control',
+										'hide_empty'   		=> false
+									));	
+
+									echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
 								
-								echo'<select name="'.$name.'">';
-									echo'<option value="'.htmlentities ('>').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('>')) ? ' selected="selected"' : '').'>'.htmlentities ('>').'</option>';
-									echo'<option value="'.htmlentities ('<').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('<')) ? ' selected="selected"' : '').'>'.htmlentities ('<').'</option>';								
-									echo'<option value="'.htmlentities ('=').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('=')) ? ' selected="selected"' : '').'>'.htmlentities ('=').'</option>';
-								echo'</select>';
+								echo '</span>';
 								
-								$filter = 'userPlanValue';
-								$name = 'top' === $which ? $filter.'1' : $filter.'2';
-
-								echo '<input name="'.$name.'" type="number" value="'.( isset($_REQUEST[$name]) ? intval($_REQUEST[$name]) : -1).'" style="width:55px;float:left;">';
-
-								echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
-							
-							echo '</span>';
-							
-							// add bulk stars
-							
-							echo '<span>';
+								// add plan value filter
 								
-								echo '<label style="padding:7px;float:left;">';
-									echo ' Stars';
-								echo '</label>';
+								echo '<span>';
+									
+									echo '<label style="padding:7px;float:left;">';
+										echo ' Plan';
+									echo '</label>';
+									
+									$filter = 'planValueOperator';
+									$name = 'top' === $which ? $filter.'1' : $filter.'2';							
+									
+									echo'<select name="'.$name.'">';
+										echo'<option value="'.htmlentities ('>').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('>')) ? ' selected="selected"' : '').'>'.htmlentities ('>').'</option>';
+										echo'<option value="'.htmlentities ('<').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('<')) ? ' selected="selected"' : '').'>'.htmlentities ('<').'</option>';								
+										echo'<option value="'.htmlentities ('=').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('=')) ? ' selected="selected"' : '').'>'.htmlentities ('=').'</option>';
+									echo'</select>';
+									
+									$filter = 'userPlanValue';
+									$name = 'top' === $which ? $filter.'1' : $filter.'2';
 
-								$filter = 'addStars';
-								$name = 'top' === $which ? $filter.'1' : $filter.'2';
+									echo '<input name="'.$name.'" type="number" value="'.( isset($_REQUEST[$name]) ? intval($_REQUEST[$name]) : -1).'" style="width:55px;float:left;">';
 
-								echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
-
-								echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-							
-							echo '</span>';
-							
-							// add bulk email sender
-							
-							$post_type = 'email-model';
-							
-							$name = 'top' === $which ? $post_type.'1' : $post_type.'2';
-
-							echo '<span>';
-							
-								echo $this->parent->ltple_get_dropdown_posts(array(
+									echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
 								
-									'show_option_none'  => 'Select an email',
-									'post_type'     	=> $post_type,
-									'name'    	  		=> $name,
-									'style'    	  		=> 'width:130px;',
-									'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-									'echo'		   		=> false
-								));	
+								echo '</span>';
+								
+								// add bulk stars
+								
+								echo '<span>';
+									
+									echo '<label style="padding:7px;float:left;">';
+										echo ' Stars';
+									echo '</label>';
 
-								echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
-							
-							echo '</span>';
-							
-						//echo '</div>';					
-						
+									$filter = 'addStars';
+									$name = 'top' === $which ? $filter.'1' : $filter.'2';
+
+									echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
+
+									echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+								
+								echo '</span>';
+								
+								// add bulk email sender
+								
+								$post_type = 'email-model';
+								
+								$name = 'top' === $which ? $post_type.'1' : $post_type.'2';
+
+								echo '<span>';
+								
+									echo $this->parent->ltple_get_dropdown_posts(array(
+									
+										'show_option_none'  => 'Select an email',
+										'post_type'     	=> $post_type,
+										'name'    	  		=> $name,
+										'style'    	  		=> 'width:130px;',
+										'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+										'echo'		   		=> false
+									));	
+
+									echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
+								
+								echo '</span>';
+							}
 					} );
 					
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
@@ -276,7 +284,7 @@
 			$column["plan"]			= 'Plan';
 			$column["channel"]		= 'Channel';
 			$column["stars"]		= 'Stars';
-			$column["leads"]		= 'Leads';
+			//$column["leads"]		= 'Leads';
 			$column["spam"]			= 'Spam';
 			$column["sent"]			= 'Last emails sent';
 			
@@ -296,7 +304,7 @@
 				echo '.column-seen 				{width: 8%}';
 				echo '.column-subscription 		{width: 9%}';
 				echo '.column-plan 				{width: 10%}';
-				echo '.column-channel 			{width: 8%}';
+				echo '.column-channel 			{width: 10%}';
 				echo '.column-stars 			{width: 5%;text-align:center;}';
 				echo '.column-leads 			{width: 5%;text-align:center;}';
 				echo '.column-spam 				{width: 5%;text-align:center;}';

@@ -128,7 +128,7 @@
 			
 			echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $this->layer->id ) . '" style="margin-left: 4px;border-color: #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 		
-			if( $this->user->is_admin ){
+			if( $this->user->is_admin || $this->layer->type == 'user-layer' ){
 			
 				echo'<div style="margin:0 2px;" class="btn-group">';
 				
@@ -136,11 +136,11 @@
 										
 					echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 						
-						if( $this->layer->form != 'scraper' && $this->layer->type == 'cb-default-layer' ){
+						if( ( $this->layer->form != 'scraper' && $this->layer->type == 'cb-default-layer' && $this->user->is_admin ) || $this->layer->type == 'user-layer' ){
 
 							echo'<li style="position:relative;">';
 							
-								echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Layer <span class="label label-warning pull-right">admin</span></a>';
+								echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Layer ' . ( $this->layer->type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
 
 								echo'<div id="duplicateLayer" title="Duplicate Layer">';
 									
