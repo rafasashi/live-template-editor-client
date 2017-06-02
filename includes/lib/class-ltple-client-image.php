@@ -120,7 +120,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					
 					if( $q = get_post($this->uri) ){	
 
-						if( $q->post_type == 'default-image' ){
+						if( $q->post_type == 'default-image' || $q->post_type == 'user-image' ){
 						
 							$this->id 		= $q->ID;
 							$this->content 	= $q->post_content;

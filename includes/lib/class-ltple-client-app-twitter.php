@@ -15,7 +15,7 @@ class LTPLE_Client_App_Twitter {
 	 * Constructor function
 	 */
 	public function __construct ( $app_slug, $parent, $apps ) {
-		
+
 		$this->parent 		= $parent;
 		$this->parent->apps = $apps;
 		
@@ -1093,7 +1093,7 @@ class LTPLE_Client_App_Twitter {
 	public function appImportImg(){
 		
 		if(!empty($_REQUEST['id'])){
-		
+			
 			if( $this->app = $this->parent->apps->getAppData( $_REQUEST['id'], $this->parent->user->ID ) ){
 
 				$this->connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $this->app->oauth_token, $this->app->oauth_token_secret);
@@ -1108,36 +1108,47 @@ class LTPLE_Client_App_Twitter {
 					'include_rts' 		=> false
 				));
 
-				$urls = [];
-				
-				if(!empty($items)){
-					
-					foreach($items as $item){
+				if( !empty($items->errors[0]->message) ){
+	
+					$_SESSION['message'] = '<div class="alert alert-danger">';
 						
-						if(isset($item->entities->media)){
+						$_SESSION['message'] .= $items->errors[0]->message;
 							
-							foreach($item->entities->media as $media){
+					$_SESSION['message'] .= '</div>';	
+				}
+				else{
+						
+					$urls = [];
+					
+					if(!empty($items)){
+						
+						foreach($items as $item){
+							
+							if(isset($item->entities->media)){
 								
-								if($media->type == 'photo'){
+								foreach($item->entities->media as $media){
 									
-									$img_title	= basename($media->media_url);
-									$img_url	= $media->media_url;
-									
-									if(!get_page_by_title( $img_title, OBJECT, 'user-image' )){
+									if($media->type == 'photo'){
 										
-										if($image_id = wp_insert_post(array(
-									
-											'post_author' 	=> $this->parent->user->ID,
-											'post_title' 	=> $img_title,
-											'post_content' 	=> $img_url,
-											'post_type' 	=> 'user-image',
-											'post_status' 	=> 'publish'
-										))){
+										$img_title	= basename($media->media_url);
+										$img_url	= $media->media_url;
+										
+										if(!get_page_by_title( $img_title, OBJECT, 'user-image' )){
 											
-											wp_set_object_terms( $image_id, $this->term->term_id, 'app-type' );
+											if($image_id = wp_insert_post(array(
+										
+												'post_author' 	=> $this->parent->user->ID,
+												'post_title' 	=> $img_title,
+												'post_content' 	=> $img_url,
+												'post_type' 	=> 'user-image',
+												'post_status' 	=> 'publish'
+											))){
+												
+												wp_set_object_terms( $image_id, $this->term->term_id, 'app-type' );
+											}
 										}
-									}
-								}						
+									}						
+								}
 							}
 						}
 					}
@@ -1207,8 +1218,8 @@ class LTPLE_Client_App_Twitter {
 					session_destroy();
 
 					//store access_token in session					
-					
-					$_SESSION['access_token'] = $this->access_token;
+					$_SESSION['app'] 			= $this->slug;
+					$_SESSION['access_token'] 	= $this->access_token;
 					
 					// store access_token in database		
 					
@@ -1230,9 +1241,13 @@ class LTPLE_Client_App_Twitter {
 						
 						wp_set_object_terms( $app_id, $this->term->term_id, 'app-type' );
 						
+						// set app item
+											
+						update_post_meta( $app_id, 'appData', json_encode($this->access_token,JSON_PRETTY_PRINT));
+
 						// do welcome actions
 						
-						$this->do_welcome_actions();
+						$this->do_welcome_actions($app_id);
 						
 						// hook connected app
 						
@@ -1241,13 +1256,12 @@ class LTPLE_Client_App_Twitter {
 						$this->parent->apps->newAppConnected();
 					}
 					else{
-
-						$app_id = $app_item->ID;
+	
+						// update app item
+											
+						update_post_meta( $app_item->ID, 'appData', json_encode($this->access_token,JSON_PRETTY_PRINT));
 					}
 						
-					// update app item
-											
-					update_post_meta( $app_id, 'appData', json_encode($this->access_token,JSON_PRETTY_PRINT));
 
 					if(!empty($_SESSION['ref'])){
 						
@@ -1345,9 +1359,10 @@ class LTPLE_Client_App_Twitter {
 					//flush session
 					session_destroy();
 
-					//store access_token in session					
+					//store access_token in session	
 					
-					$_SESSION['access_token'] = $this->access_token;
+					$_SESSION['app'] 			= $this->slug;
+					$_SESSION['access_token'] 	= $this->access_token;
 					
 					// get associated user id
 					
@@ -1500,9 +1515,9 @@ class LTPLE_Client_App_Twitter {
 	public function do_welcome_actions(){
 							
 		// get main account
-
-		$appId = get_option( $this->parent->_base . 'twt_main_account' );
 		
+		$appId = get_option( $this->parent->_base . 'twt_main_account' );
+
 		if( $app = $this->parent->apps->getAppData($appId)){
 			
 			// new account follow main account

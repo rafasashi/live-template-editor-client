@@ -83,18 +83,22 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 			
 				$terms = wp_get_object_terms( $user->ID, $this->taxonomy );
 
-				echo wp_dropdown_categories(array(
+				echo '<div style="display:inline-block;">';
 				
-					'show_option_none' => 'Select a channel',
-					'taxonomy'     => $this->taxonomy,
-					'name'    	   => $this->taxonomy,
-					'show_count'   => false,
-					'hierarchical' => true,
-					'selected'     => ( ( !isset($terms->errors) && isset($terms[0]->term_taxonomy_id) ) ? $terms[0]->term_taxonomy_id : ''),
-					'echo'		   => false,
-					'class'		   => 'form-control',
-					'hide_empty'   => false
-				));
+					echo wp_dropdown_categories(array(
+					
+						'show_option_none' => 'Select a channel',
+						'taxonomy'     => $this->taxonomy,
+						'name'    	   => $this->taxonomy,
+						'show_count'   => false,
+						'hierarchical' => true,
+						'selected'     => ( ( !isset($terms->errors) && isset($terms[0]->term_taxonomy_id) ) ? $terms[0]->term_taxonomy_id : ''),
+						'echo'		   => false,
+						'class'		   => 'form-control',
+						'hide_empty'   => false
+					));
+					
+				echo '</div>';
 					
 			echo'</div>';
 		}	

@@ -15,7 +15,18 @@
 	
 	$currentTab = 'apps';
 	
-	if( in_array($_GET['app'],['embedded','opportunities','members','leads']) ){
+	$currentApp = '';
+	
+	if( !empty($_GET['app']) ){
+		
+		$currentApp = $_GET['app'];
+	}
+	elseif( !empty($_SESSION['app']) ){
+		
+		$currentApp = $_SESSION['app'];
+	}
+	
+	if( in_array($currentApp,['embedded','opportunities','members','leads']) ){
 		
 		$currentTab = $_GET['app'];
 	}

@@ -115,6 +115,16 @@ class LTPLE_Client_Settings {
 				'author' 		=> 'Rafasashi',
 				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),
+			'company-program' => array(
+			
+				'title' 		=> 'Company Program',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-company',
+				'addon_name' 	=> 'live-template-editor-company',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-company/archive/master.zip',
+				'description'	=> 'Company program including management and purchase of licenses in bulk.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
 		);
 							
 		// Initialise settings
@@ -165,7 +175,6 @@ class LTPLE_Client_Settings {
 			}
 		});
 		
-		
 		//Add Custom API Endpoints
 		
 		add_action( 'rest_api_init', function () {
@@ -203,9 +212,11 @@ class LTPLE_Client_Settings {
 		return $embedded_info;
 	}
 	
-	public function post_type_tabs() {
-		
-		echo '<h2 class="nav-tab-wrapper" style="margin-bottom:20px;">';
+	public function post_type_tabs($views) {
+
+		echo'<style>.subsubsub {list-style: none;margin: 0px 0 8px 0;font-size: 13px;color: #666;padding:5px 10px;}</style>';
+	
+		echo '<h2 class="nav-tab-wrapper" style="margin-bottom:10px;">';
 		
 			foreach( $this->tabs[$this->tabIndex] as $tab => $data ){
 				
@@ -213,6 +224,8 @@ class LTPLE_Client_Settings {
 			}
 			
 		echo '</h2>';
+		
+		return $views;
 	}
 	
 	public function taxonomy_tabs($taxonomy) {

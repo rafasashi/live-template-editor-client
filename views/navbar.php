@@ -180,11 +180,14 @@
 							*/
 						}
 						
-						echo'<li style="position:relative;">';
-							
-							echo '<a target="_blank" href="' . get_edit_post_link( $this->layer->id ) . '"> Edit Layer <span class="label label-warning pull-right">admin</span></a>';
+						if( $this->user->is_admin ){
+						
+							echo'<li style="position:relative;">';
+								
+								echo '<a target="_blank" href="' . get_edit_post_link( $this->layer->id ) . '"> Edit Layer <span class="label label-warning pull-right">admin</span></a>';
 
-						echo'</li>';
+							echo'</li>';
+						}
 						
 					echo'</ul>';
 					

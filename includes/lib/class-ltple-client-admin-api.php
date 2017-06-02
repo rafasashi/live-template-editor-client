@@ -1118,30 +1118,33 @@ class LTPLE_Client_Admin_API {
 			break;
 			
 			case 'select':
-
-				if(isset($field['name'])){
-					
-					$html .= '<select class="form-control" name="' . $field['name'] . '" id="' . $id . '"'.$required.$disabled.'>';
-				}
-				else{
-					
-					$html .= '<select class="form-control" name="' . esc_attr( $option_name ) . '" id="' . $id . '"'.$required.$disabled.'>';
-				}
-
-				foreach ( $field['options'] as $k => $v ) {
-					$selected = false;
-					if ( $k == $data ) {
-						
-						$selected = true;
-					}
-					elseif(isset($field['selected']) && $field['selected'] == $k ){
-						
-						$selected = true;
-					}
-					$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $k ) . '">' . $v . '</option>';
-				}
-				$html .= '</select> ';
 				
+				$html .= '<div class="input-group">';
+				
+					if(isset($field['name'])){
+						
+						$html .= '<select class="form-control" name="' . $field['name'] . '" id="' . $id . '"'.$required.$disabled.'>';
+					}
+					else{
+						
+						$html .= '<select class="form-control" name="' . esc_attr( $option_name ) . '" id="' . $id . '"'.$required.$disabled.'>';
+					}
+
+					foreach ( $field['options'] as $k => $v ) {
+						$selected = false;
+						if ( $k == $data ) {
+							
+							$selected = true;
+						}
+						elseif(isset($field['selected']) && $field['selected'] == $k ){
+							
+							$selected = true;
+						}
+						$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $k ) . '">' . $v . '</option>';
+					}
+					$html .= '</select> ';
+					
+				$html .= '</div>';
 				
 			break;
 
@@ -1298,16 +1301,22 @@ class LTPLE_Client_Admin_API {
 			break;
 
 			default:
-				if ( ! $item ) {
-					$html .= '<div for="' . $id . '">' . "\n";
-				}
+				
 				if(!empty($field['description'])){
-					
+				
+					if ( ! $item ) {
+						
+						$html .= '<div for="' . $id . '">' . "\n";
+					}
+
 					$html .= '<div><i style="color:#aaa;">' . $field['description'] . '</i></div>' . "\n";
+
+					if ( ! $item ) {
+						
+						$html .= '</div>' . "\n";
+					}
 				}
-				if ( ! $item ) {
-					$html .= '</div>' . "\n";
-				}
+				
 			break;
 		}
 

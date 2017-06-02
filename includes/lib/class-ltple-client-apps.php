@@ -84,7 +84,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		});		
 		
 		// get current app
-		
+
 		if(!empty($_REQUEST['app'])){
 			
 			$this->app = $_REQUEST['app'];
@@ -95,7 +95,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			// flush app session
 			
-			$_SESSION['app'] = '';
+			//$_SESSION['app'] = '';
 		}
 		
 		add_filter('wp_loaded', array( $this, 'init_apps'));
@@ -499,8 +499,8 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		}
 		else{
 			
-			echo 'Wrong app id request...';
-			exit;
+			//echo 'Wrong app id request...';
+			//exit;
 		}
 
 		return $app_data;

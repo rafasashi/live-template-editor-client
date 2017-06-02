@@ -199,16 +199,20 @@
 				echo '<div class="postbox" style="min-height:45px;">';
 					
 					echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Stars', 'live-template-editor-client' ) . '</h3>';
-
-					$field =  array(
-			
-						'id' 			=> $this->parent->_base . 'stars',
-						'description' 	=> '',
-						'type'			=> 'number',
-						'placeholder'	=> 'stars',
-					);
 					
-					$this->parent->admin->display_field( $field, $user );
+					echo '<div style="display:inline-block;">';
+						
+						$field =  array(
+				
+							'id' 			=> $this->parent->_base . 'stars',
+							'description' 	=> '',
+							'type'			=> 'number',
+							'placeholder'	=> 'stars',
+						);
+						
+						$this->parent->admin->display_field( $field, $user );
+							
+					echo'</div>';
 						
 				echo'</div>';
 			}	

@@ -114,6 +114,7 @@ class LTPLE_Client {
 		$this->message = '';
 		
 		// Load plugin environment variables
+		
 		$this->file 		= $file;
 		$this->dir 			= dirname( $this->file );
 		$this->views   		= trailingslashit( $this->dir ) . 'views';
@@ -122,11 +123,13 @@ class LTPLE_Client {
 		$this->assets_url 	= esc_url( trailingslashit( plugins_url( '/assets/', $this->file ) ) );
 		
 		//$this->script_suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		
 		$this->script_suffix = '';
 
 		register_activation_hook( $this->file, array( $this, 'install' ) );
 		
 		// Handle localisation
+		
 		$this->load_plugin_textdomain();
 
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );			
@@ -148,7 +151,14 @@ class LTPLE_Client {
 			
 			exit(base64_decode($data));
 		}
-		else{		
+		else{
+
+			// start session
+			
+			if(!session_id()) {
+				
+				session_start();
+			}			
 			
 			$this->client 		= new LTPLE_Client_Client( $this );
 			$this->request 		= new LTPLE_Client_Request( $this );
@@ -182,7 +192,8 @@ class LTPLE_Client {
 			$this->domain 	= new LTPLE_Client_Domain( $this );
 			$this->bookmark = new LTPLE_Client_Bookmark( $this );
 			
-			$this->users 	= new LTPLE_Client_Users( $this );			
+			$this->users 	= new LTPLE_Client_Users( $this );
+			$this->programs = new LTPLE_Client_Programs( $this );
 			$this->channels = new LTPLE_Client_Channels( $this );			
 			$this->profile 	= new LTPLE_Client_Profile( $this );
 			
@@ -282,8 +293,8 @@ class LTPLE_Client {
 		return base64_decode(strtr($inputStr, '-_,', '+/='));
 	}
 	
-	public function init_frontend(){
-		
+	public function init_frontend(){	
+
 		// Load frontend JS & CSS
 		
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
@@ -1912,7 +1923,7 @@ class LTPLE_Client {
 	public function update_user_image(){	
 		
 		if( $this->user->loggedin ){
-
+			
 			if( isset($_GET['imgAction']) && $_GET['imgAction']=='delete' ){
 				
 				//--------delete image--------
