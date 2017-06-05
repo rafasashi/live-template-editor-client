@@ -95,7 +95,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			// flush app session
 			
-			//$_SESSION['app'] = '';
+			$_SESSION['app'] = '';
 		}
 		
 		add_filter('wp_loaded', array( $this, 'init_apps'));

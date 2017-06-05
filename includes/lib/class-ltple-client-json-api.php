@@ -34,7 +34,7 @@ class LTPLE_Client_Json_API {
 		return $url;
 	}
 	
-	public function get_table( $api_url, $fields, $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar' ){
+	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar' ){
 						
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );
 								

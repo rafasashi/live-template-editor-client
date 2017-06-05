@@ -175,6 +175,7 @@ class LTPLE_Client_Settings {
 			}
 		});
 		
+		
 		//Add Custom API Endpoints
 		
 		add_action( 'rest_api_init', function () {

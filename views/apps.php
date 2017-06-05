@@ -78,7 +78,7 @@
 					
 						foreach( $this->apps->list as $app ){ 
 							
-							$connect_url = $this->urls->editor . '?app='.$app->slug.'&action=connect';
+							$connect_url = $this->urls->editor . '?app='.$app->slug . '&action=connect';
 							
 							//get item
 							
@@ -490,9 +490,7 @@
 
 						$api_url = $this->api->get_url('leads/list',-1);
 							
-						$fields = $this->leads->get_fields_frontend(false);
-							
-						$this->api->get_table($api_url, $fields, false, true);
+						$this->api->get_table($api_url, false, false, true);
 					
 					echo'</div>';
 					
