@@ -84,7 +84,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		});		
 		
 		// get current app
-
+		
 		if(!empty($_REQUEST['app'])){
 			
 			$this->app = $_REQUEST['app'];
@@ -92,17 +92,13 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		elseif(!empty($_SESSION['app'])){
 			
 			$this->app = $_SESSION['app'];
-			
-			// flush app session
-			
-			$_SESSION['app'] = '';
 		}
 		
 		add_filter('wp_loaded', array( $this, 'init_apps'));
 		
 		add_filter("user-app_custom_fields", array( $this, 'get_fields' ));
-	}	
-	
+	}
+
 	// Add app data custom fields
 
 	public function get_fields( $fields = [] ){
@@ -146,7 +142,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				'options' 	=> array(
 				
 					'thumbnail' => $this->parent->assets_url . 'images/apps/blogger.png',
-					'types' 	=> array('networks','images'),
+					'types' 	=> array('networks','blogs','images'),
 					'api_client'=> 'blogger',
 					'parameters'=> array (
 					
@@ -375,6 +371,31 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		else{
 
 			echo 'Could not found API Client: "'.$apiClient.'"';
+			exit;
+		}		
+	}
+	
+	public function redirectApp(){
+		
+		if( empty($_REQUEST['app']) && !empty($_SESSION['app'])){
+
+			// redirection session
+			
+			if(!empty($_SESSION['ref'])){
+				
+				$redirect_url = $_SESSION['ref'];
+			}
+			else{
+				
+				$redirect_url = add_query_arg( array(
+				
+					'app' 	=> $_SESSION['app'],
+					
+				), $this->parent->urls->current );
+			}
+
+			wp_redirect($redirect_url);
+			echo 'Redirecting app callback...';
 			exit;
 		}		
 	}

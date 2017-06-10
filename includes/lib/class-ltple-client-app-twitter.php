@@ -61,6 +61,14 @@ class LTPLE_Client_App_Twitter {
 					$this->$methodName();
 				}
 			}
+			else{
+				
+				$_SESSION['message'] = '<div class="alert alert-danger">';
+					
+					$_SESSION['message'] .= 'Sorry, twitter is not available on this platform yet, please contact the dev team...';
+						
+				$_SESSION['message'] .= '</div>';				
+			}
 		}
 		
 		// store frontend options

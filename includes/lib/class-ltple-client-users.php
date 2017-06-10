@@ -729,9 +729,9 @@
 					
 					$can_spam = get_user_meta( $user->ID, $this->parent->_base . '_can_spam',true);
 					
-					if($can_spam !== 'false'){
+					if( $can_spam !== 'false' ){
 
-						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , 'ltple_send_email_event' , [$model_id,$user->user_email] );
+						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , $this->parent->_base . 'send_email_event' , [$model_id,$user->user_email] );
 					
 						if ($i % 10 == 0) {
 							

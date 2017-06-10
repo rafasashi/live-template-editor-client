@@ -6,6 +6,7 @@ class LTPLE_Client_App_Wordpress {
 	
 	var $parent;
 	var $apps;
+	var $action;
 	
 	/**
 	 * Constructor function
@@ -52,16 +53,27 @@ class LTPLE_Client_App_Wordpress {
 					$this->action = $_SESSION['action'];
 				}
 				
-				$methodName = 'app'.ucfirst($this->action);
+				if( !empty($this->action) ){
+				
+					$methodName = 'app'.ucfirst($this->action);
 
-				if(method_exists($this,$methodName)){
-					
-					$this->$methodName();
+					if(method_exists($this,$methodName)){
+						
+						$this->$methodName();
+					}
 				}
+			}
+			else{
+				
+				$_SESSION['message'] = '<div class="alert alert-danger">';
+					
+					$_SESSION['message'] .= 'Sorry, wordpress is not available on this platform yet, please contact the dev team...';
+						
+				$_SESSION['message'] .= '</div>';				
 			}
 		}
 	}
-
+	
 	public function appImportImg(){
 		
 		if(!empty($_REQUEST['id'])){
@@ -121,8 +133,6 @@ class LTPLE_Client_App_Wordpress {
 	public function appUploadImg( $app_id, $image_url){
 
 		if( $this->app = $this->parent->apps->getAppData( $app_id, $this->parent->user->ID, false ) ){
-			
-			
 			
 			$this->client->set_auth_token($this->app->access_token);
 
@@ -284,34 +294,71 @@ class LTPLE_Client_App_Wordpress {
 					// update app item
 						
 					update_post_meta( $app_id, 'appData', json_encode($this->access_token,JSON_PRETTY_PRINT));
-					
-					if(!empty($_SESSION['ref'])){
-						
-						$redirect_url = $_SESSION['ref'];
-						
-						$_SESSION['ref'] = '';
-						
-						wp_redirect($redirect_url);
-						echo 'Redirecting wordpress callback...';
-						exit;	
-					}
-					else{
-						
-						// store success message
 
-						$_SESSION['message'] = '<div class="alert alert-success">';
+					// store success message
+
+					$_SESSION['message'] = '<div class="alert alert-success">';
+						
+						$_SESSION['message'] .= 'Congratulations, you have successfully connected a Wordpress account!';
 							
-							$_SESSION['message'] .= 'Congratulations, you have successfully connected a Wordpress account!';
-								
-						$_SESSION['message'] .= '</div>';						
-					}
+					$_SESSION['message'] .= '</div>';
 				}
 				else{
 					
 					//flush session
 					session_destroy();					
 				}
+				
+				// redirect request
+					 
+				$this->parent->apps->redirectApp();				
 			}
 		}
+	}
+
+	public function appPostArticle( $app_id, $article){
+
+		if( $this->app = $this->parent->apps->getAppData( $app_id, $this->parent->user->ID, false ) ){
+			
+			$this->client->set_auth_token($this->app->access_token);
+
+			$this->blog=str_replace('http://','',$this->app->blog_url);				
+				
+			// post new image
+			
+			$post_data=[];
+			$post_data['title']			= $article['post_title'];
+			$post_data['content']		= $article['post_content'];
+			$post_data['media_urls']	= $article['post_img'];
+			$post_data['categories']	= implode(',',$article['post_pbn']);
+			$post_data['tags']			= implode(',',$article['post_tags']);
+			$post_data['i_like']		= true;
+			$post_data['is_reblogged']	= false;
+			$post_data['publicize']		= true;
+			$post_data['status']		= 'publish';
+
+			$post = WPCOM_REST_Object_Post::initAsNew($post_data, $this->blog, $this->client);
+			
+			$post_data = $post->get();
+			
+			if( !empty($post_data->attachments) ){
+				
+				foreach($post_data->attachments as $image){
+					
+					//set feature image
+					
+					$post->update( array( 'featured_image' => $image->ID ) );
+					
+					break;
+				}
+			}			
+			
+			if(!empty($post_data->URL)){
+				
+				return $post_data->URL;
+			}
+		}
+
+		return false;
 	}
 } 

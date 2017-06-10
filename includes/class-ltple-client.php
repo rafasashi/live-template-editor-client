@@ -1169,7 +1169,13 @@ class LTPLE_Client {
 								
 				$this->viewIncluded = true;	
 			}
-			elseif( isset($_GET['app']) || !empty($_SESSION['app']) ){
+			elseif( isset($_GET['app']) ){
+
+				include($this->views . $this->_dev .'/apps.php');
+								
+				$this->viewIncluded = true;	
+			}
+			elseif( !empty($_SESSION['app']) && ( empty($_GET['output']) || $_GET['output'] != 'embedded' ) ){
 
 				include($this->views . $this->_dev .'/apps.php');
 								
@@ -1956,10 +1962,13 @@ class LTPLE_Client {
 					
 					foreach ($_FILES as $file => $array) {
 						
-						if($_FILES[$file]['error'] !== UPLOAD_ERR_OK) {
+						if($_FILES[$file]['error'] !== UPLOAD_ERR_OK ) {
 							
-							echo "upload error : " . $_FILES[$file]['error'];
-							exit;
+							if( intval($_FILES[$file]['error']) != 4 ){
+								
+								echo "upload error : " . $_FILES[$file]['error'];
+								exit;
+							}
 						}
 						else{
 							

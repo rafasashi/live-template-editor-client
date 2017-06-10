@@ -77,6 +77,14 @@ class LTPLE_Client_App_Google_Plus {
 					$this->$methodName();
 				}
 			}
+			else{
+				
+				$_SESSION['message'] = '<div class="alert alert-danger">';
+					
+					$_SESSION['message'] .= 'Sorry, google plus is not available on this platform yet, please contact the dev team...';
+						
+				$_SESSION['message'] .= '</div>';				
+			}
 		}
 	}
 

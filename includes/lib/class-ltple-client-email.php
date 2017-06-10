@@ -320,11 +320,11 @@ class LTPLE_Client_Email {
 						
 						if( intval($email_series['days'][$e]) == 0){
 							
-							wp_schedule_single_event( ( time() + ( 60 * 1 ) ) , 'ltple_send_email_event' , [$model_id,$user->user_email] );
+							wp_schedule_single_event( ( time() + ( 60 * 1 ) ) , $this->parent->_base . 'send_email_event' , [$model_id,$user->user_email] );
 						}
 						else{
 							
-							wp_schedule_single_event( ( time() + ( intval( $email_series['days'][$e] ) * 3600 * 24 ) ), 'ltple_send_email_event', [$model_id,$user->user_email] );
+							wp_schedule_single_event( ( time() + ( intval( $email_series['days'][$e] ) * 3600 * 24 ) ), $this->parent->_base . 'send_email_event', [$model_id,$user->user_email] );
 						}									
 					}
 				}

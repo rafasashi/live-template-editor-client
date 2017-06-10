@@ -494,7 +494,14 @@
 														$disabled = ' disabled';
 													}
 													
-													echo '<form target="_self" action="' . $this->urls->editor . '?media=user-images" id="saveImageForm" method="post" enctype="multipart/form-data">';
+													$media_url = $this->urls->editor . '?media=user-images';
+													
+													if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
+																
+														$media_url .= '&output=widget';
+													}
+													
+													echo '<form target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
 													echo'<div class="col-xs-6">';
 
 														echo '<div style="padding-bottom:10px;display:block;">';

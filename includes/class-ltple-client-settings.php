@@ -89,6 +89,10 @@ class LTPLE_Client_Settings {
 				'addon-service' 	=> array( 'name' => 'Services', 'post-type' => 'subscription-plan' ),
 				'app-type' 			=> array( 'name' => 'Apps', 	'post-type' => 'user-app' ),
 			),
+			array(
+			
+				'marketing-channel' => array( 'name' => 'Channels', 'post-type' => 'post' ),
+			),
 		);
 		
 		//get addons
@@ -111,7 +115,7 @@ class LTPLE_Client_Settings {
 				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate',
 				'addon_name' 	=> 'live-template-editor-affiliate',
 				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate/archive/master.zip',
-				'description'	=> 'Affiliate program inluding click tracking and commissions.',
+				'description'	=> 'Affiliate program including click tracking and commissions.',
 				'author' 		=> 'Rafasashi',
 				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),
@@ -122,6 +126,16 @@ class LTPLE_Client_Settings {
 				'addon_name' 	=> 'live-template-editor-company',
 				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-company/archive/master.zip',
 				'description'	=> 'Company program including management and purchase of licenses in bulk.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
+			'seo-suite' => array(
+			
+				'title' 		=> 'SEO Suite',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-seo',
+				'addon_name' 	=> 'live-template-editor-seo',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-seo/archive/master.zip',
+				'description'	=> 'SEO Suite including management and tracking of user backlinks.',
 				'author' 		=> 'Rafasashi',
 				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),
@@ -444,8 +458,8 @@ class LTPLE_Client_Settings {
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Marketing Channels', $this->plugin->slug ),
-			__( 'Marketing Channels', $this->plugin->slug ),
+			__( 'Marketing Settings', $this->plugin->slug ),
+			__( 'Marketing Settings', $this->plugin->slug ),
 			'edit_pages',
 			'edit-tags.php?post_type=post&taxonomy=marketing-channel'
 		);
@@ -722,6 +736,22 @@ class LTPLE_Client_Settings {
 				),
 				array(
 				
+					'id' 			=> 'embedded_ggl_analytics_id',
+					'label'			=> __( 'Analytics ID' , $this->plugin->slug ),
+					'description'	=> 'Embedded Google Analytics ID',
+					'type'			=> 'text',
+					'placeholder'	=> 'UA-XXXXXXXX-1',
+				),
+				array(
+				
+					'id' 			=> 'embedded_ggl_webmaster_id',
+					'label'			=> __( 'Webmaster ID' , $this->plugin->slug ),
+					'description'	=> 'Embedded Google Search Console ID',
+					'type'			=> 'text',
+					'placeholder'	=> 'dPPEAvdug2I0i53meGGxyn-CMjcNPaZjuFRHTwmBl2Q',
+				),					
+				array(
+				
 					'id' 			=> 'embedded_endpoint',
 					'label'			=> __( 'Endpoint' , $this->plugin->slug ),
 					'description'	=> 'REST API endpoint',
@@ -730,6 +760,7 @@ class LTPLE_Client_Settings {
 					'placeholder'	=> 'http://',
 					'disabled'		=> true,
 				),
+				
 			)
 		);			
 

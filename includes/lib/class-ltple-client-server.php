@@ -14,5 +14,7 @@ class LTPLE_Client_Server {
 		$this->parent = $parent;
 		
 		$this->url = get_option( $this->parent->_base . 'server_url');
+		
+		$this->api = $this->url . '/wp-json/';
 	}
 }
