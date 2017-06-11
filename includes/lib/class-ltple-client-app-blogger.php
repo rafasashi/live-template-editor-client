@@ -303,7 +303,6 @@
 					
 					return $post->url;
 				}
-				
 			}
 
 			return false;

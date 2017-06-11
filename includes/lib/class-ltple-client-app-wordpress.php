@@ -317,8 +317,8 @@ class LTPLE_Client_App_Wordpress {
 	}
 
 	public function appPostArticle( $app_id, $article){
-
-		if( $this->app = $this->parent->apps->getAppData( $app_id, $this->parent->user->ID, false ) ){
+		
+		if( $this->app = json_decode(get_post_meta( $app_id, 'appData', true ),false) ){			
 			
 			$this->client->set_auth_token($this->app->access_token);
 

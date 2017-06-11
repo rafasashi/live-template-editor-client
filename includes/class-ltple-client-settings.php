@@ -228,22 +228,45 @@ class LTPLE_Client_Settings {
 	}
 	
 	public function post_type_tabs($views) {
-
-		echo'<style>.subsubsub {list-style: none;margin: 0px 0 8px 0;font-size: 13px;color: #666;padding:5px 10px;}</style>';
-	
-		echo '<h2 class="nav-tab-wrapper" style="margin-bottom:10px;">';
 		
-			foreach( $this->tabs[$this->tabIndex] as $tab => $data ){
+		$post_type = '';
+		
+		if( !empty($_GET['post_type']) ){
 				
-				echo '<a class="nav-tab '.( $tab == $_GET['post_type'] ? 'nav-tab-active' : '' ).'" href="edit.php?post_type='.$tab.'">'.$data['name'].'</a>';
-			}
+			$post_type = $_GET['post_type'];
+		}
+		elseif( !empty($views->post_type) ){
 			
-		echo '</h2>';
+			$post_type = $views->post_type;
+		}
+	
+		if( !empty($post_type) ){
+		
+			echo'<style>.subsubsub {list-style: none;margin: 0px 0 8px 0;font-size: 13px;color: #666;padding:5px 10px;}</style>';
+		
+			echo '<h2 class="nav-tab-wrapper" style="margin-bottom:10px;">';
+			
+				foreach( $this->tabs[$this->tabIndex] as $tab => $data ){
+					
+					echo '<a class="nav-tab '.( $tab == $post_type ? 'nav-tab-active' : '' ).'" href="edit.php?post_type='.$tab.'">'.$data['name'].'</a>';
+				}
+				
+			echo '</h2>';
+		}
 		
 		return $views;
 	}
 	
-	public function taxonomy_tabs($taxonomy) {
+	public function taxonomy_tabs($tax) {
+		
+		if( !empty($tax->taxonomy) ){
+			
+			$taxonomy = $tax->taxonomy;
+		}
+		else{
+			
+			$taxonomy = $tax;
+		}
 		
 		echo '<h2 class="nav-tab-wrapper" style="margin-bottom:20px;">';
 		
@@ -283,7 +306,28 @@ class LTPLE_Client_Settings {
 						}
 					}
 				}
-			});	
+
+			});
+
+			add_action( 'load-post.php', function() {
+				
+				if( !empty($_GET['post']) ){
+				
+					$post = get_post($_GET['post']);
+					
+					foreach($this->tabs as $t => $tabs){
+					
+						if(isset($tabs[$post->post_type])){
+							
+							$this->tabIndex = $t;
+							
+							add_filter( 'edit_form_top', array( $this, 'post_type_tabs') );						
+							
+							break;
+						}
+					}
+				}
+			});
 
 			add_action( 'load-edit-tags.php', function() {
 				
@@ -299,7 +343,23 @@ class LTPLE_Client_Settings {
 						}
 					}
 				}
-			});			
+			});	
+			
+			add_action( 'load-term.php', function() {
+				
+				if( !empty($_GET['taxonomy']) ){
+
+					foreach($this->tabs as $t => $tabs){
+
+						if(isset($tabs[$_GET['taxonomy']])){
+							
+							$this->tabIndex = $t;
+							
+							add_filter( $_GET['taxonomy'].'_term_edit_form_top', array( $this, 'taxonomy_tabs') );						
+						}
+					}
+				}
+			});	
 		}
 	}
 	
@@ -793,18 +853,32 @@ class LTPLE_Client_Settings {
 			 
 
 		}
+		
+		$settings['apps'] = array(
+			'title'					=> __( 'Apps', $this->plugin->slug ),
+			'description'			=> __( 'Main connected accounts', $this->plugin->slug ),
+			'fields'				=> array(
+				array(
+					'id' 			=> 'wpcom_main_account',
+					'label'			=> __( 'Wordpress' , $this->plugin->slug ),
+					'description'	=> 'Main connected Wordpress account',
+					'type'			=> 'dropdown_main_apps',
+					'app'			=> 'wordpress',
+				),
+				array(
+					'id' 			=> 'twt_main_account',
+					'label'			=> __( 'Twitter' , $this->plugin->slug ),
+					'description'	=> 'Main connected Twitter account',
+					'type'			=> 'dropdown_main_apps',
+					'app'			=> 'twitter',
+				),				
+			)
+		);		
 
 		$settings['twitter'] = array(
 			'title'					=> __( 'Twitter', $this->plugin->slug ),
 			'description'			=> __( 'Twitter API settings', $this->plugin->slug ),
 			'fields'				=> array(
-				array(
-					'id' 			=> 'twt_main_account',
-					'label'			=> __( 'Twitter Main Account' , $this->plugin->slug ),
-					'description'	=> 'Main connected account',
-					'type'			=> 'dropdown_main_apps',
-					'app'			=> 'twitter'
-				),
 				array(
 					'id' 			=> 'twt_auto_retweet',
 					'label'			=> __( 'Auto Retweet' , $this->plugin->slug ),
@@ -844,20 +918,6 @@ class LTPLE_Client_Settings {
 					'type'			=> 'textarea',
 					'placeholder'	=> __( 'Thanks Follow DM', $this->plugin->slug )
 				)					
-			)
-		);
-		
-		$settings['wordpress'] = array(
-			'title'					=> __( 'Wordpress', $this->plugin->slug ),
-			'description'			=> __( 'Wordpress API settings', $this->plugin->slug ),
-			'fields'				=> array(
-				array(
-					'id' 			=> 'wpcom_main_account',
-					'label'			=> __( 'Wordpress Main Account' , $this->plugin->slug ),
-					'description'	=> 'Main connected account',
-					'type'			=> 'dropdown_main_apps',
-					'app'			=> 'wordpress'
-				)				
 			)
 		);
 		

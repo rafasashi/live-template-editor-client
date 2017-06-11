@@ -1213,11 +1213,11 @@ class LTPLE_Client_Admin_API {
 				
 				if(isset($field['name'])){
 					
-					$html .= '<select name="' . $field['name'] . '" id="' . $id . '">';
+					$html .= '<select class="form-control" name="' . $field['name'] . '" id="' . $id . '">';
 				}
 				else{
 					
-					$html .= '<select name="' . esc_attr( $option_name ) . '" id="' . $id . '">';
+					$html .= '<select class="form-control" name="' . esc_attr( $option_name ) . '" id="' . $id . '">';
 				}
 
 				foreach ( $options as $k => $v ) {
