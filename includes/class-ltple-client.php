@@ -393,6 +393,10 @@ class LTPLE_Client {
 			
 			$this->user->refId = $this->ltple_encrypt_uri( 'RI-' . $this->user->ID );	
 			
+			// get user referent
+			
+			$this->user->referredBy = get_user_meta( $this->user->ID, $this->_base . 'referredBy', false );
+			
 			// get user rights
 			
 			$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
@@ -437,6 +441,8 @@ class LTPLE_Client {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ), 10, 1 );
 		
+		add_action('admin_head', array($this, 'custom_admin_dashboard_css'));
+		
 		add_filter( 'page_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
 		add_filter( 'post_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
 		
@@ -448,7 +454,7 @@ class LTPLE_Client {
 	
 		add_filter('manage_user-image_posts_columns', array( $this, 'set_user_image_columns'));
 		add_action('manage_user-image_posts_custom_column', array( $this, 'add_user_image_column_content'), 10, 2);
-
+		
 		//get current user
 		
 		$this->user = wp_get_current_user();
@@ -469,9 +475,9 @@ class LTPLE_Client {
 			
 			// get editedUser data
 			
-			$this->editedUser 						= get_userdata(intval($_REQUEST['user_id']));
-			$this->editedUser->rights   			= json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-rights',true) );
-			$this->editedUser->stars 				= $this->stars->get_count($this->editedUser->ID);
+			$this->editedUser 			= get_userdata(intval($_REQUEST['user_id']));
+			$this->editedUser->rights   = json_decode( get_user_meta( $this->editedUser->ID, $this->_base . 'user-rights',true) );
+			$this->editedUser->stars 	= $this->stars->get_count($this->editedUser->ID);
 		}
 		else{
 			
@@ -484,6 +490,41 @@ class LTPLE_Client {
 		
 		do_action( 'ltple_loaded');
 	}
+	
+	public function custom_admin_dashboard_css() {
+		
+		echo '<style>';
+						
+			echo '.displaying-num {  
+				background-color: #337ab7;
+				display: inline;
+				padding: .2em .6em .3em;
+				font-size: 90%;
+				font-weight: 700;
+				line-height: 1;
+				color: #fff;
+				text-align: center;
+				white-space: nowrap;
+				vertical-align: baseline;
+				border-radius: .25em;
+			}';
+			
+			echo '.pagination-links	{  
+				background: rgb(242, 242, 242);
+				display: inline-block;
+				padding: 3px;
+			}';
+			
+			echo '.tablenav .tablenav-pages {  
+				margin: 0;
+			}';
+			
+			echo '.tablenav-pages-navspan {
+				height: 100%;
+			}';				
+			
+		echo '</style>';
+	}	
 	
 	public function remove_custom_post_quick_edition( $actions, $post ){
 
@@ -748,21 +789,41 @@ class LTPLE_Client {
 		
 		$this->all->layerType = get_terms( array(
 				
-			'taxonomy' => 'layer-type',
-			'hide_empty' => true,
+			'taxonomy' 		=> 'layer-type',
+			'orderby' 		=> 'count',
+			'order' 		=> 'DESC',
+			'hide_empty' 	=> true,
 		));
 		
 		foreach( $this->all->layerType as $term ){
 		
 			$term->visibility = get_option('visibility_'.$term->slug,'anyone');
+			
+			// count posts in term
+			
+			$q = new WP_Query([
+				'posts_per_page' => 0,
+				'post_type' => 'cb-default-layer',
+				'tax_query' => [
+					[
+						'taxonomy' => $term->taxonomy,
+						'terms' => $term,
+						'field' => 'slug'
+					]
+				]
+			]);
+			
+			$term->count = $q->found_posts; // replace term count by real post type count
 		}
 		
 		// get all layer ranges
 		
 		$this->all->layerRange = get_terms( array(
 				
-			'taxonomy' => 'layer-range',
-			'hide_empty' => true,
+			'taxonomy' 		=> 'layer-range',
+			'orderby' 		=> 'count',
+			'order' 		=> 'DESC',
+			'hide_empty'	=> true, 
 		));
 			
 		// get layer type

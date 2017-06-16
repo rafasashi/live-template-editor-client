@@ -160,7 +160,7 @@
 						}
 					}					
 					
-					echo'available for live edition via our online tool. ';
+					echo'available via our live editing tool. ';
 									
 					echo $this->post_excerpt;
 				
@@ -234,7 +234,7 @@
 					  
 						echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
 					  
-						echo'Live Edition';
+						echo'Live Editing Tool';
 					
 					echo'</button>';
 				

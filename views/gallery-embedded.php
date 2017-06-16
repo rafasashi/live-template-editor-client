@@ -29,7 +29,7 @@
 	
 	echo '<div id="layer_gallery">';
 
-		echo '<div class="col-xs-3 col-sm-2">';
+		echo '<div class="col-xs-3 col-sm-2" style="padding:0;">';
 			echo '<ul class="nav nav-tabs tabs-left">';
 				
 				echo '<li class="gallery_type_title">Template library</li>';
@@ -70,7 +70,7 @@
 			echo'</ul>';
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-top:15px;padding-bottom:15px;min-height:700px;">';
+		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;padding-top:15px;min-height:700px;">';
 			
 			echo'<div class="tab-content">';
 

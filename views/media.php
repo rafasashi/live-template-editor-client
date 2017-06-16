@@ -104,7 +104,7 @@
 
 							if($inWidget){
 								
-								if($this->user->plan["info"]["total_price_amount"]>0){
+								if($this->user->plan["info"]["total_price_amount"] > 0 ){
 									
 									$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="'.$image->post_content.'">Insert</a>';
 								}
@@ -330,7 +330,7 @@
 		
 	echo'<div id="media_library">';
 
-		echo'<div class="col-xs-3 col-sm-2">';
+		echo'<div class="col-xs-3 col-sm-2" style="padding:0;">';
 		
 			echo'<ul class="nav nav-tabs tabs-left">';
 				
@@ -345,7 +345,7 @@
 			echo'</ul>';
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-top:15px;padding-bottom:15px;min-height:700px;">';
+		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;padding-top:15px;min-height:700px;">';
 
 			echo'<div class="tab-content">';
 			
@@ -502,7 +502,8 @@
 													}
 													
 													echo '<form target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
-													echo'<div class="col-xs-6">';
+													
+													echo'<div class="col-sm-6">';
 
 														echo '<div style="padding-bottom:10px;display:block;">';
 													
@@ -547,7 +548,7 @@
 															
 														echo '</div>';
 														
-														echo '<div style="display:block;">';
+														echo '<div style="display:block;padding-bottom:10px;">';
 
 															if(!empty($uploadable_apps)){
 																
@@ -563,7 +564,7 @@
 													echo '</form>';
 													echo '</div>';
 
-													echo'<div class="col-xs-6">';
+													echo'<div class="col-sm-6">';
 														
 														echo'<label>Add a free Host</label>';
 														

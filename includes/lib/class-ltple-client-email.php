@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Email {
 	
 	var $parent;
+	var $imported;
 	
 	/**
 	 * Constructor function
@@ -116,6 +117,105 @@ class LTPLE_Client_Email {
 			
 			return 'Live Editor';
 		});
+		
+		add_filter('wp_loaded', array( $this, 'init_email' ));
+	}
+	
+	public function init_email(){
+		
+		if( !empty($_POST['importEmails']) ){
+			
+			if($this->parent->user->loggedin){
+			
+				$this->bulk_import_users($_POST['importEmails']);
+			}
+		}
+	}
+
+	public function bulk_import_users( $csv ){
+		
+		// normalize csv
+		
+		$csv = preg_replace('#\s+#',',',trim($csv));
+		
+		// get emails
+		
+		$emails = explode(',',$csv);
+
+		// parse emails
+		
+		foreach( $emails as $email){
+			
+			 $email = trim( $email );
+			
+			if( !empty( $email ) ){
+			
+				if( filter_var($email, FILTER_VALIDATE_EMAIL) ){
+					
+					if( !email_exists( $email ) ){
+						
+						$username = strtok($email, '@');
+						
+						$username = str_replace(array('+','.','-','_'),' ',$username);
+						
+						$username = ucwords($username);
+						
+						$username = str_replace(' ','',$username);
+						
+						$i = '';
+						
+						do{
+
+							if( empty($i) ){
+								
+								$i = 1;
+							}
+							else{
+								
+								++$i;
+							}
+							
+						} while( username_exists( $username ) !== false );
+				
+						if( $user_id = wp_insert_user( array(
+						
+							'user_login'	=>  $username,
+							'user_pass'		=>  NULL,
+							'user_email'	=>  $email,
+						))){
+						
+							$user = array(
+							
+								'id' 	=> $user_id,
+								'name' 	=> $username,
+								'email' => $email,
+							);
+							
+							$this->imported['imported'][] = $user;
+						}
+						else{
+							
+							$this->imported['errors'][]=$email;
+						}
+					}
+					else{
+						
+						$this->imported['already registered'][]=$email;
+					}
+				}
+				else{
+					
+					$this->imported['are invalid'][]=$email;
+				}
+			}
+		}
+		
+		if( !empty($this->imported['imported']) ){
+			
+			do_action('ltple_users_bulk_imported');
+		}
+		
+		return true;
 	}
 	
 	public function do_shortcodes( $str, $user=null){

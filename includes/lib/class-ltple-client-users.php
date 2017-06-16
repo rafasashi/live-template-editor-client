@@ -4,9 +4,13 @@
 
 	class LTPLE_Client_Users {
 		
-		public $parent;
-		public $view;
-		public $list;
+		var $parent;
+		var $view;
+		var $list;
+		
+		var $referent;
+		var $referral;
+		var $referrals;
 
 		public function __construct ( $parent ) {
 			
@@ -14,15 +18,21 @@
 			
 			$this->list = new stdClass();
 			
-			add_filter('init', array( $this, 'init_users' ));		
+			add_filter('ltple_loaded', array( $this, 'init_users' ));
 		}
 		
 		public function init_users(){
 			
-			if( is_admin() ){
+			if( !is_admin() ){
+				
+				add_action( 'user_register', array( $this, 'ref_user_register' ));
+				
+				add_action( 'ltple_users_bulk_imported', array( $this, 'ref_users_bulk_register' ));
+			}
+			else{
 				
 				global $pagenow;
-				
+
 				if( is_admin() && $pagenow == 'users.php' ){
 					
 					if(isset($_REQUEST[$this->parent->_base .'view'])){
@@ -34,23 +44,25 @@
 					
 					add_filter('get_avatar', array($this, 'get_user_avatar'), 1, 5);			
 					
-					if( method_exists($this, 'update_' . $this->view . '_table') ){
-						
-						//remove_filter('manage_users_columns');
-						
-						add_filter('manage_users_columns', array($this, 'update_' . $this->view . '_table'), 100, 1);
-					}
+					
 					
 					if( method_exists($this, 'custom_' . $this->view . '_table_css') ){
 						
 						add_action('admin_head', array($this, 'custom_' . $this->view . '_table_css'));
-					}
+					}	
 					
 					if( method_exists($this, 'update_' . $this->view . '_manually') ){
 						
 						add_action('admin_head', array($this, 'update_' . $this->view . '_manually'));
 					}
 					
+					if( method_exists($this, 'update_' . $this->view . '_table') ){
+						
+						//remove_filter('manage_users_columns');
+						
+						add_filter('manage_users_columns', array($this, 'update_' . $this->view . '_table'), 100, 1);
+					}
+
 					if( method_exists($this, 'modify_' . $this->view . '_table_row') ){
 						
 						add_filter('manage_users_custom_column', array($this, 'modify_' . $this->view . '_table_row'), 100, 3);	
@@ -76,126 +88,136 @@
 					});
 
 					add_action( 'ltple_restrict_manage_users', function( $which ){
-						
-						echo '</div>'; //close previous actions div
-						
+
 						if( $which == 'top' ){
+							
+							echo '</div>'; //close previous actions div
 							
 							echo '<div style="width:100%;display: inline-block;">';
 							
-								echo '<h2 class="nav-tab-wrapper" style="margin-bottom: 10px;margin-top: 15px;">';
+								echo '<h2 class="nav-tab-wrapper" style="margin-bottom: 7px;margin-top: 15px;">';
 									
 									echo '<a class="nav-tab ' . ( empty($this->view) ? 'nav-tab-active' : '' ) . '" href="users.php">Users</a>';
 									
+									echo '<a class="nav-tab ' . ( $this->view == 'guests' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=guests">Guests</a>';
+																	
 									echo '<a class="nav-tab ' . ( $this->view == 'subscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=subscribers">Subscribers</a>';
+
+									echo '<a class="nav-tab ' . ( $this->view == 'leads' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=leads">Leads</a>';
+								
+									echo '<a class="nav-tab ' . ( $this->view == 'conversions' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=conversions">Conversions</a>';
 								
 									do_action('ltple_user_tab');
 								
 								echo '</h2>';				
 							
 							echo '</div>';
+							
+							echo '<div class="actions" style="display:inline;">';
+								
+								if( 1==1 || $this->view == 'subscribers' ){
+								
+									// add marketing-channel filter
+									
+									$taxonomy = 'marketing-channel';
+									
+									$name = 'top' === $which ? $taxonomy.'1' : $taxonomy.'2';
+									
+									echo '<input type="hidden" name="ltple_view" value="subscribers">';
+									
+									echo '<span>';
+										
+										echo wp_dropdown_categories(array(
+										
+											'show_option_none'  => 'All Channels',
+											'taxonomy'     		=> $taxonomy,
+											'name'    	  		=> $name,
+											'show_count'  		=> false,
+											'hierarchical' 		=> true,
+											'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+											'echo'		   		=> false,
+											'class'		   		=> 'form-control',
+											'hide_empty'   		=> false
+										));	
+
+										echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
+									
+									echo '</span>';
+									
+									// add plan value filter
+									
+									if( !$this->view == 'conversions' ){
+									
+										echo '<span>';
+											
+											echo '<label style="padding:7px;float:left;">';
+												echo ' Plan';
+											echo '</label>';
+											
+											$filter = 'planValueOperator';
+											$name = 'top' === $which ? $filter.'1' : $filter.'2';							
+											
+											echo'<select name="'.$name.'">';
+												echo'<option value="'.htmlentities ('>').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('>')) ? ' selected="selected"' : '').'>'.htmlentities ('>').'</option>';
+												echo'<option value="'.htmlentities ('<').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('<')) ? ' selected="selected"' : '').'>'.htmlentities ('<').'</option>';								
+												echo'<option value="'.htmlentities ('=').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('=')) ? ' selected="selected"' : '').'>'.htmlentities ('=').'</option>';
+											echo'</select>';
+											
+											$filter = 'userPlanValue';
+											$name = 'top' === $which ? $filter.'1' : $filter.'2';
+
+											echo '<input name="'.$name.'" type="number" value="'.( isset($_REQUEST[$name]) ? intval($_REQUEST[$name]) : -1).'" style="width:55px;float:left;">';
+
+											echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
+										
+										echo '</span>';
+									}
+									
+									// add bulk stars
+									
+									echo '<span>';
+										
+										echo '<label style="padding:7px;float:left;">';
+											echo ' Stars';
+										echo '</label>';
+
+										$filter = 'addStars';
+										$name = 'top' === $which ? $filter.'1' : $filter.'2';
+
+										echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
+
+										echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+									
+									echo '</span>';
+									
+									// add bulk email sender
+									
+									$post_type = 'email-model';
+									
+									$name = 'top' === $which ? $post_type.'1' : $post_type.'2';
+
+									echo '<span>';
+									
+										echo $this->parent->ltple_get_dropdown_posts(array(
+										
+											'show_option_none'  => 'Select an email',
+											'post_type'     	=> $post_type,
+											'name'    	  		=> $name,
+											'style'    	  		=> 'width:130px;',
+											'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+											'echo'		   		=> false
+										));	
+
+										echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
+									
+									echo '</span>';
+								}
 						}
-						
-						echo '<div class="actions" style="display:inline;">';
-							
-							if( 1==1 || $this->view == 'subscribers' ){
-							
-								// add marketing-channel filter
-								
-								$taxonomy = 'marketing-channel';
-								
-								$name = 'top' === $which ? $taxonomy.'1' : $taxonomy.'2';
-								
-								echo '<input type="hidden" name="ltple_view" value="subscribers">';
-								
-								echo '<span>';
-									
-									echo wp_dropdown_categories(array(
-									
-										'show_option_none'  => 'All Channels',
-										'taxonomy'     		=> $taxonomy,
-										'name'    	  		=> $name,
-										'show_count'  		=> false,
-										'hierarchical' 		=> true,
-										'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-										'echo'		   		=> false,
-										'class'		   		=> 'form-control',
-										'hide_empty'   		=> false
-									));	
-
-									echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
-								
-								echo '</span>';
-								
-								// add plan value filter
-								
-								echo '<span>';
-									
-									echo '<label style="padding:7px;float:left;">';
-										echo ' Plan';
-									echo '</label>';
-									
-									$filter = 'planValueOperator';
-									$name = 'top' === $which ? $filter.'1' : $filter.'2';							
-									
-									echo'<select name="'.$name.'">';
-										echo'<option value="'.htmlentities ('>').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('>')) ? ' selected="selected"' : '').'>'.htmlentities ('>').'</option>';
-										echo'<option value="'.htmlentities ('<').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('<')) ? ' selected="selected"' : '').'>'.htmlentities ('<').'</option>';								
-										echo'<option value="'.htmlentities ('=').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('=')) ? ' selected="selected"' : '').'>'.htmlentities ('=').'</option>';
-									echo'</select>';
-									
-									$filter = 'userPlanValue';
-									$name = 'top' === $which ? $filter.'1' : $filter.'2';
-
-									echo '<input name="'.$name.'" type="number" value="'.( isset($_REQUEST[$name]) ? intval($_REQUEST[$name]) : -1).'" style="width:55px;float:left;">';
-
-									echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
-								
-								echo '</span>';
-								
-								// add bulk stars
-								
-								echo '<span>';
-									
-									echo '<label style="padding:7px;float:left;">';
-										echo ' Stars';
-									echo '</label>';
-
-									$filter = 'addStars';
-									$name = 'top' === $which ? $filter.'1' : $filter.'2';
-
-									echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
-
-									echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-								
-								echo '</span>';
-								
-								// add bulk email sender
-								
-								$post_type = 'email-model';
-								
-								$name = 'top' === $which ? $post_type.'1' : $post_type.'2';
-
-								echo '<span>';
-								
-									echo $this->parent->ltple_get_dropdown_posts(array(
-									
-										'show_option_none'  => 'Select an email',
-										'post_type'     	=> $post_type,
-										'name'    	  		=> $name,
-										'style'    	  		=> 'width:130px;',
-										'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-										'echo'		   		=> false
-									));	
-
-									echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
-								
-								echo '</span>';
-							}
 					} );
 					
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
+					add_filter( 'pre_get_users', array( $this, 'filter_users_by_last_seen') );
 					//add_filter( 'pre_get_users', array( $this, 'bulk_send_email_model') );
 					add_filter( 'pre_get_users', array( $this, 'bulk_schedule_email_model') );
 					add_filter( 'pre_get_users', array( $this, 'bulk_add_stars') );
@@ -270,6 +292,21 @@
 			<?php
 		}
 		
+		public function update_guests_table($column) {
+			
+			return $this->update_subscribers_table($column);
+		}
+
+		public function custom_guests_table_css($column) {
+			
+			return $this->custom_subscribers_table_css();
+		}
+		
+		public function modify_guests_table_row($val, $column_name, $user_id) {
+			
+			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
+		}			
+
 		public function update_subscribers_table($column) {
 			
 			$column=[];
@@ -483,6 +520,36 @@
 			return $row;
 		}
 		
+		public function update_leads_table($column) {
+			
+			return $this->update_subscribers_table($column);
+		}
+
+		public function custom_leads_table_css($column) {
+			
+			return $this->custom_subscribers_table_css();
+		}
+		
+		public function modify_leads_table_row($val, $column_name, $user_id) {
+			
+			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
+		}
+		
+		public function update_conversions_table($column) {
+			
+			return $this->update_subscribers_table($column);
+		}
+
+		public function custom_conversions_table_css($column) {
+			
+			return $this->custom_subscribers_table_css();
+		}
+		
+		public function modify_conversions_table_row($val, $column_name, $user_id) {
+			
+			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
+		}		
+		
 		public function update_subscribers_manually() {
 			
 			if(isset($_REQUEST["user_id"]) && isset($_REQUEST["wp_nonce"]) && wp_verify_nonce($_REQUEST["wp_nonce"], "ltple_can_spam") && isset($_REQUEST["ltple_can_spam"])) {
@@ -594,6 +661,32 @@
 			return $value;
 		}
 		
+		public function filter_users_by_last_seen( $query ) {
+			
+			$compare = '';
+			
+			if( $this->view == 'guests' ){
+				
+				$compare = 'NOT EXISTS';
+			}
+			elseif( !empty($this->view) ){
+				
+				$compare = 'EXISTS';
+			}
+			
+			if( !empty($compare) ){
+				
+				$query->set( 'meta_query', array(
+				
+					array(
+					
+						'key' 		=> $this->parent->_base . '_last_seen',
+						'compare'	=> $compare,
+					),
+				));
+			}
+		}
+		
 		public function filter_users_by_marketing_channel( $query ) {
 			
 			$taxonomy = 'marketing-channel';
@@ -616,11 +709,23 @@
 			}
 		}
 		
-		
 		public function filter_users_by_plan_value( $query ) {
 
-			$userPlanValue		= $this->get_filter_value('userPlanValue');
-			$planValueOperator	= $this->get_filter_value('planValueOperator');
+			if( $this->view == 'leads' ){
+				
+				$userPlanValue		= 1;
+				$planValueOperator	= '<';				
+			}
+			elseif( $this->view == 'conversions' ){
+				
+				$userPlanValue		= 0;
+				$planValueOperator	= '>';				
+			}
+			else{
+				
+				$userPlanValue		= $this->get_filter_value('userPlanValue');
+				$planValueOperator	= $this->get_filter_value('planValueOperator');
+			}
 			
 			$comparition = [];
 			
@@ -631,7 +736,7 @@
 			$comparition['>']['action']		= 'include';
 			
 			$comparition['<']['operator']	= '>=';
-			$comparition['<']['action']		= 'exclude';
+			$comparition['<']['action']		= 'exclude';			
 
 			if( !is_null($userPlanValue) && $userPlanValue > -1 ){
 
@@ -742,7 +847,7 @@
 				
 				add_action( 'admin_notices', array( $this, 'output_schedule_email_admin_notice'));
 			}
-		}		
+		}
 		
 		public function output_send_email_admin_notice(){
 			
@@ -824,6 +929,99 @@
 				echo'</p>';
 				
 			echo'</div>';						
+		}
+		
+		public function ref_users_bulk_register(){
+					
+			if( !empty($this->parent->email->imported['imported']) ){	
+					
+				$this->referent = $this->parent->user;
+					
+				foreach( $this->parent->email->imported['imported'] as $user ){
+
+					if( $referral = $this->parent->users->set_ref_user( $user['id'], $this->referent ) ){
+						
+						$this->parent->users->referrals[] = $referral;
+					}
+				}
+				
+				if( !empty($this->parent->users->referrals) ){
+				
+					do_action('ltple_ref_users_bulk_added');
+				}
+			}
+		}	
+		
+		public function ref_user_register( $user_id ){
+					
+			if( is_numeric( $this->parent->request->ref_id ) ){
+				
+				// get referent data
+
+				if( $this->referent = get_userdata( $this->parent->request->ref_id ) ){
+					
+					if( $this->referral = $this->parent->users->set_ref_user( $user_id, $this->referent ) ){
+						
+						//add referral stars
+						
+						/** 
+							we dont use do_action here
+							because all hooks are attached to the current id
+							and we want the referral id to be credited
+						**/
+						
+						$this->parent->stars->add_stars( $this->referent->ID, $this->parent->_base . 'ltple_referred_registration_stars' );
+						
+						do_action('ltple_ref_user_added');					
+					}
+				}
+			}
+		}
+		
+		public function set_ref_user( $user_id, $referent ){
+
+			// get referral info
+
+			if( $referral = get_userdata($user_id) ){
+				
+				//set marketing channel
+				
+				$this->parent->update_user_channel($user_id,'Friend Recommendation');
+		
+				if( !empty($referent->ID) ){
+			
+					//assign referent to referral
+					
+					update_user_meta( $referral->ID, $this->parent->_base . 'referredBy', [ $referent->ID => $referent->user_login ] );
+					
+					//assign referral to referent
+					
+					$referrals = get_user_meta($referent->ID,$this->parent->_base . 'referrals', true);
+					
+					if( !is_array($referrals) ) {
+						
+						$referrals = [];
+					}
+					else{
+						
+						foreach( $referrals as $key => $val){
+							
+							if(!is_string($val)){
+								
+								unset($referrals[$key]);
+							}
+						}
+					}
+
+					$referrals[$referral->ID] = $referral->user_login;
+					
+					update_user_meta( $referent->ID, $this->parent->_base . 'referrals', $referrals );
+
+					return $referral;
+				}
+			}	
+			
+			return false;
 		}
 		
 		/**

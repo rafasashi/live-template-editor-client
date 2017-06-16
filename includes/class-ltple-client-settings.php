@@ -93,6 +93,10 @@ class LTPLE_Client_Settings {
 			
 				'marketing-channel' => array( 'name' => 'Channels', 'post-type' => 'post' ),
 			),
+			array(
+			
+				'lead' => array( 'name' => 'Apps Data', 'post-type' => 'lead' ),
+			),
 		);
 		
 		//get addons
@@ -119,13 +123,13 @@ class LTPLE_Client_Settings {
 				'author' 		=> 'Rafasashi',
 				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),
-			'company-program' => array(
+			'sponsorship-program' => array(
 			
-				'title' 		=> 'Company Program',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-company',
-				'addon_name' 	=> 'live-template-editor-company',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-company/archive/master.zip',
-				'description'	=> 'Company program including management and purchase of licenses in bulk.',
+				'title' 		=> 'Sponsorship Program',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship',
+				'addon_name' 	=> 'live-template-editor-sponsorship',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship/archive/master.zip',
+				'description'	=> 'Sponsorship program including management and purchase of licenses in bulk.',
 				'author' 		=> 'Rafasashi',
 				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),
@@ -431,12 +435,34 @@ class LTPLE_Client_Settings {
 		add_menu_page($this->plugin->short, $this->plugin->short, 'manage_options', $this->plugin->slug, array($this, 'settings_page'),'dashicons-layout');
 		
 		add_users_page( 
+			'All Guests', 
+			'All Guests', 
+			'edit_pages',
+			'users.php?' . $this->parent->_base .'view=guests'
+		);		
+		
+		add_users_page( 
 			'All Subscribers', 
 			'All Subscribers', 
 			'edit_pages',
 			'users.php?' . $this->parent->_base .'view=subscribers'
 		);
+		
+		add_users_page( 
+			'All Leads', 
+			'All Leads', 
+			'edit_pages',
+			'users.php?' . $this->parent->_base .'view=leads'
+		);
+		
+		add_users_page( 
+			'All Conversions', 
+			'All Conversions', 
+			'edit_pages',
+			'users.php?' . $this->parent->_base .'view=conversions'
+		);
 
+		/*
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'All Subscribers', $this->plugin->slug ),
@@ -444,21 +470,14 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'users.php?' . $this->parent->_base .'view=subscribers'
 		);
+		*/
 		
 		add_plugins_page( 
 			'Live Editor Addons', 
 			'Live Editor Addons', 
 			'edit_pages',
 			'admin.php?page=' . $this->plugin->slug . '&tab=addons'
-		);
-
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'All Leads', $this->plugin->slug ),
-			__( 'All Leads', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=lead'
-		);		
+		);	
 		
 		add_submenu_page(
 			$this->plugin->slug,
@@ -523,6 +542,14 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit-tags.php?post_type=post&taxonomy=marketing-channel'
 		);
+		
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'Data Mining', $this->plugin->slug ),
+			__( 'Data Mining', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=lead'
+		);	
 
 		do_action('ltple_admin_menu');
 	}
@@ -924,12 +951,13 @@ class LTPLE_Client_Settings {
 		$settings['addons'] = array(
 			'title'					=> __( 'Addons', $this->plugin->slug ),
 			'description'			=> '',
+			'class'					=> 'pull-right',
 			'fields'				=> array(
 				array(
 					'id' 			=> 'addon_plugins',
 					'type'			=> 'addon_plugins'
 				)				
-			)
+			),
 		);
 
 		$settings = apply_filters( $this->parent->_token . '_settings_fields', $settings );
@@ -1021,7 +1049,14 @@ class LTPLE_Client_Settings {
 				foreach ( $this->settings as $section => $data ) {
 
 					// Set tab class
+					
 					$class = 'nav-tab';
+					
+					if( !empty($data['class']) ){
+						
+						$class .= ' '.$data['class'];
+					}
+					
 					if ( ! isset( $_GET['tab'] ) ) {
 						if ( 0 == $c ) {
 							$class .= ' nav-tab-active';
@@ -1050,7 +1085,7 @@ class LTPLE_Client_Settings {
 				$html .= '</h2>' . "\n";
 			}
 			
-			$html .= '<div class="col-xs-9">' . "\n";
+			$html .= '<div class="col-xs-12 col-md-9">' . "\n";
 
 				$html .= '<form style="margin:15px;" method="post" action="options.php" enctype="multipart/form-data">' . "\n";
 
@@ -1078,7 +1113,7 @@ class LTPLE_Client_Settings {
 				
 			$html .= '</div>' . "\n";
 			
-			$html .= '<div class="col-xs-3">' . "\n";
+			$html .= '<div class="col-xs-12 col-md-3">' . "\n";
 			
 				
 			

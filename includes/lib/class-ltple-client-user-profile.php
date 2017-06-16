@@ -13,11 +13,11 @@ class LTPLE_Client_User_Profile {
 
 		$this->parent 	= $parent;
 		
-		add_filter('init', array( $this, 'init_user_profile' ));
+		$this->init_user_profile(); // not working with init or wp_loaded filters
 	}
 
 	public function init_user_profile(){
-		
+
 		if( !is_admin() ){
 			
 			if( $this->parent->user->loggedin ){
@@ -33,7 +33,7 @@ class LTPLE_Client_User_Profile {
 					if(!empty($_POST)){
 						
 						// save general information
-						
+
 						foreach( $this->parent->profile->fields as $field){
 							
 							$id = $field['id'];

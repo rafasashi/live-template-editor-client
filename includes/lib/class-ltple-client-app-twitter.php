@@ -1422,7 +1422,7 @@ class LTPLE_Client_App_Twitter {
 								$this->userId = wp_create_user( $user_name, $random_password, $account->email );						
 							}
 							
-							if(is_numeric($this->userId)){
+							if( is_numeric($this->userId) ){
 								
 								$this->userId = intval($this->userId);
 								

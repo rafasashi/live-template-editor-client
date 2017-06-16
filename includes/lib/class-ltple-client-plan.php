@@ -540,7 +540,7 @@ class LTPLE_Client_Plan {
 
 								if( $plan_status == 'unlocked' ){
 									
-									$subscription_plan.='<a class="btn btn-info btn-lg" href="' . $this->parent->urls->editor . '">'.PHP_EOL;
+									$subscription_plan.='<a class="btn btn-info btn-lg" href="' . $this->parent->urls->current . '">'.PHP_EOL;
 								
 										$subscription_plan.='Unlocked'.PHP_EOL;
 								

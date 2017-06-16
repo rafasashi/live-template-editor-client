@@ -1106,7 +1106,7 @@ class LTPLE_Client_Admin_API {
 				
 				foreach ( $field['options'] as $k => $v ) {
 
-					$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" style="width:50px;text-align:center;">';
+					$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" style="width:50px;text-align:center;display:inline-block;">';
 					
 						$html .= '<img src="'.$v.'" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
 					

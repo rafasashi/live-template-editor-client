@@ -29,7 +29,7 @@ class LTPLE_Client_Profile {
 					
 					$this->layer = $layer;
 				}				
-			}			
+			}
 		}
 	}
 	

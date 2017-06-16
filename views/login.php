@@ -15,16 +15,52 @@
 			
 		echo'</p>';
 	
-		echo'<div id="login">';
+		// output message
 	
-			if ( 1==1 || ! is_user_logged_in() ) { 
+		if( !empty( $_SESSION['errors']->errors ) || !empty($_SESSION['success']) ){
+			
+			echo'<div id="login_errors" style="width:350px;margin:10px auto;">';
+				
+				if( !empty( $_SESSION['errors']->errors ) ){
+				
+					echo'<div class="alert alert-warning">';
+						
+						foreach( $_SESSION['errors']->errors as $error ){
+							
+							echo reset($error) . '<br/>';
+						}
+					
+					echo'</div>';
+				}
+				
+				if( !empty( $_SESSION['success'] ) ){
+				
+					echo'<div class="alert alert-success">';
+
+						echo $_SESSION['success'];
+
+					echo'</div>';
+				}
+			
+			echo'</div>';
+
+			// empty messages
+			
+			$_SESSION['success'] 	= '';
+			$_SESSION['errors'] 	= '';
+		}
+	
+		echo'<div id="login">';
+
+			if ( 1==1 || ! is_user_logged_in() ) {
 				
 				// login form
 				
 				if(isset($_REQUEST['action'])&&$_REQUEST['action']=='register'){
 					
-					echo'<form name="registerform" id="loginform" action="'.wp_registration_url().'" method="post" novalidate="novalidate">';
+					echo'<form name="registerform" id="loginform" action="' . wp_registration_url() . '" method="post" novalidate="novalidate">';
 						
+						/*
 						echo'<p>';
 							
 							echo'<label for="user_login">Username<br>';
@@ -32,6 +68,7 @@
 							echo'<input type="text" name="user_login" id="user_login" class="input" value="" size="20"></label>';
 						
 						echo'</p>';
+						*/
 						
 						echo'<p>';
 							
@@ -65,7 +102,7 @@
 						
 							'redirect' => admin_url(), 
 							'form_id' => 'loginform',
-							'label_username' => __( 'Username' ),
+							'label_username' => __( 'Email' ),
 							'label_password' => __( 'Password' ),
 							'label_remember' => __( 'Remember Me' ),
 							'label_log_in' => __( 'Log In' ),

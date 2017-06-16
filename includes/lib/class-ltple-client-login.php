@@ -29,26 +29,99 @@ class LTPLE_Client_Login {
 		
 		add_filter( 'login_redirect', array($this, 'set_login_redirect_url'), 10, 3 );		
 		
-		add_shortcode('ltple-client-login', array($this , 'add_shortcode_login' ) );
+		add_shortcode( 'ltple-client-login', array($this , 'add_shortcode_login' ) );
 		
 		add_filter( 'login_form_bottom', array($this, 'get_login_form_bottom'));
 
+		add_filter( 'registration_errors', array($this, 'handle_custom_registration'), 10, 3 );
+	}
+	
+	public function handle_custom_registration( $errors = NULL, $sanitized_user_login = NULL, $user_email = NULL ){
+		
+		if( !empty($errors) ){
+		
+			$success = NULL;
+			
+			// unset empty username message
+			
+			unset($errors->errors['empty_username']);
+			
+			// check email
+		
+			if( !empty( $errors->errors['email_exists'] ) ){
+
+				if( $user = get_user_by( 'email', $user_email ) ){
+					
+					if( !empty($user->data) ){
+						
+						$user = $user->data;
+					
+						// check if email imported
+
+						$user->last_seen = intval( get_user_meta( $user->ID, $this->parent->_base . '_last_seen',true) );
+						
+						if( $user->last_seen === 0 ){
+							
+							// send new user notification
+							
+							wp_new_user_notification( $user->ID, NULL, 'user' );
+							
+							// output success message
+							
+							$success = 'A confirmation email has been sent to <b>'.$user_email.'</b>';
+						}
+					}
+				}
+			}
+			
+			// store message in session 
+			
+			if(!session_id()) {
+				
+				session_start();
+			}
+	
+			if( !empty($success) ){
+				
+				$_SESSION['success'] = $success;
+			}
+			else{
+				
+				$_SESSION['errors'] = $errors;
+			}
+		}
+		
+		// redirect to login page
+
+		$login_url = add_query_arg( array(
+		
+			'redirect_to' 	=> ( $_GET['redirect_to'] ? $_GET['redirect_to'] : ''),
+			'action' 		=> 'register',
+			
+		), $this->parent->urls->login );			
+		
+		wp_redirect($login_url);
+		exit;
 	}
 	
 	public function set_login_url( $login_url, $redirect, $force_reauth ) {
 		
-		$login_page = home_url( '/'.$this->pageSlug.'/' );
+		$login_page = home_url( '/' . $this->pageSlug . '/' );
 		
 		$login_url = add_query_arg( 'redirect_to', $redirect, $login_page );
 		
 		return $login_url;
 	}	
 
-	public function set_register_url( $register_url ) {
+	public function set_register_url( $register_url ) {	
+
+		$register_url = add_query_arg( array(
 		
+			'redirect_to' 	=> ( $_GET['redirect_to'] ? $_GET['redirect_to'] : ''),
+			
+		), $register_url );	
+	
 		return $register_url;
-		
-		//return home_url( '/'.$this->pageSlug.'/' );
 	}
 	
 	public function set_login_redirect_url( $redirect_to, $request, $user ) {

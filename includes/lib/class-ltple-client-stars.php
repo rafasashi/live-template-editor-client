@@ -62,6 +62,11 @@
 				'description' => 'when you login for the first time in a day'
 			);
 			
+			$triggers['register & login']['ltple_first_ref_log_today'] = array(
+					
+				'description' => 'when one of your referrals login for the first time in a day'
+			);			
+			
 			// plan subscription
 			
 			$triggers['plan subscription']['ltple_free_plan_subscription'] = array(
@@ -275,3 +280,4 @@
 			_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->parent->_version );
 		} // End __wakeup()
 	}
+	
