@@ -1866,6 +1866,44 @@ class LTPLE_Client_Plan {
 		wp_mail($this->parent->settings->options->emailSupport, 'Plan edited from dashboard - user id ' . $user_id . ' - ip ' . $this->parent->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL  . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);
 	}
 	
+	public function unlock_output_request( $for = '+1 hour' ){
+
+		//get plan_data
+		
+		$plan_data = [];
+		$plan_data['name'] 			= 'unlock output';
+		$plan_data['for'] 			= $for;
+		$plan_data['subscriber']	= $this->parent->user->user_email;
+		$plan_data['client']		= $this->parent->client->url;
+
+		$plan_data=esc_attr( json_encode( $plan_data ) );
+		
+		//var_dump($plan_data);exit;
+
+		$plan_key=md5( 'plan' . $plan_data . $this->parent->_time . $this->parent->user->user_email );	
+
+		//get agreement url				
+		
+		$agreement_url = $this->parent->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->parent->base64_urlencode($plan_data) . '&_=' . $this->parent->_time;
+
+		$reponse = wp_remote_post($agreement_url);
+
+		if( !empty($reponse['body']) ){
+
+			$_SESSION['message'] = '<div class="alert alert-success"><b>Congratulations</b> you have successfully unlocked the output for '.$for.'</div>';
+		}
+		else{
+			
+			$_SESSION['message'] = '<div class="alert alert-warning">Error unlocking the output...</div>';
+		}
+		
+		if( !empty($_GET['ref']) ){
+			
+			wp_redirect( 'http://' . $_GET['ref'] );
+			exit;
+		}
+	}
+	
 	/**
 	 * Main LTPLE_Client_Plan Instance
 	 *

@@ -141,7 +141,16 @@ class LTPLE_Client_Admin_API {
 			
 			case 'slug':
 				$html .= '<div class="input-group">' . "\n";
-					$html .= '<span class="input-group-addon">'.home_url() . '/</span>' . "\n";
+				
+					if( !empty($field['base']) ){
+						
+						$html .= '<span class="input-group-addon">'.$field['base'] . '</span>' . "\n";
+					}
+					else{
+						
+						$html .= '<span class="input-group-addon">'.home_url() . '/</span>' . "\n";
+					}	
+					 
 					$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
 					$html .= '<span class="input-group-addon">/</span>' . "\n";
 				$html .= '</div>' . "\n";
@@ -180,7 +189,7 @@ class LTPLE_Client_Admin_API {
 			break;
 
 			case 'textarea':
-				$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '"'.$required.$disabled.'>' . $data . '</textarea><br/>'. "\n";
+				$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
 			break;
 			
 			case 'switch':
@@ -260,7 +269,7 @@ class LTPLE_Client_Admin_API {
 					
 						if( !empty($data) && is_numeric($data) ){
 							
-							$html .= '<a href="' . $this->parent->urls->editor . '?uri=' . $_GET['post'] . '" target="_blank" class="button button-primary button-hero">';
+							$html .= '<a href="' . $this->parent->urls->editor . '?uri=' . $_GET['post'] . '" target="_blank" class="button button-primary button-large">';
 								
 								$html .= 'Edit with LTPLE';
 								

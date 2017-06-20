@@ -929,22 +929,33 @@ class LTPLE_Client_Settings {
 					'label'			=> __( 'Welcome Tweet' , $this->plugin->slug ),
 					'description'	=> 'Message to be tweeted when a new Twitter account is connected',
 					'type'			=> 'textarea',
-					'placeholder'	=> __( 'Welcome tweet (140 char)', $this->plugin->slug )
+					'placeholder'	=> __( 'Welcome tweet (140 char)', $this->plugin->slug ),
+					'style'			=> 'height:60px;',
 				),
 				array(
 					'id' 			=> 'twt_welcome_dm',
 					'label'			=> __( 'Welcome DM' , $this->plugin->slug ),
 					'description'	=> 'Direct Message to be sent when a new Twitter account is connected',
 					'type'			=> 'textarea',
-					'placeholder'	=> __( 'Welcome DM', $this->plugin->slug )
+					'placeholder'	=> __( 'Welcome DM', $this->plugin->slug ),
+					'style'			=> 'height:260px;',
 				),
 				array(
 					'id' 			=> 'twt_thanks_followback_dm',
 					'label'			=> __( 'Thanks Followback DM' , $this->plugin->slug ),
 					'description'	=> 'Direct Message to be sent when a Twitter account followback',
 					'type'			=> 'textarea',
-					'placeholder'	=> __( 'Thanks Follow DM', $this->plugin->slug )
-				)					
+					'placeholder'	=> __( 'Thanks Follow DM', $this->plugin->slug ),
+					'style'			=> 'height:260px;',
+				),
+				array(
+					'id' 			=> 'twt_unlock_tweet',
+					'label'			=> __( 'Unlock Free Tweet' , $this->plugin->slug ),
+					'description'	=> 'Message to be tweeted to unlock the Demo output',
+					'type'			=> 'textarea',
+					'placeholder'	=> __( 'Unlock Free tweet (140 char)', $this->plugin->slug ),
+					'style'			=> 'height:60px;',
+				),				
 			)
 		);
 		

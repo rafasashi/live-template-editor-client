@@ -43,18 +43,13 @@
 					add_filter('admin_footer-users.php', array($this, 'add_users_table_view'));
 					
 					add_filter('get_avatar', array($this, 'get_user_avatar'), 1, 5);			
-					
-					
+				
+					add_action('admin_head', array($this, 'update_users_manually'));				
 					
 					if( method_exists($this, 'custom_' . $this->view . '_table_css') ){
 						
 						add_action('admin_head', array($this, 'custom_' . $this->view . '_table_css'));
 					}	
-					
-					if( method_exists($this, 'update_' . $this->view . '_manually') ){
-						
-						add_action('admin_head', array($this, 'update_' . $this->view . '_manually'));
-					}
 					
 					if( method_exists($this, 'update_' . $this->view . '_table') ){
 						
@@ -103,6 +98,8 @@
 																	
 									echo '<a class="nav-tab ' . ( $this->view == 'subscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=subscribers">Subscribers</a>';
 
+									echo '<a class="nav-tab ' . ( $this->view == 'unsubscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=unsubscribers">Unsubscribers</a>';
+									
 									echo '<a class="nav-tab ' . ( $this->view == 'leads' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=leads">Leads</a>';
 								
 									echo '<a class="nav-tab ' . ( $this->view == 'conversions' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=conversions">Conversions</a>';
@@ -215,9 +212,14 @@
 						}
 					} );
 					
+					// query filters
+					
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_last_seen') );
+					
+					// bulk actions
+					
 					//add_filter( 'pre_get_users', array( $this, 'bulk_send_email_model') );
 					add_filter( 'pre_get_users', array( $this, 'bulk_schedule_email_model') );
 					add_filter( 'pre_get_users', array( $this, 'bulk_add_stars') );
@@ -290,22 +292,7 @@
 			
 			</script>
 			<?php
-		}
-		
-		public function update_guests_table($column) {
-			
-			return $this->update_subscribers_table($column);
-		}
-
-		public function custom_guests_table_css($column) {
-			
-			return $this->custom_subscribers_table_css();
-		}
-		
-		public function modify_guests_table_row($val, $column_name, $user_id) {
-			
-			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
-		}			
+		}		
 
 		public function update_subscribers_table($column) {
 			
@@ -472,7 +459,7 @@
 				$row .= '<span>';
 						
 					$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/magnet.png' width=24 height=24>";
-					$row .= "<a title=\"Load leads from Twitter\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_twt_get_leads"), "app" => "twitter", "action" => "importLeads" , "ltple_view" => "subscribers", "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_load_leads", $text) . "</a>";
+					$row .= "<a title=\"Load leads from Twitter\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_twt_get_leads"), "app" => "twitter", "action" => "importLeads" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_load_leads", $text) . "</a>";
 					
 				$row .= '</span>';
 			}
@@ -483,12 +470,12 @@
 					if($can_spam==='false'){
 						
 						$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=25 height=25>";
-						$row .= "<a title=\"Subscribe to mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "true" , "ltple_view" => "subscribers", "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
+						$row .= "<a title=\"Subscribe to mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "true" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
 					}
 					else{
 						
 						$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/right_arrow.png' width=25 height=25>";
-						$row .= "<a title=\"Unsubscribe from mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "false" , "ltple_view" => "subscribers", "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
+						$row .= "<a title=\"Unsubscribe from mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "false" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
 					}
 					
 				
@@ -520,6 +507,36 @@
 			return $row;
 		}
 		
+		public function update_unsubscribers_table($column) {
+			
+			return $this->update_subscribers_table($column);
+		}
+
+		public function custom_unsubscribers_table_css($column) {
+			
+			return $this->custom_subscribers_table_css();
+		}
+		
+		public function modify_unsubscribers_table_row($val, $column_name, $user_id) {
+			
+			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
+		}		
+		
+		public function update_guests_table($column) {
+			
+			return $this->update_subscribers_table($column);
+		}
+
+		public function custom_guests_table_css($column) {
+			
+			return $this->custom_subscribers_table_css();
+		}
+		
+		public function modify_guests_table_row($val, $column_name, $user_id) {
+			
+			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
+		}	
+		
 		public function update_leads_table($column) {
 			
 			return $this->update_subscribers_table($column);
@@ -550,7 +567,7 @@
 			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
 		}		
 		
-		public function update_subscribers_manually() {
+		public function update_users_manually() {
 			
 			if(isset($_REQUEST["user_id"]) && isset($_REQUEST["wp_nonce"]) && wp_verify_nonce($_REQUEST["wp_nonce"], "ltple_can_spam") && isset($_REQUEST["ltple_can_spam"])) {
 				
@@ -661,6 +678,23 @@
 			return $value;
 		}
 		
+		/*
+		public function filter_users_by_can_spam( $query ) {
+			
+			if( $this->view == 'leads' ){
+				
+				$query->set( 'meta_query', array(
+				
+					array(
+					
+						'key' 		=> $this->parent->_base . '_can_spam',
+						'compare'	=> 'NOT EXISTS',
+					),
+				));
+			}
+		}
+		*/
+		
 		public function filter_users_by_last_seen( $query ) {
 			
 			$compare = '';
@@ -676,14 +710,47 @@
 			
 			if( !empty($compare) ){
 				
-				$query->set( 'meta_query', array(
+				$meta_query = [];			
 				
-					array(
+				$meta_query[] = array(
 					
-						'key' 		=> $this->parent->_base . '_last_seen',
-						'compare'	=> $compare,
-					),
-				));
+					'key' 		=> $this->parent->_base . '_last_seen',
+					'compare'	=> $compare,
+				);
+				
+				if( $this->view == 'leads' || $this->view == 'subscribers' ){
+					
+					$meta_query[] = array (
+						
+						'relation' 		=>	'OR',
+						
+						array(
+						
+							'key' 		=> $this->parent->_base . '_can_spam',
+							'value'		=> 'false',
+							'compare'	=> '!=',
+						),
+						array(
+					
+							'key' 		=> $this->parent->_base . '_can_spam',
+							'compare'	=> 'NOT EXISTS',
+						)
+					);			
+				}
+				elseif( $this->view == 'unsubscribers' ){
+					
+					$meta_query[] = array (
+
+						array(
+						
+							'key' 		=> $this->parent->_base . '_can_spam',
+							'value'		=> 'false',
+							'compare'	=> '=',
+						)
+					);						
+				}
+
+				$query->set( 'meta_query', $meta_query);
 			}
 		}
 		
@@ -711,6 +778,11 @@
 		
 		public function filter_users_by_plan_value( $query ) {
 
+			if( $this->view == 'guests' || $this->view == 'conversions' ){
+
+				$query->set( 'role__not_in', 'Administrator' );
+			}		
+		
 			if( $this->view == 'leads' ){
 				
 				$userPlanValue		= 1;
@@ -719,7 +791,7 @@
 			elseif( $this->view == 'conversions' ){
 				
 				$userPlanValue		= 0;
-				$planValueOperator	= '>';				
+				$planValueOperator	= '>';
 			}
 			else{
 				

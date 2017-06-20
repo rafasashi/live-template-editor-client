@@ -20,6 +20,10 @@
 				
 				include( $this->views .'/apps.php' );
 			}
+			elseif( isset($_GET['rewards']) ){
+				
+				include( $this->views .'/rewards.php' );
+			}
 			elseif( is_single() ){
 				
 				global $post;

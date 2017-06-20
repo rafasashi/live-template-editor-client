@@ -471,8 +471,28 @@ class LTPLE_Client {
 		
 		$this->user->stars = $this->stars->get_count($this->user->ID);		
 
-		if(strpos($_SERVER['SCRIPT_NAME'],'user-edit.php') > 0 && isset($_REQUEST['user_id']) ){
+		// removes admin color scheme options
+		
+		remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
+
+		//Removes the leftover 'Visual Editor', 'Keyboard Shortcuts' and 'Toolbar' options.
+
+		add_action( 'admin_head', function () {
+				
+			ob_start( function( $subject ) {
+				
+				$subject = preg_replace( '#<h[0-9]>' . __("Personal Options") . '</h[0-9]>.+?/table>#s', '', $subject, 1 );
+				return $subject;
+			});
+		});
+		
+		add_action( 'admin_footer', function(){
 			
+			ob_end_flush();
+		});		
+		
+		if(strpos($_SERVER['SCRIPT_NAME'],'user-edit.php') > 0 && isset($_REQUEST['user_id']) ){
+				
 			// get editedUser data
 			
 			$this->editedUser 			= get_userdata(intval($_REQUEST['user_id']));
@@ -514,6 +534,10 @@ class LTPLE_Client {
 				display: inline-block;
 				padding: 3px;
 			}';
+			
+			echo '.tablenav {  
+				min-height: 34px;
+			}';	
 			
 			echo '.tablenav .tablenav-pages {  
 				margin: 0;
@@ -1082,6 +1106,25 @@ class LTPLE_Client {
 			
 			echo'}';	
 			
+			echo' .tabs-left, .tabs-right {';
+			
+				echo'padding-top:0 !important;';
+			
+			echo'}';
+
+			echo' .tabs-left>li, .tabs-right>li {';
+			
+				echo'margin-bottom:0 !important;';
+			
+			echo'}';				
+
+			echo ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
+				
+				echo 'border-radius:0;';
+				echo 'box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
+				
+			echo'}';				
+			
 			if( !empty($mainColor) ){
 		
 				echo' .navbar-collapse .nav>li>a:hover, .navbar-nav>.active, #search a, .nav-next a:link, .nav-next a:visited, .nav-previous a:link, .nav-previous a:visited {';
@@ -1111,6 +1154,13 @@ class LTPLE_Client {
 					echo'border-left: 5px solid '.$mainColor.' !important;';
 				
 				echo'}';
+				
+				echo' .gallery_type_title {';
+				
+					echo'color:rgb(146, 144, 144);';
+					echo'background-color:rgb(242, 242, 242) !important;';
+				
+				echo'}';				
 			}
 			
 			if( !empty($linkColor) ){
@@ -1120,8 +1170,8 @@ class LTPLE_Client {
 					echo'color:'.$linkColor.';';
 					
 				echo'}';				
-			}
-		
+			}		
+
 		echo'</style>'.PHP_EOL;
 		
 		?>
@@ -1239,6 +1289,12 @@ class LTPLE_Client {
 			elseif( !empty($_SESSION['app']) && ( empty($_GET['output']) || $_GET['output'] != 'embedded' ) ){
 
 				include($this->views . $this->_dev .'/apps.php');
+								
+				$this->viewIncluded = true;	
+			}
+			elseif( isset($_GET['rewards']) ){
+
+				include($this->views . $this->_dev .'/rewards.php');
 								
 				$this->viewIncluded = true;	
 			}
@@ -2451,8 +2507,7 @@ class LTPLE_Client {
 	 * @return  void
 	 */
 	public function admin_enqueue_styles ( $hook = '' ) {
-		
-
+	
 		wp_register_style( $this->_token . '-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-admin' );
 		
@@ -2492,7 +2547,9 @@ class LTPLE_Client {
 	 * @return  void
 	 */
 	public function load_localisation () {
+		
 		load_plugin_textdomain( 'live-template-editor-client', false, dirname( plugin_basename( $this->file ) ) . '/lang/' );
+	
 	} // End load_localisation ()
 
 	/**

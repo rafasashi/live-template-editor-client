@@ -10,10 +10,19 @@
 		
 		$_SESSION['message'] ='';
 	}
+	
+	$inWidget = false;
+	$output='default';
+	$target='_self';
+
+	if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
+		
+		$inWidget = true;
+		$output=$_GET['output'];
+		$target='_blank';
+	}
 
 	// get current tab
-	
-	$currentTab = 'apps';
 	
 	$currentApp = '';
 	
@@ -26,7 +35,9 @@
 		$currentApp = $_SESSION['app'];
 	}
 	
-	if( in_array($currentApp,['embedded','opportunities','members','leads']) ){
+	$currentTab = 'apps';
+	
+	if( !empty($_GET['app']) ){
 		
 		$currentTab = $_GET['app'];
 	}
@@ -41,9 +52,9 @@
 				
 				echo'<li class="gallery_type_title">Applications</li>';
 				
-				echo'<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app">Connected Apps</a></li>';
-				
-				echo'<li'.( $currentTab == 'embedded' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=embedded">Embedded Plugin</a></li>';
+				echo'<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app&output='.$output.'">Connected Apps</a></li>';
+
+				echo'<li'.( $currentTab == 'embedded' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=embedded&output='.$output.'">Embedded Plugin</a></li>';
 				
 				/*
 				echo'<li class="gallery_type_title">My Community</li>';
@@ -62,11 +73,11 @@
 			
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;padding-top:15px;min-height:700px;">';
+		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;min-height:700px;">';
 			
 			if( $currentTab == 'apps' ){
 				
-				echo'<div class="tab-content">';
+				echo'<div class="tab-content" style="margin-top:10px;">';
 			
 					$app_types = $this->get_app_types();
 			
@@ -175,7 +186,6 @@
 							}							
 						}
 					}					
-					
 
 					
 					//---------------------- output default apps --------------------------
@@ -236,7 +246,7 @@
 
 				echo'<div class="tab-content">';
 				
-					echo'<div id="leads">';
+					echo'<div id="embedded">';
 
 						echo'<div class="bs-callout bs-callout-primary">';
 

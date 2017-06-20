@@ -1165,6 +1165,36 @@ class LTPLE_Client_App_Twitter {
 		}
 	}
 	
+	public function appUnlockFree(){
+
+		if(!empty($_REQUEST['id'])){
+
+			if( $this->app = $this->parent->apps->getAppData( $_REQUEST['id'], $this->parent->user->ID ) ){
+
+				$this->connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET, $this->app->oauth_token, $this->app->oauth_token_secret);
+				
+				// make unlock free tweet
+
+				$tweet_content = get_option( $this->parent->_base . 'twt_unlock_tweet' );
+				
+				if(!empty($tweet_content )){
+					
+					$response = $this->connection->post('statuses/update', array(
+					
+						'status' => $this->do_shortcodes($tweet_content,$this->app->screen_name)
+					));
+					
+					if( isset($response->id) ){
+						
+						// send unlock request to server
+						
+						$this->parent->plan->unlock_output_request();
+					}
+				}
+			}
+		}
+	}
+	
 	public function appConnect(){
 		
 		if( isset($_REQUEST['action']) ){

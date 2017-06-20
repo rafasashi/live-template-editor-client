@@ -41,9 +41,14 @@ class LTPLE_Client_Triggers {
 
 				do_action( 'ltple_first_log_today' );
 				
-				if( !empty($this->parent->user->referredBy) ){
+				if( !empty($this->parent->user->referredBy) && is_array($this->parent->user->referredBy) ){
 					
-					$this->parent->stars->add_stars( key($this->parent->user->referredBy), $this->parent->_base . 'ltple_first_ref_log_today' );
+					$referredBy = $this->parent->user->referredBy;
+					
+					if( !empty(key($referredBy)) ){
+					
+						$this->parent->stars->add_stars( key($referredBy), $this->parent->_base . 'ltple_first_ref_log_today' );
+					}
 				}
 			}
 			
