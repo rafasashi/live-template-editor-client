@@ -532,7 +532,7 @@ class LTPLE_Client_Email {
 					
 						'id' 			=> 'importEmails',
 						'label'			=> 'Add emails',
-						'description'	=> '',
+						'description'	=> '<i style="font-size:11px;">Copy paste a list of max 500 emails separated by comma or line break</i>',
 						'placeholder'	=> 'example1@gmail.com' . PHP_EOL . 'example2@yahoo.com',
 						'default'		=> ( !empty($_POST['importEmails']) ? $_POST['importEmails'] : ''),
 						'type'			=> 'textarea',
@@ -547,7 +547,7 @@ class LTPLE_Client_Email {
 					
 						'id' 			=> 'importMessage',
 						'label'			=> 'Add custom message',
-						'description'	=> '<i style="font-size:11px;">No HTML, only text and line break</i>',
+						'description'	=> '<i style="font-size:11px;">Use only text and line break, no HTML</i>',
 						'placeholder'	=> 'Your custom message',
 						'default'		=> ( !empty($_POST['importMessage']) ? $_POST['importMessage'] : $message),
 						'type'			=> 'textarea',

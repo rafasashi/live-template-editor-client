@@ -1,5 +1,11 @@
 <?php 
 
+	// get pre filled user email
+
+	$user_email = ( !empty($_GET['loe']) ? $this->parent->ltple_decrypt_uri($_GET['loe'])  : '' );
+
+	// output form
+	
 	echo'<div id="login-wrap">';
 
 		echo'<p style="width:350px;padding:10px;font-size:20px;margin:10px auto;" class="register">';
@@ -74,11 +80,22 @@
 							
 							echo'<label for="user_email">Email<br>';
 							
-							echo'<input type="email" name="user_email" id="user_email" class="input" value="" size="25"></label>';
+								if(empty($user_email)){
+									
+									echo'<input type="email" name="user_email" id="user_email" class="input" value="" size="25">';
+								}
+								else{
+									
+									echo'<input type="email" class="input" value="'.$user_email.'" size="25" disabled>';
+									
+									echo'<input type="hidden" name="user_email" id="user_email" value="'.$user_email.'">';
+								}
+							
+							echo'</label>';
 						
 						echo'</p>';
 							
-							echo'<p id="reg_passmail">Registration confirmation will be emailed to you.</p>';
+						echo'<p id="reg_passmail">Registration confirmation will be emailed to you.</p>';
 						
 						echo'<br class="clear">';
 						
@@ -96,20 +113,20 @@
 					
 					echo'</button>';				
 					
-					echo'<div id="emailLogin" class="collapse" style="margin-top: 25px;">';
+					echo'<div id="emailLogin" class="collapse'.(!empty($user_email) ? ' in' : '' ).'" style="margin-top: 25px;">';
 												
 						wp_login_form( array(
 						
-							'redirect' => admin_url(), 
-							'form_id' => 'loginform',
-							'label_username' => __( 'Email' ),
-							'label_password' => __( 'Password' ),
-							'label_remember' => __( 'Remember Me' ),
-							'label_log_in' => __( 'Log In' ),
-							'value_remember' => true,
-							'remember' => true
+							'redirect' 			=> ( !empty($_GET['redirect_to']) ? $_GET['redirect_to'] : admin_url() ), 
+							'form_id' 			=> 'loginform',
+							'label_username' 	=> __( 'Email' ),
+							'value_username' 	=> $user_email,
+							'label_password' 	=> __( 'Password' ),
+							'label_remember' 	=> __( 'Remember Me' ),
+							'label_log_in' 		=> __( 'Log In' ),
+							'value_remember' 	=> true,
+							'remember' 			=> true
 						));
-						
 						
 						echo'<div style="width:100%;text-align:center;margin-bottom:50px;display:block;">';
 						
@@ -117,6 +134,7 @@
 		
 								'redirect_to' 	=> ( isset($_GET['redirect_to']) ? $_GET['redirect_to'] : ''),
 								'action' 		=> 'register',
+								'loe'			=> ( isset($_GET['loe']) ? $_GET['loe'] : ''),
 								
 							), wp_login_url() );
 						
@@ -128,12 +146,15 @@
 						
 					echo'</div>';
 				}
-					
-				echo'<a href="' . $this->twitterUrl . '" style="border-radius:5px;width:100%;display: block;text-align: center;margin-top: 10px;" class="btn-lg btn-info">';
-					
-					echo'Twitter Login';
 				
-				echo'</a>';
+				if(empty($user_email)){
+				
+					echo'<a href="' . $this->twitterUrl . '" style="border-radius:5px;width:100%;display: block;text-align: center;margin-top: 10px;" class="btn-lg btn-info">';
+						
+						echo'Twitter Login';
+					
+					echo'</a>';
+				}
 			} 
 			else {
 			
