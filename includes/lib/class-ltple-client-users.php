@@ -46,6 +46,10 @@
 				
 					add_action('admin_head', array($this, 'update_users_manually'));				
 					
+					add_action( 'admin_footer-users.php', array( $this, 'add_bulk_actions') );					
+					
+					add_action('load-users.php', array( $this, 'load_bulk_action') );					
+					
 					if( method_exists($this, 'custom_' . $this->view . '_table_css') ){
 						
 						add_action('admin_head', array($this, 'custom_' . $this->view . '_table_css'));
@@ -62,16 +66,6 @@
 						
 						add_filter('manage_users_custom_column', array($this, 'modify_' . $this->view . '_table_row'), 100, 3);	
 					}			
-					
-					if( method_exists($this, 'add_' . $this->view . '_bulk_action') ){
-
-						add_action( 'admin_footer-users.php', array( $this, 'add_' . $this->view . '_bulk_action') );				
-					}
-
-					if( method_exists($this, 'load_' . $this->view . '_bulk_action') ){
-
-						add_action('load-users.php', array( $this, 'load_' . $this->view . '_bulk_action') );				
-					}
 					
 					// custom bulk actions
 
@@ -218,11 +212,11 @@
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_last_seen') );
 					
-					// bulk actions
+					// custom bulk actions
 					
-					//add_filter( 'pre_get_users', array( $this, 'bulk_send_email_model') );
-					add_filter( 'pre_get_users', array( $this, 'bulk_schedule_email_model') );
-					add_filter( 'pre_get_users', array( $this, 'bulk_add_stars') );
+					//add_action('load-users.php', array( $this, 'bulk_send_email_model') );
+					add_action('load-users.php', array( $this, 'bulk_schedule_email_model') );
+					add_action('load-users.php', array( $this, 'bulk_add_stars') );
 				}				
 			}
 		}
@@ -578,7 +572,7 @@
 			}
 		}
 		
-		public function add_subscribers_bulk_action() {
+		public function add_bulk_actions() {
 		 
 			?>
 			
@@ -593,13 +587,39 @@
 					jQuery('<option>').val('export-emails').text('<?php _e('Export emails')?>').appendTo("select[name='action2']");
 				
 					jQuery('form').attr('method','post');
+					
+					jQuery('#cb-select-all-1').click( function(){
+						
+						if( jQuery(this).is(':checked') ){
+						   
+							if( !jQuery('#cb-select-all-3').length ){
+								
+								var items = jQuery('.displaying-num').first().text();
+								
+								jQuery('<caption id="cb-select-all-3" class="alert alert-warning">').html('<input type="checkbox" name="selectAll" /> Select <b>' + items + '</b>' ).prependTo(".wp-list-table");
+							}
+							else{
+								
+								jQuery('#cb-select-all-3').show();
+							}
+						}
+						else{
+							
+							if( jQuery('#cb-select-all-3').length ){
+								
+								jQuery('#cb-select-all-3 input').attr('checked', false);
+								
+								jQuery('#cb-select-all-3').hide();
+							}
+						}
+					});
 				});
 			
 			</script>
 			<?php
 		}
 
-		public function load_subscribers_bulk_action() {
+		public function load_bulk_action() {
 		 
 			// get the action
 			$wp_list_table = _get_list_table('WP_Posts_List_Table');
@@ -608,6 +628,8 @@
 			
 			// security check
 			//check_admin_referer('bulk-users');
+			
+			//echo'<pre>';var_dump($_POST);exit;
 			
 			switch($action) {
 			
@@ -619,39 +641,44 @@
 				 
 					$exported = 0;
 					
-					if( !empty($_REQUEST['users']) ){
+					if( !empty($_REQUEST['selectAll']) ){
+
+						$users = new WP_User_Query(array('fields'=>array('user_email','user_nicename')));
+					}
+					elseif( !empty($_REQUEST['users']) ){
 						
 						$user_ids = $_REQUEST['users'];
 						
 						$users = new WP_User_Query(array(
 						
-							'include' => $user_ids
+							'include' 	=> $user_ids,
+							'fields'	=> array('user_email','user_nicename'),
 						));
-						
-						if(!empty($users->results)){
-							
-							ob_get_clean();
-							
-							echo '<pre>';
-							
-								echo 'email' . "\t" . 'name'. PHP_EOL;
-								
-								foreach( $users->results as $user ) {
-									
-									echo $user->user_email . "\t" . $user->user_nicename . PHP_EOL;
-				
-									$exported++;
-								}
-							
-							echo '</pre>';
-							
-							exit;						
-						}
-
-						// build the redirect url
-						$sendback = add_query_arg( array( 'exported' => $exported, 'ltple_view' => $_REQUEST['ltple_view'] ), $sendback );		
 					}
 					
+					if(!empty($users->results)){
+						
+						ob_get_clean();
+						
+						echo '<pre>';
+						
+							echo 'email' . "\t" . 'name'. PHP_EOL;
+							
+							foreach( $users->results as $user ) {
+								
+								echo $user->user_email . "\t" . $user->user_nicename . PHP_EOL;
+			
+								$exported++;
+							}
+						
+						echo '</pre>';
+						
+						exit;						
+					}
+
+					// build the redirect url
+					//$sendback = add_query_arg( array( 'exported' => $exported, 'ltple_view' => $_REQUEST['ltple_view'] ), $sendback );		
+				
 				break;
 				default: return;
 			}
@@ -750,8 +777,15 @@
 					);						
 				}
 
+				if( !empty($query->query_vars['meta_query']) ){
+					
+					$meta_query = array_merge($meta_query,$query->query_vars['meta_query']);
+				}
+				
 				$query->set( 'meta_query', $meta_query);
 			}
+			
+			return $query;
 		}
 		
 		public function filter_users_by_marketing_channel( $query ) {
@@ -774,6 +808,8 @@
 					$query->set( 'meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
 				}
 			}
+			
+			return $query;
 		}
 		
 		public function filter_users_by_plan_value( $query ) {
@@ -841,11 +877,14 @@
 				else{
 					
 					$query->set( 'meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
-				}			
+				}
 			}
+			
+			return $query;
 		}
 		
-		public function bulk_send_email_model( $query ) {
+		/*
+		public function bulk_send_email_model() {
 			
 			$post_type = 'email-model';
 			$model_id=null;
@@ -881,8 +920,9 @@
 				add_action( 'admin_notices', array( $this, 'output_send_email_admin_notice'));				
 			}
 		}
+		*/
 		
-		public function bulk_schedule_email_model( $query ) {
+		public function bulk_schedule_email_model() {
 			
 			$post_type 	= 'email-model';
 			$model_id 	= null;
@@ -896,19 +936,52 @@
 				$model_id = intval($_REQUEST[$post_type.'2']);
 			}
 			
-			if( !is_null( $model_id ) && !empty($_REQUEST['users']) && is_array($_REQUEST['users'])){
-				
-				$m = 0;
-				
-				foreach( $_REQUEST['users'] as $i => $user_id){
-					
-					$user = get_userdata($user_id);
-					
-					$can_spam = get_user_meta( $user->ID, $this->parent->_base . '_can_spam',true);
-					
-					if( $can_spam !== 'false' ){
+			if( $model_title = get_post_field( 'post_title', $model_id ) ){
 
-						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , $this->parent->_base . 'send_email_event' , [$model_id,$user->user_email] );
+				//get email title
+				
+				$model_title = $this->parent->email->get_title($model_title);
+				
+				// get email slug
+				
+				$model_slug = sanitize_title($model_title);
+				
+				$users 	= array();
+
+				if( !empty($_REQUEST['selectAll']) ){
+					
+					$meta_query = array();
+
+					$meta_query[] = array (
+							
+						array(
+						
+							'key' 		=> $this->parent->_base . '_email_sent',
+							'value'		=> $model_slug,
+							'compare'	=> 'NOT LIKE',
+						)
+					);					
+					
+					$users = get_users(array(
+					
+						'fields' => 'id',
+						'meta_query' => $meta_query,						
+					));
+				}
+				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
+					
+					$users = $_REQUEST['users'];
+				}
+
+				if( !empty($users) ){
+				
+					$m = 0;
+				
+					foreach( $users as $i => $user_id){
+
+						//var_dump(get_user_meta($user_id, $this->parent->_base . '_email_sent',true));exit;
+					
+						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , $this->parent->_base . 'send_email_event' , [$model_id,intval($user_id)] );
 					
 						if ($i % 10 == 0) {
 							
@@ -979,9 +1052,20 @@
 			
 			if( is_numeric( $addStars ) && !empty($_REQUEST['users']) && is_array($_REQUEST['users'])){
 				
+				$users = array();
+				
+				if( !empty($_REQUEST['selectAll']) ){
+					
+					$users = get_users(array('fields'=>'id'));
+				}
+				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
+					
+					$users = $_REQUEST['users'];
+				}
+				
 				$this->stars_added = $addStars;
 				
-				foreach( $_REQUEST['users'] as $user_id){
+				foreach( $users as $user_id){
 					
 					$this->parent->stars->add_stars( $user_id, $addStars );
 				}
@@ -992,15 +1076,18 @@
 		
 		public function output_stars_added_notice(){
 			
-			echo'<div class="notice notice-success">';
-			
-				echo'<p>';
+			if( $this->stars_added > 0 ){
 				
-					echo $this->stars_added .' stars added';
+				echo'<div class="notice notice-success">';
+				
+					echo'<p>';
 					
-				echo'</p>';
-				
-			echo'</div>';						
+						echo $this->stars_added .' stars added';
+						
+					echo'</p>';
+					
+				echo'</div>';
+			}			
 		}
 		
 		public function ref_users_bulk_register(){

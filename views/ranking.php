@@ -317,81 +317,9 @@
 			
 								echo'<div class="col-xs-12">';
 									
-									// message
-									
-									if( !empty($this->email->imported) ){
-										
-										echo '<div class="alert alert-info" style="padding:10px;">';
-										
-											foreach( $this->email->imported as $label => $data ){
-												
-												$count = count($data);
-												
-												if( $count == 1 ){
-													
-													echo $count . ' email ' . $label. '<br/>' ;
-												}
-												else{
-													
-													echo $count . ' emails ' . $label. '<br/>' ;
-												}
-											}
-										
-										echo'</div>';
-									}
-									
 									// get import emails
 									
-									echo '<div class="well" style="display:inline-block;width:100%;">';
-									
-										echo '<div class="col-xs-12 col-md-6">';
-										
-											echo '<form action="' . $this->urls->current . '" method="post">';
-									
-												echo '<h5 style="padding:15px 0 5px 0;font-weight:bold;">CSV list of emails</h5>';
-											
-												$this->admin->display_field( array(
-												
-													'id' 			=> 'importEmails',
-													'label'			=> 'Add emails',
-													'description'	=> '',
-													'placeholder'	=> '',
-													'default'		=> '',
-													'type'			=> 'textarea',
-													'style'			=> 'width:100%;height:150px;',
-												), $this->user );
-											
-												echo '<button class="btn btn-xs btn-primary pull-right" type="submit">';
-													
-													echo 'Start';
-													
-												echo '</button>';
-											
-											echo '</form>';
-										
-										echo '</div>';
-										
-										echo '<div class="col-xs-12 col-md-6">';
-										
-											echo '<table class="table table-striped table-hover">';
-											
-												echo '<thead>';
-													echo '<tr>';
-														echo '<th><b>Information</b></th>';
-													echo '</tr>';
-												echo '</thead>';
-												
-												echo '<tbody>';
-													echo '<tr>';
-														echo '<td>Copy paste a list of emails separated by comma or line break that you want to invite.</td>';
-													echo '</tr>';															
-												echo '</tbody>';
-												
-											echo '</table>';			
-										
-										echo '</div>';
-									
-									echo '</div>';								
+									echo $this->email->get_invitation_form();								
 								
 								echo'</div>';			
 

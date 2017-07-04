@@ -17,8 +17,12 @@
 		$(".add-input-group").on('click', function(e){
 			
 			e.preventDefault();
+
+			//var clone = $(".input-group-row").eq(0).clone().removeClass('ui-state-disabled');
 			
-			var clone = $(".input-group-row").eq(0).clone().removeClass('ui-state-disabled');
+			var target = "." + $(this).data("target");
+			
+			var clone = $(target).eq(0).clone().removeClass('ui-state-disabled');
 			
 			clone.append('<a class="remove-input-group" href="#">[ x ]</a>');
 			

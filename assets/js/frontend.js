@@ -154,7 +154,20 @@
 			
 			localStorage.setItem('selectedTab', id);
 		});
+		
+		// set dialog
 
+		$('[data-toggle="dialog"]').each(function(e){
+			
+			var id = $(this).data('target');
+			
+			$(id).dialog({autoOpen: false});
+			
+			$(this).on('click',function(e){
+				
+				$(id).dialog('open');
+			});
+		});
 	});
 	
 	// set hash on popstate

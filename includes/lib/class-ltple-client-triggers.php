@@ -59,6 +59,7 @@ class LTPLE_Client_Triggers {
 	public function trigger_after_user_register( $user_id ){
 
 		// the new user just registered but never logged in yet
+		
 		add_user_meta($user_id, $this->parent->_base . '_last_seen', 'false');
 	}
 	

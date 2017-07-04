@@ -42,10 +42,6 @@ class LTPLE_Client_Login {
 		
 			$success = NULL;
 			
-			// unset empty username message
-			
-			unset($errors->errors['empty_username']);
-			
 			// check email
 		
 			if( !empty( $errors->errors['email_exists'] ) ){
@@ -61,7 +57,7 @@ class LTPLE_Client_Login {
 						$user->last_seen = intval( get_user_meta( $user->ID, $this->parent->_base . '_last_seen',true) );
 						
 						if( $user->last_seen === 0 ){
-							
+
 							// send new user notification
 							
 							wp_new_user_notification( $user->ID, NULL, 'user' );
@@ -73,6 +69,25 @@ class LTPLE_Client_Login {
 					}
 				}
 			}
+			elseif( !empty( $errors->errors['empty_username'] ) ){
+				
+				// add new user
+				
+				if( $user = $this->parent->email->insert_user($user_email) ){
+					
+					// send new user notification
+							
+					wp_new_user_notification( $user['id'], NULL, 'user' );					
+					
+					// output success message
+					
+					$success = 'A confirmation email has been sent to <b>'.$user_email.'</b>';
+				}
+			}
+			
+			// unset empty username message
+			
+			unset($errors->errors['empty_username']);			
 			
 			// store message in session 
 			
@@ -95,7 +110,7 @@ class LTPLE_Client_Login {
 
 		$login_url = add_query_arg( array(
 		
-			'redirect_to' 	=> ( $_GET['redirect_to'] ? $_GET['redirect_to'] : ''),
+			'redirect_to' 	=> ( isset($_GET['redirect_to']) ? $_GET['redirect_to'] : ''),
 			'action' 		=> 'register',
 			
 		), $this->parent->urls->login );			

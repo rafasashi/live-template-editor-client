@@ -1222,7 +1222,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$str = str_replace(array('cursor: pointer;','data-element_type="video.default"'),'',$str);
 		
-		$str = str_replace(array('<body','</body>'),array('<div id="main"','</div>'),$str);
+		$str = str_replace(array('<body','</body>','src=" ','href=" '),array('<div id="main"','</div>','src="','href="'),$str);
 		
 		//$str = html_entity_decode(stripslashes($str));
 		

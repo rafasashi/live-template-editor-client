@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Email {
 	
 	var $parent;
+	var $invitationForm;
 	var $imported;
 	
 	/**
@@ -78,8 +79,8 @@ class LTPLE_Client_Email {
 			
 		// add cron events
 			
-		add_action( $this->parent->_base . 'send_email_event', 	array( $this, 'send_model'),1,2);
-		
+		add_action( $this->parent->_base . 'send_email_event', array( $this, 'send_model'),1,2);
+
 		// setup phpmailer
 
 		add_action( 'phpmailer_init', 	function( PHPMailer $phpmailer ) {
@@ -118,20 +119,84 @@ class LTPLE_Client_Email {
 			return 'Live Editor';
 		});
 		
-		add_filter('wp_loaded', array( $this, 'init_email' ));
+		add_filter('ltple_loaded', array( $this, 'init_email' ));
+		
+		add_action( 'ltple_users_bulk_imported', array( $this, 'schedule_invitations' ));
 	}
 	
 	public function init_email(){
 		
-		if( !empty($_POST['importEmails']) ){
-			
-			if($this->parent->user->loggedin){
-			
-				$this->bulk_import_users($_POST['importEmails']);
+		if(!is_admin()){
+		
+			if( !empty($_POST['importEmails']) ){
+				
+				if($this->parent->user->loggedin){
+				
+					$this->bulk_import_users($_POST['importEmails']);
+				}
 			}
 		}
 	}
 
+	public function insert_user($email){
+
+		if( filter_var($email, FILTER_VALIDATE_EMAIL) && !email_exists( $email ) ){
+			
+			if( is_plugin_active('wpforo/wpforo.php') ){
+				
+				//fix wpforo error
+			
+				global $wpforo;
+				
+				$wpforo->current_user_groupid = null;
+			}
+			
+			// get username
+			
+			$username = strtok($email, '@');
+			
+			$username = str_replace(array('+','.','-','_'),' ',$username);
+			
+			$username = ucwords($username);
+			
+			$username = str_replace(' ','',$username);
+			
+			$i = '';
+			
+			do{
+
+				if( empty($i) ){
+					
+					$i = 1;
+				}
+				else{
+					
+					++$i;
+				}
+				
+			} while( username_exists( $username ) !== false );
+
+			if( $user_id = wp_insert_user( array(
+			
+				'user_login'	=>  $username,
+				'user_pass'		=>  NULL,
+				'user_email'	=>  $email,
+			))){
+			
+				$user = array(
+				
+					'id' 	=> $user_id,
+					'name' 	=> $username,
+					'email' => $email,
+				);
+				
+				return $user;
+			}
+		}	
+
+		return false;
+	}
+	
 	public function bulk_import_users( $csv ){
 		
 		// normalize csv
@@ -146,75 +211,37 @@ class LTPLE_Client_Email {
 		
 		foreach( $emails as $email){
 			
-			 $email = trim( $email );
+			$email = trim( $email );
 			
 			if( !empty( $email ) ){
 			
 				if( filter_var($email, FILTER_VALIDATE_EMAIL) ){
 					
-					if( !email_exists( $email ) ){
+					if( !$user = email_exists( $email ) ){
 						
-						$username = strtok($email, '@');
-						
-						$username = str_replace(array('+','.','-','_'),' ',$username);
-						
-						$username = ucwords($username);
-						
-						$username = str_replace(' ','',$username);
-						
-						$i = '';
-						
-						do{
-
-							if( empty($i) ){
-								
-								$i = 1;
-							}
-							else{
-								
-								++$i;
-							}
-							
-						} while( username_exists( $username ) !== false );
-				
-						if( $user_id = wp_insert_user( array(
-						
-							'user_login'	=>  $username,
-							'user_pass'		=>  NULL,
-							'user_email'	=>  $email,
-						))){
-						
-							$user = array(
-							
-								'id' 	=> $user_id,
-								'name' 	=> $username,
-								'email' => $email,
-							);
+						if( $user = $this->insert_user($email) ){
 							
 							$this->imported['imported'][] = $user;
 						}
 						else{
 							
-							$this->imported['errors'][]=$email;
+							$this->imported['errors'][] = $email;
 						}
 					}
 					else{
 						
-						$this->imported['already registered'][]=$email;
+						$this->imported['already registered'][] = ['id' => $user, 'email' => $email ];
 					}
 				}
 				else{
 					
-					$this->imported['are invalid'][]=$email;
+					$this->imported['are invalid'][] = $email;
 				}
 			}
 		}
 		
-		if( !empty($this->imported['imported']) ){
-			
-			do_action('ltple_users_bulk_imported');
-		}
-		
+		do_action('ltple_users_bulk_imported');
+
 		return true;
 	}
 	
@@ -249,6 +276,25 @@ class LTPLE_Client_Email {
 		return $str;
 	}
 	
+	public function get_title( $title, $user=null ){
+		
+		$title = str_replace(array('–'),'-',$title);
+		$title = explode('-',$title,2);
+
+		if(isset($title[1])){
+			
+			$title = $title[1];
+		}
+		else{
+			
+			$title = $title[0];
+		}
+		
+		$title = $this->do_shortcodes($title, $user);
+
+		return $title;
+	}
+	
 	public function send_model( $model_id, $user){
 		
 		if(is_numeric( $user )){
@@ -262,29 +308,14 @@ class LTPLE_Client_Email {
 		
 		$can_spam = get_user_meta( $user->ID, $this->parent->_base . '_can_spam',true);
 
-		if($can_spam !== 'false'){
-		
-			$model = get_post($model_id);
+		if($can_spam !== 'false' && is_numeric($model_id)){
 			
-			if(isset($model->ID)){
+			if($model = get_post($model_id)){
 				
 				$urlparts = parse_url(site_url());
 				$domain = $urlparts ['host'];				
 				
-				
-				$title= str_replace(array('–'),'-',$model->post_title);
-				$title= explode('-',$title,2);
-
-				if(isset($title[1])){
-					
-					$Email_title = $title[1];
-				}
-				else{
-					
-					$Email_title = $title[0];
-				}
-				
-				$Email_title = $this->do_shortcodes($Email_title, $user);
+				$Email_title = $this->get_title($model->post_title, $user);
 
 				// get email slug
 				
@@ -322,6 +353,8 @@ class LTPLE_Client_Email {
 					if(!wp_mail($user->user_email, $Email_title, $preMessage, $headers)){
 						
 						global $phpmailer;
+						
+						wp_mail($this->parent->settings->options->emailSupport, 'Error sending email model id ' . $model_id . ' to ' . $user->user_email, print_r($phpmailer->ErrorInfo,true));
 						
 						var_dump($phpmailer->ErrorInfo);exit;				
 					}
@@ -430,6 +463,151 @@ class LTPLE_Client_Email {
 				}
 			}
 		}
+	}
+	
+	public function get_invitation_form( $type='' ){
+		
+		$this->invitationForm = '';
+		
+		// get response message
+		
+		if( !empty($this->imported) ){
+			
+			$this->invitationForm .= '<div class="alert alert-info" style="padding:10px;">';
+			
+				foreach( $this->imported as $label => $data ){
+					
+					$count = count($data);
+					
+					if( $count == 1 ){
+						
+						$this->invitationForm .= $count . ' email ' . $label. '<br/>' ;
+					}
+					else{
+						
+						$this->invitationForm .= $count . ' emails ' . $label. '<br/>' ;
+					}
+				}
+			
+			$this->invitationForm .='</div>';
+		}
+
+		// get default user message
+		
+		$company = ucfirst(get_bloginfo('name'));
+		
+		$message = null;
+		
+		if( is_null($message) ){
+			
+			$message = 'Hello, ' . PHP_EOL . PHP_EOL;
+			
+			$message .= 'I invite you to try ' . $company . ':' . PHP_EOL . PHP_EOL;
+			
+			$message .= add_query_arg( array(
+			
+				'ri' =>	$this->parent->user->refId,
+				
+			), $this->parent->urls->editor ) . PHP_EOL . PHP_EOL;
+			
+			$message .= 'Yours,' . PHP_EOL;
+			$message .= ucfirst( $this->parent->user->user_nicename ) . PHP_EOL;
+		}		
+		
+		//output form			
+			
+		$this->invitationForm .= '<div class="well" style="display:inline-block;width:100%;">';
+		
+			$this->invitationForm .= '<div class="col-xs-12 col-md-6">';
+			
+				$this->invitationForm .= '<form action="' . $this->parent->urls->current . '" method="post">';
+		
+					$this->invitationForm .= '<input type="hidden" name="importType" value="'.$type.'" />';
+					
+					do_action('ltple_prepend_'.$type.'_form');
+		
+					$this->invitationForm .= '<h5 style="padding:15px 0 5px 0;font-weight:bold;">CSV list of emails</h5>';
+				
+					$this->invitationForm .= $this->parent->admin->display_field( array(
+					
+						'id' 			=> 'importEmails',
+						'label'			=> 'Add emails',
+						'description'	=> '',
+						'placeholder'	=> 'example1@gmail.com' . PHP_EOL . 'example2@yahoo.com',
+						'default'		=> ( !empty($_POST['importEmails']) ? $_POST['importEmails'] : ''),
+						'type'			=> 'textarea',
+						'style'			=> 'width:100%;height:100px;',
+					), false, false );
+				
+					$this->invitationForm .= '<hr/>';
+					
+					$this->invitationForm .= '<h5 style="padding:15px 0 5px 0;font-weight:bold;">Add custom message</h5>';
+					
+					$this->invitationForm .= $this->parent->admin->display_field( array(
+					
+						'id' 			=> 'importMessage',
+						'label'			=> 'Add custom message',
+						'description'	=> '<i style="font-size:11px;">No HTML, only text and line break</i>',
+						'placeholder'	=> 'Your custom message',
+						'default'		=> ( !empty($_POST['importMessage']) ? $_POST['importMessage'] : $message),
+						'type'			=> 'textarea',
+						'style'			=> 'width:100%;height:100px;',
+					), false, false );
+					
+					do_action('ltple_append_invitation_form');
+				
+					$this->invitationForm .= '<hr/>';
+				
+					$this->invitationForm .= '<button style="margin-top:10px;" class="btn btn-xs btn-primary pull-right" type="submit">';
+						
+						$this->invitationForm .= 'Send';
+						
+					$this->invitationForm .= '</button>';
+				
+				$this->invitationForm .= '</form>';
+			
+			$this->invitationForm .= '</div>';
+			
+			$this->invitationForm .= '<div class="col-xs-12 col-md-6">';
+			
+				$this->invitationForm .= '<table class="table table-striped table-hover">';
+				
+					$this->invitationForm .= '<thead>';
+						$this->invitationForm .= '<tr>';
+							$this->invitationForm .= '<th><b>Information</b></th>';
+						$this->invitationForm .= '</tr>';
+					$this->invitationForm .= '</thead>';
+					
+					$this->invitationForm .= '<tbody>';
+						$this->invitationForm .= '<tr>';
+							$this->invitationForm .= '<td>Copy paste a list of emails separated by comma or line break that you want to invite.</td>';
+						$this->invitationForm .= '</tr>';															
+					$this->invitationForm .= '</tbody>';
+					
+				$this->invitationForm .= '</table>';			
+			
+			$this->invitationForm .= '</div>';
+		
+		$this->invitationForm .= '</div>';
+
+		return $this->invitationForm;
+	}
+	
+	public function schedule_invitations(){
+
+		if( !empty($_POST['importType']) ){
+			
+			$importType = sanitize_text_field($_POST['importType']);
+			
+			if(method_exists($this->parent->{$importType},'schedule_invitations')){
+				
+				return $this->parent->{$importType}->schedule_invitations();
+			}
+		}
+	
+		// schedule user invitation
+
+		
 	}
 	
 	/**

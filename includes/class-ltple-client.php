@@ -410,6 +410,10 @@ class LTPLE_Client {
 			
 			do_action('ltple_user_loaded');
 		}
+		else{
+
+			add_action('after_password_reset', array($this,'redirect_password_reset'));
+		}
 		
 		// newsletter unsubscription
 		
@@ -432,6 +436,32 @@ class LTPLE_Client {
 		// loaded hook
 		
 		do_action( 'ltple_loaded');
+	}	
+	
+	public function redirect_password_reset($user){
+
+		// set current user
+		
+		$this->user = wp_set_current_user( $user->ID );
+		$this->user->loggedin = true;
+		
+		// set auth cookie
+		
+		wp_set_auth_cookie($user->ID, true);
+		
+		// redirect
+		
+		if( !empty($_GET['redirect_to']) ){
+			
+			$url = $_GET['redirect_to'];
+		}
+		else{
+			
+			$url = $this->urls->editor;
+		}
+		
+        wp_redirect( $url );
+        exit;		
 	}	
 	
 	public function init_backend(){	
@@ -514,7 +544,10 @@ class LTPLE_Client {
 	public function custom_admin_dashboard_css() {
 		
 		echo '<style>';
-						
+					
+			echo '#adminmenu a {color:' . $this->settings->linkColor . ' !important;}';
+			echo '#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head, #adminmenu .wp-menu-arrow, #adminmenu .wp-menu-arrow div, #adminmenu li.current a.menu-top, #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu, .folded #adminmenu li.current.menu-top, .folded #adminmenu li.wp-has-current-submenu { border-left: 5px solid ' . $this->settings->borderColor . '; }';
+					
 			echo '.displaying-num {  
 				background-color: #337ab7;
 				display: inline;
@@ -530,7 +563,7 @@ class LTPLE_Client {
 			}';
 			
 			echo '.pagination-links	{  
-				background: rgb(242, 242, 242);
+				background: #fff;
 				display: inline-block;
 				padding: 3px;
 			}';
@@ -1059,12 +1092,6 @@ class LTPLE_Client {
 			
 		}
 		
-		// output custom style
-		
-		$mainColor 	 = get_option( $this->_base . 'mainColor' );
-		$borderColor = get_option( $this->_base . 'borderColor' );
-		$linkColor 	 = get_option( $this->_base . 'linkColor' );
-		
 		echo'<style>'.PHP_EOL;
 			
 			echo'#header_logo {';
@@ -1125,11 +1152,11 @@ class LTPLE_Client {
 				
 			echo'}';				
 			
-			if( !empty($mainColor) ){
+			if( !empty($this->settings->mainColor) ){
 		
 				echo' .navbar-collapse .nav>li>a:hover, .navbar-nav>.active, #search a, .nav-next a:link, .nav-next a:visited, .nav-previous a:link, .nav-previous a:visited {';
 
-					echo'background-color:'.$mainColor.' !important;';
+					echo'background-color:'.$this->settings->mainColor.' !important;';
 				
 				echo'}';
 				
@@ -1140,18 +1167,18 @@ class LTPLE_Client {
 				echo'}';
 					
 				echo' span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {';
-					echo'background-color: '.$mainColor.' !important;';
+					echo'background-color: '.$this->settings->mainColor.' !important;';
 					
-					if( !empty($borderColor) ){
+					if( !empty($this->settings->borderColor) ){
 						
-						echo'border: 1px solid '.$borderColor.' !important;';
+						echo'border: 1px solid '.$this->settings->borderColor.' !important;';
 					}
 					
 				echo'}';
 				
 				echo ' .bs-callout-primary, .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
 				
-					echo'border-left: 5px solid '.$mainColor.' !important;';
+					echo'border-left: 5px solid '.$this->settings->mainColor.' !important;';
 				
 				echo'}';
 				
@@ -1163,11 +1190,11 @@ class LTPLE_Client {
 				echo'}';				
 			}
 			
-			if( !empty($linkColor) ){
+			if( !empty($this->settings->linkColor) ){
 				
 				echo' a, .colortext, code, .infoareaicon, .fontawesome-icon.circle-white, .wowmetaposts span a:hover, h1.widget-title, .testimonial-name, .mainthemetextcolor, .primarycolor, footer#colophon a:hover, .icon-box-top h1:hover, .icon-box-top.active a h1{';
 					
-					echo'color:'.$linkColor.';';
+					echo'color:'.$this->settings->linkColor.';';
 					
 				echo'}';				
 			}		
@@ -1267,7 +1294,7 @@ class LTPLE_Client {
 			}
 
 			$this->viewIncluded = false;			
-
+			
 			if( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
 
 				include($this->views . $this->_dev .'/profile.php');
@@ -1286,7 +1313,7 @@ class LTPLE_Client {
 								
 				$this->viewIncluded = true;	
 			}
-			elseif( !empty($_SESSION['app']) && ( empty($_GET['output']) || $_GET['output'] != 'embedded' ) ){
+			elseif( !empty($this->apps->app) && ( empty($_GET['output']) || $_GET['output'] != 'embedded' ) ){
 
 				include($this->views . $this->_dev .'/apps.php');
 								

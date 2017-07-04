@@ -9,6 +9,8 @@ class LTPLE_Client_Plan {
 	var $subscribed;
 	var $data;
 	var $message;
+	var $fields;
+	var $buttons = array();
 	
 	/**
 	 * Constructor function
@@ -101,8 +103,8 @@ class LTPLE_Client_Plan {
 			// save user taxonomy custom fields
 			
 			add_action( 'personal_options_update', array( $this, 'save_custom_user_taxonomy_fields' ) );
-			add_action( 'edit_user_profile_update', array( $this, 'save_custom_user_taxonomy_fields' ) );	
-						
+			add_action( 'edit_user_profile_update', array( $this, 'save_custom_user_taxonomy_fields' ) );
+			
 			// add subscription-plan
 			
 			add_filter("subscription-plan_custom_fields", array( $this, 'get_subscription_plan_fields' ));	
@@ -128,7 +130,6 @@ class LTPLE_Client_Plan {
 		
 		return false;
 	}
-	
 	
 	// Add user plan data custom fields
 
@@ -161,14 +162,28 @@ class LTPLE_Client_Plan {
 	public function set_subscription_plan_columns($columns){
 
 		// Remove description, posts, wpseo columns
+		
 		$columns = [];
 		
-		$columns['cb'] = '<input type="checkbox" />';
-		$columns['title'] = 'Title';
-		$columns['shortcode'] = 'Shortcode';
-		$columns['date'] = 'Date';
+		$columns['cb'] 			= '<input type="checkbox" />';
+		$columns['title'] 		= 'Title';
+		$columns['cover'] 		= 'Cover';
+		$columns['shortcode'] 	= 'Shortcode';
+		$columns['date'] 		= 'Date';
 
 		return $columns;		
+	}
+	
+	public function get_thumb_url($post_id){
+		
+		$thumb_url = get_the_post_thumbnail_url($post_id);
+		
+		if( empty($thumb_url) ){
+
+			$thumb_url = $this->parent->assets_url . 'images/plan_background.jpg';
+		}
+
+		return $thumb_url;
 	}
 	
 	public function add_subscription_plan_column_content($column_name, $post_id){
@@ -176,6 +191,16 @@ class LTPLE_Client_Plan {
 		if($column_name === 'shortcode') {
 			
 			echo '<input style="width:200px;" type="text" name="shortcode" value="[subscription-plan id=\'' . $post_id . '\']" ' . disabled( true, true, false ) . ' />';
+		}	
+		elseif($column_name == 'cover') {
+			
+			$thumb_url = $this->get_thumb_url($post_id);
+			
+			echo '<div style="width:250px;">';
+				
+				echo '<img src="'.$thumb_url.'" style="width:100%;" />';
+			
+			echo '</div>';
 		}		
 	}
 
@@ -186,6 +211,7 @@ class LTPLE_Client_Plan {
 			'id'		 	=> NULL,
 			'widget' 		=> 'false',
 			'title' 		=> NULL,
+			'thumb' 		=> false,
 			'content' 		=> NULL,
 			'button' 		=> NULL,
 			'show-storage' 	=> true
@@ -237,7 +263,7 @@ class LTPLE_Client_Plan {
 					
 					$plan_form 		= '';
 					$plan_content 	= $plan->post_content;
-					$style='padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);color: rgb(138, 206, 236);';
+					$style='margin-bottom: 0;padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);color: rgb(138, 206, 236);box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
 				}
 
 				// get total_price_amount & total_storage
@@ -465,6 +491,37 @@ class LTPLE_Client_Plan {
 				else{
 										
 					$subscription_plan.='<h2 id="plan_title" style="'.$style.'">' . $plan_title . '</h2>';
+					
+					if(!empty($_SESSION['message'])){ 
+					
+						//output message
+					
+						$subscription_plan.= $_SESSION['message'];
+						
+						$_SESSION['message'] = '';
+					}						
+					elseif(!empty($this->message)){ 
+					
+						//output message
+					
+						$subscription_plan.= $this->message;
+					}				
+					
+					if( $atts['thumb'] ){
+					
+						if( $plan_thumb = get_the_post_thumbnail_url($plan->ID) ){
+							
+							$subscription_plan.='<div id="plan_thumb">';
+								
+								$subscription_plan.= '<img src="'.$plan_thumb.'" style="width:100%;">';
+							
+							$subscription_plan.='</div>';
+						}
+						else{
+
+							$subscription_plan.='<div id="plan_thumb" style="background-size:cover;background-repeat: no-repeat;background-position: center center;width:100%;height:200px;background-image:url(\''.$this->parent->assets_url . 'images/plan_background.jpg'.'\');"></div>';
+						}
+					}					
 
 					$subscription_plan.='<div id="plan_form">';
 						
@@ -645,7 +702,21 @@ class LTPLE_Client_Plan {
 											
 										$subscription_plan.='</div>'.PHP_EOL;
 										
-									$subscription_plan.='</div>'.PHP_EOL;								
+									$subscription_plan.='</div>'.PHP_EOL;
+
+									// get addon buttons
+									
+									do_action( 'ltple_plan_shortcode', $plan->ID );
+									
+									if(!empty($this->buttons[$plan->ID])){
+										
+										foreach($this->buttons[$plan->ID] as $button){
+											
+											$subscription_plan.='<div style="padding: 30px 0px;"><b>OR</b></div>'.PHP_EOL;
+											
+											$subscription_plan.= $button.PHP_EOL;
+										}
+									}
 								}
 								
 							$subscription_plan.= '</div>'.PHP_EOL;
@@ -696,7 +767,7 @@ class LTPLE_Client_Plan {
 	
 	public function get_subscription_plan_fields(){
 			
-		$fields = [];
+		$this->fields = [];
 		
 		//get options
 		
@@ -704,7 +775,7 @@ class LTPLE_Client_Plan {
 		
 		//var_dump($options);exit;
 		
-		$fields[]=array(
+		$this->fields[]=array(
 		
 			"metabox" =>
 				array('name'=> "plan_options"),
@@ -736,7 +807,7 @@ class LTPLE_Client_Plan {
 			}
 		}
 		
-		$fields[]=array(
+		$this->fields[]=array(
 		
 			"metabox" =>
 				array('name'=> "email_series"),
@@ -749,7 +820,9 @@ class LTPLE_Client_Plan {
 				'description'		=> ''
 		);
 		
-		return $fields;
+		do_action("add_subscription_plan_fields");
+		
+		return $this->fields;
 	}
 	
 	
@@ -1083,7 +1156,7 @@ class LTPLE_Client_Plan {
 	public function update_user(){
 		
 		// get plan subscription
-
+		
 		if( !empty( $this->parent->user->ID ) && isset($_GET['pk'])&&isset($_GET['pd'])&&isset($_GET['pv'])){
 
 			$plan_data = sanitize_text_field($_GET['pd']);
@@ -1104,193 +1177,198 @@ class LTPLE_Client_Plan {
 				
 				if(!empty($this->data['name'])){
 					
-					//var_dump($plan);exit;
-							
-					$options 				= $this->get_layer_custom_taxonomies_options();
-					$user_has_subscription 	= 'false';
-					$all_updated_terms 		= [];
+					do_action('ltple_update_user_plan');
 					
-					foreach( $options as $taxonomy => $terms ) {
+					if( !empty($this->data['options']) ){
+							
+						//var_dump($plan);exit;
+								
+						$options 				= $this->get_layer_custom_taxonomies_options();
+						$user_has_subscription 	= 'false';
+						$all_updated_terms 		= [];
 						
-						$update_terms=[];
-						$update_taxonomy='';
-						
-						foreach($terms as $i => $term){
+						foreach( $options as $taxonomy => $terms ) {
+							
+							$update_terms=[];
+							$update_taxonomy='';
+							
+							foreach($terms as $i => $term){
 
-							if ( in_array( $term->slug, $this->data['options'] ) ) {
-								
-								$update_terms[]= $term->term_id;
-								$update_taxonomy=$term->taxonomy;
-								
-								if( $this->data["price"] > 0 ){
+								if ( in_array( $term->slug, $this->data['options'] ) ) {
 									
-									$user_has_subscription = 'true';
+									$update_terms[]= $term->term_id;
+									$update_taxonomy=$term->taxonomy;
+									
+									if( $this->data["price"] > 0 ){
+										
+										$user_has_subscription = 'true';
+									}
+									
+									$all_updated_terms[]=$term->slug;
 								}
-								
-								$all_updated_terms[]=$term->slug;
 							}
-						}
 
-						// update current user custom taxonomy
-						
-						$user_plan_id = $this->get_user_plan_id( $this->parent->user->ID, true );
-						
-						$append = false;
-
-						if( $this->data['price'] == 0 || !empty($this->data['upgrade']) ){
+							// update current user custom taxonomy
 							
-							// demo, upgrade or donation case
+							$user_plan_id = $this->get_user_plan_id( $this->parent->user->ID, true );
 							
-							$append = true;
-						}
+							$append = false;
 
-						$response = wp_set_object_terms( $user_plan_id, $update_terms, $update_taxonomy, $append );
-
-						clean_object_term_cache( $user_plan_id, $update_taxonomy );
-					}
-					
-					if($this->hasHosting($this->data)){
-
-						foreach($this->data['meta'] as $meta){
-							
-							if( !empty($meta['domain_name']['name']) ){
+							if( $this->data['price'] == 0 || !empty($this->data['upgrade']) ){
 								
-								// parse domains
+								// demo, upgrade or donation case
 								
-								foreach($meta['domain_name']['name'] as $i => $name){
-									
-									if( !empty($meta['domain_name']['name']) ){
+								$append = true;
+							}
 
-										// get domain_name
-									
-										$domain_name = $name.$meta['domain_name']['ext'][$i];
-										
-										//check if domain exists
-										
-										$domain = get_page_by_title( $domain_name, OBJECT, 'user-domain' );
+							$response = wp_set_object_terms( $user_plan_id, $update_terms, $update_taxonomy, $append );
 
-										if( empty($domain) ){
+							clean_object_term_cache( $user_plan_id, $update_taxonomy );
+						}
+						
+						if($this->hasHosting($this->data)){
+
+							foreach($this->data['meta'] as $meta){
+								
+								if( !empty($meta['domain_name']['name']) ){
+									
+									// parse domains
+									
+									foreach($meta['domain_name']['name'] as $i => $name){
+										
+										if( !empty($meta['domain_name']['name']) ){
+
+											// get domain_name
+										
+											$domain_name = $name.$meta['domain_name']['ext'][$i];
 											
-											// add domain	
+											//check if domain exists
 											
-											$args = array(
+											$domain = get_page_by_title( $domain_name, OBJECT, 'user-domain' );
+
+											if( empty($domain) ){
 												
-												'post_author' 	=> $this->parent->user->ID,
-												'post_title' 	=> $domain_name,
-												'post_name' 	=> $domain_name,
-												'post_type' 	=> 'user-domain',
-												'post_status' 	=> 'publish'
-											);
+												// add domain	
+												
+												$args = array(
+													
+													'post_author' 	=> $this->parent->user->ID,
+													'post_title' 	=> $domain_name,
+													'post_name' 	=> $domain_name,
+													'post_type' 	=> 'user-domain',
+													'post_status' 	=> 'publish'
+												);
 
-											if($domain_id = wp_insert_post( $args )){
+												if($domain_id = wp_insert_post( $args )){
 
-												// Do anything
+													// Do anything
+												}
 											}
 										}
 									}
 								}
 							}
 						}
-					}
-					
-					// hook triggers
-					
-					if( intval($this->data['price']) > 0 ){
 						
-						do_action('ltple_paid_plan_subscription');
-					}
-					else{
+						// hook triggers
 						
-						do_action('ltple_free_plan_subscription');
-					}
-					
-					do_action('ltple_plan_subscribed');
+						if( intval($this->data['price']) > 0 ){
+							
+							do_action('ltple_paid_plan_subscription');
+						}
+						else{
+							
+							do_action('ltple_free_plan_subscription');
+						}
+						
+						do_action('ltple_plan_subscribed');
 
-					// schedule email series
-					
-					$this->parent->email->schedule_campaign( $this->data['id'], $this->parent->user);
-					
-					if( $this->data['price'] > 0 ){
+						// schedule email series
 						
-						//send admin notification
+						$this->parent->email->schedule_campaign( $this->data['id'], $this->parent->user);
+						
+						if( $this->data['price'] > 0 ){
 							
-						wp_mail($this->parent->settings->options->emailSupport, 'Plan edited on checkout - user id ' . $this->parent->user->ID . ' - ip ' . $this->parent->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);						
-						
-						// update user has subscription						
-						
-						update_user_meta( $this->parent->user->ID , 'has_subscription', $user_has_subscription);
+							//send admin notification
+								
+							wp_mail($this->parent->settings->options->emailSupport, 'Plan edited on checkout - user id ' . $this->parent->user->ID . ' - ip ' . $this->parent->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);						
+							
+							// update user has subscription						
+							
+							update_user_meta( $this->parent->user->ID , 'has_subscription', $user_has_subscription);
 
-						// store message
-						
-						$this->message .= '<div class="alert alert-success">';
+							// store message
 							
-							$this->message .= 'Congratulations, you have successfully subscribed to '.$this->data['name'].'!';
+							$this->message .= '<div class="alert alert-success">';
+								
+								$this->message .= 'Congratulations, you have successfully subscribed to '.$this->data['name'].'!';
+								
+								/*
+								$this->message .= '<div class="pull-right">';
+								
+									$this->message .= '<a class="btn-sm btn-success" href="' . $this->parent->urls->editor . '" target="_parent">Start editing</a>';
 							
-							/*
-							$this->message .= '<div class="pull-right">';
-							
-								$this->message .= '<a class="btn-sm btn-success" href="' . $this->parent->urls->editor . '" target="_parent">Start editing</a>';
-						
+								$this->message .= '</div>';
+								*/
+								
 							$this->message .= '</div>';
-							*/
+								
+							//Google adwords Code for subscription completed
 							
-						$this->message .= '</div>';
+							$this->message .='<script type="text/javascript">' . PHP_EOL;
+								$this->message .='/* <![CDATA[ */' . PHP_EOL;
+								$this->message .='var google_conversion_id = 866030496;' . PHP_EOL;
+								$this->message .='var google_conversion_language = "en";' . PHP_EOL;
+								$this->message .='var google_conversion_format = "3";' . PHP_EOL;
+								$this->message .='var google_conversion_color = "ffffff";' . PHP_EOL;
+								$this->message .='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
+								$this->message .='var google_conversion_value = '.$this->data['price'].'.00;' . PHP_EOL;
+								$this->message .='var google_conversion_currency = "USD";' . PHP_EOL;
+								$this->message .='var google_remarketing_only = false;' . PHP_EOL;
+								$this->message .='/* ]]> */' . PHP_EOL;
+							$this->message .='</script>' . PHP_EOL;
 							
-						//Google adwords Code for subscription completed
-						
-						$this->message .='<script type="text/javascript">' . PHP_EOL;
-							$this->message .='/* <![CDATA[ */' . PHP_EOL;
-							$this->message .='var google_conversion_id = 866030496;' . PHP_EOL;
-							$this->message .='var google_conversion_language = "en";' . PHP_EOL;
-							$this->message .='var google_conversion_format = "3";' . PHP_EOL;
-							$this->message .='var google_conversion_color = "ffffff";' . PHP_EOL;
-							$this->message .='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
-							$this->message .='var google_conversion_value = '.$this->data['price'].'.00;' . PHP_EOL;
-							$this->message .='var google_conversion_currency = "USD";' . PHP_EOL;
-							$this->message .='var google_remarketing_only = false;' . PHP_EOL;
-							$this->message .='/* ]]> */' . PHP_EOL;
-						$this->message .='</script>' . PHP_EOL;
-						
-						$this->message .='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
-						$this->message .='</script>' . PHP_EOL;
-						
-						$this->message .='<noscript>' . PHP_EOL;
-							$this->message .='<div style="display:inline;">' . PHP_EOL;
-								$this->message .='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
-							$this->message .='</div>' . PHP_EOL;
-						$this->message .='</noscript>' . PHP_EOL;	
-
-						
-						//Facebook Pixel Code for subscription completed
-						
-						$this->message .='<script>' . PHP_EOL;	
-						
-							$this->message .='!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' . PHP_EOL;	
-							$this->message .='n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' . PHP_EOL;	
-							$this->message .='n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;' . PHP_EOL;	
-							$this->message .='t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,' . PHP_EOL;	
-							$this->message .='document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');' . PHP_EOL;	
-							$this->message .='fbq(\'init\', \'135366043652148\');' . PHP_EOL;	
-							//$this->message .='fbq(\'track\', \'PageView\');' . PHP_EOL;	
-							$this->message .='fbq(\'track\', \'Purchase\', {' . PHP_EOL;	
-								$this->message .='value: '.$this->data['price'].'.00,' . PHP_EOL;	
-								$this->message .='currency: \'USD\'' . PHP_EOL;
-							$this->message .='});' . PHP_EOL;
+							$this->message .='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
+							$this->message .='</script>' . PHP_EOL;
 							
-							$this->message .='<noscript><img height="1" width="1" style="display:none"' . PHP_EOL;	
-							$this->message .='src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"' . PHP_EOL;	
-							$this->message .='/></noscript>' . PHP_EOL;						
+							$this->message .='<noscript>' . PHP_EOL;
+								$this->message .='<div style="display:inline;">' . PHP_EOL;
+									$this->message .='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
+								$this->message .='</div>' . PHP_EOL;
+							$this->message .='</noscript>' . PHP_EOL;	
 
-						$this->message .='</script>' . PHP_EOL;	
-
-					}
-					else{
-						
-						$this->message .= '<div class="alert alert-success">';
 							
-							$this->message .= 'Thanks for purchasing the '.$this->data['name'].'!';
+							//Facebook Pixel Code for subscription completed
+							
+							$this->message .='<script>' . PHP_EOL;	
+							
+								$this->message .='!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' . PHP_EOL;	
+								$this->message .='n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' . PHP_EOL;	
+								$this->message .='n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;' . PHP_EOL;	
+								$this->message .='t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,' . PHP_EOL;	
+								$this->message .='document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');' . PHP_EOL;	
+								$this->message .='fbq(\'init\', \'135366043652148\');' . PHP_EOL;	
+								//$this->message .='fbq(\'track\', \'PageView\');' . PHP_EOL;	
+								$this->message .='fbq(\'track\', \'Purchase\', {' . PHP_EOL;	
+									$this->message .='value: '.$this->data['price'].'.00,' . PHP_EOL;	
+									$this->message .='currency: \'USD\'' . PHP_EOL;
+								$this->message .='});' . PHP_EOL;
+								
+								$this->message .='<noscript><img height="1" width="1" style="display:none"' . PHP_EOL;	
+								$this->message .='src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"' . PHP_EOL;	
+								$this->message .='/></noscript>' . PHP_EOL;						
 
-						$this->message .= '</div>';						
+							$this->message .='</script>' . PHP_EOL;	
+
+						}
+						else{
+							
+							$this->message .= '<div class="alert alert-success">';
+								
+								$this->message .= 'Thanks for purchasing the '.$this->data['name'].'!';
+
+							$this->message .= '</div>';						
+						}
 					}
 					
 					include( $this->parent->views . $this->parent->_dev .'/message.php' );
@@ -1301,7 +1379,7 @@ class LTPLE_Client_Plan {
 				echo 'Wrong plan request...';
 				Exit;
 			}
-		}		
+		}	
 	}
 	
 	
@@ -1370,18 +1448,17 @@ class LTPLE_Client_Plan {
 					
 					// push terms
 				
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]				= $term_slug;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]				= $term->name;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]			= $term_slug;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]			= $term->term_id;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			 	= $term->name;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_group"]		= $term->term_group;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"]	= $term->term_taxonomy_id;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		 	= $term->taxonomy;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"] = $term->term_taxonomy_id;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		 = $term->taxonomy;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	 	= $term->description;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["parent"]			= $term->parent;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			 	= $term->count;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			 = $term->count;
 					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["filter"]			= $term->filter;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]			= $has_term;
+					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]		= $has_term;
 					
 					if( $in_term === true ){
 						

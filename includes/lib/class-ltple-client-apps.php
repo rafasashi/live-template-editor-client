@@ -84,12 +84,12 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		});		
 		
 		// get current app
-		
+
 		if(!empty($_REQUEST['app'])){
 			
 			$this->app = $_REQUEST['app'];
 		}
-		elseif(!empty($_SESSION['app'])){
+		elseif(!empty($_SESSION['app']) && !empty($_SESSION['action']) && empty($_SESSION['file']) ){
 			
 			$this->app = $_SESSION['app'];
 		}

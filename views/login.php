@@ -113,7 +113,14 @@
 						
 						echo'<div style="width:100%;text-align:center;margin-bottom:50px;display:block;">';
 						
-							echo'<a href="'. wp_login_url() .'&action=register">Register</a>';					
+							$register_url = add_query_arg( array(
+		
+								'redirect_to' 	=> ( isset($_GET['redirect_to']) ? $_GET['redirect_to'] : ''),
+								'action' 		=> 'register',
+								
+							), wp_login_url() );
+						
+							echo'<a href="' . $register_url . '">Register</a>';					
 							echo' | ';
 							echo'<a href="' . wp_lostpassword_url() . '">Lost Password</a>';
 						

@@ -24,20 +24,30 @@
 				
 				include( $this->views .'/rewards.php' );
 			}
-			elseif( is_single() ){
-				
-				global $post;
+			else{
 				
 				if(!empty($_SESSION['message'])){
 					
 					echo $_SESSION['message'].PHP_EOL;
 					
 					$_SESSION['message'] = '';
-				}				
+				}					
 				
-				if( $post->post_type ==  'subscription-plan' ){
+				if( is_single() ){
 					
-					echo do_shortcode( '[subscription-plan id="' . $post->ID . '" widget="true"]' );
+					global $post;
+
+					if( $post->post_type ==  'subscription-plan' ){
+						
+						if( !empty($_GET['sc']) && shortcode_exists( $_GET['sc'] ) ){
+							
+							echo do_shortcode( '['.$_GET['sc'].' id="' . $post->ID . '" widget="true"]' );
+						}
+						else{
+							
+							echo do_shortcode( '[subscription-plan id="' . $post->ID . '" widget="true"]' );
+						}
+					}
 				}
 			}
 			

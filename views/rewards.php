@@ -118,7 +118,7 @@
 													
 														'type'				=> 'textarea',
 														'id'				=> 'unlock-free-' . $user_app->post_name,
-														'style'				=> 'height:60px;',
+														'style'				=> 'height:70px;width:100%;',
 														'description'		=> 'Tweet to unlock the demo output during 1 hour',
 														'default'			=> get_option( $this->_base . 'twt_unlock_tweet' ),
 														'placeholder'		=> '',

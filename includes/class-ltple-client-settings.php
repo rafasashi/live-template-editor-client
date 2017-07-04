@@ -43,12 +43,19 @@ class LTPLE_Client_Settings {
 		$this->plugin->short 	= 'Live Editor';
 		
 		// get options
+		
 		$this->options 				 	= new stdClass();
 		$this->options->analyticsId  	= get_option( $this->parent->_base . 'analytics_id');
 		$this->options->emailSupport 	= get_option( $this->parent->_base . 'email_support');	
 		$this->options->postTypes 	 	= get_option( $this->parent->_base . 'post_types');	
 		$this->options->logo_url 	 	= get_option( $this->parent->_base . 'homeLogo' );
 		$this->options->enable_ranking 	= get_option( $this->parent->_base . 'enable_ranking','off');
+		
+		// get custom style
+		
+		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor' );
+		$this->borderColor 	= get_option( $this->parent->_base . 'borderColor' );
+		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor' );		
 		
 		// get tabs
 		
@@ -481,22 +488,6 @@ class LTPLE_Client_Settings {
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Default Contents', $this->plugin->slug ),
-			__( 'Default Contents', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=cb-default-layer'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'User Contents', $this->plugin->slug ),
-			__( 'User Contents', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=user-layer'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
 			__( 'Gallery Settings', $this->plugin->slug ),
 			__( 'Gallery Settings', $this->plugin->slug ),
 			'edit_pages',
@@ -509,6 +500,22 @@ class LTPLE_Client_Settings {
 			__( 'CSS, JS & Fonts', $this->plugin->slug ),
 			'edit_pages',
 			'edit-tags.php?post_type=cb-default-layer&taxonomy=css-library'
+		);		
+		
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'Default Contents', $this->plugin->slug ),
+			__( 'Default Contents', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=cb-default-layer'
+		);
+		
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'User Contents', $this->plugin->slug ),
+			__( 'User Contents', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=user-layer'
 		);
 		 
 		add_submenu_page(

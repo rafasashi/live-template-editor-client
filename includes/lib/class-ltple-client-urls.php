@@ -33,20 +33,19 @@ class LTPLE_Client_Urls {
 		$this->api 			= $this->home . '/wp-json/';
 		$this->api_embedded	= $this->api . 'ltple-embedded/v1/info';
 		
+		$this->host = get_option( $this->parent->_base . 'host_url' );
+		
+		if( $this->editor = get_option( $this->parent->_base . 'editorSlug' )){
+			
+			$this->editor = $this->home . '/' . $this->editor . '/';
+		}
+		
 		add_filter('wp_loaded', array( $this, 'init_urls'));
 	}
 	
 	public function init_urls(){
 		
-		// get host url
-		
-		$this->host = get_option( $this->parent->_base . 'host_url' );
-		
-		// get editor url
-		
-		$editor = get_option( $this->parent->_base . 'editorSlug' );
-		
-		if( empty( $editor ) ){
+		if( empty( $this->editor ) ){
 			
 			$post_id = wp_insert_post( array(
 			
@@ -59,10 +58,8 @@ class LTPLE_Client_Urls {
 				'menu_order' 		=> 0
 			));
 			
-			$editor = update_option( $this->parent->_base . 'editorSlug', get_post($post_id)->post_name );
+			$this->editor = $this->home . '/' . update_option( $this->parent->_base . 'editorSlug', get_post($post_id)->post_name );
 		}
-		
-		$this->editor 	= $this->home . '/' . $editor . '/';
 		
 		// get login url
 		

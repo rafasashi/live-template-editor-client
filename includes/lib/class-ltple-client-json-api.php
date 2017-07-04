@@ -91,7 +91,7 @@ class LTPLE_Client_Json_API {
 			echo 'data-show-toggle="'.( $toggle ? 'true' : 'false' ).'" ';
 			echo 'data-show-columns="'.( $columns ? 'true' : 'false' ).'" ';
 			echo 'data-show-export="'.( $export ? 'true' : 'false' ).'" ';
-			echo 'data-show-refresh="false" ';
+			echo 'data-show-refresh="true" ';
 			//echo 'data-sort-order="desc" ';   
 			//echo 'data-sort-name="description" ';
 			echo ( $show_toolbar ? 'data-toolbar="#'.$toolbar.'" ' : '' );

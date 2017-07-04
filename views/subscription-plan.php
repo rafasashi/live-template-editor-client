@@ -6,7 +6,7 @@
 		
 			//echo '<div class="row">';
 		
-				echo do_shortcode( '[subscription-plan id="' . $post->ID . '"]' );
+				echo do_shortcode( '[subscription-plan id="' . $post->ID . '" thumb="true"]' );
 			
 			//echo '</div>';
 		

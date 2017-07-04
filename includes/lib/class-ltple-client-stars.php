@@ -98,10 +98,12 @@
 			
 			// twitter triggers
 			
+			/*
 			$triggers['twitter interaction']['ltple_twitter_dm_sent'] = array(
 					
 				'description' => 'when you send a DM via the community panel'
 			);
+			*/
 			
 			// wpforo triggers
 			

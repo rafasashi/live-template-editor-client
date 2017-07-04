@@ -129,6 +129,8 @@ class LTPLE_Client_Admin_API {
 
 		$required = ( ( isset($field['required']) && $field['required'] === true ) ? ' required="true"' : '' );
 		
+		$placeholder = ( isset($field['placeholder']) ? esc_attr($field['placeholder']) : '' );
+		
 		$html = '';
 
 		switch( $field['type'] ) {
@@ -136,7 +138,7 @@ class LTPLE_Client_Admin_API {
 			case 'text':
 			case 'url':
 			case 'email':
-				$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+				$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
 			break;
 			
 			case 'slug':
@@ -151,7 +153,7 @@ class LTPLE_Client_Admin_API {
 						$html .= '<span class="input-group-addon">'.home_url() . '/</span>' . "\n";
 					}	
 					 
-					$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+					$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
 					$html .= '<span class="input-group-addon">/</span>' . "\n";
 				$html .= '</div>' . "\n";
 			break;
@@ -165,7 +167,7 @@ class LTPLE_Client_Admin_API {
 					$value = esc_attr( $field['default'] );
 				}
 				
-				$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . $value . '" '.$required.$disabled.'/>' . "\n";
+				$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . $value . '" '.$required.$disabled.'/>' . "\n";
 			break;
 
 			case 'password':
@@ -179,17 +181,17 @@ class LTPLE_Client_Admin_API {
 				if ( isset( $field['max'] ) ) {
 					$max = ' max="' . esc_attr( $field['max'] ) . '"';
 				}
-				$html .= '<input class="form-control" id="' . $id . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . ''.$required.$disabled.'/>' . "\n";
+				$html .= '<input class="form-control" id="' . $id . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . ''.$required.$disabled.'/>' . "\n";
 			break;
 			case 'hidden':
 				$html .= '<input class="form-control" id="' . $id . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $field['value'] ) . '"'.$required.'/>' . "\n";
 			break;
 			case 'text_secret':
-				$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="" '.$required.$disabled.'/>' . "\n";
+				$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="" '.$required.$disabled.'/>' . "\n";
 			break;
 
 			case 'textarea':
-				$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
+				$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
 			break;
 			
 			case 'switch':
@@ -261,7 +263,7 @@ class LTPLE_Client_Admin_API {
 					
 					$html .= '<div class="col-xs-6">';
 					
-						$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+						$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
 					
 					$html .= '</div>';
 					
@@ -675,7 +677,7 @@ class LTPLE_Client_Admin_API {
 				
 				$html .= '<div id="email_series" class="sortable">';
 					
-					$html .= ' <a href="#" class="add-input-group" style="line-height:40px;">Add email</a>';
+					$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add email</a>';
 				
 					$html .= '<ul class="input-group ui-sortable">';
 						
@@ -690,7 +692,7 @@ class LTPLE_Client_Admin_API {
 								$class='input-group-row ui-state-default ui-state-disabled';
 							}
 
-							$html .= '<li class="'.$class.'">';
+							$html .= '<li class="'.$class.' '.$field['id'].'-row">';
 						
 								$html .= 'Send  ';
 								
@@ -757,7 +759,7 @@ class LTPLE_Client_Admin_API {
 
 				$html .= '<div id="'.$field['id'].'" class="sortable">';
 					
-					$html .= ' <a href="#" class="add-input-group" style="line-height:40px;">Add field</a>';
+					$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
 				
 					$html .= '<ul class="input-group ui-sortable">';
 						
@@ -774,7 +776,7 @@ class LTPLE_Client_Admin_API {
 						
 							$value = str_replace('\\\'','\'',$data['value'][$e]);
 									
-							$html .= '<li class="'.$class.'" style="display:inline-block;width:100%;">';
+							$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
 						
 								$html .= '<select name="'.$option_name.'[input][]" style="float:left;">';
 
@@ -833,13 +835,171 @@ class LTPLE_Client_Admin_API {
 
 			break;
 			
+			case 'values':
+				
+				if( empty($data) ){
+					
+					$data = [ '' => [0 => '' ] ];
+				}
+
+				$html .= '<div id="'.$field['id'].'" class="sortable">';
+					
+					$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
+				
+					$html .= '<ul class="input-group ui-sortable">';
+						
+						$first = key($data);
+
+						foreach( $data[$first] as $e => $v) {
+
+							if($e > 0){
+								
+								$class='input-group-row ui-state-default ui-sortable-handle';
+							}
+							else{
+								
+								$class='input-group-row ui-state-default ui-state-disabled';
+							}
+						
+							$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
+								
+								foreach( $field['values'] as $key => $f) {
+									
+									$f['id'] = $field['id'] . '[' . $key . '][]';
+
+									$f['default'] = ( isset($data[$key][$e]) ? $data[$key][$e] : '' ) ;
+									
+									$html .= '<div style="width:150px;display: inline-block;margin: 0 5px;">';
+									
+										$html .= '<label>';
+										
+											$html .= $f['name'];
+										
+											$html .= $this->display_field($f,[],false);
+										
+										$html .= '</label>';
+										
+									$html .= '</div>';
+								}
+				
+								if( $e > 0 ){
+									
+									$html .= '<a class="remove-input-group" href="#">[ x ]</a> ';
+								}
+
+							$html .= '</li>';						
+						}
+					
+					$html .= '</ul>';					
+					
+				$html .= '</div>';				
+				
+				
+				/*
+				if( !isset($data['key']) || !isset($data['value']) ){
+
+					$data = ['key' => [ 0 => '' ], 'value' => [ 0 => '' ]];
+				}
+
+				if( !empty($field['inputs']) && is_string($field['inputs']) ){
+					
+					$inputs = [$field['inputs']];
+				}
+				elseif(empty($field['inputs'])||!is_array($field['inputs'])) {
+					
+					$inputs = ['string','text','number','password','url','parameter','xpath','attribute','folder','filename'];
+				}				
+				else{
+				
+					$inputs = $field['inputs'];
+				}
+
+				$html .= '<div id="'.$field['id'].'" class="sortable">';
+					
+					$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
+				
+					$html .= '<ul class="input-group ui-sortable">';
+						
+						foreach( $data['key'] as $e => $key) {
+
+							if($e > 0){
+								
+								$class='input-group-row ui-state-default ui-sortable-handle';
+							}
+							else{
+								
+								$class='input-group-row ui-state-default ui-state-disabled';
+							}
+						
+							$value = str_replace('\\\'','\'',$data['value'][$e]);
+									
+							$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
+						
+								$html .= '<select name="'.$option_name.'[input][]" style="float:left;">';
+
+								foreach ( $inputs as $input ) {
+									
+									$selected = false;
+									if ( isset($data['input'][$e]) && $data['input'][$e] == $input ) {
+										
+										$selected = true;
+									}
+									
+									$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $input ) . '">' . $input . '</option>';
+								}
+								
+								$html .= '</select> ';
+						
+								$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['key']) ? $field['placeholder']['key'] : 'key' ).'" name="'.$option_name.'[key][]" style="width:30%;float:left;" value="'.$data['key'][$e].'">';
+								
+								$html .= '<span style="float:left;"> => </span>';
+								
+								if(isset($data['input'][$e])){
+									
+									if($data['input'][$e] == 'number'){
+										
+										$html .= '<input type="number" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'number' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+									}
+									elseif($data['input'][$e] == 'password'){
+										
+										$html .= '<input type="password" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'password' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+									}
+									elseif($data['input'][$e] == 'text'){
+										
+										$html .= '<textarea placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'text' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;height:200px;">' . $value . '</textarea>';
+									}										
+									else{
+										
+										$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'value' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+									}
+								}
+								else{
+									
+									$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'value' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+								}
+
+								if( $e > 0 ){
+									
+									$html .= '<a class="remove-input-group" href="#">[ x ]</a> ';
+								}
+
+							$html .= '</li>';						
+						}
+					
+					$html .= '</ul>';					
+					
+				$html .= '</div>';
+				*/
+
+			break;			
+			
 			case 'domain':
 				
 				$exts = array('.com','.net','.org');
 				
 				$html .= '<div class="input-group">';
 					
-					$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '[domain_name][name][]" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="" '.$required.$disabled.'/>' . "\n";
+					$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '[domain_name][name][]" placeholder="' . $placeholder . '" value="" '.$required.$disabled.'/>' . "\n";
 
 					$html .= '<span	class="input-group-addon" style="background:#fff;">';
 					
@@ -886,7 +1046,7 @@ class LTPLE_Client_Admin_API {
 					
 					if( !isset($field['action']) ){
 					
-						$html .= ' <a href="#" class="add-input-group" style="line-height:40px;">Add field</a>';
+						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
 					
 						$html .= '<ul class="input-group ui-sortable">';
 							
@@ -904,7 +1064,7 @@ class LTPLE_Client_Admin_API {
 								$req_val 	= ( isset($data['required'][$e]) ? str_replace('\\\'','\'',$data['required'][$e]): 'optional');
 								$value 		= ( isset($data['value'][$e]) 	 ? str_replace('\\\'','\'',$data['value'][$e]) 	 : '');
 										
-								$html .= '<li class="'.$class.'" style="display:inline-block;width:100%;">';
+								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
 							
 									// inputs
 							
@@ -1423,7 +1583,10 @@ class LTPLE_Client_Admin_API {
 
 		$meta_box  = '<p class="form-field form-group">' . PHP_EOL;
 		
-			$meta_box .= '<div for="' . $field['id'] . '">' . $field['label'] . '</div> ' . PHP_EOL;
+			if(!empty($field['label'])){
+				
+				$meta_box .= '<div for="' . $field['id'] . '">' . $field['label'] . '</div> ' . PHP_EOL;
+			}
 			
 			$meta_box .= $this->display_field( $field, $post, false ) . PHP_EOL;
 			

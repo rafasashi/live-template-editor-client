@@ -1,5 +1,38 @@
-#wpcontent, #wpwrap,#wp-content-editor-tools {background:#f9f9f9 !important;}
+html.wp-toolbar{padding-top:50px !important;}
+#wpadminbar{ background-color:#182f42 !important; height: 50px !important; }
+#wpadminbar #wp-admin-bar-my-sites a.ab-item, #wpadminbar #wp-admin-bar-site-name a.ab-item, #wpadminbar .quicklinks>ul>li>a {padding:9px 15px !important;font-size: 15px !important;}
+#wp-admin-bar-notes #wpnt-notes-unread-count.wpn-read {padding:5px !important;}
+#wpcontent, #wpwrap,#wp-content-editor-tools {background-color:#fff !important;}
+#wpcontent, #wp-content-editor-tools {border-left: 1px solid #ddd;}
+#wpcontent, #wpfooter {margin-left: 200px !important;padding-left: 10px !important;}
+#adminmenu, #adminmenu .wp-submenu, #adminmenuback, #adminmenuwrap {width: 200px !important; background-color: rgb(249,249,249) !important;}
+#adminmenu {margin-top: 0px !important;}
+#adminmenu .wp-submenu {left: 200px !important;}
+/*.wrap .add-new-h2, .wrap .add-new-h2:active, .wrap .page-title-action, .wrap .page-title-action:active {position: absolute;right: 170px;}*/
+@media only screen and (max-width: 960px){
+	.auto-fold #adminmenu, .auto-fold #adminmenu li.menu-top, .auto-fold #adminmenuback, .auto-fold #adminmenuwrap {width: 40px !important;}
+	.auto-fold #wpcontent, .auto-fold #wpfooter {margin-left: 40px !important;}
+	#adminmenu .wp-submenu {left: 40px !important;}
+}
+@media only screen and (max-width: 782px){
+	html.wp-toolbar{padding-top:0px !important;}
+	#wpadminbar #wp-admin-bar-menu-toggle a, #wpadminbar #wp-admin-bar-my-sites a.ab-item, #wpadminbar #wp-admin-bar-site-name a.ab-item, #wpadminbar .quicklinks>ul>li>a {padding: 0px !important;}
+	.auto-fold #adminmenu, .auto-fold #adminmenu li.menu-top, .auto-fold #adminmenuback, .auto-fold #adminmenuwrap {width: 200px !important;}
+	.auto-fold #wpcontent, .auto-fold #wpfooter {margin-left: 0px !important;}
+	#adminmenu .wp-submenu {left: 0px !important;}
+} 
+#adminmenu .wp-has-current-submenu .wp-submenu, #adminmenu .wp-has-current-submenu .wp-submenu.sub-open, #adminmenu .wp-has-current-submenu.opensub .wp-submenu, #adminmenu a.wp-has-current-submenu:focus+.wp-submenu, .no-js li.wp-has-current-submenu:hover .wp-submenu{left: 0px !important; background-color: #eee !important;}
+#adminmenu div.wp-menu-image:before { color: #a0a5aa !important;}
+#adminmenu li.menu-top:hover, #adminmenu li.opensub>a.menu-top, #adminmenu li>a.menu-top:focus {background-color: rgb(236, 236, 236) !important; color: #555 !important; }
+#adminmenu li.wp-has-submenu.wp-not-current-submenu.opensub:hover:after {border-right-color: transparent !important;}
+#adminmenu a.menu-top {padding:5px !important;}
+#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head, #adminmenu .wp-menu-arrow, #adminmenu .wp-menu-arrow div, #adminmenu li.current a.menu-top, #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu, .folded #adminmenu li.current.menu-top, .folded #adminmenu li.wp-has-current-submenu {background: #ffffff !important; box-shadow: inset 0 -1px 10px -6px rgba(0,0,0,0.75) !important;}
+#adminmenu .current div.wp-menu-image:before, #adminmenu .wp-has-current-submenu div.wp-menu-image:before, #adminmenu a.current:hover div.wp-menu-image:before, #adminmenu a.wp-has-current-submenu:hover div.wp-menu-image:before, #adminmenu li.wp-has-current-submenu a:focus div.wp-menu-image:before, #adminmenu li.wp-has-current-submenu.opensub div.wp-menu-image:before, #adminmenu li.wp-has-current-submenu:hover div.wp-menu-image:before { color: #a0a5aa !important;}
+#adminmenu .wp-submenu .wp-submenu-head { color: #a0a5aa !important;font-weight:bold !important;}
+#adminmenu .wp-not-current-submenu li>a, .folded #adminmenu .wp-has-current-submenu li>a { color: #a0a5aa !important;}
+#adminmenu .wp-has-current-submenu ul>li>a, .folded #adminmenu li.menu-top .wp-submenu>li>a { color: #787a7b !important;}
 #message.fade {opacity:initial;}
+.wrap { margin: 10px 10px 0 2px !important;}
 .sortable .ui-sortable { list-style-type: none; margin: 0; padding: 0; }
 .sortable .ui-sortable li { margin: 0 5px 5px 5px; padding: 5px; font-size: 13px; cursor: move; }
 .sortable .ui-state-disabled { cursor: initial !important; }
