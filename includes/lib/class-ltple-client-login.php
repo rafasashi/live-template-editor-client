@@ -34,6 +34,17 @@ class LTPLE_Client_Login {
 		add_filter( 'login_form_bottom', array($this, 'get_login_form_bottom'));
 
 		add_filter( 'registration_errors', array($this, 'handle_custom_registration'), 10, 3 );
+	
+		if( !is_admin() ){
+			
+			if( !empty($_GET['action']) && $_GET['action'] == 'rp' ){
+				
+				if( !empty($_GET['redirect_to']) ){
+					
+					$_SESSION['redirect_to']= $_GET['redirect_to'];
+				}
+			}
+		}
 	}
 	
 	public function handle_custom_registration( $errors = NULL, $sanitized_user_login = NULL, $user_email = NULL ){

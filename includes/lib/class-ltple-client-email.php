@@ -6,6 +6,7 @@ class LTPLE_Client_Email {
 	
 	var $parent;
 	var $invitationForm;
+	var $invitationMessage;
 	var $imported;
 	
 	/**
@@ -492,26 +493,28 @@ class LTPLE_Client_Email {
 			$this->invitationForm .='</div>';
 		}
 
-		// get default user message
+		// get company name 
 		
 		$company = ucfirst(get_bloginfo('name'));
 		
-		$message = null;
+		// get default user message
 		
-		if( is_null($message) ){
+		do_action('ltple_get_'.$type.'_message');
+		
+		if( empty($this->invitationMessage) ){
 			
-			$message = 'Hello, ' . PHP_EOL . PHP_EOL;
+			$this->invitationMessage = 'Hello, ' . PHP_EOL . PHP_EOL;
 			
-			$message .= 'I invite you to try ' . $company . ':' . PHP_EOL . PHP_EOL;
+			$this->invitationMessage .= 'I invite you to try ' . $company . ':' . PHP_EOL . PHP_EOL;
 			
-			$message .= add_query_arg( array(
+			$this->invitationMessage .= add_query_arg( array(
 			
 				'ri' =>	$this->parent->user->refId,
 				
 			), $this->parent->urls->editor ) . PHP_EOL . PHP_EOL;
 			
-			$message .= 'Yours,' . PHP_EOL;
-			$message .= ucfirst( $this->parent->user->user_nicename ) . PHP_EOL;
+			$this->invitationMessage .= 'Yours,' . PHP_EOL;
+			$this->invitationMessage .= ucfirst( $this->parent->user->user_nicename ) . PHP_EOL;
 		}		
 		
 		//output form			
@@ -549,7 +552,7 @@ class LTPLE_Client_Email {
 						'label'			=> 'Add custom message',
 						'description'	=> '<i style="font-size:11px;">Use only text and line break, no HTML</i>',
 						'placeholder'	=> 'Your custom message',
-						'default'		=> ( !empty($_POST['importMessage']) ? $_POST['importMessage'] : $message),
+						'default'		=> ( !empty($_POST['importMessage']) ? $_POST['importMessage'] : $this->invitationMessage),
 						'type'			=> 'textarea',
 						'style'			=> 'width:100%;height:100px;',
 					), false, false );

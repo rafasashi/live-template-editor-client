@@ -455,6 +455,16 @@ class LTPLE_Client {
 			
 			$url = $_GET['redirect_to'];
 		}
+		elseif( !empty($_POST['redirect_to']) ){
+			
+			$url = $_POST['redirect_to'];
+		}
+		elseif( !empty($_SESSION['redirect_to']) ){
+			
+			$url = $_SESSION['redirect_to'];
+			
+			$_SESSION['redirect_to'] = '';
+		}			
 		else{
 			
 			$url = $this->urls->editor;
