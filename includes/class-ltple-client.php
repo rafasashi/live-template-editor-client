@@ -1410,7 +1410,7 @@ class LTPLE_Client {
 				
 				echo'<div class="pull-right">';
 
-					echo'<a style="margin:0 2px;" class="btn-lg btn-success" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'">Login</a>';
+					echo'<a style="margin:0 2px;" class="btn-lg btn-success" href="'. wp_login_url( $this->request->proto . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'">Login</a>';
 					
 					echo'<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( $this->urls->editor ) .'&action=register">Register</a>';
 				

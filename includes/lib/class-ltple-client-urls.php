@@ -27,7 +27,7 @@ class LTPLE_Client_Urls {
 
 		$this->parent = $parent;
 		
-		$this->current 		= 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+		$this->current 		= $this->parent->request->proto . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 		$this->home 		= home_url();
 		
 		$this->api 			= $this->home . '/wp-json/';

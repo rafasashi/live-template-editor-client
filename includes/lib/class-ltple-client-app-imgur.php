@@ -127,7 +127,7 @@ class LTPLE_Client_App_Imgur {
 
 				$_SESSION['app'] 				= 'imgur';
 				$_SESSION['action'] 			= $_REQUEST['action'];
-				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? 'http://'.urldecode($_REQUEST['ref']) : '');
+				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? $this->parent->request->proto . urldecode($_REQUEST['ref']) : '');
 
 				$this->oauth_url = $client->getAuthenticationUrl();
 			

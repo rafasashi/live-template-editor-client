@@ -1973,7 +1973,7 @@ class LTPLE_Client_Plan {
 		
 		if( !empty($_GET['ref']) ){
 			
-			wp_redirect( 'http://' . $_GET['ref'] );
+			wp_redirect( $this->parent->request->proto . $_GET['ref'] );
 			exit;
 		}
 	}

@@ -974,6 +974,14 @@
 				}
 
 				if( !empty($users) ){
+		
+					//get time limit
+					
+					$max_execution_time = ini_get('max_execution_time'); 
+					
+					//remove time limit
+					
+					set_time_limit(0);				
 				
 					$m = 0;
 				
@@ -988,6 +996,10 @@
 							++$m;
 						}
 					}
+					
+					//reset time limit
+					
+					set_time_limit($max_execution_time);
 				}
 				
 				add_action( 'admin_notices', array( $this, 'output_schedule_email_admin_notice'));

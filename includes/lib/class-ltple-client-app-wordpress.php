@@ -82,7 +82,7 @@ class LTPLE_Client_App_Wordpress {
 				
 				$this->client->set_auth_token($this->app->access_token);
 
-				$this->blog=str_replace('http://','',$this->app->blog_url);				
+				$this->blog=str_replace(array('http://','https://'),'',$this->app->blog_url);				
 				
 				// get site info
 
@@ -136,7 +136,7 @@ class LTPLE_Client_App_Wordpress {
 			
 			$this->client->set_auth_token($this->app->access_token);
 
-			$this->blog=str_replace('http://','',$this->app->blog_url);				
+			$this->blog=str_replace(array('http://','https://'),'',$this->app->blog_url);				
 				
 			// post new image
 			
@@ -221,7 +221,7 @@ class LTPLE_Client_App_Wordpress {
 
 				$_SESSION['app'] 				= 'wordpress';
 				$_SESSION['action'] 			= $_REQUEST['action'];
-				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? 'http://'.urldecode($_REQUEST['ref']) : '');
+				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? $this->parent->request->proto . urldecode($_REQUEST['ref']) : '');
 				
 				$this->oauth_url = $this->client->get_blog_auth_url( '', OAUTH_CALLBACK, [] );
 
@@ -322,7 +322,7 @@ class LTPLE_Client_App_Wordpress {
 			
 			$this->client->set_auth_token($this->app->access_token);
 
-			$this->blog=str_replace('http://','',$this->app->blog_url);				
+			$this->blog=str_replace(array('http://','https://'),'',$this->app->blog_url);				
 				
 			// post new image
 			

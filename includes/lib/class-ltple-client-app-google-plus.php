@@ -153,7 +153,7 @@ class LTPLE_Client_App_Google_Plus {
 
 				$_SESSION['app'] 				= 'google-plus';
 				$_SESSION['action'] 			= $_REQUEST['action'];
-				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? 'http://'.urldecode($_REQUEST['ref']) : '');
+				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? $this->parent->request->proto . urldecode($_REQUEST['ref']) : '');
 
 				$this->oauth_url = $this->client->createAuthUrl();
 			

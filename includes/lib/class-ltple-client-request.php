@@ -8,6 +8,7 @@ class LTPLE_Client_Request {
 	var $ip;
 	var $url;
 	var $ref_id;
+	var $proto = 'http://';
 
 	/**
 	 * Constructor function
@@ -19,6 +20,13 @@ class LTPLE_Client_Request {
 		if(!isset($_SERVER['HTTP_USER_AGENT'])){
 			
 			$_SERVER['HTTP_USER_AGENT'] = '';
+		}
+		
+		// get proto
+		
+		if( is_ssl() ){
+		
+			$this->proto = 'https://';
 		}
 		
 		// get user ip

@@ -150,6 +150,11 @@ class LTPLE_Client_Email {
 	public function init_email(){
 		
 		if(!is_admin()){
+			
+			if($this->parent->user->is_admin){
+				
+				$this->maxRequests = 100;
+			}
 		
 			if( !empty($_POST['importEmails']) ){
 				
@@ -161,9 +166,9 @@ class LTPLE_Client_Email {
 		}
 	}
 
-	public function insert_user($email){
+	public function insert_user($email, $check_exists = true ){
 
-		if( filter_var($email, FILTER_VALIDATE_EMAIL) && !email_exists( $email ) ){
+		if( filter_var($email, FILTER_VALIDATE_EMAIL) && ( !$check_exists || !email_exists( $email ) ) ){
 			
 			if( is_plugin_active('wpforo/wpforo.php') ){
 				
@@ -197,11 +202,11 @@ class LTPLE_Client_Email {
 					++$i;
 				}
 				
-			} while( username_exists( $username ) !== false );
+			} while( username_exists( $username . $i ) !== false );
 
 			if( $user_id = wp_insert_user( array(
 			
-				'user_login'	=>  $username,
+				'user_login'	=>  $username . $i,
 				'user_pass'		=>  NULL,
 				'user_email'	=>  $email,
 			))){
@@ -209,7 +214,7 @@ class LTPLE_Client_Email {
 				$user = array(
 				
 					'id' 	=> $user_id,
-					'name' 	=> $username,
+					'name' 	=> $username . $i,
 					'email' => $email,
 				);
 				
@@ -240,9 +245,13 @@ class LTPLE_Client_Email {
 			
 				if( filter_var($email, FILTER_VALIDATE_EMAIL) ){
 					
-					if( !$user = email_exists( $email ) ){
+					if( $user = email_exists( $email ) ){
+
+						$this->imported['already registered'][] = ['id' => $user, 'email' => $email ];
+					}					
+					else{
 						
-						if( $user = $this->insert_user($email) ){
+						if( $user = $this->insert_user($email, false) ){
 							
 							$this->parent->update_user_channel($user['id'],'User Invitation');
 							
@@ -252,10 +261,6 @@ class LTPLE_Client_Email {
 							
 							$this->imported['errors'][] = $email;
 						}
-					}
-					else{
-						
-						$this->imported['already registered'][] = ['id' => $user, 'email' => $email ];
 					}
 				}
 				else{
@@ -543,7 +548,7 @@ class LTPLE_Client_Email {
 			), $this->parent->urls->editor ) . PHP_EOL . PHP_EOL;
 			
 			$this->invitationMessage .= 'Yours,' . PHP_EOL;
-			$this->invitationMessage .= ucfirst( $this->parent->user->user_nicename ) . PHP_EOL;
+			$this->invitationMessage .= ucfirst( $this->parent->user->nickname ) . PHP_EOL;
 		}		
 		
 		//output form			
@@ -698,7 +703,7 @@ class LTPLE_Client_Email {
 					
 						//get invitation title
 						
-						$invitation_title = 'User invitation - ' . ucfirst($this->parent->user->user_nicename) . ' is inviting you to try ' . $company . ' ';
+						$invitation_title = 'User invitation - ' . ucfirst($this->parent->user->nickname) . ' is inviting you to try ' . $company . ' ';
 						
 						//check if invitation exists
 
@@ -753,7 +758,7 @@ class LTPLE_Client_Email {
 													
 													$invitation_content .= 'Hello *|FNAME|*,' . PHP_EOL . PHP_EOL;
 													
-													$invitation_content .= ucfirst($this->parent->user->user_nicename) . ' is currently using <b>' . $company . '</b> and is inviting you to try it!' . PHP_EOL . PHP_EOL;
+													$invitation_content .= ucfirst($this->parent->user->nickname) . ' is currently using <b>' . $company . '</b> and is inviting you to try it!' . PHP_EOL . PHP_EOL;
 													
 												$invitation_content .=  '</td>';
 															
@@ -765,7 +770,7 @@ class LTPLE_Client_Email {
 
 													$invitation_content .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:10px 20px ;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
 																											
-														$invitation_content .= 'Additional message from ' . ucfirst($this->parent->user->user_nicename) . ': ' . PHP_EOL;
+														$invitation_content .= 'Additional message from ' . ucfirst($this->parent->user->nickname) . ': ' . PHP_EOL;
 															
 													$invitation_content .=  '</td>';
 															

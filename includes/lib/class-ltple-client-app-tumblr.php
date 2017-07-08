@@ -128,7 +128,7 @@ class LTPLE_Client_App_Tumblr {
 
 				$_SESSION['app'] 				= 'tumblr';
 				$_SESSION['action'] 			= $_REQUEST['action'];
-				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? 'http://'.urldecode($_REQUEST['ref']) : '');
+				$_SESSION['ref'] 				= ( !empty($_REQUEST['ref']) ? $this->parent->request->proto . urldecode($_REQUEST['ref']) : '');
 				$_SESSION['oauth_token'] 		= $this->request_token['oauth_token'];
 				$_SESSION['oauth_token_secret'] = $this->request_token['oauth_token_secret'];			
 			}
