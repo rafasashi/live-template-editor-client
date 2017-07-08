@@ -8,6 +8,7 @@ class LTPLE_Client_Email {
 	var $invitationForm;
 	var $invitationMessage;
 	var $imported;
+	var $maxRequests = 100;
 	
 	/**
 	 * Constructor function
@@ -58,6 +59,27 @@ class LTPLE_Client_Email {
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));		
+		
+		$this->parent->register_post_type( 'email-invitation', __( 'User Invitations', 'live-template-editor-client' ), __( 'User Invitation', 'live-template-editor-client' ), '', array(
+
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu'		 	=> 'email-invitation',
+			'show_in_nav_menus' 	=> true,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> true,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail','page-attributes' ),
+			'supports' 				=> array( 'title', 'editor', 'author' ),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));	
 		
 		add_action( 'add_meta_boxes', function(){
 		
@@ -210,7 +232,7 @@ class LTPLE_Client_Email {
 
 		// parse emails
 		
-		foreach( $emails as $email){
+		foreach( $emails as $i => $email){
 			
 			$email = trim( $email );
 			
@@ -221,6 +243,8 @@ class LTPLE_Client_Email {
 					if( !$user = email_exists( $email ) ){
 						
 						if( $user = $this->insert_user($email) ){
+							
+							$this->parent->update_user_channel($user['id'],'User Invitation');
 							
 							$this->imported['imported'][] = $user;
 						}
@@ -238,6 +262,11 @@ class LTPLE_Client_Email {
 					
 					$this->imported['are invalid'][] = $email;
 				}
+				
+				if( $i == $this->maxRequests){
+					
+					break;
+				}				
 			}
 		}
 		
@@ -535,7 +564,7 @@ class LTPLE_Client_Email {
 					
 						'id' 			=> 'importEmails',
 						'label'			=> 'Add emails',
-						'description'	=> '<i style="font-size:11px;">Copy paste a list of max 500 emails separated by comma or line break</i>',
+						'description'	=> '<i style="font-size:11px;">Copy paste a list of max ' . $this->maxRequests . ' emails separated by comma or line break</i>',
 						'placeholder'	=> 'example1@gmail.com' . PHP_EOL . 'example2@yahoo.com',
 						'default'		=> ( !empty($_POST['importEmails']) ? $_POST['importEmails'] : ''),
 						'type'			=> 'textarea',
@@ -597,20 +626,216 @@ class LTPLE_Client_Email {
 	}
 	
 	public function schedule_invitations(){
-
+			
+		$response = false;
+			
+		$importType = '';
+			
 		if( !empty($_POST['importType']) ){
 			
 			$importType = sanitize_text_field($_POST['importType']);
-			
-			if(method_exists($this->parent->{$importType},'schedule_invitations')){
-				
-				return $this->parent->{$importType}->schedule_invitations();
-			}
 		}
-	
-		// schedule user invitation
-
 		
+		//get time limit
+		
+		$max_execution_time = ini_get('max_execution_time'); 
+		
+		//remove time limit
+		
+		set_time_limit(0);
+
+		//schedule_invitations
+		
+		if( !empty($importType) && method_exists($this->parent->{$importType},'schedule_invitations')){
+
+			$response =  $this->parent->{$importType}->schedule_invitations();
+		}
+		else{
+			
+			// get users
+					
+			$users = array();			
+			
+			if(!empty($this->imported['imported'])){
+				
+				$users = $this->imported['imported'];
+			}
+			
+			/*
+			if(!empty($this->parent->email->imported['already registered'])){
+			
+				$users = array_merge($users,$this->parent->email->imported['already registered']);
+			}
+			*/
+
+			if(!empty($users)){
+				
+				// get plan thumb
+			
+				$plan_thumb = get_option( $this->parent->_base . 'main_image' );
+				
+				// get company name
+				
+				$company = ucfirst(get_bloginfo('name'));
+				
+				// make invitations
+				
+				$m = 0;
+				
+				foreach($users as $i => $user){
+					
+					// get plan permalink
+				
+					$editor_url = add_query_arg( array(
+						
+						'ri' 	=> $this->parent->user->refId,
+						
+					), $this->parent->urls->editor ); 
+					
+					$can_spam = get_user_meta( $user['id'], $this->parent->_base . '_can_spam',true);
+
+					if( $can_spam !== 'false' ){
+					
+						//get invitation title
+						
+						$invitation_title = 'User invitation - ' . ucfirst($this->parent->user->user_nicename) . ' is inviting you to try ' . $company . ' ';
+						
+						//check if invitation exists
+
+						if( !$invitation = get_posts(array(
+							
+							'post_type' 	=> 'email-invitation',
+							'author' 		=> $this->parent->user->ID,
+
+							'meta_query' 	=> array(	
+								array(
+								
+									'key' 		=> 'invited_user_email',
+									'value' 	=> $user['email'],									
+								),
+							)
+						
+						))){
+
+							//get invitation content
+							
+							$invitation_content = '<table style="width: 100%; max-width: 100%; min-width: 320px; background-color: #f1f1f1;margin:0;padding:40px 0 45px 0;margin:0 auto;text-align:center;border:0;">';
+										
+								$invitation_content .= '<tr>';
+									
+									$invitation_content .= '<td>';
+										
+										$invitation_content .= '<table style="width: 100%; max-width: 600px; min-width: 320px; background-color: #FFFFFF;border-radius:5px 5px 0 0;-moz-border-radius:5px 5px 0 0;-ms-border-radius:5px 5px 0 0;-o-border-radius:5px 5px 0 0;-webkit-border-radius:5px 5px 0 0;text-align:center;border:0;margin:0 auto;font-family: Arial, sans-serif;">';
+											
+											$invitation_content .= '<tr>';
+												
+												$invitation_content .= '<td style="text-align:center;background-color:#ffffff;border-radius:5px 5px 0 0;-moz-border-radius:5px 5px 0 0;-ms-border-radius:5px 5px 0 0;-o-border-radius:5px 5px 0 0;-webkit-border-radius:5px 5px 0 0;background-image: url('.$plan_thumb.');background-repeat:no-repeat;background-size:100% auto;background-position:top center;overflow:hidden;">';
+													
+													$invitation_content .= '<a href="'.$editor_url.'" target="_blank" title="'.$company.'" style="display:block;width:90%;height:350px;text-align:left;overflow:hidden;font-size:24px;color:#FFFFFF!important;text-decoration:none;font-weight:bold;padding:16px 14px 9px;font-family:Arial, Helvetica, sans-serif;position:reltive;margin:0 auto;">&nbsp;</a>';
+													
+												$invitation_content .= '</td>';
+											
+											$invitation_content .= '</tr>';
+											
+											$invitation_content .= '<tr>';
+												
+												$invitation_content .= '<td style="font-family: Arial, sans-serif;padding:10px 0 15px 0;font-size:19px;color:#888888;font-weight:bold;border-bottom:1px solid #cccccc;text-align:center;background-color:#FFFFFF;">';
+													
+													$invitation_content .= 'Friendly Invitation';
+													
+												$invitation_content .= '</td>';
+											
+											$invitation_content .= '</tr>';
+											
+											$invitation_content .= '<tr>';	
+
+												$invitation_content .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:20px;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
+													
+													$invitation_content .= 'Hello *|FNAME|*,' . PHP_EOL . PHP_EOL;
+													
+													$invitation_content .= ucfirst($this->parent->user->user_nicename) . ' is currently using <b>' . $company . '</b> and is inviting you to try it!' . PHP_EOL . PHP_EOL;
+													
+												$invitation_content .=  '</td>';
+															
+											$invitation_content .= '</tr>';
+													
+											if( !empty($_POST['importMessage']) ){
+											
+												$invitation_content .= '<tr>';	
+
+													$invitation_content .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:10px 20px ;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
+																											
+														$invitation_content .= 'Additional message from ' . ucfirst($this->parent->user->user_nicename) . ': ' . PHP_EOL;
+															
+													$invitation_content .=  '</td>';
+															
+												$invitation_content .= '</tr>';
+
+												$invitation_content .= '<tr>';													
+															
+													$invitation_content .= '<td style="background: rgb(248, 248, 248);display:block;padding:20px;margin:20px;text-align:left;border-left: 5px solid #888;">';
+															
+														$invitation_content .= $_POST['importMessage'];
+													
+													$invitation_content .=  '</td>';
+															
+												$invitation_content .= '</tr>';														
+											}
+
+											$invitation_content .= '<tr>';	
+
+												$invitation_content .= '<td style="font-family: Arial, sans-serif;height:150px;font-size:16px;color:#666666;text-align:center;border:0;background-color:#FFFFFF;">';
+																												
+													$invitation_content .=  '<a style="background: #ff9800;color: #fff;padding: 17px;text-decoration: none;border-radius: 5px;font-weight: bold;font-size: 20px;" href="'.$editor_url.'">Let\'s do it! </a>' . PHP_EOL . PHP_EOL;
+
+												$invitation_content .=  '</td>';
+											$invitation_content .=  '</tr>';
+										$invitation_content .=  '</table>';
+										
+									$invitation_content .=  '<td>';
+								$invitation_content .=  '<tr>';
+							$invitation_content .=  '</table>';
+							
+							$invitation_content = str_replace(PHP_EOL,'<br/>',$invitation_content);
+							
+							//insert invitation
+							
+							if($invitation_id = wp_insert_post( array(
+							
+								'post_type'     	=> 'email-invitation',
+								'post_title' 		=> $invitation_title,
+								'post_content' 		=> $invitation_content,
+								'post_status' 		=> 'publish',
+								'menu_order' 		=> 0
+							))){
+								
+								update_post_meta($invitation_id,'invited_user_email',$user['email']);
+								
+								if( $i == 0 ){
+								
+									$this->send_model($invitation_id,$user['email']);
+								}
+								else{
+									
+									wp_schedule_single_event( ( time() + ( 60 * $m ) ) , $this->parent->_base . 'send_email_event' , [$invitation_id,$user['email']] );
+								}
+								
+								if ($i % 10 == 0) {
+									
+									++$m;
+								}								
+							}
+						}
+					}
+				}
+			}				
+		}
+		
+		//reset time limit
+		
+		set_time_limit($max_execution_time);
+		
+		return $response;
 	}
 	
 	/**

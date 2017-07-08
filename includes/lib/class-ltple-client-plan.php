@@ -605,117 +605,114 @@ class LTPLE_Client_Plan {
 								}
 								else{
 									
-									$modal_id='modal_'.md5($agreement_url);
-									
-									if( $plan_status == 'renew' ){
-										
-										$subscription_plan.='<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
-										
-											$subscription_plan.='Renew'.PHP_EOL;
-
-										$subscription_plan.='</button>'.PHP_EOL;									
-									}
-									else{
-										
-										$subscription_plan.='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
-											
-											if(!empty($atts['button'])){
-												
-												$subscription_plan.= ucfirst($atts['button']).PHP_EOL;
-											}
-											elseif($total_price_amount == 0 && $total_fee_amount == 0 ){
-												
-												$subscription_plan.='Start'.PHP_EOL;
-											}
-											elseif($total_price_amount == 0 && $total_fee_amount > 0 ){
-												
-												$subscription_plan.='Order'.PHP_EOL;
-											}
-											elseif( $plan_status == 'upgrade' ){
-												
-												$subscription_plan.='Upgrade'.PHP_EOL;
-											}
-											else{
-												
-												$subscription_plan.='Subscribe'.PHP_EOL;
-											}
-
-										$subscription_plan.='</button>'.PHP_EOL;									
-									}
-
-									$subscription_plan.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
-										
-										$subscription_plan.='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
-											
-											$subscription_plan.='<div class="modal-content">'.PHP_EOL;
-											
-												$subscription_plan.='<div class="modal-header">'.PHP_EOL;
-													
-													$subscription_plan.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-													
-													$subscription_plan.= '<h4 class="modal-title" id="myModalLabel">';
-													
-														$subscription_plan.= $plan->post_title;
-														
-														if( $total_price_amount > 0 ){
-														
-															$subscription_plan.= ' ('.$total_price_amount.$total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
-													
-														}
-													
-													$subscription_plan.= '</h4>'.PHP_EOL;
-												
-												$subscription_plan.='</div>'.PHP_EOL;
-
-												if( $this->parent->user->loggedin ){
-													
-													//echo '<pre>';
-													//var_dump($this->parent->user->has_subscription);exit;
-													//var_dump($this->user_has_layer( $plan->ID ));exit;
-
-													$subscription_plan.= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
-
-													$subscription_plan.= '<iframe data-src="' . get_permalink( $plan->ID ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$iframe_height.'px;overflow: hidden;"></iframe>';
-												}
-												else{
-													
-													$subscription_plan.='<div class="modal-body">'.PHP_EOL;
-													
-														$subscription_plan.= '<div style="font-size:20px;padding:20px;margin:0px;" class="alert alert-warning">';
-															
-															$subscription_plan.= 'You need to log in first...';
-															
-															$subscription_plan.= '<div class="pull-right">';
-
-																$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-success" href="' . wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) . '">Login</a>';
-																
-																$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'&action=register">Register</a>';
-															
-															$subscription_plan.= '</div>';
-															
-														$subscription_plan.= '</div>';
-													
-													$subscription_plan.='</div>'.PHP_EOL;
-												}
-
-											$subscription_plan.='</div>'.PHP_EOL;
-											
-										$subscription_plan.='</div>'.PHP_EOL;
-										
-									$subscription_plan.='</div>'.PHP_EOL;
-
 									// get addon buttons
 									
 									do_action( 'ltple_plan_shortcode', $plan->ID );
 									
 									if(!empty($this->buttons[$plan->ID])){
 										
-										foreach($this->buttons[$plan->ID] as $button){
+										$subscription_plan.= reset($this->buttons[$plan->ID]).PHP_EOL;
+									}
+									else{
+									
+										$modal_id='modal_'.md5($agreement_url);
+										
+										if( $plan_status == 'renew' ){
 											
-											$subscription_plan.='<div style="padding: 30px 0px;"><b>OR</b></div>'.PHP_EOL;
+											$subscription_plan.='<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 											
-											$subscription_plan.= $button.PHP_EOL;
+												$subscription_plan.='Renew'.PHP_EOL;
+
+											$subscription_plan.='</button>'.PHP_EOL;									
 										}
+										else{
+											
+											$subscription_plan.='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+												
+												if(!empty($atts['button'])){
+													
+													$subscription_plan.= ucfirst($atts['button']).PHP_EOL;
+												}
+												elseif($total_price_amount == 0 && $total_fee_amount == 0 ){
+													
+													$subscription_plan.='Start'.PHP_EOL;
+												}
+												elseif($total_price_amount == 0 && $total_fee_amount > 0 ){
+													
+													$subscription_plan.='Order'.PHP_EOL;
+												}
+												elseif( $plan_status == 'upgrade' ){
+													
+													$subscription_plan.='Upgrade'.PHP_EOL;
+												}
+												else{
+													
+													$subscription_plan.='Subscribe'.PHP_EOL;
+												}
+
+											$subscription_plan.='</button>'.PHP_EOL;									
+										}
+
+										$subscription_plan.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+											
+											$subscription_plan.='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+												
+												$subscription_plan.='<div class="modal-content">'.PHP_EOL;
+												
+													$subscription_plan.='<div class="modal-header">'.PHP_EOL;
+														
+														$subscription_plan.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+														
+														$subscription_plan.= '<h4 class="modal-title" id="myModalLabel">';
+														
+															$subscription_plan.= $plan->post_title;
+															
+															if( $total_price_amount > 0 ){
+															
+																$subscription_plan.= ' ('.$total_price_amount.$total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
+														
+															}
+														
+														$subscription_plan.= '</h4>'.PHP_EOL;
+													
+													$subscription_plan.='</div>'.PHP_EOL;
+
+													if( $this->parent->user->loggedin ){
+														
+														//echo '<pre>';
+														//var_dump($this->parent->user->has_subscription);exit;
+														//var_dump($this->user_has_layer( $plan->ID ));exit;
+
+														$subscription_plan.= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
+
+														$subscription_plan.= '<iframe data-src="' . get_permalink( $plan->ID ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$iframe_height.'px;overflow: hidden;"></iframe>';
+													}
+													else{
+														
+														$subscription_plan.='<div class="modal-body">'.PHP_EOL;
+														
+															$subscription_plan.= '<div style="font-size:20px;padding:20px;margin:0px;" class="alert alert-warning">';
+																
+																$subscription_plan.= 'You need to log in first...';
+																
+																$subscription_plan.= '<div class="pull-right">';
+
+																	$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-success" href="' . wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) . '">Login</a>';
+																	
+																	$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'&action=register">Register</a>';
+																
+																$subscription_plan.= '</div>';
+																
+															$subscription_plan.= '</div>';
+														
+														$subscription_plan.='</div>'.PHP_EOL;
+													}
+
+												$subscription_plan.='</div>'.PHP_EOL;
+												
+											$subscription_plan.='</div>'.PHP_EOL;
+											
+										$subscription_plan.='</div>'.PHP_EOL;
 									}
 								}
 								

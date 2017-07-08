@@ -29,10 +29,7 @@
 				
 					echo'<li' . ( $tab == 'my-ref-urls' ? ' class="active"' : '' ) . '><a href="' . $this->urls->editor . '?rank=my-ref-urls" >My Referral urls</a></li>';
 					
-					if($this->user->is_admin){
-					
-						echo'<li' . ( $tab == 'invite-contacts' ? ' class="active"' : '' ) . '><a href="' . $this->urls->editor . '?rank=invite-contacts" >Invite Contacts <span class="label label-warning pull-right">admin</span></a></li>';
-					}
+					echo'<li' . ( $tab == 'invite-contacts' ? ' class="active"' : '' ) . '><a href="' . $this->urls->editor . '?rank=invite-contacts" >Invite Contacts <span class="label label-success pull-right">new</span></a></li>';
 				}
 				
 			echo'</ul>';

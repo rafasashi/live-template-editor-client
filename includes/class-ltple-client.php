@@ -2103,9 +2103,9 @@ class LTPLE_Client {
 				
 				// valid host
 				
-				$app_title = wp_strip_all_tags( $_POST['imgHost'] );
+				$app_item = get_post( $_POST['imgHost'], 'user-app' );
 				
-				$app_item = get_page_by_title( $app_title, OBJECT, 'user-app' );
+				$app_title = wp_strip_all_tags( $app_item->post_title );
 				
 				if( empty($app_item) || ( intval( $app_item->post_author ) != $this->user->ID && !in_array_field($app_item->ID, 'ID', $this->apps->mainApps)) ){
 					
@@ -2216,7 +2216,11 @@ class LTPLE_Client {
 											$this->apps->includeApp($appSlug);
 										}
 
-										if($this->apps->{$appSlug}->appUploadImg( $app_item->ID, $image_url )){
+										if( $image_id = $this->apps->{$appSlug}->appUploadImg( $app_item->ID, $image_url )){
+											
+											// mark image as uploaded
+											 
+											update_post_meta($image_id, 'imageUploaded', 'true');
 											
 											// output success message
 											

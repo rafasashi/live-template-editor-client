@@ -202,7 +202,7 @@ class LTPLE_Client_App_Wordpress {
 				$post->delete();
 			}
 			
-			return true;
+			return $image_id;
 		}
 		else{
 			

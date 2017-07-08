@@ -63,12 +63,12 @@ class LTPLE_Client_Settings {
 		
 			array(
 			
-				'cb-default-layer' 	=> array( 'name' => 'Layers'),
+				'cb-default-layer' 	=> array( 'name' => 'Designs'),
 				'default-image' 	=> array( 'name' => 'Images'),
 			),
 			array(
 			
-				'user-layer' 	=> array( 'name' => 'Layers'),
+				'user-layer' 	=> array( 'name' => 'Designs'),
 				'user-image' 	=> array( 'name' => 'Images'),
 				'user-bookmark' => array( 'name' => 'Bookmarks'),
 				'user-app' 		=> array( 'name' => 'Apps'),
@@ -78,6 +78,7 @@ class LTPLE_Client_Settings {
 			
 				'email-model' 		=> array( 'name' => 'Models'),
 				'email-campaign' 	=> array( 'name' => 'Campaigns'),
+				'email-invitation' 	=> array( 'name' => 'Invitations'),
 			),
 			array(
 			
@@ -536,8 +537,8 @@ class LTPLE_Client_Settings {
 
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Email Settings', $this->plugin->slug ),
-			__( 'Email Settings', $this->plugin->slug ),
+			__( 'Email & Campaigns', $this->plugin->slug ),
+			__( 'Email & Campaigns', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=email-model'
 		);
@@ -747,7 +748,7 @@ class LTPLE_Client_Settings {
 				),	
 				array(
 					'id' 			=> 'niche_single',
-					'label'			=> __( 'Niche name (singular)' , $this->plugin->slug ),
+					'label'			=> __( 'Niche user name<br/>(singular)' , $this->plugin->slug ),
 					'description'	=> 'Singular term representing the targeted group of people',
 					'type'			=> 'text',
 					'default'		=> 'user',
@@ -755,7 +756,7 @@ class LTPLE_Client_Settings {
 				),					
 				array(
 					'id' 			=> 'niche_plural',
-					'label'			=> __( 'Niche name (plural)' , $this->plugin->slug ),
+					'label'			=> __( 'Niche user name<br/>(plural)' , $this->plugin->slug ),
 					'description'	=> 'Plural term representing the targeted group of people',
 					'type'			=> 'text',
 					'default'		=> 'users',
@@ -784,6 +785,14 @@ class LTPLE_Client_Settings {
 					'name' 			=> 'main_video',
 					'label'			=> __( 'Main video' , $this->plugin->slug ),
 					'description'	=> 'Main youtube video',
+					'type'			=> 'text',
+					'placeholder'	=> 'http://',
+				),
+				array(
+					'id' 			=> 'main_image',
+					'name' 			=> 'main_image',
+					'label'			=> __( 'Main image' , $this->plugin->slug ),
+					'description'	=> 'Main cover image',
 					'type'			=> 'text',
 					'placeholder'	=> 'http://',
 				),

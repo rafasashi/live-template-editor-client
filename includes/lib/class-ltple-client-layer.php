@@ -26,7 +26,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 		
-		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Layers', 'live-template-editor-client' ), __( 'Default Layer', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Designs', 'live-template-editor-client' ), __( 'Default Design', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
@@ -47,7 +47,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 
-		$this->parent->register_post_type( 'user-layer', __( 'User Layers', 'live-template-editor-client' ), __( 'User Layer', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-layer', __( 'User Designs', 'live-template-editor-client' ), __( 'User Design', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,

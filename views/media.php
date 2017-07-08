@@ -21,6 +21,8 @@
 		$output=$_GET['output'];
 		$target='_blank';
 	}
+	
+	$upload_app_id = get_option( $this->_base . 'wpcom_main_account' );
 
 	// get current tab
 	
@@ -168,11 +170,18 @@
 				
 				//get image_provider
 				
-				$image_provider='url';
+				$image_provider = 'url';
 				
 				if( !isset($terms->errors) && isset($terms[0]->slug) ){
 					
-					$image_provider = $terms[0]->slug;
+					if( $imageUploaded = get_post_meta($image->ID, 'imageUploaded', true) ){
+						
+						$image_provider = 'upload';
+					}
+					else{
+						
+						$image_provider = $terms[0]->slug;
+					}
 				}
 				
 				//get item
@@ -463,126 +472,50 @@
 										echo'<div role="tabpanel" class="tab-pane'.$active.'" id="'.$app->slug.'">';
 
 											if( $app->slug == 'upload' ){
-												
-												$uploadable_appTypes = ['wordpress'];
-												$uploadable_apps	 = [];
-												
-												foreach( $this->apps->mainApps as $app ){
-													
-													if( in_array(strtok( $app->post_title, ' - '), $uploadable_appTypes) ){
 
-														$uploadable_apps[] = $app;
-													} 
-												}			 					
+												echo'<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">';
 												
-												foreach( $this->user->apps as $app ){
-													
-													if( in_array(strtok($app->post_title, ' - '), $uploadable_appTypes) ){
-
-														$uploadable_apps[] = $app;
-													}
-												}
-
-												echo'<div class="col-xs-10">';
-												echo '<div class="well">';
-												echo '<div class="row clearfix" style="padding:10px;font-size:20px;">';
-													
-													$disabled = '';
-													
-													if(empty($uploadable_apps)){
+													echo'<div class="panel panel-default" style="background:#efefef;border-left:1px solid #ddd;">';
 														
-														$disabled = ' disabled';
-													}
-													
-													$media_url = $this->urls->editor . '?media=user-images';
-													
-													if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
-																
-														$media_url .= '&output=widget';
-													}
-													
-													echo '<form target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
-													
-													echo'<div class="col-sm-6">';
-
-														echo '<div style="padding-bottom:10px;display:block;">';
-													
-															echo'<label>Image Host</label>';
-															
-															echo'<select style="font-size:15px;padding:5px;margin:10px 0;" class="form-control" id="imgHost" name="imgHost"'.$disabled.'>';
-																
-																if(!empty($uploadable_apps)){
-																	
-																	foreach($uploadable_apps as $app){
-																		
-																		if( in_array_field($app->ID, 'ID', $this->apps->mainApps) ){
-																			
-																			echo '<option value="' . $app->post_title . '">'.ucfirst(strtok($app->post_title, ' - ')).' - Default Host</option>';
-																		}
-																		else{
-																			
-																			echo '<option value="' . $app->post_title . '">' . ucfirst($app->post_title) . '</option>';
-																		}
-																	}									
-																}
-																else{
-																	
-																	echo '<option value="">No host found...</option>';
-																}
-
-															echo'</select>';	
-															
-														echo '</div>';
+														echo '<div class="panel-heading"><b>Upload image</b></div>';
 														
-														echo '<div style="padding-bottom:10px;display:block;">';
-
-															echo'<label>Image File</label>';
-															
-															echo '<input style="font-size:15px;padding:5px;margin:10px 0;" type="file" name="imgFile" id="imgFile" class="form-control required"'.$disabled.'/>';
+														$media_url = $this->urls->editor . '?media=user-images';
+														
+														if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
+																	
+															$media_url .= '&output=widget';
+														}														
+														
+														echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
+														
+															echo'<input type="hidden" id="imgHost" name="imgHost" value="'.$upload_app_id.'" />';
+														
+															echo '<label>Image File</label>';
+														
+															echo '<input style="font-size:15px;padding:5px;margin:10px 0;" type="file" name="imgFile" id="imgFile" class="form-control required" />';
 															
 															echo '<input type="hidden" name="imgAction" id="imgAction" value="upload" />';
 															
 															wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
 															
 															echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
-															
-														echo '</div>';
-														
-														echo '<div style="display:block;padding-bottom:10px;">';
 
-															if(!empty($uploadable_apps)){
-																
-																echo '<button class="btn-lg btn-primary disabled" type="button">Upload</button>';
-															}
-															else{
-																
-																echo '<button class="btn-lg btn-primary" type="button" disabled><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Upload</button> Add a host first...';
-															}										
+															echo '<button class="btn btn-primary" type="button">Upload</button>';
 
-														echo '</div>';
+														echo '</form>';														
 														
-													echo '</form>';
-													echo '</div>';
-
-													echo'<div class="col-sm-6">';
-														
-														echo'<label>Add a free Host</label>';
-														
-														echo'<hr style="margin:10px 0;"></hr>';
-														
-														foreach( $this->apps->list as $app ){
-															
-															if(in_array($app->slug,$uploadable_appTypes)){
-																
-																echo '<a target="'.$target.'" href="'.$this->apps->getAppUrl($app->slug,'connect','user-images').'" style="width:100%;text-align:left;" class="btn btn-lg btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add a '.$app->name.' account</a>';
-															}
-														}
-														
-													echo '</div>';
-												
-												echo '</div>';
-												echo '</div>';
+													echo'</div>';//add-image-wrapper												
+					
+													
 												echo '</div>';	
+												
+												if(isset($image_providers[$app->slug])){
+													
+													foreach($image_providers[$app->slug] as $item){
+
+														echo $item;
+													}								
+												}												
 											}
 											else{
 											

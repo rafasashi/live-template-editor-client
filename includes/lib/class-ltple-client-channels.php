@@ -61,6 +61,7 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 			'email-campaign' 		=> 'Email Campaign',
 			'forums' 				=> 'Forums',
 			'friend-recommendation' => 'Friend Recommendation',
+			'user-invitation' 		=> 'User Invitation',
 			'other' 				=> 'Other',
 			'search-engines' 		=> 'Search Engines',
 			'social-networks' 		=> 'Social Networks',
