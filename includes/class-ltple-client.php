@@ -375,6 +375,10 @@ class LTPLE_Client {
 			
 			$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
 			
+			// get user last user agent
+			
+			$this->user->last_uagent = get_user_meta( $this->user->ID, $this->_base . '_last_uagent',true);
+						
 			// get user layers
 			
 			$this->user->layers = get_posts(array(

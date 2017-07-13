@@ -30,7 +30,7 @@ class LTPLE_Client_Triggers {
 		add_action('user_register', array( $this, 'trigger_after_user_register'), 10, 1);
 		
 		if( $this->parent->user->loggedin ){
-
+			
 			if( $this->parent->user->last_seen == 0 ){
 				
 				// schedule user registration emails
@@ -52,8 +52,21 @@ class LTPLE_Client_Triggers {
 				}
 			}
 			
-			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->_time);
-		}
+			// update last seen
+			
+			$this->parent->user->last_seen = $this->parent->_time;
+			
+			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->user->last_seen);
+			
+			// update last user agent
+		
+			if( !empty($_SERVER['HTTP_USER_AGENT']) && $this->parent->user->last_uagent != $_SERVER['HTTP_USER_AGENT'] ){
+			
+				$this->parent->user->last_uagent = $_SERVER['HTTP_USER_AGENT'];
+			
+				update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_uagent', $this->parent->user->last_uagent);
+			}
+		} 
 	}
 	
 	public function trigger_after_user_register( $user_id ){

@@ -298,7 +298,35 @@
 			$avatar = str_replace(array('src=','srcset='),array('class="lazy" data-original=','disabled-srcset='),$avatar);
 	
 			return $avatar;
-		}	
+		}
+
+		public function get_browser( $user_agent ) {
+			
+			$browser = '';
+			
+			if (strpos($user_agent, 'MSIE') !== FALSE){
+				
+				$browser = 'IE';
+			}
+			elseif (strpos($user_agent, 'Chrome') !== FALSE) {
+				
+				$browser = 'Chrome';
+			}
+			elseif (strpos($user_agent, 'Firefox') !== FALSE) {
+				
+				$browser = 'Firefox';
+			}
+			elseif (strpos($user_agent, 'Opera') !== FALSE) {
+				
+				$browser = 'Opera';
+			}
+			elseif (strpos($user_agent, 'Safari') !== FALSE) {
+				
+				$browser = 'Safari';
+			}
+
+			return $browser;
+		}		
 		
 		public function add_users_table_view() {
 		 
@@ -373,6 +401,7 @@
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
 				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
 				$this->list->{$user_id}->last_seen 	= get_user_meta($user_id, $this->parent->_base . '_last_seen',true);
+				$this->list->{$user_id}->last_uagent= $this->get_browser(get_user_meta($user_id, $this->parent->_base . '_last_uagent',true));
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
 				$this->list->{$user_id}->can_spam 	= get_user_meta($user_id, $this->parent->_base . '_can_spam',true);
 				$this->list->{$user_id}->sent 		= get_user_meta($user_id, $this->parent->_base . '_email_sent',true);
@@ -388,6 +417,7 @@
 			$user_role = $this->list->{$user_id}->role;
 			$user_plan = $this->list->{$user_id}->plan;
 			$user_seen = $this->list->{$user_id}->last_seen;
+			$user_agent= $this->list->{$user_id}->last_uagent;
 			$user_stars= $this->list->{$user_id}->stars;
 			$can_spam  = $this->list->{$user_id}->can_spam;
 			$last_sent = $this->list->{$user_id}->sent;
@@ -400,7 +430,7 @@
 			
 			if ($column_name == "subscription") { 
 					
-				$row .= '<span style="margin: 0px;font-size: 10px;line-height: 14px;">';	
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
 
 					if( $user_plan['info']['total_fee_amount'] > 0 ){
 						
@@ -440,7 +470,16 @@
 			}
 			elseif ($column_name == "seen") {
 				
-				$row .= '<span style="margin: 0px;font-size: 10px;line-height: 14px;">';
+				if( !empty($user_agent) ){
+				
+					$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+					
+						$row .= $this->get_browser($user_agent);
+						
+					$row .= '</span>';
+				}
+				
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
 				
 					$row .= $this->time_ago( '@' . $user_seen );
 					
@@ -448,7 +487,7 @@
 			}
 			elseif ($column_name == "channel") {
 				
-				$row .= '<span style="margin: 0px;font-size: 10px;line-height: 14px;">';
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
 					
 					if(!empty($referredBy)){
 						
@@ -463,7 +502,7 @@
 			}
 			elseif ($column_name == "stars") {
 				
-				$row .= '<span style="margin: 0px;font-size: 10px;line-height: 14px;">';
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
 					
 					$row .= $user_stars;
 					
