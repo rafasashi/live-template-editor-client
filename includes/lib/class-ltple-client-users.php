@@ -53,7 +53,11 @@
 					if( method_exists($this, 'custom_' . $this->view . '_table_css') ){
 						
 						add_action('admin_head', array($this, 'custom_' . $this->view . '_table_css'));
-					}	
+					}
+					else{
+						
+						add_action('admin_head', array($this, 'custom_subscribers_table_css'));
+					}
 					
 					if( method_exists($this, 'update_' . $this->view . '_table') ){
 						
@@ -61,11 +65,19 @@
 						
 						add_filter('manage_users_columns', array($this, 'update_' . $this->view . '_table'), 100, 1);
 					}
+					else{
+						
+						add_filter('manage_users_columns', array($this, 'update_subscribers_table'), 100, 3);
+					}
 
 					if( method_exists($this, 'modify_' . $this->view . '_table_row') ){
 						
 						add_filter('manage_users_custom_column', array($this, 'modify_' . $this->view . '_table_row'), 100, 3);	
-					}			
+					}
+					else{
+						
+						add_filter('manage_users_custom_column', array($this, 'modify_subscribers_table_row'), 100, 3);
+					}
 					
 					// custom bulk actions
 
@@ -86,17 +98,20 @@
 							
 								echo '<h2 class="nav-tab-wrapper" style="margin-bottom: 7px;margin-top: 15px;">';
 									
-									echo '<a class="nav-tab ' . ( empty($this->view) ? 'nav-tab-active' : '' ) . '" href="users.php">Users</a>';
+									$s 	= ( !empty($_REQUEST['s']) ? urlencode($_REQUEST['s']) : '' );
+									$mc = ( !empty($_REQUEST['marketing-channel1']) ? intval($_REQUEST['marketing-channel1']) : '' );
 									
-									echo '<a class="nav-tab ' . ( $this->view == 'guests' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=guests">Guests</a>';
+									echo '<a class="nav-tab ' . ( empty($this->view) ? 'nav-tab-active' : '' ) . '" href="users.php?s='.$s.'&marketing-channel1='.$mc.'">Users</a>';
+									
+									echo '<a class="nav-tab ' . ( $this->view == 'guests' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=guests&s='.$s.'&marketing-channel1='.$mc.'">Guests</a>';
 																	
-									echo '<a class="nav-tab ' . ( $this->view == 'subscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=subscribers">Subscribers</a>';
+									echo '<a class="nav-tab ' . ( $this->view == 'subscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=subscribers&s='.$s.'&marketing-channel1='.$mc.'">Subscribers</a>';
 
-									echo '<a class="nav-tab ' . ( $this->view == 'unsubscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=unsubscribers">Unsubscribers</a>';
+									echo '<a class="nav-tab ' . ( $this->view == 'unsubscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=unsubscribers&s='.$s.'&marketing-channel1='.$mc.'">Unsubscribers</a>';
 									
-									echo '<a class="nav-tab ' . ( $this->view == 'leads' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=leads">Leads</a>';
+									echo '<a class="nav-tab ' . ( $this->view == 'leads' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=leads&s='.$s.'&marketing-channel1='.$mc.'">Leads</a>';
 								
-									echo '<a class="nav-tab ' . ( $this->view == 'conversions' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=conversions">Conversions</a>';
+									echo '<a class="nav-tab ' . ( $this->view == 'conversions' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=conversions&s='.$s.'&marketing-channel1='.$mc.'">Conversions</a>';
 								
 									do_action('ltple_user_tab');
 								
@@ -104,105 +119,124 @@
 							
 							echo '</div>';
 							
-							echo '<div class="actions" style="display:inline;">';
+							echo '<div class="actions" style="display:inline-block;background:#f1f1f1;width:100%;margin-top: -12px;padding: 10px 5px 0px 10px;box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);">';
 								
-								if( 1==1 || $this->view == 'subscribers' ){
+								// add marketing-channel filter
 								
-									// add marketing-channel filter
+								$taxonomy = 'marketing-channel';
+								
+								$name = 'top' === $which ? $taxonomy.'1' : $taxonomy.'2';
+								
+								echo '<input type="hidden" name="ltple_view" value="subscribers">';
+								
+								echo '<span>';
 									
-									$taxonomy = 'marketing-channel';
+									echo wp_dropdown_categories(array(
 									
-									$name = 'top' === $which ? $taxonomy.'1' : $taxonomy.'2';
-									
-									echo '<input type="hidden" name="ltple_view" value="subscribers">';
-									
+										'show_option_none'  => 'All Channels',
+										'taxonomy'     		=> $taxonomy,
+										'name'    	  		=> $name,
+										'show_count'  		=> false,
+										'hierarchical' 		=> true,
+										'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+										'echo'		   		=> false,
+										'class'		   		=> 'form-control',
+										'hide_empty'   		=> false
+									));	
+
+									echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
+								
+								echo '</span>';
+								
+								// add plan value filter
+								
+								if( !$this->view == 'conversions' ){
+								
 									echo '<span>';
 										
-										echo wp_dropdown_categories(array(
+										echo '<label style="padding:7px;float:left;">';
+											echo ' Plan';
+										echo '</label>';
 										
-											'show_option_none'  => 'All Channels',
-											'taxonomy'     		=> $taxonomy,
-											'name'    	  		=> $name,
-											'show_count'  		=> false,
-											'hierarchical' 		=> true,
-											'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-											'echo'		   		=> false,
-											'class'		   		=> 'form-control',
-											'hide_empty'   		=> false
-										));	
+										$filter = 'planValueOperator';
+										$name = 'top' === $which ? $filter.'1' : $filter.'2';							
+										
+										echo'<select name="'.$name.'">';
+											echo'<option value="'.htmlentities ('>').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('>')) ? ' selected="selected"' : '').'>'.htmlentities ('>').'</option>';
+											echo'<option value="'.htmlentities ('<').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('<')) ? ' selected="selected"' : '').'>'.htmlentities ('<').'</option>';								
+											echo'<option value="'.htmlentities ('=').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('=')) ? ' selected="selected"' : '').'>'.htmlentities ('=').'</option>';
+										echo'</select>';
+										
+										$filter = 'userPlanValue';
+										$name = 'top' === $which ? $filter.'1' : $filter.'2';
+
+										echo '<input name="'.$name.'" type="number" value="'.( isset($_REQUEST[$name]) ? intval($_REQUEST[$name]) : -1).'" style="width:55px;float:left;">';
 
 										echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
 									
 									echo '</span>';
-									
-									// add plan value filter
-									
-									if( !$this->view == 'conversions' ){
-									
-										echo '<span>';
-											
-											echo '<label style="padding:7px;float:left;">';
-												echo ' Plan';
-											echo '</label>';
-											
-											$filter = 'planValueOperator';
-											$name = 'top' === $which ? $filter.'1' : $filter.'2';							
-											
-											echo'<select name="'.$name.'">';
-												echo'<option value="'.htmlentities ('>').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('>')) ? ' selected="selected"' : '').'>'.htmlentities ('>').'</option>';
-												echo'<option value="'.htmlentities ('<').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('<')) ? ' selected="selected"' : '').'>'.htmlentities ('<').'</option>';								
-												echo'<option value="'.htmlentities ('=').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('=')) ? ' selected="selected"' : '').'>'.htmlentities ('=').'</option>';
-											echo'</select>';
-											
-											$filter = 'userPlanValue';
-											$name = 'top' === $which ? $filter.'1' : $filter.'2';
-
-											echo '<input name="'.$name.'" type="number" value="'.( isset($_REQUEST[$name]) ? intval($_REQUEST[$name]) : -1).'" style="width:55px;float:left;">';
-
-											echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
-										
-										echo '</span>';
-									}
-									
-									// add bulk stars
-									
-									echo '<span>';
-										
-										echo '<label style="padding:7px;float:left;">';
-											echo ' Stars';
-										echo '</label>';
-
-										$filter = 'addStars';
-										$name = 'top' === $which ? $filter.'1' : $filter.'2';
-
-										echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
-
-										echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-									
-									echo '</span>';
-									
-									// add bulk email sender
-									
-									$post_type = 'email-model';
-									
-									$name = 'top' === $which ? $post_type.'1' : $post_type.'2';
-
-									echo '<span>';
-									
-										echo $this->parent->ltple_get_dropdown_posts(array(
-										
-											'show_option_none'  => 'Select an email',
-											'post_type'     	=> $post_type,
-											'name'    	  		=> $name,
-											'style'    	  		=> 'width:130px;',
-											'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-											'echo'		   		=> false
-										));	
-
-										echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
-									
-									echo '</span>';
 								}
+								
+								// add bulk stars
+								
+								echo '<span>';
+									
+									echo '<label style="padding:7px;float:left;">';
+										echo ' Stars';
+									echo '</label>';
+
+									$filter = 'addStars';
+									$name = 'top' === $which ? $filter.'1' : $filter.'2';
+
+									echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
+
+									echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+								
+								echo '</span>';
+								
+								// add bulk email sender
+								
+								$post_type = 'email-model';
+								
+								$name = 'top' === $which ? $post_type.'1' : $post_type.'2';
+
+								echo '<span>';
+								
+									echo $this->parent->ltple_get_dropdown_posts(array(
+									
+										'show_option_none'  => 'Select an email',
+										'post_type'     	=> $post_type,
+										'name'    	  		=> $name,
+										'style'    	  		=> 'width:130px;',
+										'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+										'echo'		   		=> false
+									));
+
+									echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
+								
+								echo '</span>';
+								
+								// add plan
+								
+								$post_type = 'subscription-plan';
+								
+								$name = 'top' === $which ? $post_type.'1' : $post_type.'2';
+
+								echo '<span>';
+								
+									echo $this->parent->ltple_get_dropdown_posts(array(
+									
+										'show_option_none'  => 'Select a plan',
+										'post_type'     	=> $post_type,
+										'name'    	  		=> $name,
+										'style'    	  		=> 'width:130px;',
+										'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+										'echo'		   		=> false
+									));
+
+									echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+								
+								echo '</span>';								
 						}
 					} );
 					
@@ -216,6 +250,7 @@
 					
 					//add_action('load-users.php', array( $this, 'bulk_send_email_model') );
 					add_action('load-users.php', array( $this, 'bulk_schedule_email_model') );
+					add_action('load-users.php', array( $this, 'bulk_add_plan') );
 					add_action('load-users.php', array( $this, 'bulk_add_stars') );
 				}				
 			}
@@ -325,7 +360,7 @@
 				echo '.column-channel 			{width: 10%}';
 				echo '.column-stars 			{width: 5%;text-align:center;}';
 				echo '.column-leads 			{width: 5%;text-align:center;}';
-				echo '.column-spam 				{width: 5%;text-align:center;}';
+				echo '.column-spam 				{width: 6%;text-align:center;}';
 				
 		    echo '</style>';
 		}
@@ -366,9 +401,7 @@
 			if ($column_name == "subscription") { 
 					
 				$row .= '<span style="margin: 0px;font-size: 10px;line-height: 14px;">';	
-					
-				if ($user_role->roles[0] != "administrator") {
-					
+
 					if( $user_plan['info']['total_fee_amount'] > 0 ){
 						
 						$row .= htmlentities(' ').$user_plan['info']['total_price_currency'].$user_plan['info']['total_fee_amount'].' '.$user_plan['info']['total_fee_period'];
@@ -376,46 +409,34 @@
 					}
 					
 					$row .= $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].'/'.$user_plan['info']['total_price_period'];
-				} 
-				else {
-					
-					$row .= "Admin";
-				}
-				
+
 				$row .= '</span>';
 			}
 			elseif ($column_name == "plan") {
 					
-				if ($user_role->roles[0] != "administrator") {
+				$row .= '<pre style="margin:0px;padding:0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
+				
+				//$row .= $user_plan['id'].PHP_EOL;
+				
+				if( $user_plan['id'] > 0 ){
 					
-					$row .= '<pre style="margin: 0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
-					
-					//$row .= $user_plan['id'].PHP_EOL;
-					
-					if( $user_plan['id'] > 0 ){
+					foreach($user_plan['taxonomies'] as $taxonomy => $tax){
 						
-						foreach($user_plan['taxonomies'] as $taxonomy => $tax){
+						foreach($tax['terms'] as $term){
 							
-							foreach($tax['terms'] as $term){
+							if($term['has_term']){
 								
-								if($term['has_term']){
-									
-									$row .= $term['name'].PHP_EOL;
-								}
+								$row .= $term['name'].PHP_EOL;
 							}
-						}						
-					}
-					else{
-						
-						$row .= 'NULL'.PHP_EOL;
-					}
-
-					$row .= '</pre>';
-				} 
-				else {
-					
-					$row .= "-";
+						}
+					}						
 				}
+				else{
+					
+					$row .= 'NULL'.PHP_EOL;
+				}
+
+				$row .= '</pre>';
 			}
 			elseif ($column_name == "seen") {
 				
@@ -483,7 +504,7 @@
 					
 					$emails = array_slice($emails, 0, 5);					
 					
-					$row .= '<pre style="margin: 0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
+					$row .= '<pre style="margin:0px;padding:0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
 
 						foreach($emails as $slug => $date){
 							
@@ -745,7 +766,7 @@
 					'compare'	=> $compare,
 				);
 				
-				if( $this->view == 'leads' || $this->view == 'subscribers' ){
+				if( $this->view == 'guests' || $this->view == 'leads' || $this->view == 'subscribers' ){
 					
 					$meta_query[] = array (
 						
@@ -791,9 +812,8 @@
 		public function filter_users_by_marketing_channel( $query ) {
 			
 			$taxonomy = 'marketing-channel';
-			$term_id = $this->get_filter_value($taxonomy);
-			
-			if(!is_null($term_id)){
+
+			if( $term_id = $this->get_filter_value($taxonomy) ){
 				
 				// alter the user query to add my meta_query
 				
@@ -1006,6 +1026,70 @@
 			}
 		}
 		
+		
+		public function bulk_add_plan() {
+			
+			$post_type 	= 'subscription-plan';
+			$model_id 	= null;
+			
+			if ( isset( $_REQUEST[$post_type.'1'] ) && is_numeric( $_REQUEST[$post_type.'1'] ) && $_REQUEST[$post_type.'1'] != '-1' ) {
+				
+				$plan_id = intval($_REQUEST[$post_type.'1']);
+			}
+			elseif ( isset( $_REQUEST[$post_type.'2'] ) && is_numeric( $_REQUEST[$post_type.'2'] ) && $_REQUEST[$post_type.'2'] != '-1' ) {
+				
+				$plan_id = intval($_REQUEST[$post_type.'2']);
+			}
+
+			$users 	= array();
+
+			if( !empty($_REQUEST['selectAll']) ){
+				
+				$meta_query = array();
+
+				$meta_query[] = array (
+						
+					array(
+					
+						'key' 		=> $this->parent->_base . '_email_sent',
+						'value'		=> $model_slug,
+						'compare'	=> 'NOT LIKE',
+					)
+				);					
+				
+				$users = get_users(array(
+				
+					'fields' => 'id',
+					'meta_query' => $meta_query,						
+				));
+			}
+			elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
+				
+				$users = $_REQUEST['users'];
+			}
+
+			if( !empty($plan_id) && !empty($users) ){
+	
+				//get time limit
+				
+				$max_execution_time = ini_get('max_execution_time'); 
+				
+				//remove time limit
+				
+				set_time_limit(0);				
+			
+				$m = 0;
+			
+				$this->parent->plan->bulk_update_users($users,$plan_id);
+				
+				//reset time limit
+				
+				set_time_limit($max_execution_time);
+				
+				add_action( 'admin_notices', array( $this, 'output_add_plan_notice'));
+			}
+		}		
+		
 		public function output_send_email_admin_notice(){
 			
 			if( $this->email_sent > 0 ){
@@ -1046,7 +1130,20 @@
 				echo'</p>';
 				
 			echo'</div>';
-		}		
+		}	
+
+		public function output_add_plan_notice(){
+			
+			echo'<div class="notice notice-success">';
+			
+				echo'<p>';
+				
+					echo 'Plan(s) succesfully added';
+					
+				echo'</p>';
+				
+			echo'</div>';
+		}			
 		
 		public function bulk_add_stars() {
 			

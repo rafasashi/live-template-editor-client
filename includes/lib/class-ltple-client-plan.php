@@ -1279,6 +1279,10 @@ class LTPLE_Client_Plan {
 						}
 						
 						do_action('ltple_plan_subscribed');
+						
+						// send subscription summary email
+						
+						$this->parent->email->send_subscription_summary( $this->parent->user, $this->data['id'] );
 
 						// schedule email series
 						
@@ -1377,6 +1381,75 @@ class LTPLE_Client_Plan {
 				Exit;
 			}
 		}	
+	}
+
+	public function bulk_update_users($users,$plan_id){
+		
+		$option_name='plan_options';
+		
+		if($data = get_post_meta( $plan_id, $option_name, true )){
+			
+			$options 				= $this->get_layer_custom_taxonomies_options();
+			$all_updated_terms 		= [];
+			
+			foreach( $options as $taxonomy => $terms ) {
+				
+				$update_terms=[];
+				$update_taxonomy='';
+				
+				foreach($terms as $i => $term){
+
+					if ( in_array( $term->slug, $data ) ) {
+						
+						$update_terms[]= $term->term_id;
+						$update_taxonomy=$term->taxonomy;
+						
+						$all_updated_terms[]=$term->slug;
+					}
+				}
+				
+				foreach( $users as $i => $user_id){
+
+					// update current user custom taxonomy
+					
+					if( $user_plan_id = $this->get_user_plan_id( $user_id, true ) ){
+					
+						$response = wp_set_object_terms( $user_plan_id, $update_terms, $update_taxonomy, true );
+
+						clean_object_term_cache( $user_plan_id, $update_taxonomy );
+					}
+				}
+			}
+			
+			foreach( $users as $i => $user_id){
+			
+				// get user
+				
+				$user = get_user_by('id',$user_id);
+			
+				// send subscription summary email
+				
+				$this->parent->email->send_subscription_summary( $user, $plan_id );
+
+				// schedule email series
+			
+				$this->parent->email->schedule_campaign( $plan_id, $user );
+			
+				/*
+				
+				//	TODO set has_subscription
+				
+				if( $price > 0 ){
+
+					// update user has subscription		
+
+									
+					
+					update_user_meta( $user_id , 'has_subscription', 'true');
+				}
+				*/			
+			}
+		}
 	}
 	
 	
