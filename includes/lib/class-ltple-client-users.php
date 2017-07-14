@@ -1080,52 +1080,42 @@
 				$plan_id = intval($_REQUEST[$post_type.'2']);
 			}
 
-			$users 	= array();
-
-			if( !empty($_REQUEST['selectAll']) ){
+			if( !empty($plan_id) ){
 				
-				$meta_query = array();
+				$users 	= array();
 
-				$meta_query[] = array (
-						
-					array(
+				if( !empty($_REQUEST['selectAll']) ){
 					
-						'key' 		=> $this->parent->_base . '_email_sent',
-						'value'		=> $model_slug,
-						'compare'	=> 'NOT LIKE',
-					)
-				);					
-				
-				$users = get_users(array(
-				
-					'fields' => 'id',
-					'meta_query' => $meta_query,						
-				));
-			}
-			elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
-				
-				$users = $_REQUEST['users'];
-			}
+					$users = get_users(array(
+					
+						'fields' => 'id',					
+					));
+				}
+				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
+					
+					$users = $_REQUEST['users'];
+				}
 
-			if( !empty($plan_id) && !empty($users) ){
-	
-				//get time limit
+				if(  !empty($users) ){
+		
+					//get time limit
+					
+					$max_execution_time = ini_get('max_execution_time'); 
+					
+					//remove time limit
+					
+					set_time_limit(0);				
 				
-				$max_execution_time = ini_get('max_execution_time'); 
+					$m = 0;
 				
-				//remove time limit
-				
-				set_time_limit(0);				
-			
-				$m = 0;
-			
-				$this->parent->plan->bulk_update_users($users,$plan_id);
-				
-				//reset time limit
-				
-				set_time_limit($max_execution_time);
-				
-				add_action( 'admin_notices', array( $this, 'output_add_plan_notice'));
+					$this->parent->plan->bulk_update_users($users,$plan_id);
+					
+					//reset time limit
+					
+					set_time_limit($max_execution_time);
+					
+					add_action( 'admin_notices', array( $this, 'output_add_plan_notice'));
+				}
 			}
 		}		
 		

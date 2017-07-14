@@ -32,10 +32,10 @@ class LTPLE_Client_Plan {
 			'rewrite' 				=> array('slug'=>'plan'),
 			'capability_type' 		=> 'post',
 			'has_archive' 			=> false,
-			'hierarchical' 			=> true,
+			'hierarchical' 			=> false,
 			'show_in_rest' 			=> true,
 			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail','page-attributes' ),
-			'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail','page-attributes'),
+			'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail'),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
