@@ -110,13 +110,9 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		
 		if( !is_admin() ) {
 				
-			if(isset($_GET['uri'])){
+			if(!empty($_GET['uri'])){
 				
-				$this->uri = intval($_GET['uri']);
-				
-				//$args=explode('/',$_GET['uri']);
-				
-				if( $this->uri > 0 ){
+				if( $this->uri = intval($_GET['uri']) ){
 					
 					if( $q = get_post($this->uri) ){	
 
@@ -174,5 +170,63 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		);
 		
 		return $fields;
+	}
+	
+	public function upload_cropped_image($name,$base64){
+		
+		if( !empty($this->parent->user->ID) ){
+		
+			list(,$img) = explode('image/png;base64,',$base64);
+
+			if($img = base64_decode($img)){
+
+				if ($img = imagecreatefromstring($img)) {
+
+					// create image directory
+					
+					if (!file_exists(ABSPATH . 'i/')) {
+						
+						mkdir(ABSPATH . 'i/', 0755, true);
+						
+						file_put_contents(ABSPATH . 'i/index.html', '');
+					}
+					
+					// get user image path
+					
+					$path = ABSPATH . 'i/' . $this->parent->user->ID . '/';			
+				
+					// create user image path
+				
+					if (!file_exists($path)) {
+						
+						mkdir($path, 0755, true);
+						
+						file_put_contents($path.'index.html', '');
+					}
+					
+					// set transparency
+					
+					imagealphablending($img, false);
+					imagesavealpha($img, true);					
+					
+					// put user image
+
+					imagepng($img, $path.$name);
+					
+					$info = getimagesize($path.$name);
+
+					if ($info[0] > 0 && $info[1] > 0 && $info['mime']) {
+
+						return $this->parent->urls->home . '/i/' . $this->parent->user->ID . '/' . $name;
+					}
+					else{
+						
+						unlink($path.$name);
+					}
+				}
+			}
+		}
+		
+		return false;
 	}
 }

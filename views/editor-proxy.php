@@ -21,10 +21,10 @@
 												.'&ref='. $ref 
 												.'&rk='	. $ref_key 
 												.'&_=' 	. $this->_time
-												.'&ik='	. $iframe_key;
+												.'&ik='	. $iframe_key
+												.( ( !empty($this->_dev) ) ? '&debug=1' : '' );
 												
-	
-	//var_dump($request_url);exit;
+	//var_dump($request_url);exit; 
 	// get request_method
 	
 	$request_method = $_SERVER['REQUEST_METHOD'];	
@@ -303,6 +303,10 @@
 			*/
 			
 			echo gzdecode($response_body);
+		}
+		elseif( !empty( $this->_dev ) ){
+			
+			echo $this->urls->current;
 		}
 		else{
 			

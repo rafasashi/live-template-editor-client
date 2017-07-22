@@ -975,8 +975,18 @@ class LTPLE_Client {
 			
 			if( $this->layer->key == md5( 'layer' . $this->layer->id . $this->_time )){
 				
-				//include( $this->views . $this->_dev .'/editor-iframe.php' );
-				include( $this->views . $this->_dev .'/editor-proxy.php' );
+				if( !empty($_POST['domId']) && !empty($_POST['base64']) ){
+					
+					// handle cropped image upload
+					
+					echo $this->image->upload_cropped_image($this->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
+					exit;
+				}
+				else{
+				
+					//include( $this->views . $this->_dev .'/editor-iframe.php' );
+					include( $this->views . $this->_dev .'/editor-proxy.php' );
+				}
 			}
 			else{
 				
