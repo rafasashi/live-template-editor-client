@@ -184,16 +184,25 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 
 					// create image directory
 					
-					if (!file_exists(ABSPATH . 'i/')) {
+					if( defined('LTPLE_IMAGE_DIR') ){
 						
-						mkdir(ABSPATH . 'i/', 0755, true);
+						$image_dir = LTPLE_IMAGE_DIR;
+					}
+					else{
 						
-						file_put_contents(ABSPATH . 'i/index.html', '');
+						$image_dir = ABSPATH . 'i/';
+					}
+					
+					if (!file_exists($image_dir)) {
+						
+						mkdir($image_dir, 0755, true);
+						
+						file_put_contents( $image_dir . 'index.html', '');
 					}
 					
 					// get user image path
 					
-					$path = ABSPATH . 'i/' . $this->parent->user->ID . '/';			
+					$path = $image_dir . $this->parent->user->ID . '/';			
 				
 					// create user image path
 				
@@ -201,7 +210,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 						
 						mkdir($path, 0755, true);
 						
-						file_put_contents($path.'index.html', '');
+						file_put_contents($path . 'index.html', '');
 					}
 					
 					// set transparency

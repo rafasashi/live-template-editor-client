@@ -321,7 +321,7 @@ class LTPLE_Client_Plan {
 				// user plan upgrade
 
 				$plan_upgrade = $this->user_plan_upgrade( $plan->ID );
-
+				
 				$total_upgrade = 0;
 				
 				if(!empty($plan_upgrade)){
@@ -1778,7 +1778,7 @@ class LTPLE_Client_Plan {
 								
 								foreach($this->parent->user->plan['taxonomies'][$taxonomy]['terms'] as $curr_term){
 									
-									if($curr_term["has_term"] === true ){
+									if( $curr_term["has_term"] === true ){
 										
 										if(term_is_ancestor_of( $new_term['term_id'], $curr_term['term_id'], $taxonomy)){
 											
@@ -1814,7 +1814,7 @@ class LTPLE_Client_Plan {
 			}
 		}
 		
-		if(!$is_ancestor_upgrade){
+		if( !$is_ancestor_upgrade ){
 			
 			// restrict upgrade to parent plan for the moment
 			

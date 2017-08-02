@@ -178,6 +178,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$this->parent->admin->add_meta_box (
 					
+					'layer-static-url',
+					__( 'Layer Static Url', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				);
+				
+				$this->parent->admin->add_meta_box (
+					
 					'layer-output',
 					__( 'Layer Output', 'live-template-editor-client' ), 
 					array($post->post_type),
@@ -961,6 +969,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'type'=>'textarea',
 				'placeholder'=>"JSON",
 				'description'=>'<i>Additional Meta Data</i>'
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"layer-static-url"),
+				'id'=>"layerStaticUrl",
+				'label'=>"",
+				'type'=>'text',
+				'placeholder'=>"http://"
 		);
 		
 		$fields[]=array(
