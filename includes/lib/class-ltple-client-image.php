@@ -179,6 +179,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			list(,$img) = explode('image/png;base64,',$base64);
 
 			if($img = base64_decode($img)){
+				
+				//http_response_code(404);exit;
 
 				if ($img = imagecreatefromstring($img)) {
 
@@ -191,7 +193,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					else{
 						
 						$image_dir = ABSPATH . 'i/';
-					}
+					} 
 					
 					if (!file_exists($image_dir)) {
 						
@@ -226,7 +228,16 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 
 					if ($info[0] > 0 && $info[1] > 0 && $info['mime']) {
 
-						return $this->parent->urls->home . '/i/' . $this->parent->user->ID . '/' . $name;
+						if( defined('LTPLE_IMAGE_URL') ){
+							
+							$image_url = LTPLE_IMAGE_URL;
+						}
+						else{
+							
+							$image_url = $this->parent->urls->home . '/i/';
+						}					
+						
+						return $image_url . $this->parent->user->ID . '/' . $name;
 					}
 					else{
 						

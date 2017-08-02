@@ -58,6 +58,23 @@
     background: rgb(249, 249, 249);
 }
 
+.library-content .nav {
+	
+    margin: -15px -15px 0 -15px;
+    background: rgb(242, 242, 242);
+    padding: 0px;
+    font-size: 12px;
+    overflow: hidden;
+    height: 41px;
+    border-bottom: 1px solid #ddd;
+}
+
+.library-content .nav-pills > li > a {
+	
+	padding: 8px 12px !important;
+    border-radius: 0 !important;
+}
+
 .beforefooter {
     height: 50px;
 }
@@ -74,7 +91,7 @@
 }
 
 .nav-pills > li > a {
-	
+
 	padding:7px 14px !important;
 }
 

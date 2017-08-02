@@ -354,7 +354,7 @@
 			echo'</ul>';
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;padding-top:15px;min-height:700px;">';
+		echo'<div class="col-xs-9 col-sm-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;padding-top:15px;min-height:700px;">';
 
 			echo'<div class="tab-content">';
 			
@@ -873,7 +873,6 @@
 			
 			$('[data-toggle="tooltip"]').tooltip();
 			$('[data-toggle="popover"]').popover();
-		
 		});
 		
 	})(jQuery);

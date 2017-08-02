@@ -1178,6 +1178,12 @@ class LTPLE_Client {
 			
 			if( !empty($this->settings->mainColor) ){
 		
+				echo' .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover{';	
+				
+					echo'background-color:'.$this->settings->mainColor.' !important;';
+					
+				echo'}';
+		
 				echo' .navbar-collapse .nav>li>a:hover, .navbar-nav>.active, #search a, .nav-next a:link, .nav-next a:visited, .nav-previous a:link, .nav-previous a:visited {';
 
 					echo'background-color:'.$this->settings->mainColor.' !important;';
