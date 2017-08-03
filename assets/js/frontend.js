@@ -4,39 +4,44 @@
 			
 		//responsive menu
 		
-		$(".library-content .nav").append('<li class="more dropdown" style="display:none;"><button style="padding: 9px 10px;background: #f2f2f2;" class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button><ul id="overflow" class="dropdown-menu dropdown-menu-right"></ul></li>').css('overflow','visible');
+		if( $(".library-content .nav").length ){
 		
-		window.onresize = navigationResize;
-		navigationResize();
-
-		function navigationResize() {
-
-		  $('.library-content .nav li.more').before($('.library-content .nav #overflow > li'));
-
-		  var $navItemMore = $('.library-content .nav > li.more'),
-			  $navItems = $('.library-content .nav > li:not(.more)'),
-			  navItemMoreWidth = navItemWidth = $navItemMore.width() + 50,
-			  windowWidth = $('.library-content .nav li.more').parent().width(),
-			  offset, navOverflowWidth;
-		  
-		  $navItems.each(function() {
-			navItemWidth += $(this).width();
-		  });
-		  
-		  navItemWidth > windowWidth ? $navItemMore.show() : $navItemMore.hide();
+			$(".library-content .nav").append('<li class="more dropdown" style="display:none;"><button style="padding: 9px 10px;background: #f2f2f2;" class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button><ul id="overflow" class="dropdown-menu dropdown-menu-right"></ul></li>').css('overflow','visible');
 			
-		  while (navItemWidth > windowWidth) {
-			navItemWidth -= $navItems.last().width();
-			$navItems.last().prependTo('.library-content .nav #overflow');
-			$navItems.splice(-1,1);
-		  }
-		  
-		  navOverflowWidth = $('.library-content .nav #overflow').width();  
-		  offset = navItemMoreWidth - navOverflowWidth;
-			
-		  $('.library-content .nav #overflow').css({
-			'left': offset
-		  });
+			window.onresize = navigationResize;
+			navigationResize();
+
+			function navigationResize() {
+
+				$('.library-content .nav li.more').before($('.library-content .nav #overflow > li'));
+
+				var $navItemMore = $('.library-content .nav > li.more'),
+					$navItems = $('.library-content .nav > li:not(.more)'),
+					navItemMoreWidth = navItemWidth = $navItemMore.width() + 50,
+					windowWidth = $('.library-content .nav li.more').parent().width(),
+					offset, navOverflowWidth;
+				  
+				$navItems.each(function() {
+					  
+					navItemWidth += $(this).width();
+				});
+				  
+				navItemWidth > windowWidth ? $navItemMore.show() : $navItemMore.hide();
+					
+				while (navItemWidth > windowWidth) {
+					
+					navItemWidth -= $navItems.last().width();
+					$navItems.last().prependTo('.library-content .nav #overflow');
+					$navItems.splice(-1,1);
+				}
+				  
+				navOverflowWidth = $('.library-content .nav #overflow').width();  
+				offset = navItemMoreWidth - navOverflowWidth;
+					
+				$('.library-content .nav #overflow').css({
+					'left': offset
+				});
+			}
 		}		
 					
 		//modal always on top 

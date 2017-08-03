@@ -46,6 +46,11 @@
 	display: block;
 }
 
+.col-md-4, .footer-widget  {
+	
+	padding: 2px 10px !important;
+}
+
 .entry-content, .beforefooter {
 
     background: #ffffff;
