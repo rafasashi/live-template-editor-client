@@ -77,7 +77,7 @@
 			
 			if( $currentTab == 'apps' ){
 				
-				echo'<div class="tab-content" style="margin-top:10px;">';
+				echo'<div class="tab-content" style="margin-top:15px;">';
 			
 					$app_types = $this->get_app_types();
 			

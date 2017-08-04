@@ -10,6 +10,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	public $slug	= '';
 	public $type	= '';
 	public $types	= '';
+	public $url		= '';
+	public $dir		= '';
 	
 	/**
 	 * Constructor function
@@ -108,6 +110,9 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	
 	public function init_image(){
 		
+		$this->url = ( defined('LTPLE_IMAGE_URL') ? LTPLE_IMAGE_URL : $this->parent->urls->home . '/i/');
+		$this->dir = ( defined('LTPLE_IMAGE_DIR') ? LTPLE_IMAGE_DIR : ABSPATH . 'i/');
+
 		if( !is_admin() ) {
 				
 			if(!empty($_GET['uri'])){
@@ -186,25 +191,16 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 
 					// create image directory
 					
-					if( defined('LTPLE_IMAGE_DIR') ){
+					if (!file_exists($this->dir)) {
 						
-						$image_dir = LTPLE_IMAGE_DIR;
-					}
-					else{
+						mkdir($this->dir, 0755, true);
 						
-						$image_dir = ABSPATH . 'i/';
-					} 
-					
-					if (!file_exists($image_dir)) {
-						
-						mkdir($image_dir, 0755, true);
-						
-						file_put_contents( $image_dir . 'index.html', '');
+						file_put_contents( $this->dir . 'index.html', '');
 					}
 					
 					// get user image path
 					
-					$path = $image_dir . $this->parent->user->ID . '/';			
+					$path = $this->dir . $this->parent->user->ID . '/';			
 				
 					// create user image path
 				
@@ -228,16 +224,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 
 					if ($info[0] > 0 && $info[1] > 0 && $info['mime']) {
 
-						if( defined('LTPLE_IMAGE_URL') ){
-							
-							$image_url = LTPLE_IMAGE_URL;
-						}
-						else{
-							
-							$image_url = $this->parent->urls->home . '/i/';
-						}					
-						
-						return $image_url . $this->parent->user->ID . '/' . $name;
+						return $this->url . $this->parent->user->ID . '/' . $name . '?ltple-time=' . time();
 					}
 					else{
 						

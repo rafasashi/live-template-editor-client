@@ -5,6 +5,13 @@
 		echo $this->message;
 	}
 	
+	if(!empty($_SESSION['message'])){ 
+	
+		echo $_SESSION['message'];
+		
+		$_SESSION['message'] = '';
+	}
+	
 	$layer_type = ( !empty($_GET['gallery']) ? $_GET['gallery'] : '' );
 	
 	if( empty($layer_type) ){

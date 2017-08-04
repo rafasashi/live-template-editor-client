@@ -40,7 +40,7 @@
 
 	//get layer image proxy
 	
-	$layerImgProxy = 'http://'.$_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
+	$layerImgProxy = $ltple->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
 	
 	$layerHead 		= '';
 	$layerContent 	= '';

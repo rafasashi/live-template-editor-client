@@ -1543,42 +1543,112 @@ class LTPLE_Client {
 				include( $this->views . $this->_dev .'/message.php' );					
 			}
 			elseif( $this->layer->type == 'user-layer' && isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
+				
+				// get images
+			
+				$image_dir = $this->image->dir . $this->user->ID . '/';
+				$image_url = $this->image->url . $this->user->ID . '/';	
+			
+				$images = glob( $image_dir . $this->user->layer->ID . '_*.png');				
+				
+				if( !isset($_GET['confirmed']) ){
+				
+					// confirm deletion
+
+					$_SESSION['message'] = '<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+						
+						$_SESSION['message'] .= '<h2>Are you sure you want to delete this template?</h2>';
 					
-				//--------delete layer--------
-				
-				//wp_delete_post( $this->user->layer->ID, false );
-				
-				wp_trash_post( $this->user->layer->ID );
-				
-				$this->layer->id = -1;
+						if( !empty($images) ){
+							
+							$_SESSION['message'] .= '<hr></hr>';
+
+							$_SESSION['message'] .= '<div style="margin-top:20px;" class="alert alert-warning">The following images will be removed</div>';
+							
+							$_SESSION['message'] .= '<div style="margin-top:20px;">';
+
+								foreach ($images as $image) {
+									
+									$_SESSION['message'] .= '<div class="row">';
+									
 					
-				$this->message ='<div class="alert alert-success">';
+										$_SESSION['message'] .='<div class="col-xs-3 col-sm-3 col-lg-2">';
 
-					$this->message .= 'Template successfully deleted!';
+											$_SESSION['message'] .='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
+												
+										$_SESSION['message'] .='</div>';
 
-				$this->message .='</div>';
-				
-				//include( $this->views . $this->_dev .'/message.php' );
+										$_SESSION['message'] .='<div class="col-xs-9 col-sm-9 col-lg-10">';
 
-				//redirect page
-				
-				$parsed = parse_url($this->urls->editor .'?'. $_SERVER['QUERY_STRING']);
+											$_SESSION['message'] .='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
+											$_SESSION['message'] .='<br>';
+											$_SESSION['message'] .='<input style="width:100%;padding: 2px;" type="text" value="'. $image_url . basename($image) .'" />';
 
-				parse_str($parsed['query'], $params);
+										$_SESSION['message'] .='</div>';										
+									
+									$_SESSION['message'] .= '</div>';
+								}
+								
+							$_SESSION['message'] .= '</div>';
+						}
+							
+						$_SESSION['message'] .= '<hr></hr>';	
+							
+						$_SESSION['message'] .= '<div style="margin-top:10px;text-align:right;">';						
+							
+							$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-success" href="' . $this->urls->current . '&confirmed">Yes</a>';
+							
+							$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->editor . '?uri=' . $this->user->layer->ID . '">No</a>';
 
-				unset($params['uri'],$params['postAction']);
-				
-				$url = $this->urls->editor;
-				
-				$query = http_build_query($params);
-				
-				if( !empty($query) ){
+						$_SESSION['message'] .= '</div>';
 					
-					$url .= '?'.$query;		
+					$_SESSION['message'] .= '</div>';
 				}
+				else{
 
-				wp_redirect($url);
-				exit;
+					//delete images
+					
+					foreach ($images as $image) {
+						
+						unlink($image);
+					}
+				
+					//delete layer
+					
+					//wp_delete_post( $this->user->layer->ID, false );
+					
+					wp_trash_post( $this->user->layer->ID );
+					
+					$this->layer->id = -1;
+						
+					$_SESSION['message'] ='<div class="alert alert-success">';
+
+						$_SESSION['message'] .= 'Template successfully deleted!';
+
+					$_SESSION['message'] .='</div>';
+					
+					//include( $this->views . $this->_dev .'/message.php' );
+
+					//redirect page
+					
+					$parsed = parse_url($this->urls->editor .'?'. $_SERVER['QUERY_STRING']);
+
+					parse_str($parsed['query'], $params);
+
+					unset($params['uri'],$params['postAction']);
+					
+					$url = $this->urls->editor;
+					
+					$query = http_build_query($params);
+					
+					if( !empty($query) ){
+						
+						$url .= '?'.$query;		
+					}
+
+					wp_redirect($url);
+					exit;
+				}
 			}
 			elseif( isset($_POST['postContent']) && !empty($this->layer->type) ){
 				
