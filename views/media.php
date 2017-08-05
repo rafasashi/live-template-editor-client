@@ -252,6 +252,62 @@
 			endwhile; wp_reset_query();					
 		}
 	}
+	elseif( $currentTab == 'edited-images' ){
+
+		// get user image path
+	
+		$image_dir = $this->image->dir . $this->user->ID . '/';
+		$image_url = $this->image->url . $this->user->ID . '/';					
+	
+		// get  edited images
+		
+		$edited_images = [];
+		
+		$images = glob( $image_dir . '*.png');
+
+		foreach ($images as $image) {
+			
+			$item = '';
+			
+			$item.='<div class="col-xs-3 col-sm-3 col-lg-2">';
+
+				$item.='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
+					
+			$item.='</div>';
+
+			$item.='<div class="col-xs-7 col-sm-7 col-lg-8">';
+
+				$item.='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
+				$item.='<br>';
+				$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $image_url . basename($image) .'" />';
+
+			$item.='</div>';
+			
+			$item.='<div class="col-xs-2 col-sm-2 col-lg-2">';
+			
+				if($inWidget){
+
+					if($this->user->plan["info"]["total_price_amount"]>0){
+						
+						$item.='<a style="display:block;margin-top:11px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$image_url . basename($image).'">Insert</a>';
+					}
+					else{ 
+						
+						$item.='<a style="display:block;margin-top:11px;" href="#" class="btn-sm btn-primary" data-toggle="popover" data-placement="top" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Insert</a>';
+					}
+				}
+				else{
+					
+					// TODO management buttons (move image...)
+					
+					//$item.='x';
+				}
+			
+			$item.='</div>';						
+			
+			$edited_images['cropped'][] = $item;
+		}
+	}
 	elseif( $currentTab == 'user-payment-urls' ){
 		
 		//get user bookmarks
@@ -603,60 +659,6 @@
 				}
 				
 				if( $currentTab == 'edited-images' ){
-
-					// get user image path
-				
-					$image_dir = $this->image->dir . $this->user->ID . '/';
-					$image_url = $this->image->url . $this->user->ID . '/';					
-				
-					// get  edited images
-					
-					$edited_images = [];
-					
-					$images = glob( $image_dir . '*.png');
-
-					foreach ($images as $image) {
-						
-						$item = '';
-						
-						$item.='<div class="col-xs-3 col-sm-3 col-lg-2">';
-
-							$item.='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
-								
-						$item.='</div>';
-
-						$item.='<div class="col-xs-7 col-sm-7 col-lg-8">';
-
-							$item.='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
-							$item.='<br>';
-							$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $image_url . basename($image) .'" />';
-
-						$item.='</div>';
-						
-						$item.='<div class="col-xs-2 col-sm-2 col-lg-2">';
-						
-							if($inWidget){
-
-								if($this->user->plan["info"]["total_price_amount"]>0){
-									
-									$item.='<a style="display:block;margin-top:11px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$image_url . basename($image).'">Insert</a>';
-								}
-								else{ 
-									
-									$item.='<a style="display:block;margin-top:11px;" href="#" class="btn-sm btn-primary" data-toggle="popover" data-placement="top" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Insert</a>';
-								}
-							}
-							else{
-								
-								// TODO management buttons (move image...)
-								
-								//$item.='x';
-							}
-						
-						$item.='</div>';						
-						
-						$edited_images['cropped'][] = $item;
-					}
 				
 					//output edited images	
 					
