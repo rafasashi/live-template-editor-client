@@ -133,32 +133,28 @@
 					echo '<b>' . $this->post_title . '</b> is a ';
 					
 					$layer_type = '';
+
+					$terms = wp_get_object_terms( $this->ID, 'layer-type' );
 					
-					foreach($this->taxonomies['layer-type']['terms'] as $slug => $term ){
+					if( !empty($terms[0]->slug) ){
 						
-						if( $term['has_term'] ){
-							
-							$layer_type = $term['name'];
-							
-							echo '<b>'.$layer_type.'</b> ';
-							break;
-						}
+						$layer_type = ucfirst($terms[0]->name);
+						
+						echo '<b>'.$layer_type.'</b> ';
 					}
 				
 					echo' template ';
 					
 					$layer_range = '';
+
+					$terms = wp_get_object_terms( $this->ID, 'layer-range' );
 					
-					foreach($this->taxonomies['layer-range']['terms'] as $slug => $term ){
+					if(!empty($terms[0]->slug)){
 						
-						if( $term['has_term'] ){
-							
-							$layer_range = $term['name'];
-							
-							echo'from the <b>'.$layer_range.' range</b> ';
-							break;
-						}
-					}					
+						$layer_range = ucfirst($terms[0]->name);
+						
+						echo'from the <b>'.$layer_range.' range</b> ';
+					}
 					
 					echo'available via our live editing tool. ';
 									

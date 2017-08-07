@@ -1986,7 +1986,7 @@ class LTPLE_Client {
 					$post_id = '';
 					$defaultLayerId = -1;
 					
-					if( $this->layer->type != 'cb-default-layer' ){
+					if( $this->layer->type == 'user-layer' ){
 						
 						$post_id		= $this->user->layer->ID;
 						$post_author	= $this->user->layer->post_author;
@@ -2004,7 +2004,12 @@ class LTPLE_Client {
 						
 							if( empty($post_title) ){
 							
-								$post_title = $defaultLayer->post_title;
+								$post_title 	= $defaultLayer->post_title;
+							}
+							
+							if( empty($post_content) ){
+							
+								$post_content 	= $defaultLayer->post_content;
 							}
 							
 							$post_author = $this->user->ID;
@@ -2046,7 +2051,7 @@ class LTPLE_Client {
 							include( $this->views . $this->_dev .'/message.php' );							
 						}
 					}
-
+					
 					if( $post_title!='' && $post_content!='' && is_int($defaultLayerId) && $defaultLayerId !== -1 ){
 						
 						$post_information = array(

@@ -1,21 +1,79 @@
 <?php
 
-$iframe_url = $this->urls->editor . '?uri=' . $this->layer->id . '&lk=' . md5( 'layer' . $this->layer->id . $this->_time ) . '&_=' . $this->_time;
+	if( !empty($_SESSION['message']) ){
+		
+		echo $_SESSION['message'];
+		
+		$_SESSION['message'] = '';
+	}
+	elseif( $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
+		
+		$has_storage = ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? false : true );
 
-if( !empty($_GET['key']) && isset($_GET['output']) && $_GET['output'] == 'embedded' && !empty($this->layer->embedded) ){
-	
-	$iframe_url .= '&le=' . urlencode($_GET['le']);
-} 
+		echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+			
+			echo '<h2>Start a new project</h2>';
 
-if( !empty($_SESSION['message']) ){
-	
-	echo $_SESSION['message'];
-	
-	$_SESSION['message'] = '';
-}
-else{
+			echo'<hr></hr>';
+			
+			if($has_storage){
+				
+				echo'<form class="col-xs-6" target="_parent" action="'. $this->urls->editor . '?uri=' . $this->layer->id . '" id="savePostForm" method="post">';
+					
+					echo'<div class="input-group">';					
+						
+						echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-lg required" placeholder="Template Title">';
+						echo'<input type="hidden" name="postContent" id="postContent" value="">';
+						/*
+						echo'<input type="hidden" name="postCss" id="postCss" value="">';
+						echo'<input type="hidden" name="postJs" id="postJs" value="">';
+						echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
+						*/
+						
+						wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 
-	echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
+						echo'<input type="hidden" name="submitted" id="submitted" value="true">';
+						
+						echo'<span class="input-group-btn">';
 
-	echo'<iframe id="editorIframe" src=" ' . $iframe_url .'" style="margin-top: -65px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height: 1300px;overflow: hidden;"></iframe>';
-}
+							echo'<input type="hidden" name="postAction" id="postAction" value="save">';
+								
+							echo'<input class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="border-radius: 0 3px 3px 0;" value="Start" />';
+						
+						echo'</span>';
+						
+					echo'</div>';
+				echo'</form>';
+			}
+			else{
+				
+				echo'<div class="alert alert-warning">';
+					
+					echo'You need to free up storage space first... ( ' . $this->user->layerCount . '/' . $this->user->plan['info']['total_storage']['templates'] . ' )';
+			
+				echo'</div>';
+			}	
+
+		echo'</div>';
+	}
+	elseif( $this->layer->type == 'user-layer' && !$this->user->plan["info"]["total_price_amount"] > 0 ){
+		
+		echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+			
+			echo '<div class="alert alert-warning">You need a paid plan to edit this template...</div>';
+
+		echo'</div>';
+	}
+	else{
+		
+		$iframe_url = $this->urls->editor . '?uri=' . $this->layer->id . '&lk=' . md5( 'layer' . $this->layer->id . $this->_time ) . '&_=' . $this->_time;
+
+		if( !empty($_GET['key']) && isset($_GET['output']) && $_GET['output'] == 'embedded' && !empty($this->layer->embedded) ){
+			
+			$iframe_url .= '&le=' . urlencode($_GET['le']);
+		} 	
+
+		echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
+
+		echo'<iframe id="editorIframe" src=" ' . $iframe_url .'" style="margin-top: -65px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height: 1300px;overflow: hidden;"></iframe>';
+	}
