@@ -127,7 +127,19 @@
 					
 						echo'<li style="position:relative;">';
 							
-							echo '<a target="_blank" href="' . get_edit_post_link( $this->layer->id ) . '"> Edit Layer <span class="label label-warning pull-right">admin</span></a>';
+							echo '<a target="_blank" href="' . get_edit_post_link( $this->layer->id ) . '"> Edit Layer Backend <span class="label label-warning pull-right">admin</span></a>';
+
+						echo'</li>';
+						
+						echo'<li style="position:relative;">';
+							
+							echo '<a target="_blank" href="' . $this->urls->editor . '?uri=' . $this->layer->id . '&edit"> Edit Layer Frontend <span class="label label-warning pull-right">admin</span></a>';
+
+						echo'</li>';
+						
+						echo'<li style="position:relative;">';
+							
+							echo '<a target="_blank" href="' . get_post_permalink( $this->layer->id ) . '"> Preview Layer <span class="label label-warning pull-right">admin</span></a>';
 
 						echo'</li>';
 					}
