@@ -141,6 +141,16 @@ class LTPLE_Client_Settings {
 				'author' 		=> 'Rafasashi',
 				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),
+			'directory-plugin' => array(
+				
+				'title' 		=> 'Directory Plugin',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-directory',
+				'addon_name' 	=> 'live-template-editor-directory',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-directory/archive/master.zip',
+				'description'	=> 'This is a directory plugin for live template editor.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
 			'seo-suite' => array(
 			
 				'title' 		=> 'SEO Suite',

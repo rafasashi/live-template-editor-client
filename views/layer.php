@@ -609,30 +609,6 @@
 								echo '<input class="btn btn-primary btn-md" type="submit" value="Import" />';
 								
 							echo '</div>';
-						}
-						elseif( $layerForm == 'scraper' ){
-					
-							echo '<div class="col-xs-3">';
-							
-								echo'<label>Page Url</label>';
-								
-							echo '</div>';
-							
-							echo '<div class="col-xs-9">';
-							
-								echo '<div class="form-group">';
-								
-									echo '<input type="text" placeholder="http://" class="form-control" name="scrapeUrl"/>';
-									
-								echo '</div>';
-								
-							echo '</div>';
-
-							echo '<div class="col-xs-12 text-right">';
-								
-								echo '<input class="btn btn-primary btn-md" type="submit" value="Scrape" />';
-								
-							echo '</div>';
 						}							
 					
 					echo '</form>';
@@ -643,39 +619,6 @@
 			echo '</div>';
 		} 
 		else{
-
-			if( $layerForm == 'scraper' ){
-				
-				echo'<div id="scrapeLayer" title="Scrape Layer" style="display:none;z-index:10000;">';
-					 
-					echo '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
-						
-						echo '<div class="col-xs-3">';
-						
-							echo'<label style="font-size:12px;">Page Url</label>';
-							
-						echo '</div>';
-						
-						echo '<div class="col-xs-9">';
-						
-							echo '<div class="form-group">';
-							
-								echo '<input type="text" placeholder="http://" class="form-control" name="scrapeUrl" value="'.$_POST['scrapeUrl'].'"/>';
-								
-							echo '</div>';
-							
-						echo '</div>';
-
-						echo '<div class="col-xs-12 text-right">';
-							
-							echo '<input class="btn btn-primary btn-xs" type="submit" value="Scrape" />';
-							
-						echo '</div>';
-						
-					echo'</form>';			
-					
-				echo'</div>';
-			}
 
 			//echo '<layer class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
 			echo '<layer class="editable" style="width:100%;margin:'.$layerMargin.';">';

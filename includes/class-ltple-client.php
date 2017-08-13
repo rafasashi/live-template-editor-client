@@ -1768,7 +1768,7 @@ class LTPLE_Client {
 					
 					if( $this->user->is_admin ){
 												
-						// duplicate scraper layer
+						// import layer
 						
 						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 						

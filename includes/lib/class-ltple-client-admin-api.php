@@ -222,17 +222,22 @@ class LTPLE_Client_Admin_API {
 			break;
 
 			case 'checkbox_multi':
-			
-				foreach ( $field['options'] as $k => $v ) {
-					
-					$checked = false;
-					if ( in_array( $k, (array) $data ) ) {
-						$checked = true;
+				
+				$html .= '<div'.$style.' class="form-check">';
+				
+					foreach ( $field['options'] as $k => $v ) {
+						
+						$checked = false;
+						if ( in_array( $k, (array) $data ) ) {
+							$checked = true;
+						}
+						
+						$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" class="form-check-label checkbox_multi"><input class="form-check-input" type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" '.$required.$disabled.'/> ' . $v . '</div> ';
+						//$html .= '<br>';
 					}
-					
-					$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" class="checkbox_multi"><input class="form-control" type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" '.$required.$disabled.'/> ' . $v . '</div> ';
-					$html .= '<br>';
-				}
+				
+				$html .= '</div>';
+				
 			break;
 			
 			case 'plan_value':
@@ -1038,7 +1043,7 @@ class LTPLE_Client_Admin_API {
 					);
 				}
 
-				$inputs 	= ['title','label','text','textarea','number','password','domain','submit'];
+				$inputs 	= ['title','label','checkbox','select','text','textarea','number','password','domain','submit'];
 				$required 	= ['required','optional'];
 				$id 		= ( !empty($field['id']) ? $field['id'] : 'form' );
 				
@@ -1048,7 +1053,7 @@ class LTPLE_Client_Admin_API {
 					
 						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
 					
-						$html .= '<ul class="input-group ui-sortable">';
+						$html .= '<ul class="input-group ui-sortable" style="width:100%;">';
 							
 							foreach( $data['name'] as $e => $name) {
 								
@@ -1064,11 +1069,11 @@ class LTPLE_Client_Admin_API {
 								$req_val 	= ( isset($data['required'][$e]) ? str_replace('\\\'','\'',$data['required'][$e]): 'optional');
 								$value 		= ( isset($data['value'][$e]) 	 ? str_replace('\\\'','\'',$data['value'][$e]) 	 : '');
 										
-								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
+								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;border-top:1px solid #eee;padding:15px 0 10px 0;margin:0;">';
 							
 									// inputs
 							
-									$html .= '<select name="'.$field['name'].'[input][]" style="float:left;">';
+									$html .= '<select class="form-control" name="'.$field['name'].'[input][]" style="width:20%;height:34px;float:left;">';
 
 										foreach ( $inputs as $input ) {
 											
@@ -1094,7 +1099,7 @@ class LTPLE_Client_Admin_API {
 										$disabled = '';
 									}
 									
-									$html .= '<select name="'.$field['name'].'[required][]" style="float:left;"'.$disabled.'>';
+									$html .= '<select class="form-control" name="'.$field['name'].'[required][]" style="width:20%;height:34px;float:left;"'.$disabled.'>';
 
 										foreach ( $required as $r ) {
 											
@@ -1111,43 +1116,49 @@ class LTPLE_Client_Admin_API {
 							
 									if( isset($data['input'][$e]) && $data['input'][$e] == 'domain'){
 										
-										$html .= '<input type="text" style="width:30%;float:left;" value="domain_name" disabled="true">';
+										$html .= '<input class="form-control" type="text" style="width:25%;float:left;" value="domain_name" disabled="true">';
 										$html .= '<input type="hidden" name="'.$field['name'].'[name][]" value="domain_name">'; 
 									}	
 									else{
 										
-										$html .= '<input type="text" placeholder="name" name="'.$field['name'].'[name][]" style="width:30%;float:left;" value="'.$data['name'][$e].'">';
+										$html .= '<input class="form-control" type="text" placeholder="name" name="'.$field['name'].'[name][]" style="width:25%;float:left;" value="'.$data['name'][$e].'">';
 									}
 									
-									$html .= '<span style="float:left;"> => </span>';
+									//$html .= '<span style="float:left;"> => </span>';
 									
 									if(isset($data['input'][$e])){
 										
 										if($data['input'][$e] == 'number'){
 											
-											$html .= '<input type="number" placeholder="number" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+											$html .= '<input class="form-control" type="number" placeholder="number" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 										}
 										elseif($data['input'][$e] == 'password'){
 											
-											$html .= '<input type="password" placeholder="password" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+											$html .= '<input class="form-control" type="password" placeholder="password" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 										}
 										elseif($data['input'][$e] == 'textarea'){
 											
-											$html .= '<textarea placeholder="text" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:200px;">' . $value . '</textarea>';
+											$html .= '<textarea class="form-control" placeholder="text" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:100px;">' . $value . '</textarea>';
 										}									
+										elseif($data['input'][$e] == 'text'){
+											
+											$html .= '<input class="form-control" type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+										}
 										else{
 											
-											$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+											$html .= '<textarea class="form-control" placeholder="values" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:100px;">' . $value . '</textarea>';
 										}
 									}
 									else{
 										
-										$html .= '<input type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+										$html .= '<textarea class="form-control" placeholder="values" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:100px;">' . $value . '</textarea>';
+										
+										//$html .= '<input class="form-control" type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 									}
 
 									if( $e > 0 ){
 										
-										$html .= '<a class="remove-input-group" href="#">[ x ]</a> ';
+										$html .= '<a class="remove-input-group" style="padding-left:10px;" href="#">[ x ]</a> ';
 									}
 
 								$html .= '</li>';						
@@ -1174,13 +1185,13 @@ class LTPLE_Client_Admin_API {
 								}
 								elseif($data['input'][$e] == 'label'){
 									
-									$html .= '<div id="'.ucfirst($name).'">'.ucfirst(ucfirst($data['value'][$e])).'</div>';
+									$html .= '<label class="label label-default" style="padding:6px;margin:7px 0;text-align:left;display:block;font-weight:bold;font-size:14px;" id="'.ucfirst($name).'">'.ucfirst(ucfirst($data['value'][$e])).'</label>';
 								}
 								elseif($data['input'][$e] == 'submit'){
 									
-									$html .= '<div class="form-group">';
+									$html .= '<div class="form-group" style="margin: 7px 0 0 0;">';
 									
-										$html .= '<button type="'.$data['input'][$e].'" id="'.ucfirst($data['name'][$e]).'" class="control-input pull-right btn btn-primary">'.ucfirst(ucfirst($data['value'][$e])).'</button>';
+										$html .= '<button style="width:100%;" type="'.$data['input'][$e].'" id="'.ucfirst($data['name'][$e]).'" class="control-input pull-right btn btn-sm btn-primary">'.ucfirst(ucfirst($data['value'][$e])).'</button>';
 									
 									$html .= '</div>';
 								}
@@ -1196,7 +1207,48 @@ class LTPLE_Client_Admin_API {
 										'description'		=> ''
 										
 									), false, false ); 									
-								}	
+								}
+								elseif( $data['input'][$e] == 'checkbox' || $data['input'][$e] == 'select' ){
+
+									if( $values = explode(PHP_EOL,$data['value'][$e]) ){
+								
+										$options = [];
+								
+										foreach( $values as $value ){
+											
+											$value = trim($value);
+											
+											$options[strtolower($value)] = ucfirst($value);
+										}
+								
+										if( $data['input'][$e] == 'checkbox' ){
+								
+											$html .= $this->display_field( array(
+									
+												'type'				=> 'checkbox_multi',
+												'id'				=> $field['id'],
+												'options' 			=> $options,
+												'required' 			=> $required,
+												'description'		=> '',
+												'style'				=> 'margin:0px 10px;',
+												
+											), false, false ); 
+										}
+										else{
+											
+											$html .= $this->display_field( array(
+									
+												'type'				=> 'select',
+												'id'				=> $field['id'],
+												'options' 			=> $options,
+												'required' 			=> $required,
+												'description'		=> '',
+												'style'				=> 'height:30px;padding:0px 5px;',
+												
+											), false, false ); 											
+										}
+									}									
+								}								
 								else{
 									
 									$html .= $this->display_field( array(
@@ -1288,15 +1340,15 @@ class LTPLE_Client_Admin_API {
 			
 			case 'select':
 				
-				$html .= '<div class="input-group">';
+				$html .= '<div class="form-group" style="margin:7px 0;">';
 				
 					if(isset($field['name'])){
 						
-						$html .= '<select class="form-control" name="' . $field['name'] . '" id="' . $id . '"'.$required.$disabled.'>';
+						$html .= '<select'.$style.' class="form-control" name="' . $field['name'] . '" id="' . $id . '"'.$required.$disabled.'>';
 					}
 					else{
 						
-						$html .= '<select class="form-control" name="' . esc_attr( $option_name ) . '" id="' . $id . '"'.$required.$disabled.'>';
+						$html .= '<select'.$style.' class="form-control" name="' . esc_attr( $option_name ) . '" id="' . $id . '"'.$required.$disabled.'>';
 					}
 
 					foreach ( $field['options'] as $k => $v ) {
@@ -1466,7 +1518,12 @@ class LTPLE_Client_Admin_API {
 			case 'checkbox_multi':
 			case 'radio':
 			case 'select_multi':
-				$html .= '<br/><span class="description">' . $field['description'] . '</span>';
+			
+				if( !empty($field['description']) ){
+					
+					$html .= '<br/><span class="description">' . $field['description'] . '</span>';
+				}
+				
 			break;
 
 			default:

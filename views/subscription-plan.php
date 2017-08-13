@@ -1,7 +1,7 @@
 <?php
 
 	echo get_header();
-		
+
 		echo '<div class="container">';
 		
 			//echo '<div class="row">';
