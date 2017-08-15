@@ -51,80 +51,7 @@
 	$layerMinWidth	= '';
 	$layerSources	= [];
 	
-	if( $post->post_type != 'user-layer' && isset($_POST['scrapeUrl']) ){
-
-		$source = urldecode($_POST['scrapeUrl']);
-	
-		$ch = curl_init($source);
-		curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_TIMEOUT,10);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		$output = curl_exec($ch);
-		$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		curl_close($ch);
-		
-		// strip html comments
-		
-		$output = preg_replace('/<!--(.*)-->/Uis', '', $output);
-		
-		// parse dom elements
-		
-		libxml_use_internal_errors( true );
-		
-		$dom= new DOMDocument();
-		$dom->loadHTML('<?xml encoding="UTF-8">' . $output);  
-		
-		// absolute urls to relative
-
-		$elements = array(
-		
-			'link' 	=> 'href',
-			'a' 	=> 'href',
-			'img' 	=> 'src',
-			'script'=> 'src',
-		);
-
-		foreach( $elements as $tagname => $attr){
-		
-			foreach($dom->getElementsByTagName($tagname) as $link) {
-				
-				$u = $link->getAttribute($attr);
-				$u = LTPLE_Client::get_absolute_url( $u, $source );
-				
-				$link->setAttribute( $attr, $u );
-				
-				if( $tagname == 'link' || $tagname == 'script' ){
-					
-					if( !empty($u) ){
-
-						$layerSources[$tagname][] = $u;						
-					}
-					elseif( $tagname == 'link'){
-						
-						$layerCss .= PHP_EOL . $link->nodeValue;
-					}
-					elseif( $tagname == 'script' ){
-
-						$layerJs .= PHP_EOL . $link->nodeValue;
-					}
-				}
-			}
-		}		
-		
-		$xpath = new DOMXPath($dom);
-		
-		// get head
-		
-		$layerHead = $dom->saveHtml( $xpath->query('/html/head')->item(0) );			
-		$layerHead = preg_replace('~<(?:!DOCTYPE|/?(?:head))[^>]*>\s*~i', '', $layerHead);
-		
-		// get body
-		
-		$layerContent = $dom->saveHtml( $xpath->query('/html/body')->item(0) );
-		$layerContent = preg_replace('~<(?:!DOCTYPE|/?(?:body))[^>]*>\s*~i', '', $layerContent);
-	}
-	elseif( !empty($layerStaticUrl) ){
+	if( !empty($layerStaticUrl) ){
 		
 		$source = str_replace(site_url().'/',ABSPATH,str_replace(array('http://','https://'),$ltple->request->proto,$layerStaticUrl));
 		
@@ -180,7 +107,7 @@
 		
 		//get layer content
 		
-		if( $post->post_type != 'user-layer' && isset($_POST['importHtml']) ){
+		if( isset($_POST['importHtml']) ){
 
 			$layerContent = $_POST['importHtml'];
 		}
@@ -204,7 +131,7 @@
 		
 		//get style-sheet
 		
-		if( $post->post_type != 'user-layer' && isset($_POST['importCss']) ){
+		if( isset($_POST['importCss']) ){
 
 			$layerCss = stripcslashes($_POST['importCss']);
 		}
@@ -548,7 +475,7 @@
 		
 		//include layer
 		
-		if( $post->post_type != 'user-layer' && empty($_POST) && !empty($layerForm) && $layerForm != 'none' ){
+		if( empty($_POST) && $layerForm == 'importer' && empty($post->post_content) ){
 			
 			echo '<div class="container">';
 			

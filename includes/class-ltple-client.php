@@ -2052,7 +2052,7 @@ class LTPLE_Client {
 						}
 					}
 					
-					if( $post_title!='' && $post_content!='' && is_int($defaultLayerId) && $defaultLayerId !== -1 ){
+					if( $post_title!='' && is_int($defaultLayerId) && $defaultLayerId !== -1 ){
 						
 						$post_information = array(
 							

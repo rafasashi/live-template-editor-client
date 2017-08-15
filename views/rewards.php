@@ -24,12 +24,7 @@
 
 	// get current tab
 	
-	$currentTab = 'unlock';
-	
-	if( !empty($_GET['app']) ){
-		
-		$currentTab = $_GET['app'];
-	}
+	$currentTab = ( !empty($_GET['app']) ? $_GET['app'] : 'unlock' );
 	
 	// ------------- output panel --------------------
 	

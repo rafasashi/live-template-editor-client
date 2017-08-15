@@ -9,12 +9,7 @@
 
 	// get current tab
 	
-	$currentTab = 'domain';
-	
-	if( in_array($_GET['domain'],['list','urls']) ){
-		
-		$currentTab = $_GET['domain'];
-	}
+	$currentTab = ( in_array($_GET['domain'],['list','urls']) ? $_GET['domain'] : 'domain' );
 	
 	// ------------- output panel --------------------
 	

@@ -26,12 +26,7 @@
 
 	// get current tab
 	
-	$currentTab = 'image-library';
-	
-	if( !empty($_GET['media']) ){
-		
-		$currentTab = $_GET['media'];
-	}
+	$currentTab = ( !empty($_GET['media']) ? $_GET['media'] : 'image-library' );
 	
 	if( $currentTab == 'image-library' ){
 		

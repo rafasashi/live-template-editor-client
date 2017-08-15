@@ -35,12 +35,7 @@
 		$currentApp = $_SESSION['app'];
 	}
 	
-	$currentTab = 'apps';
-	
-	if( !empty($_GET['app']) ){
-		
-		$currentTab = $_GET['app'];
-	}
+	$currentTab = ( !empty($_GET['app']) ? $_GET['app'] : 'apps' );
 	
 	// ------------- output panel --------------------
 	

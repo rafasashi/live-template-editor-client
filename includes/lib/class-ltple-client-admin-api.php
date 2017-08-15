@@ -1213,12 +1213,20 @@ class LTPLE_Client_Admin_API {
 									if( $values = explode(PHP_EOL,$data['value'][$e]) ){
 								
 										$options = [];
+										
+										if( $data['input'][$e] == 'select' ){
+											
+											$options[] = '';
+										}
 								
 										foreach( $values as $value ){
 											
 											$value = trim($value);
 											
-											$options[strtolower($value)] = ucfirst($value);
+											if( !empty($value) ){
+											
+												$options[strtolower($value)] = ucfirst($value);
+											}
 										}
 								
 										if( $data['input'][$e] == 'checkbox' ){
