@@ -27,25 +27,15 @@ class LTPLE_Client_Admin_API {
 	public function display_field ( $data = array(), $item = false, $echo = true ) {
 
 		// Get field info
-		if ( isset( $data['field'] ) ) {
-			
-			$field = $data['field'];
-			
-		} else {
-			
-			$field = $data;
-		}
+		
+		$field = ( isset( $data['field'] ) ? $data['field'] : $data );
 
 		// Check for prefix on option name
 		
-		$option_name = '';
-		
-		if ( isset( $data['prefix'] ) ) {
-			
-			$option_name = $data['prefix'];
-		}
+		$option_name = ( isset( $data['prefix'] ) ? $data['prefix'] : '' );
 
 		// Get saved data
+		
 		$data = '';
 		
 		if ( !empty( $item->caps ) ) {
@@ -1176,7 +1166,7 @@ class LTPLE_Client_Admin_API {
 						foreach( $data['name'] as $e => $name) {
 							
 							if(isset($data['input'][$e])){
-								
+
 								$required = ( ( empty($data['required'][$e]) || $data['required'][$e] == 'required' ) ? true : false );
 								
 								if($data['input'][$e] == 'title'){
@@ -1200,11 +1190,12 @@ class LTPLE_Client_Admin_API {
 									$html .= $this->display_field( array(
 							
 										'type'				=> $data['input'][$e],
-										'id'				=> $field['id'],
+										'id'				=> $id.'['.$name.']',
 										'value' 			=> $data['value'][$e],
 										'required' 			=> $required,
 										'placeholder' 		=> '',
-										'description'		=> ''
+										'description'		=> '',
+										'default'			=> ( isset($_REQUEST[$id][$name]) ? $_REQUEST[$id][$name] : ''),
 										
 									), false, false ); 									
 								}
@@ -1234,11 +1225,12 @@ class LTPLE_Client_Admin_API {
 											$html .= $this->display_field( array(
 									
 												'type'				=> 'checkbox_multi',
-												'id'				=> $field['id'],
+												'id'				=> $id.'['.$name.']',
 												'options' 			=> $options,
-												'required' 			=> $required,
+												'required' 			=> false,
 												'description'		=> '',
 												'style'				=> 'margin:0px 10px;',
+												'default'			=> ( isset($_REQUEST[$id][$name]) ? $_REQUEST[$id][$name] : ''),
 												
 											), false, false ); 
 										}
@@ -1247,11 +1239,12 @@ class LTPLE_Client_Admin_API {
 											$html .= $this->display_field( array(
 									
 												'type'				=> 'select',
-												'id'				=> $field['id'],
+												'id'				=> $id.'['.$name.']',
 												'options' 			=> $options,
 												'required' 			=> $required,
 												'description'		=> '',
 												'style'				=> 'height:30px;padding:0px 5px;',
+												'default'			=> ( isset($_REQUEST[$id][$name]) ? $_REQUEST[$id][$name] : ''),
 												
 											), false, false ); 											
 										}
@@ -1266,7 +1259,8 @@ class LTPLE_Client_Admin_API {
 										'value' 			=> $data['value'][$e],
 										'required' 			=> $required,
 										'placeholder' 		=> '',
-										'description'		=> ''
+										'description'		=> '',
+										'default'			=> ( isset($_REQUEST[$id][$name]) ? $_REQUEST[$id][$name] : ''),
 										
 									), false, false ); 
 								}
