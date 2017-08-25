@@ -52,6 +52,29 @@
 					echo'You need to free up storage space first... ( ' . $this->user->layerCount . '/' . $this->user->plan['info']['total_storage']['templates'] . ' )';
 			
 				echo'</div>';
+				
+				foreach($this->user->layers as $i => $layer) {
+					
+					echo '<hr></hr>';
+					
+					echo'<div style="display:block;">';
+					
+						echo'<div class="col-xs-9">';
+							
+							echo '<a target="_blank" href="' . $this->urls->editor . '?uri=' . $layer->ID . '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
+						
+						echo'</div>';
+						
+						echo'<div class="col-xs-3 text-right">';
+							
+							echo '<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?uri=' . $layer->ID . '&postAction=delete" style="padding: 5px 10px;font-weight: bold;">x</a>';
+						
+						echo'</div>';
+						
+					echo'</div>';
+					
+					echo '<div class="clearfix"></div>';
+				}			
 			}	
 
 		echo'</div>';

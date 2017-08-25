@@ -13,7 +13,17 @@ class LTPLE_Client_Server {
 		
 		$this->parent = $parent;
 		
-		$this->url = get_option( $this->parent->_base . 'server_url');
+		if( $this->url = get_option( $this->parent->_base . 'server_url') ){
+			
+			// set access control
+			
+			$url = parse_url($this->url);
+						
+			header('Access-Control-Allow-Origin: ' . $url['scheme']."://".$url['host'], false);
+			header('Access-Control-Allow-Credentials: true', false);			
+		}
+		
+		// set api url
 		
 		$this->api = $this->url . '/wp-json/';
 	}

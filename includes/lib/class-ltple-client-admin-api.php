@@ -140,7 +140,7 @@ class LTPLE_Client_Admin_API {
 					}
 					else{
 						
-						$html .= '<span class="input-group-addon">'.home_url() . '/</span>' . "\n";
+						$html .= '<span class="input-group-addon">' . $this->parent->urls->home . '/</span>' . "\n";
 					}	
 					 
 					$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";

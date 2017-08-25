@@ -110,7 +110,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	
 	public function init_image(){
 		
-		$this->url = ( defined('LTPLE_IMAGE_URL') ? LTPLE_IMAGE_URL : $this->parent->urls->home . '/i/');
+		$this->url = ( defined('LTPLE_IMAGE_URL') ? LTPLE_IMAGE_URL : str_replace( 'https://', 'http://', $this->parent->urls->home ) . '/i/');
 		$this->dir = ( defined('LTPLE_IMAGE_DIR') ? LTPLE_IMAGE_DIR : ABSPATH . 'i/');
 
 		if( !is_admin() ) {

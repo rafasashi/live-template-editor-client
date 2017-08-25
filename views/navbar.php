@@ -170,6 +170,7 @@
 									
 									echo'</li>';						
 								}
+								
 						echo'</ul>';
 						
 					echo'</div>';

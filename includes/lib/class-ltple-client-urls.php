@@ -28,7 +28,7 @@ class LTPLE_Client_Urls {
 		$this->parent = $parent;
 		
 		$this->current 		= $this->parent->request->proto . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-		$this->home 		= home_url();
+		$this->home 		= ( is_ssl() ? home_url('','https') : home_url() );
 		
 		$this->api 			= $this->home . '/wp-json/';
 		$this->api_embedded	= $this->api . 'ltple-embedded/v1/info';
