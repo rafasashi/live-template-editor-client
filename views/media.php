@@ -398,7 +398,7 @@
 				
 				echo'<li'.( $currentTab == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?media=image-library&output='.$output.'">Image Library</a></li>';
 				echo'<li'.( $currentTab == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?media=user-images&output='.$output.'">Imported Images</a></li>';
-				echo'<li'.( $currentTab == 'edited-images' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?media=edited-images&output='.$output.'" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Edited Images" data-content="All the images uploaded during the edition process (cropped, resized...). Hosted images will be removed upon template deletion or plan cancelation." data-original-title="" title="">Edited Images <span class="label label-info pull-right hidden-xs hidden-sm hidden-md">hosted</span></a></li>';
+				//echo'<li'.( $currentTab == 'edited-images' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?media=edited-images&output='.$output.'" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Edited Images" data-content="All the images uploaded during the edition process (cropped, resized...). Hosted images will be removed upon template deletion or plan cancelation." data-original-title="" title="">Edited Images <span class="label label-info pull-right hidden-xs hidden-sm hidden-md">hosted</span></a></li>';
 				
 				echo'<li class="gallery_type_title">Bookmarks</li>';
 				echo'<li'.( $currentTab == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?media=user-payment-urls&output='.$output.'">Payment Urls</a></li>';
@@ -652,7 +652,7 @@
 					
 					echo'</div>';//user-images
 				}
-				
+				/*
 				if( $currentTab == 'edited-images' ){
 				
 					//output edited images	
@@ -729,6 +729,7 @@
 					
 					echo'</div>';//user-images
 				}
+				*/
 			
 				if( $currentTab == 'user-payment-urls' ){
 				

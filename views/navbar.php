@@ -2,9 +2,15 @@
 	
 	$ltple = LTPLE_Client::instance();
 
+	if( !empty($_GET['pr']) ){
+		
+		echo'<div style="background: transparent;padding: 8px 4px;margin: 0;position: absolute;width: 100%;z-index: 1000;right: 0;left: 0;">';
+	}
+	else{
 	
-	echo'<div class="row" style="box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);background: rgb(236, 236, 236);padding: 8px 0;margin: 0;border-bottom: 1px solid #ddd;position: relative;">';
-
+		echo'<div class="row" style="box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);background: rgb(236, 236, 236);padding: 8px 0;margin: 0;border-bottom: 1px solid #ddd;position: relative;">';
+	}
+	
 		echo'<div class="col-xs-6 col-sm-4" style="z-index:10;">';			
 			
 			echo'<div class="pull-left">';
