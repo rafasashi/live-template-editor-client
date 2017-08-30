@@ -24,7 +24,7 @@ if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 			height: 350px;
 			padding-top: 130px;
 			background-color: #333;
-			background-image: url(http://www.citi.io/wp-content/uploads/2015/08/1168-00-06.jpg);
+			background-image: url("' . plugins_url() . '/' . $this->settings->plugin->slug . '/assets/images/profile_header.jpg");
 			background-position: center center;
 			background-size: cover;
 			background-attachment: fixed;
