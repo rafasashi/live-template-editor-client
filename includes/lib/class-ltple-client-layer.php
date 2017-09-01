@@ -166,7 +166,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					__( 'Layer Javascript', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
-				); 
+				);
 				
 				$this->parent->admin->add_meta_box (
 					
@@ -246,6 +246,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					'default_layer_id',
 					__( 'Default Layer', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				);
+
+				$this->parent->admin->add_meta_box (
+					
+					'layer-embedded',
+					__( 'Layer Embedded', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);				
@@ -980,8 +988,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'label'=>"",
 				'type'=>'text',
 				'placeholder'=>"http://"
-		);
-		
+		);	
+
 		$fields[]=array(
 		
 			"metabox" =>
@@ -1081,11 +1089,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			"metabox" =>
 			
 				array('name'=>"layer-css"),
-				'id'=>"layerCss",
-				'label'=>"",
-				'type'=>'textarea',
-				'placeholder'=>"Internal CSS style sheet",
-				'description'=>'<i>without '.htmlentities('<style></style>').'</i>'
+				'id'			=> "layerCss",
+				'label'			=> "",
+				'type'			=> 'textarea',
+				'placeholder'	=> "Internal CSS style sheet",
+				'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
 		);
 		
 		$fields[]=array(
@@ -1093,23 +1101,35 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			"metabox" =>
 			
 				array('name'=>"layer-js"),
-				'id'=>"layerJs",
-				'label'=>"",
-				'type'=>'textarea',
-				'placeholder'=>"Additional Javascript",
-				'description'=>'<i>without '.htmlentities('<script></script>').'</i>'
+				'id'			=> "layerJs",
+				'label'			=> "",
+				'type'			=> 'textarea',
+				'placeholder'	=> "Additional Javascript",
+				'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 		);
 
 		$fields[]=array(
 			"metabox" =>
 			
 				array('name'=>"default_layer_id"),
-				'id'=>"defaultLayerId",
-				'label'=>"Default Layer ID",
-				'type'=>'edit_layer',
-				'placeholder'=>"",
-				'description'=>''
-		);		
+				'id'			=> "defaultLayerId",
+				'label'			=> "Default Layer ID",
+				'type'			=> 'edit_layer',
+				'placeholder'	=> "",
+				'description'	=> ''
+		);
+
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"layer-embedded"),
+				'id'			=> "layerEmbedded",
+				'label'			=> "",
+				'type'			=> 'text',
+				'placeholder'	=> "http://",
+				'disabled'		=> true,
+		);			
 		
 		return $fields;
 	}

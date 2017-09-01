@@ -1,5 +1,9 @@
 <?php
 
+	$is_embedded = ( (isset($_GET['output']) && $_GET['output'] == 'embedded' && !empty($this->layer->embedded)) ? true : false );
+
+	$output = ( !empty($_GET['output']) ? '&output='. sanitize_text_field($_GET['output']) : '' );
+	
 	if( !empty($_SESSION['message']) ){
 		
 		echo $_SESSION['message'];
@@ -7,7 +11,7 @@
 		$_SESSION['message'] = '';
 	}
 	elseif( ( !$this->user->is_admin || !isset($_GET['edit']) ) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
-		
+
 		$has_storage = ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? false : true );
 
 		echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
@@ -18,12 +22,22 @@
 			
 			if($has_storage){
 				
-				echo'<form class="col-xs-6" target="_parent" action="'. $this->urls->editor . '?uri=' . $this->layer->id . '" id="savePostForm" method="post">';
+				// get editor url
+				
+				$editor_url = $this->urls->editor . '?uri=' . $this->layer->id . $output;			
+				
+				echo'<form class="col-xs-6" target="_parent" action="' . $editor_url . '" id="savePostForm" method="post">';
 					
 					echo'<div class="input-group">';					
 						
 						echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-lg required" placeholder="Template Title">';
 						echo'<input type="hidden" name="postContent" id="postContent" value="">';
+						
+						if( $is_embedded ){
+							
+							echo'<input type="hidden" name="postEmbedded" id="postEmbedded" value="' . $this->layer->embedded['url'] . '">';
+						}
+						
 						/*
 						echo'<input type="hidden" name="postCss" id="postCss" value="">';
 						echo'<input type="hidden" name="postJs" id="postJs" value="">';
@@ -87,11 +101,11 @@
 
 		echo'</div>';
 	}
-	else{
+	elseif( $is_embedded ){
 		
 		$iframe_url = $this->urls->editor . '?uri=' . $this->layer->id . '&lk=' . md5( 'layer' . $this->layer->id . $this->_time ) . '&_=' . $this->_time;
 
-		if( !empty($_GET['key']) && isset($_GET['output']) && $_GET['output'] == 'embedded' && !empty($this->layer->embedded) ){
+		if( !empty($_GET['key']) ){
 			
 			$iframe_url .= '&le=' . urlencode($_GET['le']);
 		} 	

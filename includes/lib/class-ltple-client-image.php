@@ -114,6 +114,15 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		$this->dir = ( defined('LTPLE_IMAGE_DIR') ? LTPLE_IMAGE_DIR : ABSPATH . 'i/');
 
 		if( !is_admin() ) {
+			
+			add_action( 'rest_api_init', function () {
+				
+				register_rest_route( 'ltple-images/v1', '/list', array(
+					
+					'methods' 	=> 'GET',
+					'callback' 	=> array($this,'get_images_list'),
+				) );
+			} );
 				
 			if(!empty($_GET['uri'])){
 				
@@ -132,6 +141,23 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				}
 			}
 		}
+	}
+	
+	public function get_images_list( $rest = NULL ) {
+		
+		$images = array();
+		 
+		foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->dir)) as $path => $iterator){
+			
+			list(,$path) = explode('/i/',$path);
+			
+			if( substr($path,-4) == '.png' ){
+				
+				$images[] = $this->url . $path;
+			}
+		}
+		
+		return $images;
 	}
 	
 	public function get_fields(){
