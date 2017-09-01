@@ -101,11 +101,11 @@
 
 		echo'</div>';
 	}
-	elseif( $is_embedded ){
+	else{
 		
 		$iframe_url = $this->urls->editor . '?uri=' . $this->layer->id . '&lk=' . md5( 'layer' . $this->layer->id . $this->_time ) . '&_=' . $this->_time;
 
-		if( !empty($_GET['key']) ){
+		if( $is_embedded ){
 			
 			$iframe_url .= '&le=' . urlencode($_GET['le']);
 		} 	

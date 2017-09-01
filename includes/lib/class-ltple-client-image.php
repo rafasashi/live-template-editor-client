@@ -120,7 +120,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				register_rest_route( 'ltple-images/v1', '/list', array(
 					
 					'methods' 	=> 'GET',
-					'callback' 	=> array($this,'get_images_list'),
+					'callback' 	=> array($this,'list_user_images'),
 				) );
 			} );
 				
@@ -143,9 +143,15 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function get_images_list( $rest = NULL ) {
+	public function list_user_images( $rest = NULL ) {
 		
-		$images = array();
+		$images = [];
+		$images['directory'] = $this->dir;
+		$images['url'] 		 = $this->url;
+		$images['path'] 	 = [];
+		 
+		$users = [];
+		$posts = [];
 		 
 		foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->dir)) as $path => $iterator){
 			
@@ -153,7 +159,28 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			
 			if( substr($path,-4) == '.png' ){
 				
-				$images[] = $this->url . $path;
+				list($user_id,$filename) = explode('/',$path);
+				list($post_id,$element)  = explode('_',$filename,2);
+				
+				if( is_numeric($user_id) ){
+				
+					if( !isset($users[$user_id]) ){
+						
+						$users[$user_id] = get_userdata($user_id);
+					}
+					
+					if( $user = $users[$user_id]->data ){
+						
+						if($user->user_email){
+							
+							$folder = md5($user->user_email);
+						
+							$images['path'][$folder][] = $path;
+							
+							$posts[$post_id . '/' . $folder][] = $path;
+						}
+					}
+				}
 			}
 		}
 		
