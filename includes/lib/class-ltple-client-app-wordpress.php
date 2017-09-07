@@ -131,7 +131,9 @@ class LTPLE_Client_App_Wordpress {
 	}
 	
 	public function appUploadImg( $app_id, $image_url){
-
+		
+		$image_id = false;
+		
 		if( $this->app = $this->parent->apps->getAppData( $app_id, $this->parent->user->ID, false ) ){
 			
 			$this->client->set_auth_token($this->app->access_token);
@@ -154,7 +156,8 @@ class LTPLE_Client_App_Wordpress {
 			
 			$post_data = $post->get();
 			
-			// TODO store media url
+			// store media url
+			
 			if( !empty($post_data->attachments) ){
 				
 				foreach($post_data->attachments as $image){

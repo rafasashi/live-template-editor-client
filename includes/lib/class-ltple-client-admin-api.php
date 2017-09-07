@@ -159,8 +159,33 @@ class LTPLE_Client_Admin_API {
 				
 				$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . $value . '" '.$required.$disabled.'/>' . "\n";
 			break;
-
+			
 			case 'password':
+				
+				if ( isset( $field['show'] ) && $field['show'] === true ) {
+				
+					$html .= '<div class="input-group">';
+				}
+				
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
+				
+				if ( isset( $field['show'] ) && $field['show'] === true ) {
+					
+					$html .= '<span class="input-group-btn">';
+				
+						$html .= '<input type="submit" class="btn btn-default show-password" data-target="#'.$field['id'].'" value="Show" />';
+					
+					$html .= '</span>';
+					
+					$html .= '</div>';
+				}
+				
+			break;
+			
+			case 'hidden':
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="hidden" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
+			break;
+			
 			case 'number':
 				$min = '';
 				if ( isset( $field['min'] ) ) {
@@ -171,11 +196,9 @@ class LTPLE_Client_Admin_API {
 				if ( isset( $field['max'] ) ) {
 					$max = ' max="' . esc_attr( $field['max'] ) . '"';
 				}
-				$html .= '<input class="form-control" id="' . $id . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . ''.$required.$disabled.'/>' . "\n";
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
 			break;
-			case 'hidden':
-				$html .= '<input class="form-control" id="' . $id . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $field['value'] ) . '"'.$required.'/>' . "\n";
-			break;
+			
 			case 'text_secret':
 				$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="" '.$required.$disabled.'/>' . "\n";
 			break;

@@ -628,16 +628,9 @@ class LTPLE_Client_Settings {
 					'description'	=> '',
 					'type'			=> 'password',
 					'default'		=> '',
+					'show'			=> true,
 					'placeholder'	=> __( '', $this->plugin->slug )
-				),				
-				array(
-					'id' 			=> 'host_url',
-					'label'			=> __( 'Host Url' , $this->plugin->slug ),
-					'description'	=> 'Leave it empty to disable dedicated domain names and hosting features',
-					'type'			=> 'text',
-					'default'		=> '',
-					'placeholder'	=> __( 'http://host.recuweb.com', $this->plugin->slug )
-				),					
+				),								
 
 				array(
 					'id' 			=> 'email_support',

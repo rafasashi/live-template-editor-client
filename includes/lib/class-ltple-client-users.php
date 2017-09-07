@@ -70,13 +70,13 @@
 						add_filter('manage_users_columns', array($this, 'update_subscribers_table'), 100, 3);
 					}
 
-					if( method_exists($this, 'modify_' . $this->view . '_table_row') ){
+					if( method_exists($this, 'get_' . $this->view . '_table_row') ){
 						
-						add_filter('manage_users_custom_column', array($this, 'modify_' . $this->view . '_table_row'), 100, 3);	
+						add_filter('manage_users_custom_column', array($this, 'get_' . $this->view . '_table_row'), 100, 3);	
 					}
 					else{
 						
-						add_filter('manage_users_custom_column', array($this, 'modify_subscribers_table_row'), 100, 3);
+						add_filter('manage_users_custom_column', array($this, 'get_subscribers_table_row'), 100, 3);
 					}
 					
 					// custom bulk actions
@@ -393,7 +393,7 @@
 		    echo '</style>';
 		}
 
-		public function modify_subscribers_table_row($val, $column_name, $user_id) {
+		public function get_subscribers_table_row($val, $column_name, $user_id) {
 			
 			if(!isset($this->list->{$user_id})){
 			
@@ -571,9 +571,9 @@
 			return $this->custom_subscribers_table_css();
 		}
 		
-		public function modify_unsubscribers_table_row($val, $column_name, $user_id) {
+		public function get_unsubscribers_table_row($val, $column_name, $user_id) {
 			
-			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
+			return $this->get_subscribers_table_row($val, $column_name, $user_id);
 		}		
 		
 		public function update_guests_table($column) {
@@ -586,9 +586,9 @@
 			return $this->custom_subscribers_table_css();
 		}
 		
-		public function modify_guests_table_row($val, $column_name, $user_id) {
+		public function get_guests_table_row($val, $column_name, $user_id) {
 			
-			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
+			return $this->get_subscribers_table_row($val, $column_name, $user_id);
 		}	
 		
 		public function update_leads_table($column) {
@@ -601,9 +601,9 @@
 			return $this->custom_subscribers_table_css();
 		}
 		
-		public function modify_leads_table_row($val, $column_name, $user_id) {
+		public function get_leads_table_row($val, $column_name, $user_id) {
 			
-			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
+			return $this->get_subscribers_table_row($val, $column_name, $user_id);
 		}
 		
 		public function update_conversions_table($column) {
@@ -616,9 +616,9 @@
 			return $this->custom_subscribers_table_css();
 		}
 		
-		public function modify_conversions_table_row($val, $column_name, $user_id) {
+		public function get_conversions_table_row($val, $column_name, $user_id) {
 			
-			return $this->modify_subscribers_table_row($val, $column_name, $user_id);
+			return $this->get_subscribers_table_row($val, $column_name, $user_id);
 		}		
 		
 		public function update_users_manually() {

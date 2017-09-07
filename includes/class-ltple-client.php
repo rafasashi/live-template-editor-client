@@ -1208,7 +1208,7 @@ class LTPLE_Client {
 				
 				echo ' .bs-callout-primary, .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
 				
-					echo'border-left: 5px solid '.$this->settings->mainColor.' !important;';
+					echo'border-left: 5px solid '.$this->settings->mainColor . ' !important;';
 				
 				echo'}';
 				
@@ -1217,7 +1217,16 @@ class LTPLE_Client {
 					echo'color:rgb(146, 144, 144);';
 					echo'background-color:rgb(242, 242, 242) !important;';
 				
-				echo'}';				
+				echo'}';
+
+				if( is_plugin_active('wpforo/wpforo.php') ){
+					
+					echo' #wpforo-wrap .wpfl-1 .wpforo-category, #wpforo-wrap .wpfl-2 .wpforo-category, #wpforo-wrap .wpfl-3 .wpforo-category {';
+					
+						echo'background-color: '.$this->settings->mainColor . ';';
+						 
+					echo'}';
+				}
 			}
 			
 			if( !empty($this->settings->linkColor) ){
@@ -1355,7 +1364,7 @@ class LTPLE_Client {
 								
 				$this->viewIncluded = true;	
 			}
-			elseif( !empty($this->urls->host) && ( isset($_GET['domain']) || !empty($_SESSION['domain']) ) ){
+			elseif( ( isset($_GET['domain']) || !empty($_SESSION['domain']) ) ){
 
 				include($this->views . $this->_dev .'/domains.php');
 								
