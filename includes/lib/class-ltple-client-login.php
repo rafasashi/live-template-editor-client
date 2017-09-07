@@ -132,20 +132,43 @@ class LTPLE_Client_Login {
 	
 	public function set_login_url( $login_url, $redirect, $force_reauth ) {
 		
-		$login_page = home_url( '/' . $this->pageSlug . '/' );
+		$login_url = home_url( '/' . $this->pageSlug . '/' );
 		
-		$login_url = add_query_arg( 'redirect_to', $redirect, $login_page );
+		if( !empty($redirect) ){
+			
+			$login_url = add_query_arg( 'redirect_to', $redirect, $login_url );
+		}
 		
 		return $login_url;
 	}	
 
 	public function set_register_url( $register_url ) {	
-
-		$register_url = add_query_arg( array(
 		
-			'redirect_to' 	=> ( $_GET['redirect_to'] ? $_GET['redirect_to'] : ''),
+		$register_url = add_query_arg( array(
+
+			'action' 		=> 'register',
 			
-		), $register_url );	
+		), wp_login_url() );
+
+		if( !empty($_GET['redirect_to']) ){
+		
+			$register_url = add_query_arg( array(
+			
+				'redirect_to' 	=> urlencode( $_GET['redirect_to'] ),
+				
+			), $register_url );
+		}
+		
+		if( !empty($_GET['loe']) ){
+
+			$register_url = add_query_arg( array(
+
+				'loe' 	=> $_GET['loe'],
+				
+			), $register_url );
+		}
+		
+		
 	
 		return $register_url;
 	}
