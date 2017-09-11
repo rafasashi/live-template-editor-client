@@ -35,7 +35,7 @@ class LTPLE_Client_Update {
 		
 			foreach($q as $layer){
 				
-				$layers[$layer->ID] = update_post_meta( $layer->ID, 'layerContent', $layer->post_content);
+				$layers[$layer->ID] = add_post_meta( $layer->ID, 'layerContent', $layer->post_content, true);
 			}
 		}
 		
@@ -47,7 +47,7 @@ class LTPLE_Client_Update {
 		
 			foreach($q as $layer){
 				
-				$layers[$layer->ID] = update_post_meta( $layer->ID, 'layerContent', $layer->post_content);
+				$layers[$layer->ID] = add_post_meta( $layer->ID, 'layerContent', $layer->post_content, true);
 			}
 		}
 		
