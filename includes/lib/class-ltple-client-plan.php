@@ -276,7 +276,7 @@ class LTPLE_Client_Plan {
 
 						$taxonomy_options[$i] = $this->parent->layer->get_options( $taxonomy, $term );
 
-						if ( in_array( $term->slug, $data ) ) {						
+						if ( in_array( $term->slug, $data ) ) {
 							
 							$total_price_amount = $this->sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);	
 							$total_fee_amount 	= $this->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);				
@@ -326,7 +326,7 @@ class LTPLE_Client_Plan {
 				
 				if(!empty($plan_upgrade)){
 					
-					foreach($plan_upgrade as $option => $value){
+					foreach($plan_upgrade['now'] as $option => $value){
 						
 						$total_upgrade += $value;
 					}
@@ -374,6 +374,8 @@ class LTPLE_Client_Plan {
 				if( $plan_status == 'upgrade' ){
 					
 					$plan_data['upgrade'] = $plan_upgrade;
+					
+					// display total upgrade price
 				}
 				
 				$plan_data=esc_attr( json_encode( $plan_data ) );
@@ -667,10 +669,9 @@ class LTPLE_Client_Plan {
 														
 															$subscription_plan.= $plan->post_title;
 															
-															if( $total_price_amount > 0 ){
+															if( $total_price_amount > 0 && $plan_status != 'upgrade' ){
 															
-																$subscription_plan.= ' ('.$total_price_amount.$total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
-														
+																$subscription_plan.= ' (' . $total_price_amount . $total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
 															}
 														
 														$subscription_plan.= '</h4>'.PHP_EOL;
@@ -944,12 +945,15 @@ class LTPLE_Client_Plan {
 								foreach ( $terms as $i => $term ) {
 									
 									$options[$i] = $this->parent->layer->get_options( $taxonomy, $term );
-									
+
 									if( is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ) ){
 										
-										$total_fee_amount 	= $this->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $options[$i], $total_fee_period);
-										$total_price_amount = $this->sum_custom_taxonomy_total_price_amount( $total_price_amount, $options[$i], $total_price_period);
-										$total_storage 		= $this->sum_custom_taxonomy_total_storage( $total_storage, $options[$i]);
+										if( empty($term->parent) || !is_object_in_term( $user_plan_id, $taxonomy, $term->parent ) ){
+										
+											$total_fee_amount 	= $this->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $options[$i], $total_fee_period);
+											$total_price_amount = $this->sum_custom_taxonomy_total_price_amount( $total_price_amount, $options[$i], $total_price_period);
+											$total_storage 		= $this->sum_custom_taxonomy_total_storage( $total_storage, $options[$i]);
+										}
 									}
 									
 									echo '<span style="height:20px;display:block;padding:1px 0;margin:0;">';
@@ -1638,11 +1642,14 @@ class LTPLE_Client_Plan {
 					
 					if( $in_term === true ){
 						
-						$options = $this->parent->layer->get_options( $taxonomy, $term );
+						if( empty($term->parent) || !is_object_in_term( $user_plan_id, $taxonomy, $term->parent ) ){
+						
+							$options = $this->parent->layer->get_options( $taxonomy, $term );
 
-						$user_plan['info']['total_fee_amount']	 = $this->sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_fee_amount'], $options, $user_plan['info']['total_fee_period'] );
-						$user_plan['info']['total_price_amount'] = $this->sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_price_amount'], $options, $user_plan['info']['total_price_period'] );
-						$user_plan['info']['total_storage'] 	 = $this->sum_custom_taxonomy_total_storage( $user_plan['info']['total_storage'], $options);
+							$user_plan['info']['total_fee_amount']	 = $this->sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_fee_amount'], $options, $user_plan['info']['total_fee_period'] );
+							$user_plan['info']['total_price_amount'] = $this->sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_price_amount'], $options, $user_plan['info']['total_price_period'] );
+							$user_plan['info']['total_storage'] 	 = $this->sum_custom_taxonomy_total_storage( $user_plan['info']['total_storage'], $options);
+						}
 					}					
 				}
 			}
@@ -1748,10 +1755,12 @@ class LTPLE_Client_Plan {
 		
 		$plan_upgrade = [];
 		
-		if(!empty($this->parent->user->plan['taxonomies'])){
+		if( $this->parent->user->plan['info']['total_price_amount'] > 0 && !empty($this->parent->user->plan['taxonomies'])){
 			
-			$plan_options = get_post_meta( $plan_id, 'plan_options', true );
-						
+			$total_price_amount = $this->parent->user->plan['info']['total_price_amount'];
+			
+			$plan_options = get_post_meta( $plan_id, 'plan_options', true );	
+				
 			if(!empty($plan_options)){
 				
 				// get new_plan_options
@@ -1759,20 +1768,20 @@ class LTPLE_Client_Plan {
 				$plan_options = array_flip($plan_options);
 				
 				$is_ancestor_upgrade = false;
-
+				
 				foreach($this->parent->user->plan['taxonomies'] as $taxonomy => $tax){
 
 					foreach($tax['terms'] as $term_slug => $new_term){
 
-						if( isset($plan_options[$term_slug]) && $new_term['has_term']!==true ){
-							
+						if( isset($plan_options[$term_slug]) && $new_term['has_term'] !== true ){
+
 							// get new term value
 							
 							$new_term_value = 0;
 							
 							$new_term_options = $this->parent->layer->get_options( $taxonomy, $new_term );
-
-							if( $new_term_options['price_amount'] > 0 && $this->parent->user->plan['info']['total_price_amount'] < $new_term_options['price_amount'] ){
+							
+							if( $new_term_options['price_amount'] > 0 ){
 								
 								// get  term value
 								
@@ -1786,41 +1795,38 @@ class LTPLE_Client_Plan {
 											
 											break;
 										}
-										
-										/*
-										$curr_term_options = $this->parent->layer->get_options( $taxonomy, $curr_term );
-											
-										$new_term_value = $new_term_value - $curr_term_options['price_amount'];										
-										*/
 									}
 								}
+
+								if( $is_ancestor_upgrade ){
 								
-								$new_term_value = $new_term_options['price_amount'] - $this->parent->user->plan['info']['total_price_amount'];
-								
-								if( $new_term_value == 0 ){
+									$new_term_value = $new_term_options['price_amount'] - $this->parent->user->plan['info']['total_price_amount'];
+									
+									if( $new_term_value == 0 ){
+										
+										$new_term_value = $new_term_options['price_amount'];
+									}
+								}
+								else{
 									
 									$new_term_value = $new_term_options['price_amount'];
 								}
+								
+								$total_price_amount += $new_term_value;
 							}
 							elseif( $new_term_options['price_amount'] < 0 ){
 								
 								$new_term_value = $new_term_options['price_amount'];
 							}
-							
-							$plan_upgrade[$new_term['slug']] = $new_term_value;
+	
+							$plan_upgrade['now'][$new_term['slug']] = $new_term_value;
+							$plan_upgrade['total'] = $total_price_amount;
 						}
 					}			
 				}
-			}
+			}		
 		}
 		
-		if( !$is_ancestor_upgrade ){
-			
-			// restrict upgrade to parent plan for the moment
-			
-			$plan_upgrade = [];
-		}
-
 		return $plan_upgrade;
 	}
 	

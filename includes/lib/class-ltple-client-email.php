@@ -441,10 +441,10 @@ class LTPLE_Client_Email {
 					
 					$headers   = [];
 					$headers[] = 'From: ' . get_bloginfo('name') . ' <'.$sender_email.'>';
-					$headers[] = 'MIME-Version: 1.0';
+					//$headers[] = 'MIME-Version: 1.0';
 					$headers[] = 'Content-type: text/html';
 					
-					$preMessage = "<html><body><div style='width:700px;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$this->get_footer($user)."<div style='clear:both'></div></div></body></html>";
+					$preMessage = "<html><body><div style='width:100%;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$this->get_footer($user)."<div style='clear:both'></div></div></body></html>";
 			
 					if(!wp_mail($user->user_email, $Email_title, $preMessage, $headers)){
 						
@@ -673,7 +673,7 @@ class LTPLE_Client_Email {
 			
 			$headers   = [];
 			$headers[] = 'From: ' . $company . ' <'.$sender_email.'>';
-			$headers[] = 'MIME-Version: 1.0';
+			//$headers[] = 'MIME-Version: 1.0';
 			$headers[] = 'Content-type: text/html';
 
 			$preMessage = "<html><body><div style='width:700px;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$this->get_footer($user)."<div style='clear:both'></div></div></body></html>";

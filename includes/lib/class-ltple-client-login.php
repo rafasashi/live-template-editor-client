@@ -118,7 +118,7 @@ class LTPLE_Client_Login {
 		}
 		
 		// redirect to login page
-
+		
 		$login_url = add_query_arg( array(
 		
 			'redirect_to' 	=> ( isset($_GET['redirect_to']) ? $_GET['redirect_to'] : ''),

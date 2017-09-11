@@ -76,12 +76,10 @@
 		$layerHead = preg_replace('~<(?:!DOCTYPE|/?(?:head))[^>]*>\s*~i', '', $layerHead);
 		
 		// get body
-
-		if( !empty($post->post_content) ){
-			
-			$layerContent = $post->post_content;
-		}
-		else{
+		
+		$layerContent = get_post_meta( $post->ID, 'layerContent', true );
+		
+		if( empty($layerContent) ){
 
 			$layerContent = $dom->saveHtml( $xpath->query('/html/body')->item(0) );
 			$layerContent = preg_replace('~<(?:!DOCTYPE|/?(?:body))[^>]*>\s*~i', '', $layerContent);
@@ -111,20 +109,14 @@
 
 			$layerContent = $_POST['importHtml'];
 		}
-		elseif( !empty($post->post_content) ){
-			
-			$layerContent = $post->post_content;
-		}
-		elseif( $post->layer_id != $post->ID ){
-			
-			if( $layer = get_post( $post->layer_id ) ){
-			
-				$layerContent = $layer->post_content;
-			}
-		}
 		else{
-
-			$layerContent = $post->post_content;
+			
+			$layerContent = get_post_meta( $post->ID, 'layerContent', true );
+			
+			if( $layerContent == '' && $post->ID != $post->layer_id){
+				
+				$layerContent = get_post_meta( $post->layer_id, 'layerContent', true );
+			}
 		}
 		
 		$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);

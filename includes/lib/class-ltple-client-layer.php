@@ -42,7 +42,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'hierarchical' 			=> true,
 			'show_in_rest' 			=> true,
 			//'supports' 			=> array( 'title', 'editor', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail' ),
+			'supports' 				=> array( 'title', 'excerpt', 'thumbnail' ),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
@@ -63,7 +63,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'hierarchical' 			=> true,
 			'show_in_rest' 			=> true,
 			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array( 'title', 'editor', 'author' ),
+			'supports' 				=> array( 'title', 'author' ),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
@@ -143,11 +143,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			global $post;
 			
 			if( $post->post_type == 'cb-default-layer' ){
-			
+				
 				$this->parent->admin->add_meta_box (
 					
-					'metabox_1',
-					__( 'Layer configuration', 'live-template-editor-client' ), 
+					'layer-content',
+					__( 'Layer HTML', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);
@@ -167,6 +167,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					array($post->post_type),
 					'advanced'
 				);
+				
+				/*
+				$this->parent->admin->add_meta_box (
+					
+					'metabox_1',
+					__( 'Layer configuration', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				);
+				*/			
 				
 				$this->parent->admin->add_meta_box (
 					
@@ -269,6 +279,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						return;
 					}
 				}
+				
+				$this->parent->admin->add_meta_box (
+					
+					'layer-content',
+					__( 'Layer HTML', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'advanced'
+				); 				
 				
 				$this->parent->admin->add_meta_box (
 					
@@ -746,43 +764,34 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 					if( $q = get_post($this->uri) ){
 						
-						if( $q->post_status == 'trash' && $q->post_type == 'user-layer' ){
-							
-							// get default template instead
-							
-							$this->defaultId = intval(get_post_meta( $q->ID, 'defaultLayerId', true ));
-							
-							if( $this->defaultId > 0 ){
-								
-								$q = get_post($this->defaultId);
-							}
-						}
-						
-						if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
-						
-							$this->id 		= $q->ID;
-							$this->type 	= $q->post_type;
-							$this->slug 	= $q->post_name;
-							$this->title 	= $q->post_title;
-							
-							if( $this->type == 'user-layer' ){
-							
-								$this->content 	 = $q->post_content;
-								$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
-							}
-							else{
-								
-								$this->defaultId = $this->id;
-								$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );
-							}
+						if( $q->post_status == 'publish' ){
 
-							// get output mode
+							if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
 							
-							$this->outputMode 	= get_post_meta( $this->defaultId, 'layerOutput', true );
-							
-							// recalled in layer template...
-							//$this->margin 		= get_post_meta( $this->defaultId, 'layerMargin', true );
-							//$this->options 		= get_post_meta( $this->defaultId, 'layerOptions', true );
+								$this->id 		= $q->ID;
+								$this->type 	= $q->post_type;
+								$this->slug 	= $q->post_name;
+								$this->title 	= $q->post_title;
+								
+								if( $this->type == 'user-layer' ){
+								
+									$this->content 	 = $q->post_content;
+									$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
+								}
+								else{
+									
+									$this->defaultId = $this->id;
+									$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );
+								}
+
+								// get output mode
+								
+								$this->outputMode 	= get_post_meta( $this->defaultId, 'layerOutput', true );
+								
+								// recalled in layer template...
+								//$this->margin 		= get_post_meta( $this->defaultId, 'layerMargin', true );
+								//$this->options 		= get_post_meta( $this->defaultId, 'layerOptions', true );
+							}
 						}
 					}
 				}				
@@ -942,6 +951,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					</table>'
 		);
 		
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=>"layer-content"),
+				'id'=>"layerContent",
+				'label'=>"",
+				'type'=>'textarea',
+				'placeholder'=>"HTML content",
+				//'description'=>'<i>without '.htmlentities('<style></style>').'</i>'
+		);		
 		
 		$fields[]=array(
 		
@@ -1083,7 +1103,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function get_user_layer_fields(){
 				
 		$fields=[];
+	
+		$fields[]=array(
 		
+			"metabox" =>
+			
+				array('name'=>"layer-content"),
+				'id'			=> "layerContent",
+				'label'			=> "",
+				'type'			=> 'textarea',
+				'placeholder'	=> "HTML content",
+				//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+		);
+	
 		$fields[]=array(
 		
 			"metabox" =>
@@ -1168,8 +1200,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if(!$form = get_option('meta_' . $term_slug)){
 			
 			$form = [];
-		} 
-		
+		}
+
 		$options=[];
 		$options['price_currency']	= $price_currency;
 		$options['price_amount']	= $price_amount;

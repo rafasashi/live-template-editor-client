@@ -413,6 +413,8 @@ class LTPLE_Client {
 			}
 			
 			do_action('ltple_user_loaded');
+			
+			$this->update = new LTPLE_Client_Update( $this );
 		}
 		else{
 
@@ -1694,7 +1696,9 @@ class LTPLE_Client {
 						
 							global $wpdb;
 						
-							$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $layerId));
+							//$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $layerId));
+						
+							update_post_meta($layerId, 'layerContent', $post_content);
 						
 							update_post_meta($layerId, 'layerCss', $post_css);
 							
@@ -1787,17 +1791,15 @@ class LTPLE_Client {
 
 							if( is_int($layerId) && $layerId !== -1 ){
 							
-								$post_information = array(
+								$post_id = wp_insert_post(array(
 									
 									'post_author' 	=> $this->user->ID,
 									'post_title' 	=> $post_title,
 									'post_name' 	=> $post_name,
-									'post_content' 	=> $post_content,
+									//'post_content' 	=> $post_content,
 									'post_type' 	=> $layer->post_type,
 									'post_status' 	=> 'publish'
-								);
-								
-								$post_id = wp_insert_post( $post_information );
+								));
 
 								if( is_numeric($post_id) ){							
 									
@@ -1814,6 +1816,8 @@ class LTPLE_Client {
 									
 									update_post_meta( $post_id, 'layerMargin', '0px' );
 
+									update_post_meta($post_id, 'layerContent', $post_content);
+									
 									update_post_meta($post_id, 'layerCss', $post_css);
 									
 									update_post_meta($post_id, 'layerJs', $post_js);									
@@ -2063,22 +2067,22 @@ class LTPLE_Client {
 					
 					if( $post_title!='' && is_int($defaultLayerId) && $defaultLayerId !== -1 ){
 						
-						$post_information = array(
+						$post_id = wp_update_post(array(
 							
 							'ID' 			=> $post_id,
 							'post_author' 	=> $post_author,
 							'post_title' 	=> $post_title,
 							'post_name' 	=> $post_name,
-							'post_content' 	=> $post_content,
+							//'post_content' 	=> $post_content,
 							'post_type' 	=> $post_type,
 							'post_status' 	=> 'publish'
-						);
-						
-						$post_id = wp_update_post( $post_information );
+						));
 						
 						if( is_numeric($post_id) ){
 							
 							update_post_meta($post_id, 'defaultLayerId', $defaultLayerId);
+							
+							update_post_meta($post_id, 'layerContent', $post_content);
 							
 							update_post_meta($post_id, 'layerCss', $post_css);
 							
