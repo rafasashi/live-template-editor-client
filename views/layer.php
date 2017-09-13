@@ -435,6 +435,12 @@
 		
 		if( empty($_POST) && $layerForm == 'importer' && empty($ltple->layer->layerContent) ){
 			
+			echo'<script>' .PHP_EOL;
+
+				echo ' var layerFormActive = true;' .PHP_EOL;
+				
+			echo'</script>' .PHP_EOL;
+			
 			echo '<div class="container">';
 			
 				echo '<div class="panel panel-default" style="margin:50px;">';
