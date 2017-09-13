@@ -114,3 +114,99 @@
 
 		echo'<iframe id="editorIframe" src="' . $iframe_url .'" style="margin-top: -65px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height: 1300px;overflow: hidden;"></iframe>';
 	}
+	
+	//--------------- editor settings -------------------
+
+	//get page def
+	
+	$pageDef = $this->layer->pageDef;
+	
+	//get output config
+	
+	$layerOutput = $this->layer->layerOutput;
+	
+	//get layer options
+	
+	$layerOptions = $this->layer->layerOptions;
+	
+	//get layer settings
+	
+	$layerSettings = $this->layer->layerSettings;
+
+	//get css libraries
+
+	$cssLibraries = $this->layer->cssLibraries;
+	
+	//get layer image proxy
+	
+	$layerImgProxy = $this->layer->layerImgProxy;	
+		
+	//---------- editor settings ---------------
+		
+	echo'<script id="LiveTplEditorSettings">' .PHP_EOL;
+
+		if($layerOutput!=''){
+			
+			echo ' var layerOutput = "' . $layerOutput . '";' .PHP_EOL;
+		}
+		
+		echo ' var layerSettings = ' . json_encode($layerSettings) . ';' .PHP_EOL;
+		
+		//include image proxy
+		
+		if($layerImgProxy!=''){
+		
+			echo ' var imgProxy = " ' . $layerImgProxy . '";' .PHP_EOL;				
+		}
+		
+		//include page def
+		
+		if($pageDef!=''){
+			
+			echo ' var pageDef = ' . $pageDef . ';' .PHP_EOL;
+		}
+		else{
+			
+			echo ' var pageDef = {};' .PHP_EOL;
+		}
+		
+		//include  line break setting
+
+		if( !is_array($layerOptions) ){
+			
+			echo ' var disableReturn 	= true;' .PHP_EOL;
+			echo ' var autoWrapText 	= false;' .PHP_EOL;
+		}
+		else{
+			
+			if(!in_array('line-break',$layerOptions)){
+				
+				echo ' var disableReturn = true;' .PHP_EOL;
+			}
+			else{
+				
+				echo ' var disableReturn = false;' .PHP_EOL;
+			}
+			
+			if(in_array('wrap-text',$layerOptions)){
+				
+				echo ' var autoWrapText = true;' .PHP_EOL;
+			}
+			else{ 
+				
+				echo ' var autoWrapText = false;' .PHP_EOL;
+			}
+		}
+		
+		//include icon settings
+		
+		$enableIcons = 'false';
+		
+		if( in_array_field( 'font-awesome-4-7-0', 'slug', $cssLibraries ) ){
+			
+			$enableIcons = 'true';
+		}
+		
+		echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
+
+	echo'</script>' .PHP_EOL;

@@ -78,9 +78,9 @@
 	
 	if( $mode == '-dev' ){
 		
-		LTPLE_Client( '1.1.8', $mode );
+		LTPLE_Client( '1.1.9', $mode );
 	}
 	else{
 		
-		LTPLE_Client( '1.1.7', $mode );
+		LTPLE_Client( '1.1.8', $mode );
 	}

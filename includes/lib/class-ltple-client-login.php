@@ -140,16 +140,16 @@ class LTPLE_Client_Login {
 		}
 		
 		return $login_url;
-	}	
+	}
+	
+	public function get_register_url( $register_url ) {
 
-	public function set_register_url( $register_url ) {	
-		
 		$register_url = add_query_arg( array(
 
 			'action' 		=> 'register',
 			
-		), wp_login_url() );
-
+		), $register_url );		
+		
 		if( !empty($_GET['redirect_to']) ){
 		
 			$register_url = add_query_arg( array(
@@ -166,11 +166,14 @@ class LTPLE_Client_Login {
 				'loe' 	=> $_GET['loe'],
 				
 			), $register_url );
-		}
-		
-		
-	
+		}	
+
 		return $register_url;
+	}
+
+	public function set_register_url( $register_url ) {
+
+		return $register_url = $this->get_register_url($register_url);
 	}
 	
 	public function set_login_redirect_url( $redirect_to, $request, $user ) {

@@ -4,40 +4,40 @@
 
 	//get page def
 	
-	$pageDef = get_post_meta( $post->layer_id, 'pageDef', true );
+	$pageDef = $ltple->layer->pageDef;
 	
 	//get static url
 	
-	$layerStaticUrl = get_post_meta( $post->layer_id, 'layerStaticUrl', true );	
+	$layerStaticUrl = $ltple->layer->layerStaticUrl;
 	
 	//get output config
 	
-	$layerOutput = get_post_meta( $post->layer_id, 'layerOutput', true );
+	$layerOutput = $ltple->layer->layerOutput;
 	
 	//get layer options
 	
-	$layerOptions = get_post_meta( $post->layer_id, 'layerOptions', true );
+	$layerOptions = $ltple->layer->layerOptions;
 	
 	//get layer settings
 	
-	$layerSettings = get_post_meta( $post->ID, 'layerSettings', true );
+	$layerSettings = $ltple->layer->layerSettings;
 
 	//get layer embedded
 	
-	$layerEmbedded = get_post_meta( $post->ID, 'layerEmbedded', true );	
+	$layerEmbedded = $ltple->layer->layerEmbedded;
 	
 	//get layer form
 	
-	$layerForm = get_post_meta( $post->layer_id, 'layerForm', true );
+	$layerForm = $ltple->layer->layerForm;
 	
 	//get css libraries
 
-	$cssLibraries = wp_get_post_terms( $post->layer_id, 'css-library', array( 'orderby' => 'term_id' ) );
+	$cssLibraries = $ltple->layer->cssLibraries;
 	
 	//get js libraries
 	
-	$jsLibraries = wp_get_post_terms( $post->layer_id, 'js-library', array( 'orderby' => 'term_id' ) );
-
+	$jsLibraries = $ltple->layer->jsLibraries;
+	
 	//get layer image proxy
 	
 	$layerImgProxy = $ltple->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
@@ -49,7 +49,6 @@
 	$layerMeta 		= '';
 	$layerMargin	= '';
 	$layerMinWidth	= '';
-	$layerSources	= [];
 	
 	if( !empty($layerStaticUrl) ){
 		
@@ -77,7 +76,7 @@
 		
 		// get body
 		
-		$layerContent = get_post_meta( $post->ID, 'layerContent', true );
+		$layerContent = $ltple->layer->layerContent;
 		
 		if( empty($layerContent) ){
 
@@ -89,19 +88,11 @@
 		
 		//get layer margin
 		
-		$layerMargin = get_post_meta( $post->layer_id, 'layerMargin', true );
+		$layerMargin = $ltple->layer->layerMargin;
 		
-		if( empty($layerMargin) ){
-			
-			$layerMargin = '-120px 0px -20px 0px';
-		}
+		//get layer Min Width
 		
-		$layerMinWidth = get_post_meta( $post->layer_id, 'layerMinWidth', true );
-		
-		if( empty($layerMinWidth) ){
-			
-			$layerMinWidth = '1000px';
-		}		
+		$layerMinWidth = $ltple->layer->layerMinWidth;		
 		
 		//get layer content
 		
@@ -111,12 +102,7 @@
 		}
 		else{
 			
-			$layerContent = get_post_meta( $post->ID, 'layerContent', true );
-			
-			if( $layerContent == '' && $post->ID != $post->layer_id){
-				
-				$layerContent = get_post_meta( $post->layer_id, 'layerContent', true );
-			}
+			$layerContent = $ltple->layer->layerContent;
 		}
 		
 		$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
@@ -129,31 +115,11 @@
 		}
 		elseif(empty($_POST)){
 			
-			$layerCss = get_post_meta( $post->ID, 'layerCss', true );
+			$layerCss = $ltple->layer->layerCss;
 			
-			if( $layerCss == '' && $post->ID != $post->layer_id){
-				
-				$layerCss = get_post_meta( $post->layer_id, 'layerCss', true );
-			}
-			
-			$layerJs = get_post_meta( $post->ID, 'layerJs', true );
-			
-			if( $layerJs == '' && $post->ID != $post->layer_id){
-				
-				$layerJs = get_post_meta( $post->layer_id, 'layerJs', true );
-			}
-			
-			$layerMeta = get_post_meta( $post->ID, 'layerMeta', true );
-			
-			if( $layerMeta == '' && $post->ID != $post->layer_id){
-				
-				$layerMeta = get_post_meta( $post->layer_id, 'layerMeta', true );
-			}
-			
-			if(!empty($layerMeta)){
-				
-				$layerMeta = json_decode($layerMeta,true);
-			}
+			$layerJs = $ltple->layer->layerJs;
+
+			$layerMeta = $ltple->layer->layerMeta;
 		}
 
 		$layerCss = sanitize_text_field($layerCss);
@@ -320,7 +286,7 @@
 				echo '<meta name="google-site-verification" content="'.$ggl_webmaster_id.'" />'.PHP_EOL;
 			}
 			
-			$title = ucfirst($post->post_title);
+			$title = ucfirst($ltple->layer->title);
 			
 			if( empty($layerSettings['meta_title']) ){
 				
@@ -362,7 +328,7 @@
 				echo '<meta name="revised" content="' . $revised . '" />' . PHP_EOL;
 			}
 			
-			$content = ucfirst($post->post_title);
+			$content = ucfirst($ltple->layer->title);
 			
 			if( empty($layerSettings['meta_description']) ){
 				
@@ -467,7 +433,7 @@
 		
 		//include layer
 		
-		if( empty($_POST) && $layerForm == 'importer' && empty($post->post_content) ){
+		if( empty($_POST) && $layerForm == 'importer' && empty($ltple->layer->layerContent) ){
 			
 			echo '<div class="container">';
 			
@@ -477,7 +443,7 @@
 				
 					if( !empty($layerForm) ){
 						
-						echo'<h4>'.ucfirst($post->post_title).'</h4>';
+						echo'<h4>'.ucfirst($ltple->layer->title).'</h4>';
 					}
 					
 				echo '</div>';
@@ -584,91 +550,6 @@
 				echo $layerJs .PHP_EOL;				
 			}				
 			
-		echo'</script>' .PHP_EOL;
-
-		//include layer Output
-		
-		echo'<script>' .PHP_EOL;
-
-			if($layerOutput!=''){
-				
-				echo ' var layerOutput = "' . $layerOutput . '";' .PHP_EOL;
-			}
-			
-			echo ' var layerSettings = ' . json_encode($layerSettings) . ';' .PHP_EOL;
-			
-			//include image proxy
-			
-			if($layerImgProxy!=''){
-			
-				echo ' var imgProxy = " ' . $layerImgProxy . '";' .PHP_EOL;				
-			}
-			
-			//include page def
-			
-			if($pageDef!=''){
-				
-				echo ' var pageDef = ' . $pageDef . ';' .PHP_EOL;
-			}
-			else{
-				
-				echo ' var pageDef = {};' .PHP_EOL;
-			}
-			
-			//include  line break setting
-
-			if( !is_array($layerOptions) ){
-				
-				echo ' var disableReturn 	= true;' .PHP_EOL;
-				echo ' var autoWrapText 	= false;' .PHP_EOL;
-			}
-			else{
-				
-				if(!in_array('line-break',$layerOptions)){
-					
-					echo ' var disableReturn = true;' .PHP_EOL;
-				}
-				else{
-					
-					echo ' var disableReturn = false;' .PHP_EOL;
-				}
-				
-				if(in_array('wrap-text',$layerOptions)){
-					
-					echo ' var autoWrapText = true;' .PHP_EOL;
-				}
-				else{ 
-					
-					echo ' var autoWrapText = false;' .PHP_EOL;
-				}
-			}
-			
-			//include icon settings
-			
-			$enableIcons = 'false';
-			
-			if( in_array_field( 'font-awesome-4-7-0', 'slug', $cssLibraries ) ){
-				
-				$enableIcons = 'true';
-			}
-			
-			echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
-			
-			//include list of external sources
-			
-			if( !empty($layerSources) ){
-				
-				echo ' var layerSources = ' . json_encode($layerSources) . ';' .PHP_EOL;
-			}
-			else{
-				
-				echo ' var layerSources = {};' .PHP_EOL;
-			}
-			
-			//include medium editor
-			
-			//echo file_get_contents( trailingslashit(dirname(dirname( __FILE__ ))) . 'assets/js/medium-editor.custom.js' ).PHP_EOL;			
-					
 		echo'</script>' .PHP_EOL;
 		
 	echo'</body>' .PHP_EOL;

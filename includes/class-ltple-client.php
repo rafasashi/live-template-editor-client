@@ -1727,17 +1727,15 @@ class LTPLE_Client {
 
 						if( is_int($layerId) && $layerId !== -1 ){
 						
-							$post_information = array(
+							$post_id = wp_insert_post( array(
 								
 								'post_author' 	=> $this->user->ID,
 								'post_title' 	=> $post_title,
 								'post_name' 	=> $post_name,
-								'post_content' 	=> $layer->post_content,
+								//'post_content'=> $layer->post_content,
 								'post_type' 	=> $layer->post_type,
 								'post_status' 	=> 'publish'
-							);
-							
-							$post_id = wp_insert_post( $post_information );
+							) );
 
 							if( is_numeric($post_id) ){
 								
@@ -2065,7 +2063,7 @@ class LTPLE_Client {
 						}
 					}
 					
-					if( $post_title!='' && is_int($defaultLayerId) && $defaultLayerId !== -1 ){
+					if( $post_title!='' && is_int($defaultLayerId) && $defaultLayerId > 0 ){
 						
 						$post_id = wp_update_post(array(
 							
@@ -2073,7 +2071,7 @@ class LTPLE_Client {
 							'post_author' 	=> $post_author,
 							'post_title' 	=> $post_title,
 							'post_name' 	=> $post_name,
-							//'post_content' 	=> $post_content,
+							'post_content' 	=> $post_content,
 							'post_type' 	=> $post_type,
 							'post_status' 	=> 'publish'
 						));

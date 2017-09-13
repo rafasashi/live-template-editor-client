@@ -68,7 +68,7 @@
 					
 					// login form
 					
-					if(isset($_REQUEST['action'])&&$_REQUEST['action']=='register'){
+					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'register' ){
 						
 						echo'<form name="registerform" id="loginform" action="' . wp_registration_url() . '" method="post" novalidate="novalidate">';
 							
@@ -135,8 +135,8 @@
 							));
 							
 							echo'<div style="width:100%;text-align:center;margin-bottom:50px;display:block;">';
-							
-								echo'<a href="' . wp_registration_url() . '">Register</a>';					
+								
+								echo'<a href="' . $this->get_register_url( wp_login_url() ) . '">Register</a>';					
 								echo' | ';
 								echo'<a href="' . wp_lostpassword_url() . '">Lost Password</a>';
 							
