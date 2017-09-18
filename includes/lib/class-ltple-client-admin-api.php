@@ -131,8 +131,27 @@ class LTPLE_Client_Admin_API {
 				$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
 			break;
 			
+			case 'file':
+			
+				$html .= wp_nonce_field( $this->parent->file, $id . '_nonce',true,false);
+
+				$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="file" accept="'. ( !empty( $field['accept'] ) ? $field['accept'] : '' ) .'" name="' . esc_attr( $option_name ) . '" value="" '.$required.$disabled.'/>' . "\n";
+			
+				if( !empty($field['script']) ){
+			
+					$html .= '<script>' . $field['script'] . '</script>';
+				}
+				
+			break;
+			
+			case 'message':
+			
+				$html .= '<div class="alert '. ( !empty( $field['class'] ) ? $field['class'] : 'alert-info' ) .'">'. $field['value'].'</div>';
+				
+			break;
+			
 			case 'slug':
-				$html .= '<div class="input-group">' . "\n";
+				$html .= '<div' . $style . ' class="input-group">' . "\n";
 				
 					if( !empty($field['base']) ){
 						
@@ -144,7 +163,12 @@ class LTPLE_Client_Admin_API {
 					}	
 					 
 					$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
-					$html .= '<span class="input-group-addon">/</span>' . "\n";
+					
+					if( !isset($field['slash']) || $field['slash'] === true ){
+						
+						$html .= '<span class="input-group-addon">/</span>' . "\n";
+					}
+					
 				$html .= '</div>' . "\n";
 			break;
 			

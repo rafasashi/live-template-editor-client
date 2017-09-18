@@ -135,7 +135,11 @@
 
 	//get css libraries
 
-	$cssLibraries = $this->layer->cssLibraries;
+	$layerCssLibraries = $this->layer->layerCssLibraries;
+	
+	//get js libraries
+
+	$layerJsLibraries = $this->layer->layerJsLibraries;
 	
 	//get layer image proxy
 	
@@ -202,7 +206,7 @@
 		
 		$enableIcons = 'false';
 		
-		if( in_array_field( 'font-awesome-4-7-0', 'slug', $cssLibraries ) ){
+		if( in_array_field( 'font-awesome-4-7-0', 'slug', $layerCssLibraries ) ){
 			
 			$enableIcons = 'true';
 		}

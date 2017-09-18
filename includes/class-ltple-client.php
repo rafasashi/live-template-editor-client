@@ -315,12 +315,13 @@ class LTPLE_Client {
 		add_filter('template_include', array( $this, 'editor_templates'), 1 );
 		
 		add_action('template_redirect', array( $this, 'editor_output' ));
-	
+		
+		
 		add_filter( 'pre_get_posts', function($query) {
 
 			if ($query->is_search ) {
 				
-				$query->set('post_type',array('post','page'));
+				//$query->set('post_type',array('post','page'));
 			}
 
 			return $query;
@@ -1555,7 +1556,7 @@ class LTPLE_Client {
 			}
 			elseif( $this->layer->type == 'user-layer' && isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
 				
-				// get images
+				// get local images
 			
 				$image_dir = $this->image->dir . $this->user->ID . '/';
 				$image_url = $this->image->url . $this->user->ID . '/';	
@@ -1623,12 +1624,20 @@ class LTPLE_Client {
 						
 						unlink($image);
 					}
+					
+					// delete static files
+					
+					$this->layer->delete_static_contents( $this->user->layer->ID );
 				
-					//delete layer
+					// move layer to trash
 					
-					//wp_delete_post( $this->user->layer->ID, false );
+					//wp_trash_post( $this->user->layer->ID );
 					
-					wp_trash_post( $this->user->layer->ID );
+					// delete layer
+					
+					wp_delete_post( $this->user->layer->ID, false );
+					
+					// output message
 					
 					$this->layer->id = -1;
 						
@@ -1665,7 +1674,9 @@ class LTPLE_Client {
 				
 				// get post content
 				
-				$post_content 	= $this->layer->sanitize_content( $_POST['postContent'] );
+				$is_hosted = ( $this->layer->layerOutput == 'hosted-page' ? true : false );
+				
+				$post_content 	= $this->layer->sanitize_content( $_POST['postContent'], $is_hosted );
 				
 				$post_css 		= ( !empty($_POST['postCss']) 		? stripcslashes( $_POST['postCss'] ) 		 : '' );
 				$post_js 		= ( !empty($_POST['postJs']) 		? stripcslashes( $_POST['postJs'] ) 		 : '' );
@@ -1732,7 +1743,6 @@ class LTPLE_Client {
 								'post_author' 	=> $this->user->ID,
 								'post_title' 	=> $post_title,
 								'post_name' 	=> $post_name,
-								//'post_content'=> $layer->post_content,
 								'post_type' 	=> $layer->post_type,
 								'post_status' 	=> 'publish'
 							) );
@@ -1794,7 +1804,6 @@ class LTPLE_Client {
 									'post_author' 	=> $this->user->ID,
 									'post_title' 	=> $post_title,
 									'post_name' 	=> $post_name,
-									//'post_content' 	=> $post_content,
 									'post_type' 	=> $layer->post_type,
 									'post_status' 	=> 'publish'
 								));
@@ -2071,7 +2080,6 @@ class LTPLE_Client {
 							'post_author' 	=> $post_author,
 							'post_title' 	=> $post_title,
 							'post_name' 	=> $post_name,
-							'post_content' 	=> $post_content,
 							'post_type' 	=> $post_type,
 							'post_status' 	=> 'publish'
 						));
@@ -2089,6 +2097,11 @@ class LTPLE_Client {
 							update_post_meta($post_id, 'layerEmbedded', $post_embedded);
 							
 							update_post_meta($post_id, 'layerSettings', $post_settings);
+							
+							if( $this->layer->type == 'cb-default-layer' ){
+								
+								$this->layer->copy_static_contents($defaultLayerId,$post_id);
+							}
 							
 							//redirect to user layer
 

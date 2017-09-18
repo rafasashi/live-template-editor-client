@@ -93,6 +93,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		add_filter('init', array( $this, 'init_image' ));
 		
 		add_action('wp_loaded', array($this,'get_images_types'));
+		
+		add_action( 'before_delete_post', array($this,'delete_static_images'), 10, 3 );
 	}
 	
 	public function get_images_types(){
@@ -288,5 +290,19 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		}
 		
 		return false;
+	}
+	
+	public function delete_static_images($post_id){
+		
+		$image_dir = $this->dir . get_post_field( 'post_author', $post_id ) . '/';
+
+		$images = glob( $image_dir . $post_id . '_*.png');
+
+		foreach ($images as $image) {
+			
+			unlink($image);
+		}		
+		
+		return true;
 	}
 }

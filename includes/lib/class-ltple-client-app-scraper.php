@@ -277,7 +277,7 @@ class LTPLE_Client_App_Scraper {
 						
 						// hook connected app
 						
-						do_action( 'ltple_' . str_replace( '-', '_', $this->slug ) . '_account_connected');
+						do_action( 'ltple_' . str_replace( '-', '_', $app_slug ) . '_account_connected');
 						
 						$this->parent->apps->newAppConnected();
 					}

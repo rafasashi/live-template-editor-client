@@ -10,6 +10,10 @@
 	
 	$layerStaticUrl = $ltple->layer->layerStaticUrl;
 	
+	//get static path
+	
+	$layerStaticPath = $ltple->layer->layerStaticPath;
+	
 	//get output config
 	
 	$layerOutput = $ltple->layer->layerOutput;
@@ -32,67 +36,73 @@
 	
 	//get css libraries
 
-	$cssLibraries = $ltple->layer->cssLibraries;
+	$layerCssLibraries = $ltple->layer->layerCssLibraries;
 	
 	//get js libraries
 	
-	$jsLibraries = $ltple->layer->jsLibraries;
+	$layerJsLibraries = $ltple->layer->layerJsLibraries;
 	
 	//get layer image proxy
 	
 	$layerImgProxy = $ltple->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
 	
-	$layerHead 		= '';
-	$layerContent 	= '';
-	$layerCss 		= '';
-	$layerJs 		= '';
-	$layerMeta 		= '';
-	$layerMargin	= '';
-	$layerMinWidth	= '';
+	//get layer margin
 	
-	if( !empty($layerStaticUrl) ){
+	$layerMargin = $ltple->layer->layerMargin;
+	
+	//get layer Min Width
+	
+	$layerMinWidth = $ltple->layer->layerMinWidth;
+	
+	// get layer content
+	
+	$layerHead 			= '';
+	$layerContent 		= '';
+	
+	if( $layerOutput == 'hosted-page' ){
 		
-		$source = str_replace(site_url().'/',ABSPATH,str_replace(array('http://','https://'),$ltple->request->proto,$layerStaticUrl));
-		
-		$output = file_get_contents($source);
+		if( !empty($layerStaticPath) && file_exists($layerStaticPath) ){
+			
+			$output = file_get_contents($layerStaticPath);
 
-		// strip html comments
-		
-		$output = preg_replace('/<!--(.*)-->/Uis', '', $output);
-		
-		// parse dom elements
-		
-		libxml_use_internal_errors( true );
-		
-		$dom= new DOMDocument();
-		$dom->loadHTML('<?xml encoding="UTF-8">' . $output); 
+			// strip html comments
+			
+			$output = preg_replace('/<!--(.*)-->/Uis', '', $output);
+			
+			// parse dom elements
+			
+			libxml_use_internal_errors( true );
+			
+			$dom= new DOMDocument();
+			$dom->loadHTML('<?xml encoding="UTF-8">' . $output); 
 
-		$xpath = new DOMXPath($dom);
-		
-		// get head
-		
-		$layerHead = $dom->saveHtml( $xpath->query('/html/head')->item(0) );
-		$layerHead = preg_replace('~<(?:!DOCTYPE|/?(?:head))[^>]*>\s*~i', '', $layerHead);
-		
-		// get body
-		
-		$layerContent = $ltple->layer->layerContent;
-		
-		if( empty($layerContent) ){
+			$xpath = new DOMXPath($dom);
+			
+			// get head
+			
+			$layerHead = $dom->saveHtml( $xpath->query('/html/head')->item(0) );
+			$layerHead = preg_replace('~<(?:!DOCTYPE|/?(?:head))[^>]*>\s*~i', '', $layerHead);
+			
+			// get body
+			
+			if( !empty($ltple->layer->layerContent) ){
+			
+				$layerContent = $ltple->layer->layerContent;
+			}
+			else{
 
-			$layerContent = $dom->saveHtml( $xpath->query('/html/body')->item(0) );
-			$layerContent = preg_replace('~<(?:!DOCTYPE|/?(?:body))[^>]*>\s*~i', '', $layerContent);
+				$layerContent = $dom->saveHtml( $xpath->query('/html/body')->item(0) );
+				$layerContent = preg_replace('~<(?:!DOCTYPE|/?(?:body))[^>]*>\s*~i', '', $layerContent);
+			}
+		}
+		else{
+			
+			$layerContent = $ltple->layer->layerContent;
+			
+			$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
 		}
 	}
-	else{
-		
-		//get layer margin
-		
-		$layerMargin = $ltple->layer->layerMargin;
-		
-		//get layer Min Width
-		
-		$layerMinWidth = $ltple->layer->layerMinWidth;		
+	else{	
 		
 		//get layer content
 		
@@ -106,48 +116,54 @@
 		}
 		
 		$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
-		
-		//get style-sheet
-		
-		if( isset($_POST['importCss']) ){
+	}
+	
+	//get style-sheet
+	
+	$layerCss 		= '';
+	$layerJs 		= '';
+	$layerMeta 		= '';
+	
+	if( isset($_POST['importCss']) ){
 
-			$layerCss = stripcslashes($_POST['importCss']);
-		}
-		elseif(empty($_POST)){
-			
-			$layerCss = $ltple->layer->layerCss;
-			
-			$layerJs = $ltple->layer->layerJs;
-
-			$layerMeta = $ltple->layer->layerMeta;
-		}
-
-		$layerCss = sanitize_text_field($layerCss);
+		$layerCss = stripcslashes($_POST['importCss']);
+	}
+	elseif( empty($_POST) ){
 		
-		if($layerOutput=='canvas'){
-			
-			$layerContent = str_replace(array($layerImgProxy),array(''),$layerContent);		
-			
-			// replace image sources
-			
-			$layerContent = str_replace(array('src =','src= "'),array('src=','src="'),$layerContent);
-			$layerContent = str_replace(array($layerImgProxy,'src="'),array('','src="'.$layerImgProxy),$layerContent);			
-			
+		$layerCss = $ltple->layer->layerCss;
+		
+		$layerJs = $ltple->layer->layerJs;
+
+		$layerMeta = $ltple->layer->layerMeta;
+	}
+
+	$layerCss = sanitize_text_field($layerCss);
+	
+	// normalize canvas content
+	
+	if( $layerOutput == 'canvas' ){
+		
+		$layerContent = str_replace(array($layerImgProxy),array(''),$layerContent);		
+		
+		// replace image sources
+		
+		$layerContent = str_replace(array('src =','src= "'),array('src=','src="'),$layerContent);
+		$layerContent = str_replace(array($layerImgProxy,'src="'),array('','src="'.$layerImgProxy),$layerContent);			
+		
+		// replace background images
+
+		$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
+		$layerContent = preg_replace($regex, "$1$layerImgProxy$3$4", $layerContent);					
+	
+		if(!empty($layerCss)){
+
+			$layerCss = str_replace(array($layerImgProxy),array(''),$layerCss);
+		
 			// replace background images
 
 			$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
-			$layerContent = preg_replace($regex, "$1$layerImgProxy$3$4", $layerContent);					
-		
-			if(!empty($layerCss)){
-
-				$layerCss = str_replace(array($layerImgProxy),array(''),$layerCss);
-			
-				// replace background images
-
-				$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
-				$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);		
-			}	
-		}
+			$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);		
+		}	
 	}
 	
 	// get google fonts
@@ -164,12 +180,16 @@
 			$googleFonts = explode('|',$match[1]);
 		}
 	}
+	
+	// output layer
+	
+	ob_start();
 
 	echo '<!DOCTYPE html>';
 	
 	echo '<head>';
 	
-		if( !empty($layerStaticUrl) ){
+		if( $layerOutput == 'hosted-page' && !empty($layerStaticUrl) ){
 			
 			echo '<base href="' . dirname($layerStaticUrl) . '/">';
 		}
@@ -187,9 +207,9 @@
 		echo '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
 		echo '<link rel="dns-prefetch" href="//s.w.org">';
 	
-		if( !empty($cssLibraries) ){
+		if( !empty($layerCssLibraries) ){
 			
-			foreach($cssLibraries as $term){
+			foreach($layerCssLibraries as $term){
 				
 				$css_url = get_option( 'css_url_' . $term->slug);
 
@@ -379,9 +399,9 @@
 
 		if(!empty($layerMeta['link'])){
 			
-			foreach($layerMeta['link'] as $source){
+			foreach($layerMeta['link'] as $url){
 				
-				echo '<link href="'.$source.'" rel="stylesheet" type="text/css" />';
+				echo '<link href="'.$url.'" rel="stylesheet" type="text/css" />';
 			}
 		}			
 		
@@ -511,17 +531,16 @@
 		} 
 		else{
 
-			//echo '<layer class="editable" style="min-width:'.$layerMinWidth.';width:100%;margin:'.$layerMargin.';">';
-			echo '<layer class="editable" style="width:100%;margin:'.$layerMargin.';">';
+			echo '<layer class="editable" style="width:100%;' . ( !empty($layerMargin) ? 'margin:'.$layerMargin.';' : '' ) . '">';
 							
 				echo $layerContent;
 			
 			echo '</layer>' .PHP_EOL;
 		}	
 
-		if( !empty($jsLibraries) ){
+		if( !empty($layerJsLibraries) ){
 			
-			foreach($jsLibraries as $term){
+			foreach($layerJsLibraries as $term){
 				
 				$js_url = get_option( 'js_url_' . $term->slug);
 				
@@ -541,9 +560,9 @@
 		
 		if( !empty($layerMeta['script']) ){
 			
-			foreach($layerMeta['script'] as $source){
+			foreach($layerMeta['script'] as $url){
 				
-				echo '<script src="'.$source.'"></script>' .PHP_EOL;
+				echo '<script src="'.$url.'"></script>' .PHP_EOL;
 			}
 		}
 		
@@ -559,3 +578,12 @@
 		echo'</script>' .PHP_EOL;
 		
 	echo'</body>' .PHP_EOL;
+	
+	/*
+	$output = ob_get_contents();
+	
+	ob_end_clean();
+	
+	do_action( 'ltple_layer_loaded', array($ltple->layer->id, $output) );
+	*/
+	

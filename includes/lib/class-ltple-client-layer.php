@@ -137,7 +137,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'rewrite' 				=> true,
 			'sort' 					=> '',
 		));
-
+		
 		add_action( 'add_meta_boxes', function(){
 
 			global $post;
@@ -189,7 +189,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-static-url',
-					__( 'Layer Static Url', 'live-template-editor-client' ), 
+					__( 'Layer Static Content', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);
@@ -346,6 +346,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('create_js-library', array( $this, 'save_library_fields' ) );
 		add_action('edit_js-library', array( $this, 'save_library_fields' ) );	
 
+		add_filter('init', array( $this, 'init_layer' ));
+		
 		add_filter('admin_init', array( $this, 'init_layer_backend' ));
 		
 		add_filter('init', array( $this, 'init_layer_frontend' ));
@@ -356,6 +358,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('wp_loaded', array($this,'get_js_libraries'));
 		add_action('wp_loaded', array($this,'get_css_libraries'));
 		//add_action('wp_loaded', array($this,'get_default_layers'));
+		
+		add_action( 'save_post', array($this,'upload_static_contents'), 10, 3 );
+		
+		add_action( 'before_delete_post', array($this,'delete_static_contents'), 10, 3 );
+	
+		add_action( 'ltple_layer_loaded', array($this,'redirect_static_layer') );
 	}
 	
 	public function get_layer_types(){
@@ -687,6 +695,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		));
 	}
 	
+	public function init_layer(){
+	
+		$this->url = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : str_replace( 'https://', 'http://', $this->parent->urls->home ) . '/t/');
+
+		$this->dir = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');
+	}
+	
 	public function init_layer_backend(){
 
 		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ));
@@ -766,12 +781,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$this->uri = url_to_postid($this->parent->urls->current);
 		}
-
+		
 		if( $this->uri > 0 ){
 
 			if( $q = get_post($this->uri) ){
 				
-				if( $q->post_status == 'publish' ){
+				if( $q->post_status == 'publish' || $q->post_status == 'draft' ){
 
 					if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
 					
@@ -859,8 +874,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						//get static url
 						
-						$this->layerStaticUrl = get_post_meta( $this->defaultId, 'layerStaticUrl', true );	
+						$this->layerStaticUrl = $this->get_static_url($this->defaultId);
 						
+						//get static dir
+						
+						$this->layerStaticDir = $this->get_static_dir($this->defaultId);
+						
+						//get static path
+						
+						$this->layerStaticPath = $this->get_static_path($this->defaultId);
+												
 						//get output config
 						
 						$this->layerOutput = get_post_meta( $this->defaultId, 'layerOutput', true );
@@ -883,12 +906,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						//get css libraries
 
-						$this->cssLibraries = wp_get_post_terms( $this->defaultId, 'css-library', array( 'orderby' => 'term_id' ) );
-						
+						$this->layerCssLibraries = wp_get_post_terms( $this->defaultId, 'css-library', array( 'orderby' => 'term_id' ) );
+
 						//get js libraries
 						
-						$this->jsLibraries = wp_get_post_terms( $this->defaultId, 'js-library', array( 'orderby' => 'term_id' ) );								
-					
+						$this->layerJsLibraries = wp_get_post_terms( $this->defaultId, 'js-library', array( 'orderby' => 'term_id' ) );								
+						
 						//get layer image proxy
 
 						$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
@@ -1055,69 +1078,101 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			"metabox" =>
 			
-				array('name'=>"layer-content"),
-				'id'=>"layerContent",
-				'label'=>"",
-				'type'=>'textarea',
-				'placeholder'=>"HTML content",
-				//'description'=>'<i>without '.htmlentities('<style></style>').'</i>'
+				array( 'name' => "layer-content" ),
+				'id'			=> "layerContent",
+				'label'			=> "",
+				'type'			=> 'textarea',
+				'placeholder'	=> "HTML content",
+				//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
 		);		
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-				array('name'=>"layer-css"),
-				'id'=>"layerCss",
-				'label'=>"",
-				'type'=>'textarea',
-				'placeholder'=>"Internal CSS style sheet",
-				'description'=>'<i>without '.htmlentities('<style></style>').'</i>'
+				array( 'name' => "layer-css" ),
+				'id'			=> "layerCss",
+				'label'			=> "",
+				'type'			=> 'textarea',
+				'placeholder'	=> "Internal CSS style sheet",
+				'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
 		);
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-				array('name'=>"layer-js"),
-				'id'=>"layerJs",
-				'label'=>"",
-				'type'=>'textarea',
-				'placeholder'=>"Additional Javascript",
-				'description'=>'<i>without '.htmlentities('<script></script>').'</i>'
+				array( 'name' => "layer-js" ),
+				'id'			=> "layerJs",
+				'label'			=> "",
+				'type'			=> 'textarea',
+				'placeholder'	=> "Additional Javascript",
+				'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 		);
 		
 		$fields[]=array(
 		
 			"metabox" =>
 			
-				array('name'=>"layer-meta"),
-				'id'=>"layerMeta",
-				'label'=>"",
-				'type'=>'textarea',
-				'placeholder'=>"JSON",
-				'description'=>'<i>Additional Meta Data</i>'
+				array( 'name' => "layer-meta" ),
+				'id'			=> "layerMeta",
+				'label'			=> "",
+				'type'			=> 'textarea',
+				'placeholder'	=> "JSON",
+				'description'	=> '<i>Additional Meta Data</i>'
 		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"layer-static-url"),
-				'id'=>"layerStaticUrl",
-				'label'=>"",
-				'type'=>'text',
-				'placeholder'=>"http://"
-		);	
 
 		$fields[]=array(
 		
 			"metabox" =>
 			
-				array('name'=>"layer-output"),
-				'id'		=>"layerOutput",
-				'label'		=>"",
-				'type'		=>'select',
+				array( 'name' => "layer-static-url" ),
+				'id'			=> "layerStaticTpl",
+				'type'			=> 'file',
+				'label'			=> '<b>Upload Archive</b>',
+				'accept'		=> '.zip,.tar',
+				'script'		=> 'jQuery(document).ready(function($){$(\'form#post\').attr(\'enctype\',\'multipart/form-data\');});',
+				'placeholder'	=> "archive.zip",
+				'style'			=> "padding:5px;margin: 15px 0 5px 0;",
+				'description'	=> "Upload a static template (zip,tar)",
+		);		
+		
+		$post_id = 0;
+		
+		if( !empty($_GET['post']) ){
+			
+			$post_id = intval($_GET['post']);
+		}
+		elseif( !empty($_POST['post_ID']) ){
+			
+			$post_id = intval($_POST['post_ID']);
+		}
+		
+		if( $post_id > 0 ){
+			
+			$fields[]=array(
+			
+				"metabox" =>
+				
+					array( 'name' => "layer-static-url" ),
+					'id'			=> "layerStaticUrl",
+					'label'			=> '<b>Layer Static Url</b>',
+					'type'			=> 'slug',
+					'style'			=> "margin: 15px 0 5px 0;",
+					'base'			=> $this->url . '<b>' . $post_id . '</b>/',
+					'slash'			=> false,
+					'placeholder'	=> "template1/index.html"
+			);		
+		}
+
+		$fields[]=array(
+		
+			"metabox" =>
+			
+				array('name'=> "layer-output"),
+				'id'		=> "layerOutput",
+				'label'		=> "",
+				'type'		=> 'select',
 				'options'	=> array(
 				
 					'inline-css'	=>'Inline Style',
@@ -1385,7 +1440,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	}
 	
-	public static function sanitize_content($str){
+	public static function sanitize_content($str,$is_hosted=false){
 		
 		$str = stripslashes($str);
 		
@@ -1403,28 +1458,37 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 				//'/<iframe(.*?)<\/iframe>/is',
 				'/<title(.*?)<\/title>/is',
-				'/<pre(.*?)<\/pre>/is',
-				'/<frame(.*?)<\/frame>/is',
-				'/<frameset(.*?)<\/frameset>/is',
-				'/<object(.*?)<\/object>/is',
-				'/<script(.*?)<\/script>/is',
-				'/<style(.*?)<\/style>/is',
-				'/<embed(.*?)<\/embed>/is',
-				'/<applet(.*?)<\/applet>/is',
-				'/<meta(.*?)>/is',
 				'/<!doctype(.*?)>/is',
 				'/<link(.*?)>/is',
 				//'/<body(.*?)>/is',
 				//'/<\/body>/is',
 				//'/<head(.*?)>/is',
-				//'/<\/head>/is',
-				'/onload="(.*?)"/is',
-				'/onunload="(.*?)"/is',
+				//'/<\/head>/is',				
 				'/<html(.*?)>/is',
 				'/<\/html>/is'
 			), 
 			'', $str
-		);
+		);		
+		
+		if( !$is_hosted ){
+		
+			$str = preg_replace( array(
+			
+					'/<pre(.*?)<\/pre>/is',
+					'/<frame(.*?)<\/frame>/is',
+					'/<frameset(.*?)<\/frameset>/is',
+					'/<object(.*?)<\/object>/is',
+					'/<script(.*?)<\/script>/is',
+					'/<style(.*?)<\/style>/is',
+					'/<embed(.*?)<\/embed>/is',
+					'/<applet(.*?)<\/applet>/is',
+					'/<meta(.*?)>/is',
+					'/onload="(.*?)"/is',
+					'/onunload="(.*?)"/is',
+				), 
+				'', $str
+			);
+		}
 		
 		return $str;
 	}
@@ -1881,5 +1945,173 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				update_option('js_content_'.$term->slug, $_POST['js_content_'.$term->slug]);			
 			}
 		}
+	}
+	
+	public function get_static_url($post_id){
+		
+		$static_url = $this->url . $post_id . '/' . get_post_meta( $post_id, 'layerStaticUrl', true );				
+	
+		return $static_url;
+	}
+	
+	public function get_static_dir($post_id,$empty=false){
+		
+		$static_dir = $this->dir . $post_id;
+		
+		if( !is_dir($static_dir) ){
+			
+			mkdir($static_dir,0755,true);
+		}
+		elseif( $empty === true ){
+			
+			$this->delete_static_contents( $post_id );
+			
+			mkdir($static_dir,0755,true);
+		}
+	
+		return $static_dir;
+	}
+	
+	public function get_static_path($post_id){
+		
+		$static_path = '';
+		
+		$layerStaticUrl = get_post_meta( $post_id, 'layerStaticUrl', true );
+		
+		if( !empty($layerStaticUrl) ){
+			
+			$static_path = $this->get_static_dir( $post_id ) . '/' . $layerStaticUrl;
+		}
+	
+		return $static_path;
+	}
+	
+	public function upload_static_contents($post_id){
+		
+		if( is_admin() && !empty($_POST['layerStaticTpl_nonce']) ){
+			
+			//security verification
+			
+			if( !wp_verify_nonce($_POST['layerStaticTpl_nonce'], $this->parent->file) ) {
+			  
+				return $post_id;
+			}
+
+			if( !current_user_can('edit_page', $post_id) ){
+				
+				return $post_id;
+			}
+
+			// upload archive
+			
+			if( !empty( $_FILES['layerStaticTpl']['name'] ) ){
+				
+
+				// Setup the array of supported file types. In this case, it's just PDF.
+				
+				$supported_types = array('application/zip','application/tar');			
+			
+				// Get the file type of the upload
+				
+				$arr_file_type = wp_check_filetype(basename($_FILES['layerStaticTpl']['name']));
+				
+				$uploaded_type = $arr_file_type['type'];		
+			
+				// Check if the type is supported. If not, throw an error.
+				
+				if( in_array($uploaded_type,$supported_types) ){
+
+					$zip = new ZipArchive;
+					
+					if( $res = $zip->open($_FILES['layerStaticTpl']['tmp_name']) ) {
+						
+						$zip->extractTo( $this->get_static_dir($post_id,true) . '/' );
+						
+						$zip->close();
+						
+						return $post_id;
+					}
+					else {
+						
+						wp_die("Error extracting the archive...");
+					}
+				}
+				else{
+					
+					wp_die("The file type that you've uploaded is not an archive (zip, tar)");
+				}
+			}
+		}
+	}
+	
+	public function delete_static_contents($post_id){
+		
+		$dir = $this->dir . $post_id . '/';
+		
+		if ( is_dir( $dir ) ){
+			
+			$it = new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS );
+			
+			$files = new RecursiveIteratorIterator( $it, RecursiveIteratorIterator::CHILD_FIRST );
+			
+			foreach ( $files as $file ) {
+				
+				if ( $file->isDir() ) {
+					
+					rmdir( $file->getRealPath() );
+				}
+				else {
+					
+					unlink( $file->getRealPath() );
+				}
+			}
+			rmdir( $dir );
+		}
+
+		return true;
+	}
+	
+	public function copy_dir($src,$dst) { 
+	
+		if( !is_dir($dst) ){
+	
+			$mkdir = mkdir($dst,0755,true);
+		}
+		
+		$dir = opendir($src);
+		
+		while(false !== ( $file = readdir($dir)) ) { 
+		
+			if (( $file != '.' ) && ( $file != '..' )) { 
+			
+				if ( is_dir($src . '/' . $file) ) { 
+				
+					$this->copy_dir($src . '/' . $file,$dst . '/' . $file); 
+				} 
+				else{
+					
+					copy($src . '/' . $file,$dst . '/' . $file); 
+				} 
+			} 
+		} 
+		
+		closedir($dir); 
+		
+		return true;
+	} 
+	
+	public function copy_static_contents($defaultLayerId,$post_id){
+		
+		$src = $this->get_static_dir($defaultLayerId);
+		$dst = $this->get_static_dir($post_id,true);
+
+		return $this->copy_dir($src,$dst);
+	}
+	
+	public function redirect_static_layer($post_id,$output){
+		
+		echo $output;
+		
+		//var_dump($post_id);exit;
 	}
 }
