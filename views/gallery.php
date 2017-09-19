@@ -52,7 +52,7 @@
 				
 				global $post;
 				
-				$permalink = get_permalink($post);
+				$permalink = get_permalink($post) . '?preview';
 
 				//get editor_url
 

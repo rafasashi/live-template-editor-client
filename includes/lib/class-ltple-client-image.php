@@ -13,6 +13,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	public $url		= '';
 	public $dir		= '';
 	
+	public $isHosted = false;
+	
 	/**
 	 * Constructor function
 	 */
@@ -112,8 +114,21 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	
 	public function init_image(){
 		
-		$this->url = ( defined('LTPLE_IMAGE_URL') ? LTPLE_IMAGE_URL : str_replace( 'https://', 'http://', $this->parent->urls->home ) . '/i/');
-		$this->dir = ( defined('LTPLE_IMAGE_DIR') ? LTPLE_IMAGE_DIR : ABSPATH . 'i/');
+		if( isset($this->parent->layer->layerOutput) && $this->parent->layer->layerOutput == 'hosted-page' && $this->parent->layer->type == 'user-layer' ){
+			
+			$this->isHosted = true;
+		}
+		
+		if( $this->isHosted ){
+			
+			$this->url = str_replace( 'https://', 'http://', dirname($this->parent->layer->layerStaticUrl) ) . '/assets/images/';
+			$this->dir = dirname($this->parent->layer->layerStaticPath) . '/assets/images/';
+		}
+		else{
+			
+			$this->url = ( defined('LTPLE_IMAGE_URL') ? LTPLE_IMAGE_URL : str_replace( 'https://', 'http://', $this->parent->urls->home ) . '/i/');
+			$this->dir = ( defined('LTPLE_IMAGE_DIR') ? LTPLE_IMAGE_DIR : ABSPATH . 'i/');
+		}
 
 		if( !is_admin() ) {
 			
@@ -255,15 +270,27 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					
 					// get user image path
 					
-					$path = $this->dir . $this->parent->user->ID . '/';			
-				
+					if( $this->isHosted ){
+						
+						$path = $this->dir;
+					}
+					else{
+						
+						$path = $this->dir . $this->parent->user->ID . '/';
+					}
+					
 					// create user image path
 				
-					if (!file_exists($path)) {
+					if( !file_exists($path) ) {
 						
 						mkdir($path, 0755, true);
 						
-						file_put_contents($path . 'index.html', '');
+						/*
+						if( !$this->isHosted ){
+						
+							file_put_contents($path . 'index.html', '');
+						}
+						*/
 					}
 					
 					// set transparency
@@ -278,8 +305,15 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					$info = getimagesize($path.$name);
 
 					if ($info[0] > 0 && $info[1] > 0 && $info['mime']) {
-
-						return $this->url . $this->parent->user->ID . '/' . $name . '?ltple-time=' . time();
+						
+						if( $this->isHosted ){
+							
+							return $this->url . $name . '?ltple-time=' . time();
+						}
+						else{
+							
+							return $this->url . $this->parent->user->ID . '/' . $name . '?ltple-time=' . time();
+						}
 					}
 					else{
 						

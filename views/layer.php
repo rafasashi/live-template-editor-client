@@ -6,13 +6,17 @@
 	
 	$pageDef = $ltple->layer->pageDef;
 	
-	//get static url
+	//get layer static url
 	
 	$layerStaticUrl = $ltple->layer->layerStaticUrl;
 	
-	//get static path
+	//get layer static path
 	
 	$layerStaticPath = $ltple->layer->layerStaticPath;
+	
+	//get default static path
+	
+	$defaultStaticPath = $ltple->layer->defaultStaticPath;
 	
 	//get output config
 	
@@ -61,9 +65,9 @@
 	
 	if( $layerOutput == 'hosted-page' ){
 		
-		if( !empty($layerStaticPath) && file_exists($layerStaticPath) ){
+		if( !empty($defaultStaticPath) && file_exists($defaultStaticPath) ){
 			
-			$output = file_get_contents($layerStaticPath);
+			$output = file_get_contents($defaultStaticPath);
 
 			// strip html comments
 			
@@ -78,10 +82,21 @@
 
 			$xpath = new DOMXPath($dom);
 			
+			// remove nodes
+			
+			$nodes = $xpath->query('//meta|//title|//base');
+			
+			foreach ($nodes as $node) {
+				
+				$node->parentNode->removeChild($node);
+			}
+
 			// get head
 			
 			$layerHead = $dom->saveHtml( $xpath->query('/html/head')->item(0) );
 			$layerHead = preg_replace('~<(?:!DOCTYPE|/?(?:head))[^>]*>\s*~i', '', $layerHead);
+			
+			//var_dump(htmlentities($layerHead));exit;
 			
 			// get body
 			
@@ -181,31 +196,24 @@
 		}
 	}
 	
-	// output layer
-	
-	ob_start();
+	// get layer
 
-	echo '<!DOCTYPE html>';
+	$layer = '<!DOCTYPE html>';
 	
-	echo '<head>';
+	$layer .= '<head>';
 	
-		if( $layerOutput == 'hosted-page' && !empty($layerStaticUrl) ){
-			
-			echo '<base href="' . dirname($layerStaticUrl) . '/">';
-		}
-	
-		echo '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
-		echo '<!--[if lt IE 9]>';
-		echo '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
-		echo '<![endif]-->';	
+		$layer .= '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
+		$layer .= '<!--[if lt IE 9]>';
+		$layer .= '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
+		$layer .= '<![endif]-->';	
 
-		echo '<meta charset="UTF-8">';
-		echo '<meta name="viewport" content="width=device-width, initial-scale=1">';
+		$layer .= '<meta charset="UTF-8">';
+		$layer .= '<meta name="viewport" content="width=device-width, initial-scale=1">';
 		
-		echo '<link rel="profile" href="http://gmpg.org/xfn/11">';
+		$layer .= '<link rel="profile" href="http://gmpg.org/xfn/11">';
 		
-		echo '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
-		echo '<link rel="dns-prefetch" href="//s.w.org">';
+		$layer .= '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
+		$layer .= '<link rel="dns-prefetch" href="//s.w.org">';
 	
 		if( !empty($layerCssLibraries) ){
 			
@@ -215,87 +223,103 @@
 
 				if( !empty($css_url) ){
 					
-					echo '<link href="'.$css_url.'" rel="stylesheet" type="text/css" />';
+					$layer .= '<link href="'.$css_url.'" rel="stylesheet" type="text/css" />';
 				}
 				
 				$css_content = get_option( 'css_content_' . $term->slug);
 				
 				if( !empty($css_content) ){
 				
-					echo $css_content;
+					$layer .= $css_content;
 				}
 			}
 		}
 		
-		echo PHP_EOL;
+		$layer .= PHP_EOL;
 	
 		if( !empty($layerHead) ){
 			
-			echo $layerHead;
+			$layer .= $layerHead;
 		}
-		else{
+		
+		if( $layerOutput == 'hosted-page' ){		
 			
 			// output custom meta tags
 			
 			if( !empty($layerSettings) ){
 				
-				foreach($layerSettings as $key => $content){
+				foreach( $layerSettings as $key => $content ){
 					
-					if( $key == 'meta_title' ){
-						
-						$content = ucfirst($content);
-						
-						echo '<title>'.$content.'</title>'.PHP_EOL;
-						echo '<meta name="subject" content="'.$content.'" />'.PHP_EOL;
-						echo '<meta property="og:title" content="'.$content.'" />'.PHP_EOL;
-						echo '<meta name="twitter:title" content="'.$content.'" />'.PHP_EOL;		
-					}
-					elseif( $key == 'meta_keywords' ){
-
-						$content = implode(',',explode(PHP_EOL,$content));
+					if( !empty($content) ){
 					
-						echo '<meta name="keywords" content="'.$content.'" />'.PHP_EOL;
-						
-					}
-					elseif( $key == 'meta_description' ){
-						
-						echo '<meta name="description" content="'.$content.'" />'.PHP_EOL;
-						echo '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
-						echo '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
-						echo '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
-						echo '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
-					}
-					elseif( $key == 'link_author' ){
-						
-						echo '<link rel="author" href="'.$content.'" />'.PHP_EOL;
-						echo '<link rel="publisher" href="'.$content.'" />'.PHP_EOL;
-					}
-					elseif( $key == 'meta_image' ){
-						
-						echo '<meta property="og:image" content="'.$content.'" />'.PHP_EOL;
-						echo '<meta name="twitter:image" content="'.$content.'" />'.PHP_EOL;
-						
-					}
-					elseif( $key == 'meta_facebook-id' ){
-						
-						echo '<meta property="fb:admins" content="'.$content.'"/>'.PHP_EOL;
-						
-					}				
-					else{
-						
-						list($markup,$name) = explode('_',$key);
-						
-						if( $markup == 'meta' ){
+						if( $key == 'meta_title' ){
 							
-							echo '<meta name="'.$name.'" content="'.$content.'" />'.PHP_EOL;
+							$title = ucfirst($content);
+							
+							$layer .= '<title>'.$title.'</title>'.PHP_EOL;
+							$layer .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
+							$layer .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
+							$layer .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;		
 						}
-						elseif( $markup == 'link' ){
+						elseif( $key == 'meta_keywords' ){
+
+							$content = implode(',',explode(PHP_EOL,$content));
+						
+							$layer .= '<meta name="keywords" content="'.$content.'" />'.PHP_EOL;
 							
-							echo '<link rel="'.$name.'" href="'.$content.'" />'.PHP_EOL;
+						}
+						elseif( $key == 'meta_description' ){
+							
+							$layer .= '<meta name="description" content="'.$content.'" />'.PHP_EOL;
+							$layer .= '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
+							$layer .= '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
+							$layer .= '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
+							$layer .= '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
+						}
+						elseif( $key == 'link_author' ){
+							
+							$layer .= '<link rel="author" href="'.$content.'" />'.PHP_EOL;
+							$layer .= '<link rel="publisher" href="'.$content.'" />'.PHP_EOL;
+						}
+						elseif( $key == 'meta_image' ){
+							
+							$layer .= '<meta property="og:image" content="'.$content.'" />'.PHP_EOL;
+							$layer .= '<meta name="twitter:image" content="'.$content.'" />'.PHP_EOL;
+							
+						}
+						elseif( $key == 'meta_facebook-id' ){
+							
+							$layer .= '<meta property="fb:admins" content="'.$content.'"/>'.PHP_EOL;
+							
+						}				
+						else{
+							
+							list($markup,$name) = explode('_',$key);
+							
+							if( $markup == 'meta' ){
+								
+								$layer .= '<meta name="'.$name.'" content="'.$content.'" />'.PHP_EOL;
+							}
+							elseif( $markup == 'link' ){
+								
+								$layer .= '<link rel="'.$name.'" href="'.$content.'" />'.PHP_EOL;
+							}
 						}
 					}
 				}
 			}
+			
+			if( empty($layerSettings['meta_title']) ){
+				
+				// output default title
+				
+				$title = ucfirst($ltple->layer->title);
+				
+				$layer .= '<title>'.$title.'</title>'.PHP_EOL;
+				$layer .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
+				$layer .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
+				$layer .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;					
+			}			
 			
 			// output default meta tags
 			
@@ -303,17 +327,7 @@
 			
 			if( !empty($ggl_webmaster_id) ){
 			
-				echo '<meta name="google-site-verification" content="'.$ggl_webmaster_id.'" />'.PHP_EOL;
-			}
-			
-			$title = ucfirst($ltple->layer->title);
-			
-			if( empty($layerSettings['meta_title']) ){
-				
-				echo '<title>'.$title.'</title>'.PHP_EOL;
-				echo '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
-				echo '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
-				echo '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;					
+				$layer .= '<meta name="google-site-verification" content="'.$ggl_webmaster_id.'" />'.PHP_EOL;
 			}
 			
 			$author_name = get_the_author_meta('display_name', $post->post_author );
@@ -321,79 +335,79 @@
 			
 			if( empty($layerSettings['meta_author']) ){
 				
-				echo '<meta name="author" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
-				echo '<meta name="creator" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
-				echo '<meta name="owner" content="' . $author_name . '" />' . PHP_EOL;
-				echo '<meta name="reply-to" content="'.$author_mail.'" />' . PHP_EOL;					
+				$layer .= '<meta name="author" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
+				$layer .= '<meta name="creator" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
+				$layer .= '<meta name="owner" content="' . $author_name . '" />' . PHP_EOL;
+				$layer .= '<meta name="reply-to" content="'.$author_mail.'" />' . PHP_EOL;					
 			}
 			
 			$locale = get_locale();
 			
 			if( empty($layerSettings['meta_language']) ){
 				
-				echo '<meta name="language" content="' . $locale . '" />'.PHP_EOL;
+				$layer .= '<meta name="language" content="' . $locale . '" />'.PHP_EOL;
 			}
 			
 			$robots = 'index,follow';
 			
 			if( empty($layerSettings['meta_robots']) ){
 				
-				echo '<meta name="robots" content="'.$robots.'" />' . PHP_EOL;
+				$layer .= '<meta name="robots" content="'.$robots.'" />' . PHP_EOL;
 			}
 			
 			$revised = $post->post_date;
 			
 			if( empty($layerSettings['meta_revised']) ){
 			
-				echo '<meta name="revised" content="' . $revised . '" />' . PHP_EOL;
+				$layer .= '<meta name="revised" content="' . $revised . '" />' . PHP_EOL;
 			}
 			
 			$content = ucfirst($ltple->layer->title);
 			
 			if( empty($layerSettings['meta_description']) ){
 				
-				echo '<meta name="description" content="'.$content.'" />'.PHP_EOL;
-				echo '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
-				echo '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
-				echo '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
-				echo '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
+				$layer .= '<meta name="description" content="'.$content.'" />'.PHP_EOL;
+				$layer .= '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
+				$layer .= '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
+				$layer .= '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
+				$layer .= '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
 			}
 			
-			echo '<meta name="classification" content="Business" />' . PHP_EOL;
-			//echo '<meta name="classification" content="products, product classifications, company classification, company type, industry" />' . PHP_EOL;
+			$layer .= '<meta name="classification" content="Business" />' . PHP_EOL;
+			//$layer .= '<meta name="classification" content="products, product classifications, company classification, company type, industry" />' . PHP_EOL;
 			
 			$service_name = get_bloginfo( 'name' );
 			
-			echo '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
-			echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
+			$layer .= '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
+			$layer .= '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
 			
 			if( !empty($layerEmbedded) ){
 			
 				$url = $layerEmbedded;
 				
-				echo '<meta name="url" content="'.$url.'" />' . PHP_EOL;
-				//echo '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
-				echo '<meta name="original-source" content="'.$url.'" />' . PHP_EOL;
-				echo '<link rel="original-source" href="'.$url.'" />' . PHP_EOL;
-				echo '<meta property="og:url" content="'.$url.'" />' . PHP_EOL;
-				echo '<meta name="twitter:url" content="'.$url.'" />' . PHP_EOL;
+				$layer .= '<meta name="url" content="'.$url.'" />' . PHP_EOL;
+				//$layer .= '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
+				$layer .= '<meta name="original-source" content="'.$url.'" />' . PHP_EOL;
+				$layer .= '<link rel="original-source" href="'.$url.'" />' . PHP_EOL;
+				$layer .= '<meta property="og:url" content="'.$url.'" />' . PHP_EOL;
+				$layer .= '<meta name="twitter:url" content="'.$url.'" />' . PHP_EOL;
 			}
 			
-			echo '<meta name=viewport content="width=device-width, initial-scale=1">' . PHP_EOL;
+			$layer .= '<meta name=viewport content="width=device-width, initial-scale=1">' . PHP_EOL;
 			
-			echo '<meta name="rating" content="General" />' . PHP_EOL;
-			echo '<meta name="directory" content="submission" />' . PHP_EOL;
-			echo '<meta name="coverage" content="Worldwide" />' . PHP_EOL;
-			echo '<meta name="distribution" content="Global" />' . PHP_EOL;
-			echo '<meta name="target" content="all" />' . PHP_EOL;
-			echo '<meta name="medium" content="blog" />' . PHP_EOL;
-			echo '<meta property="og:type" content="article" />' . PHP_EOL;
-			echo '<meta name="twitter:card" content="summary" />' . PHP_EOL;
+			$layer .= '<meta name="rating" content="General" />' . PHP_EOL;
+			$layer .= '<meta name="directory" content="submission" />' . PHP_EOL;
+			$layer .= '<meta name="coverage" content="Worldwide" />' . PHP_EOL;
+			$layer .= '<meta name="distribution" content="Global" />' . PHP_EOL;
+			$layer .= '<meta name="target" content="all" />' . PHP_EOL;
+			$layer .= '<meta name="medium" content="blog" />' . PHP_EOL;
+			$layer .= '<meta property="og:type" content="article" />' . PHP_EOL;
+			$layer .= '<meta name="twitter:card" content="summary" />' . PHP_EOL;
 			
 			/*
-			echo '<meta name="geo.position" content="latitude; longitude" />' . PHP_EOL;
-			echo '<meta name="geo.placename" content="Place Name" />' . PHP_EOL;
-			echo '<meta name="geo.region" content="Country Subdivision Code" />' . PHP_EOL;
+			$layer .= '<meta name="geo.position" content="latitude; longitude" />' . PHP_EOL;
+			$layer .= '<meta name="geo.placename" content="Place Name" />' . PHP_EOL;
+			$layer .= '<meta name="geo.region" content="Country Subdivision Code" />' . PHP_EOL;
 			*/
 		}
 
@@ -401,7 +415,7 @@
 			
 			foreach($layerMeta['link'] as $url){
 				
-				echo '<link href="'.$url.'" rel="stylesheet" type="text/css" />';
+				$layer .= '<link href="'.$url.'" rel="stylesheet" type="text/css" />';
 			}
 		}			
 		
@@ -409,7 +423,7 @@
 		
 		if( !empty($googleFonts) ){
 		
-			echo '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet">';
+			$layer .= '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet">';
 		}
 		
 		$ggl_analytics_id = get_option( $ltple->_base . 'embedded_ggl_analytics_id' );
@@ -426,7 +440,7 @@
 				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 				})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-				ga('create', '<?php echo $ggl_analytics_id; ?>', 'auto');
+				ga('create', '<?php $layer .= $ggl_analytics_id; ?>', 'auto');
 				ga('send', 'pageview');
 				
 				<!-- End Google Analytics Code -->
@@ -436,106 +450,106 @@
 			<?php					
 		}			
 		
-	echo '</head>';
+	$layer .= '</head>';
 
-	echo '<body style="padding:0;margin:0;display:flex !important;width:100%;">';
+	$layer .= '<body style="padding:0;margin:0;display:flex !important;width:100%;">';
 		
 		//include style-sheet
 		
-		echo '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
+		$layer .= '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
 		
 		if( $layerCss!='' ){
 
-			echo $layerCss .PHP_EOL;
+			$layer .= $layerCss .PHP_EOL;
 		}
 			
-		echo '</style>'.PHP_EOL;		
+		$layer .= '</style>'.PHP_EOL;		
 		
 		//include layer
 		
 		if( empty($_POST) && $layerForm == 'importer' && empty($ltple->layer->layerContent) ){
 			
-			echo'<script>' .PHP_EOL;
+			$layer .='<script>' .PHP_EOL;
 
-				echo ' var layerFormActive = true;' .PHP_EOL;
+				$layer .= ' var layerFormActive = true;' .PHP_EOL;
 				
-			echo'</script>' .PHP_EOL;
+			$layer .='</script>' .PHP_EOL;
 			
-			echo '<div class="container">';
+			$layer .= '<div class="container">';
 			
-				echo '<div class="panel panel-default" style="margin:50px;">';
+				$layer .= '<div class="panel panel-default" style="margin:50px;">';
 				
-				echo '<div class="panel-heading">';
+				$layer .= '<div class="panel-heading">';
 				
 					if( !empty($layerForm) ){
 						
-						echo'<h4>'.ucfirst($ltple->layer->title).'</h4>';
+						$layer .='<h4>'.ucfirst($ltple->layer->title).'</h4>';
 					}
 					
-				echo '</div>';
+				$layer .= '</div>';
 				
-				echo '<div class="panel-body">';
+				$layer .= '<div class="panel-body">';
 				
-					echo '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
+					$layer .= '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
 					
 						if( $layerForm == 'importer' ){
 					
-							echo '<div class="col-xs-3">';
+							$layer .= '<div class="col-xs-3">';
 							
-								echo'<label>HTML</label>';
+								$layer .='<label>HTML</label>';
 								
-							echo '</div>';
+							$layer .= '</div>';
 							
-							echo '<div class="col-xs-9">';
+							$layer .= '<div class="col-xs-9">';
 							
-								echo '<div class="form-group">';
+								$layer .= '<div class="form-group">';
 								
-									echo '<textarea class="form-control" name="importHtml" style="min-height:100px;"></textarea>';
+									$layer .= '<textarea class="form-control" name="importHtml" style="min-height:100px;"></textarea>';
 									
-								echo '</div>';
+								$layer .= '</div>';
 								
-							echo '</div>';
+							$layer .= '</div>';
 							
 							if( $layerOutput == 'external-css' ){
 								
-								echo '<div class="col-xs-3">';
+								$layer .= '<div class="col-xs-3">';
 								
-									echo'<label>CSS</label>';
+									$layer .='<label>CSS</label>';
 									
-								echo '</div>';
+								$layer .= '</div>';
 								
-								echo '<div class="col-xs-9">';
+								$layer .= '<div class="col-xs-9">';
 								
-									echo '<div class="form-group">';
+									$layer .= '<div class="form-group">';
 									
-										echo '<textarea class="form-control" name="importCss" style="min-height:100px;"></textarea>';
+										$layer .= '<textarea class="form-control" name="importCss" style="min-height:100px;"></textarea>';
 										
-									echo '</div>';
+									$layer .= '</div>';
 									
-								echo '</div>';									
+								$layer .= '</div>';									
 							}
 
-							echo '<div class="col-xs-12 text-right">';
+							$layer .= '<div class="col-xs-12 text-right">';
 								
-								echo '<input class="btn btn-primary btn-md" type="submit" value="Import" />';
+								$layer .= '<input class="btn btn-primary btn-md" type="submit" value="Import" />';
 								
-							echo '</div>';
+							$layer .= '</div>';
 						}							
 					
-					echo '</form>';
+					$layer .= '</form>';
 					
-				echo '</div>';
-				echo '</div>';
+				$layer .= '</div>';
+				$layer .= '</div>';
 			
-			echo '</div>';
+			$layer .= '</div>';
 		} 
 		else{
 
-			echo '<layer class="editable" style="width:100%;' . ( !empty($layerMargin) ? 'margin:'.$layerMargin.';' : '' ) . '">';
+			$layer .= '<layer class="editable" style="width:100%;' . ( !empty($layerMargin) ? 'margin:'.$layerMargin.';' : '' ) . '">';
 							
-				echo $layerContent;
+				$layer .= $layerContent;
 			
-			echo '</layer>' .PHP_EOL;
+			$layer .= '</layer>' .PHP_EOL;
 		}	
 
 		if( !empty($layerJsLibraries) ){
@@ -546,14 +560,14 @@
 				
 				if( !empty($js_url) ){
 					
-					echo '<script src="'.$js_url.'"></script>' .PHP_EOL;
+					$layer .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
 				}
 				
 				$js_content = get_option( 'js_content_' . $term->slug);
 				
 				if( !empty($js_content) ){
 				
-					echo $js_content .PHP_EOL;	
+					$layer .= $js_content .PHP_EOL;	
 				}
 			}
 		}
@@ -562,28 +576,24 @@
 			
 			foreach($layerMeta['script'] as $url){
 				
-				echo '<script src="'.$url.'"></script>' .PHP_EOL;
+				$layer .= '<script src="'.$url.'"></script>' .PHP_EOL;
 			}
 		}
 		
 		//include layer script
 		
-		echo'<script id="LiveTplEditorScript">' .PHP_EOL;
+		$layer .='<script id="LiveTplEditorScript">' .PHP_EOL;
 		
 			if( $layerJs != '' ){
 
-				echo $layerJs .PHP_EOL;				
+				$layer .= $layerJs .PHP_EOL;				
 			}				
 			
-		echo'</script>' .PHP_EOL;
+		$layer .='</script>' .PHP_EOL;
 		
-	echo'</body>' .PHP_EOL;
+	$layer .='</body>' .PHP_EOL;
 	
-	/*
-	$output = ob_get_contents();
+	// callback layer object
 	
-	ob_end_clean();
-	
-	do_action( 'ltple_layer_loaded', array($ltple->layer->id, $output) );
-	*/
+	do_action( 'ltple_layer_loaded', array($layer) );
 	

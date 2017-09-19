@@ -985,6 +985,11 @@ class LTPLE_Client {
 					echo $this->image->upload_cropped_image($this->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
 					exit;
 				}
+				elseif( isset($_GET['filetree']) ){
+					
+					include( $this->views . $this->_dev .'/filetree.php' );
+					exit;
+				}
 				else{
 				
 					//include( $this->views . $this->_dev .'/editor-iframe.php' );
@@ -1319,7 +1324,7 @@ class LTPLE_Client {
 			echo 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
 		echo '</style>';	
 		
-		if($this->user->loggedin){		
+		if($this->user->loggedin){	
 			
 			if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
 				
@@ -1389,6 +1394,7 @@ class LTPLE_Client {
 				
 				if( $this->user->has_layer ){
 					
+
 					include( $this->views . $this->_dev .'/editor.php' );
 									
 					$this->viewIncluded = true;	

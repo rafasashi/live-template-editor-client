@@ -162,7 +162,7 @@
 								
 								echo '<li>';
 								
-									echo '<a target="_blank" href="' . $this->layer->embedded['url'] . '" class="btn btn-sm btn-success" style="border-color: #9c6433;color: #fff;background-color: rgb(189, 120, 61);">';
+									echo '<a target="_blank" href="' . $this->layer->embedded['url'] . '?preview" class="btn btn-sm btn-success" style="border-color: #9c6433;color: #fff;background-color: rgb(189, 120, 61);">';
 								
 										echo 'View';
 									

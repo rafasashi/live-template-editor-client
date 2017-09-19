@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Layer extends LTPLE_Client_Object {
+class LTPLE_Client_Layer extends LTPLE_Client_Object { 
 	
 	public $parent;
 	public $id			= -1;
@@ -22,6 +22,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	/**
 	 * Constructor function
 	 */
+	 
 	public function __construct( $parent ) {
 		
 		$this->parent = $parent;
@@ -363,7 +364,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_action( 'before_delete_post', array($this,'delete_static_contents'), 10, 3 );
 	
-		add_action( 'ltple_layer_loaded', array($this,'redirect_static_layer') );
+		add_action( 'ltple_layer_loaded', array($this,'output_static_layer') );
 	}
 	
 	public function get_layer_types(){
@@ -872,18 +873,30 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->pageDef = get_post_meta( $this->defaultId, 'pageDef', true );
 						
+						//get default static url
+						
+						$this->defaultStaticUrl = $this->get_static_url($this->defaultId,$this->defaultId);
+						
+						//get default static dir
+						
+						$this->defaultStaticDir = $this->get_static_dir($this->defaultId);
+						
+						//get default static path
+						
+						$this->defaultStaticPath = $this->get_static_path($this->defaultId,$this->defaultId);
+							
 						//get static url
 						
-						$this->layerStaticUrl = $this->get_static_url($this->defaultId);
+						$this->layerStaticUrl = $this->get_static_url($this->id,$this->defaultId);
 						
 						//get static dir
 						
-						$this->layerStaticDir = $this->get_static_dir($this->defaultId);
+						$this->layerStaticDir = $this->get_static_dir($this->id);
 						
 						//get static path
 						
-						$this->layerStaticPath = $this->get_static_path($this->defaultId);
-												
+						$this->layerStaticPath = $this->get_static_path($this->id,$this->defaultId);
+							
 						//get output config
 						
 						$this->layerOutput = get_post_meta( $this->defaultId, 'layerOutput', true );
@@ -1947,16 +1960,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function get_static_url($post_id){
+	public function get_static_url($postId,$defaultId){
 		
-		$static_url = $this->url . $post_id . '/' . get_post_meta( $post_id, 'layerStaticUrl', true );				
+		$layerStaticUrl = get_post_meta( $defaultId, 'layerStaticUrl', true );
+		
+		if( empty($layerStaticUrl) ){
+			
+			$layerStaticUrl = 'index.html';
+		}
+		
+		$static_url = $this->url . $postId . '/' . $layerStaticUrl;				
 	
 		return $static_url;
 	}
 	
-	public function get_static_dir($post_id,$empty=false){
+	public function get_static_dir($postId,$empty=false){
 		
-		$static_dir = $this->dir . $post_id;
+		$static_dir = $this->dir . $postId;
 		
 		if( !is_dir($static_dir) ){
 			
@@ -1964,7 +1984,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		elseif( $empty === true ){
 			
-			$this->delete_static_contents( $post_id );
+			$this->delete_static_contents( $postId );
 			
 			mkdir($static_dir,0755,true);
 		}
@@ -1972,18 +1992,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $static_dir;
 	}
 	
-	public function get_static_path($post_id){
+	public function get_static_path($postId,$defaultId){
 		
 		$static_path = '';
 		
-		$layerStaticUrl = get_post_meta( $post_id, 'layerStaticUrl', true );
+		$layerStaticUrl = get_post_meta( $defaultId, 'layerStaticUrl', true );
 		
-		if( !empty($layerStaticUrl) ){
+		if( empty($layerStaticUrl) ){
 			
-			$static_path = $this->get_static_dir( $post_id ) . '/' . $layerStaticUrl;
+			$layerStaticUrl = 'index.html';
 		}
 	
-		return $static_path;
+		return $this->get_static_dir( $postId ) . '/' . $layerStaticUrl;
 	}
 	
 	public function upload_static_contents($post_id){
@@ -2108,10 +2128,196 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->copy_dir($src,$dst);
 	}
 	
-	public function redirect_static_layer($post_id,$output){
+	public function output_static_layer( $args = array() ){
 		
-		echo $output;
+		if( isset($args[0]) ){
 		
-		//var_dump($post_id);exit;
+			$output = $args[0];
+
+			if( !empty($output) ){
+
+				if(  $this->layerOutput == 'hosted-page' ){
+					
+					// sanitize content
+					
+					$output = str_replace(array('<?php'),'',$output);
+					
+					// remove absolute image path
+					
+					$output = str_replace($this->parent->image->url,'assets/images/',$output);
+					
+					if( $this->type == 'user-layer' ){
+					
+						// store static output
+						
+						file_put_contents($this->layerStaticPath,$output);
+						
+						if( !empty($_GET['download']) ){
+							
+							// TODO return downloadable archive
+							
+							return true;
+						}
+					}
+					
+					if( isset($_GET['preview']) ){
+						
+						echo '<!DOCTYPE html>';
+						
+						echo '<head>';
+						
+							echo '<title>';
+							
+								echo 'Preview - ' . $this->title;
+								
+							echo '</title>';
+						
+						echo '</head>';
+						
+						echo '<body>';
+						
+							echo '<iframe src="' . $this->layerStaticUrl . '" style="position:fixed;top:0px;left:0px;bottom:0px;right:0px;width:100%;height:100%;border:none;margin:0;padding:0;overflow:hidden;z-index:999999;" />';
+							
+						echo '</body>';
+					}
+					else{
+						
+						// add base
+						
+						$content  = '<head>' . PHP_EOL;
+						$content .= '<base href="' . dirname($this->layerStaticUrl) . '/">';
+						
+						$output = str_replace('<head>',$content,$output);
+						
+						echo $output;
+					}
+					
+					// redirect to static file
+					
+					//wp_redirect($this->layerStaticUrl);exit;
+				}
+				else{
+				
+					echo $output;
+				}
+			}
+		}
+	}
+
+	public function get_filetree( $dir, $main = true ){   
+		
+		$filetree = '';
+		
+		if($main){
+
+			$filetree .= '<ul class="main-tree">';
+			
+				//$dirname = basename($dir);
+				
+				$dirname = 'Template';
+			
+				$filetree .= '<li class="tree-title">' . $dirname . '</li>';
+			
+				$filetree .= $this->get_filetree($dir,false);
+			
+			$filetree .= '</ul>';
+		}		
+		else{
+			
+			$files = array_map('basename', glob( $dir . '/*' ));
+			
+			if( !empty($files) ){
+
+				foreach( $files as $file ) {
+					
+					if( is_dir( $dir . '/' . $file ) ) {
+						
+						$filetree .= '<ul class="tree">';
+					
+							$filetree .= '<li class="tree-title">' . $file . '</li>';
+					
+							$filetree .= $this->get_filetree( $dir . '/' . $file, false );
+					
+						$filetree .= '</ul>';
+					} 
+					else{
+						
+						$filetree .= '<li class="tree-item">' . $file . '</li>';
+					}
+				}
+			}
+		}
+		
+		return $filetree;
+	}
+	
+	
+	public function get_filetree2(){
+		
+		
+		$filetree = '
+		
+		  <ul class="main-tree">
+			<li class="tree-title">photos-2015</li>
+			<ul class="tree">
+			  <li class="tree-title">beach</li>
+			  <li class="tree-item">0-2015-01-01.jpg</li>
+			  <li class="tree-item">1-2015-01-02.jpg</li>
+			  <li class="tree-item">2-2015-01-03.jpg</li>
+			</ul>
+			<ul class="tree">
+			  <li class="tree-title">disneyland</li>
+			  <li class="tree-item">3-2015-02-01.jpg</li>
+			  <li class="tree-item">7-2015-02-02.jpg</li>
+			  <li class="tree-item">8-2015-02-03.jpg</li>
+			  <ul class="tree">
+				<li class="tree-title">birthday party</li>
+				<li class="tree-item">4-2015-02-01.jpg</li>
+				<li class="tree-item">5-2015-02-01.jpg</li>
+				<li class="tree-item">6-2015-02-01.jpg</li>
+			  </ul>
+			</ul>
+		  </ul>
+		 
+
+		  
+		  <ul class="main-tree">
+			<li class="tree-title">projects</li>
+			<ul class="tree">
+			  <li class="tree-title">nearby</li>
+			  <ul class="tree">
+				<li class="tree-title">css</li>
+				<li class="tree-item">animations.js</li>
+				<li class="tree-item">google-maps.js</li>
+				<li class="tree-item">main.js</li>
+				<li class="tree-item">mobile.js</li>
+			  </ul>
+			  <ul class="tree">
+				<li class="tree-title">js</li>
+				<li class="tree-item">google-maps.js</li>
+				<li class="tree-item">main.js</li>
+			  </ul>
+			  <ul class="tree">
+				<li class="tree-title">resources</li>
+				<li class="tree-item">favicon.ico</li>
+			  </ul>
+			  <li class="tree-item">index.html</li>
+			  <li class="tree-item">README.md</li>
+			</ul>
+		  </ul>
+		  
+
+		  
+		  <ul class="main-tree">
+			<li class="tree-title">movies</li>
+			<li class="tree-item">interstellar.mp4</li>
+			<li class="tree-item">catch_me_if_you_can.mp4</li>
+			<li class="tree-item">psycho.mp4</li>
+		  </ul>
+		  
+		  
+		';
+		
+		return $filetree;
 	}
 }

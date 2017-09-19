@@ -5,7 +5,7 @@
 		echo $this->message;
 	}
 	
-	$permalink = get_permalink($this);
+	$permalink = get_permalink($this) . '?preview';
 	
 	$editor_url = $this->parent->urls->editor . '?uri=' . $this->ID;
 	
