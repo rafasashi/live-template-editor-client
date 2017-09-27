@@ -6,13 +6,21 @@
 	
 	$pageDef = $ltple->layer->pageDef;
 	
-	//get layer static url
+	//get layer static css url
 	
-	$layerStaticUrl = $ltple->layer->layerStaticUrl;
+	$layerStaticCssUrl = $ltple->layer->layerStaticCssUrl;
 	
-	//get layer static path
+	//get layer static js url
 	
-	$layerStaticPath = $ltple->layer->layerStaticPath;
+	$layerStaticJsUrl = $ltple->layer->layerStaticJsUrl;
+	
+	//get default static css url
+	
+	$defaultStaticCssUrl = $ltple->layer->defaultStaticCssUrl;
+	
+	//get default static js url
+	
+	$defaultStaticJsUrl = $ltple->layer->defaultStaticJsUrl;
 	
 	//get default static path
 	
@@ -135,7 +143,9 @@
 	
 	//get style-sheet
 	
+	$defaultCss 	= '';
 	$layerCss 		= '';
+	$defaultJs 		= '';
 	$layerJs 		= '';
 	$layerMeta 		= '';
 	
@@ -145,14 +155,19 @@
 	}
 	elseif( empty($_POST) ){
 		
+		$defaultCss = $ltple->layer->defaultCss;
+		
 		$layerCss = $ltple->layer->layerCss;
+		
+		$defaultJs = $ltple->layer->defaultJs;
 		
 		$layerJs = $ltple->layer->layerJs;
 
 		$layerMeta = $ltple->layer->layerMeta;
 	}
-
-	$layerCss = sanitize_text_field($layerCss);
+	
+	$defaultCss = sanitize_text_field($defaultCss);
+	$layerCss 	= sanitize_text_field($layerCss);
 	
 	// normalize canvas content
 	
@@ -242,7 +257,31 @@
 			$layer .= $layerHead;
 		}
 		
+		if(!empty($layerMeta['link'])){
+			
+			foreach($layerMeta['link'] as $url){
+				
+				$layer .= '<link href="'.$url.'" rel="stylesheet" type="text/css" />';
+			}
+		}			
+		
+		// font library
+		
+		if( !empty($googleFonts) ){
+		
+			$layer .= '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
+		}
+		
 		if( $layerOutput == 'hosted-page' ){		
+			
+			// output css files
+			
+			$layer .= '<link href="' . $defaultStaticCssUrl . '" rel="stylesheet" />';
+			
+			if( $ltple->layer->type == 'user-layer' && $layerCss != $defaultCss ){
+				
+				$layer .= '<link href="' . $layerStaticCssUrl . '" rel="stylesheet" />';
+			}
 			
 			// output custom meta tags
 			
@@ -410,21 +449,6 @@
 			$layer .= '<meta name="geo.region" content="Country Subdivision Code" />' . PHP_EOL;
 			*/
 		}
-
-		if(!empty($layerMeta['link'])){
-			
-			foreach($layerMeta['link'] as $url){
-				
-				$layer .= '<link href="'.$url.'" rel="stylesheet" type="text/css" />';
-			}
-		}			
-		
-		// font library
-		
-		if( !empty($googleFonts) ){
-		
-			$layer .= '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet">';
-		}
 		
 		$ggl_analytics_id = get_option( $ltple->_base . 'embedded_ggl_analytics_id' );
 						
@@ -458,7 +482,7 @@
 		
 		$layer .= '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
 		
-		if( $layerCss!='' ){
+		if( $ltple->layer->layerOutput != 'hosted-page' && $layerCss!='' ){
 
 			$layer .= $layerCss .PHP_EOL;
 		}
@@ -584,12 +608,24 @@
 		
 		$layer .='<script id="LiveTplEditorScript">' .PHP_EOL;
 		
-			if( $layerJs != '' ){
+			if( $ltple->layer->layerOutput != 'hosted-page' && $layerJs != '' ){
 
 				$layer .= $layerJs .PHP_EOL;				
 			}				
 			
 		$layer .='</script>' .PHP_EOL;
+		
+		if( $ltple->layer->layerOutput == 'hosted-page' ){
+			
+			if( $ltple->layer->type == 'user-layer' && !empty($layerJs) ){
+
+				$layer .= '<script src="'.$layerStaticJsUrl.'"></script>' .PHP_EOL;
+			}
+			elseif( !empty($defaultJs) ){
+				
+				$layer .= '<script src="'.$defaultStaticJsUrl.'"></script>' .PHP_EOL;
+			}
+		}
 		
 	$layer .='</body>' .PHP_EOL;
 	

@@ -2,6 +2,8 @@
 	
 	$ltple = LTPLE_Client::instance();
 
+	// get navbar
+	
 	if( !empty($_GET['pr']) ){
 		
 		echo'<div style="background: transparent;padding: 8px 4px;margin: 0;position: absolute;width: 100%;z-index: 1000;right: 0;left: 0;">';
@@ -147,7 +149,7 @@
 							
 							echo'<li style="position:relative;">';
 								
-								echo '<a target="_blank" href="' . get_post_permalink( $ltple->layer->id ) . '"> Preview Layer <span class="label label-warning pull-right">admin</span></a>';
+								echo '<a target="_blank" href="' . get_post_permalink( $ltple->layer->id ) . '?preview"> Preview Layer <span class="label label-warning pull-right">admin</span></a>';
 
 							echo'</li>';
 						}
@@ -261,6 +263,6 @@
 			
 		echo'</div>';
 
-	} 
+	}
 	
 ?>

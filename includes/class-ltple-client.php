@@ -985,11 +985,6 @@ class LTPLE_Client {
 					echo $this->image->upload_cropped_image($this->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
 					exit;
 				}
-				elseif( isset($_GET['filetree']) ){
-					
-					include( $this->views . $this->_dev .'/filetree.php' );
-					exit;
-				}
 				else{
 				
 					//include( $this->views . $this->_dev .'/editor-iframe.php' );
@@ -1533,7 +1528,7 @@ class LTPLE_Client {
 	}
 	
 	public function update_user_layer(){	
-
+		
 		if( $this->user->loggedin ){
 			
 			if( $this->layer->type == 'user-layer' && empty( $this->user->layer ) ){
@@ -1675,6 +1670,10 @@ class LTPLE_Client {
 					wp_redirect($url);
 					exit;
 				}
+			}
+			elseif( isset($_POST['postAction']) && $_POST['postAction'] == 'download' ){
+				
+				$this->layer->download_static_contents($this->layer->id);
 			}
 			elseif( isset($_POST['postContent']) && !empty($this->layer->type) ){
 				
@@ -2005,8 +2004,8 @@ class LTPLE_Client {
 						include( $this->views . $this->_dev .'/message.php' );							
 					}
 				}
-				elseif( $_POST['postAction'] == 'save'){				
-					
+				elseif( $_POST['postAction'] == 'save' ){				
+				
 					//save layer
 					
 					$post_id = '';
@@ -2107,24 +2106,29 @@ class LTPLE_Client {
 							if( $this->layer->type == 'cb-default-layer' ){
 								
 								$this->layer->copy_static_contents($defaultLayerId,$post_id);
-							}
 							
-							//redirect to user layer
+								//redirect to user layer
 
-							if( !empty($post_embedded) ){
+								if( !empty($post_embedded) ){
+									
+									$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['p'].'&action=edit&ult='.urlencode($post_title).'&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id.$post_title);
+								}
+								else{
+									
+									$user_layer_url = $this->urls->editor . '?uri=' . $post_id;
+								}
 								
-								$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['p'].'&action=edit&ult='.urlencode($post_title).'&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id.$post_title);
+								wp_redirect($user_layer_url);
+								echo 'Redirecting editor...';
+								exit;							
 							}
 							else{
-								
-								$user_layer_url = $this->urls->editor . '?uri=' . $post_id;
+									
+								echo 'Content Saved!';
+								exit;
 							}
-							
-							wp_redirect($user_layer_url);
-							echo 'Redirecting editor...';
-							exit;
 						}
-					}
+					}				
 					else{
 						
 						http_response_code(404);
@@ -2137,7 +2141,7 @@ class LTPLE_Client {
 						
 						include( $this->views . $this->_dev .'/message.php' );
 					}
-				}
+				}	
 				else{
 					
 					http_response_code(404);

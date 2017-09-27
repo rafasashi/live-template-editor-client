@@ -69,7 +69,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 
-		$this->parent->register_taxonomy( 'layer-type', __( 'Layer Type', 'live-template-editor-client' ), __( 'Layer Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'layer-type', __( 'Template Types', 'live-template-editor-client' ), __( 'Template Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -83,7 +83,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'layer-range', __( 'Layer Range', 'live-template-editor-client' ), __( 'Layer Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'layer-range', __( 'Template Ranges', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -97,7 +97,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'account-option', __( 'Account Options', 'live-template-editor-client' ), __( 'Account Option', 'live-template-editor-client' ),  array('user-plan'), array(
+		$this->parent->register_taxonomy( 'account-option', __( 'Template Options', 'live-template-editor-client' ), __( 'Account Option', 'live-template-editor-client' ),  array('user-plan'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -824,6 +824,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$this->layerCss = get_post_meta( $this->defaultId, 'layerCss', true );
 						}
 						
+						// get default css
+
+						$this->defaultCss = get_post_meta( $this->defaultId, 'layerCss', true );
+
 						// get layer js
 						
 						$this->layerJs = get_post_meta( $this->id, 'layerJs', true );
@@ -832,6 +836,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 							$this->layerJs = get_post_meta( $this->defaultId, 'layerJs', true );
 						}
+						
+						// get default js
+
+						$this->defaultJs = get_post_meta( $this->defaultId, 'layerJs', true );
 						
 						// get layer meta
 						
@@ -877,6 +885,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->defaultStaticUrl = $this->get_static_url($this->defaultId,$this->defaultId);
 						
+						//get default static css url
+						
+						$this->defaultStaticCssUrl = $this->get_static_asset_url($this->id,'css','default_style');
+
+						//get default static js url
+						
+						$this->defaultStaticJsUrl = $this->get_static_asset_url($this->id,'js','default_script');						
+						
 						//get default static dir
 						
 						$this->defaultStaticDir = $this->get_static_dir($this->defaultId);
@@ -885,19 +901,43 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->defaultStaticPath = $this->get_static_path($this->defaultId,$this->defaultId);
 							
-						//get static url
+						//get default static css path
+						
+						$this->defaultStaticCssPath = $this->get_static_asset_path($this->id,'css','default_style');
+							
+						//get default static js path
+						
+						$this->defaultStaticJsPath = $this->get_static_asset_path($this->id,'js','default_script');
+						
+						//get layer static url
 						
 						$this->layerStaticUrl = $this->get_static_url($this->id,$this->defaultId);
 						
-						//get static dir
+						//get layer static css url
+						
+						$this->layerStaticCssUrl = $this->get_static_asset_url($this->id,'css','custom_style');
+
+						//get layer static js url
+						
+						$this->layerStaticJsUrl = $this->get_static_asset_url($this->id,'js','custom_script');						
+
+						//get layer static dir
 						
 						$this->layerStaticDir = $this->get_static_dir($this->id);
 						
-						//get static path
+						//get layer static path
 						
 						$this->layerStaticPath = $this->get_static_path($this->id,$this->defaultId);
 							
-						//get output config
+						//get layer static css path
+						
+						$this->layerStaticCssPath = $this->get_static_asset_path($this->id,'css','custom_style');
+							
+						//get layer static js path
+						
+						$this->layerStaticJsPath = $this->get_static_asset_path($this->id,'js','custom_script');						
+							
+						//get layer output
 						
 						$this->layerOutput = get_post_meta( $this->defaultId, 'layerOutput', true );
 						
@@ -1974,6 +2014,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $static_url;
 	}
 	
+	public function get_static_asset_url($postId, $type = 'css', $filename = 'style'){
+		
+		$static_url = $this->url . $postId . '/assets/'.$type.'/' . $filename . '.' . $type;
+		
+		return $static_url;
+	}
+	
 	public function get_static_dir($postId,$empty=false){
 		
 		$static_dir = $this->dir . $postId;
@@ -1992,7 +2039,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $static_dir;
 	}
 	
-	public function get_static_path($postId,$defaultId){
+	public function get_static_asset_dir($postId, $type = 'css'){
+		
+		$static_dir = $this->dir . $postId . '/assets/' . $type;
+		
+		if( !is_dir($static_dir) ){
+			
+			mkdir($static_dir,0755,true);
+		}		
+		
+		return $static_dir;
+	}	
+	
+	public function get_static_path( $postId, $defaultId ){
 		
 		$static_path = '';
 		
@@ -2004,6 +2063,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	
 		return $this->get_static_dir( $postId ) . '/' . $layerStaticUrl;
+	}
+	
+	public function get_static_asset_path( $postId, $type = 'css', $filename = 'style' ){
+		
+		$static_path = $this->get_static_asset_dir( $postId, $type ) . '/' . $filename . '.' . $type;
+	
+		return $static_path;
 	}
 	
 	public function upload_static_contents($post_id){
@@ -2062,6 +2128,64 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 			}
 		}
+	}
+	
+	public function download_static_contents($post_id){
+		
+		// get the path
+		
+		$rootPath = $this->get_static_dir($post_id);
+		
+		// remove previous archive
+		
+		if( file_exists($rootPath . '/template.zip') ){
+		
+			unlink($rootPath . '/template.zip');
+		}
+		
+		// get the archive
+		
+		$zip = new ZipArchive();
+		$zip->open( $rootPath . '/template.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+		// Create recursive directory iterator
+		
+		$files = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator($rootPath),
+			RecursiveIteratorIterator::LEAVES_ONLY
+		);
+
+		foreach( $files as $name => $file ){
+			
+			// Skip directories (they would be added automatically)
+			
+			if ( !$file->isDir() ){
+				
+				// Get real and relative path for current file
+				$filePath = $file->getRealPath();
+				$relativePath = substr($filePath, strlen($rootPath) + 1);
+
+				// Add current file to archive
+				$zip->addFile($filePath, $relativePath);
+			}
+		}
+
+		// Zip archive will be created only after closing object
+		$zip->close();
+		
+		// output the archive	
+		
+		header('Content-type: application/zip');
+		header('Content-Disposition: attachment; filename="template.zip"');
+		header('Content-Length: ' . filesize($archive));
+		
+		echo file_get_contents( $rootPath . '/template.zip' );	
+		
+		// remove current archive
+		
+		unlink( $rootPath . '/template.zip' );		
+		
+		exit;
 	}
 	
 	public function delete_static_contents($post_id){
@@ -2146,19 +2270,38 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$output = str_replace($this->parent->image->url,'assets/images/',$output);
 					
-					if( $this->type == 'user-layer' ){
+					// store static output
 					
-						// store static output
-						
+					if( $this->type == 'user-layer' || !file_exists($this->layerStaticPath) ){ 
+					
 						file_put_contents($this->layerStaticPath,$output);
-						
-						if( !empty($_GET['download']) ){
-							
-							// TODO return downloadable archive
-							
-							return true;
-						}
 					}
+					
+					// store static css
+					
+					if( !empty( $this->defaultCss ) ){
+					
+						file_put_contents($this->defaultStaticCssPath,$this->defaultCss);
+					}
+					
+					if( $this->type == 'user-layer' && $this->layerCss != $this->defaultCss ){
+						
+						file_put_contents($this->layerStaticCssPath,$this->layerCss);
+					}					
+					
+					// store static js
+					
+					if( !empty( $this->defaultJs) ){
+					
+						file_put_contents($this->defaultStaticJsPath,$this->defaultJs);
+					}
+					
+					if( $this->type == 'user-layer' && $this->layerJs != $this->defaultJs ){
+						
+						file_put_contents($this->layerStaticJsPath,$this->layerJs);
+					}
+					
+					// output content
 					
 					if( isset($_GET['preview']) ){
 						
@@ -2180,7 +2323,48 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 						echo '</body>';
 					}
+					elseif( isset($_GET['filetree']) ){
+						
+						echo'<!DOCTYPE html>';
+
+						echo'<head>';
+
+							echo'<meta charset="utf-8">';
+							echo'<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">';
+							echo'<meta name="viewport" content="width=device-width, initial-scale=1">';
+							
+							echo'<title></title>';
+							
+							echo'<link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">';
+							echo'<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet" type="text/css">';
+							echo'<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">';
+							echo'<link href="' . $this->parent->assets_url . 'css/filetree.css" rel="stylesheet" type="text/css">';
+							
+							echo'<style>';
+							echo'body { background-color:#182f42; color:#fff; font-family:\'Quicksand\';}';
+							echo'.container { margin:150px auto; max-width:640px;}';
+							echo'</style>';
+							
+						echo'</head>';
+
+						echo'<body>';
+							
+							echo'<div class="filetree">';
+							
+								echo $this->get_filetree( $this->layerStaticDir );
+
+							echo'</div>';
+							
+							echo'<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>';
+							echo'<script src="' . $this->parent->assets_url . 'js/filetree.js"></script>';
+
+						echo'</body>';
+						
+						exit;
+					}
 					else{
+						
+						wp_redirect($this->layerStaticUrl);exit;
 						
 						// add base
 						
@@ -2191,10 +2375,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						echo $output;
 					}
-					
-					// redirect to static file
-					
-					//wp_redirect($this->layerStaticUrl);exit;
 				}
 				else{
 				
@@ -2247,76 +2427,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 			}
 		}
-		
-		return $filetree;
-	}
-	
-	
-	public function get_filetree2(){
-		
-		
-		$filetree = '
-		
-		  <ul class="main-tree">
-			<li class="tree-title">photos-2015</li>
-			<ul class="tree">
-			  <li class="tree-title">beach</li>
-			  <li class="tree-item">0-2015-01-01.jpg</li>
-			  <li class="tree-item">1-2015-01-02.jpg</li>
-			  <li class="tree-item">2-2015-01-03.jpg</li>
-			</ul>
-			<ul class="tree">
-			  <li class="tree-title">disneyland</li>
-			  <li class="tree-item">3-2015-02-01.jpg</li>
-			  <li class="tree-item">7-2015-02-02.jpg</li>
-			  <li class="tree-item">8-2015-02-03.jpg</li>
-			  <ul class="tree">
-				<li class="tree-title">birthday party</li>
-				<li class="tree-item">4-2015-02-01.jpg</li>
-				<li class="tree-item">5-2015-02-01.jpg</li>
-				<li class="tree-item">6-2015-02-01.jpg</li>
-			  </ul>
-			</ul>
-		  </ul>
-		 
-
-		  
-		  <ul class="main-tree">
-			<li class="tree-title">projects</li>
-			<ul class="tree">
-			  <li class="tree-title">nearby</li>
-			  <ul class="tree">
-				<li class="tree-title">css</li>
-				<li class="tree-item">animations.js</li>
-				<li class="tree-item">google-maps.js</li>
-				<li class="tree-item">main.js</li>
-				<li class="tree-item">mobile.js</li>
-			  </ul>
-			  <ul class="tree">
-				<li class="tree-title">js</li>
-				<li class="tree-item">google-maps.js</li>
-				<li class="tree-item">main.js</li>
-			  </ul>
-			  <ul class="tree">
-				<li class="tree-title">resources</li>
-				<li class="tree-item">favicon.ico</li>
-			  </ul>
-			  <li class="tree-item">index.html</li>
-			  <li class="tree-item">README.md</li>
-			</ul>
-		  </ul>
-		  
-
-		  
-		  <ul class="main-tree">
-			<li class="tree-title">movies</li>
-			<li class="tree-item">interstellar.mp4</li>
-			<li class="tree-item">catch_me_if_you_can.mp4</li>
-			<li class="tree-item">psycho.mp4</li>
-		  </ul>
-		  
-		  
-		';
 		
 		return $filetree;
 	}

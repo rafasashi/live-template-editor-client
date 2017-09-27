@@ -28,10 +28,10 @@ class LTPLE_Client_Settings {
 	 */
 
 	public $plugin;
-	
-	public $settings;
-	public $tabs;
+	public $options;
 	public $addons;
+	
+	var $tabs = array();
 	
 	public function __construct ( $parent ) {
 
@@ -47,7 +47,14 @@ class LTPLE_Client_Settings {
 		$this->options 				 	= new stdClass();
 		$this->options->analyticsId  	= get_option( $this->parent->_base . 'analytics_id');
 		$this->options->emailSupport 	= get_option( $this->parent->_base . 'email_support');	
-		$this->options->postTypes 	 	= get_option( $this->parent->_base . 'post_types');	
+		
+		$this->options->postTypes = array();
+		
+		if( $postTypes = get_option( $this->parent->_base . 'post_types' ) ){
+			
+			$this->options->postTypes = $postTypes;
+		}
+		
 		$this->options->logo_url 	 	= get_option( $this->parent->_base . 'homeLogo' );
 		$this->options->enable_ranking 	= get_option( $this->parent->_base . 'enable_ranking','off');
 		

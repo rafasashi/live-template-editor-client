@@ -64,7 +64,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 
-		$this->parent->register_taxonomy( 'image-type', __( 'Image Type', 'live-template-editor-client' ), __( 'Image Type', 'live-template-editor-client' ),  array('default-image'), array(
+		$this->parent->register_taxonomy( 'image-type', __( 'Image Types', 'live-template-editor-client' ), __( 'Image Type', 'live-template-editor-client' ),  array('default-image'), array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> true,
@@ -265,7 +265,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 						
 						mkdir($this->dir, 0755, true);
 						
-						file_put_contents( $this->dir . 'index.html', '');
+						//file_put_contents( $this->dir . 'index.html', '');
 					}
 					
 					// get user image path
@@ -285,12 +285,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 						
 						mkdir($path, 0755, true);
 						
-						/*
-						if( !$this->isHosted ){
-						
-							file_put_contents($path . 'index.html', '');
-						}
-						*/
+						//file_put_contents($path . 'index.html', '');
 					}
 					
 					// set transparency
