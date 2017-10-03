@@ -276,7 +276,10 @@
 			
 			// output css files
 			
-			$layer .= '<link href="' . $defaultStaticCssUrl . '" rel="stylesheet" />';
+			if( !empty($defaultCss) ){
+			
+				$layer .= '<link href="' . $defaultStaticCssUrl . '" rel="stylesheet" />';
+			}
 			
 			if( $ltple->layer->type == 'user-layer' && $layerCss != $defaultCss ){
 				

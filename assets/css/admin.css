@@ -39,3 +39,4 @@ html.wp-toolbar{padding-top:50px !important;}
 .sortable .ui-state-disabled { cursor: initial !important; }
 html>body #email_series .ui-sortable li { height: 1.5em; line-height: 1.2em; }
 .sortable .ui-state-highlight { height: 1.5em; line-height: 1.2em; background-color:#fafafa; }
+.nav-tab {margin-left:4px;}

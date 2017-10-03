@@ -24,7 +24,7 @@ class LTPLE_Client_Leads {
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'leads',
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export'			=> true,
 			'rewrite' 				=> false,

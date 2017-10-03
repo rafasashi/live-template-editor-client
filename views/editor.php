@@ -1,5 +1,5 @@
 <?php
-
+	
 	$is_embedded = ( (isset($_GET['output']) && $_GET['output'] == 'embedded' && !empty($this->layer->embedded)) ? true : false );
 
 	$output = ( !empty($_GET['output']) ? '&output='. sanitize_text_field($_GET['output']) : '' );
@@ -115,59 +115,29 @@
 		echo'<iframe id="editorIframe" src="' . $iframe_url .'" style="margin-top: -65px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height: 1300px;overflow: hidden;"></iframe>';
 	}
 	
-	//--------------- editor settings -------------------
-
-	//get page def
-	
-	$pageDef = $this->layer->pageDef;
-	
-	//get output config
-	
-	$layerOutput = $this->layer->layerOutput;
-	
-	//get layer options
-	
-	$layerOptions = $this->layer->layerOptions;
-	
-	//get layer settings
-	
-	$layerSettings = $this->layer->layerSettings;
-
-	//get css libraries
-
-	$layerCssLibraries = $this->layer->layerCssLibraries;
-	
-	//get js libraries
-
-	$layerJsLibraries = $this->layer->layerJsLibraries;
-	
-	//get layer image proxy
-	
-	$layerImgProxy = $this->layer->layerImgProxy;	
-		
 	//---------- editor settings ---------------
 		
 	echo'<script id="LiveTplEditorSettings">' .PHP_EOL;
 
-		if($layerOutput!=''){
+		if($this->layer->layerOutput!=''){
 			
-			echo ' var layerOutput = "' . $layerOutput . '";' .PHP_EOL;
+			echo ' var layerOutput = "' . $this->layer->layerOutput . '";' .PHP_EOL;
 		}
 		
-		echo ' var layerSettings = ' . json_encode($layerSettings) . ';' .PHP_EOL;
+		echo ' var layerSettings = ' . json_encode($this->layer->layerSettings) . ';' .PHP_EOL;
 		
 		//include image proxy
 		
-		if($layerImgProxy!=''){
+		if( $this->layer->layerImgProxy != '' ){
 		
-			echo ' var imgProxy = " ' . $layerImgProxy . '";' .PHP_EOL;				
+			echo ' var imgProxy = " ' . $this->layer->layerImgProxy . '";' .PHP_EOL;				
 		}
 		
 		//include page def
 		
-		if($pageDef!=''){
+		if( $this->layer->pageDef != '' ){
 			
-			echo ' var pageDef = ' . $pageDef . ';' .PHP_EOL;
+			echo ' var pageDef = ' . $this->layer->pageDef . ';' .PHP_EOL;
 		}
 		else{
 			
@@ -176,14 +146,14 @@
 		
 		//include  line break setting
 
-		if( !is_array($layerOptions) ){
+		if( !is_array( $this->layer->layerOptions ) ){
 			
 			echo ' var disableReturn 	= true;' .PHP_EOL;
 			echo ' var autoWrapText 	= false;' .PHP_EOL;
 		}
 		else{
 			
-			if(!in_array('line-break',$layerOptions)){
+			if( !in_array('line-break',$this->layer->layerOptions) ){
 				
 				echo ' var disableReturn = true;' .PHP_EOL;
 			}
@@ -192,7 +162,7 @@
 				echo ' var disableReturn = false;' .PHP_EOL;
 			}
 			
-			if(in_array('wrap-text',$layerOptions)){
+			if(in_array('wrap-text',$this->layer->layerOptions)){
 				
 				echo ' var autoWrapText = true;' .PHP_EOL;
 			}
@@ -206,7 +176,7 @@
 		
 		$enableIcons = 'false';
 		
-		if( in_array_field( 'font-awesome-4-7-0', 'slug', $layerCssLibraries ) ){
+		if( in_array_field( 'font-awesome-4-7-0', 'slug', $this->layer->layerCssLibraries ) ){
 			
 			$enableIcons = 'true';
 		}

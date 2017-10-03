@@ -183,7 +183,9 @@ class LTPLE_Client {
 			
 			$this->leads 	= new LTPLE_Client_Leads( $this );
 			
+			$this->element 	= new LTPLE_Client_Element( $this );
 			$this->layer 	= new LTPLE_Client_Layer( $this );
+			
 			$this->services = new LTPLE_Client_Services( $this );			
 			$this->plan 	= new LTPLE_Client_Plan( $this );
 			$this->product 	= new LTPLE_Client_Product( $this );

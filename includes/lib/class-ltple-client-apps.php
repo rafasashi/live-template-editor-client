@@ -26,7 +26,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'user-app',
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export'			=> true,
 			'rewrite' 				=> false,
@@ -45,7 +45,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
 			'show_admin_column' 	=> true,
@@ -285,20 +285,20 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		if(is_admin()){
 			
-			add_filter( 'app-type_row_actions', array($this, 'remove_app_taxonomy_quick_edition'), 10, 2 );				
+			add_filter( 'app-type_row_actions', array($this, 'remove_app_quick_edition'), 10, 2 );				
 			
 			// add taxonomy custom fields
 			
-			add_action('app-type_add_form_fields', array( $this, 'get_new_app_taxonomy_fields' ) );
-			add_action('app-type_edit_form_fields', array( $this, 'get_app_taxonomy_fields' ) );
+			add_action('app-type_add_form_fields', array( $this, 'get_new_app_fields' ) );
+			add_action('app-type_edit_form_fields', array( $this, 'get_app_fields' ) );
 
-			add_filter('manage_edit-app-type_columns', array( $this, 'set_app_taxonomy_columns' ) );
-			add_filter('manage_app-type_custom_column', array( $this, 'add_app_taxonomy_column_content' ),10,3);			
+			add_filter('manage_edit-app-type_columns', array( $this, 'set_app_columns' ) );
+			add_filter('manage_app-type_custom_column', array( $this, 'add_app_column_content' ),10,3);			
 
 			// save taxonomy custom fields
 			
-			add_action('create_app-type', array( $this, 'save_app_taxonomy_fields' ) );
-			add_action('edit_app-type', array( $this, 'save_app_taxonomy_fields' ) );
+			add_action('create_app-type', array( $this, 'save_app_fields' ) );
+			add_action('edit_app-type', array( $this, 'save_app_fields' ) );
 		}
 
 		// get custom fields
@@ -533,7 +533,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
         return $matches[0];
 	}
 	
-	public function remove_app_taxonomy_quick_edition( $actions, $term ){
+	public function remove_app_quick_edition( $actions, $term ){
 
 		//unset( $actions['edit'] );
 		unset( $actions['view'] );
@@ -543,23 +543,23 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return $actions;
 	}	
 	
-	public function set_app_taxonomy_columns($columns) {
+	public function set_app_columns($columns) {
 
 		// Remove description, posts, wpseo columns
 		$columns = [];
 		
 		// Add artist-website, posts columns
 
-		$columns['cb'] 			= '<input type="checkbox" />';
+		$columns['cb'] 		= '<input type="checkbox" />';
 		$columns['thumb'] 	= 'Thumb';
-		$columns['name'] 		= 'Name';
-		$columns['slug'] 		= 'Slug';
-		$columns['types'] 		= 'Types';
+		$columns['name'] 	= 'Name';
+		$columns['slug'] 	= 'Slug';
+		$columns['types'] 	= 'Types';
 		
 		return $columns;
 	}
 		
-	public function add_app_taxonomy_column_content($content, $column_name, $term_id){
+	public function add_app_column_content($content, $column_name, $term_id){
 	
 		$term= get_term($term_id);
 	
@@ -596,7 +596,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return $content;
 	}
 	
-	public function get_new_app_taxonomy_fields($taxonomy_name){
+	public function get_new_app_fields($taxonomy_name){
 		
 		echo'<div class="form-field">';
 			
@@ -626,7 +626,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		echo'</div>';
 	}	
 	
-	public function get_app_taxonomy_fields($term){
+	public function get_app_fields($term){
 
 		echo'<tr class="form-field">';
 		
@@ -736,7 +736,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		}		
 	}
 	
-	public function save_app_taxonomy_fields($term_id){
+	public function save_app_fields($term_id){
 
 		//collect all term related data for this new taxonomy
 		

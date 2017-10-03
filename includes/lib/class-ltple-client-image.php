@@ -22,14 +22,14 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 		
-		$this->parent->register_post_type( 'default-image', __( 'Default images', 'live-template-editor-client' ), __( 'Default image', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'default-image', __( 'Default Images', 'live-template-editor-client' ), __( 'Default Image', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'default-image',
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export' 			=> true,
 			'rewrite' 				=> false,
@@ -43,14 +43,14 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_post_type( 'user-image', __( 'User images', 'live-template-editor-client' ), __( 'User image', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-image', __( 'User Images', 'live-template-editor-client' ), __( 'User Image', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'user-image',
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export' 			=> true,
 			'rewrite' 				=> false,
@@ -64,12 +64,12 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 
-		$this->parent->register_taxonomy( 'image-type', __( 'Image Types', 'live-template-editor-client' ), __( 'Image Type', 'live-template-editor-client' ),  array('default-image'), array(
+		$this->parent->register_taxonomy( 'image-type', __( 'Image Type', 'live-template-editor-client' ), __( 'Image Type', 'live-template-editor-client' ),  array('default-image'), array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> true,
 			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> true,
 			'meta_box_cb' 			=> null,
 			'show_admin_column' 	=> true,

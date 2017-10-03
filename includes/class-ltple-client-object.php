@@ -74,4 +74,25 @@ class LTPLE_Client_Object {
 		
 		return $list;
 	}
+	
+	public function index_keys($fields = array()){
+		
+		$index = array();
+
+		if( !empty($fields) ){
+		
+			foreach( $fields as $field ){
+				
+				if( !empty($field) ){
+
+					foreach( $field as $name => $value ){
+						
+						$index[$name][] = $value;
+					}
+				}
+			}
+		}
+		
+		return $index;
+	}
 }  

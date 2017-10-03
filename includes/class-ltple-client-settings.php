@@ -70,12 +70,12 @@ class LTPLE_Client_Settings {
 		
 			array(
 			
-				'cb-default-layer' 	=> array( 'name' => 'Designs'),
+				'cb-default-layer' 	=> array( 'name' => 'Templates'),
 				'default-image' 	=> array( 'name' => 'Images'),
 			),
 			array(
 			
-				'user-layer' 	=> array( 'name' => 'Designs'),
+				'user-layer' 	=> array( 'name' => 'Templates'),
 				'user-image' 	=> array( 'name' => 'Images'),
 				'user-bookmark' => array( 'name' => 'Bookmarks'),
 				'user-app' 		=> array( 'name' => 'Apps'),
@@ -96,8 +96,9 @@ class LTPLE_Client_Settings {
 			),
 			array(
 			
-				'css-library' 		=> array( 'name' => 'CSS', 	'post-type' => 'cb-default-layer' ),
-				'js-library' 		=> array( 'name' => 'JS', 	'post-type' => 'cb-default-layer' ),
+				'css-library' 		=> array( 'name' => 'CSS', 		'post-type' => 'cb-default-layer' ),
+				'js-library' 		=> array( 'name' => 'JS', 		'post-type' => 'cb-default-layer' ),
+				'element-library' 	=> array( 'name' => 'HTML', 	'post-type' => 'cb-default-layer' ),
 			),
 			array(
 			
@@ -553,8 +554,8 @@ class LTPLE_Client_Settings {
 
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'CSS, JS & Fonts', $this->plugin->slug ),
-			__( 'CSS, JS & Fonts', $this->plugin->slug ),
+			__( 'Web Resources', $this->plugin->slug ),
+			__( 'Web Resources', $this->plugin->slug ),
 			'edit_pages',
 			'edit-tags.php?post_type=cb-default-layer&taxonomy=css-library'
 		);		

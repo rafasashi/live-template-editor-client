@@ -1319,7 +1319,102 @@ class LTPLE_Client_Admin_API {
 					
 				$html .= '</div>';
 
-			break;			
+			break;
+
+			case 'element':
+				
+				if( !isset($data['name']) ){
+
+					$data = array(
+					
+						'name' 		=> [ 0 => '' ],
+						'image' 	=> [ 0 => '' ],
+						'content' 	=> [ 0 => '' ],
+					);
+				}
+
+				$id = ( !empty($field['id']) ? $field['id'] : 'elements' );
+				
+				$html .= '<div id="'.$id.'" class="sortable">';
+					
+					$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add element</a>';
+				
+					$html .= '<ul class="input-group ui-sortable" style="width:100%;">';
+						
+						foreach( $data['name'] as $e => $name) {
+							
+							$image 		= $data['image'][$e];
+							$content 	= stripslashes($data['content'][$e]);
+							
+							if($e > 0){
+								
+								$class='input-group-row ui-state-default ui-sortable-handle';
+							}
+							else{
+								
+								$class='input-group-row ui-state-default ui-state-disabled';
+							}								
+								
+							$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;border-top:1px solid #eee;padding:15px 0 10px 0;margin:0;">';
+								
+								$html .= '<div class="col-sm-11">';
+									
+									$html .= '<div class="form-group">';
+								
+										$html .= '<label class="col-sm-2">Name</label>';
+										
+										$html .= '<div class="col-sm-10">';
+										
+											$html .= '<input class="form-control" style="width:100%;" type="text" placeholder="value" name="'.$field['name'].'[name][]" value="'.$name.'">';
+									
+										$html .= '</div>';
+									
+									$html .= '</div>';
+									
+									
+									$html .= '<div class="form-group">';
+								
+										$html .= '<label class="col-sm-2">Image</label>';
+										
+										$html .= '<div class="col-sm-10">';
+										
+											$html .= '<input class="form-control" style="width:100%;" type="text" placeholder="http://" name="'.$field['name'].'[image][]" value="'.$image.'">';
+									
+										$html .= '</div>';
+									
+									$html .= '</div>';
+									
+									$html .= '<div class="form-group">';
+								
+										$html .= '<label class="col-sm-2">Content</label>';
+										
+										$html .= '<div class="col-sm-10">';
+										
+											$html .= '<textarea class="form-control" placeholder="HTML content" name="'.$field['name'].'[content][]">' . $content . '</textarea>';
+									
+										$html .= '</div>';
+									
+									$html .= '</div>';
+									
+								$html .= '</div>';
+								
+								if( $e > 0 ){
+									
+									$html .= '<div class="col-sm-1" style="padding:0;">';
+									
+										$html .= '<a class="remove-input-group" style="padding-left:10px;" href="#">[ x ]</a> ';
+									
+									$html .= '</div>';
+								}
+
+							$html .= '</li>';						
+						}
+						
+					$html .= '</ul>';
+					
+				$html .= '</div>';
+
+			break;				
 			
 			case 'radio':
 				

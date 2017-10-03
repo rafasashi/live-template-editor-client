@@ -21,20 +21,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	/**
 	 * Constructor function
-	 */
+	 */ 
 	 
 	public function __construct( $parent ) {
 		
 		$this->parent = $parent;
 		
-		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Designs', 'live-template-editor-client' ), __( 'Default Design', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Templates', 'live-template-editor-client' ), __( 'Default Template', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'cb-default-layer',
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export'			=> true,
 			'rewrite' 				=> array('slug'=>'default-layer'),
@@ -48,14 +48,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 
-		$this->parent->register_post_type( 'user-layer', __( 'User Designs', 'live-template-editor-client' ), __( 'User Design', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-layer', __( 'User Templates', 'live-template-editor-client' ), __( 'User Template', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'user-layer',
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export' 			=> true,
 			'rewrite' 				=> array('slug'=>'user-layer'),
@@ -69,11 +69,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 
-		$this->parent->register_taxonomy( 'layer-type', __( 'Template Types', 'live-template-editor-client' ), __( 'Template Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'layer-type', __( 'Template Type', 'live-template-editor-client' ), __( 'Template Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
 			'show_admin_column' 	=> true,
@@ -83,11 +83,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'layer-range', __( 'Template Ranges', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
 			'show_admin_column' 	=> true,
@@ -101,7 +101,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
 			'show_admin_column' 	=> true,
@@ -115,7 +115,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
 			'show_admin_column' 	=> true,
@@ -129,7 +129,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> true,
+			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
 			'show_admin_column' 	=> true,
@@ -698,7 +698,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function init_layer(){
 	
-		$this->url = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : str_replace( 'https://', 'http://', $this->parent->urls->home ) . '/t/');
+		$this->url = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/');
 
 		$this->dir = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');
 	}
@@ -965,6 +965,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->layerJsLibraries = wp_get_post_terms( $this->defaultId, 'js-library', array( 'orderby' => 'term_id' ) );								
 						
+						//get html libraries
+						
+						$this->layerHtmlLibraries = wp_get_post_terms( $this->defaultId, 'element-library', array( 'orderby' => 'term_id' ) );								
+
 						//get layer image proxy
 
 						$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
