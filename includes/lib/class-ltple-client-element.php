@@ -158,6 +158,22 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 					)),
 				),
 			),
+			'bootstrap-3-blog' => array(
+			
+				'name' 		=> 'Bootstrap 3 - Blog',
+				'options'	=> array(
+				
+					'elements'	=> $this->index_keys(array(
+					
+						array(
+						
+							'name' 		=> '1 block',
+							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/1-block.jpg',
+							'content' 	=> '<div class="row"><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);">block<span></span></div><div class="clearfix"></div></div>',
+						),
+					)),
+				),
+			),
 		));
 	}
 

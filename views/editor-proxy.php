@@ -127,45 +127,7 @@
 			
 			$response_body = substr($response, $header_length);
 			$response_body = gzdecode ($response_body);			
-			
-			if( !empty($this->layer->layerHtmlLibraries) ){
-				
-				// add dnd panel
-				
-				$dnd = '<div id="LiveTplEditorDndPanel">';
-				
-					$dnd .= '<div id="dragitemslist">';
-					
-						$dnd .= '<ul id="dragitemslistcontainer">';
 
-							foreach( $this->layer->layerHtmlLibraries as $term ){
-								
-								$elements = get_option( 'elements_' . $term->slug );
-								
-								if( !empty($elements['name']) ){
-									
-									foreach( $elements['name'] as $e => $name ){
-										
-										$dnd .= '<li draggable="true" data-insert-html="' . str_replace( array('\\"'), array("'"), $elements['content'][$e] ) . '">';
-										
-											$dnd .= '<span>'.$name.'</span>';
-										
-											$dnd .= '<img title="'.$name.'" height="60" src="' . $elements['image'][$e] . '" />';
-										
-										$dnd .= '</li>';
-									}
-								}
-							}
-							
-						$dnd .= '</ul>';
-					
-					$dnd .= '</div>';
-					
-				$dnd .= '</div>';
-				
-				$response_body = str_replace('<div id="LiveTplEditorDndPanel"></div>',$dnd,$response_body);
-			}			
-			
 			echo $response_body;
 		}
 		elseif( !empty( $this->_dev ) ){

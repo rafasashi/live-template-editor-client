@@ -119,7 +119,7 @@
 							
 							echo '</div>';
 							
-							echo '<div class="actions" style="display:inline-block;background:#f1f1f1;width:100%;margin-top: -12px;padding: 10px 5px 0px 10px;box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);">';
+							echo '<div class="actions" style="display:inline-block;background:#f1f1f1;width:100%;margin-top: -12px;padding: 10px 5px 0px 10px;box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);border-left: 1px solid #ccc;border-bottom: 1px solid #ccc;">';
 								
 								// add marketing-channel filter
 								

@@ -1,5 +1,5 @@
 html.wp-toolbar{padding-top:50px !important;}
-#wpadminbar{ background-color:#182f42 !important; height: 50px !important; }
+#wpadminbar{ background-color:#182f42 !important; height: 50px !important;box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12) !important;}
 #wpadminbar #wp-admin-bar-my-sites a.ab-item, #wpadminbar #wp-admin-bar-site-name a.ab-item, #wpadminbar .quicklinks>ul>li>a {padding:9px 15px !important;font-size: 15px !important;}
 #wp-admin-bar-notes #wpnt-notes-unread-count.wpn-read {padding:5px !important;}
 #wpcontent, #wpwrap,#wp-content-editor-tools {background-color:#fff !important;}
@@ -39,4 +39,4 @@ html.wp-toolbar{padding-top:50px !important;}
 .sortable .ui-state-disabled { cursor: initial !important; }
 html>body #email_series .ui-sortable li { height: 1.5em; line-height: 1.2em; }
 .sortable .ui-state-highlight { height: 1.5em; line-height: 1.2em; background-color:#fafafa; }
-.nav-tab {margin-left:4px;}
+.nav-tab {margin-left:0px;margin-right:3px;}

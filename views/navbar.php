@@ -6,14 +6,14 @@
 	
 	if( !empty($_GET['pr']) ){
 		
-		echo'<div style="background: transparent;padding: 8px 4px;margin: 0;position: absolute;width: 100%;z-index: 1000;right: 0;left: 0;">';
+		echo'<div style="background: transparent;padding: 8px 15px;margin: 0;position: absolute;width: 100%;z-index: 1000;right: 0;left: 0;">';
 	}
 	else{
 	
 		echo'<div class="row" style="box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);background: rgb(236, 236, 236);padding: 8px 0;margin: 0;border-bottom: 1px solid #ddd;position: relative;">';
 	}
 	
-		echo'<div class="col-xs-6 col-sm-4" style="z-index:10;">';			
+		echo'<div class="col-xs-6 col-sm-4" style="z-index:10;padding:0 8px;">';			
 			
 			echo'<div class="pull-left">';
 
@@ -48,7 +48,7 @@
 
 		echo'</div>';
 		
-		echo'<div class="col-xs-6 col-sm-8 text-right">';
+		echo'<div class="col-xs-6 col-sm-8 text-right" style="padding:0 5px;">';
 
 			if( $ltple->layer->type == 'user-layer' && $ltple->user->plan["info"]["total_price_amount"] > 0 ){
 
@@ -81,6 +81,49 @@
 					
 					echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left: 4px;border-color: #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 				}
+			}
+				
+			if( !empty($this->layer->layerHtmlLibraries) ){
+					
+				echo'<div style="margin:0 2px;" class="btn-group">';
+				
+					echo '<a class="btn btn-sm btn-default" style="background:#345774;color:#fff;" href="#LiveTplEditorDndDialog" data-toggle="dialog" data-target="#LiveTplEditorDndDialog">Elements</a>';
+			
+					echo '<div id="LiveTplEditorDndDialog" title="Elements library" style="display:none;">';
+					echo '<div id="LiveTplEditorDndPanel">';
+					
+						echo '<div id="dragitemslist">';
+							
+							echo '<ul id="dragitemslistcontainer">';
+
+								foreach( $this->layer->layerHtmlLibraries as $term ){
+									
+									$elements = get_option( 'elements_' . $term->slug );
+									
+									if( !empty($elements['name']) ){
+										
+										foreach( $elements['name'] as $e => $name ){
+											
+											echo '<li draggable="true" data-insert-html="' . str_replace( array('\\"','"'), "'", $elements['content'][$e] ) . '">';
+											
+												echo '<span>'.$name.'</span>';
+											
+												echo '<img title="'.$name.'" height="60" src="' . $elements['image'][$e] . '" />';
+											
+											echo '</li>';
+										}
+									}
+								}
+								
+							echo '</ul>';
+							
+						
+						echo '</div>';
+						
+					echo '</div>';
+					echo '</div>';				
+			
+				echo'</div>';
 			}
 
 			if( ( $ltple->layer->type == 'cb-default-layer' && $ltple->user->is_admin ) || $ltple->layer->type == 'user-layer' ){
@@ -187,52 +230,7 @@
 					
 					echo '<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"></span> Load <span class="caret"></span></button>';
 				}
-			}
-			
-			echo'<div style="margin:0 2px;" class="btn-group">';
-			
-				echo'<button type="button" style="margin:0 2px;" class="btn btn-sm btn-info"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">My Profile <span class="caret"></span></button>';
-									
-				echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
-					
-					echo'<li style="position:relative;">';
-						
-						echo '<a target="_blank" href="'. $ltple->urls->editor .'?pr='.$ltple->user->ID . '"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> View Profile</a>';
-
-					echo'</li>';					
-					
-					echo'<li style="position:relative;">';
-						
-						echo '<a href="'. $ltple->urls->editor .'?my-profile"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Edit Settings</a>';
-
-					echo'</li>';
-
-					if( !empty( $ltple->url->host ) ){
-					
-						echo'<li style="position:relative;">';
-							
-							echo '<a href="'. $ltple->urls->editor . '?domain"><span class="glyphicon glyphicon-link" aria-hidden="true"></span> Domains & URLs</a>';
-
-						echo'</li>';
-					}
-					
-					echo'<li style="position:relative;">';
-						
-						echo '<a href="'. $ltple->urls->editor .'?app"><span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Connected Apps</a>';
-
-					echo'</li>';
-					
-					do_action('ltple_view_my_profile');
-					
-					echo'<li style="position:relative;">';
-						
-						echo '<a href="'. wp_logout_url( $ltple->urls->editor ) .'"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout</a>';
-
-					echo'</li>';	
-					
-				echo'</ul>';
-				
-			echo'</div>';		
+			}		
 
 		echo'</div>';
 		

@@ -1241,7 +1241,58 @@ class LTPLE_Client {
 					echo'color:'.$this->settings->linkColor.';';
 					
 				echo'}';				
-			}		
+			}
+
+			echo'#dragitemslistcontainer {
+				
+				margin: 0;
+				padding: 0;
+				/*
+				height: 69px;
+				overflow: hidden;
+				border-bottom: 3px solid #eee;
+				background: rgb(201, 217, 231);
+				*/
+				width: 100%;
+				display:inline-block;
+			}
+
+			#dragitemslistcontainer li {
+				
+				float: left;
+				position: relative;
+				text-align: center;
+				list-style: none;
+				cursor: move; /* fallback if grab cursor is unsupported */
+				cursor: grab;
+				cursor: -moz-grab;
+				cursor: -webkit-grab;
+			}
+
+			#dragitemslistcontainer li:active {
+				cursor: grabbing;
+				cursor: -moz-grabbing;
+				cursor: -webkit-grabbing;
+			}
+
+			#dragitemslistcontainer span {
+				
+				float: left;
+				position: absolute;
+				left: 0;
+				right: 0;
+				color: #fff;
+				font-weight: bold;
+				font-size: 10px;
+				line-height: 9px;
+				margin: 29px 4px 0 4px;
+			}
+
+			#dragitemslistcontainer li img {
+
+				margin:3px 2px;
+				height:60px;
+			}';		
 
 		echo'</style>'.PHP_EOL;
 		
