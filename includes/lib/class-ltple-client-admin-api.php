@@ -355,7 +355,7 @@ class LTPLE_Client_Admin_API {
 							
 							$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4",$layer->ID) ) . '" id="post-' . $layer->ID . '">';
 								
-								$item.='<div class="panel panel-default" style="border-left:1px solid #DDD;">';
+								$item.='<div class="panel panel-default">';
 									
 									$item.='<div class="panel-heading">';
 										
@@ -1323,11 +1323,14 @@ class LTPLE_Client_Admin_API {
 
 			case 'element':
 				
+				$types = ['grid','section','form','media','mix'];
+				
 				if( !isset($data['name']) ){
 
 					$data = array(
 					
 						'name' 		=> [ 0 => '' ],
+						'category' 	=> [ 0 => '' ],
 						'image' 	=> [ 0 => '' ],
 						'content' 	=> [ 0 => '' ],
 					);
@@ -1359,6 +1362,8 @@ class LTPLE_Client_Admin_API {
 								
 								$html .= '<div class="col-sm-11">';
 									
+									// name
+									
 									$html .= '<div class="form-group">';
 								
 										$html .= '<label class="col-sm-2">Name</label>';
@@ -1371,6 +1376,35 @@ class LTPLE_Client_Admin_API {
 									
 									$html .= '</div>';
 									
+									// type
+									
+									$html .= '<div class="form-group">';
+									
+										$html .= '<label class="col-sm-2">Type</label>';
+								
+										$html .= '<div class="col-sm-10">';
+											
+											$html .= '<select style="height:35px;" class="form-control" name="'.$field['name'].'[type][]">';
+
+												foreach ( $types as $type ) {
+													
+													$selected = false;
+													
+													if ( isset($data['type'][$e]) && $data['type'][$e] == $type ) {
+														
+														$selected = true;
+													}
+													
+													$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $type ) . '">' . ucfirst($type) . '</option>';
+												}
+											
+											$html .= '</select> ';
+										
+										$html .= '</div>';
+										
+									$html .= '</div>';
+									
+									// image
 									
 									$html .= '<div class="form-group">';
 								
@@ -1383,6 +1417,8 @@ class LTPLE_Client_Admin_API {
 										$html .= '</div>';
 									
 									$html .= '</div>';
+									
+									// content
 									
 									$html .= '<div class="form-group">';
 								

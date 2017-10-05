@@ -148,7 +148,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-content',
-					__( 'Layer HTML', 'live-template-editor-client' ), 
+					__( 'Template HTML', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);
@@ -156,7 +156,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-css',
-					__( 'Layer CSS', 'live-template-editor-client' ), 
+					__( 'Template CSS', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);
@@ -164,25 +164,24 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-js',
-					__( 'Layer Javascript', 'live-template-editor-client' ), 
+					__( 'Template Javascript', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);
 				
-				/*
+				
 				$this->parent->admin->add_meta_box (
 					
-					'metabox_1',
-					__( 'Layer configuration', 'live-template-editor-client' ), 
+					'layer-elements',
+					__( 'Template Elements', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
-				);
-				*/			
+				);		
 				
 				$this->parent->admin->add_meta_box (
 					
 					'layer-meta',
-					__( 'Layer Meta Data', 'live-template-editor-client' ), 
+					__( 'Template Meta Data', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);
@@ -190,7 +189,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-static-url',
-					__( 'Layer Static Content', 'live-template-editor-client' ), 
+					__( 'Template Static Content', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);
@@ -198,7 +197,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-output',
-					__( 'Layer Output', 'live-template-editor-client' ), 
+					__( 'Template Output', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'side'
 				);
@@ -206,7 +205,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-visibility',
-					__( 'Layer Visibility', 'live-template-editor-client' ), 
+					__( 'Template Visibility', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'side'
 				);
@@ -214,7 +213,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-form',
-					__( 'Layer Form', 'live-template-editor-client' ), 
+					__( 'Template Form', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'side'
 				);		
@@ -222,7 +221,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-options',
-					__( 'Layer Options', 'live-template-editor-client' ), 
+					__( 'Template Options', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'side'
 				);
@@ -230,7 +229,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-margin',
-					__( 'Layer Margin', 'live-template-editor-client' ), 
+					__( 'Template Margin', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'side'
 				);
@@ -238,7 +237,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 				
 					'tagsdiv-layer-type',
-					__( 'Layer Type', 'live-template-editor-client' ), 
+					__( 'Template Type', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'side'
 				);
@@ -246,7 +245,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box ( 
 				
 					'layer-rangediv',
-					__( 'Layer Range', 'live-template-editor-client' ), 
+					__( 'Template Range', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'side'
 				);
@@ -264,7 +263,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-embedded',
-					__( 'Layer Embedded', 'live-template-editor-client' ), 
+					__( 'Template Embedded', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);	
@@ -284,7 +283,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-content',
-					__( 'Layer HTML', 'live-template-editor-client' ), 
+					__( 'Template HTML', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				); 				
@@ -292,7 +291,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-css',
-					__( 'Layer CSS', 'live-template-editor-client' ), 
+					__( 'Template CSS', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);
@@ -300,11 +299,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-js',
-					__( 'Layer Javascript', 'live-template-editor-client' ), 
+					__( 'Template Javascript', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
 				);
-				
 			}
 		});		
 
@@ -841,6 +839,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 						$this->defaultJs = get_post_meta( $this->defaultId, 'layerJs', true );
 						
+						// get default elements
+
+						$this->defaultElements = get_post_meta( $this->defaultId, 'layerElements', true );
+												
 						// get layer meta
 						
 						$this->layerMeta = get_post_meta( $this->id, 'layerMeta', true );
@@ -965,7 +967,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->layerJsLibraries = wp_get_post_terms( $this->defaultId, 'js-library', array( 'orderby' => 'term_id' ) );								
 						
-						//get html libraries
+						//get element libraries
 						
 						$this->layerHtmlLibraries = wp_get_post_terms( $this->defaultId, 'element-library', array( 'orderby' => 'term_id' ) );								
 
@@ -1171,6 +1173,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			"metabox" =>
 			
+				array( 'name' => "layer-elements" ),
+				'id'			=> "layerElements",
+				'name'			=> "layerElements",
+				'type'			=> 'element',
+				'description'	=> '',
+				
+		);
+		
+		$fields[]=array(
+		
+			"metabox" =>
+			
 				array( 'name' => "layer-meta" ),
 				'id'			=> "layerMeta",
 				'label'			=> "",
@@ -1213,7 +1227,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					array( 'name' => "layer-static-url" ),
 					'id'			=> "layerStaticUrl",
-					'label'			=> '<b>Layer Static Url</b>',
+					'label'			=> '<b>Template Static Url</b>',
 					'type'			=> 'slug',
 					'style'			=> "margin: 15px 0 5px 0;",
 					'base'			=> $this->url . '<b>' . $post_id . '</b>/',
@@ -1357,7 +1371,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				array('name'=>"default_layer_id"),
 				'id'			=> "defaultLayerId",
-				'label'			=> "Default Layer ID",
+				'label'			=> "Default Template ID",
 				'type'			=> 'edit_layer',
 				'placeholder'	=> "",
 				'description'	=> ''
@@ -2276,10 +2290,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					// store static output
 					
-					if( $this->type == 'user-layer' || !file_exists($this->layerStaticPath) ){ 
+					//if( $this->type == 'user-layer' || !file_exists($this->layerStaticPath) ){ 
 					
 						file_put_contents($this->layerStaticPath,$output);
-					}
+					//}
 					
 					// store static css
 					

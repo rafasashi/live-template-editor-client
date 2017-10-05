@@ -92,7 +92,7 @@
 							
 							$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$app->slug) ) . '" id="post-' . $app->slug . '">';
 								
-								$item.='<div class="panel panel-default" style="border-left:1px solid #DDD;">';
+								$item.='<div class="panel panel-default">';
 									
 									$item.='<div class="panel-heading">';
 

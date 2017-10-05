@@ -28,7 +28,9 @@
 			echo'<div class="pull-left">';
 
 				echo'<a style="margin-left: 6px;" class="btn btn-sm btn-primary" href="' . $ltple->urls->editor . '?media=user-images" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
+					
 					echo'Media';
+				
 				echo'</a>';
 			
 			echo'</div>';
@@ -82,12 +84,34 @@
 					echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left: 4px;border-color: #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 				}
 			}
+			
+			// get elements
+			
+			$elemLibraries = array();
+			
+			if( !empty($this->layer->defaultElements[0]['name'][0]) ){
 				
+				$elemLibraries[] = $this->layer->defaultElements;
+			}			
+			
 			if( !empty($this->layer->layerHtmlLibraries) ){
+			
+				foreach( $this->layer->layerHtmlLibraries as $term ){
+					
+					$elements = get_option( 'elements_' . $term->slug );
+					
+					if( !empty($elements[0]['name'][0]) ){
+						
+						$elemLibraries[] = $elements;
+					}
+				}
+			}
+			
+			if( !empty($elemLibraries) && ( $ltple->layer->type == 'user-layer' || isset($_GET['edit']) )  ){
 					
 				echo'<div style="margin:0 2px;" class="btn-group">';
 				
-					echo '<a class="btn btn-sm btn-default" style="background:#345774;color:#fff;" href="#LiveTplEditorDndDialog" data-toggle="dialog" data-target="#LiveTplEditorDndDialog">Elements</a>';
+					echo '<a class="btn btn-sm btn-info" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog">Elements</a>';
 			
 					echo '<div id="LiveTplEditorDndDialog" title="Elements library" style="display:none;">';
 					echo '<div id="LiveTplEditorDndPanel">';
@@ -96,10 +120,8 @@
 							
 							echo '<ul id="dragitemslistcontainer">';
 
-								foreach( $this->layer->layerHtmlLibraries as $term ){
-									
-									$elements = get_option( 'elements_' . $term->slug );
-									
+								foreach( $elemLibraries as $elements ){
+							
 									if( !empty($elements['name']) ){
 										
 										foreach( $elements['name'] as $e => $name ){
@@ -125,12 +147,42 @@
 			
 				echo'</div>';
 			}
+			
+			if( $ltple->user->ID > 0 ){
+			
+				if(!empty($ltple->user->layers)){ 
+
+					echo'<div style="margin:0 2px;" class="btn-group">';
+					
+						echo'<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load <span class="caret"></span></button>';
+						
+						echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
+							
+								foreach($ltple->user->layers as $i => $layer) {
+									
+									echo'<li style="position:relative;">';
+										
+										echo '<a href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
+										echo '<a class="btn-xs btn-danger" href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '&postAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
+									
+									echo'</li>';						
+								}
+								
+						echo'</ul>';
+						
+					echo'</div>';
+				}
+				elseif( $ltple->user->plan["info"]["total_price_amount"] ==0 ){ 
+					
+					echo '<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"></span> Load <span class="caret"></span></button>';
+				}
+			}
 
 			if( ( $ltple->layer->type == 'cb-default-layer' && $ltple->user->is_admin ) || $ltple->layer->type == 'user-layer' ){
 			
 				echo'<div style="margin:0 2px;" class="btn-group">';
 				
-					echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:2px;font-size:14px;height:30px;background: rgb(110, 96, 96);border: 1px solid #503f3f;color: #fff;"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>';
+					echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:2px;font-size:15px;height:30px;background:transparent;border:none;color:rgb(177, 177, 177);"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span></button>';
 										
 					echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 						
@@ -200,37 +252,7 @@
 					echo'</ul>';
 					
 				echo'</div>';
-			}
-			
-			if( $ltple->user->ID > 0 ){
-			
-				if(!empty($ltple->user->layers)){ 
-
-					echo'<div style="margin:0 2px;" class="btn-group">';
-					
-						echo'<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load <span class="caret"></span></button>';
-						
-						echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
-							
-								foreach($ltple->user->layers as $i => $layer) {
-									
-									echo'<li style="position:relative;">';
-										
-										echo '<a href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
-										echo '<a class="btn-xs btn-danger" href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '&postAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
-									
-									echo'</li>';						
-								}
-								
-						echo'</ul>';
-						
-					echo'</div>';
-				}
-				elseif( $ltple->user->plan["info"]["total_price_amount"] ==0 ){ 
-					
-					echo '<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"></span> Load <span class="caret"></span></button>';
-				}
-			}		
+			}			
 
 		echo'</div>';
 		

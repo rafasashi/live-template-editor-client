@@ -81,7 +81,7 @@
 			
 			$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
 				
-				$item.='<div class="panel panel-default" style="border-left:1px solid #DDD;">';
+				$item.='<div class="panel panel-default">';
 					
 					$item.='<div class="panel-heading">';
 
@@ -185,7 +185,7 @@
 				
 				$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
 					
-					$item.='<div class="panel panel-default" style="border-left:1px solid #DDD;">';
+					$item.='<div class="panel panel-default">';
 						
 						$item.='<div class="panel-heading">';
 							
@@ -527,7 +527,7 @@
 
 												echo'<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">';
 												
-													echo'<div class="panel panel-default" style="background:#efefef;border-left:1px solid #ddd;">';
+													echo'<div class="panel panel-default" style="background:#efefef;">';
 														
 														echo '<div class="panel-heading"><b>Upload image</b></div>';
 														
@@ -574,7 +574,7 @@
 												// add images based on provider
 												
 												echo'<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">';
-												echo'<div class="panel panel-default" style="background:#efefef;border-left:1px solid #ddd;">';
+												echo'<div class="panel panel-default" style="background:#efefef;">';
 													
 													if( !empty($app->term_id) ){
 														
@@ -780,7 +780,7 @@
 											// add payment based on provider
 											
 											echo'<div class="col-xs-12 col-sm-4 col-lg-3">';
-											echo'<div class="panel panel-default" style="background:#efefef;border-left:1px solid #ddd;">';
+											echo'<div class="panel panel-default" style="background:#efefef;">';
 
 												echo '<div class="panel-heading"><b>Add '.ucfirst($app->name).' link</b></div>';
 													
