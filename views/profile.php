@@ -3,6 +3,8 @@
 if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 
 	$background_color = '#fff';
+	
+	$background_image = $this->image->get_banner_url($displayedUser->ID) . '?' . time();
 
 	echo'<style>';
 	
@@ -15,8 +17,8 @@ if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 			width: 100%;
 			height: 350px;
 			position: absolute;
-			background-image: linear-gradient(to bottom right,#182f42,' . $this->settings->mainColor . ');
-			opacity: .6;
+			background-image: linear-gradient(to bottom right,#284d6b,' . $this->settings->mainColor . ');
+			opacity: .5;
 		}
 	
 		.profile-heading {
@@ -24,7 +26,7 @@ if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 			height: 350px;
 			padding-top: 130px;
 			background-color: #333;
-			background-image: url("' . plugins_url() . '/' . $this->settings->plugin->slug . '/assets/images/profile_header.jpg");
+			background-image: url("' . $background_image . '");
 			background-position: center center;
 			background-size: cover;
 			background-attachment: fixed;
@@ -111,7 +113,19 @@ if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 				
 					$tabs = [];
 					$tabs['about-me']['name'] = 'About Me';
-					$tabs['performer']['name'] = 'Performer';
+					
+					if( !empty($this->directory) ){
+					
+						foreach( $this->directory->list as $directory ){
+							
+							if( !empty( $directory->directory_singular ) ){
+								
+								$name = strtolower($directory->directory_singular);
+								
+								$tabs[$name]['name'] = ucwords($name);
+							}
+						}
+					}
 					
 					echo'<ul class="nav nav-tabs" role="tablist" style="overflow: visible;">';
 						
@@ -143,70 +157,130 @@ if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
 				echo'<div class="col-xs-12 col-sm-10">';		
 				
 					echo'<div class="tab-content">';
-
-						$active = ' active';
 					
-						foreach( $tabs as $slug => $tab ){
-								
-							echo'<div class="tab-pane' . $active . '" id="' . $slug . '">';
-							
-								echo'<div class="col-xs-12 col-sm-8">';
+						// about me
 
-									if( $slug == 'about-me' ){
+						echo'<div class="tab-pane active" id="about-me">';
+						
+							echo'<div class="col-xs-12 col-sm-8">';
+
+								echo'<table class="form-table">';
 								
-										echo'<table class="form-table">';
+									foreach( $this->profile->fields as $field ){
 										
-											foreach( $this->profile->fields as $field ){
-												
-												echo'<tr>';
-												
-													echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
-													
-													echo'<td>';
-													
-														if( isset($displayedUser->{$field['id']}) ){
-															
-															$meta = $displayedUser->{$field['id']};
-														}
-														else{
-															
-															$meta = get_user_meta( $displayedUser->ID , $field['id'] );
-														}
-														
-														if(!empty($meta)){
-														
-															if(	$field['id'] == 'user_url'){
-																	
-																echo '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
-															}
-															else{
-																
-																echo '<p>';
-																
-																	echo str_replace(PHP_EOL,'</p><p>',strip_tags($meta));
-																	
-																echo '</p>';
-															}
-														}
-														else{
-															
-															echo '';
-														}
-													
-													echo'</td>';
-													
-												echo'</tr>';
-											}
+										echo'<tr>';
+										
+											echo'<th style="width:200px;><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
 											
-										echo'</table>';
+											echo'<td>';
+											
+												if( isset($displayedUser->{$field['id']}) ){
+													
+													$meta = $displayedUser->{$field['id']};
+												}
+												else{
+													
+													$meta = get_user_meta( $displayedUser->ID , $field['id'] );
+												}
+												
+												if(!empty($meta)){
+												
+													if(	$field['id'] == 'user_url'){
+															
+														echo '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
+													}
+													else{
+														
+														echo '<p>';
+														
+															echo str_replace(PHP_EOL,'</p><p>',strip_tags($meta));
+															
+														echo '</p>';
+													}
+												}
+												else{
+													
+													echo '';
+												}
+											
+											echo'</td>';
+											
+										echo'</tr>';
 									}
 									
-								echo'</div>';
+								echo'</table>';
 								
 							echo'</div>';
 							
-							$active = '';
-						}
+						echo'</div>';
+						
+						// directories
+
+						if( !empty($this->directory) ){
+						
+							foreach( $this->directory->list as $directory ){
+								
+								$name = strtolower($directory->directory_singular);
+									
+								echo'<div class="tab-pane" id="'.$name.'">';
+								
+									echo'<div class="col-xs-12 col-sm-8">';
+
+										echo'<table class="form-table">';
+											
+											foreach( $directory->directory_form['name'] as $e => $name ){
+												
+												$input = $directory->directory_form['input'][$e];
+												
+												if( $input != 'submit' && $input != 'label' && $input != 'title' ){
+
+													$field_id = $this->_base . 'dir_' . $directory->ID . '_' . str_replace(array('-',' '),'_',$name);
+										
+													$value = get_user_option($field_id,$displayedUser->ID);
+													
+													echo'<tr>';
+													
+														echo'<th style="width:200px;"><label for="'.$name.'">' . ucfirst( str_replace(array('-','_'),' ',$name) ) . '</label></th>';
+														
+														echo'<td>';
+														
+															if( is_array($value) ){
+																
+																if( !empty($value) ){
+																	
+																	foreach($value as $v){
+																		
+																		echo ucwords($v);
+																		echo '<br/>';
+																	}
+																}
+																else{
+																	
+																	echo '-';
+																}
+															}
+															elseif( !empty($value) ){
+																
+																echo ucwords($value);
+															}
+															else{
+																
+																echo '-';
+															}
+														
+														echo'</td>';
+														
+													echo'</tr>';
+												}
+											}
+											
+										echo'</table>';
+										
+									echo'</div>';
+									
+								echo'</div>';								
+							}
+						}						
 						
 					echo'</div>';
 					

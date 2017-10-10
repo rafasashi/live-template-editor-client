@@ -54,7 +54,7 @@
 					
 					echo'<div class="tab-pane active" id="general-info">';
 					
-						echo'<form action="' . $this->urls->current . '" method="post" class="tab-content row" style="margin:20px;">';
+						echo'<form action="' . $this->urls->current . '" method="post" enctype="multipart/form-data" class="tab-content row" style="margin:20px;">';
 
 							echo'<div class="col-xs-12 col-sm-6">';
 						
@@ -84,7 +84,7 @@
 											
 												echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
 												
-												echo'<td>';
+												echo'<td style="padding:20px;">';
 												
 													$this->admin->display_field( $field , $this->user );
 												
@@ -102,7 +102,7 @@
 											
 												echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
 												
-												echo'<td>';
+												echo'<td style="padding:20px;">';
 												
 													$this->admin->display_field( $field , $this->user );
 												

@@ -89,25 +89,25 @@
 			
 			$elemLibraries = array();
 			
-			if( !empty($this->layer->defaultElements[0]['name'][0]) ){
+			if( !empty($ltple->layer->defaultElements['name'][0]) ){
 				
-				$elemLibraries[] = $this->layer->defaultElements;
+				$elemLibraries[] = $ltple->layer->defaultElements;
 			}			
 			
-			if( !empty($this->layer->layerHtmlLibraries) ){
+			if( !empty($ltple->layer->layerHtmlLibraries) ){
 			
-				foreach( $this->layer->layerHtmlLibraries as $term ){
+				foreach( $ltple->layer->layerHtmlLibraries as $term ){
 					
 					$elements = get_option( 'elements_' . $term->slug );
-					
-					if( !empty($elements[0]['name'][0]) ){
+
+					if( !empty($elements['name'][0]) ){
 						
 						$elemLibraries[] = $elements;
 					}
-				}
+				} 
 			}
 			
-			if( !empty($elemLibraries) && ( $ltple->layer->type == 'user-layer' || isset($_GET['edit']) )  ){
+			if( !empty($elemLibraries) && ( isset($_GET['edit']) || !empty($ltple->user->layer->post_title) ) ){
 					
 				echo'<div style="margin:0 2px;" class="btn-group">';
 				

@@ -184,15 +184,31 @@ class LTPLE_Client_User_Profile {
 				$name 		= str_replace($key,'',$userApp->post_name);
 				$pictures[] = 'https://twitter.com/'.$name.'/profile_image?size=original';
 			}
-		}		
+		}
+
+		// get local picture
+
+		if( file_exists($this->parent->image->get_avatar_path( $user_id )) ){
+			
+			$pictures[] = $this->parent->image->get_avatar_url( $user_id );
+		}
 		
 		$fields['profile_picture'] = array(
 
 			'id' 			=> $this->parent->_base . 'profile_picture',
 			'label'			=> 'Picture',
-			'description'	=> 'Select a pictures among your <a class="label label-default" target="_blank" href="https://en.gravatar.com/">Gravatar</a> or <a class="label label-info" href="'.$this->parent->apps->getAppUrl('twitter','connect').'">Twitter</a> accounts',
+			'description'	=> 'Upload or select a picture from <a class="label label-default" target="_blank" href="https://en.gravatar.com/">Gravatar</a> <a class="label label-info" href="'.$this->parent->apps->getAppUrl('twitter','connect').'">Twitter</a>',
 			'type'			=> 'avatar',
 			'options'		=> $pictures
+		);
+		
+		$fields['profile_banner'] = array(
+
+			'id' 			=> $this->parent->_base . 'profile_banner',
+			'label'			=> 'Banner',
+			'description'	=> 'Upload a banner 1920 x 1080 pixels recommended',
+			'type'			=> 'banner',
+			'default'		=> $this->parent->image->get_banner_url( $user_id ) . '?' . time(),
 		);
 		
 		return $fields;

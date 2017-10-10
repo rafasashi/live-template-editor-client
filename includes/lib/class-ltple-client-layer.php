@@ -970,7 +970,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						//get element libraries
 						
 						$this->layerHtmlLibraries = wp_get_post_terms( $this->defaultId, 'element-library', array( 'orderby' => 'term_id' ) );								
-
+						
 						//get layer image proxy
 
 						$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';

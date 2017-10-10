@@ -102,6 +102,15 @@ class LTPLE_Client_Admin_API {
 			
 			$style = ' style="'.$field['style'].'"';
 		}
+		
+		// get field class
+		
+		$class = '';
+		
+		if( !empty($field['class']) ){
+			
+			$class = ' class="'.$field['class'].'"';
+		}
 
 		// Show default data if no option saved and default is supplied
 
@@ -135,7 +144,7 @@ class LTPLE_Client_Admin_API {
 			
 				$html .= wp_nonce_field( $this->parent->file, $id . '_nonce',true,false);
 
-				$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="file" accept="'. ( !empty( $field['accept'] ) ? $field['accept'] : '' ) .'" name="' . esc_attr( $option_name ) . '" value="" '.$required.$disabled.'/>' . "\n";
+				$html .= '<input' . $style . $class . ' class="form-control" id="' . $id . '" type="file" accept="'. ( !empty( $field['accept'] ) ? $field['accept'] : '' ) .'" name="' . esc_attr( $option_name ) . '" value="" '.$required.$disabled.'/>' . "\n";
 			
 				if( !empty($field['script']) ){
 			
@@ -1509,12 +1518,42 @@ class LTPLE_Client_Admin_API {
 
 					$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" style="width:50px;text-align:center;display:inline-block;">';
 					
-						$html .= '<img src="'.$v.'" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
+						$html .= '<img class="img-circle" src="'.$v.'" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
 					
 						$html .= '<input type="radio" ' . checked( $checked[$k], true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $v ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" />';
 
-					$html .= '</div> ';
+					$html .= '</div>';
 				}
+				
+				$html .= '<div class="input-group col-xs-10" style="margin:10px 0;">';
+				
+					$html .= '<input class="form-control input-sm" type="file" name="avatar" accept="image/*">';
+					
+					$html .= '<div class="input-group-btn">';
+					
+						$html .= '<input class="btn btn-sm btn-default" value="Upload" type="submit">';
+					
+					$html .= '</div>';
+					
+				$html .= '</div>';
+				
+			break;
+			
+			case 'banner':
+				
+				$html .= '<img src="'.$field['default'].'" />';
+				
+				$html .= '<div class="input-group col-xs-10" style="margin:10px 0;">';
+				
+					$html .= '<input class="form-control input-sm" type="file" name="banner" accept="image/*">';
+					
+					$html .= '<div class="input-group-btn">';
+					
+						$html .= '<input class="btn btn-sm btn-default" value="Upload" type="submit">';
+					
+					$html .= '</div>';
+					
+				$html .= '</div>';
 				
 			break;
 			
