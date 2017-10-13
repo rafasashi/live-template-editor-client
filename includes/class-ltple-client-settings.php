@@ -98,6 +98,7 @@ class LTPLE_Client_Settings {
 			
 				'css-library' 		=> array( 'name' => 'CSS', 		'post-type' => 'cb-default-layer' ),
 				'js-library' 		=> array( 'name' => 'JS', 		'post-type' => 'cb-default-layer' ),
+				'font-library' 		=> array( 'name' => 'Fonts', 	'post-type' => 'cb-default-layer' ),
 				'element-library' 	=> array( 'name' => 'HTML', 	'post-type' => 'cb-default-layer' ),
 			),
 			array(

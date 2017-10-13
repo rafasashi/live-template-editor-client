@@ -1206,7 +1206,7 @@ class LTPLE_Client {
 					
 					if( !empty($this->settings->borderColor) ){
 						
-						echo'border: 1px solid '.$this->settings->borderColor.' !important;';
+						echo'border: 0px solid '.$this->settings->borderColor.' !important;';
 					}
 					
 				echo'}';

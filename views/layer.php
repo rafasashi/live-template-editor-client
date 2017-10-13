@@ -54,6 +54,10 @@
 	
 	$layerJsLibraries = $ltple->layer->layerJsLibraries;
 	
+	//get font libraries
+	
+	$layerFontLibraries = $ltple->layer->layerFontLibraries;	
+	
 	//get layer image proxy
 	
 	$layerImgProxy = $ltple->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
@@ -197,18 +201,44 @@
 	// get google fonts
 	
 	$googleFonts = [];
+	$fontsLibraries = [];
 	
 	if( !empty($layerCss) ){
 		
-		$regex = '`https\:\/\/fonts\.googleapis\.com\/css\?family=([A-Za-z\|]+)`';
+		$regex = '`https\:\/\/fonts\.googleapis\.com\/css\?family=([0-9A-Za-z\|\,\+\:]+)`';
 		$fonts = preg_match($regex, $layerCss,$match);
 		
 		if(isset($match[1])){
 			
-			$googleFonts = explode('|',$match[1]);
+			$googleFonts = array_merge( $googleFonts, explode('|',$match[1]));
 		}
 	}
 	
+	// get font libraries
+	
+	if( !empty($layerFontLibraries) ){
+		
+		foreach($layerFontLibraries as $term){
+			
+			$font_url = get_option( 'font_url_' . $term->slug);
+			
+			if( !empty($font_url) ){
+				
+				$regex = '`https\:\/\/fonts\.googleapis\.com\/css\?family=([0-9A-Za-z\|\,\+\:]+)`';
+				$fonts = preg_match($regex, $font_url,$match);
+
+				if(isset($match[1])){
+					
+					$googleFonts = array_merge( $googleFonts, explode('|',$match[1]));
+				}
+				else{
+					
+					$fontsLibraries[] = $font_url;
+				}	
+			}
+		}
+	}
+
 	// get head
 
 	$head = '<!DOCTYPE html>';
@@ -228,6 +258,21 @@
 		$head .= '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
 		$head .= '<link rel="dns-prefetch" href="//s.w.org">';
 	
+		// font library
+		
+		if( !empty($googleFonts) ){
+		
+			$head .= '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
+		}
+		
+		if( !empty($fontsLibraries) ){
+		
+			foreach( $fontsLibraries as $font ){
+		
+				$head .= '<link href="'.$font.'" rel="stylesheet" />';
+			}
+		}	
+	
 		if( !empty($layerCssLibraries) ){
 			
 			foreach($layerCssLibraries as $term){
@@ -243,7 +288,7 @@
 				
 				if( !empty($css_content) ){
 				
-					$head .= $css_content;
+					$head .= stripcslashes($css_content);
 				}
 			}
 		}
@@ -262,13 +307,6 @@
 				$head .= '<link href="'.$url.'" rel="stylesheet" type="text/css" />';
 			}
 		}			
-		
-		// font library
-		
-		if( !empty($googleFonts) ){
-		
-			$head .= '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
-		}
 		
 		if( $layerOutput == 'hosted-page' ){		
 			

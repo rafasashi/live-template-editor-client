@@ -682,7 +682,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					// resize image
 					
 					//$image->rotate( 90 );
-					$image->resize( 50, 50, true );
+					$image->resize( 125, 125, true );
 					$image->save( $this->get_avatar_path( $this->parent->user->ID ) );
 
 					return true;

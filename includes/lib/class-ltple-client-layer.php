@@ -139,6 +139,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
+		$this->parent->register_taxonomy( 'font-library', __( 'Font Library', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
+			'hierarchical' 			=> true,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort' 					=> '',
+		));
+		
 		add_action( 'add_meta_boxes', function(){
 
 			global $post;
@@ -169,7 +183,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'advanced'
 				);
 				
-				
 				$this->parent->admin->add_meta_box (
 					
 					'layer-elements',
@@ -197,7 +210,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->add_meta_box (
 					
 					'layer-output',
-					__( 'Template Output', 'live-template-editor-client' ), 
+					__( 'Template Settings', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'side'
 				);
@@ -333,18 +346,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('create_layer-range', array( $this, 'save_layer_fields' ) );
 		add_action('edit_layer-range', array( $this, 'save_layer_fields' ) );			
 
-		//add_action('css-library_add_form_fields', array( $this, 'get_new_library_fields' ) );
 		add_action('css-library_edit_form_fields', array( $this, 'get_css_library_fields' ) );	
-		
 		add_action('create_css-library', array( $this, 'save_library_fields' ) );
 		add_action('edit_css-library', array( $this, 'save_library_fields' ) );	
 
-		//add_action('js-library_add_form_fields', array( $this, 'get_new_library_fields' ) );
 		add_action('js-library_edit_form_fields', array( $this, 'get_js_library_fields' ) );	
-				
 		add_action('create_js-library', array( $this, 'save_library_fields' ) );
 		add_action('edit_js-library', array( $this, 'save_library_fields' ) );	
-
+		
+		add_action('font-library_edit_form_fields', array( $this, 'get_font_library_fields' ) );		
+		add_action('create_font-library', array( $this, 'save_library_fields' ) );
+		add_action('edit_font-library', array( $this, 'save_library_fields' ) );			
+		
 		add_filter('init', array( $this, 'init_layer' ));
 		
 		add_filter('admin_init', array( $this, 'init_layer_backend' ));
@@ -967,6 +980,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->layerJsLibraries = wp_get_post_terms( $this->defaultId, 'js-library', array( 'orderby' => 'term_id' ) );								
 						
+						//get font libraries
+						
+						$this->layerFontLibraries = wp_get_post_terms( $this->defaultId, 'font-library', array( 'orderby' => 'term_id' ) );																			
+						
 						//get element libraries
 						
 						$this->layerHtmlLibraries = wp_get_post_terms( $this->defaultId, 'element-library', array( 'orderby' => 'term_id' ) );								
@@ -1010,8 +1027,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		$fields[]=array(
+		
 			"metabox" =>
+			
 				array('name'=>"tagsdiv-layer-type"),
+				
 				'id'=>"new-tag-layer-type",
 				'name'=>'tax_input[layer-type]',
 				'label'=>"",
@@ -1033,8 +1053,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 
 		$fields[]=array(
+		
 			"metabox" =>
+			
 				array('name'=>"layer-rangediv"),
+				
 				'type'		=> 'dropdown_categories',
 				'id'		=> 'layer-range',
 				'name'		=> 'tax_input[layer-range][]',
@@ -1794,6 +1817,35 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			echo'</td>';
 			
 		echo'</tr>';
+	}
+	
+	public function get_font_library_fields($term){
+
+		//output our additional fields
+		
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Url </label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+				
+				$this->parent->admin->display_field(array(
+				
+					'type'				=> 'text',
+					'id'				=> 'font_url_'.$term->slug,
+					'name'				=> 'font_url_'.$term->slug,
+					'placeholder'		=> 'http://',
+					'description'		=> ''
+					
+				), false );					
+				
+			echo'</td>';
+			
+		echo'</tr>';
 	}	
 	
 	public function set_layer_type_columns($columns) {
@@ -2014,6 +2066,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			if(isset($_POST['js_content_'.$term->slug])){
 
 				update_option('js_content_'.$term->slug, $_POST['js_content_'.$term->slug]);			
+			}
+			
+			if(isset($_POST['font_url_'.$term->slug])){
+
+				update_option('font_url_'.$term->slug, $_POST['font_url_'.$term->slug]);			
 			}
 		}
 	}

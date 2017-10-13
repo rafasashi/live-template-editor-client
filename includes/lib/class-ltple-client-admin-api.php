@@ -237,7 +237,7 @@ class LTPLE_Client_Admin_API {
 			break;
 
 			case 'textarea':
-				$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . htmlentities($data) . '</textarea>'. "\n";
+				$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . htmlentities(stripcslashes($data)) . '</textarea>'. "\n";
 			break;
 			
 			case 'switch':
@@ -1518,7 +1518,7 @@ class LTPLE_Client_Admin_API {
 
 					$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" style="width:50px;text-align:center;display:inline-block;">';
 					
-						$html .= '<img class="img-circle" src="'.$v.'" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
+						$html .= '<img class="img-circle" src="'.add_query_arg(time(),'',$v).'" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
 					
 						$html .= '<input type="radio" ' . checked( $checked[$k], true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $v ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" />';
 

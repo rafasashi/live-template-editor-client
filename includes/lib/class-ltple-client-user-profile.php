@@ -196,8 +196,8 @@ class LTPLE_Client_User_Profile {
 		$fields['profile_picture'] = array(
 
 			'id' 			=> $this->parent->_base . 'profile_picture',
-			'label'			=> 'Picture',
-			'description'	=> 'Upload or select a picture from <a class="label label-default" target="_blank" href="https://en.gravatar.com/">Gravatar</a> <a class="label label-info" href="'.$this->parent->apps->getAppUrl('twitter','connect').'">Twitter</a>',
+			'label'			=> 'Avatar',
+			'description'	=> 'Upload or select an avatar from <a class="label label-default" target="_blank" href="https://en.gravatar.com/">Gravatar</a> <a class="label label-info" href="'.$this->parent->apps->getAppUrl('twitter','connect').'">Twitter</a>',
 			'type'			=> 'avatar',
 			'options'		=> $pictures
 		);
@@ -205,8 +205,8 @@ class LTPLE_Client_User_Profile {
 		$fields['profile_banner'] = array(
 
 			'id' 			=> $this->parent->_base . 'profile_banner',
-			'label'			=> 'Banner',
-			'description'	=> 'Upload a banner 1920 x 1080 pixels recommended',
+			'label'			=> 'Header',
+			'description'	=> 'Upload a header picture 1920 x 1080 pixels recommended',
 			'type'			=> 'banner',
 			'default'		=> $this->parent->image->get_banner_url( $user_id ) . '?' . time(),
 		);

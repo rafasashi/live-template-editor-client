@@ -27,6 +27,11 @@
 	
 	if ( ! defined( 'ABSPATH' ) ) exit;
 	
+	if ( ! defined( 'LTPLE_MARKETPLACE_MODE' ) ){
+		
+		define( 'LTPLE_MARKETPLACE_MODE', false);
+	}
+	
 	$dev_ip = '109.28.69.143';
 		
 	$mode = ( ($_SERVER['REMOTE_ADDR'] == $dev_ip || ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] == $dev_ip )) ? '-dev' : '');
