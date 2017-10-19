@@ -362,8 +362,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('admin_init', array( $this, 'init_layer_backend' ));
 		
-		add_filter('init', array( $this, 'init_layer_frontend' ));
-		
 		add_action('wp_loaded', array($this,'get_layer_types'));
 		add_action('wp_loaded', array($this,'get_layer_ranges'));
 		add_action('wp_loaded', array($this,'get_account_options'));
@@ -706,16 +704,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			),
 		));
 	}
-	
-	public function init_layer(){
-	
-		$this->url = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/');
 
-		$this->dir = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');
-	}
-	
 	public function init_layer_backend(){
-
+		
+		add_action('show_user_profile', array( $this, 'get_user_layers' ),2,10 );
+		
 		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ));
 		
 		add_filter('user-layer_custom_fields', array( $this, 'get_user_layer_fields' ));
@@ -728,15 +721,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}
 	}
-	
-	public function init_layer_frontend(){
-
-		if(isset($_GET['lk'])){
-			
-			$this->key = sanitize_text_field($_GET['lk']);
-		}
-
-		// get embedded layer
+		
+	public function get_embedded_url(){
 		
 		$embedded_url = '';
 		
@@ -748,254 +734,303 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$embedded_url = sanitize_text_field($_POST['postEmbedded']);
 		}
+
+		return 	$embedded_url;
+	}
+	
+	public function get_embedded_layer($embedded_url){
+		
+		$embedded = parse_url($embedded_url);
+
+		parse_str($embedded['query'],$query);
+
+		$embedded = array_merge($embedded,$query);
+
+		foreach($embedded as $i => $e){
+			
+			if(is_numeric($e)){
+				
+				$embedded[$i]=intval($e);
+			}
+		}			
+		
+		// get url
+		
+		$embedded['url'] = $embedded_url;
+		
+		// get title
+		
+		$embedded_title = '';
+		
+		if(!empty($_GET['title'])){
+			
+			$embedded_title = sanitize_text_field($_GET['title']);
+		}
+		
+		$embedded['title'] = $embedded_title;	
+
+		return $embedded;
+	}
+	
+	public function set_uri(){
+		
+		if( is_admin() ){
+			
+			if( !empty($_REQUEST['action']) && $_REQUEST['action'] == 'ltple' && !empty($_REQUEST['post']) && intval($_REQUEST['post']) > 0 ){
+				
+				$this->uri = intval($_REQUEST['post']);
+			}				
+		}
+		else{
+			
+			if( isset($_GET['uri']) ){
+				
+				$this->uri = intval($_GET['uri']);
+			}	
+			elseif( strpos($this->parent->urls->current, $this->parent->urls->editor) === false ){
+				
+				$this->uri = url_to_postid($this->parent->urls->current);
+			}
+		}
+	}
+	
+	public function init_layer(){
+
+		$this->url = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/');
+
+		$this->dir = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');	
+	
+		// get layer key
+	
+		if(isset($_GET['lk'])){
+			
+			$this->key = sanitize_text_field($_GET['lk']);
+		}
+
+		// get embedded layer
+		
+		$embedded_url = $this->get_embedded_url();
 		
 		if( !empty($embedded_url) ){
 			
-			$embedded = parse_url($embedded_url);
-
-			parse_str($embedded['query'],$query);
-
-			$embedded = array_merge($embedded,$query);
-
-			foreach($embedded as $i => $e){
-				
-				if(is_numeric($e)){
-					
-					$embedded[$i]=intval($e);
-				}
-			}			
-			
-			// get url
-			
-			$embedded['url'] = $embedded_url;
-			
-			// get title
-			
-			$embedded_title = '';
-			
-			if(!empty($_GET['title'])){
-				
-				$embedded_title = sanitize_text_field($_GET['title']);
-			}
-			
-			$embedded['title'] = $embedded_title;
-			
-			// set embedded info
-			
-			$this->embedded = $embedded;
+			$this->embedded = $this->get_embedded_layer( $embedded_url );
 		}				
 		
-		if(isset($_GET['uri'])){
-			
-			$this->uri = intval($_GET['uri']);
-		}
-		elseif( strpos($this->parent->urls->current, $this->parent->urls->editor) === false ){
-			
-			$this->uri = url_to_postid($this->parent->urls->current);
-		}
+		// set layer
 		
+		$this->set_uri();
+
 		if( $this->uri > 0 ){
-
-			if( $q = get_post($this->uri) ){
-				
-				if( $q->post_status == 'publish' || $q->post_status == 'draft' ){
-
-					if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
-					
-						$this->id 		= $q->ID;
-						$this->type 	= $q->post_type;
-						$this->slug 	= $q->post_name;
-						$this->title 	= $q->post_title;
-						
-						if( $this->type == 'user-layer' ){
-						
-							$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
-						}
-						else{
-							
-							$this->defaultId = $this->id;
-							$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );
-						}
-						
-						// get layer Content
-						
-						$this->layerContent = get_post_meta( $this->id, 'layerContent', true );
-
-						if( $this->layerContent == '' && $this->id != $this->defaultId ){
-							
-							$this->layerContent = get_post_meta( $this->defaultId, 'layerContent', true );
-						}
-						
-						// get layer css
-
-						$this->layerCss = get_post_meta( $this->id, 'layerCss', true );
-						
-						if( $this->layerCss == '' && $this->id != $this->defaultId ){
-							
-							$this->layerCss = get_post_meta( $this->defaultId, 'layerCss', true );
-						}
-						
-						// get default css
-
-						$this->defaultCss = get_post_meta( $this->defaultId, 'layerCss', true );
-
-						// get layer js
-						
-						$this->layerJs = get_post_meta( $this->id, 'layerJs', true );
-						
-						if( $this->layerJs == '' && $this->id != $this->defaultId ){
-							
-							$this->layerJs = get_post_meta( $this->defaultId, 'layerJs', true );
-						}
-						
-						// get default js
-
-						$this->defaultJs = get_post_meta( $this->defaultId, 'layerJs', true );
-						
-						// get default elements
-
-						$this->defaultElements = get_post_meta( $this->defaultId, 'layerElements', true );
-												
-						// get layer meta
-						
-						$this->layerMeta = get_post_meta( $this->id, 'layerMeta', true );
-						
-						if( $this->layerMeta == '' && $this->id != $this->defaultId ){
-							
-							$this->layerMeta = get_post_meta( $this->defaultId, 'layerMeta', true );
-						}
-
-						if(!empty($this->layerMeta)){
-							
-							$this->layerMeta = json_decode($this->layerMeta,true);
-						}								
-											
-						// get layer Margin
-						
-						$this->layerMargin 	 = get_post_meta( $this->defaultId, 'layerMargin', true );
-						
-						if( empty($this->layerMargin) ){
+			
+			$this->set_layer($this->uri);
+		}				
+	}
 	
-							$this->layerMargin = '-120px 0px -20px 0px';
-						}
-						
-						// get layer Min Width
+	public function set_layer($uri){
+	
+		if( $q = get_post($uri) ){
+			
+			if( $q->post_status == 'publish' || $q->post_status == 'draft' ){
 
-						$this->layerMinWidth = get_post_meta( $this->defaultId, 'layerMinWidth', true );
-						
-						if( empty($this->layerMinWidth) ){
-							
-							$this->layerMinWidth = '1000px';
-						}									
-						
-						// get output mode
-						
-						$this->outputMode 	= get_post_meta( $this->defaultId, 'layerOutput', true );
-						
-						//get page def
-						
-						$this->pageDef = get_post_meta( $this->defaultId, 'pageDef', true );
-						
-						//get default static url
-						
-						$this->defaultStaticUrl = $this->get_static_url($this->defaultId,$this->defaultId);
-						
-						//get default static css url
-						
-						$this->defaultStaticCssUrl = $this->get_static_asset_url($this->id,'css','default_style');
-
-						//get default static js url
-						
-						$this->defaultStaticJsUrl = $this->get_static_asset_url($this->id,'js','default_script');						
-						
-						//get default static dir
-						
-						$this->defaultStaticDir = $this->get_static_dir($this->defaultId);
-						
-						//get default static path
-						
-						$this->defaultStaticPath = $this->get_static_path($this->defaultId,$this->defaultId);
-							
-						//get default static css path
-						
-						$this->defaultStaticCssPath = $this->get_static_asset_path($this->id,'css','default_style');
-							
-						//get default static js path
-						
-						$this->defaultStaticJsPath = $this->get_static_asset_path($this->id,'js','default_script');
-						
-						//get layer static url
-						
-						$this->layerStaticUrl = $this->get_static_url($this->id,$this->defaultId);
-						
-						//get layer static css url
-						
-						$this->layerStaticCssUrl = $this->get_static_asset_url($this->id,'css','custom_style');
-
-						//get layer static js url
-						
-						$this->layerStaticJsUrl = $this->get_static_asset_url($this->id,'js','custom_script');						
-
-						//get layer static dir
-						
-						$this->layerStaticDir = $this->get_static_dir($this->id);
-						
-						//get layer static path
-						
-						$this->layerStaticPath = $this->get_static_path($this->id,$this->defaultId);
-							
-						//get layer static css path
-						
-						$this->layerStaticCssPath = $this->get_static_asset_path($this->id,'css','custom_style');
-							
-						//get layer static js path
-						
-						$this->layerStaticJsPath = $this->get_static_asset_path($this->id,'js','custom_script');						
-							
-						//get layer output
-						
-						$this->layerOutput = get_post_meta( $this->defaultId, 'layerOutput', true );
-						
-						//get layer options
-						
-						$this->layerOptions = get_post_meta( $this->defaultId, 'layerOptions', true );
-						
-						//get layer settings
-						
-						$this->layerSettings = get_post_meta( $this->id, 'layerSettings', true );
-
-						//get layer embedded
-						
-						$this->layerEmbedded = get_post_meta( $this->id, 'layerEmbedded', true );	
-						
-						//get layer form
-						
-						$this->layerForm = get_post_meta( $this->defaultId, 'layerForm', true );
-						
-						//get css libraries
-
-						$this->layerCssLibraries = wp_get_post_terms( $this->defaultId, 'css-library', array( 'orderby' => 'term_id' ) );
-
-						//get js libraries
-						
-						$this->layerJsLibraries = wp_get_post_terms( $this->defaultId, 'js-library', array( 'orderby' => 'term_id' ) );								
-						
-						//get font libraries
-						
-						$this->layerFontLibraries = wp_get_post_terms( $this->defaultId, 'font-library', array( 'orderby' => 'term_id' ) );																			
-						
-						//get element libraries
-						
-						$this->layerHtmlLibraries = wp_get_post_terms( $this->defaultId, 'element-library', array( 'orderby' => 'term_id' ) );								
-						
-						//get layer image proxy
-
-						$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
-							
+				if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
+				
+					$this->id 		= $q->ID;
+					$this->type 	= $q->post_type;
+					$this->slug 	= $q->post_name;
+					$this->title 	= $q->post_title;
+					
+					if( $this->type == 'user-layer' ){
+					
+						$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
 					}
+					elseif( in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
+						
+						$this->defaultId = intval(get_post_meta( $q->ID, 'defaultLayerId', true));
+						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );							
+					}
+					else{
+						
+						$this->defaultId = $this->id;
+						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );
+					}
+					
+					// get layer Content
+					
+					$this->layerContent = get_post_meta( $this->id, 'layerContent', true );
+
+					if( $this->layerContent == '' && $this->id != $this->defaultId ){
+						
+						$this->layerContent = get_post_meta( $this->defaultId, 'layerContent', true );
+					}
+					
+					// get layer css
+
+					$this->layerCss = get_post_meta( $this->id, 'layerCss', true );
+					
+					if( $this->layerCss == '' && $this->id != $this->defaultId ){
+						
+						$this->layerCss = get_post_meta( $this->defaultId, 'layerCss', true );
+					}
+					
+					// get default css
+
+					$this->defaultCss = get_post_meta( $this->defaultId, 'layerCss', true );
+
+					// get layer js
+					
+					$this->layerJs = get_post_meta( $this->id, 'layerJs', true );
+					
+					if( $this->layerJs == '' && $this->id != $this->defaultId ){
+						
+						$this->layerJs = get_post_meta( $this->defaultId, 'layerJs', true );
+					}
+					
+					// get default js
+
+					$this->defaultJs = get_post_meta( $this->defaultId, 'layerJs', true );
+					
+					// get default elements
+
+					$this->defaultElements = get_post_meta( $this->defaultId, 'layerElements', true );
+											
+					// get layer meta
+					
+					$this->layerMeta = get_post_meta( $this->id, 'layerMeta', true );
+					
+					if( $this->layerMeta == '' && $this->id != $this->defaultId ){
+						
+						$this->layerMeta = get_post_meta( $this->defaultId, 'layerMeta', true );
+					}
+
+					if(!empty($this->layerMeta)){
+						
+						$this->layerMeta = json_decode($this->layerMeta,true);
+					}								
+										
+					// get layer Margin
+					
+					$this->layerMargin 	 = get_post_meta( $this->defaultId, 'layerMargin', true );
+					
+					if( empty($this->layerMargin) ){
+
+						$this->layerMargin = '-120px 0px -20px 0px';
+					}
+					
+					// get layer Min Width
+
+					$this->layerMinWidth = get_post_meta( $this->defaultId, 'layerMinWidth', true );
+					
+					if( empty($this->layerMinWidth) ){
+						
+						$this->layerMinWidth = '1000px';
+					}									
+					
+					// get output mode
+					
+					$this->outputMode 	= get_post_meta( $this->defaultId, 'layerOutput', true );
+					
+					//get page def
+					
+					$this->pageDef = get_post_meta( $this->defaultId, 'pageDef', true );
+					
+					//get default static url
+					
+					$this->defaultStaticUrl = $this->get_static_url($this->defaultId,$this->defaultId);
+					
+					//get default static css url
+					
+					$this->defaultStaticCssUrl = $this->get_static_asset_url($this->id,'css','default_style');
+
+					//get default static js url
+					
+					$this->defaultStaticJsUrl = $this->get_static_asset_url($this->id,'js','default_script');						
+					
+					//get default static dir
+					
+					$this->defaultStaticDir = $this->get_static_dir($this->defaultId);
+					
+					//get default static path
+					
+					$this->defaultStaticPath = $this->get_static_path($this->defaultId,$this->defaultId);
+						
+					//get default static css path
+					
+					$this->defaultStaticCssPath = $this->get_static_asset_path($this->id,'css','default_style');
+						
+					//get default static js path
+					
+					$this->defaultStaticJsPath = $this->get_static_asset_path($this->id,'js','default_script');
+					
+					//get layer static url
+					
+					$this->layerStaticUrl = $this->get_static_url($this->id,$this->defaultId);
+					
+					//get layer static css url
+					
+					$this->layerStaticCssUrl = $this->get_static_asset_url($this->id,'css','custom_style');
+
+					//get layer static js url
+					
+					$this->layerStaticJsUrl = $this->get_static_asset_url($this->id,'js','custom_script');						
+
+					//get layer static dir
+					
+					$this->layerStaticDir = $this->get_static_dir($this->id);
+					
+					//get layer static path
+					
+					$this->layerStaticPath = $this->get_static_path($this->id,$this->defaultId);
+						
+					//get layer static css path
+					
+					$this->layerStaticCssPath = $this->get_static_asset_path($this->id,'css','custom_style');
+						
+					//get layer static js path
+					
+					$this->layerStaticJsPath = $this->get_static_asset_path($this->id,'js','custom_script');						
+						
+					//get layer output
+					
+					$this->layerOutput = get_post_meta( $this->defaultId, 'layerOutput', true );
+					
+					//get layer options
+					
+					$this->layerOptions = get_post_meta( $this->defaultId, 'layerOptions', true );
+					
+					//get layer settings
+					
+					$this->layerSettings = get_post_meta( $this->id, 'layerSettings', true );
+
+					//get layer embedded
+					
+					$this->layerEmbedded = get_post_meta( $this->id, 'layerEmbedded', true );	
+					
+					//get layer form
+					
+					$this->layerForm = get_post_meta( $this->defaultId, 'layerForm', true );
+					
+					//get css libraries
+
+					$this->layerCssLibraries = wp_get_post_terms( $this->defaultId, 'css-library', array( 'orderby' => 'term_id' ) );
+
+					//get js libraries
+					
+					$this->layerJsLibraries = wp_get_post_terms( $this->defaultId, 'js-library', array( 'orderby' => 'term_id' ) );								
+					
+					//get font libraries
+					
+					$this->layerFontLibraries = wp_get_post_terms( $this->defaultId, 'font-library', array( 'orderby' => 'term_id' ) );																			
+					
+					//get element libraries
+					
+					$this->layerHtmlLibraries = wp_get_post_terms( $this->defaultId, 'element-library', array( 'orderby' => 'term_id' ) );								
+					
+					//get layer image proxy
+
+					$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
 				}
 			}
-		}				
+		}
 	}
 	
 	public function get_default_layer_fields(){
@@ -1413,6 +1448,87 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		);			
 		
 		return $fields;
+	}
+	
+	public function get_user_layers( $user, $context='admin-dashboard' ) {
+	
+
+		echo '<div class="postbox">';
+			
+			echo '<h3 style="margin:10px;">' . __( 'Saved Projects', 'live-template-editor-client' ) . '</h3>';
+		
+			echo '<table class="widefat fixed striped" style="border:none;">';
+				
+				echo '<tr>';
+				
+					echo '<th style="width:300px;">';
+						
+						echo 'Name';
+					
+					echo '</th>';
+					
+					echo '<th>';
+						
+						echo'';
+						
+					echo '</th>';
+				
+				echo '</tr>';
+				
+				if( $layers = get_posts(array(
+				
+					'author'      => $user->ID,
+					'post_type'   => 'user-layer',
+					'post_status' => 'publish',
+					'numberposts' => -1
+					
+				))){
+
+					foreach( $layers as $layer ){
+
+						echo '<tr>';
+						
+							echo '<td style="width:300px;">';
+								
+								echo $layer->post_title;
+							
+							echo '</td>';
+							
+							echo '<td>';
+								
+								echo'<a class="btn btn-sm btn-default" href="' . get_edit_post_link( $layer->ID ) . '" target="_blank">Edit backend</a>';
+								echo ' | ';
+								echo'<a class="btn btn-sm btn-default" href="' . $this->parent->urls->editor . '?uri=' . $layer->ID . '" target="_blank">Edit frontend</a>';
+								echo ' | ';
+								echo'<a class="btn btn-sm btn-default" href="' . get_post_permalink( $layer->ID ) . '" target="_blank">Preview</a>';
+								
+							echo '</td>';
+						
+						echo '</tr>';
+					}
+				}
+				else{
+					
+					echo '<tr>';
+					
+						echo '<td style="width:300px;">';
+							
+							echo 'None';
+						
+						echo '</td>';
+						
+						echo '<td>';
+							
+							echo'';
+							
+						echo '</td>';
+					
+					echo '</tr>';					
+				}
+				
+			echo '</table>';
+			
+		echo '</div>';
 	}
 		
 	public function get_options($taxonomy,$term,$price_currency='$'){
@@ -2335,7 +2451,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			if( !empty($output) ){
 
-				if(  $this->layerOutput == 'hosted-page' ){
+				if(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && $this->layerOutput == 'hosted-page' ){
 					
 					// sanitize content
 					

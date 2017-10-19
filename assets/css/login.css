@@ -1,5 +1,5 @@
 #login{width:350px;margin:auto}
-.login div#login form#registerform .message p,.login div#login form#registerform .register p{width:350px;color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
+.login div#login form#registerform .message p,.login div#login form#registerform .register p{width:350px;color:#fff;text-shadow:1px 1px 3px #CCC,-1px -1px 3px #CCC, 0 0 7px #CCC,2px 2px 8px #CCC,-2px -2px 11px #CCC;}
 
 .wp-core-ui .button,.wp-core-ui .button-primary,.wp-core-ui .button-secondary{display:inline-block;text-decoration:none;font-size:13px;line-height:26px;height:28px;margin:0;padding:0 10px 1px;cursor:pointer;border-width:1px;border-style:solid;-webkit-appearance:none;-webkit-border-radius:3px;border-radius:3px;white-space:nowrap;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
 .wp-core-ui button::-moz-focus-inner,.wp-core-ui input[type=reset]::-moz-focus-inner,.wp-core-ui input[type=button]::-moz-focus-inner,.wp-core-ui input[type=submit]::-moz-focus-inner{border-width:0;border-style:none;padding:0}
@@ -47,30 +47,30 @@
 .mobile #login{padding:20px 0}.mobile #login form{margin-left:0}
 .mobile #login #backtoblog,.mobile #login #nav{margin-left:8px}
 
-#login-wrap {padding:6% 0;background: url(https://dexdan.files.wordpress.com/2016/09/transparent_bg.png) no-repeat 50% 50% / cover;} 
+#login-wrap {padding:6% 0;background:#EEE;} 
 
-.login div#login {background:rgba(255,255,255,0.50);border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;padding:30px 60px;box-shadow:0 1px 3px #F69;-moz-box-shadow:0 1px 3px #F69;-ms-box-shadow:0 1px 3px #F69;-o-box-shadow:0 1px 3px #F69;-webkit-box-shadow:0 1px 3px #F69;}
+.login div#login {background:rgba(255,255,255,0.50);border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;-o-border-radius:3px;-o-border-radius:3px;-webkit-border-radius:3px;padding:30px 60px;box-shadow:0 1px 3px #CCC;-moz-box-shadow:0 1px 3px #CCC;-ms-box-shadow:0 1px 3px #CCC;-o-box-shadow:0 1px 3px #CCC;-webkit-box-shadow:0 1px 3px #CCC;}
 
-.login div#login form#registerform{background:rgba(255,255,255,0.50);border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;padding:30px 60px;box-shadow:0 1px 3px #F69;-moz-box-shadow:0 1px 3px #F69;-ms-box-shadow:0 1px 3px #F69;-o-box-shadow:0 1px 3px #F69;-webkit-box-shadow:0 1px 3px #F69;}
+.login div#login form#registerform{background:rgba(255,255,255,0.50);border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;-o-border-radius:3px;-o-border-radius:3px;-webkit-border-radius:3px;padding:30px 60px;box-shadow:0 1px 3px #CCC;-moz-box-shadow:0 1px 3px #CCC;-ms-box-shadow:0 1px 3px #CCC;-o-box-shadow:0 1px 3px #CCC;-webkit-box-shadow:0 1px 3px #CCC;}
 .login div#login form#loginform p {}
 .login div#login form#loginform p label {color:#000;}
-.login div#login form#loginform input {border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
-.login div#login form#loginform input#user_login {border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
-.login div#login form#loginform input#user_pass {border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
+.login div#login form#loginform input {border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;-o-border-radius:3px;-o-border-radius:3px;-webkit-border-radius:3px;}
+.login div#login form#loginform input#user_login {border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;-o-border-radius:3px;-o-border-radius:3px;-webkit-border-radius:3px;}
+.login div#login form#loginform input#user_pass {border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;-o-border-radius:3px;-o-border-radius:3px;-webkit-border-radius:3px;}
 .login div#login form#loginform p.forgetmenot {display:none;}
 .login div#login form#loginform p.forgetmenot input#rememberme {display:none;}
 .login div#login form#loginform p.submit {}
 .login div#login form#loginform p.submit input#wp-submit {}
 .login div#login p#nav {}
-.login div#login p#nav a {color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
+.login div#login p#nav a {color:#fff;text-shadow:1px 1px 3px #CCC,-1px -1px 3px #CCC, 0 0 7px #CCC,2px 2px 8px #CCC,-2px -2px 11px #CCC;}
 .login div#login p#backtoblog {display:none;}
 .login div#login p#backtoblog a {display:none;}
-.login .register {background:rgba(255,255,255,0.50);border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;box-shadow:0 1px 3px #F69;-moz-box-shadow:0 1px 3px #F69;-ms-box-shadow:0 1px 3px #F69;-o-box-shadow:0 1px 3px #F69;-webkit-box-shadow:0 1px 3px #F69;border:none;text-align:center;color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
-#user_login{border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
+.login .register {background:rgba(255,255,255,0.50);border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;-o-border-radius:3px;-o-border-radius:3px;-webkit-border-radius:3px;box-shadow:0 1px 3px #CCC;-moz-box-shadow:0 1px 3px #CCC;-ms-box-shadow:0 1px 3px #CCC;-o-box-shadow:0 1px 3px #CCC;-webkit-box-shadow:0 1px 3px #CCC;border:none;text-align:center;color:#506988;}
+#user_login{border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;-o-border-radius:3px;-o-border-radius:3px;-webkit-border-radius:3px;}
 .login div#login form#registerform p label {color:#000;}
-.login div#login form#registerform input {border-radius:5px;-moz-border-radius:5px;-ms-border-radius:5px;-o-border-radius:5px;-o-border-radius:5px;-webkit-border-radius:5px;}
-.login div#login form#registerform .message{color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
-.login div#login form#registerform .register{color:#fff;text-shadow:1px 1px 3px #F69,-1px -1px 3px #F69, 0 0 7px #F69,2px 2px 8px #F69,-2px -2px 11px #F69;}
+.login div#login form#registerform input {border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;-o-border-radius:3px;-o-border-radius:3px;-webkit-border-radius:3px;}
+.login div#login form#registerform .message{color:#fff;text-shadow:1px 1px 3px #CCC,-1px -1px 3px #CCC, 0 0 7px #CCC,2px 2px 8px #CCC,-2px -2px 11px #CCC;}
+.login div#login form#registerform .register{color:#fff;text-shadow:1px 1px 3px #CCC,-1px -1px 3px #CCC, 0 0 7px #CCC,2px 2px 8px #CCC,-2px -2px 11px #CCC;}
 
 .login-remember {display:none;}
 

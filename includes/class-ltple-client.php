@@ -316,8 +316,7 @@ class LTPLE_Client {
 
 		add_filter('template_include', array( $this, 'editor_templates'), 1 );
 		
-		add_action('template_redirect', array( $this, 'editor_output' ));
-		
+		add_action('template_redirect', array( $this, 'editor_output' ));		
 		
 		add_filter( 'pre_get_posts', function($query) {
 
@@ -329,8 +328,35 @@ class LTPLE_Client {
 			return $query;
 		});	
 	
-		//get current user
+		// get current user
 		
+		$this->set_current_user();
+		
+		// newsletter unsubscription
+		
+		if(!empty($_GET['unsubscribe'])){
+		
+			$unsubscriber_id = $this->ltple_decrypt_uri(sanitize_text_field($_GET['unsubscribe']));
+			
+			if(is_numeric($unsubscriber_id)){
+				
+				update_user_meta(intval($unsubscriber_id), $this->_base . '_can_spam', 'false');
+
+				$this->message ='<div class="alert alert-success">';
+
+					$this->message .= '<b>Congratulations</b>! You successfully unsbuscribed from the newsletter';
+
+				$this->message .='</div>';
+			}
+		}
+		
+		// loaded hook
+		
+		do_action( 'ltple_loaded');
+	}
+
+	public function set_current_user(){
+
 		if( !empty($_GET['key']) && !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
 			
 			$this->user = get_user_by( 'email', $this->ltple_decrypt_str($_GET['key']));
@@ -369,7 +395,7 @@ class LTPLE_Client {
 		$this->user->loggedin = is_user_logged_in();		
 		
 		if($this->user->loggedin){
-		
+
 			// get is admin
 			
 			$this->user->is_admin = current_user_can( 'administrator', $this->user->ID );
@@ -423,28 +449,6 @@ class LTPLE_Client {
 
 			add_action('after_password_reset', array($this,'redirect_password_reset'));
 		}
-		
-		// newsletter unsubscription
-		
-		if(!empty($_GET['unsubscribe'])){
-		
-			$unsubscriber_id = $this->ltple_decrypt_uri(sanitize_text_field($_GET['unsubscribe']));
-			
-			if(is_numeric($unsubscriber_id)){
-				
-				update_user_meta(intval($unsubscriber_id), $this->_base . '_can_spam', 'false');
-
-				$this->message ='<div class="alert alert-success">';
-
-					$this->message .= '<b>Congratulations</b>! You successfully unsbuscribed from the newsletter';
-
-				$this->message .='</div>';
-			}
-		}
-		
-		// loaded hook
-		
-		do_action( 'ltple_loaded');
 	}	
 	
 	public function redirect_password_reset($user){
@@ -520,10 +524,35 @@ class LTPLE_Client {
 		
 		$this->user->stars = $this->stars->get_count($this->user->ID);		
 
+		// edit post from admin dashboard
+		
+		add_action( 'load-post.php', function(){
+			
+			if( !empty($_REQUEST['action']) && $_REQUEST['action'] == 'ltple' ){
+				
+				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
+				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
+				
+				$this->editor_output();
+				
+				// set current user
+				
+				$this->set_current_user();
+
+				// add editor shortcodes
+				
+				add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
+						
+				include( $this->views . $this->_dev .'/editor-dedicated.php' );
+				
+				exit;
+			}
+		});
+		
 		// removes admin color scheme options
 		
-		remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
-
+		remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );		
+		
 		//Removes the leftover 'Visual Editor', 'Keyboard Shortcuts' and 'Toolbar' options.
 
 		add_action( 'admin_head', function () {
@@ -760,7 +789,7 @@ class LTPLE_Client {
 		}		
 	}
 	
-	public function editor_templates( $template_path ){
+	public function editor_templates( $path ){
 
 		if( isset($_GET['pr']) && is_numeric($_GET['pr']) ){
 			
@@ -770,14 +799,12 @@ class LTPLE_Client {
 			
 			if( ( $template_id > 0 && isset($this->profile->layer->ID) ) || $template_id == -2 ){
 				
-				$template_path = $this->views . $this->_dev . '/layer-profile.php';
+				$path = $this->views . $this->_dev . '/layer-profile.php';
 			}
 		}	
 		elseif( is_single() ) {
 			
 			global $post;
-			
-			$path = $template_path;
 			
 			if( isset( $_SERVER['HTTP_X_REF_KEY'] ) ){
 				
@@ -843,18 +870,35 @@ class LTPLE_Client {
 					$path = $this->views . $this->_dev .'/layer.php';
 				}
 			}
-			elseif( file_exists($this->views . $this->_dev .'/'.$post->post_type.'.php') ){
+			elseif( file_exists($this->views . $this->_dev .'/'.$post->post_type . '.php') ){
 				
-				$path = $this->views . $this->_dev .'/'.$post->post_type.'.php';
-			}
-
-			if( file_exists( $path ) ) {
-
-				$template_path = $path;
+				$path = $this->views . $this->_dev . '/' . $post->post_type . '.php';
 			}
 		}
+		/*
+		elseif( !LTPLE_MARKETPLACE && is_page() ){
+			
+			global $post;
+			
+			if( $post->post_name == $this->urls->editorSlug ){
+				
+				add_filter( 'stylesheet', array( $this, 'disable_theme' ));
+				add_filter( 'template', array( $this, 'disable_theme' ));
+
+				wp_register_style( $this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'css/bootstrap.min.css', array(), $this->_version );
+				wp_enqueue_style( $this->_token . '-bootstrap' );				
+			
+				$path = $this->views . $this->_dev . '/editor-dedicated.php';
+			}
+		}
+		*/
 		
-		return $template_path;
+		return $path;
+	}
+	
+	public function disable_theme() {
+		
+		return false;
 	}
 	
 	public function editor_output() {
@@ -2070,13 +2114,14 @@ class LTPLE_Client {
 					$post_id = '';
 					$defaultLayerId = -1;
 					
-					if( $this->layer->type == 'user-layer' ){
+					if( $this->layer->type != 'cb-default-layer' ){
 						
 						$post_id		= $this->user->layer->ID;
 						$post_author	= $this->user->layer->post_author;
 						$post_title		= $this->user->layer->post_title;
 						$post_name		= $this->user->layer->post_name;
 						$post_type		= $this->layer->type; // user-layer, post, page...
+						
 						$defaultLayerId	= intval(get_post_meta( $post_id, 'defaultLayerId', true));
 					}
 					else{
@@ -2388,7 +2433,7 @@ class LTPLE_Client {
 	 * @return void
 	 */
 	public function enqueue_styles () {
-
+		
 		wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-jquery-ui' );		
 	

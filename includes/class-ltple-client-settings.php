@@ -60,9 +60,9 @@ class LTPLE_Client_Settings {
 		
 		// get custom style
 		
-		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor' );
-		$this->borderColor 	= get_option( $this->parent->_base . 'borderColor' );
-		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor' );		
+		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor', '#506988' );
+		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor', '#506988' );	
+		$this->borderColor 	= get_option( $this->parent->_base . 'borderColor', '#182f42' );
 		
 		// get tabs
 		
@@ -346,6 +346,8 @@ class LTPLE_Client_Settings {
 			}
 			
 		echo '</h2>';
+		
+		do_action('ltple_taxonomy_action');
 	}	
 	
 	/**

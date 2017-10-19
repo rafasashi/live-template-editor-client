@@ -74,7 +74,7 @@
 	
 	$layerHead 			= '';
 	$layerContent 		= '';
-	
+
 	if( $layerOutput == 'hosted-page' ){
 		
 		if( !empty($defaultStaticPath) && file_exists($defaultStaticPath) ){

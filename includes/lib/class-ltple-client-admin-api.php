@@ -322,7 +322,7 @@ class LTPLE_Client_Admin_API {
 					
 						if( !empty($data) && is_numeric($data) ){
 							
-							$html .= '<a href="' . $this->parent->urls->editor . '?uri=' . $_GET['post'] . '" target="_blank" class="button button-primary button-large">';
+							$html .= '<a href="' . add_query_arg( 'action', 'ltple', $this->parent->urls->current ) . '" target="_self" class="button button-primary button-large">';
 								
 								$html .= 'Edit with LTPLE';
 								
@@ -1527,7 +1527,7 @@ class LTPLE_Client_Admin_API {
 				
 				$html .= '<div class="input-group col-xs-10" style="margin:10px 0;">';
 				
-					$html .= '<input class="form-control input-sm" type="file" name="avatar" accept="image/*">';
+					$html .= '<input style="padding:2px;height:26px;" class="form-control input-sm" type="file" name="avatar" accept="image/*">';
 					
 					$html .= '<div class="input-group-btn">';
 					
@@ -1539,13 +1539,13 @@ class LTPLE_Client_Admin_API {
 				
 			break;
 			
-			case 'banner':
+			case 'banner': 
 				
 				$html .= '<img src="'.$field['default'].'" />';
 				
 				$html .= '<div class="input-group col-xs-10" style="margin:10px 0;">';
 				
-					$html .= '<input class="form-control input-sm" type="file" name="banner" accept="image/*">';
+					$html .= '<input style="padding:2px;height:26px;" class="form-control input-sm" type="file" name="banner" accept="image/*">';
 					
 					$html .= '<div class="input-group-btn">';
 					

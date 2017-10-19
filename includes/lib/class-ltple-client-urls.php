@@ -35,9 +35,9 @@ class LTPLE_Client_Urls {
 		
 		$this->host = get_option( $this->parent->_base . 'host_url' );
 		
-		if( $this->editor = get_option( $this->parent->_base . 'editorSlug' )){
+		if( $this->editorSlug = get_option( $this->parent->_base . 'editorSlug' )){
 			
-			$this->editor = $this->home . '/' . $this->editor . '/';
+			$this->editor = $this->home . '/' . $this->editorSlug . '/';
 		}
 		
 		add_filter('wp_loaded', array( $this, 'init_urls'));

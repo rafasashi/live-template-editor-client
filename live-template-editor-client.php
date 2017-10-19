@@ -27,9 +27,9 @@
 	
 	if ( ! defined( 'ABSPATH' ) ) exit;
 	
-	if ( ! defined( 'LTPLE_MARKETPLACE_MODE' ) ){
+	if ( ! defined( 'LTPLE_MARKETPLACE' ) ){
 		
-		define( 'LTPLE_MARKETPLACE_MODE', false);
+		define( 'LTPLE_MARKETPLACE', false);
 	}
 	
 	$dev_ip = '109.28.69.143';
@@ -83,9 +83,9 @@
 	
 	if( $mode == '-dev' ){
 		
-		LTPLE_Client( '1.1.9', $mode );
+		LTPLE_Client( '1.2.0', $mode );
 	}
 	else{
 		
-		LTPLE_Client( '1.1.8', $mode );
+		LTPLE_Client( '1.1.9', $mode );
 	}

@@ -95,4 +95,25 @@ class LTPLE_Client_Object {
 		
 		return $index;
 	}
+	
+	public function group_keys($fields = array()){
+		
+		$group = array();
+
+		if( !empty($fields) ){
+		
+			foreach( $fields as $key => $values ){
+				
+				if( !empty($values) && is_array($values) ){
+				
+					foreach( $values as $i => $value ){
+						
+						$group[$i][$key] = $value;
+					}
+				}
+			}
+		}
+		
+		return $group;
+	}
 }  
