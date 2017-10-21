@@ -70,7 +70,6 @@
 		echo'<div class="col-xs-6 col-sm-8 text-right" style="padding:0 5px;">';
 			
 			if( $ltple->layer->id > 0 ){
-				
 
 				// get elements
 				
@@ -139,7 +138,7 @@
 				
 				if( is_admin() || ( $ltple->layer->type != 'cb-default-layer' && $ltple->user->plan["info"]["total_price_amount"] > 0 )){
 
-					if( $ltple->user->has_layer || $ltple->user->is_admin ){
+					if( $ltple->user->has_layer ){
 						
 						if( !empty($ltple->user->layer->post_title) ){
 						
@@ -161,14 +160,14 @@
 								echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>';
 								
 							echo'</form>';
-							
-							if( $ltple->layer->type == 'user-default-layer' ){
-							
-								echo '<a class="btn btn-sm btn-danger" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&postAction=delete">Delete</a>';
-							}
 						}
 						
-						echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left: 4px;border:1px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+						if( $ltple->layer->type == 'user-layer' ){
+
+							echo '<a class="btn btn-sm btn-danger" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&postAction=delete">Delete</a>';
+						}
+						
+						echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:0px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 					}
 				}
 			}

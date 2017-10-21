@@ -49,7 +49,7 @@
 	//get css libraries
 
 	$layerCssLibraries = $ltple->layer->layerCssLibraries;
-	
+
 	//get js libraries
 	
 	$layerJsLibraries = $ltple->layer->layerJsLibraries;

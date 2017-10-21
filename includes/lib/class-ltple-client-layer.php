@@ -367,6 +367,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('wp_loaded', array($this,'get_account_options'));
 		add_action('wp_loaded', array($this,'get_js_libraries'));
 		add_action('wp_loaded', array($this,'get_css_libraries'));
+		add_action('wp_loaded', array($this,'get_font_libraries'));
 		//add_action('wp_loaded', array($this,'get_default_layers'));
 		
 		add_action( 'save_post', array($this,'upload_static_contents'), 10, 3 );
@@ -550,6 +551,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'css_url'	 => 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
 					'css_content' => '',
 				),
+				'children'	=> array(
+				
+					'material-kit-1-1-0' => array(
+					
+						'name' 		=> 'Material Kit 1.1.0',
+						'options' 	=> array(
+						
+							'css_url'	 => $this->parent->assets_url . 'css/material-kit.css',
+							'css_content' => '<style>.card .card-image{height:auto;}</style>',
+						),
+					),				
+				),
 			),
 			'font-awesome-4-7-0' => array(
 			
@@ -705,9 +718,33 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		));
 	}
 
+	public function get_font_libraries(){
+		
+		$this->cssLibraries = $this->get_terms( 'font-library', array(
+			
+			'material-icons' => array(
+			
+				'name' 		=> 'Material Icons',
+				'options' 	=> array(
+				
+					'font_url'	 => 'https://fonts.googleapis.com/css?family=Material+Icons',
+				),
+			),
+			'roboto' => array(
+			
+				'name' 		=> 'Roboto',
+				'options' 	=> array(
+				
+					'font_url'	 => 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700',
+				),
+			),
+		));
+	}
+	
 	public function init_layer_backend(){
 		
-		add_action('show_user_profile', array( $this, 'get_user_layers' ),2,10 );
+		add_filter('show_user_profile', array( $this, 'get_user_layers' ),2,10 );
+		add_action('edit_user_profile', array( $this, 'get_user_layers' ) );
 		
 		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ));
 		
@@ -1211,6 +1248,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'id'			=> "layerCss",
 				'label'			=> "",
 				'type'			=> 'textarea',
+				'stripcslashes'	=> false,
 				'placeholder'	=> "Internal CSS style sheet",
 				'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
 		);
@@ -1408,6 +1446,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'id'			=> "layerCss",
 				'label'			=> "",
 				'type'			=> 'textarea',
+				'stripcslashes'	=> false,
 				'placeholder'	=> "Internal CSS style sheet",
 				'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
 		);
@@ -1451,29 +1490,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function get_user_layers( $user, $context='admin-dashboard' ) {
-	
 
 		echo '<div class="postbox">';
 			
 			echo '<h3 style="margin:10px;">' . __( 'Saved Projects', 'live-template-editor-client' ) . '</h3>';
 		
 			echo '<table class="widefat fixed striped" style="border:none;">';
-				
-				echo '<tr>';
-				
-					echo '<th style="width:300px;">';
-						
-						echo 'Name';
-					
-					echo '</th>';
-					
-					echo '<th>';
-						
-						echo'';
-						
-					echo '</th>';
-				
-				echo '</tr>';
 				
 				if( $layers = get_posts(array(
 				

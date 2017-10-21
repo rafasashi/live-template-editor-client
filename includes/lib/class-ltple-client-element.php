@@ -215,8 +215,11 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 				add_filter( 'bulk_actions-' . $screen->id, array( $this, 'get_bulk_actions' ) );
 				add_filter( 'handle_bulk_actions-' . $screen->id, array( $this, 'handle_bulk_actions' ), 10, 3 );
 				
-				add_action('ltple_taxonomy_action', array( $this, 'get_import_field' ) );
-			
+				if( !isset($_GET['tag_ID']) ){
+				
+					add_action('ltple_taxonomy_action', array( $this, 'get_import_field' ) );
+				}
+				
 				if( !empty($_FILES['importedElementLibrary']) ){
 					
 					foreach ($_FILES as $file => $array) {
