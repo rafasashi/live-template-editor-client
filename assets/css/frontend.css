@@ -1119,7 +1119,7 @@
 .btn.btn-sm, .btn-group-sm .btn,
 .navbar .navbar-nav > li > a.btn.btn-sm, .btn-group-sm
 .navbar .navbar-nav > li > a.btn {
-  padding: 5px 20px;
+  padding: 5px 15px;
   font-size: 11px;
 }
 .btn.btn-xs, .btn-group-xs .btn,

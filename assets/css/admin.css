@@ -40,3 +40,4 @@ html.wp-toolbar{padding-top:50px !important;}
 html>body #email_series .ui-sortable li { height: 1.5em; line-height: 1.2em; }
 .sortable .ui-state-highlight { height: 1.5em; line-height: 1.2em; background-color:#fafafa; }
 .nav-tab {margin-left:0px;margin-right:3px;}
+#wpbody .form-table{max-width: 800px;} 

@@ -32,18 +32,24 @@
 		define( 'LTPLE_MARKETPLACE', false);
 	}
 	
-	$dev_ip = '109.28.69.143';
+	$dev_ip = '';
+	
+	if( defined('MASTER_ADMIN_IP') ){
+		
+		$dev_ip = MASTER_ADMIN_IP;
+	}
 		
 	$mode = ( ($_SERVER['REMOTE_ADDR'] == $dev_ip || ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] == $dev_ip )) ? '-dev' : '');
 	
 	// Load plugin functions
+	
 	require_once( 'includes'.$mode.'/functions.php' );	
 	
 	// Load plugin class files
 
-	require_once( 'includes'.$mode.'/class-ltple-client.php' );
-	require_once( 'includes'.$mode.'/class-ltple-client-settings.php' );
-	require_once( 'includes'.$mode.'/class-ltple-client-object.php' );
+	require_once( 'includes' . $mode . '/class-ltple-client.php' );
+	require_once( 'includes' . $mode . '/class-ltple-client-settings.php' );
+	require_once( 'includes' . $mode . '/class-ltple-client-object.php' );
 		
 	// Autoload plugin libraries
 	
@@ -60,6 +66,7 @@
 	 * @since  1.0.0
 	 * @return object LTPLE_Client
 	 */
+	 
 	function LTPLE_Client ( $version = '1.0.0', $mode = '' ) {
 		
 		register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );

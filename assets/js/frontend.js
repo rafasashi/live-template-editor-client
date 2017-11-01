@@ -227,5 +227,5 @@
 		
 		$('a[href=' + anchor + ']').tab('show');
 	});
-	
+		
 })(jQuery);

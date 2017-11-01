@@ -237,7 +237,18 @@ class LTPLE_Client_Admin_API {
 			break;
 
 			case 'textarea':
-				$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . htmlentities(stripcslashes($data)) . '</textarea>'. "\n";
+			 
+				if( !isset($field['stripcslashes']) || $field['stripcslashes'] == true ){
+					
+					$data = stripcslashes($data);
+				}
+				
+				if( !isset($field['htmlentities']) || $field['htmlentities'] == true ){
+					
+					$data = htmlentities($data);
+				}				
+			
+				$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
 			break;
 			
 			case 'switch':
