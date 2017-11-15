@@ -281,6 +281,31 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 			echo'<th valign="top" scope="row">';
 				
+				echo'<label for="category-text">Droppable classes</label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+				
+				$this->parent->admin->display_field( array(
+				
+					'type'				=> 'text',
+					'id'				=> 'droppable_classes_' . $term->slug,
+					'name'				=> 'droppable_classes_' . $term->slug,
+					'default' 			=> 'ltple-droppable',
+					'placeholder' 		=> 'ltple-droppable',
+					'description' 		=> 'Comma separated list of classes after or before which an element can be dropped',
+					
+				), false );
+				
+			echo'</td>';
+			
+		echo'</tr>';	
+	
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
 				echo'<label for="category-text">Elements</label>';
 			
 			echo'</th>';
@@ -310,9 +335,22 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 
 		//save our custom fields as wp-options
 		
-		if( isset($_POST['elements_'.$term->slug]) ){
+		if( isset($_POST['elements_'.$term->slug]['name']) && isset($_POST['elements_'.$term->slug]['type']) && isset($_POST['elements_'.$term->slug]['image']) && isset($_POST['elements_'.$term->slug]['content'])  ){
+			
+			if( is_array($_POST['elements_'.$term->slug]['name']) && is_array($_POST['elements_'.$term->slug]['type']) && is_array($_POST['elements_'.$term->slug]['image']) && is_array($_POST['elements_'.$term->slug]['content'])  ){
 
-			update_option('elements_'.$term->slug, $_POST['elements_'.$term->slug]);			
+				update_option('elements_'.$term->slug, $_POST['elements_'.$term->slug]);			
+			}
+			else{
+					
+				echo 'Error saving elements...';
+				exit;
+			}
+		}
+		
+		if( isset($_POST['droppable_classes_'.$term->slug]) ){
+
+			update_option('droppable_classes_'.$term->slug, $_POST['droppable_classes_'.$term->slug]);			
 		}
 	}
 	
@@ -340,17 +378,20 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 				foreach( $terms as $term ){
 					
 					$elements = get_option( 'elements_' . $term->slug );
-					
+
 					if( !empty($elements['name'][0]) ){
 						
 						$elements = $this->group_keys($elements);
+						
+						$droppable_classes = get_option( 'droppable_classes_' . $term->slug );
 
 						$content[$term->slug] = array(
 						
 							'name' 		=> $term->name,
 							'options'	=> array(
-							
-								'elements'	=> $elements
+								
+								'droppable_classes'	=> $droppable_classes,
+								'elements'			=> $elements
 							)
 						);
 					}

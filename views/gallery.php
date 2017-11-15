@@ -18,7 +18,7 @@
 
 		foreach($this->all->layerType as $term){
 						
-			if( $term->visibility == 'anyone' || $this->user->is_admin ){
+			if( $term->visibility == 'anyone' || $this->user->is_editor ){
 			
 				$layer_type = $term->slug;
 				break;
@@ -62,7 +62,7 @@
 				
 				$post_title = the_title('','',false);
 				
-				if( $term->visibility == 'anyone' || $this->user->is_admin ){
+				if( $term->visibility == 'anyone' || $this->user->is_editor ){
 					
 					//get layer_range
 					
@@ -156,7 +156,7 @@
 												
 												if( $this->user->loggedin && $this->plan->user_has_layer( $post->ID ) === true ){
 													
-													$item.= '<iframe data-src="'.$permalink.'" style="width: 100%;position:relative;bottom: 0;border:0;height: 350px;overflow: hidden;"></iframe>';											
+													$item.= '<iframe data-src="'.$permalink.'" style="width: 100%;position:relative;bottom: 0;border:0;height: 450px;overflow: hidden;"></iframe>';											
 												}
 												else{
 													
@@ -259,7 +259,7 @@
 								
 							echo '</li>';					
 						}
-						elseif( $this->user->is_admin ){
+						elseif( $this->user->is_editor ){
 							
 							echo '<li'.$class.'>';
 							

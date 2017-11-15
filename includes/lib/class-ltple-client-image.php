@@ -13,7 +13,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	public $url		= '';
 	public $dir		= '';
 	
-	public $isHosted = false;
+	public $isStatic = false;
 	
 	/**
 	 * Constructor function
@@ -114,12 +114,12 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	
 	public function init_image(){
 		
-		if( isset($this->parent->layer->layerOutput) && $this->parent->layer->layerOutput == 'hosted-page' && $this->parent->layer->type == 'user-layer' ){
+		if( isset($this->parent->layer->layerOutput) && ( $this->parent->layer->layerOutput == 'hosted-page' || $this->parent->layer->layerOutput == 'downloadable' ) && $this->parent->layer->type == 'user-layer' ){
 			
-			$this->isHosted = true;
+			$this->isStatic = true;
 		}
 		
-		if( $this->isHosted ){
+		if( $this->isStatic ){
 			
 			$this->url = str_replace( 'https://', 'http://', dirname($this->parent->layer->layerStaticUrl) ) . '/assets/images/';
 			$this->dir = dirname($this->parent->layer->layerStaticPath) . '/assets/images/';
@@ -555,7 +555,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					
 					// get user image path
 					
-					if( $this->isHosted ){
+					if( $this->isStatic ){
 						
 						$path = $this->dir;
 					}
@@ -586,7 +586,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 
 					if ($info[0] > 0 && $info[1] > 0 && $info['mime']) {
 						
-						if( $this->isHosted ){
+						if( $this->isStatic ){
 							
 							return $this->url . $name . '?ltple-time=' . time();
 						}

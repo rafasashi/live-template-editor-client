@@ -55,8 +55,9 @@ class LTPLE_Client_Settings {
 			$this->options->postTypes = $postTypes;
 		}
 		
-		$this->options->logo_url 	 	= get_option( $this->parent->_base . 'homeLogo' );
-		$this->options->enable_ranking 	= get_option( $this->parent->_base . 'enable_ranking','off');
+		$this->options->logo_url 	 		= get_option( $this->parent->_base . 'homeLogo' );
+		$this->options->enable_ranking 		= get_option( $this->parent->_base . 'enable_ranking','off');
+		$this->options->enable_subdomains 	= get_option( $this->parent->_base . 'enable_subdomains','off');
 		
 		// get custom style
 		
@@ -183,18 +184,6 @@ class LTPLE_Client_Settings {
 		
 		// Add settings link to plugins page
 		add_filter( 'plugin_action_links_' . plugin_basename( $this->parent->file ) , array( $this, 'add_settings_link' ) );
-
-		// Custom default layer post
-		
-		add_action('template_redirect', function() {
-			
-			$post_type = get_post_type();
-			
-			if( $post_type == 'cb-default-layer' || $post_type == 'user-layer'){
-
-				remove_filter( 'the_content', 'wpautop' );
-			}
-		});
 		
 		// Custom default layer editor
 		
@@ -500,7 +489,15 @@ class LTPLE_Client_Settings {
 		
 		//add menu in wordpress dashboard
 		
-		add_menu_page($this->plugin->short, $this->plugin->short, 'manage_options', $this->plugin->slug, array($this, 'settings_page'),'dashicons-layout');
+		add_menu_page(
+		
+			$this->plugin->short, 
+			$this->plugin->short, 
+			'edit_pages', 
+			$this->plugin->slug, 
+			array($this, 'settings_page'),
+			'dashicons-layout'
+		);
 		
 		add_users_page( 
 			'All Guests', 
@@ -529,23 +526,16 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'users.php?' . $this->parent->_base .'view=conversions'
 		);
-
-		/*
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'All Subscribers', $this->plugin->slug ),
-			__( 'All Subscribers', $this->plugin->slug ),
-			'edit_pages',
-			'users.php?' . $this->parent->_base .'view=subscribers'
-		);
-		*/
 		
-		add_plugins_page( 
-			'Live Editor Addons', 
-			'Live Editor Addons', 
-			'edit_pages',
-			'admin.php?page=' . $this->plugin->slug . '&tab=addons'
-		);	
+		if( $this->parent->user->is_admin ){
+		
+			add_plugins_page( 
+				'Live Editor Addons', 
+				'Live Editor Addons', 
+				'edit_pages',
+				'admin.php?page=' . $this->plugin->slug . '&tab=addons'
+			);
+		}
 		
 		add_submenu_page(
 			$this->plugin->slug,
@@ -851,7 +841,8 @@ class LTPLE_Client_Settings {
 				),
 			)
 		);
-	
+		
+		/*
 		$embedded_info = $this->get_embedded_info();
 	
 		$settings['embedded'] = array(
@@ -918,7 +909,21 @@ class LTPLE_Client_Settings {
 				),
 				
 			)
-		);			
+		);
+		*/	
+
+		$settings['domains'] = array(
+			'title'					=> __( 'Domains', $this->plugin->slug ),
+			'description'			=> __( 'Domain & subdomain settings', $this->plugin->slug ),
+			'fields'				=> array(
+				array(
+					'id' 			=> 'enable_subdomains',
+					'label'			=> __( 'Enable Subdomains' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'switch',
+				),
+			)
+		);		
 
 		$settings['stars'] = array(
 			'title'					=> __( 'Stars', $this->plugin->slug ),
@@ -1025,6 +1030,18 @@ class LTPLE_Client_Settings {
 					'placeholder'	=> __( 'Unlock Free tweet (140 char)', $this->plugin->slug ),
 					'style'			=> 'height:60px;',
 				),				
+			)
+		);
+		
+		$settings['ux'] = array(
+			'title'					=> __( 'UX', $this->plugin->slug ),
+			'description'			=> __( 'Flowchart Elements', $this->plugin->slug ),
+			'fields'				=> array(
+				array(
+					'id' 			=> 'uxFlowchart',
+					'description'	=> '',
+					'type'			=> 'ux_flow_charts',
+				),			
 			)
 		);
 		

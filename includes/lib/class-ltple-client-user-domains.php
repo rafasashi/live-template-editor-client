@@ -14,30 +14,54 @@ class LTPLE_Client_User_Domains {
 
 		$this->parent 	= $parent;
 		
-		if( $this->parent->user->loggedin ){
-
-			$this->list = get_posts(array(
-				
-				'author'   => $this->parent->user->ID,
-				'post_type'   	=> 'user-domain',
-				'post_status' 	=> 'publish',
-				//'numberposts' 	=> -1,
-			));
+		if( $this->parent->user->loggedin && $this->parent->settings->options->enable_subdomains == 'on' ){
 			
-			if( !empty($this->list) ){
-				
-				foreach( $this->list as $list ){
-					
-					$list->domainUrls = get_post_meta($list->ID ,'domainUrls', true);
-				}				
-			}
+			$this->list = $this->get_user_domains( $this->parent->user, true );
+			
+			$this->save_user_domains();
 		}
-		
-		add_action( 'init', array( $this, 'init_user_domains' ));
 	}
 	
-	public function init_user_domains(){
+	public static function get_user_domains( $user, $insert = false ){
+	
+		$subdomain = $user->user_login . '.' . $_SERVER['HTTP_HOST'];
+
+		$domains = get_posts(array(
+			
+			'author'   		=> $user->ID,
+			'post_type'   	=> 'user-domain',
+			'post_status' 	=> 'publish',
+			//'numberposts' => -1,
+		));
 		
+		/*
+		if( $insert && !in_array_field($subdomain,'post_title',$domains) ){
+
+			$post_id = wp_insert_post(array(
+				
+				'post_author' 	=> $user->ID,
+				'post_title' 	=> $subdomain,
+				'post_type' 	=> 'user-domain',
+				'post_status' 	=> 'publish'
+			));
+
+			$domains[] = get_post($post_id);
+		}
+		*/
+		
+		if( !empty($domains) ){
+			
+			foreach( $domains as $domain ){
+				
+				$domain->domainUrls = get_post_meta($domain->ID ,'domainUrls', true);
+			}				
+		}	
+
+		return $domains;
+	}
+	
+	public function save_user_domains(){
+
 		if( !is_admin() ){
 		
 			if( !empty($_POST['layerId']) && !empty($_POST['domainUrl']['domainId']) && isset($_POST['domainUrl']['domainPath']) && !empty($_POST['domainAction']) ){

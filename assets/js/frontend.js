@@ -201,9 +201,18 @@
 
 		$('[data-toggle="dialog"]').each(function(e){
 			
-			var id = $(this).data('target');
+			var id 		= $(this).data('target');
+			var width 	= $(this).attr('data-width') || 'auto';
+			var height 	= $(this).attr('data-height') || 'auto';
+			var resizable = $(this).attr('data-resizable') || false;
 			
-			$(id).dialog({autoOpen: false});
+			$(id).dialog({
+				
+				autoOpen 	: false,
+				width 		: width,
+				height 		: height,
+				resizable 	: resizable
+			});
 			
 			$(this).on('click',function(e){
 				

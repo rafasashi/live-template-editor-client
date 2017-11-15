@@ -230,7 +230,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					array($post->post_type),
 					'side'
 				);		
-
+				
+				/*
 				$this->parent->admin->add_meta_box (
 					
 					'layer-options',
@@ -238,6 +239,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					array($post->post_type),
 					'side'
 				);
+				*/
 				
 				$this->parent->admin->add_meta_box (
 					
@@ -272,14 +274,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					array($post->post_type),
 					'advanced'
 				);
-
+				
+				/*
 				$this->parent->admin->add_meta_box (
 					
 					'layer-embedded',
 					__( 'Template Embedded', 'live-template-editor-client' ), 
 					array($post->post_type),
 					'advanced'
-				);	
+				);
+				*/
 				
 				if( in_array( $post->post_type, $this->parent->settings->options->postTypes ) ){
 				
@@ -836,7 +840,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->url = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/');
 
 		$this->dir = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');	
-	
+
 		// get layer key
 	
 		if(isset($_GET['lk'])){
@@ -1345,7 +1349,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'inline-css'	=>'Inline Style',
 					'external-css'	=>'Style Sheet',
 					'hosted-page'	=>'Hosted Page',
-					//'self-hosted'	=>'Self Hosted',
+					'downloadable'	=>'Downloadable',
 					'canvas'		=>'Canvas'
 				),
 				'selected'	=>'inline-css',
@@ -1471,7 +1475,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'label'			=> "Default Template ID",
 				'type'			=> 'edit_layer',
 				'placeholder'	=> "",
-				'description'	=> ''
+				'description'	=> '',
+				'disabled'		=> true,
 		);
 
 		$fields[]=array(
@@ -2473,7 +2478,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			if( !empty($output) ){
 
-				if(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && $this->layerOutput == 'hosted-page' ){
+				if(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
 					
 					// sanitize content
 					
@@ -2590,7 +2595,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					}
 				}
 				else{
-				
+					
 					echo $output;
 				}
 			}

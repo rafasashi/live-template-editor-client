@@ -31,15 +31,15 @@
 		
 		define( 'LTPLE_MARKETPLACE', false);
 	}
+
+	$dev_ips = array();
 	
-	$dev_ip = '';
-	
-	if( defined('MASTER_ADMIN_IP') ){
+	if( defined('MASTER_ADMIN_IPS') ){
 		
-		$dev_ip = MASTER_ADMIN_IP;
+		$dev_ips = MASTER_ADMIN_IPS;
 	}
-		
-	$mode = ( ($_SERVER['REMOTE_ADDR'] == $dev_ip || ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] == $dev_ip )) ? '-dev' : '');
+	
+	$mode = ( ( in_array( $_SERVER['REMOTE_ADDR'], $dev_ips ) || ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && in_array( $_SERVER['HTTP_X_FORWARDED_FOR'], $dev_ips ) )) ? '-dev' : '');
 	
 	// Load plugin functions
 	
@@ -87,12 +87,12 @@
 	}
 	
 	// start plugin
-	
+
 	if( $mode == '-dev' ){
 		
-		LTPLE_Client( '1.2.2', $mode ); 
+		LTPLE_Client( '1.2.3', $mode ); 
 	}
 	else{
 		
-		LTPLE_Client( '1.1.9', $mode );
+		LTPLE_Client( '1.2.3', $mode );
 	}

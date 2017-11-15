@@ -55,14 +55,14 @@ class LTPLE_Client_Update {
 	}
 	
 	/**
-	 * Main LTPLE_Client_Domain Instance
+	 * Main LTPLE_Client_Update Instance
 	 *
-	 * Ensures only one instance of LTPLE_Client_Domain is loaded or can be loaded.
+	 * Ensures only one instance of LTPLE_Client_Update is loaded or can be loaded.
 	 *
 	 * @since 1.0.0
 	 * @static
 	 * @see LTPLE_Client()
-	 * @return Main LTPLE_Client_Domain instance
+	 * @return Main LTPLE_Client_Update instance
 	 */
 	public static function instance ( $parent ) {
 		

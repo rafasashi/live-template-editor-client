@@ -112,16 +112,16 @@
 
 		echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
 		
-		echo'<iframe id="editorIframe" src="' . $iframe_url .'" style="margin-top: -65px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height: 1300px;overflow: hidden;"></iframe>';
+		echo'<iframe id="editorIframe" src="' . $iframe_url . '" style="margin-top: -65px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height: 1300px;overflow: hidden;"></iframe>';
 	}
 	
 	//---------- editor settings ---------------
 		
 	echo'<script id="LiveTplEditorSettings">' .PHP_EOL;
 
-		if($this->layer->layerOutput!=''){
+		if( $this->layer->layerOutput != '' ){
 			
-			echo ' var layerOutput = "' . $this->layer->layerOutput . '";' .PHP_EOL;
+			echo ' var layerOutput = "' . $this->layer->layerOutput . '";' . PHP_EOL;
 		}
 		
 		echo ' var layerSettings = ' . json_encode($this->layer->layerSettings) . ';' .PHP_EOL;
@@ -130,7 +130,7 @@
 		
 		if( $this->layer->layerImgProxy != '' ){
 		
-			echo ' var imgProxy = " ' . $this->layer->layerImgProxy . '";' .PHP_EOL;				
+			echo ' var imgProxy = " ' . $this->layer->layerImgProxy . '";' . PHP_EOL;				
 		}
 		
 		//include page def
@@ -182,5 +182,31 @@
 		}
 		
 		echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
+		
+		//include DnD settings
+		
+		$classes = [ 'ltple-droppable'];
+		
+		if( !empty($this->layer->layerHtmlLibraries) ){
 
-	echo'</script>' .PHP_EOL;
+			foreach( $this->layer->layerHtmlLibraries as $term ){
+				
+				$droppable_classes = get_option( 'droppable_classes_' . $term->slug );
+				
+				$droppable_classes = str_replace(' ','',$droppable_classes);
+				
+				$droppable_classes = explode(',',$droppable_classes);
+				
+				foreach($droppable_classes as $class){
+					
+					if( !empty($class) && !in_array( $class, $classes ) ){
+						
+						$classes[] = $class;
+					}
+				}
+			}
+		}
+		
+		echo ' var droppableClasses = ' . json_encode(array_values($classes)) . ';' . PHP_EOL;
+
+	echo'</script>' . PHP_EOL;

@@ -97,33 +97,89 @@
 						
 					echo'<div style="margin:0 4px;" class="btn-group">';
 					
-						echo '<a class="btn btn-sm btn-info" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog">Elements</a>';
+						echo '<a class="btn btn-sm btn-info" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Elements</a>';
 				
 						echo '<div id="LiveTplEditorDndDialog" title="Elements library" style="display:none;">';
 						echo '<div id="LiveTplEditorDndPanel">';
 						
 							echo '<div id="dragitemslist">';
 								
-								echo '<ul id="dragitemslistcontainer">';
-
-									foreach( $elemLibraries as $elements ){
+								$list = [];
 								
-										if( !empty($elements['name']) ){
+								foreach( $elemLibraries as $elements ){
+							
+									if( !empty($elements['name']) ){
+										
+										foreach( $elements['name'] as $e => $name ){
 											
-											foreach( $elements['name'] as $e => $name ){
+											if( !empty($elements['type'][$e]) ){
+											
+												$type = $elements['type'][$e];
 												
-												echo '<li draggable="true" data-insert-html="' . str_replace( array('\\"','"'), "'", $elements['content'][$e] ) . '">';
+												$item = '<li draggable="true" data-insert-html="' . str_replace( array('\\"','"',"\\'"), "'", $elements['content'][$e] ) . '">';
 												
-													echo '<span>'.$name.'</span>';
+													$item .= '<span>'.$name.'</span>';
 												
-													echo '<img title="'.$name.'" height="60" src="' . $elements['image'][$e] . '" />';
+													$item .= '<img title="'.$name.'" height="60" src="' . $elements['image'][$e] . '" />';
 												
-												echo '</li>';
+												$item .= '</li>';
+												
+												$list[$type][] = $item;
 											}
+										}
+									}
+								}
+									
+								//echo'<div class="library-content">';
+										
+									echo'<ul class="nav nav-pills" role="tablist">';
+
+									$active=' class="active"';
+									
+									foreach($list as $type => $items){
+										
+										echo'<li role="presentation"'.$active.'><a href="#' . $type . '" aria-controls="' . $type . '" role="tab" data-toggle="tab">'.ucfirst(str_replace(array('-','_'),' ',$type)).' <span class="badge">'.count($list[$type]).'</span></a></li>';
+										
+										$active='';
+									}							
+
+									echo'</ul>';
+									
+								//echo'</div>';
+
+								echo'<div id="dragitemslistcontainer" class="tab-content row">';
+									
+									$active=' active';
+								
+									foreach($list as $type => $items){
+										
+										echo'<ul role="tabpanel" class="tab-pane'.$active.'" id="' . $type . '">';
+										
+										foreach($items as $item){
+
+											echo $item;
+										}
+										
+										echo'</ul>';
+										
+										$active='';
+									}
+									
+								echo'</div>';								
+								
+								/*
+								echo '<ul id="dragitemslistcontainer">';
+									
+									foreach($list as $type => $items){
+										
+										foreach( $items as $item ){
+											
+											echo $item;
 										}
 									}
 									
 								echo '</ul>';
+								*/
 								
 							
 							echo '</div>';
@@ -202,7 +258,7 @@
 				}
 			}
 
-			if( ( $ltple->layer->type == 'cb-default-layer' && $ltple->user->is_admin ) || $ltple->layer->type == 'user-layer' ){
+			if( ( $ltple->layer->type == 'cb-default-layer' && $ltple->user->is_editor ) || $ltple->layer->type == 'user-layer' ){
 			
 				echo'<div style="margin:0 2px;" class="btn-group">';
 				
@@ -241,7 +297,7 @@
 							
 						echo'</li>';
 
-						if( $ltple->user->is_admin ){
+						if( $ltple->user->is_editor ){
 							
 							/*
 							
@@ -260,11 +316,13 @@
 
 							echo'</li>';
 							
+							/*
 							echo'<li style="position:relative;">';
 								
 								echo '<a target="_self" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
 
 							echo'</li>';
+							*/
 							
 							echo'<li style="position:relative;">';
 								

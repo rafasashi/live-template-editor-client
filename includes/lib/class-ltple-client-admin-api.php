@@ -24,7 +24,7 @@ class LTPLE_Client_Admin_API {
 	 * @param  boolean $echo  Whether to echo the field HTML or return it
 	 * @return void
 	 */
-	public function display_field ( $data = array(), $item = false, $echo = true ) {
+	public function display_field ( $data = array(), $item = false, $echo = true ){
 
 		// Get field info
 		
@@ -200,7 +200,7 @@ class LTPLE_Client_Admin_API {
 					$html .= '<div class="input-group">';
 				}
 				
-				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
 				
 				if ( isset( $field['show'] ) && $field['show'] === true ) {
 					
@@ -229,7 +229,7 @@ class LTPLE_Client_Admin_API {
 				if ( isset( $field['max'] ) ) {
 					$max = ' max="' . esc_attr( $field['max'] ) . '"';
 				}
-				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . esc_attr( $field['placeholder'] ) . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
+				$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
 			break;
 			
 			case 'text_secret':
@@ -636,6 +636,40 @@ class LTPLE_Client_Admin_API {
 				
 				$html .= '</table>';
 				
+			break;
+			
+			case 'ux_flow_charts':
+			
+				$html .= '<div id="the-list">';
+				
+					$folders = glob( $this->parent->assets_dir . '/images/flow-charts/*', GLOB_ONLYDIR  );
+
+					foreach( $folders as $folder ){
+						
+						$images = glob( $folder . '/*.{jpg,png,gif}', GLOB_BRACE  );
+						
+						$html .= '<h4 style="background:rgb(241, 241, 241);padding:10px;">' . ucfirst(basename($folder)) . '</h4>';
+						
+						$html .= '<div class="row">';
+
+							foreach($images as $image){
+								
+								$url = $this->parent->assets_url . 'images/flow-charts/' . basename($folder) . '/' . basename($image);
+
+								$html .= '<div class="col-xs-2">';
+									
+									$html .= '<img style="width:100%;" src="' . $url . '" />';
+									
+									$html .= '<input style="width:100%;margin-bottom:15px;" type="text" value="'.$url.'" />';
+									
+								$html .= '</div>';
+							} 
+							
+						$html .= '</div>';
+					}
+				
+				$html .= '</div>';
+			
 			break;
 			
 			case 'addon_plugins':
@@ -1343,7 +1377,8 @@ class LTPLE_Client_Admin_API {
 
 			case 'element':
 				
-				$types = ['grid','section','form','media','mix'];
+				//$types = ['grid','section','form','media','mix'];
+				$types = ['headers','features','blogs','teams','projects','products','pricing','testimonials','contact'];
 				
 				if( !isset($data['name']) ){
 
@@ -1357,7 +1392,7 @@ class LTPLE_Client_Admin_API {
 				}
 
 				$id = ( !empty($field['id']) ? $field['id'] : 'elements' );
-				
+
 				$html .= '<div id="'.$id.'" class="sortable">';
 					
 					$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add element</a>';

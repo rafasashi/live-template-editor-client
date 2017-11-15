@@ -75,7 +75,7 @@
 	$layerHead 			= '';
 	$layerContent 		= '';
 
-	if( $layerOutput == 'hosted-page' ){
+	if( $layerOutput == 'hosted-page' || $layerOutput == 'downloadable' ){
 		
 		if( !empty($defaultStaticPath) && file_exists($defaultStaticPath) ){
 			
@@ -142,6 +142,28 @@
 		
 		$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
 	}
+	
+	// parse content elements
+	
+	libxml_use_internal_errors( true );
+	
+	$dom= new DOMDocument();
+	$dom->loadHTML('<?xml encoding="UTF-8">' . $layerContent); 
+
+	$xpath = new DOMXPath($dom);
+
+	// remove pagespeed_url_hash
+	
+	$links = [];
+	
+	$nodes = $xpath->query('//img');
+	
+	foreach ($nodes as $node) {
+		
+		$node->removeAttribute('pagespeed_url_hash');
+	}			
+	
+	$layerContent = $dom->saveHtml( $xpath->query('/body')->item(0) );
 	
 	//get style-sheet
 	
@@ -308,7 +330,7 @@
 			}
 		}			
 		
-		if( $layerOutput == 'hosted-page' ){		
+		if( $layerOutput == 'hosted-page' || $layerOutput == 'downloadable' ){		
 			
 			// output css files
 			
@@ -556,7 +578,7 @@
 		
 		$layer .= '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
 		
-		if( $ltple->layer->layerOutput != 'hosted-page' && $layerCss!='' ){
+		if( ( $layerOutput != 'hosted-page' && $layerOutput != 'downloadable' ) && $layerCss!='' ){
 
 			$layer .= $layerCss .PHP_EOL;
 		}
@@ -682,14 +704,14 @@
 		
 		$layer .='<script id="LiveTplEditorScript">' .PHP_EOL;
 		
-			if( $ltple->layer->layerOutput != 'hosted-page' && $layerJs != '' ){
+			if( ( $layerOutput != 'hosted-page' && $layerOutput != 'downloadable' ) && $layerJs != '' ){
 
 				$layer .= $layerJs .PHP_EOL;				
 			}				
 			
 		$layer .='</script>' .PHP_EOL;
 		
-		if( $ltple->layer->layerOutput == 'hosted-page' ){
+		if( $layerOutput == 'hosted-page' || $layerOutput == 'downloadable' ){
 			
 			if( $ltple->layer->type == 'user-layer' && !empty($layerJs) ){
 

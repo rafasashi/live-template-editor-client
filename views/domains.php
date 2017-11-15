@@ -19,9 +19,9 @@
 		
 			echo'<ul class="nav nav-tabs tabs-left">';
 				
-				echo'<li class="gallery_type_title">My Domains</li>';
+				echo'<li class="gallery_type_title">Domains & URLs</li>';
 				
-				echo'<li'.( $currentTab == 'domain' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?domain">Domain Listing <span class="label label-success pull-right"> pro </span></a></li>';
+				echo'<li'.( $currentTab == 'domain' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?domain">My domains <span class="label label-success pull-right"> pro </span></a></li>';
 
 				echo'<li'.( $currentTab == 'urls' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?domain=urls">Urls & Pages <span class="label label-success pull-right"> pro </span></a></li>';
 				
@@ -152,7 +152,7 @@
 											
 											echo'</td>';
 
-											echo'<td style="width:545px;">';
+											echo'<td style="width:560px;">';
 											
 												echo'<form action="' . $this->urls->current . '" method="post">';
 											
@@ -160,7 +160,7 @@
 													
 													echo'<input type="hidden" name="domainAction" value="assign" />';
 											
-													echo'<select name="domainUrl[domainId]" class="form-control input-sm" style="width:150px;display:inline-block;">';
+													echo'<select name="domainUrl[domainId]" class="form-control input-sm" style="width:180px;display:inline-block;">';
 														
 														echo'<option value="-1">None</option>';
 														
@@ -197,7 +197,7 @@
 														}
 													}
 													
-													echo'<input type="text" name="domainUrl[domainPath]" value="'.$domainPath.'" placeholder="category/page-title" class="form-control input-sm" style="width:300px;display:inline-block;" />';
+													echo'<input type="text" name="domainUrl[domainPath]" value="'.$domainPath.'" placeholder="category/page-title" class="form-control input-sm" style="width:270px;display:inline-block;" />';
 												
 													echo' <button type="submit" class="btn btn-primary btn-sm" >assign</button>';
 												
@@ -233,7 +233,8 @@
 												echo '</a>';
 
 											echo'</td>';											
-
+											
+											/*
 											echo'<td style="width:30px;">';
 											
 												echo '<a href="' . $this->urls->editor .'?'. $_SERVER['QUERY_STRING'] . '&uri=' . $layer->ID . '&postAction=delete" target="_self" class="btn btn-danger btn-sm" style="font-weight: bold;">';
@@ -242,7 +243,8 @@
 												
 												echo '</a>';
 											
-											echo'</td>';												
+											echo'</td>';
+											*/
 										
 										echo'</tr>';
 									}
