@@ -162,6 +162,7 @@ class LTPLE_Client {
 			
 			$this->client 		= new LTPLE_Client_Client( $this );
 			$this->request 		= new LTPLE_Client_Request( $this );
+			$this->session 		= new LTPLE_Client_Session( $this );
 			$this->urls 		= new LTPLE_Client_Urls( $this );
 
 			$this->stars 		= new LTPLE_Client_Stars( $this );
@@ -1418,9 +1419,7 @@ class LTPLE_Client {
 			}
 
 			#dragitemslistcontainer li img {
-
 				margin:3px 2px;
-				height:60px;
 			}';		
 
 		echo'</style>'.PHP_EOL;

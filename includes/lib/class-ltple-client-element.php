@@ -204,6 +204,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		add_action('element-library_edit_form_fields', array( $this, 'get_fields' ) );
 	
 		add_action('create_element-library', array( $this, 'save_fields' ) );
+		
 		add_action('edit_element-library', array( $this, 'save_fields' ) );	
 	
 		add_action( 'load-edit-tags.php', function(){

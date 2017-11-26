@@ -2131,19 +2131,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function save_layer_fields($term_id){
 
-		if($this->parent->user->is_admin){
+		if( $this->parent->user->is_admin ){
 			
 			//collect all term related data for this new taxonomy
 			$term = get_term($term_id);
 						
 			//save our custom fields as wp-options
 			
-			if(isset($_POST[$term->taxonomy .'-price-amount'])&&is_numeric($_POST[$term->taxonomy .'-price-amount'])){
+			if( isset($_POST[$term->taxonomy .'-price-amount']) && is_numeric($_POST[$term->taxonomy .'-price-amount']) ){
 
 				update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));			
 			}
 			
-			if(isset($_POST[$term->taxonomy .'-price-period'])){
+			if( isset($_POST[$term->taxonomy .'-price-period']) ){
 
 				$periods = $this->parent->plan->get_price_periods();
 				$period = sanitize_text_field($_POST[$term->taxonomy . '-price-period']);
@@ -2184,7 +2184,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function save_library_fields($term_id){
 
-		if($this->parent->user->is_admin){
+		if( $this->parent->user->is_editor ){
 			
 			//collect all term related data for this new taxonomy
 			$term = get_term($term_id);

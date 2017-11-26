@@ -220,6 +220,8 @@
 		}	
 	}
 	
+	$layerContent = str_replace('<?xml encoding="UTF-8">','',$layerContent);
+	
 	// get google fonts
 	
 	$googleFonts = [];

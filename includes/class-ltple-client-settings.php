@@ -171,6 +171,16 @@ class LTPLE_Client_Settings {
 				'author' 		=> 'Rafasashi',
 				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),
+			'cause-plugin' => array(
+			
+				'title' 		=> 'Cause Plugin',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-cause',
+				'addon_name' 	=> 'live-template-editor-cause',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-cause/archive/master.zip',
+				'description'	=> 'Cause and donation plugin for Live Template Editor',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
 		);
 							
 		// Initialise settings
