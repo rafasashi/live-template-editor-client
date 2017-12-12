@@ -204,18 +204,18 @@ class LTPLE_Client_Email {
 	
 	public function init_email(){
 		
-		if(!is_admin()){
+		if( !is_admin() ){
 			
-			if($this->parent->user->is_admin){
+			if( $this->parent->user->is_admin ){
 				
 				$this->maxRequests = 500;
 			}
 		
 			if( !empty($_POST['importEmails']) ){
 				
-				if($this->parent->user->loggedin){
+				if( $this->parent->user->loggedin ){
 				
-					$this->bulk_import_users($_POST['importEmails']);
+					$this->bulk_import_users( $_POST['importEmails'] );
 				}
 			}
 		}
@@ -224,6 +224,11 @@ class LTPLE_Client_Email {
 	public function insert_user($email, $check_exists = true ){
 
 		if( $this->is_email($email) && ( !$check_exists || !email_exists( $email ) ) ){
+			
+			if( !function_exists('is_plugin_active') ){
+				
+				include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			}			
 			
 			if( is_plugin_active('wpforo/wpforo.php') ){
 				
@@ -265,7 +270,7 @@ class LTPLE_Client_Email {
 				'user_login'	=>  $username . $i,
 				'user_pass'		=>  NULL,
 				'user_email'	=>  $email,
-			))){
+			)) ){
 			
 				$user = array(
 				

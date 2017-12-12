@@ -55,9 +55,13 @@ class LTPLE_Client_Settings {
 			$this->options->postTypes = $postTypes;
 		}
 		
-		$this->options->logo_url 	 		= get_option( $this->parent->_base . 'homeLogo' );
-		$this->options->enable_ranking 		= get_option( $this->parent->_base . 'enable_ranking','off');
-		$this->options->enable_subdomains 	= get_option( $this->parent->_base . 'enable_subdomains','off');
+		if( !$this->options->logo_url = get_option( $this->parent->_base . 'homeLogo' )){
+			
+			$this->options->logo_url = $this->parent->assets_url . 'images/home.png';
+		}
+		
+		$this->options->enable_ranking 		= get_option( $this->parent->_base . 'enable_ranking', 'off' );
+		$this->options->enable_subdomains 	= get_option( $this->parent->_base . 'enable_subdomains', 'off' );
 		
 		// get custom style
 		
@@ -760,6 +764,7 @@ class LTPLE_Client_Settings {
 					'description'	=> 'Logo url 100 x 50 recommended',
 					'type'			=> 'text',
 					'placeholder'	=> 'http://',
+					'default'		=> $this->options->logo_url
 				),
 				array(
 					'id' 			=> 'mainColor',
@@ -984,7 +989,7 @@ class LTPLE_Client_Settings {
 					'app'			=> 'twitter',
 				),				
 			)
-		);		
+		);
 
 		$settings['twitter'] = array(
 			'title'					=> __( 'Twitter', $this->plugin->slug ),

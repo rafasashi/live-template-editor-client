@@ -33,7 +33,7 @@ class LTPLE_Client_Urls {
 		$this->api 			= $this->home . '/wp-json/';
 		$this->api_embedded	= $this->api . 'ltple-embedded/v1/info';
 		
-		$this->host = get_option( $this->parent->_base . 'host_url' );
+		$this->host = get_option( $this->parent->_base . 'host_url' );	
 		
 		if( $this->editorSlug = get_option( $this->parent->_base . 'editorSlug' )){
 			
@@ -44,6 +44,15 @@ class LTPLE_Client_Urls {
 	}
 	
 	public function init_urls(){
+		
+		// force permalink structure
+		
+		if( get_option('permalink_structure') == '' ){
+			
+			global $wp_rewrite;
+			
+			$wp_rewrite->set_permalink_structure('/%postname%/');
+		}
 		
 		if( empty( $this->editor ) ){
 			

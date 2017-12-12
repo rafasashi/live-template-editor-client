@@ -69,8 +69,8 @@
 		
 		echo'<div class="col-xs-6 col-sm-8 text-right" style="padding:0 5px;">';
 			
-			if( $ltple->layer->id > 0 ){
-
+			if( $ltple->layer->id > 0 ){			
+			
 				// get elements
 				
 				$elemLibraries = array();
@@ -120,7 +120,7 @@
 												
 													$item .= '<span>'.$name.'</span>';
 												
-													$item .= '<img title="'.$name.'" height="60" src="' . $elements['image'][$e] . '" />';
+													$item .= '<img title="'.$name.'" height="150" src="' . $elements['image'][$e] . '" />';
 												
 												$item .= '</li>';
 												
@@ -165,22 +165,7 @@
 										$active='';
 									}
 									
-								echo'</div>';								
-								
-								/*
-								echo '<ul id="dragitemslistcontainer">';
-									
-									foreach($list as $type => $items){
-										
-										foreach( $items as $item ){
-											
-											echo $item;
-										}
-									}
-									
-								echo '</ul>';
-								*/
-								
+								echo'</div>';
 							
 							echo '</div>';
 							
@@ -199,7 +184,7 @@
 						if( !empty($ltple->user->layer->post_title) ){
 						
 							$post_title = $ltple->user->layer->post_title;
-
+							
 							echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '" id="savePostForm" method="post">';
 								
 								echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Template Title">';
@@ -226,6 +211,28 @@
 						echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:0px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 					}
 				}
+
+				if( $ltple->layer->type == 'cb-default-layer' && $ltple->user->is_editor ){
+
+					$post_title = $ltple->layer->title;
+					
+					echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '" id="savePostForm" method="post">';
+						
+						echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Template Title">';
+						echo'<input type="hidden" name="postContent" id="postContent" value="">';
+						echo'<input type="hidden" name="postCss" id="postCss" value="">';
+						echo'<input type="hidden" name="postJs" id="postJs" value="">';
+						echo'<input type="hidden" name="postAction" id="postAction" value="save">';
+						echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
+						 
+						wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
+						
+						echo'<input type="hidden" name="submitted" id="submitted" value="true">';
+						
+						echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="updateBtn">Update</button>';
+						
+					echo'</form>';
+				}				
 			}
 			
 			if( $ltple->user->ID > 0  ){
@@ -299,30 +306,20 @@
 
 						if( $ltple->user->is_editor ){
 							
-							/*
-							
-							// TODO repare breaking update layer
-							
-							echo'<li style="position:relative;">';
-								
-								echo '<a id="updateBtn" href="#update-layer">Update Template <span class="label label-warning pull-right">admin</span></a>';
-
-							echo'</li>';
-							*/						
-						
 							echo'<li style="position:relative;">';
 								
 								echo '<a target="_blank" href="' . get_edit_post_link( $ltple->layer->id ) . '"> Edit Backend <span class="label label-warning pull-right">admin</span></a>';
 
 							echo'</li>';
 							
-							/*
-							echo'<li style="position:relative;">';
-								
-								echo '<a target="_self" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
+							if( $ltple->layer->type == 'cb-default-layer' && empty($ltple->user->layer->post_title) ){
+							
+								echo'<li style="position:relative;">';
+									
+									echo '<a target="_self" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
 
-							echo'</li>';
-							*/
+								echo'</li>';
+							}
 							
 							echo'<li style="position:relative;">';
 								

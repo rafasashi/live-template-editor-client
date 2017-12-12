@@ -325,7 +325,7 @@ class LTPLE_Client_Admin_API {
 					
 					$html .= '<div class="col-xs-6">';
 					
-						$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+						$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.'/>' . "\n";
 					
 					$html .= '</div>';
 					

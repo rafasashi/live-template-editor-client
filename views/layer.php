@@ -7,7 +7,7 @@
 	$pageDef = $ltple->layer->pageDef;
 	
 	//get layer static css url
-	
+
 	$layerStaticCssUrl = $ltple->layer->layerStaticCssUrl;
 	
 	//get layer static js url

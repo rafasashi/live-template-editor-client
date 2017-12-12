@@ -10,7 +10,7 @@
 		
 		$_SESSION['message'] = '';
 	}
-	elseif( ( !$this->user->is_admin || !isset($_GET['edit']) ) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
+	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
 
 		$has_storage = ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? false : true );
 
@@ -209,4 +209,9 @@
 		
 		echo ' var droppableClasses = ' . json_encode(array_values($classes)) . ';' . PHP_EOL;
 
+		if( $this->layer->layerForm == 'importer' ){
+			
+			echo ' var layerForm = "' . $this->layer->layerForm . '";';
+		}
+		
 	echo'</script>' . PHP_EOL;

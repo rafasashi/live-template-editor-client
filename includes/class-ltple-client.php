@@ -132,7 +132,7 @@ class LTPLE_Client {
 		
 		$this->load_plugin_textdomain();
 
-		add_action( 'init', array( $this, 'load_localisation' ), 0 );			
+		add_action( 'init', array( $this, 'load_localisation' ), 0 );		
 		
 		if(isset($_POST['imgData']) && isset($_POST["submitted"])&& isset($_POST["download_image_nonce_field"]) && $_POST["submitted"]=='true'){
 			
@@ -162,6 +162,7 @@ class LTPLE_Client {
 			
 			$this->client 		= new LTPLE_Client_Client( $this );
 			$this->request 		= new LTPLE_Client_Request( $this );
+			$this->email 		= new LTPLE_Client_Email( $this );
 			$this->session 		= new LTPLE_Client_Session( $this );
 			$this->urls 		= new LTPLE_Client_Urls( $this );
 
@@ -173,7 +174,7 @@ class LTPLE_Client {
 			
 			$this->admin 	= new LTPLE_Client_Admin_API( $this );
 			$this->cron 	= new LTPLE_Client_Cron( $this );
-			$this->email 	= new LTPLE_Client_Email( $this );
+			
 			$this->campaign = new LTPLE_Client_Campaign( $this );
 			
 			$this->api 		= new LTPLE_Client_Json_API( $this );
@@ -897,7 +898,7 @@ class LTPLE_Client {
 		else{
 			
 			global $post;
-
+			
 			if( !empty($post) ){
 
 				if( isset( $_SERVER['HTTP_X_REF_KEY'] ) ){
@@ -1099,7 +1100,7 @@ class LTPLE_Client {
 		// get editor iframe
 
 		if( $this->user->loggedin === true && $this->layer->slug!='' && $this->layer->type!='' && $this->layer->key!='' && $this->server->url!==false ){
-			
+
 			if( $this->layer->key == md5( 'layer' . $this->layer->id . $this->_time )){
 				
 				if( !empty($_POST['domId']) && !empty($_POST['base64']) ){
@@ -1845,7 +1846,7 @@ class LTPLE_Client {
 					
 					if( !empty($query) ){
 						
-						$url .= '?'.$query;		
+						$url .= '?' . $query;		
 					}
 
 					wp_redirect($url);
@@ -1872,35 +1873,43 @@ class LTPLE_Client {
 				
 				$post_name 		= $post_title;			
 
-				if( $_POST['postAction'] == 'update' && $this->user->is_admin ){
+				if( $_POST['postAction'] == 'update' ){
 					
 					//update layer
 					
-					if( $this->layer->type == 'user-layer' ){
+					if( $this->user->is_editor ){
+					
+						if( $this->layer->type == 'user-layer' ){
+							
+							$layer	= get_page_by_path( $this->layer->slug, OBJECT, $this->layer->type);
+						}
+						else{
+							
+							$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
+						}
 						
-						$layer	= get_page_by_path( $this->layer->slug, OBJECT, $this->layer->type);
+						if(!empty($layer)){
+						
+							$layerId	= intval( $layer->ID );
+
+							if( is_int($layerId) && $layerId !== -1 ){
+							
+								global $wpdb;
+							
+								//$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $layerId));
+							
+								update_post_meta($layerId, 'layerContent', $post_content);
+							
+								update_post_meta($layerId, 'layerCss', $post_css);
+								
+								update_post_meta($layerId, 'layerJs', $post_js);
+							}
+						}
 					}
 					else{
 						
-						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
-					}
-					
-					if(!empty($layer)){
-					
-						$layerId	= intval( $layer->ID );
-
-						if( is_int($layerId) && $layerId !== -1 ){
-						
-							global $wpdb;
-						
-							//$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $layerId));
-						
-							update_post_meta($layerId, 'layerContent', $post_content);
-						
-							update_post_meta($layerId, 'layerCss', $post_css);
-							
-							update_post_meta($layerId, 'layerJs', $post_js);
-						}
+						http_response_code(404);
+						exit;
 					}
 				}
 				elseif( $_POST['postAction'] == 'duplicate' ){
@@ -1917,7 +1926,7 @@ class LTPLE_Client {
 						
 						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 					}
-					
+
 					if( !empty($layer) ){
 					
 						$layerId = intval( $layer->ID );
@@ -1960,9 +1969,9 @@ class LTPLE_Client {
 								
 								//redirect to user layer
 
-								$layer_url = $this->urls->editor . '?uri=' . $post_id;
+								$layer_url = $this->urls->editor . '?uri=' . $post_id . '&edit';
 								
-								//var_dump($layer_url);exit;
+								//var_dump( $layer_url );exit;
 								
 								wp_redirect($layer_url);
 								echo 'Redirecting editor...';
