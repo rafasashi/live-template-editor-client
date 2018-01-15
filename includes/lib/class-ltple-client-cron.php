@@ -12,43 +12,6 @@ class LTPLE_Client_Cron {
 		$this->parent 	= $parent;
 
 		add_filter('cron_schedules', array($this,'add_cron_schedules'));
-		
-		add_action( 'init', array($this,'init_cron'));
-		
-		add_action( 'admin_init', function(){
-			
-			// debug cron action from plugin settings
-			
-			if(isset($_GET['debug'])){
-			
-				$this->ltple_twt_auto_retweet_event(15167, 10);
-				
-				//$this->ltple_twt_import_leads_event();
-			
-				//$this->ltple_twt_auto_follow_event(15167,5);
-				
-				//$this->ltple_twt_auto_unfollow_event(15167,5);
-			}
-		});
-	}
-
-	public function init_cron($event){
-		
-		$crons = array(
-		
-			'twt_auto_retweet' 		=> 'ltple_twt_auto_retweet_event',
-			
-			//'twt_auto_follow' 	=> 'ltple_twt_auto_follow_event',
-			
-			//'twt_auto_unfollow' 	=> 'ltple_twt_auto_unfollow_event',
-			
-			'twt_import_leads' 		=> 'ltple_twt_import_leads_event',
-		);
-
-		foreach( $crons as $action => $event ){
-			
-			add_action( $this->parent->_base . $action, array( $this, $event),1,2);
-		}
 	}
 	
 	public function event_exists($event){
@@ -103,54 +66,6 @@ class LTPLE_Client_Cron {
 		}
 
 		return $schedules;
-	}
-
-	public function ltple_twt_auto_retweet_event( $appId, $last ){
-		
-		$appSlug = 'twitter';
-		
-		if( !isset( $this->parent->apps->{$appSlug} ) ){
-			
-			$this->parent->apps->includeApp($appSlug);
-		}
-		
-		$this->parent->apps->{$appSlug}->retweetLastTweet($appId, $last);
-	}
-	
-	public function ltple_twt_auto_follow_event( $appId, $next ){
-		
-		$appSlug = 'twitter';
-		
-		if( !isset( $this->parent->apps->{$appSlug} ) ){
-			
-			$this->parent->apps->includeApp($appSlug);
-		}
-		
-		$this->parent->apps->{$appSlug}->followNextLeads($appId, $next);
-	}
-	
-	public function ltple_twt_auto_unfollow_event( $appId, $last ){
-		
-		$appSlug = 'twitter';
-		
-		if( !isset( $this->parent->apps->{$appSlug} ) ){
-			
-			$this->parent->apps->includeApp($appSlug);
-		}
-		
-		$this->parent->apps->{$appSlug}->unfollowLastLeads($appId, $last);
-	}
-	
-	public function ltple_twt_import_leads_event(){
-		
-		$appSlug = 'twitter';
-		
-		if( !isset( $this->parent->apps->{$appSlug} ) ){
-			
-			$this->parent->apps->includeApp($appSlug);
-		}
-		
-		$this->parent->apps->{$appSlug}->importPendingLeads();
 	}
 
 	/**

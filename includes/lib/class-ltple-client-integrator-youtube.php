@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_App_Youtube {
+class LTPLE_Integrator_Youtube {
 	
 	var $parent;
 	var $apps;

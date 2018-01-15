@@ -13,14 +13,12 @@ class LTPLE_Client_Login {
 	public function __construct ( $parent ) {
 		
 		$this->parent 	= $parent;
-		
-		$this->pageSlug = 'login';
 	
 		add_filter( 'login_url', array($this, 'set_login_url'), 10, 3 );
 	
 		add_filter( 'register_url', array($this, 'set_register_url'), 10, 3 );
 		
-		add_action('template_redirect', array( $this, 'login_output' ));
+		add_action('template_redirect', array( $this, 'enqueue_login_scripts' ));
 
 		add_filter( 'body_class', function( $classes ) {
 			
@@ -132,7 +130,7 @@ class LTPLE_Client_Login {
 	
 	public function set_login_url( $login_url, $redirect, $force_reauth ) {
 		
-		$login_url = home_url( '/' . $this->pageSlug . '/' );
+		$login_url = home_url( '/login/' );
 		
 		if( !empty($redirect) ){
 			
@@ -200,23 +198,12 @@ class LTPLE_Client_Login {
 		//return 'test';
 	}
 	
-	public function login_output(){
+	public function enqueue_login_scripts(){
 		
-		if( is_page() && get_queried_object()->post_name == $this->pageSlug ){
+		if( is_page() && get_queried_object()->post_name == 'login' ){
 			
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );				
-		
-			// get social media login urls
-		
-			$redirect_to = '';
-			
-			if(!empty($_REQUEST['redirect_to'])){
-				
-				$redirect_to = '&ref='.str_replace(array('http://','https://'),'',$_REQUEST['redirect_to']);
-			}
-
-			$this->twitterUrl = $this->parent->urls->editor . '?app=twitter&action=login' . $redirect_to;
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 		}
 	}
 	

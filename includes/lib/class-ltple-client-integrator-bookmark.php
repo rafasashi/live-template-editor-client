@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_App_Bookmark {
+class LTPLE_Integrator_Bookmark {
 	
 	var $parent;
 	var $apps;

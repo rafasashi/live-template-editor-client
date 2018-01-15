@@ -15,7 +15,7 @@
 
 			$this->parent 	= $parent;
 			
-			$this->triggers = $this->get_triggers();
+			$this->get_triggers();
 			
 			if( !empty($this->triggers) ){
 				
@@ -38,89 +38,75 @@
 			
 			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 			
-			$triggers = array();
+			$this->triggers = array();
 
 			// register & login triggers
 			
-			$triggers['register & login']['user_register'] = array(
+			$this->triggers['register & login']['user_register'] = array(
 					
 				'description' => 'when you register for the first time'
 			);
 			
-			$triggers['register & login']['ltple_referred_click'] = array(
+			$this->triggers['register & login']['ltple_referred_click'] = array(
 					
 				'description' => 'when someone click on your referral url (daily unique IPs)'
 			);			
 			
-			$triggers['register & login']['ltple_referred_registration'] = array(
+			$this->triggers['register & login']['ltple_referred_registration'] = array(
 					
 				'description' => 'when someone register after visiting your referral url'
 			);
 			
-			$triggers['register & login']['ltple_first_log_today'] = array(
+			$this->triggers['register & login']['ltple_first_log_today'] = array(
 					
 				'description' => 'when you login for the first time in a day'
 			);
 			
-			$triggers['register & login']['ltple_first_ref_log_today'] = array(
+			$this->triggers['register & login']['ltple_first_ref_log_today'] = array(
 					
 				'description' => 'when one of your referrals login for the first time in a day'
 			);			
 			
 			// plan subscription
 			
-			$triggers['plan subscription']['ltple_free_plan_subscription'] = array(
+			$this->triggers['plan subscription']['ltple_free_plan_subscription'] = array(
 					
 				'description' => 'when you subscribe to a demo plan'
 			);
 
-			$triggers['plan subscription']['ltple_paid_plan_subscription'] = array(
+			$this->triggers['plan subscription']['ltple_paid_plan_subscription'] = array(
 				
 				'description' => 'when you subscribe to a pro plan'
 			);			
 			
 			// connected apps triggers
 			
-			$triggers['connected apps']['ltple_new_app_connected'] = array(
+			$this->triggers['connected apps']['ltple_new_app_connected'] = array(
 					
 				'description' => 'when you connect any new App'
 			);
-			
-			$triggers['connected apps']['ltple_twitter_account_connected'] = array(
-					
-				'description' => 'when you connect a new Twitter account'
-			);
-			
-			$triggers['connected apps']['ltple_wordpress_image_uploaded'] = array(
+
+			$this->triggers['connected apps']['ltple_wordpress_image_uploaded'] = array(
 					
 				'description' => 'when you upload a new image on an image host'
 			);
-			
-			// twitter triggers
-			
-			/*
-			$triggers['twitter interaction']['ltple_twitter_dm_sent'] = array(
-					
-				'description' => 'when you send a DM via the community panel'
-			);
-			*/
 			
 			// wpforo triggers
 			
 			if( is_plugin_active('wpforo/wpforo.php') ){
 				
-				$triggers['forum interaction']['wpforo_after_add_topic'] = array(
+				$this->triggers['forum interaction']['wpforo_after_add_topic'] = array(
 						
 					'description' => 'when you start a new topic on the forum'
 				);
 
-				$triggers['forum interaction']['wpforo_after_add_post'] = array(
+				$this->triggers['forum interaction']['wpforo_after_add_post'] = array(
 						
 					'description' => 'when you post a message on a forum topic'
 				);						
 			}
-			
-			return $triggers;
+
+			return true;
 		}
 
 		public function get_count( $user_id = null ){

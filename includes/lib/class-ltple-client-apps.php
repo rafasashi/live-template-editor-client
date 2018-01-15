@@ -8,7 +8,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 	var $app;
 	var $mainApps;
 	var $taxonomy;
-	var $list;
+	var $list = array();
 	
 	/**
 	 * Constructor function
@@ -216,22 +216,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 					),
 				),
 			),
-			'twitter' => array(
-			
-				'name' 		=> 'Twitter',
-				'options' 	=> array(
-				
-					'thumbnail' => $this->parent->assets_url . 'images/apps/twitter.jpg',
-					'types' 	=> array('networks','images'),
-					'api_client'=> 'twitter',
-					'parameters'=> array (
-					
-						'input' => array ( 'password', 'password' ),
-						'key' 	=> array ( 'twt_consumer_key', 'twt_consumer_secret' ),
-						'value' => array ( '', ''),
-					),
-				),
-			),
 			'venmo' => array(
 			
 				'name' 		=> 'Venmo',
@@ -282,6 +266,8 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			),
 			
 		),'DESC');
+		
+		do_action('ltple_list_apps');
 		
 		if(is_admin()){
 			
@@ -360,7 +346,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 
 		// include api client
 		
-		$className = 'LTPLE_Client_App_'.  $apiClient;
+		$className = 'LTPLE_Integrator_'.  $apiClient;
 		
 		if(class_exists($className)){
 			
@@ -684,17 +670,14 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				echo'<td>';
 					
-					$clients 					= array();
-					$clients ['none'] 			= 'None';
-					$clients ['scraper'] 		= 'Scraper';
-					$clients ['bookmark'] 		= 'Bookmark';
-					$clients ['blogger'] 		= 'Blogger';
-					$clients ['google-plus']	= 'Google +';
-					$clients ['imgur'] 			= 'Imgur';
-					$clients ['tumblr'] 		= 'Tumblr';
-					$clients ['twitter'] 		= 'Twitter';
-					$clients ['wordpress'] 		= 'Wordpress';
-					$clients ['youtube'] 		= 'Youtube';
+					$clients 			= array();
+					$clients['none'] 	= 'None';
+					$clients ['scraper']= 'Scraper';
+					
+					foreach( $this->list as $app ){
+						
+						$clients[$app->slug] = ucfirst($app->name);
+					}
 					
 					$this->parent->admin->display_field( array(
 					

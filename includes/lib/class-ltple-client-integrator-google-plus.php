@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_App_Google_Plus {
+class LTPLE_Integrator_Google_Plus {
 	
 	var $parent;
 	var $apps;

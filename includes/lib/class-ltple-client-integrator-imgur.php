@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_App_Imgur {
+class LTPLE_Integrator_Imgur {
 	
 	var $parent;
 	var $apps;

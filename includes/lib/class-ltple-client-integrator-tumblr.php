@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_App_Tumblr {
+class LTPLE_Integrator_Tumblr {
 	
 	var $parent;
 	var $apps;

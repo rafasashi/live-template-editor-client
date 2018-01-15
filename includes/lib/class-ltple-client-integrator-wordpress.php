@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_App_Wordpress {
+class LTPLE_Integrator_Wordpress {
 	
 	var $parent;
 	var $apps;

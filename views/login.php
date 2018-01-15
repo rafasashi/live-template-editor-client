@@ -119,7 +119,7 @@
 						
 						echo'</button>';				
 						
-						echo'<div id="emailLogin" class="collapse'.(!empty($user_email) ? ' in' : '' ).'" style="margin-top: 25px;">';
+						echo'<div id="emailLogin" class="collapse' . (!empty($user_email) ? ' in' : '' ).'" style="margin-top: 25px;">';
 													
 							wp_login_form( array(
 							
@@ -144,14 +144,10 @@
 							
 						echo'</div>';
 					}
+
+					if( empty($user_email) ){
 					
-					if(empty($user_email)){
-					
-						echo'<a href="' . $this->twitterUrl . '" style="border-radius:5px;width:100%;display: block;text-align: center;margin-top: 10px;" class="btn-lg btn-info">';
-							
-							echo'Twitter Login';
-						
-						echo'</a>';
+						do_action('ltple_alternative_login');
 					}
 				} 
 				else {

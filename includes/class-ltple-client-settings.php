@@ -970,84 +970,20 @@ class LTPLE_Client_Settings {
 
 		}
 		
-		$settings['apps'] = array(
-			'title'					=> __( 'Apps', $this->plugin->slug ),
-			'description'			=> __( 'Main connected accounts', $this->plugin->slug ),
+		$settings['wordpress'] = array(
+			'title'					=> __( 'Wordpress', $this->plugin->slug ),
+			'description'			=> __( 'Main Wordpress.com API settings', $this->plugin->slug ),
 			'fields'				=> array(
 				array(
 					'id' 			=> 'wpcom_main_account',
-					'label'			=> __( 'Wordpress' , $this->plugin->slug ),
+					'label'			=> __( 'Main account' , $this->plugin->slug ),
 					'description'	=> 'Main connected Wordpress account',
 					'type'			=> 'dropdown_main_apps',
 					'app'			=> 'wordpress',
-				),
-				array(
-					'id' 			=> 'twt_main_account',
-					'label'			=> __( 'Twitter' , $this->plugin->slug ),
-					'description'	=> 'Main connected Twitter account',
-					'type'			=> 'dropdown_main_apps',
-					'app'			=> 'twitter',
-				),				
+				)			
 			)
 		);
 
-		$settings['twitter'] = array(
-			'title'					=> __( 'Twitter', $this->plugin->slug ),
-			'description'			=> __( 'Twitter API settings', $this->plugin->slug ),
-			'fields'				=> array(
-				array(
-					'id' 			=> 'twt_auto_retweet',
-					'label'			=> __( 'Auto Retweet' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'action_schedule',
-					'action' 		=> 'retweet',
-					'unit' 			=> 'tweets',
-					'appId' 		=> ( isset($_POST[$this->parent->_base .'twt_main_account']) ? intval($_POST[$this->parent->_base .'twt_main_account']) : intval(get_option( $this->parent->_base .'twt_main_account' )) ),
-					'last' 			=> true,
-				),
-				array(
-					'id' 			=> 'twt_import_leads',
-					'label'			=> __( 'Import Leads' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'action_schedule',
-					'action' 		=> 'import leads',
-					'last' 			=> false,
-				),
-				array(
-					'id' 			=> 'twt_welcome_tweet',
-					'label'			=> __( 'Welcome Tweet' , $this->plugin->slug ),
-					'description'	=> 'Message to be tweeted when a new Twitter account is connected',
-					'type'			=> 'textarea',
-					'placeholder'	=> __( 'Welcome tweet (140 char)', $this->plugin->slug ),
-					'style'			=> 'height:60px;',
-				),
-				array(
-					'id' 			=> 'twt_welcome_dm',
-					'label'			=> __( 'Welcome DM' , $this->plugin->slug ),
-					'description'	=> 'Direct Message to be sent when a new Twitter account is connected',
-					'type'			=> 'textarea',
-					'placeholder'	=> __( 'Welcome DM', $this->plugin->slug ),
-					'style'			=> 'height:260px;',
-				),
-				array(
-					'id' 			=> 'twt_thanks_followback_dm',
-					'label'			=> __( 'Thanks Followback DM' , $this->plugin->slug ),
-					'description'	=> 'Direct Message to be sent when a Twitter account followback',
-					'type'			=> 'textarea',
-					'placeholder'	=> __( 'Thanks Follow DM', $this->plugin->slug ),
-					'style'			=> 'height:260px;',
-				),
-				array(
-					'id' 			=> 'twt_unlock_tweet',
-					'label'			=> __( 'Unlock Free Tweet' , $this->plugin->slug ),
-					'description'	=> 'Message to be tweeted to unlock the Demo output',
-					'type'			=> 'textarea',
-					'placeholder'	=> __( 'Unlock Free tweet (140 char)', $this->plugin->slug ),
-					'style'			=> 'height:60px;',
-				),				
-			)
-		);
-		
 		$settings['ux'] = array(
 			'title'					=> __( 'UX', $this->plugin->slug ),
 			'description'			=> __( 'Flowchart Elements', $this->plugin->slug ),

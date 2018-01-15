@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_App_Scraper {
+class LTPLE_Integrator_Scraper {
 	
 	var $parent;
 	var $apps;
