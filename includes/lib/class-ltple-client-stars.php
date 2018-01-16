@@ -85,11 +85,6 @@
 					
 				'description' => 'when you connect any new App'
 			);
-
-			$this->triggers['connected apps']['ltple_wordpress_image_uploaded'] = array(
-					
-				'description' => 'when you upload a new image on an image host'
-			);
 			
 			// wpforo triggers
 			

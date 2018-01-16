@@ -970,20 +970,7 @@ class LTPLE_Client_Settings {
 
 		}
 		
-		$settings['wordpress'] = array(
-			'title'					=> __( 'Wordpress', $this->plugin->slug ),
-			'description'			=> __( 'Main Wordpress.com API settings', $this->plugin->slug ),
-			'fields'				=> array(
-				array(
-					'id' 			=> 'wpcom_main_account',
-					'label'			=> __( 'Main account' , $this->plugin->slug ),
-					'description'	=> 'Main connected Wordpress account',
-					'type'			=> 'dropdown_main_apps',
-					'app'			=> 'wordpress',
-				)			
-			)
-		);
-
+		/*
 		$settings['ux'] = array(
 			'title'					=> __( 'UX', $this->plugin->slug ),
 			'description'			=> __( 'Flowchart Elements', $this->plugin->slug ),
@@ -995,6 +982,7 @@ class LTPLE_Client_Settings {
 				),			
 			)
 		);
+		*/
 		
 		$settings['addons'] = array(
 			'title'					=> __( 'Addons', $this->plugin->slug ),

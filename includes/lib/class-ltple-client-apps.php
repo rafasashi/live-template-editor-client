@@ -232,22 +232,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 					),
 				),
 			),
-			'wordpress' => array(
-			
-				'name' 		=> 'Wordpress',
-				'options' 	=> array(
-				
-					'thumbnail' => $this->parent->assets_url . 'images/apps/wordpress.png',
-					'types' 	=> array('images','blogs'),
-					'api_client'=> 'wordpress',
-					'parameters'=> array (
-					
-						'input' => array ( 'password', 'password' ),
-						'key' 	=> array ( 'wpcom_consumer_key', 'wpcom_consumer_secret' ),
-						'value' => array ( '', ''),
-					),
-				),
-			),
 			'youtube' => array(
 			
 				'name' 		=> 'Youtube',
@@ -346,7 +330,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 
 		// include api client
 		
-		$className = 'LTPLE_Integrator_'.  $apiClient;
+		$className = 'LTPLE_Integrator_' .  ucfirst( $apiClient );
 		
 		if(class_exists($className)){
 			
@@ -358,7 +342,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 
 			echo 'Could not found API Client: "'.$apiClient.'"';
 			exit;
-		}		
+		}
 	}
 	
 	public function redirectApp(){
