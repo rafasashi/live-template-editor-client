@@ -28,7 +28,7 @@ class LTPLE_Client_Object {
 			// insert default terms
 		
 			foreach($default as $slug => $data){
-				
+
 				if( !in_array_field( $slug, 'slug', $list ) ){
 					
 					$name= '';
@@ -41,7 +41,7 @@ class LTPLE_Client_Object {
 						
 						$name = $data['name'];
 					}
-				
+
 					if( !empty($name) ){
 						
 						$term = wp_insert_term($name, $taxonomy, array( 'slug' => $slug, 'parent' => $parent ));
@@ -64,14 +64,14 @@ class LTPLE_Client_Object {
 
 				foreach($list as $term){
 					
-					if(!empty($default[$term->slug]['children'])){
+					if( !empty($default[$term->slug]['children']) ){
 						
 						$list = array_merge( $list, $this->get_terms($taxonomy, $default[$term->slug]['children'], $order, $hide_empty, $term->term_id) );
 					}
 				}			
 			}
 		}
-		
+
 		return $list;
 	}
 	

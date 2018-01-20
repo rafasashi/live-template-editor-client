@@ -966,8 +966,6 @@ class LTPLE_Client_Settings {
 					'placeholder'	=> __( 'stars', $this->plugin->slug )
 				);				
 			}
-			 
-
 		}
 		
 		/*

@@ -152,22 +152,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 					),
 				),
 			),
-			'google-plus' => array(
-			
-				'name' 		=> 'Google +',
-				'options' 	=> array(
-				
-					'thumbnail' => $this->parent->assets_url . 'images/apps/google-plus.png',
-					'types' 	=> array('networks','images'),
-					'api_client'=> 'google-plus',
-					'parameters'=> array (
-					
-						'input' => array ( 'password', 'password', 'password' ),
-						'key' 	=> array ( 'goo_api_project', 'goo_consumer_key', 'goo_consumer_secret' ),
-						'value' => array ( '', '', ''),
-					),
-				),
-			),
 			'imgur' => array(
 			
 				'name' 		=> 'Imgur',
@@ -229,22 +213,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 						'input' => array ( 'url', 'parameter', 'parameter', 'parameter', 'parameter' ),
 						'key' 	=> array ( 'resource', 'txn', 'audience', 'amount', 'note' ),
 						'value' => array ( 'https://venmo.com/{username}', 'pay', 'public|friends|private', '0', ''),
-					),
-				),
-			),
-			'youtube' => array(
-			
-				'name' 		=> 'Youtube',
-				'options' 	=> array(
-				
-					'thumbnail' => $this->parent->assets_url . 'images/apps/youtube.jpg',
-					'types' 	=> array('images','videos'),
-					'api_client'=> 'youtube',
-					'parameters'=> array (
-					
-						'input' => array ( 'password', 'password', 'password' ),
-						'key' 	=> array ( 'goo_api_project', 'goo_consumer_key', 'goo_consumer_secret' ),
-						'value' => array ( '', '', ''),
 					),
 				),
 			),
@@ -654,13 +622,16 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				echo'<td>';
 					
-					$clients 			= array();
-					$clients['none'] 	= 'None';
-					$clients ['scraper']= 'Scraper';
+					$clients 				= array();
+					$clients['none'] 		= 'None';
+					$clients['scraper']		= 'Scraper';
+					$clients['bookmark']	= 'Bookmark';
 					
 					foreach( $this->list as $app ){
 						
-						$clients[$app->slug] = ucfirst($app->name);
+						$api_client = get_option('api_client_'.$app->slug);
+						
+						$clients[$api_client] = ucfirst( str_replace('-',' ',$api_client) );
 					}
 					
 					$this->parent->admin->display_field( array(
