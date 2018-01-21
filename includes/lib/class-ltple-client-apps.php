@@ -136,22 +136,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		$this->list = $this->get_terms( $this->taxonomy, array(
 
-			'imgur' => array(
-			
-				'name' 		=> 'Imgur',
-				'options' 	=> array(
-				
-					'thumbnail' => $this->parent->assets_url . 'images/apps/imgur.jpg',
-					'types' 	=> array('images'),
-					'api_client'=> 'imgur',
-					'parameters'=> array (
-					
-						'input' => array ( 'password', 'password' ),
-						'key' 	=> array ( 'imgur_consumer_key', 'imgur_consumer_secret' ),
-						'value' => array ( '', '' ),
-					),
-				),
-			),
 			'paypal-me' => array(
 			
 				'name' 		=> 'Paypal.me',
@@ -165,22 +149,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 						'input' => array ( 'url', 'filename' ),
 						'key' 	=> array ( 'resource', 'amount' ),
 						'value' => array ( 'https://www.paypal.me/{username}', '0'),
-					),
-				),
-			),
-			'tumblr' => array(
-			
-				'name' 		=> 'Tumblr',
-				'options' 	=> array(
-				
-					'thumbnail' => $this->parent->assets_url . 'images/apps/tumblr.png',
-					'types' 	=> array('networks','images','blogs'),
-					'api_client'=> 'tumblr',
-					'parameters'=> array (
-					
-						'input' => array ( 'password', 'password' ),
-						'key' 	=> array ( 'tblr_consumer_key', 'tblr_consumer_secret' ),
-						'value' => array ( '', ''),
 					),
 				),
 			),
