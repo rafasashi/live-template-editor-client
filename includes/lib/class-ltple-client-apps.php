@@ -135,23 +135,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		// get all apps
 		
 		$this->list = $this->get_terms( $this->taxonomy, array(
-			
-			'blogger' => array(
-			
-				'name' 		=> 'Blogger',
-				'options' 	=> array(
-				
-					'thumbnail' => $this->parent->assets_url . 'images/apps/blogger.png',
-					'types' 	=> array('networks','blogs','images'),
-					'api_client'=> 'blogger',
-					'parameters'=> array (
-					
-						'input' => array ( 'password', 'password', 'password' ),
-						'key' 	=> array ( 'goo_api_project', 'goo_consumer_key', 'goo_consumer_secret' ),
-						'value' => array ( '', '', ''),
-					),
-				),
-			),
+
 			'imgur' => array(
 			
 				'name' 		=> 'Imgur',
