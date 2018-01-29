@@ -387,7 +387,7 @@ class LTPLE_Client {
 						foreach( $domain->domainUrls as $post_id => $path ){
 
 							if( $this->urls->current == $url . $path ){
-
+								
 								$this->layer->set_layer($post_id);
 								
 								include( $this->views . $this->_dev .'/layer.php' );
@@ -895,80 +895,77 @@ class LTPLE_Client {
 				$path = $this->views . $this->_dev . '/layer-profile.php';
 			}
 		}	
-		else{
+		elseif( $post_id = url_to_postid( $this->urls->current ) ){
 			
-			global $post;
+			$post = get_post($post_id);
 			
-			if( !empty($post) ){
-
-				if( isset( $_SERVER['HTTP_X_REF_KEY'] ) ){
+			if( isset( $_SERVER['HTTP_X_REF_KEY'] ) ){
+				
+				if( $_SERVER['HTTP_X_REF_KEY'] ){ //TODO improve ref rey validation via header
 					
-					if( $_SERVER['HTTP_X_REF_KEY'] ){ //TODO improve ref rey validation via header
-						
-						$path = $this->views . $this->_dev .'/layer.php';
-					}
-					else{
-						
-						echo 'Malformed layer headers...';
-						exit;
-					}
+					$path = $this->views . $this->_dev .'/layer.php';
 				}
-				elseif( $post->post_type == 'cb-default-layer' ){
+				else{
 					
-					$visibility = get_post_meta( $post->ID, 'layerVisibility', true );
-					
-					$post->layer_id = $post->ID;
-					
-					if( $visibility == 'anyone' ){
-						
-						$path = $this->views . $this->_dev .'/layer.php';
-					}
-					elseif( $visibility == 'registered' && $this->user->loggedin ){
-						
-						$path = $this->views . $this->_dev .'/layer.php';
-					}
-					elseif( $this->plan->user_has_layer( $post->ID ) === true && $this->user->loggedin ){
-						
-						$path = $this->views . $this->_dev .'/layer.php';
-					}
-					else{
-						
-						$path = $this->views . $this->_dev .'/preview.php';
-					}					
+					echo 'Malformed layer headers...';
+					exit;
 				}
-				elseif( $post->post_type == 'user-layer' ){
+			}
+			elseif( $post->post_type == 'cb-default-layer' ){
+				
+				$visibility = get_post_meta( $post->ID, 'layerVisibility', true );
+				
+				$post->layer_id = $post->ID;
+				
+				if( $visibility == 'anyone' ){
 					
-					if( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
-						
-						if(!isset($post->layer_id)){
-							
-							$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
-						}
-						
-						$path = $this->views . $this->_dev .'/layer.php';
-					}
-					else{
-						
-						echo 'You don\'t have access to this template...';
-						exit;
-					}				
+					$path = $this->views . $this->_dev .'/layer.php';
 				}
-				elseif( in_array( $post->post_type, $this->settings->options->postTypes ) ){
+				elseif( $visibility == 'registered' && $this->user->loggedin ){
 					
-					if(!is_numeric($post->layer_id)){
+					$path = $this->views . $this->_dev .'/layer.php';
+				}
+				elseif( $this->plan->user_has_layer( $post->ID ) === true && $this->user->loggedin ){
 					
-						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
-					}
-
-					if( $post->layer_id > 0 ){
+					$path = $this->views . $this->_dev .'/layer.php';
+				}
+				else{
+					
+					$path = $this->views . $this->_dev .'/preview.php';
+				}					
+			}
+			elseif( $post->post_type == 'user-layer' ){
+				
+				if( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
+					
+					if(!isset($post->layer_id)){
 						
-						$path = $this->views . $this->_dev .'/layer.php';
+						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
 					}
-				}
-				elseif( file_exists($this->views . $this->_dev .'/'.$post->post_type . '.php') ){
 					
-					$path = $this->views . $this->_dev . '/' . $post->post_type . '.php';
+					$path = $this->views . $this->_dev .'/layer.php';
 				}
+				else{
+					
+					echo 'You don\'t have access to this template...';
+					exit;
+				}				
+			}
+			elseif( in_array( $post->post_type, $this->settings->options->postTypes ) ){
+				
+				if(!is_numeric($post->layer_id)){
+				
+					$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
+				}
+				
+				if( $post->layer_id > 0 ){
+					
+					$path = $this->views . $this->_dev .'/layer.php';
+				}
+			}
+			elseif( file_exists($this->views . $this->_dev .'/'.$post->post_type . '.php') ){
+				
+				$path = $this->views . $this->_dev . '/' . $post->post_type . '.php';
 			}
 		}
 		

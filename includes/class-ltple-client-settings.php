@@ -392,7 +392,7 @@ class LTPLE_Client_Settings {
 					
 					foreach($this->tabs as $t => $tabs){
 					
-						if(isset($tabs[$post->post_type])){
+						if( isset($tabs[$post->post_type]) ){
 							
 							$this->tabIndex = $t;
 							

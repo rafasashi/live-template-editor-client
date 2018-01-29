@@ -269,7 +269,7 @@ class LTPLE_Client_Session {
 					}
 					elseif($current_user->user_email != $user_email){
 						
-						//wp_mail($dev_email, 'Debug user sync id ' . $current_user->ID . ' - ip ' . $this->user_ip . ' user_email: '. $current_user->user_email .' request email: '. $user_email.' $_SERVER: ' . print_r($_SERVER,true));
+						//wp_mail($dev_email, 'Debug user sync id ' . $current_user->ID . ' - ip ' . $this->parent->request->ip . ' user_email: '. $current_user->user_email .' request email: '. $user_email.' $_SERVER: ' . print_r($_SERVER,true));
 					
 						echo 'Another user already logged in...';
 						exit;
@@ -384,10 +384,10 @@ class LTPLE_Client_Session {
 						$response = wp_remote_get( $url, array(
 						
 							'timeout'     => 5,
-							'user-agent'  => $this -> user_agent,
+							'user-agent'  => $this->parent->request->user_agent,
 							'headers'     => array(
 							
-								'X-Forwarded-For' => $this->user_ip
+								'X-Forwarded-For' => $this->parent->request->ip
 							),
 						)); 						
 					}
