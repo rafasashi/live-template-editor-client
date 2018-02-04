@@ -93,7 +93,7 @@
 					} 
 				}
 				
-				if( !empty($elemLibraries) && ( isset($_GET['edit']) || !empty($ltple->user->layer->post_title) ) ){
+				if( !empty($elemLibraries) ){
 						
 					echo'<div style="margin:0 4px;" class="btn-group">';
 					

@@ -101,14 +101,7 @@
 
 							if($inWidget){
 								
-								if($this->user->plan["info"]["total_price_amount"] > 0 ){
-									
-									$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="'.$image->post_content.'">Insert</a>';
-								}
-								else{ 
-									
-									$item.='<a href="#" class="btn-sm btn-primary" data-toggle="popover" data-placement="top" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Insert</a>';
-								}								
+								$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="'.$image->post_content.'">Insert</a>';							
 							}
 							else{
 
@@ -217,15 +210,8 @@
 							$item.='<div class="text-right">';
 
 								if($inWidget){
-									
-									if($this->user->plan["info"]["total_price_amount"]>0){
-										
-										$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="'.$image->post_content.'">Insert</a>';
-									}
-									else{ 
-										
-										$item.='<a href="#" class="btn-sm btn-primary" data-toggle="popover" data-placement="top" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Insert</a>';
-									}
+
+									$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="'.$image->post_content.'">Insert</a>';
 								}
 								else{
 									
@@ -282,14 +268,7 @@
 			
 				if($inWidget){
 
-					if($this->user->plan["info"]["total_price_amount"]>0){
-						
-						$item.='<a style="display:block;margin-top:11px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$image_url . basename($image).'">Insert</a>';
-					}
-					else{ 
-						
-						$item.='<a style="display:block;margin-top:11px;" href="#" class="btn-sm btn-primary" data-toggle="popover" data-placement="top" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Insert</a>';
-					}
+					$item.='<a style="display:block;margin-top:11px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$image_url . basename($image).'">Insert</a>';
 				}
 				else{
 					
@@ -362,14 +341,7 @@
 				
 					if($inWidget){
 
-						if($this->user->plan["info"]["total_price_amount"]>0){
-							
-							$item.='<a style="display:block;margin-top:11px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$bookmark->post_content.'">Insert</a>';
-						}
-						else{ 
-							
-							$item.='<a style="display:block;margin-top:11px;" href="#" class="btn-sm btn-primary" data-toggle="popover" data-placement="top" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Insert</a>';
-						}
+						$item.='<a style="display:block;margin-top:11px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$bookmark->post_content.'">Insert</a>';
 					}
 					else{
 						
