@@ -14,7 +14,7 @@ class LTPLE_Client_Json_API {
 		$this->parent 	= $parent;
 	}
 
-	public function get_url( $action='leads/list', $user_id = 0, $args=[] ){
+	public function get_url( $action, $user_id = 0, $args=[] ){
 		
 		$url = $this->parent->urls->editor . '?api='.$action;
 		

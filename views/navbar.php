@@ -93,7 +93,7 @@
 					} 
 				}
 				
-				if( !empty($elemLibraries) ){
+				if( !empty($elemLibraries) && ( isset($_GET['edit']) || $this->user->plan["info"]["total_price_amount"] == 0 || $this->layer->type != 'cb-default-layer' ) ){
 						
 					echo'<div style="margin:0 4px;" class="btn-group">';
 					
@@ -229,7 +229,10 @@
 						
 						echo'<input type="hidden" name="submitted" id="submitted" value="true">';
 						
-						echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="updateBtn">Update</button>';
+						if( isset($_GET['edit']) ){
+						
+							echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="updateBtn">Update</button>';
+						}
 						
 					echo'</form>';
 				}				

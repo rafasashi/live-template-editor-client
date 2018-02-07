@@ -183,8 +183,6 @@ class LTPLE_Client {
 			$this->apps 	= new LTPLE_Client_Apps( $this );			
 			$this->whois 	= new LTPLE_Client_Whois( $this );
 			
-			$this->leads 	= new LTPLE_Client_Leads( $this );
-			
 			$this->element 	= new LTPLE_Client_Element( $this );
 			$this->layer 	= new LTPLE_Client_Layer( $this );
 			

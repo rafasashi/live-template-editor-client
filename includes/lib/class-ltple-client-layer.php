@@ -2477,8 +2477,49 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$output = $args[0];
 
 			if( !empty($output) ){
+				
+				if( isset($_GET['filetree']) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
+					
+					echo'<!DOCTYPE html>';
 
-				if(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
+					echo'<head>';
+
+						echo'<meta charset="utf-8">';
+						echo'<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">';
+						echo'<meta name="viewport" content="width=device-width, initial-scale=1">';
+						
+						echo'<title></title>';
+						
+						echo'<link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">';
+						echo'<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet" type="text/css">';
+						echo'<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">';
+						echo'<link href="' . $this->parent->assets_url . 'css/filetree.css" rel="stylesheet" type="text/css">';
+						
+						echo'<style>';
+						echo'body { background-color:#182f42; color:#fff; font-family:\'Quicksand\';}';
+						echo'.container { margin:150px auto; max-width:640px;}';
+						echo'</style>';
+						
+					echo'</head>';
+
+					echo'<body>';
+						
+						echo'<div class="filetree">';
+						
+							echo $this->get_filetree( $this->layerStaticDir );
+
+						echo'</div>';
+						
+						echo'<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>';
+						echo'<script src="' . $this->parent->assets_url . 'js/filetree.js"></script>';
+
+					echo'</body>';
+					
+					exit;
+				}
+				elseif(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
+				
+				//if( in_array( $this->type, $this->parent->settings->options->postTypes ) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
 					
 					// sanitize content
 					
@@ -2540,45 +2581,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							echo '<iframe src="' . $this->layerStaticUrl . '" style="position:fixed;top:0px;left:0px;bottom:0px;right:0px;width:100%;height:100%;border:none;margin:0;padding:0;overflow:hidden;z-index:999999;" />';
 							
 						echo '</body>';
-					}
-					elseif( isset($_GET['filetree']) ){
-						
-						echo'<!DOCTYPE html>';
-
-						echo'<head>';
-
-							echo'<meta charset="utf-8">';
-							echo'<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">';
-							echo'<meta name="viewport" content="width=device-width, initial-scale=1">';
-							
-							echo'<title></title>';
-							
-							echo'<link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">';
-							echo'<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet" type="text/css">';
-							echo'<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">';
-							echo'<link href="' . $this->parent->assets_url . 'css/filetree.css" rel="stylesheet" type="text/css">';
-							
-							echo'<style>';
-							echo'body { background-color:#182f42; color:#fff; font-family:\'Quicksand\';}';
-							echo'.container { margin:150px auto; max-width:640px;}';
-							echo'</style>';
-							
-						echo'</head>';
-
-						echo'<body>';
-							
-							echo'<div class="filetree">';
-							
-								echo $this->get_filetree( $this->layerStaticDir );
-
-							echo'</div>';
-							
-							echo'<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>';
-							echo'<script src="' . $this->parent->assets_url . 'js/filetree.js"></script>';
-
-						echo'</body>';
-						
-						exit;
 					}
 					else{
 						

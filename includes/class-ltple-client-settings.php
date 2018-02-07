@@ -115,10 +115,6 @@ class LTPLE_Client_Settings {
 			
 				'marketing-channel' => array( 'name' => 'Channels', 'post-type' => 'post' ),
 			),
-			array(
-			
-				'lead' => array( 'name' => 'Apps Data', 'post-type' => 'lead' ),
-			),
 		);
 		
 		//get addons
@@ -614,14 +610,6 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit-tags.php?post_type=post&taxonomy=marketing-channel'
 		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Data Mining', $this->plugin->slug ),
-			__( 'Data Mining', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=lead'
-		);	
 
 		do_action('ltple_admin_menu');
 	}
