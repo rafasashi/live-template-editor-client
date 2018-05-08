@@ -53,6 +53,8 @@ class LTPLE_Client_Settings {
 		if( $postTypes = get_option( $this->parent->_base . 'post_types' ) ){
 			
 			$this->options->postTypes = $postTypes;
+			
+			//var_dump($this->options->postTypes);exit;
 		}
 		
 		if( !$this->options->logo_url = get_option( $this->parent->_base . 'homeLogo' )){
@@ -68,120 +70,6 @@ class LTPLE_Client_Settings {
 		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor', '#506988' );
 		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor', '#506988' );	
 		$this->borderColor 	= get_option( $this->parent->_base . 'borderColor', '#182f42' );
-		
-		// get tabs
-		
-		$this->tabs = array (
-		
-			array(
-			
-				'cb-default-layer' 	=> array( 'name' => 'Templates'),
-				'default-image' 	=> array( 'name' => 'Images'),
-			),
-			array(
-			
-				'user-layer' 	=> array( 'name' => 'Templates'),
-				'user-image' 	=> array( 'name' => 'Images'),
-				'user-bookmark' => array( 'name' => 'Bookmarks'),
-				'user-app' 		=> array( 'name' => 'Apps'),
-				'user-domain' 	=> array( 'name' => 'Domains'),
-			),
-			array(
-			
-				'email-model' 		=> array( 'name' => 'Models'),
-				'email-campaign' 	=> array( 'name' => 'Campaigns'),
-				'email-invitation' 	=> array( 'name' => 'Invitations'),
-			),
-			array(
-			
-				'layer-type' 		=> array( 'name' => 'Types', 	'post-type' => 'cb-default-layer' ),
-				'layer-range' 		=> array( 'name' => 'Ranges', 	'post-type' => 'cb-default-layer' ),
-				'account-option' 	=> array( 'name' => 'Options', 	'post-type' => 'cb-default-layer' ),
-				'image-type' 		=> array( 'name' => 'Images', 	'post-type' => 'default-image' ),
-			),
-			array(
-			
-				'css-library' 		=> array( 'name' => 'CSS', 		'post-type' => 'cb-default-layer' ),
-				'js-library' 		=> array( 'name' => 'JS', 		'post-type' => 'cb-default-layer' ),
-				'font-library' 		=> array( 'name' => 'Fonts', 	'post-type' => 'cb-default-layer' ),
-				'element-library' 	=> array( 'name' => 'HTML', 	'post-type' => 'cb-default-layer' ),
-			),
-			array(
-			
-				'addon-service' 	=> array( 'name' => 'Services', 'post-type' => 'subscription-plan' ),
-				'app-type' 			=> array( 'name' => 'Apps', 	'post-type' => 'user-app' ),
-			),
-			array(
-			
-				'marketing-channel' => array( 'name' => 'Channels', 'post-type' => 'post' ),
-			),
-		);
-		
-		//get addons
-	
-		$this->addons = array(
-			
-			'addon-plugin' 		=> array(
-			
-				'title' 		=> 'Addon Plugin',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-addon',
-				'addon_name' 	=> 'live-template-editor-addon',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-addon/archive/master.zip',
-				'description'	=> 'This is a first test of addon plugin for live template editor.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			'affiliate-program' => array(
-			
-				'title' 		=> 'Affiliate Program',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate',
-				'addon_name' 	=> 'live-template-editor-affiliate',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate/archive/master.zip',
-				'description'	=> 'Affiliate program including click tracking and commissions.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			'sponsorship-program' => array(
-			
-				'title' 		=> 'Sponsorship Program',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship',
-				'addon_name' 	=> 'live-template-editor-sponsorship',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship/archive/master.zip',
-				'description'	=> 'Sponsorship program including management and purchase of licenses in bulk.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			'directory-plugin' => array(
-				
-				'title' 		=> 'Directory Plugin',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-directory',
-				'addon_name' 	=> 'live-template-editor-directory',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-directory/archive/master.zip',
-				'description'	=> 'This is a directory plugin for live template editor.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			'seo-suite' => array(
-			
-				'title' 		=> 'SEO Suite',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-seo',
-				'addon_name' 	=> 'live-template-editor-seo',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-seo/archive/master.zip',
-				'description'	=> 'SEO Suite including management and tracking of user backlinks.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			'cause-plugin' => array(
-			
-				'title' 		=> 'Cause Plugin',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-cause',
-				'addon_name' 	=> 'live-template-editor-cause',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-cause/archive/master.zip',
-				'description'	=> 'Cause and donation plugin for Live Template Editor',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-		);
 							
 		// Initialise settings
 		add_action( 'init', array( $this, 'init_settings' ), 11 );
@@ -202,11 +90,15 @@ class LTPLE_Client_Settings {
 			if($screen=get_current_screen()){
 				
 				$custom_post_types=[];
+				
 				$custom_post_types['cb-default-layer'] 	= '';
 				$custom_post_types['user-layer'] 		= '';
 				$custom_post_types['default-image'] 	= '';
 				$custom_post_types['user-image'] 		= '';
 				$custom_post_types['user-url'] 			= '';
+				
+				
+				
 				$custom_post_types['email-model'] 		= '';
 				$custom_post_types['email-campaign'] 	= '';
 			
@@ -595,22 +487,6 @@ class LTPLE_Client_Settings {
 			'edit.php?post_type=subscription-plan'
 		);
 
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Email & Campaigns', $this->plugin->slug ),
-			__( 'Email & Campaigns', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=email-model'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Marketing Settings', $this->plugin->slug ),
-			__( 'Marketing Settings', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=post&taxonomy=marketing-channel'
-		);
-
 		do_action('ltple_admin_menu');
 	}
 	
@@ -993,6 +869,125 @@ class LTPLE_Client_Settings {
 	 */
 	public function register_settings () {
 		
+		
+		// get tabs
+		
+		$this->tabs = array (
+		
+			'default-contents' => array(
+			
+				'cb-default-layer' 	=> array( 'name' => 'Templates'),
+				'default-image' 	=> array( 'name' => 'Images'),
+			),
+			'user-contents' => array(
+			
+				'user-layer' 	=> array( 'name' => 'Templates'),
+				'user-image' 	=> array( 'name' => 'Images'),
+				'user-bookmark' => array( 'name' => 'Bookmarks'),
+				'user-app' 		=> array( 'name' => 'Apps'),
+				'user-domain' 	=> array( 'name' => 'Domains'),
+			),
+			'email-campaigns' => array(
+			
+				'email-model' 		=> array( 'name' => 'Models'),
+				'email-campaign' 	=> array( 'name' => 'Campaigns'),
+				'email-invitation' 	=> array( 'name' => 'Invitations'),
+			),
+			'gallery-settings' => array(
+			
+				'layer-type' 		=> array( 'name' => 'Types', 	'post-type' => 'cb-default-layer' ),
+				'layer-range' 		=> array( 'name' => 'Ranges', 	'post-type' => 'cb-default-layer' ),
+				'account-option' 	=> array( 'name' => 'Options', 	'post-type' => 'cb-default-layer' ),
+				'image-type' 		=> array( 'name' => 'Images', 	'post-type' => 'default-image' ),
+			),
+			'web-resources' => array(
+			
+				'css-library' 		=> array( 'name' => 'CSS', 		'post-type' => 'cb-default-layer' ),
+				'js-library' 		=> array( 'name' => 'JS', 		'post-type' => 'cb-default-layer' ),
+				'font-library' 		=> array( 'name' => 'Fonts', 	'post-type' => 'cb-default-layer' ),
+				'element-library' 	=> array( 'name' => 'HTML', 	'post-type' => 'cb-default-layer' ),
+			),
+			'services-apps' => array(
+			
+				'addon-service' 	=> array( 'name' => 'Services', 'post-type' => 'subscription-plan' ),
+				'app-type' 			=> array( 'name' => 'Apps', 	'post-type' => 'user-app' ),
+			),
+			'marketing-settings' => array(
+			
+				'marketing-channel' => array( 'name' => 'Channels', 'post-type' => 'post' ),
+			),
+		);
+		
+		do_action('ltple_admin_tabs'); 
+		
+		//get addons
+	
+		$this->addons = array(
+			
+			'addon-plugin' 		=> array(
+			
+				'title' 		=> 'Addon Plugin',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-addon',
+				'addon_name' 	=> 'live-template-editor-addon',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-addon/archive/master.zip',
+				'description'	=> 'This is a first test of addon plugin for live template editor.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
+			'affiliate-program' => array(
+			
+				'title' 		=> 'Affiliate Program',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate',
+				'addon_name' 	=> 'live-template-editor-affiliate',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate/archive/master.zip',
+				'description'	=> 'Affiliate program including click tracking and commissions.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
+			'sponsorship-program' => array(
+			
+				'title' 		=> 'Sponsorship Program',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship',
+				'addon_name' 	=> 'live-template-editor-sponsorship',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship/archive/master.zip',
+				'description'	=> 'Sponsorship program including management and purchase of licenses in bulk.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
+			'directory-plugin' => array(
+				
+				'title' 		=> 'Directory Plugin',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-directory',
+				'addon_name' 	=> 'live-template-editor-directory',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-directory/archive/master.zip',
+				'description'	=> 'This is a directory plugin for live template editor.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
+			'seo-suite' => array(
+			
+				'title' 		=> 'SEO Suite',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-seo',
+				'addon_name' 	=> 'live-template-editor-seo',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-seo/archive/master.zip',
+				'description'	=> 'SEO Suite including management and tracking of user backlinks.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
+			'cause-plugin' => array(
+			
+				'title' 		=> 'Cause Plugin',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-cause',
+				'addon_name' 	=> 'live-template-editor-cause',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-cause/archive/master.zip',
+				'description'	=> 'Cause and donation plugin for Live Template Editor',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
+		);
+		
+		do_action('ltple_admin_addons');
+		
 		if ( is_array( $this->settings ) ) {
 
 			// Check posted/selected tab
@@ -1026,10 +1021,13 @@ class LTPLE_Client_Settings {
 					}
 
 					// Register field
+					// this will save the option in the wp_options table
+					
 					$option_name = $this->parent->_base . $field['id'];
 					register_setting( $this->parent->_token . '_settings', $option_name, $validation );
 
 					// Add field to page
+					
 					add_settings_field( $field['id'], $field['label'], array( $this->parent->admin, 'display_field' ), $this->parent->_token . '_settings', $section, array( 'field' => $field, 'prefix' => $this->parent->_base ) );
 
 				}

@@ -24,7 +24,6 @@
 												.'&ik='	. $iframe_key
 												.( ( !empty($this->_dev) ) ? '&debug=1' : '' );
 												
-	//var_dump($request_url);exit; 
 	// get request_method
 	
 	$request_method = $_SERVER['REQUEST_METHOD'];	
