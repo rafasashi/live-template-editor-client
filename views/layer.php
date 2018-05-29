@@ -141,6 +141,7 @@
 		}
 		
 		$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
+		
 	}
 	
 	// parse content elements
@@ -163,8 +164,9 @@
 		$node->removeAttribute('pagespeed_url_hash');
 	}			
 	
-	$layerContent = $dom->saveHtml( $xpath->query('/body')->item(0) );
-	
+	$layerContent = $dom->saveHtml( $xpath->query('/html/body')->item(0) );
+	$layerContent = preg_replace('~<(?:!DOCTYPE|/?(?:body))[^>]*>\s*~i', '', $layerContent);
+
 	//get style-sheet
 	
 	$defaultCss 	= '';
@@ -265,9 +267,7 @@
 
 	// get head
 
-	$head = '<!DOCTYPE html>';
-	
-	$head .= '<head>';
+	$head = '<head>';
 	
 		$head .= '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
 		$head .= '<!--[if lt IE 9]>';
@@ -572,7 +572,9 @@
 
 	// get layer
 	
-	$layer = $head;
+	$layer  = '<!DOCTYPE html>';
+	$layer .= '<html>';
+	$layer .= $head;
 
 	$layer .= '<body style="padding:0;margin:0;display:flex !important;width:100%;">';
 		
@@ -725,7 +727,7 @@
 			}
 		}
 		
-	$layer .='</body>' .PHP_EOL;
+	$layer .='</body></html>' .PHP_EOL;
 	
 	// callback layer object
 	

@@ -120,8 +120,14 @@
 												
 													$item .= '<span>'.$name.'</span>';
 												
-													$item .= '<img title="'.$name.'" height="150" src="' . $elements['image'][$e] . '" />';
+													if( !empty($elements['image'][$e]) ){
 												
+														$item .= '<img title="'.$name.'" height="150" src="' . $elements['image'][$e] . '" />';
+													}
+													else{
+														
+														$item .= '<div style="height: 115px;width: 150px;background: #afcfff;border: 4px solid #fff;"></div>';
+													}
 												$item .= '</li>';
 												
 												$list[$type][] = $item;
