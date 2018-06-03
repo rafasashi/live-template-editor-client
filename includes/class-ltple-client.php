@@ -326,7 +326,7 @@ class LTPLE_Client {
 		// Custom default layer template
 
 		add_filter('template_include', array( $this, 'editor_templates'), 1 );
-		
+
 		add_action('template_redirect', array( $this, 'editor_output' ));		
 		
 		add_filter( 'pre_get_posts', function($query) {
@@ -1071,13 +1071,13 @@ class LTPLE_Client {
 				
 			remove_all_filters('content_save_pre');
 			remove_filter( 'the_content', 'wpautop' );
-
-			// update user layer
-			
-			$this->update_user_layer();
-		}
+		}	
 		
 		if( $this->user->loggedin ){
+			
+			// update user layer
+			
+			$this->update_user_layer();	
 		
 			//update user channel
 			

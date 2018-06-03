@@ -211,7 +211,17 @@
 						
 						if( $ltple->layer->type == 'user-layer' ){
 
-							echo '<a class="btn btn-sm btn-danger" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&postAction=delete">Delete</a>';
+							echo '<a class="btn btn-sm btn-danger" href="#removeCurrentTpl" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</a>';
+						
+							echo'<div style="display:none;" id="removeCurrentTpl" title="Remove current template">';
+								
+								echo '<h4>Are you sure you want to delete this template?</h4>';						
+
+								echo '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&postAction=delete&confirmed">Yes</a>';
+								
+								//echo '<button style="margin:10px;" type="button" class="btn btn-xs btn-danger ui-button ui-widget" role="button" title="Close"><span class="ui-button-text">No</span></button>';
+
+							echo'</div>';						
 						}
 						
 						echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:0px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
@@ -259,7 +269,17 @@
 									echo'<li style="position:relative;">';
 										
 										echo '<a href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
-										echo '<a class="btn-xs btn-danger" href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '&postAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
+										echo '<a href="#quickRemoveTpl' . ( $i + 1 ) . '" data-toggle="dialog" data-target="#quickRemoveTpl' . ( $i + 1 ) . '" class="btn-xs btn-danger" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
+
+										echo'<div style="display:none;" id="quickRemoveTpl' . ( $i + 1 ) . '" title="Remove Template ' . ( $i + 1 ) . '">';
+											
+											echo '<h4>Are you sure you want to delete this template?</h4>';						
+
+											echo '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '&postAction=delete&confirmed" target="'.( $ltple->layer->id == $layer->ID ? '_self' : '_blank' ).'">Yes</a>';
+											
+											//echo '<button style="margin:10px;" type="button" class="btn btn-xs btn-danger ui-button ui-widget" role="button" title="Close"><span class="ui-button-text">No</span></button>';
+
+										echo'</div>';
 									
 									echo'</li>';						
 								}
