@@ -588,6 +588,14 @@ class LTPLE_Client {
 			$this->user->is_editor = current_user_can( 'editor', $this->user->ID );
 		}
 		
+		if( !$this->user->is_admin || !$this->user->is_editor ){
+			
+			$url = $this->urls->editor . '?my-profile';
+			
+			wp_redirect($url);
+			exit;
+		}
+		
 		// get user rights
 		
 		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );

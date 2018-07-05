@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Integrator_Scraper {
 	
 	var $parent;
+	var $app_slug;
 	var $apps;
 	var $term;
 	var $parameters;
@@ -22,13 +23,17 @@ class LTPLE_Integrator_Scraper {
 		$this->parent 		= $parent;
 		$this->parent->apps = $apps;
 		
+		// get app slug
+		
+		$this->app_slug = $app_slug;
+		
 		// get app term
 
-		$this->term = get_term_by('slug',$app_slug,'app-type');
+		$this->term = get_term_by('slug',$this->app_slug,'app-type');
 		
 		// get app parameters
 		
-		$this->parameters = get_option('parameters_'.$app_slug);
+		$this->parameters = get_option('parameters_'.$this->app_slug);
 
 		if( isset($this->parameters['key']) ){
 
@@ -51,6 +56,12 @@ class LTPLE_Integrator_Scraper {
 					// get app resource
 					
 					$this->attr = $this->parameters['value'][$i];	
+				}
+				elseif( $key == 'hash' ){
+					
+					// get resource hash
+					
+					$this->hash = $this->parameters['value'][$i];
 				}
 			}
 			
@@ -102,11 +113,20 @@ class LTPLE_Integrator_Scraper {
 	public function appImportImg(){
 		
 		if(!empty($_REQUEST['id'])){
-
+			
 			if( $this->app = $this->parent->apps->getAppData( $_REQUEST['id'], $this->parent->user->ID, true ) ){
 
-				$resourceUrl = urldecode($this->app['resource']);
+				$url = $this->app['resource'];
+			
+				if( !empty($this->hash) ){
+					
+					$url .= '#' . $this->hash;
+				}
+				
+				$resourceUrl = 'http://recuweb.com/a/scraper/index.php?url=' . urlencode($url);
 
+				//$resourceUrl = urldecode($url);
+				
 				$ch = curl_init($resourceUrl);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
 				$result = curl_exec($ch);
@@ -139,7 +159,7 @@ class LTPLE_Integrator_Scraper {
 					if(!empty($images)){
 
 						foreach($images as $image) {
-
+							
 							$src = $image->getAttribute($this->attr);
 							
 							if(!empty($src)){
@@ -148,7 +168,7 @@ class LTPLE_Integrator_Scraper {
 							}
 						}
 					}
-
+					//var_dump($urls);exit;
 					if(!empty($urls)){
 						
 						foreach($urls as $img_url){
@@ -277,7 +297,7 @@ class LTPLE_Integrator_Scraper {
 						
 						// hook connected app
 						
-						do_action( 'ltple_' . str_replace( '-', '_', $app_slug ) . '_account_connected');
+						do_action( 'ltple_' . str_replace( '-', '_', $this->app_slug ) . '_account_connected');
 						
 						$this->parent->apps->newAppConnected();
 					}
@@ -299,7 +319,7 @@ class LTPLE_Integrator_Scraper {
 					$_SESSION['message'] .= '</div>';
 				}				
 			}
-			
+		
 			if( $outputForm ){
 				
 				// output form

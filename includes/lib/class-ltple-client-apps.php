@@ -13,6 +13,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 	/**
 	 * Constructor function
 	 */
+	 
 	public function __construct ( $parent) {
 		
 		$this->parent 	= $parent;
@@ -249,7 +250,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		);
 
 		// include api client
-		
+
 		$className = 'LTPLE_Integrator_' .  ucfirst( $apiClient );
 		
 		if(class_exists($className)){

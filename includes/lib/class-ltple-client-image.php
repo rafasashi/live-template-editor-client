@@ -6,6 +6,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	
 	public $parent;
 	public $id		= -1;
+	public $att		= -1;
 	public $uri		= '';
 	public $slug	= '';
 	public $type	= '';
@@ -140,8 +141,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					'callback' 	=> array($this,'list_user_images'),
 				) );
 			} );
-				
-			if(!empty($_GET['uri'])){
+			
+			if( !empty($_GET['uri']) ){
 				
 				if( $this->uri = intval($_GET['uri']) ){
 					
@@ -256,35 +257,80 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		
 		if( $this->parent->user->loggedin ){
 			
+			if(!empty($_GET['att'])){
+
+				if( $image = get_post( intval($_GET['att']) ) ){
+
+					if( $image->post_type == 'attachment' && intval($image->post_author) == $this->parent->user->ID ){
+						
+						if( $image->post_parent == 0 ){
+						
+							$this->att = $image->ID;
+						}
+						else{
+							
+							$_SESSION['message'] ='<div class="alert alert-warning">';
+
+								$_SESSION['message'] .= 'This image is attached the post id: ' . $image->post_parent;
+
+							$_SESSION['message'] .='</div>';							
+						}
+					}
+					else{
+					
+						$_SESSION['message'] ='<div class="alert alert-danger">';
+
+							$_SESSION['message'] .= 'You don\'t have access to this image';
+
+						$_SESSION['message'] .='</div>';					
+					}
+				}
+				else{
+					
+					$_SESSION['message'] ='<div class="alert alert-danger">';
+
+						$_SESSION['message'] .= 'This image doesn\'t exist';
+
+					$_SESSION['message'] .='</div>';					
+				}
+			}		
+			
 			if( isset($_GET['imgAction']) && $_GET['imgAction']=='delete' ){
 				
-				//--------delete image--------
+				if( $this->att > 0 ){
 				
-				wp_delete_post( $this->id, true );
+					//--------delete image--------
 				
-				$this->id = -1;
+					wp_delete_attachment( $this->att );
 					
-				$this->parent->message ='<div class="alert alert-success">';
-
-					$this->parent->message .= 'Image url successfully deleted!';
-
-				$this->parent->message .='</div>';
-				
-			}
-			elseif( isset($_POST['imgAction']) &&  $_POST['imgAction']=='upload' && isset($_POST['imgHost'])){
-				
-				// valid host
-				
-				$app_item = get_post( $_POST['imgHost'], 'user-app' );
-				
-				$app_title = wp_strip_all_tags( $app_item->post_title );
-				
-				if( empty($app_item) || ( intval( $app_item->post_author ) != $this->parent->user->ID && !in_array_field($app_item->ID, 'ID', $this->parent->apps->mainApps)) ){
+					$this->att = -1;
 					
-					echo 'This image host doesn\'t exists...';
-					exit;
+					$_SESSION['message'] ='<div class="alert alert-success">';
+
+						$_SESSION['message'] .= 'Image successfully deleted!';
+
+					$_SESSION['message'] .='</div>';					
 				}
-				elseif(!empty($_FILES)) {
+				elseif( $this->id > 0 ){
+						
+					//--------delete url--------
+					
+					wp_delete_post( $this->id, true );
+					
+					$this->id = -1;
+					
+					$_SESSION['message'] ='<div class="alert alert-success">';
+
+						$_SESSION['message'] .= 'Image url successfully deleted!';
+
+					$_SESSION['message'] .='</div>';
+				}
+			}
+			elseif( isset($_POST['imgAction']) &&  $_POST['imgAction']=='upload' ){
+				
+				$app_title = 'image - uploaded';
+				
+				if(!empty($_FILES)) {
 					
 					foreach ($_FILES as $file => $array) {
 						
@@ -310,7 +356,9 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 								
 								// rename file
 								
-								$_FILES[$file]['name'] = md5($data) . '.' . $mime[1];
+								$md5 = md5($data);
+								
+								$_FILES[$file]['name'] = $md5 . '.' . $mime[1];
 
 								// get current app
 								
@@ -319,6 +367,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 								// set session
 								
 								$_SESSION['app'] 	= $app[0];
+								$_SESSION['app'] 	= 'image';
 								$_SESSION['action'] = 'upload';
 								$_SESSION['file'] 	= $_FILES[$file]['name'];
 																		
@@ -361,45 +410,89 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 									
 										// get image url
 										
-										$image_url = wp_get_attachment_url( $attach_id );
+										$image_url = $img_content  = wp_get_attachment_url( $attach_id );
 										
-										// upload image to host
+										//-------- save image --------
 										
-										$appSlug = $app[0];
+										$img_title = $img_name = '';
 										
-										if( !isset( $this->parent->apps->{$appSlug} ) ){
+										$img_title = $img_name = $md5 . $this->parent->user->ID;
+
+										$img_valid = true;
+										
+										if($img_valid === true){
 											
-											$this->parent->apps->includeApp($appSlug);
+											// check if is valid url
+											
+											if (filter_var($img_content, FILTER_VALIDATE_URL) === FALSE) {
+												
+												$img_valid = false;
+											}
 										}
-
-										if( $image_id = $this->parent->apps->{$appSlug}->appUploadImg( $app_item->ID, $image_url )){
+										
+										if($img_valid === true){
 											
-											// mark image as uploaded
-											 
-											update_post_meta($image_id, 'imageUploaded', 'true');
+											// check if image exists
 											
-											// output success message
+											$q = new WP_Query(array(
+												
+												'post_author' => $this->parent->user->ID,
+												'post_type' => 'user-image',
+												'numberposts' => -1,
+											));
 											
-											$this->parent->message ='<div class="alert alert-success">';
+											//var_dump($q);exit;
+											
+											while ( $q->have_posts() ) : $q->the_post(); 
+										
+												global $post;
+												
+												if( $post->post_title == $img_title ){
 													
-												$this->parent->message .= 'Congratulations! Image succefully uploaded to your library.';
+													$img_valid = false;
+													break;
+												}
+												
+											endwhile; wp_reset_query();	
+										}
+										
+										if( $img_valid === true ){
+										
+											if($image_id = wp_insert_post( array(
+												
+												'post_author' 	=> $this->parent->user->ID,
+												'post_title' 	=> $img_title,
+												'post_name' 	=> $img_name,
+												'post_content' 	=> $img_content,
+												'post_type'		=> 'user-image',
+												'post_status' 	=> 'publish'
+											))){
+												
+												// mark image as uploaded
+											 
+												update_post_meta($image_id, 'imageUploaded', 'true');
+												
+												// output message
+												
+												$_SESSION['message'] ='<div class="alert alert-success">';
+														
+													$_SESSION['message'] .= 'Congratulations! Image succefully uploaded to your library.';
 
-											$this->parent->message .='</div>';											
+												$_SESSION['message'] .='</div>';						
+											}
 										}
 										else{
-											
-											// output error message
-											
-											$this->parent->message ='<div class="alert alert-danger">';
-													
-												$this->parent->message .= 'Oops, something went wrong...';
 
-											$this->parent->message .='</div>';													
-										}
-										
-										// remove image from local library
-										
-										wp_delete_attachment( $attach_id, $force_delete = true );
+											$_SESSION['message'] ='<div class="alert alert-danger">';
+													
+												$_SESSION['message'] .= 'This image already exists...';
+
+											$_SESSION['message'] .='</div>';
+											
+											// remove image from local library
+											
+											wp_delete_attachment( $attach_id, $force_delete = true );											
+										}										
 									}
 									else{
 										
@@ -411,11 +504,11 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 									
 									// output warning message
 									
-									$this->parent->message ='<div class="alert alert-warning">';
+									$_SESSION['message'] ='<div class="alert alert-warning">';
 											
-										$this->parent->message .= 'This image already exists...';
+										$_SESSION['message'] .= 'This image already exists...';
 
-									$this->parent->message .='</div>';										
+									$_SESSION['message'] .='</div>';										
 								}
 							}
 							else{
@@ -504,29 +597,29 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 							'post_status' 	=> 'publish'
 						))){
 							
-							$this->parent->message ='<div class="alert alert-success">';
+							$_SESSION['message'] ='<div class="alert alert-success">';
 									
-								$this->parent->message .= 'Congratulations! Image url succefully added to your library.';
+								$_SESSION['message'] .= 'Congratulations! Image url succefully added to your library.';
 
-							$this->parent->message .='</div>';						
+							$_SESSION['message'] .='</div>';						
 						}						
 					}
 					else{
 
-						$this->parent->message ='<div class="alert alert-danger">';
+						$_SESSION['message'] ='<div class="alert alert-danger">';
 								
-							$this->parent->message .= 'This image url already exists...';
+							$_SESSION['message'] .= 'This image url already exists...';
 
-						$this->parent->message .='</div>';
+						$_SESSION['message'] .='</div>';
 					}
 				}
 				else{
 					
-					$this->parent->message ='<div class="alert alert-danger">';
+					$_SESSION['message'] ='<div class="alert alert-danger">';
 							
-						$this->parent->message .= 'Error saving user image...';
+						$_SESSION['message'] .= 'Error saving user image...';
 
-					$this->parent->message .='</div>';
+					$_SESSION['message'] .='</div>';
 				}
 			}			
 		}

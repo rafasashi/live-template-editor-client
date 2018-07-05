@@ -190,15 +190,13 @@
 					
 					echo '<div style="display:inline-block;">';
 						
-						$field =  array(
+						$this->parent->admin->display_field(array(
 				
 							'id' 			=> $this->parent->_base . 'stars',
 							'description' 	=> '',
 							'type'			=> 'number',
 							'placeholder'	=> 'stars',
-						);
-						
-						$this->parent->admin->display_field( $field, $user );
+						), $user );
 							
 					echo'</div>';
 						

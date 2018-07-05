@@ -1,5 +1,5 @@
 <?php
-	
+
 	if(isset($_SESSION['message'])){ 
 	
 		//output message
@@ -22,8 +22,6 @@
 		$target='_blank';
 	}
 	
-	$upload_app_id = get_option( $this->_base . 'wpcom_main_account' );
-
 	// get current tab
 	
 	$currentTab = ( !empty($_GET['media']) ? $_GET['media'] : 'image-library' );
@@ -36,7 +34,7 @@
 
 		$default_images = [];
 
-		foreach($this->image->types as $term){
+		foreach( $this->image->types as $term ){
 			
 			$default_images[$term->slug] = [];
 		}
@@ -68,11 +66,12 @@
 			//var_dump($terms);exit;
 			
 			//get image_type
+			
 			$image_type='image';
 			
 			if( !isset($terms->errors) && isset($terms[0]->slug) ){
 				
-				$image_type=$terms[0]->slug;
+				$image_type = $terms[0]->slug;
 			}
 			
 			//get item
@@ -131,11 +130,79 @@
 		
 		if( $this->user->ID  > 0 ){
 			
-			//get user apps
+			//-----------------get images from core library-------------------
+			
+			$query_images = new WP_Query( array(
+			
+				'post_type'      	=> 'attachment',
+				'post_mime_type' 	=> 'image',
+				'post_status'    	=> 'inherit',
+				'posts_per_page' 	=> -1,
+				'author' 			=> $this->user->ID,
+			) );
+
+			$images = array();
+			
+			foreach ( $query_images->posts as $image ){
+				
+				$image_url = wp_get_attachment_url( $image->ID );
+				
+				$image_title = get_the_title( $image->ID );
+				
+				//get item
+				
+				$item='';
+				
+				$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
+					
+					$item.='<div class="panel panel-default">';
+						
+						$item.='<div class="panel-heading">';
+							
+							$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
+							
+							if(!$inWidget){
+							
+								$item.='<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?media=user-images&output='.$output.'&att=' . $image->ID . '&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
+							}
+							
+						$item.='</div>';
+
+						$item.='<div class="panel-body">';
+							
+							$item.='<div class="thumb_wrapper">';
+							
+								$item.= '<img class="lazy" data-original="' . $image_url . '" />';
+							
+							$item.='</div>'; //thumb_wrapper
+							
+							$item.='<div class="text-right">';
+
+								if($inWidget){
+
+									$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
+								}
+								else{
+									
+									$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image_url . '" />';
+								}
+								
+							$item.='</div>';							
+							
+						$item.='</div>'; //panel-body
+
+					$item.='</div>';
+					
+				$item.='</div>';
+				
+				//merge item
+				
+				$image_providers['upload'][]=$item;				
+			}			
+			
+			//-------------------get images from apps------------------------
 			
 			$loop = new WP_Query( array( 'post_type' => 'user-image', 'posts_per_page' => -1, 'author' => $this->user->ID ) );
-			
-			//var_dump($loop);exit;
 			
 			while ( $loop->have_posts() ) : $loop->the_post(); 
 				
@@ -162,14 +229,7 @@
 				
 				if( !isset($terms->errors) && isset($terms[0]->slug) ){
 					
-					if( $imageUploaded = get_post_meta($image->ID, 'imageUploaded', true) ){
-						
-						$image_provider = 'upload';
-					}
-					else{
-						
-						$image_provider = $terms[0]->slug;
-					}
+					$image_provider = $terms[0]->slug;
 				}
 				
 				//get item
@@ -195,17 +255,9 @@
 							
 							$item.='<div class="thumb_wrapper">';
 							
-								//$item.= '<a class="entry-thumbnail" href="'. $permalink .'" target="_blank" title="'. $image_title .'">';
+								$item.= '<img class="lazy" data-original="'.$image->post_content.'" />';
 									
-									//$item.= get_the_post_thumbnail($image->ID, 'recentprojects-thumb');
-									
-									$item.= '<img class="lazy" data-original="'.$image->post_content.'" />';
-									
-								//$item.= '</a>';
-							
 							$item.='</div>'; //thumb_wrapper
-							
-							//$item.= get_the_excerpt( $image->ID );
 
 							$item.='<div class="text-right">';
 
@@ -511,8 +563,6 @@
 														}														
 														
 														echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
-														
-															echo'<input type="hidden" id="imgHost" name="imgHost" value="'.$upload_app_id.'" />';
 														
 															echo '<label>Image File</label>';
 														
