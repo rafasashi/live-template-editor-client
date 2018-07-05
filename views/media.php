@@ -17,9 +17,9 @@
 
 	if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
 		
-		$inWidget = true;
-		$output=$_GET['output'];
-		$target='_blank';
+		$inWidget 	= true;
+		$output		= $_GET['output'];
+		$target		= '_blank';
 	}
 	
 	// get current tab
@@ -132,73 +132,76 @@
 			
 			//-----------------get images from core library-------------------
 			
-			$query_images = new WP_Query( array(
-			
-				'post_type'      	=> 'attachment',
-				'post_mime_type' 	=> 'image',
-				'post_status'    	=> 'inherit',
-				'posts_per_page' 	=> -1,
-				'author' 			=> $this->user->ID,
-			) );
+			if( $this->user->plan["info"]["total_price_amount"] > 0 ){
+				
+				$query_images = new WP_Query( array(
+				
+					'post_type'      	=> 'attachment',
+					'post_mime_type' 	=> 'image',
+					'post_status'    	=> 'inherit',
+					'posts_per_page' 	=> -1,
+					'author' 			=> $this->user->ID,
+				) );
 
-			$images = array();
-			
-			foreach ( $query_images->posts as $image ){
+				$images = array();
 				
-				$image_url = wp_get_attachment_url( $image->ID );
-				
-				$image_title = get_the_title( $image->ID );
-				
-				//get item
-				
-				$item='';
-				
-				$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
+				foreach ( $query_images->posts as $image ){
 					
-					$item.='<div class="panel panel-default">';
+					$image_url = wp_get_attachment_url( $image->ID );
+					
+					$image_title = get_the_title( $image->ID );
+					
+					//get item
+					
+					$item='';
+					
+					$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
 						
-						$item.='<div class="panel-heading">';
+						$item.='<div class="panel panel-default">';
 							
-							$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
-							
-							if(!$inWidget){
-							
-								$item.='<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?media=user-images&output='.$output.'&att=' . $image->ID . '&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-							}
-							
-						$item.='</div>';
-
-						$item.='<div class="panel-body">';
-							
-							$item.='<div class="thumb_wrapper">';
-							
-								$item.= '<img class="lazy" data-original="' . $image_url . '" />';
-							
-							$item.='</div>'; //thumb_wrapper
-							
-							$item.='<div class="text-right">';
-
-								if($inWidget){
-
-									$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
-								}
-								else{
-									
-									$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image_url . '" />';
+							$item.='<div class="panel-heading">';
+								
+								$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
+								
+								if(!$inWidget){
+								
+									$item.='<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?media=user-images&output='.$output.'&att=' . $image->ID . '&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
 								}
 								
-							$item.='</div>';							
-							
-						$item.='</div>'; //panel-body
+							$item.='</div>';
 
+							$item.='<div class="panel-body">';
+								
+								$item.='<div class="thumb_wrapper">';
+								
+									$item.= '<img class="lazy" data-original="' . $image_url . '" />';
+								
+								$item.='</div>'; //thumb_wrapper
+								
+								$item.='<div class="text-right">';
+
+									if($inWidget){
+
+										$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
+									}
+									else{
+										
+										$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image_url . '" />';
+									}
+									
+								$item.='</div>';							
+								
+							$item.='</div>'; //panel-body
+
+						$item.='</div>';
+						
 					$item.='</div>';
 					
-				$item.='</div>';
-				
-				//merge item
-				
-				$image_providers['upload'][]=$item;				
-			}			
+					//merge item
+					
+					$image_providers['upload'][]=$item;				
+				}
+			}
 			
 			//-------------------get images from apps------------------------
 			
@@ -503,6 +506,7 @@
 							$item->name 	= 'Upload';
 							$item->slug 	= 'upload';
 							$item->types 	= ['images'];
+							$item->pro 		= true;
 							
 							$apps[] = $item;					
 
@@ -510,6 +514,7 @@
 							$item->name 	= 'Url';
 							$item->slug 	= 'url';
 							$item->types 	= ['images'];
+							$item->pro 		= false;
 							
 							$apps[] = $item;
 
@@ -517,8 +522,7 @@
 								
 								$apps = array_merge($apps,$this->apps->list);
 							}
-							
-							
+
 							//output list
 							
 							$active=' class="active"';
@@ -527,7 +531,7 @@
 								
 								if( in_array('images',$app->types) ){
 								
-									echo'<li role="presentation"'.$active.'><a href="#'.$app->slug.'" aria-controls="'.$app->slug.'" role="tab" data-toggle="tab">'.strtoupper($app->name).'</a></li>';
+									echo'<li role="presentation"'.$active.'><a href="#' . $app->slug . '" aria-controls="' . $app->slug . '" role="tab" data-toggle="tab">' . ( $app->pro === true && $this->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . strtoupper($app->name) . '</a></li>';
 
 									$active='';
 								}
@@ -561,22 +565,33 @@
 																	
 															$media_url .= '&output=widget';
 														}														
-														
-														echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
-														
-															echo '<label>Image File</label>';
-														
-															echo '<input style="font-size:15px;padding:5px;margin:10px 0;" type="file" name="imgFile" id="imgFile" class="form-control required" />';
+									
+														if( $app->pro === true && $this->user->plan["info"]["total_price_amount"] == 0 ){
 															
-															echo '<input type="hidden" name="imgAction" id="imgAction" value="upload" />';
+															echo '<div class="alert alert-warning">';
 															
-															wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
+																echo 'You need a paid plan to <b>upload images</b>';
+																
+															echo '</div>';
+														}
+														else{
 															
-															echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
+															echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
+																
+																echo '<label>Image File</label>';
+																
+																echo '<input style="font-size:15px;padding:5px;margin:10px 0;" type="file" name="imgFile" id="imgFile" class="form-control required" />';
+																
+																echo '<input type="hidden" name="imgAction" id="imgAction" value="upload" />';
+																
+																wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
+																
+																echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
 
-															echo '<button class="btn btn-primary" type="button">Upload</button>';
+																echo '<button class="btn btn-primary" type="button">Upload</button>';
 
-														echo '</form>';														
+															echo '</form>';
+														}
 														
 													echo'</div>';//add-image-wrapper												
 					

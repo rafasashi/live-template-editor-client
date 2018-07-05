@@ -257,45 +257,49 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		
 		if( $this->parent->user->loggedin ){
 			
-			if(!empty($_GET['att'])){
+			// perform action		
+			
+			if( isset($_GET['imgAction']) && $_GET['imgAction']=='delete' ){
+				
+				// get attribute id
+				
+				if(!empty($_GET['att'])){
 
-				if( $image = get_post( intval($_GET['att']) ) ){
+					if( $image = get_post( intval($_GET['att']) ) ){
 
-					if( $image->post_type == 'attachment' && intval($image->post_author) == $this->parent->user->ID ){
-						
-						if( $image->post_parent == 0 ){
-						
-							$this->att = $image->ID;
+						if( $image->post_type == 'attachment' && intval($image->post_author) == $this->parent->user->ID ){
+							
+							if( $image->post_parent == 0 ){
+							
+								$this->att = $image->ID;
+							}
+							else{
+								
+								$_SESSION['message'] ='<div class="alert alert-warning">';
+
+									$_SESSION['message'] .= 'This image is attached the post id: ' . $image->post_parent;
+
+								$_SESSION['message'] .='</div>';							
+							}
 						}
 						else{
-							
-							$_SESSION['message'] ='<div class="alert alert-warning">';
+						
+							$_SESSION['message'] ='<div class="alert alert-danger">';
 
-								$_SESSION['message'] .= 'This image is attached the post id: ' . $image->post_parent;
+								$_SESSION['message'] .= 'You don\'t have access to this image';
 
-							$_SESSION['message'] .='</div>';							
+							$_SESSION['message'] .='</div>';					
 						}
 					}
 					else{
-					
+						
 						$_SESSION['message'] ='<div class="alert alert-danger">';
 
-							$_SESSION['message'] .= 'You don\'t have access to this image';
+							$_SESSION['message'] .= 'This image doesn\'t exist';
 
 						$_SESSION['message'] .='</div>';					
 					}
-				}
-				else{
-					
-					$_SESSION['message'] ='<div class="alert alert-danger">';
-
-						$_SESSION['message'] .= 'This image doesn\'t exist';
-
-					$_SESSION['message'] .='</div>';					
-				}
-			}		
-			
-			if( isset($_GET['imgAction']) && $_GET['imgAction']=='delete' ){
+				}				
 				
 				if( $this->att > 0 ){
 				
@@ -373,28 +377,15 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 																		
 								//check if image exists
 								
-								$img_exists = false;
-								
 								$q = new WP_Query(array(
 									
-									'post_author' => $this->parent->user->ID,
-									'post_type' => 'user-image',
-									'numberposts' => -1,
+									'name' 			=> $md5,
+									'post_author' 	=> $this->parent->user->ID,
+									'post_type' 	=> 'attachment',
+									'posts_per_page'=> -1,
 								));
 
-								while ( $q->have_posts() ) : $q->the_post(); 
-							
-									global $post;
-									
-									if( $post->post_title == $_FILES[$file]['name'] ){
-										
-										$img_exists = true;
-										break;
-									}
-									
-								endwhile; wp_reset_query();
-								
-								if( !$img_exists ){
+								if( $q->post_count == 0 ){
 									
 									//require the needed files
 									
@@ -404,100 +395,24 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 									
 									//upload image
 									
-									$attach_id = media_handle_upload( $file, 0 );
-									
-									if(is_numeric($attach_id)){
-									
-										// get image url
+				
+									if( $attach_id = media_handle_upload( $file, 0 ) ){
+				
+										// output message
 										
-										$image_url = $img_content  = wp_get_attachment_url( $attach_id );
-										
-										//-------- save image --------
-										
-										$img_title = $img_name = '';
-										
-										$img_title = $img_name = $md5 . $this->parent->user->ID;
+										$_SESSION['message'] ='<div class="alert alert-success">';
+												
+											$_SESSION['message'] .= 'Congratulations! Image succefully uploaded to your library.';
 
-										$img_valid = true;
-										
-										if($img_valid === true){
-											
-											// check if is valid url
-											
-											if (filter_var($img_content, FILTER_VALIDATE_URL) === FALSE) {
-												
-												$img_valid = false;
-											}
-										}
-										
-										if($img_valid === true){
-											
-											// check if image exists
-											
-											$q = new WP_Query(array(
-												
-												'post_author' => $this->parent->user->ID,
-												'post_type' => 'user-image',
-												'numberposts' => -1,
-											));
-											
-											//var_dump($q);exit;
-											
-											while ( $q->have_posts() ) : $q->the_post(); 
-										
-												global $post;
-												
-												if( $post->post_title == $img_title ){
-													
-													$img_valid = false;
-													break;
-												}
-												
-											endwhile; wp_reset_query();	
-										}
-										
-										if( $img_valid === true ){
-										
-											if($image_id = wp_insert_post( array(
-												
-												'post_author' 	=> $this->parent->user->ID,
-												'post_title' 	=> $img_title,
-												'post_name' 	=> $img_name,
-												'post_content' 	=> $img_content,
-												'post_type'		=> 'user-image',
-												'post_status' 	=> 'publish'
-											))){
-												
-												// mark image as uploaded
-											 
-												update_post_meta($image_id, 'imageUploaded', 'true');
-												
-												// output message
-												
-												$_SESSION['message'] ='<div class="alert alert-success">';
-														
-													$_SESSION['message'] .= 'Congratulations! Image succefully uploaded to your library.';
-
-												$_SESSION['message'] .='</div>';						
-											}
-										}
-										else{
-
-											$_SESSION['message'] ='<div class="alert alert-danger">';
-													
-												$_SESSION['message'] .= 'This image already exists...';
-
-											$_SESSION['message'] .='</div>';
-											
-											// remove image from local library
-											
-											wp_delete_attachment( $attach_id, $force_delete = true );											
-										}										
+										$_SESSION['message'] .='</div>';												
 									}
 									else{
 										
-										echo 'Error handling upload...';
-										exit;											
+										$_SESSION['message'] ='<div class="alert alert-danger">';
+												
+											$_SESSION['message'] .= 'Error uploading image...';
+
+										$_SESSION['message'] .='</div>';										
 									}
 								}
 								else{
