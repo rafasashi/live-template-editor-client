@@ -863,6 +863,28 @@ class LTPLE_Client_Plan {
 		return $total_storage;
 	}
 	
+	public function is_parent_in_plan($user_plan_id, $taxonomy, $parent_id){
+		
+		// check parent
+		
+		$in_plan = is_object_in_term( $user_plan_id, $taxonomy, $parent_id );
+		
+		if( !$in_plan ){
+			
+			// check parent of parent
+			
+			while( !$in_plan && $parent_id > 0 ){
+				
+				$parent = get_term($parent_id);
+				
+				$parent_id = $parent->parent;
+				
+				$in_plan = is_object_in_term( $user_plan_id, $taxonomy, $parent_id );
+			}
+		}
+		
+		return $in_plan;
+	}
 	
 	public function get_user_plan_and_pricing( $user, $context='admin-dashboard' ) {
 		
@@ -945,10 +967,10 @@ class LTPLE_Client_Plan {
 								foreach ( $terms as $i => $term ) {
 									
 									$options[$i] = $this->parent->layer->get_options( $taxonomy, $term );
-
+									
 									if( is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ) ){
 										
-										if( empty($term->parent) || !is_object_in_term( $user_plan_id, $taxonomy, $term->parent ) ){
+										if( empty($term->parent) || !$this->is_parent_in_plan( $user_plan_id, $taxonomy, $term->parent ) ){
 										
 											$total_fee_amount 	= $this->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $options[$i], $total_fee_period);
 											$total_price_amount = $this->sum_custom_taxonomy_total_price_amount( $total_price_amount, $options[$i], $total_price_period);
@@ -1642,7 +1664,7 @@ class LTPLE_Client_Plan {
 					
 					if( $in_term === true ){
 						
-						if( empty($term->parent) || !is_object_in_term( $user_plan_id, $taxonomy, $term->parent ) ){
+						if( empty($term->parent) || !$this->is_parent_in_plan( $user_plan_id, $taxonomy, $term->parent ) ){
 						
 							$options = $this->parent->layer->get_options( $taxonomy, $term );
 

@@ -487,6 +487,14 @@ class LTPLE_Client_Settings {
 			'edit.php?post_type=subscription-plan'
 		);
 
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'Email Models', $this->plugin->slug ),
+			__( 'Email Models', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=email-model'
+		);		
+		
 		do_action('ltple_admin_menu');
 	}
 	

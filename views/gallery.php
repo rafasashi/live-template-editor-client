@@ -13,7 +13,7 @@
 	}
 	
 	$layer_type = ( !empty($_GET['gallery']) ? $_GET['gallery'] : '' );
-	
+
 	if( empty($layer_type) ){
 
 		foreach($this->all->layerType as $term){
@@ -25,22 +25,76 @@
 			}
 		}			
 	}
+
+	//get item ranges
+	
+	$ranges =[];
+	
+	$query = new WP_Query(array( 
+		'post_type' 		=> 'cb-default-layer', 
+		'posts_per_page'	=> -1,
+		'fields'		 	=> 'ids',
+		'tax_query' 		=> array(
+			array(
+				'taxonomy' 			=> 'layer-type',
+				'field' 			=> 'slug',
+				'terms' 			=> $layer_type,
+				'include_children' 	=> false
+			)
+		)					
+	));
+	
+	if( !empty($query->posts) ){
+	
+		foreach( $query->posts as $post_id ){
+			
+			if( $layer_ranges = wp_get_post_terms( $post_id, 'layer-range' ) ){
+			
+				foreach( $layer_ranges as $range ){
+					
+					if( !isset($ranges[$range->slug]) ){
+						
+						$ranges[$range->slug]['name'] 	= $range->name;
+						$ranges[$range->slug]['slug'] 	= $range->slug;
+						$ranges[$range->slug]['count'] 	= 1;
+					}
+					else{
+						
+						++$ranges[$range->slug]['count'];
+					}
+				}
+			}
+		}
+	}
+	
+	$layer_range = ( !empty($_GET['range']) ? $_GET['range'] : key($ranges) );
 	
 	// get gallery items 
 	
+	$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
+
 	$items =[];
 	
-	$loop = new WP_Query(array( 
+	$query = new WP_Query(array( 
 	
 		'post_type' 	=> 'cb-default-layer', 
-		'posts_per_page'=> -1,
+		'posts_per_page'=> 15,
+		'paged' 		=> $paged,
 		'tax_query' 	=> array(
+		
+			'relation' 	=> 'AND',
 			array(
-				'taxonomy' 	=> 'layer-type',
-				'field' 	=> 'slug',
-				'terms' 	=> $layer_type,
-				'include_children' => false
-			)
+				'taxonomy' 			=> 'layer-type',
+				'field' 			=> 'slug',
+				'terms' 			=> $layer_type,
+				'include_children' 	=> false
+			),
+			array(
+				'taxonomy' 			=> 'layer-range',
+				'field' 			=> 'slug',
+				'terms' 			=> $layer_range,
+				'include_children' 	=> false
+			),
 		)					
 	));
 	
@@ -48,7 +102,7 @@
 		
 		if( $term->slug == $layer_type ){
 			
-			while ( $loop->have_posts() ) : $loop->the_post(); 
+			while ( $query->have_posts() ) : $query->the_post(); 
 				
 				global $post;
 				
@@ -91,22 +145,24 @@
 
 							$item.='<div class="panel-body">';
 								
-								$item.='<div class="thumb_wrapper" style="background:#ffffff;">';
-								
-									//$item.= '<a class="entry-thumbnail" href="'. $permalink .'" target="_blank" title="'. $post_title .'">';
-
-									if ( $image_id = get_post_thumbnail_id( $post->ID ) ){
-										
-										if ($src = wp_get_attachment_image_src( $image_id, 'full' )){
-
-											$item.= '<img class="lazy" data-original="' . $src[0] . '"/>';
-										}
+								if ( $image_id = get_post_thumbnail_id( $post->ID ) ){
 									
+									if ($src = wp_get_attachment_image_src( $image_id, 'medium' )){
+										
+										$item.='<div class="thumb_wrapper" style="background:url(' . $src[0] . ');background-size:cover;background-repeat:no-repeat;">';
+											
+											//$item.= '<img src="' . $src[0] . '"/>';
+										
+										$item.='</div>'; //thumb_wrapper
 									}
-									//$item.= '</a>';
-								
-								$item.='</div>'; //thumb_wrapper
-								
+									else{
+										$item.='<div class="thumb_wrapper" style="background:#ffffff;"></div>';
+									}
+								}
+								else{
+									$item.='<div class="thumb_wrapper" style="background:#ffffff;"></div>';
+								}
+
 								$excerpt= strip_tags(get_the_excerpt( $post->ID ),'<span>');
 								
 								$item.='<div class="post_excerpt" style="overflow:hidden;height:20px;">';
@@ -232,6 +288,7 @@
 	echo '<div id="layer_gallery">';
 
 		echo '<div class="col-xs-3 col-sm-2" style="padding:0;">';
+			
 			echo '<ul class="nav nav-tabs tabs-left">';
 				
 				echo '<li class="gallery_type_title">Template library</li>';
@@ -283,14 +340,15 @@
 					echo'<ul class="nav nav-pills" role="tablist">';
 
 					if(!empty($items)){
-						
-						$active=' class="active"';
-						
-						foreach($items as $range => $range_items){
+
+						foreach( $ranges as $range ){
 							
-							echo'<li role="presentation"'.$active.'><a href="#' . $range . '" aria-controls="' . $range . '" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$range)).' <span class="badge">'.count($items[$range]).'</span></a></li>';
-							
-							$active='';
+							$url = add_query_arg( array(
+								'gallery' 	=> $layer_type,
+								'range' 	=> $range['slug'],
+							), $this->urls->editor );
+								
+							echo'<li role="presentation"' . ( $range['slug'] == $layer_range ? ' class="active"' : '' ) . '><a href="' . $url . '" aria-controls="' . $range['slug'] . '" role="tab">'.strtoupper($range['name']).' <span class="badge">'.$range['count'].'</span></a></li>';
 						}							
 					}
 
@@ -319,6 +377,26 @@
 							}
 						
 						}
+						
+						echo'<div class="pagination" style="display: inline-block;width: 100%;padding: 0px 15px;">';
+
+							echo paginate_links( array(
+								'base'         => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
+								'total'        => $query->max_num_pages,
+								'current'      => max( 1, get_query_var( 'paged' ) ),
+								'format'       => '?paged=%#%',
+								'show_all'     => false,
+								'type'         => 'plain',
+								'end_size'     => 2,
+								'mid_size'     => 1,
+								'prev_next'    => true,
+								'prev_text'    => sprintf( '<i></i> %1$s', __( 'Prev', 'live-template-editor-client' ) ),
+								'next_text'    => sprintf( '%1$s <i></i>', __( 'Next', 'live-template-editor-client' ) ),
+								'add_args'     => false,
+								'add_fragment' => '',
+							) );
+							
+						echo'</div>	';					
 						
 					echo'</div>';
 					
