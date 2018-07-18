@@ -869,7 +869,8 @@ class LTPLE_Client_Plan {
 		
 		$in_plan = is_object_in_term( $user_plan_id, $taxonomy, $parent_id );
 		
-		if( !$in_plan ){
+		
+		if( !$in_plan && $parent_id > 0 ){
 			
 			// check parent of parent
 			
@@ -879,9 +880,13 @@ class LTPLE_Client_Plan {
 				
 				$parent_id = $parent->parent;
 				
-				$in_plan = is_object_in_term( $user_plan_id, $taxonomy, $parent_id );
+				if( $parent_id > 0 ){
+				
+					$in_plan = is_object_in_term( $user_plan_id, $taxonomy, $parent_id );
+				}
 			}
 		}
+		
 		
 		return $in_plan;
 	}

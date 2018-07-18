@@ -75,27 +75,35 @@
 
 	$items =[];
 	
+	$tax_query = array();
+	
+	if( !empty($layer_range) ){
+		
+		$tax_query['relation'] = 'AND';
+		
+		$tax_query[] = array(
+		
+			'taxonomy' 			=> 'layer-range',
+			'field' 			=> 'slug',
+			'terms' 			=> $layer_range,
+			'include_children' 	=> false
+		);
+	} 
+	
+	$tax_query[] = array(
+	
+		'taxonomy' 			=> 'layer-type',
+		'field' 			=> 'slug',
+		'terms' 			=> $layer_type,
+		'include_children' 	=> false
+	);
+
 	$query = new WP_Query(array( 
 	
 		'post_type' 	=> 'cb-default-layer', 
 		'posts_per_page'=> 15,
 		'paged' 		=> $paged,
-		'tax_query' 	=> array(
-		
-			'relation' 	=> 'AND',
-			array(
-				'taxonomy' 			=> 'layer-type',
-				'field' 			=> 'slug',
-				'terms' 			=> $layer_type,
-				'include_children' 	=> false
-			),
-			array(
-				'taxonomy' 			=> 'layer-range',
-				'field' 			=> 'slug',
-				'terms' 			=> $layer_range,
-				'include_children' 	=> false
-			),
-		)					
+		'tax_query' 	=> $tax_query,					
 	));
 	
 	foreach($this->all->layerType as $term){
