@@ -343,24 +343,6 @@ class LTPLE_Client {
 		
 		$this->set_current_user();
 		
-		// newsletter unsubscription
-		
-		if(!empty($_GET['unsubscribe'])){
-		
-			$unsubscriber_id = $this->ltple_decrypt_uri(sanitize_text_field($_GET['unsubscribe']));
-			
-			if(is_numeric($unsubscriber_id)){
-				
-				update_user_meta(intval($unsubscriber_id), $this->_base . '_can_spam', 'false');
-
-				$this->message ='<div class="alert alert-success">';
-
-					$this->message .= '<b>Congratulations</b>! You successfully unsbuscribed from the newsletter';
-
-				$this->message .='</div>';
-			}
-		}
-		
 		// loaded hook
 		
 		do_action( 'ltple_loaded');
@@ -444,7 +426,7 @@ class LTPLE_Client {
 		
 		$this->user->loggedin = is_user_logged_in();		
 		
-		if($this->user->loggedin){
+		if( $this->user->loggedin ){
 
 			// get is admin
 			
@@ -461,6 +443,10 @@ class LTPLE_Client {
 				$this->user->is_editor = current_user_can( 'editor', $this->user->ID );			
 			}
 			
+			// get user can spam
+			
+			$this->user->can_spam = get_user_meta( $this->user->ID, $this->_base . '_can_spam',true);
+
 			// get user last seen
 			
 			$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
@@ -1514,11 +1500,18 @@ class LTPLE_Client {
 				
 				include($this->views . $this->_dev .'/navbar.php');
 			}
-			
+
+			if( empty( $this->user->can_spam ) && !isset($_POST['can_spam']) ){
+				
+				include($this->views . $this->_dev .'/newsletter-modal.php');
+			}
+
+			/*
 			if( empty( $this->user->channel ) && !isset($_POST['marketing-channel']) ){
 				
 				include($this->views . $this->_dev .'/channel-modal.php');
 			}
+			*/
 
 			$this->viewIncluded = false;			
 			

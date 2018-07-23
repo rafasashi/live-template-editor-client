@@ -204,6 +204,38 @@ class LTPLE_Client_Email {
 	
 	public function init_email(){
 		
+		// newsletter subscription
+		
+		if( isset($_POST["can_spam"]) && isset($_POST["can_spam_nonce_field"]) && wp_verify_nonce($_POST["can_spam_nonce_field"], "can_spam_nonce")){
+			
+			$can_spam = 'false';
+			
+			if( $_POST["can_spam"] === 'true'){
+				
+				$can_spam = $_POST["can_spam"];
+			}
+			
+			update_user_meta($this->parent->user->ID, $this->parent->_base . '_can_spam', $can_spam);
+		}
+		
+		// newsletter unsubscription
+		
+		if(!empty($_GET['unsubscribe'])){
+		
+			$unsubscriber_id = $this->parent->ltple_decrypt_uri(sanitize_text_field($_GET['unsubscribe']));
+			
+			if(is_numeric($unsubscriber_id)){
+				
+				update_user_meta(intval($unsubscriber_id), $this->parent->_base . '_can_spam', 'false');
+
+				$this->parent->message ='<div class="alert alert-success">';
+
+					$this->parent->message .= '<b>Congratulations</b>! You successfully unsbuscribed from the newsletter';
+
+				$this->parent->message .='</div>';
+			}
+		}		
+		
 		if( !is_admin() ){
 			
 			if( $this->parent->user->is_admin ){
@@ -411,7 +443,7 @@ class LTPLE_Client_Email {
 		
 		$can_spam = get_user_meta( $user->ID, $this->parent->_base . '_can_spam',true);
 
-		if($can_spam !== 'false' && is_numeric($model_id)){
+		if( $can_spam == 'true' && is_numeric($model_id)){
 			
 			if($model = get_post($model_id)){
 				
@@ -976,7 +1008,7 @@ class LTPLE_Client_Email {
 					
 					$can_spam = get_user_meta( $user['id'], $this->parent->_base . '_can_spam',true);
 
-					if( $can_spam !== 'false' ){
+					if( $can_spam == 'true' ){
 					
 						//get invitation title
 						

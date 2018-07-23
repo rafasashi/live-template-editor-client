@@ -41,16 +41,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'capability_type' 		=> 'post',
 			'has_archive' 			=> true,
 			'hierarchical' 			=> true,
-			'show_in_rest' 			=> true,
+			'show_in_rest' 			=> false,
 			//'supports' 			=> array( 'title', 'editor', 'excerpt', 'comments', 'thumbnail' ),
 			'supports' 				=> array( 'title', 'excerpt', 'thumbnail' ),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
-		));
+		)); 
 
 		$this->parent->register_post_type( 'user-layer', __( 'User Templates', 'live-template-editor-client' ), __( 'User Template', 'live-template-editor-client' ), '', array(
 
-			'public' 				=> true,
+			'public' 				=> false,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
@@ -62,7 +62,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'capability_type' 		=> 'post',
 			'has_archive' 			=> true,
 			'hierarchical' 			=> true,
-			'show_in_rest' 			=> true,
+			'show_in_rest' 			=> false,
 			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
 			'supports' 				=> array( 'title', 'author' ),
 			'menu_position' 		=> 5,

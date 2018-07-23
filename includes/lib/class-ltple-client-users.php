@@ -521,7 +521,7 @@
 				
 				$row .= '<span>';
 					
-					if($can_spam==='false'){
+					if( $can_spam != 'true' ){
 						
 						$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=25 height=25>";
 						$row .= "<a title=\"Subscribe to mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "true" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
@@ -532,7 +532,6 @@
 						$row .= "<a title=\"Unsubscribe from mailing lists\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_can_spam"), "ltple_can_spam" => "false" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_can_spam", $text) . "</a>";
 					}
 					
-				
 				$row .= '</span>';
 			}
 			elseif ($column_name == "sent") {
@@ -764,24 +763,7 @@
 
 			return $value;
 		}
-		
-		/*
-		public function filter_users_by_can_spam( $query ) {
-			
-			if( $this->view == 'leads' ){
-				
-				$query->set( 'meta_query', array(
-				
-					array(
-					
-						'key' 		=> $this->parent->_base . '_can_spam',
-						'compare'	=> 'NOT EXISTS',
-					),
-				));
-			}
-		}
-		*/
-		
+
 		public function filter_users_by_last_seen( $query ) {
 			
 			$compare = '';
@@ -809,30 +791,30 @@
 					
 					$meta_query[] = array (
 						
-						'relation' 		=>	'OR',
-						
 						array(
 						
 							'key' 		=> $this->parent->_base . '_can_spam',
 							'value'		=> 'false',
 							'compare'	=> '!=',
-						),
-						array(
-					
-							'key' 		=> $this->parent->_base . '_can_spam',
-							'compare'	=> 'NOT EXISTS',
 						)
 					);			
 				}
 				elseif( $this->view == 'unsubscribers' ){
 					
 					$meta_query[] = array (
-
+					
+						'relation' 		=>	'OR',
+						
 						array(
 						
 							'key' 		=> $this->parent->_base . '_can_spam',
 							'value'		=> 'false',
 							'compare'	=> '=',
+						),
+						array(
+					
+							'key' 		=> $this->parent->_base . '_can_spam',
+							'compare'	=> 'NOT EXISTS',
 						)
 					);						
 				}

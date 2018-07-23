@@ -97,7 +97,7 @@
 						
 					echo'<div style="margin:0 4px;" class="btn-group">';
 					
-						echo '<a class="btn btn-sm btn-info" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Elements</a>';
+						echo '<a id="elementsBtn" class="btn btn-sm btn-info" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Elements</a>';
 				
 						echo '<div id="LiveTplEditorDndDialog" title="Elements library" style="display:none;">';
 						echo '<div id="LiveTplEditorDndPanel">';
