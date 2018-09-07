@@ -45,7 +45,6 @@ class LTPLE_Client_Settings {
 		// get options
 		
 		$this->options 				 	= new stdClass();
-		$this->options->analyticsId  	= get_option( $this->parent->_base . 'analytics_id');
 		$this->options->emailSupport 	= get_option( $this->parent->_base . 'email_support');	
 		
 		$this->options->postTypes = array();
@@ -567,14 +566,6 @@ class LTPLE_Client_Settings {
 					'placeholder'	=> __( 'support@example.com', $this->plugin->slug )
 				),
 				array(
-					'id' 			=> 'analytics_id',
-					'label'			=> __( 'Analytics ID' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'text',
-					'default'		=> '',
-					'placeholder'	=> __( 'UA-XXXXXXXX-1', $this->plugin->slug )
-				),
-				array(
 					'id' 			=> 'post_types',
 					'label'			=> __( 'Post Types' , $this->plugin->slug ),
 					'description'	=> '',
@@ -767,14 +758,6 @@ class LTPLE_Client_Settings {
 					'type'			=> 'textarea',
 					'default'		=> $embedded_info['description'],
 					'placeholder'	=> 'Description',
-				),
-				array(
-				
-					'id' 			=> 'embedded_ggl_analytics_id',
-					'label'			=> __( 'Analytics ID' , $this->plugin->slug ),
-					'description'	=> 'Embedded Google Analytics ID',
-					'type'			=> 'text',
-					'placeholder'	=> 'UA-XXXXXXXX-1',
 				),
 				array(
 				

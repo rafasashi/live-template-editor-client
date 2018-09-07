@@ -1,5 +1,7 @@
 <?php 
 
+	
+	
 	$ltple = LTPLE_Client::instance();
 
 	//get page def
@@ -141,7 +143,6 @@
 		}
 		
 		$layerContent = LTPLE_Client_Layer::sanitize_content($layerContent);
-		
 	}
 	
 	// parse content elements
@@ -432,6 +433,10 @@
 				$head .= '<meta name="google-site-verification" content="'.$ggl_webmaster_id.'" />'.PHP_EOL;
 			}
 			
+			/*
+			
+			//TODO $post doesnt exist
+			
 			$author_name = get_the_author_meta('display_name', $post->post_author );
 			$author_mail = get_the_author_meta('user_email', $post->post_author );
 			
@@ -442,6 +447,7 @@
 				$head .= '<meta name="owner" content="' . $author_name . '" />' . PHP_EOL;
 				$head .= '<meta name="reply-to" content="'.$author_mail.'" />' . PHP_EOL;					
 			}
+			*/
 			
 			$locale = get_locale();
 			
@@ -456,13 +462,14 @@
 				
 				$head .= '<meta name="robots" content="'.$robots.'" />' . PHP_EOL;
 			}
-			
+			/*
 			$revised = $post->post_date;
 			
 			if( empty($layerSettings['meta_revised']) ){
 			
 				$head .= '<meta name="revised" content="' . $revised . '" />' . PHP_EOL;
 			}
+			*/
 			
 			$content = ucfirst($ltple->layer->title);
 			
@@ -730,6 +737,6 @@
 	$layer .='</body></html>' .PHP_EOL;
 	
 	// callback layer object
-	
+
 	do_action( 'ltple_layer_loaded', array($layer) );
 	

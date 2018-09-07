@@ -1460,25 +1460,7 @@ class LTPLE_Client {
 	}
 	
 	public function get_footer(){
-		
-		?>
-		<script> 
-		
-			<!-- Google Analytics Code -->
-		
-			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-			ga('create', '<?php echo $this->settings->options->analyticsId; ?>', 'auto');
-			ga('send', 'pageview');
-			
-			<!-- End Google Analytics Code -->
-			
-		</script>
-
-		<?php
 	}
 	
 	public function get_editor_shortcode(){
@@ -1708,7 +1690,7 @@ class LTPLE_Client {
 	public function update_user_layer(){	
 		
 		if( $this->user->loggedin ){
-			
+
 			if( $this->layer->type == 'user-layer' && empty( $this->user->layer ) ){
 				
 				//--------cannot be found --------
@@ -1859,7 +1841,11 @@ class LTPLE_Client {
 				
 				$is_static 		= ( ( $this->layer->layerOutput == 'hosted-page' || $this->layer->layerOutput == 'downloadable' ) ? true : false );
 
-				$post_content 	= $this->layer->sanitize_content( $_POST['postContent'], $is_static );
+				$post_content 	= base64_decode($_POST['postContent']);
+				
+				$post_content 	= urldecode($post_content);
+				
+				$post_content 	= $this->layer->sanitize_content( $post_content, $is_static );
 				
 				$post_css 		= ( !empty($_POST['postCss']) 		? stripcslashes( $_POST['postCss'] ) 		 : '' );
 				$post_js 		= ( !empty($_POST['postJs']) 		? stripcslashes( $_POST['postJs'] ) 		 : '' );
@@ -2191,7 +2177,7 @@ class LTPLE_Client {
 					}
 				}
 				elseif( $_POST['postAction'] == 'save' ){				
-				
+
 					//save layer
 					
 					$post_id = '';
@@ -2254,13 +2240,8 @@ class LTPLE_Client {
 							
 							http_response_code(404);
 							
-							$this->message ='<div class="alert alert-danger">';
-									
-								$this->message .= 'This default layer doesn\'t exists...';
-
-							$this->message .='</div>';
-							
-							include( $this->views . $this->_dev .'/message.php' );							
+							echo 'This default layer doesn\'t exists...';
+							exit;							
 						}
 					}
 					
@@ -2306,27 +2287,23 @@ class LTPLE_Client {
 								}
 								
 								wp_redirect($user_layer_url);
+								
 								echo 'Redirecting editor...';
 								exit;							
 							}
 							else{
-									
-								echo 'Content Saved!';
+								
+								echo 'Template successfully saved!';
 								exit;
 							}
 						}
 					}				
 					else{
-						
+					
 						http_response_code(404);
 						
-						$this->message ='<div class="alert alert-danger">';
-								
-							$this->message .= 'Error saving user layer...';
-
-						$this->message .='</div>';
-						
-						include( $this->views . $this->_dev .'/message.php' );
+						echo 'Error saving user layer...';
+						exit;
 					}
 				}	
 				else{
