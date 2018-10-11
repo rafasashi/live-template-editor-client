@@ -534,50 +534,60 @@ class LTPLE_Client_Settings {
 	 */
 	private function settings_fields () {
 		
+		$fields = array();
+		
+		if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
+
+			$fields[] = array(
+			
+				'id' 			=> 'server_url',
+				'label'			=> __( 'Server Url' , $this->plugin->slug ),
+				'description'	=> '',
+				'type'			=> 'text',
+				'default'		=> '',
+				'placeholder'	=> __( 'http://', $this->plugin->slug )
+			);
+			
+			$fields[] = array(
+			
+				'id' 			=> 'client_key',
+				'label'			=> __( 'Client key' , $this->plugin->slug ),
+				'description'	=> '',
+				'type'			=> 'password',
+				'default'		=> '',
+				'show'			=> true,
+				'placeholder'	=> __( '', $this->plugin->slug )
+			);		
+		}
+		
+		$fields[] = array(
+		
+			'id' 			=> 'email_support',
+			'label'			=> __( 'Support email' , $this->plugin->slug ),
+			'description'	=> '',
+			'type'			=> 'text',
+			'default'		=> '',
+			'placeholder'	=> __( 'support@example.com', $this->plugin->slug )
+		);
+
+		$fields[] = array(
+		
+			'id' 			=> 'post_types',
+			'label'			=> __( 'Post Types' , $this->plugin->slug ),
+			'description'	=> '',
+			'type'			=> 'checkbox_multi',
+			'options'		=> array(
+			
+				'post' 			=> 'Post',
+				'page' 			=> 'Page',
+				'email-model' 	=> 'Email Model',
+			),
+		);
+		
 		$settings['settings'] = array(
 			'title'					=> __( 'General settings', $this->plugin->slug ),
 			'description'			=> '',
-			'fields'				=> array(
-		
-				array(
-					'id' 			=> 'server_url',
-					'label'			=> __( 'Server Url' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'text',
-					'default'		=> '',
-					'placeholder'	=> __( 'http://', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'client_key',
-					'label'			=> __( 'Client key' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'password',
-					'default'		=> '',
-					'show'			=> true,
-					'placeholder'	=> __( '', $this->plugin->slug )
-				),								
-
-				array(
-					'id' 			=> 'email_support',
-					'label'			=> __( 'Support email' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'text',
-					'default'		=> '',
-					'placeholder'	=> __( 'support@example.com', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'post_types',
-					'label'			=> __( 'Post Types' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'checkbox_multi',
-					'options'		=> array(
-					
-						'post' 			=> 'Post',
-						'page' 			=> 'Page',
-						'email-model' 	=> 'Email Model',
-					),
-				),
-			)
+			'fields'				=> $fields
 		);
 	
 		$settings['urls'] = array(

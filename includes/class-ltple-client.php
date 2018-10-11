@@ -324,10 +324,10 @@ class LTPLE_Client {
 		add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
 
 		// Custom default layer template
-
+		
 		add_filter('template_include', array( $this, 'editor_templates'), 1 );
 
-		add_action('template_redirect', array( $this, 'editor_output' ));		
+		add_action('template_redirect', array( $this, 'editor_output' ));				
 		
 		add_filter( 'pre_get_posts', function($query) {
 
@@ -1100,8 +1100,9 @@ class LTPLE_Client {
 					exit;
 				}
 				else{
-				
+					
 					//include( $this->views . $this->_dev .'/editor-iframe.php' );
+					
 					include( $this->views . $this->_dev .'/editor-proxy.php' );
 				}
 			}

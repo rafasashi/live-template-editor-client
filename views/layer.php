@@ -520,6 +520,7 @@
 			*/
 		}
 		
+		/*
 		$ggl_analytics_id = get_option( $ltple->_base . 'embedded_ggl_analytics_id' );
 						
 		if( !empty($ggl_analytics_id) ){
@@ -534,7 +535,7 @@
 				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 				})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-				ga('create', '<?php $layer .= $ggl_analytics_id; ?>', 'auto');
+				ga('create', '<?php echo $ggl_analytics_id; ?>', 'auto');
 				ga('send', 'pageview');
 				
 				<!-- End Google Analytics Code -->
@@ -542,7 +543,8 @@
 			</script>
 
 			<?php					
-		}			
+		}
+		*/		
 		
 	$head .= '</head>';
 	

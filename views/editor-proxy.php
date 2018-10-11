@@ -14,7 +14,7 @@
 	
 	// NB: query unvisible for the final user
 	
-	$request_url = $this->server->url . '/editor/?uri=' . $this->layer->id 
+	$request_url = $this->server->url . '/server/?uri=' . $this->layer->id 
 												.'&lk=' . $this->layer->key 
 												.'&lo=' . $this->layer->outputMode
 												.'&pu=' . urlencode($this->urls->plans)												
@@ -24,7 +24,6 @@
 												.'&ik='	. $iframe_key
 												.( ( !empty($this->_dev) ) ? '&debug=1' : '' );
 												
-	//var_dump($request_url);exit; 
 	// get request_method
 	
 	$request_method = $_SERVER['REQUEST_METHOD'];	

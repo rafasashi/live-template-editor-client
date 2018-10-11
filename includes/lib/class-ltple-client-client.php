@@ -30,6 +30,15 @@ class LTPLE_Client_Client {
 			$this->url = $site_url;
 		}
 		
-		$this->key = get_option( $this->parent->_base . 'client_key' );
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		
+		if( is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
+		
+			$this->key = md5($this->url);
+		}
+		else{
+			
+			$this->key = get_option( $this->parent->_base . 'client_key' );
+		}
 	}
 }

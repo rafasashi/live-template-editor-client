@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: Live Template Editor Client
- * Version: 1.1.0
+ * Version: 1.1.1
  * Plugin URI: https://github.com/rafasashi
  * Description: Live Template Editor allows you to edit and save HTML5 and CSS3 templates.
  * Author: Rafasashi
@@ -26,73 +26,60 @@
 	*/
 	
 	if ( ! defined( 'ABSPATH' ) ) exit;
-	
-	if ( ! defined( 'LTPLE_MARKETPLACE' ) ){
-		
-		define( 'LTPLE_MARKETPLACE', false);
-	}
 
-	$dev_ips = array();
-	
-	if( defined('MASTER_ADMIN_IPS') ){
-		
-		$dev_ips = MASTER_ADMIN_IPS;
-	}
-	
-	$mode = ( ( in_array( $_SERVER['REMOTE_ADDR'], $dev_ips ) || ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && in_array( $_SERVER['HTTP_X_FORWARDED_FOR'], $dev_ips ) )) ? '-dev' : '');
-	
-	// Load plugin functions
-	
-	require_once( 'includes'.$mode.'/functions.php' );	
-	
-	// Load plugin class files
-
-	require_once( 'includes' . $mode . '/class-ltple-client.php' );
-	require_once( 'includes' . $mode . '/class-ltple-client-settings.php' );
-	require_once( 'includes' . $mode . '/class-ltple-client-object.php' );
-		
-	// Autoload plugin libraries
-	
-	$lib = glob( __DIR__ . '/includes'.$mode.'/lib/class-ltple-client-*.php');
-	
-	foreach($lib as $file){
-		
-		require_once( $file );
-	}
-	
-	/**
-	 * Returns the main instance of LTPLE_Client to prevent the need to use globals.
-	 *
-	 * @since  1.0.0
-	 * @return object LTPLE_Client
-	 */
-	 
-	function LTPLE_Client ( $version = '1.0.0', $mode = '' ) {
-		
-		register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );
-		
-		$instance = LTPLE_Client::instance( __FILE__, $version );
-		
-		if ( is_null( $instance->_dev ) ) {
+	if( in_array('live-template-editor-server/live-template-editor-server.php', apply_filters('active_plugins', get_option('active_plugins'))) && isset($_REQUEST['uri']) && isset($_REQUEST['pu']) && isset($_REQUEST['lk']) && isset($_REQUEST['lo']) ){
 			
-			$instance->_dev = $mode;
-		}				
-
-		if ( is_null( $instance->settings ) ) {
-			
-			$instance->settings = LTPLE_Client_Settings::instance( $instance );
-		}
-
-		return $instance;
-	}
-	
-	// start plugin
-
-	if( $mode == '-dev' ){
-		
-		LTPLE_Client( '1.2.3', $mode ); 
+		//local editor session start
 	}
 	else{
+
+		// Load plugin functions
 		
-		LTPLE_Client( '1.2.3', $mode );
+		require_once( 'includes/functions.php' );	
+		
+		// Load plugin class files
+
+		require_once( 'includes/class-ltple-client.php' );
+		require_once( 'includes/class-ltple-client-settings.php' );
+		require_once( 'includes/class-ltple-client-object.php' );
+			
+		// Autoload plugin libraries
+		
+		$lib = glob( __DIR__ . '/includes/lib/class-ltple-client-*.php');
+		
+		foreach($lib as $file){
+			
+			require_once( $file );
+		}
+		
+		/**
+		 * Returns the main instance of LTPLE_Client to prevent the need to use globals.
+		 *
+		 * @since  1.0.0
+		 * @return object LTPLE_Client
+		 */
+		 
+		function LTPLE_Client ( $version = '1.0.0', $mode = '' ) {
+			
+			register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );
+			
+			$instance = LTPLE_Client::instance( __FILE__, $version );
+			
+			if ( is_null( $instance->_dev ) ) {
+				
+				$instance->_dev = $mode;
+			}				
+
+			if ( is_null( $instance->settings ) ) {
+				
+				$instance->settings = LTPLE_Client_Settings::instance( $instance );
+			}
+
+			return $instance;
+		}
+		
+		// start plugin
+
+				
+		LTPLE_Client( '1.2.4' );
 	}
