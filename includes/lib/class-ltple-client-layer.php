@@ -1677,6 +1677,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	}
 	
+	public static function sanitize_url($url){
+		
+		if( is_ssl() ){
+			
+			$url = str_replace( 'http://', 'https://', $url);
+		}
+		else{
+			
+			$url = str_replace( 'https://', 'http://', $url);
+		}
+		
+		return $url;
+	}
+	
 	public static function sanitize_content($str,$is_hosted=false){
 		
 		$str = stripslashes($str);
@@ -2517,10 +2531,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					exit;
 				}
-				elseif(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
-				
-				//if( in_array( $this->type, $this->parent->settings->options->postTypes ) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
-					
+				elseif(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && $this->layerOutput == 'downloadable' ){
+				 
 					// sanitize content
 					
 					$output = str_replace(array('<?php'),'',$output);

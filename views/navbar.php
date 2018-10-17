@@ -204,6 +204,8 @@
 								
 								echo'<input type="hidden" name="submitted" id="submitted" value="true">';
 								
+								echo'<div id="navLoader" style="float:left;margin-right:10px;display:none;"><img src="' . $this->assets_url . 'loader.gif" style="height: 20px;"></div>';				
+								
 								echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>';
 								
 							echo'</form>';

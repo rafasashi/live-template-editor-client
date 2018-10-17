@@ -928,12 +928,16 @@ class LTPLE_Client {
 			}
 			elseif( $post->post_type == 'user-layer' ){
 				
+				if(!isset($post->layer_id)){
+					
+					$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+				}
+				
 				if( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
 					
-					if(!isset($post->layer_id)){
-						
-						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
-					}
+					$path = $this->views . $this->_dev .'/layer.php';
+				}
+				elseif( isset($_REQUEST['p']) && isset($_REQUEST['tk']) &&  $_REQUEST['p'] == $this->ltple_decrypt_str($_REQUEST['tk']) ){
 					
 					$path = $this->views . $this->_dev .'/layer.php';
 				}

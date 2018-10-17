@@ -1,7 +1,5 @@
 <?php 
 
-	
-	
 	$ltple = LTPLE_Client::instance();
 
 	//get page def
@@ -10,19 +8,19 @@
 	
 	//get layer static css url
 
-	$layerStaticCssUrl = $ltple->layer->layerStaticCssUrl;
+	$layerStaticCssUrl = LTPLE_Client_Layer::sanitize_url( $ltple->layer->layerStaticCssUrl );
 	
 	//get layer static js url
 	
-	$layerStaticJsUrl = $ltple->layer->layerStaticJsUrl;
+	$layerStaticJsUrl = LTPLE_Client_Layer::sanitize_url( $ltple->layer->layerStaticJsUrl );
 	
 	//get default static css url
 	
-	$defaultStaticCssUrl = $ltple->layer->defaultStaticCssUrl;
+	$defaultStaticCssUrl = LTPLE_Client_Layer::sanitize_url( $ltple->layer->defaultStaticCssUrl );
 	
 	//get default static js url
 	
-	$defaultStaticJsUrl = $ltple->layer->defaultStaticJsUrl;
+	$defaultStaticJsUrl = LTPLE_Client_Layer::sanitize_url( $ltple->layer->defaultStaticJsUrl );
 	
 	//get default static path
 	
@@ -76,6 +74,9 @@
 	
 	$layerHead 			= '';
 	$layerContent 		= '';
+	
+	$headStyles = array();
+	$headLinks = array();
 
 	if( $layerOutput == 'hosted-page' || $layerOutput == 'downloadable' ){
 		
@@ -103,8 +104,59 @@
 			foreach ($nodes as $node) {
 				
 				$node->parentNode->removeChild($node);
+			}
+
+			// remove duplicate styles
+			
+			$nodes = $xpath->query('//style');
+			
+			foreach ($nodes as $node) {
+				
+				$nodeValue 	= $node->nodeValue;
+				
+				if( !empty($nodeValue) ){
+				
+					if( !in_array($nodeValue,$headStyles) ){
+					
+						$headStyles[] = $nodeValue;
+					}
+					else{
+					
+						$node->parentNode->removeChild($node);
+					}
+				}
 			}		
 			
+			// remove duplicate links
+			
+			$nodes = $xpath->query('//link');
+			
+			foreach ($nodes as $node) {
+				
+				$nodeValue 	= $node->getAttribute('href');
+				
+				if( !empty($nodeValue) ){
+					
+					$link = LTPLE_Client_Layer::sanitize_url($nodeValue);
+				
+					if( !in_array($link,$headLinks) ){
+						
+						if( $link != $nodeValue ){
+							
+							//normalize link
+							
+							$node->setAttribute('href',$link);
+						}
+					
+						$headLinks[] = $link;
+					}
+					else{
+					
+						$node->parentNode->removeChild($node);
+					}
+				}
+			}
+
 			// get head
 			
 			$layerHead = $dom->saveHtml( $xpath->query('/html/head')->item(0) );
@@ -232,7 +284,7 @@
 	
 	if( !empty($layerCss) ){
 		
-		$regex = '`https\:\/\/fonts\.googleapis\.com\/css\?family=([0-9A-Za-z\|\,\+\:]+)`';
+		$regex = '`\/\/fonts\.googleapis\.com\/css\?family=([0-9A-Za-z\|\,\+\:]+)`';
 		$fonts = preg_match($regex, $layerCss,$match);
 		
 		if(isset($match[1])){
@@ -251,7 +303,7 @@
 			
 			if( !empty($font_url) ){
 				
-				$regex = '`https\:\/\/fonts\.googleapis\.com\/css\?family=([0-9A-Za-z\|\,\+\:]+)`';
+				$regex = '`\/\/fonts\.googleapis\.com\/css\?family=([0-9A-Za-z\|\,\+\:]+)`';
 				$fonts = preg_match($regex, $font_url,$match);
 
 				if(isset($match[1])){
@@ -272,13 +324,13 @@
 	
 		$head .= '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
 		$head .= '<!--[if lt IE 9]>';
-		$head .= '<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>';
+		$head .= '<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>';
 		$head .= '<![endif]-->';	
 
 		$head .= '<meta charset="UTF-8">';
 		$head .= '<meta name="viewport" content="width=device-width, initial-scale=1">';
 		
-		$head .= '<link rel="profile" href="http://gmpg.org/xfn/11">';
+		$head .= '<link rel="profile" href="//gmpg.org/xfn/11">';
 		
 		$head .= '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
 		$head .= '<link rel="dns-prefetch" href="//s.w.org">';
@@ -287,26 +339,35 @@
 		
 		if( !empty($googleFonts) ){
 		
-			$head .= '<link href="https://fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
+			$head .= '<link href="//fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
 		}
 		
 		if( !empty($fontsLibraries) ){
 		
 			foreach( $fontsLibraries as $font ){
 		
-				$head .= '<link href="'.$font.'" rel="stylesheet" />';
+				$font = LTPLE_Client_Layer::sanitize_url( $font );
+				
+				if( !empty($font) && !in_array($font,$headLinks) ){
+		
+					$head .= '<link href="' . $font . '" rel="stylesheet" />';
+				
+					$headLinks[] = $font;
+				}
 			}
 		}	
-	
+		
 		if( !empty($layerCssLibraries) ){
 			
 			foreach($layerCssLibraries as $term){
 				
-				$css_url = get_option( 'css_url_' . $term->slug);
+				$css_url = LTPLE_Client_Layer::sanitize_url( get_option( 'css_url_' . $term->slug) );
+				
+				if( !empty($css_url) && !in_array($css_url,$headLinks) ){
 
-				if( !empty($css_url) ){
-					
-					$head .= '<link href="'.$css_url.'" rel="stylesheet" type="text/css" />';
+					$head .= '<link href="' . $css_url . '" rel="stylesheet" type="text/css" />';
+						
+					$headLinks[] = $css_url;
 				}
 				
 				$css_content = get_option( 'css_content_' . $term->slug);
@@ -329,7 +390,14 @@
 			
 			foreach($layerMeta['link'] as $url){
 				
-				$head .= '<link href="'.$url.'" rel="stylesheet" type="text/css" />';
+				$url = LTPLE_Client_Layer::sanitize_url( $url );
+				
+				if( !empty($url) && !in_array($url,$headLinks) ){
+				
+					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />';
+			
+					$headLinks[] = $url;
+				}
 			}
 		}			
 		
@@ -338,13 +406,25 @@
 			// output css files
 			
 			if( !empty($defaultCss) ){
-			
-				$head .= '<link href="' . $defaultStaticCssUrl . '" rel="stylesheet" />';
+				
+				$defaultCss = LTPLE_Client_Layer::sanitize_url( $defaultStaticCssUrl );
+				
+				if( !empty($defaultCss) && !in_array($defaultCss,$headLinks) ){
+				
+					$head .= '<link href="' . $defaultCss . '" rel="stylesheet" />';
+				
+					$headLinks[] = $defaultCss;
+				}
 			}
 			
 			if( $ltple->layer->type == 'user-layer' && $layerCss != $defaultCss ){
 				
-				$head .= '<link href="' . $layerStaticCssUrl . '" rel="stylesheet" />';
+				$layerStaticCssUrl = LTPLE_Client_Layer::sanitize_url( $layerStaticCssUrl );
+				
+				if( !empty($layerStaticCssUrl) && !in_array($layerStaticCssUrl,$headLinks) ){
+				
+					$head .= '<link href="' . $layerStaticCssUrl . '" rel="stylesheet" />';
+				}
 			}
 			
 			// output custom meta tags
@@ -381,8 +461,8 @@
 						}
 						elseif( $key == 'link_author' ){
 							
-							$head .= '<link rel="author" href="'.$content.'" />'.PHP_EOL;
-							$head .= '<link rel="publisher" href="'.$content.'" />'.PHP_EOL;
+							$head .= '<link rel="author" href="' . LTPLE_Client_Layer::sanitize_url( $content ) . '" />'.PHP_EOL;
+							$head .= '<link rel="publisher" href="' . LTPLE_Client_Layer::sanitize_url( $content ) . '" />'.PHP_EOL;
 						}
 						elseif( $key == 'meta_image' ){
 							
@@ -405,7 +485,7 @@
 							}
 							elseif( $markup == 'link' ){
 								
-								$head .= '<link rel="'.$name.'" href="'.$content.'" />'.PHP_EOL;
+								$head .= '<link rel="'.$name.'" href="' . LTPLE_Client_Layer::sanitize_url( $content ) . '" />'.PHP_EOL;
 							}
 						}
 					}
@@ -492,7 +572,7 @@
 			
 			if( !empty($layerEmbedded) ){
 			
-				$url = $layerEmbedded;
+				$url = LTPLE_Client_Layer::sanitize_url( $layerEmbedded );
 				
 				$head .= '<meta name="url" content="'.$url.'" />' . PHP_EOL;
 				//$head .= '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
@@ -547,37 +627,6 @@
 		*/		
 		
 	$head .= '</head>';
-	
-	// parse head elements
-	
-	libxml_use_internal_errors( true );
-	
-	$dom= new DOMDocument();
-	$dom->loadHTML('<?xml encoding="UTF-8">' . $head); 
-
-	$xpath = new DOMXPath($dom);
-
-	// remove duplicate links
-	
-	$links = [];
-	
-	$nodes = $xpath->query('//link');
-	
-	foreach ($nodes as $node) {
-		
-		$link = $node->getAttribute('href');
-		
-		if( !isset($links[$link]) ){
-			
-			$links[$link] = '';
-		}
-		else{
-			
-			$node->parentNode->removeChild($node);
-		}
-	}			
-	
-	$head = $dom->saveHtml( $xpath->query('/html/head')->item(0) );
 
 	// get layer
 	
@@ -591,7 +640,7 @@
 		
 		$layer .= '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
 		
-		if( ( $layerOutput != 'hosted-page' && $layerOutput != 'downloadable' ) && $layerCss!='' ){
+		if( $layerOutput != 'downloadable' && $layerCss!='' ){
 
 			$layer .= $layerCss .PHP_EOL;
 		}
@@ -717,7 +766,7 @@
 		
 		$layer .='<script id="LiveTplEditorScript">' .PHP_EOL;
 		
-			if( ( $layerOutput != 'hosted-page' && $layerOutput != 'downloadable' ) && $layerJs != '' ){
+			if( $layerOutput != 'downloadable' && $layerJs != '' ){
 
 				$layer .= $layerJs .PHP_EOL;				
 			}				
