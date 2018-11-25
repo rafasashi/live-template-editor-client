@@ -264,6 +264,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					array($post->post_type),
 					'side'
 				);
+				
+				$this->parent->admin->add_meta_box (
+					
+					'layer-user',
+					__( 'Template User ID', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'side'
+				);
 			}
 			elseif( $post->post_type == 'user-layer' || ( !empty($this->parent->settings->options->postTypes) && in_array( $post->post_type, $this->parent->settings->options->postTypes ) ) ){
 				
@@ -388,18 +396,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'emails'  			=> 'Emails',
 			'memes'  			=> 'Memes',
 			'pricing-tables'	=> 'Pricing Tables',
-			'hosted'  			=> 'Hosted',
 			'sandbox' => array(
 			
 				'name' 		=> 'Sandbox',
-				'options' 	=> array(
-				
-					'visibility'	=> 'admin',
-				),
-			),			
-			'tailored' => array(
-			
-				'name' 		=> 'Tailored',
 				'options' 	=> array(
 				
 					'visibility'	=> 'admin',
@@ -409,49 +408,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function get_layer_ranges(){
-
-		$this->ranges = $this->get_terms( 'layer-range', array(
+		
+		$this->ranges = $this->get_terms( 'layer-range',array(
 				
-			'demo'  => 'Demo',
-			'single-page' => array(
+			'demo' => array(
 			
-				'name' 		=> 'Single Page',
+				'name' 		=> 'Demo',
 				'options' 	=> array(
 				
-					'price_amount'	=> 10,
-					'price_period' 	=> 'month',
-					'storage_amount'=> 1,
-					'storage_unit' 	=> 'templates',
-				),
-			),
-			'multi-page' => array(
-			
-				'name' 		=> 'Multi-Page',
-				'options' 	=> array(
-				
-					'price_amount'	=> 15,
-					'price_period' 	=> 'month',
-					'storage_amount'=> 1,
-					'storage_unit' 	=> 'templates',
-				),
-			),
-			'tailored-single-page' => array(
-			
-				'name' 		=> 'Tailored Single Page',
-				'options' 	=> array(
-				
-					'price_amount'	=> 10,
-					'price_period' 	=> 'month',
-					'storage_amount'=> 1,
-					'storage_unit' 	=> 'templates',
-				),
-			),
-			'tailored-multi-page' => array(
-			
-				'name' 		=> 'Tailored Multi-Page',
-				'options' 	=> array(
-				
-					'price_amount'	=> 15,
+					'price_amount'	=> 0,
 					'price_period' 	=> 'month',
 					'storage_amount'=> 0,
 					'storage_unit' 	=> 'templates',
@@ -862,6 +827,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->set_uri();
 
 		if( $this->uri > 0 ){
+
+			//set layer data
 			
 			$this->set_layer($this->uri);
 		}				
@@ -879,7 +846,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$this->type 	= $q->post_type;
 					$this->slug 	= $q->post_name;
 					$this->title 	= $q->post_title;
-					
+		
 					if( $this->type == 'user-layer' ){
 					
 						$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
@@ -974,22 +941,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$this->pageDef = get_post_meta( $this->defaultId, 'pageDef', true );
 					
-					//get default static url
-					
-					$this->defaultStaticUrl = $this->get_static_url($this->defaultId,$this->defaultId);
-					
-					//get default static css url
-					
-					$this->defaultStaticCssUrl = $this->get_static_asset_url($this->id,'css','default_style');
-
-					//get default static js url
-					
-					$this->defaultStaticJsUrl = $this->get_static_asset_url($this->id,'js','default_script');						
-					
-					//get default static dir
-					
-					$this->defaultStaticDir = $this->get_static_dir($this->defaultId);
-					
 					//get default static path
 					
 					$this->defaultStaticPath = $this->get_static_path($this->defaultId,$this->defaultId);
@@ -1001,23 +952,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					//get default static js path
 					
 					$this->defaultStaticJsPath = $this->get_static_asset_path($this->id,'js','default_script');
-					
-					//get layer static url
-					
-					$this->layerStaticUrl = $this->get_static_url($this->id,$this->defaultId);
-					
-					//get layer static css url
-					
-					$this->layerStaticCssUrl = $this->get_static_asset_url($this->id,'css','custom_style');
 
-					//get layer static js url
+					//get default static url
 					
-					$this->layerStaticJsUrl = $this->get_static_asset_url($this->id,'js','custom_script');						
+					$this->defaultStaticUrl = $this->get_static_url($this->defaultId,$this->defaultId);
+					
+					//get default static css url
+					
+					$this->defaultStaticCssUrl = ( file_exists($this->defaultStaticCssPath) ? $this->get_static_asset_url($this->id,'css','default_style') : '' );
 
-					//get layer static dir
+					//get default static js url
 					
-					$this->layerStaticDir = $this->get_static_dir($this->id);
+					$this->defaultStaticJsUrl = ( file_exists($this->defaultStaticJsPath) ? $this->get_static_asset_url($this->id,'js','default_script') : '' );					
 					
+					//get default static dir
+					
+					$this->defaultStaticDir = $this->get_static_dir($this->defaultId);
+
 					//get layer static path
 					
 					$this->layerStaticPath = $this->get_static_path($this->id,$this->defaultId);
@@ -1028,8 +979,24 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 					//get layer static js path
 					
-					$this->layerStaticJsPath = $this->get_static_asset_path($this->id,'js','custom_script');						
-						
+					$this->layerStaticJsPath = $this->get_static_asset_path($this->id,'js','custom_script');
+					
+					//get layer static url
+					
+					$this->layerStaticUrl = $this->get_static_url($this->id,$this->defaultId);
+					
+					//get layer static css url
+					
+					$this->layerStaticCssUrl = ( file_exists($this->layerStaticCssPath) ? $this->get_static_asset_url($this->id,'css','custom_style') : '' );
+
+					//get layer static js url
+					
+					$this->layerStaticJsUrl = ( file_exists($this->layerStaticJsPath) ? $this->get_static_asset_url($this->id,'js','custom_script') : '' );						
+
+					//get layer static dir
+					
+					$this->layerStaticDir = $this->get_static_dir($this->id);
+								
 					//get layer output
 					
 					$this->layerOutput = get_post_meta( $this->defaultId, 'layerOutput', true );
@@ -1422,6 +1389,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'default'	=>'-120px 0px -20px 0px',
 				'description'=>''
 		);
+		
+		$fields[]=array( 
+		
+			"metabox" =>
+			
+				array('name'	=> "layer-user"),
+				'id'			=> "layerUserId",
+				'label'			=> "",
+				'type'			=> 'number',
+				'default'		=> 0,
+				'description'	=> ''
+		); 
 		
 		return $fields;
 	}

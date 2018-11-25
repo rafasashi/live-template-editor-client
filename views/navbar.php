@@ -43,7 +43,7 @@
 				
 				echo'<div class="pull-left">';
 
-					echo'<a style="margin-left: 6px;" class="btn btn-sm btn-primary" href="' . $ltple->urls->editor . '?media=user-images" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
+					echo'<a style="margin-left:6px;" class="btn btn-sm btn-primary" href="' . $ltple->urls->editor . '?media=user-images" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
 						
 						echo'Media';
 					
@@ -51,7 +51,7 @@
 				
 				echo'</div>';
 				
-				if( $ltple->settings->options->enable_ranking == 'on' ){
+				if( ( empty($ltple->layer->id) || $ltple->layer->id < 1 ) && $ltple->settings->options->enable_ranking == 'on' ){
 				
 					echo'<div class="pull-left">';
 			 
@@ -64,15 +64,11 @@
 					echo'</div>';
 				}
 			}
-
-		echo'</div>';
-		
-		echo'<div class="col-xs-6 col-sm-8 text-right" style="padding:0 5px;">';
 			
-			if( $ltple->layer->id > 0 ){			
-			
-				// get elements
+			if( $ltple->layer->id > 0 ){
 				
+				// elements button
+			
 				$elemLibraries = array();
 				
 				if( !empty($ltple->layer->defaultElements['name'][0]) ){
@@ -92,12 +88,12 @@
 						}
 					} 
 				}
-				
+			
 				if( !empty($elemLibraries) && ( isset($_GET['edit']) || $this->user->plan["info"]["total_price_amount"] == 0 || $this->layer->type != 'cb-default-layer' ) ){
-						
-					echo'<div style="margin:0 4px;" class="btn-group">';
 					
-						echo '<a id="elementsBtn" class="btn btn-sm btn-info" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Elements</a>';
+					echo'<div class="pull-left">';
+					
+						echo '<a style="margin-left:6px;" id="elementsBtn" class="btn btn-sm btn-info" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Elements</a>';
 				
 						echo '<div id="LiveTplEditorDndDialog" title="Elements library" style="display:none;">';
 						echo '<div id="LiveTplEditorDndPanel">';
@@ -180,15 +176,22 @@
 				
 					echo'</div>';
 				}
+			}
 
-				// get save button				
-				
+		echo'</div>';
+		
+		echo'<div class="col-xs-6 col-sm-8 text-right" style="padding:0 5px;">';
+			
+			if( $ltple->layer->id > 0 ){			
+			
 				if( is_admin() || ( $ltple->layer->type != 'cb-default-layer' && $ltple->user->plan["info"]["total_price_amount"] > 0 )){
 
 					if( $ltple->user->has_layer ){
 						
-						if( !empty($ltple->user->layer->post_title) ){
+						// save button
 						
+						if( !empty($ltple->user->layer->post_title) ){
+
 							$post_title = $ltple->user->layer->post_title;
 							
 							echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '" id="savePostForm" method="post">';
@@ -206,10 +209,18 @@
 								
 								echo'<div id="navLoader" style="float:left;margin-right:10px;display:none;"><img src="' . $this->assets_url . 'loader.gif" style="height: 20px;"></div>';				
 								
-								echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>';
+								echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>';
 								
 							echo'</form>';
 						}
+						
+						
+						
+						// view button
+						
+						echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:0px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+						
+						// delete button
 						
 						if( $ltple->layer->type == 'user-layer' ){
 
@@ -225,13 +236,13 @@
 
 							echo'</div>';						
 						}
-						
-						echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:0px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 					}
 				}
 
 				if( $ltple->layer->type == 'cb-default-layer' && $ltple->user->is_editor ){
-
+					
+					// load button
+					
 					$post_title = $ltple->layer->title;
 					
 					echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '" id="savePostForm" method="post">';
@@ -240,7 +251,6 @@
 						echo'<input type="hidden" name="postContent" id="postContent" value="">';
 						echo'<input type="hidden" name="postCss" id="postCss" value="">';
 						echo'<input type="hidden" name="postJs" id="postJs" value="">';
-						echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 						echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
 						 
 						wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
@@ -248,11 +258,24 @@
 						echo'<input type="hidden" name="submitted" id="submitted" value="true">';
 						
 						if( isset($_GET['edit']) ){
-						
-							echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="updateBtn">Update</button>';
+							
+							echo'<input type="hidden" name="postAction" id="postAction" value="update">';
+							
+							echo'<div id="navLoader" style="float:left;margin-right:10px;display:none;"><img src="' . $this->assets_url . 'loader.gif" style="height: 20px;"></div>';
+							
+							echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Update</button>';
+						}
+						else{
+							
+							echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 						}
 						
 					echo'</form>';
+					
+					// view button
+					
+					echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:0px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+					
 				}				
 			}
 			

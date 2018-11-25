@@ -554,7 +554,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 
 					// create image directory
 					
-					if (!file_exists($this->dir)) {
+					if(!file_exists($this->dir)) {
 						
 						mkdir($this->dir, 0755, true);
 						

@@ -233,9 +233,9 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 								exit;
 							}
 						}
-						elseif( $_FILES[$file]['type'] !== 'application/octet-stream' ) {
+						elseif( !in_array($_FILES[$file]['type'], array('application/octet-stream','application/json'))  ) {
 							
-							echo 'This is not a valid file type...';
+							echo '"' . $_FILES[$file]['type'] . '" is not a valid file type...';
 							exit;							
 						}
 						elseif( $json = file_get_contents($_FILES[$file]['tmp_name'])){

@@ -749,7 +749,7 @@
 				
 				if( !empty($js_content) ){
 				
-					$layer .= $js_content .PHP_EOL;	
+					$layer .= stripcslashes($js_content) .PHP_EOL;	
 				}
 			}
 		}

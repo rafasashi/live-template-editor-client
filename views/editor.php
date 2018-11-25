@@ -11,7 +11,7 @@
 		$_SESSION['message'] = '';
 	}
 	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
-
+	
 		$has_storage = ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? false : true );
 
 		echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';

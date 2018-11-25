@@ -600,7 +600,13 @@ class LTPLE_Client_Settings {
 					'label'			=> __( 'Editor' , $this->plugin->slug ),
 					'description'	=> '[ltple-client-editor]',
 					'type'			=> 'slug',
-					'callback'		=> 'test',
+					'placeholder'	=> __( 'editor', $this->plugin->slug )
+				),
+				array(
+					'id' 			=> 'appsSlug',
+					'label'			=> __( 'Apps' , $this->plugin->slug ),
+					'description'	=> '[ltple-client-apps]',
+					'type'			=> 'slug',
 					'placeholder'	=> __( 'editor', $this->plugin->slug )
 				),
 				array(
@@ -869,7 +875,6 @@ class LTPLE_Client_Settings {
 	 * @return void
 	 */
 	public function register_settings () {
-		
 		
 		// get tabs
 		

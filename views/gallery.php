@@ -28,7 +28,33 @@
 
 	//get item ranges
 	
-	$ranges =[];
+	$ranges = [];
+	
+	$meta_query = [];
+	
+	if( !$this->user->is_editor ){
+		
+		$meta_query = array(
+		
+			'relation' => 'OR',
+			array(
+				'key' 		=> 'layerUserId',
+				'value' 	=> $this->user->ID,
+				'type' 		=> 'NUMERIC',
+				'compare' 	=> '='
+			),			
+			array(
+				'key' 		=> 'layerUserId',
+				'value' 	=> 0,
+				'type' 		=> 'NUMERIC',
+				'compare' 	=> '='
+			),
+			array(
+				'key' 		=> 'layerUserId',
+				'compare' 	=> 'NOT EXISTS'
+			),
+		);	
+	}
 	
 	$query = new WP_Query(array( 
 		'post_type' 		=> 'cb-default-layer', 
@@ -41,9 +67,10 @@
 				'terms' 			=> $layer_type,
 				'include_children' 	=> false
 			)
-		)					
+		),
+		'meta_query' => $meta_query,
 	));
-	
+
 	if( !empty($query->posts) ){
 	
 		foreach( $query->posts as $post_id ){
@@ -97,13 +124,13 @@
 		'terms' 			=> $layer_type,
 		'include_children' 	=> false
 	);
-
 	$query = new WP_Query(array( 
 	
 		'post_type' 	=> 'cb-default-layer', 
 		'posts_per_page'=> 15,
 		'paged' 		=> $paged,
-		'tax_query' 	=> $tax_query,					
+		'tax_query' 	=> $tax_query,
+		'meta_query' 	=> $meta_query,
 	));
 	
 	foreach($this->all->layerType as $term){
@@ -299,7 +326,7 @@
 			
 			echo '<ul class="nav nav-tabs tabs-left">';
 				
-				echo '<li class="gallery_type_title">Template library</li>';
+				echo '<li class="gallery_type_title" style="border-top: none;">Template library</li>';
 
 					$class='';
 					
@@ -309,18 +336,27 @@
 
 						if( $term->slug == $layer_type ){
 							
-							$class=' class="active"';
+							$class=' class="active" style="border-top: none;"';
+							
+							$layer_count = 0;
+							
+							foreach($ranges as $range){
+								
+								$layer_count += $range['count'];
+							}
 						}
 						else{
 							
 							$class='';
+							
+							$layer_count = $term->count;
 						}
 
 						if($term->visibility == 'anyone'){
 							
 							echo '<li'.$class.'>';
 							
-								echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge" style="padding: 1px 5px;font-size:11px;">' . $term->count . '</span></a>';
+								echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge pull-right" style="margin-top: 4px;padding: 1px 5px;font-size:11px;">' . $layer_count . '</span></a>';
 								
 							echo '</li>';					
 						}
@@ -328,7 +364,7 @@
 							
 							echo '<li'.$class.'>';
 							
-								echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge" style="padding: 1px 5px;font-size:11px;">' . $term->count . '</span> <span class="label label-warning pull-right" style="padding: 2px 4px;font-size: 10px;"> admin </span></a>';
+								echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge pull-right" style="margin-top: 4px;padding: 1px 5px;font-size:11px;">' . $layer_count . '</span> <span class="label label-warning pull-right" style="margin-right:8px;padding: 2px 4px;font-size: 10px;"> admin </span></a>';
 								
 							echo '</li>';						
 						}

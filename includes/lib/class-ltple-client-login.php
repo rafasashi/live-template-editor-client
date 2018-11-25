@@ -18,7 +18,7 @@ class LTPLE_Client_Login {
 	
 		add_filter( 'register_url', array($this, 'set_register_url'), 10, 3 );
 		
-		add_action('template_redirect', array( $this, 'enqueue_login_scripts' ));
+		add_action( 'template_redirect', array( $this, 'enqueue_login_scripts' ));
 
 		add_filter( 'body_class', function( $classes ) {
 			

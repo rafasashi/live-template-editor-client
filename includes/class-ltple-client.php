@@ -155,7 +155,7 @@ class LTPLE_Client {
 
 			// start session
 			
-			if(!session_id()) {
+			if( !session_id() ) {
 				
 				session_start();
 			}			
@@ -323,6 +323,8 @@ class LTPLE_Client {
 		
 		add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
 
+		add_shortcode('ltple-client-apps', array( $this , 'get_apps_shortcode' ) );		
+		
 		// Custom default layer template
 		
 		add_filter('template_include', array( $this, 'editor_templates'), 1 );
@@ -340,7 +342,7 @@ class LTPLE_Client {
 		});	
 	
 		// get current user
-		
+
 		$this->set_current_user();
 		
 		// loaded hook
@@ -425,7 +427,7 @@ class LTPLE_Client {
 		}
 		
 		$this->user->loggedin = is_user_logged_in();		
-		
+
 		if( $this->user->loggedin ){
 
 			// get is admin
@@ -618,17 +620,19 @@ class LTPLE_Client {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
 				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 				
-				$this->editor_output();
-				
 				// set current user
 				
-				$this->set_current_user();
-
+				$this->set_current_user();				
+				
+				// output editor
+				
+				$this->editor_output();
+				
 				// add editor shortcodes
 				
 				add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
 						
-				include( $this->views . $this->_dev .'/editor-dedicated.php' );
+				include( $this->views . $this->_dev .'/editor-backend.php' );
 				
 				exit;
 			}
@@ -1289,7 +1293,13 @@ class LTPLE_Client {
 			
 				echo'margin-bottom:0 !important;';
 			
-			echo'}';				
+			echo'}';
+
+			echo' .tabs-left>li {';
+				echo'margin-right: -1px;';
+				echo'border-top: 1px solid #fff;';
+				echo'border-bottom: 1px solid #eee;';
+			echo'}';		
 
 			echo ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
 				
@@ -1468,6 +1478,41 @@ class LTPLE_Client {
 
 	}
 	
+	public function get_apps_shortcode(){
+		
+		// vertical tab styling
+		
+		echo '<style>';
+			echo '.pgheadertitle{display:none;}.tabs-left,.tabs-right{border-bottom:none;padding-top:2px}.tabs-left{border-right:0px solid #ddd}.tabs-right{border-left:0px solid #ddd}.tabs-left>li,.tabs-right>li{float:none;margin-bottom:2px}.tabs-left>li{margin-right:-1px}.tabs-right>li{margin-left:-1px}.tabs-left>li.active>a,.tabs-left>li.active>a:focus,.tabs-left>li.active>a:hover{border-left: 5px solid #F86D18;border-top:0;border-right:0;border-bottom:0; }.tabs-right>li.active>a,.tabs-right>li.active>a:focus,.tabs-right>li.active>a:hover{border-bottom:0px solid #ddd;border-left-color:transparent}.tabs-left>li>a{border-radius:4px 0 0 4px;margin-right:0;display:block}.tabs-right>li>a{border-radius:0 4px 4px 0;margin-right:0}.sideways{margin-top:50px;border:none;position:relative}.sideways>li{height:20px;width:120px;margin-bottom:100px}.sideways>li>a{border-bottom:0px solid #ddd;border-right-color:transparent;text-align:center;border-radius:4px 4px 0 0}.sideways>li.active>a,.sideways>li.active>a:focus,.sideways>li.active>a:hover{border-bottom-color:transparent;border-right-color:#ddd;border-left-color:#ddd}.sideways.tabs-left{left:-50px}.sideways.tabs-right{right:-50px}.sideways.tabs-right>li{-webkit-transform:rotate(90deg);-moz-transform:rotate(90deg);-ms-transform:rotate(90deg);-o-transform:rotate(90deg);transform:rotate(90deg)}.sideways.tabs-left>li{-webkit-transform:rotate(-90deg);-moz-transform:rotate(-90deg);-ms-transform:rotate(-90deg);-o-transform:rotate(-90deg);transform:rotate(-90deg)}';
+			echo 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
+		echo '</style>';		
+		
+		if($this->user->loggedin){
+			
+			include($this->views . $this->_dev .'/navbar.php');
+			
+			include($this->views . $this->_dev .'/apps.php');
+			
+			$this->viewIncluded = true;
+		}
+		else{
+			
+			echo'<div style="font-size:20px;padding:20px;margin:0;" class="alert alert-warning">';
+				
+				echo'You need to log in first...';
+				
+				echo'<div class="pull-right">';
+
+					echo'<a style="margin:0 2px;" class="btn-lg btn-success" href="'. wp_login_url( $this->request->proto . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'">Login</a>';
+					
+					echo'<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( $this->urls->editor ) .'&action=register">Register</a>';
+				
+				echo'</div>';
+				
+			echo'</div>';
+		}
+	}
+	
 	public function get_editor_shortcode(){
 		
 		// vertical tab styling
@@ -1511,18 +1556,6 @@ class LTPLE_Client {
 			elseif( isset($_GET['media']) ){
 				
 				include($this->views . $this->_dev .'/media.php');
-								
-				$this->viewIncluded = true;	
-			}
-			elseif( isset($_GET['app']) ){
-
-				include($this->views . $this->_dev .'/apps.php');
-								
-				$this->viewIncluded = true;	
-			}
-			elseif( !empty($this->apps->app) && ( empty($_GET['output']) || $_GET['output'] != 'embedded' ) ){
-
-				include($this->views . $this->_dev .'/apps.php');
 								
 				$this->viewIncluded = true;	
 			}
@@ -1858,7 +1891,7 @@ class LTPLE_Client {
 				$post_embedded 	= ( !empty($_POST['postEmbedded']) 	? sanitize_text_field($_POST['postEmbedded']): '' );
 				$post_settings 	= ( !empty($_POST['postSettings']) 	? json_decode(stripcslashes($_POST['postSettings']),true): '' );
 				
-				$post_name 		= $post_title;			
+				$post_name 	= $post_title;			
 
 				if( $_POST['postAction'] == 'update' ){
 					
@@ -1890,12 +1923,24 @@ class LTPLE_Client {
 								update_post_meta($layerId, 'layerCss', $post_css);
 								
 								update_post_meta($layerId, 'layerJs', $post_js);
+								
+								echo 'Template successfully updated!';
+								exit;
 							}
+						}
+						else{
+						
+							http_response_code(404);
+							
+							echo 'Error getting default layer ID...';
+							exit;
 						}
 					}
 					else{
 						
 						http_response_code(404);
+						
+						echo 'Update permission denided...';
 						exit;
 					}
 				}
@@ -2502,7 +2547,7 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-jquery-ui' );		
 	
-		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), $this->_version );
+		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), '1.0.1' );
 		wp_enqueue_style( $this->_token . '-frontend' );
 	
 		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );

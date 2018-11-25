@@ -1703,40 +1703,58 @@ class LTPLE_Client_Plan {
 		
 		$user_has_layer = false;
 		
-		if($layer_type == 'cb-default-layer'){
+		if( $this->parent->user->is_admin ){
 			
-			$user_has_layer = false;
-			
-			$layer_plan = $this->get_layer_plan_info( $item_id );
-			
-			foreach($layer_plan['taxonomies'] as $taxonomy => $tax){
-
-				foreach($tax['terms'] as $term_slug => $term){
-					
-					if(!isset($this->parent->user->plan['taxonomies'][$taxonomy]['terms'][$term_slug])){
-						
-						//var_dump($this->parent->user->plan['taxonomies'][$taxonomy]);exit;
-					}
-					
-					if( $term['has_term']===true ){
-						
-						$user_has_layer = true;
-						
-						if( !isset( $this->parent->user->plan['taxonomies'][$taxonomy]['terms'][$term_slug] ) ){
-							
-							$user_has_layer = false;
-							break 2;
-						}
-						elseif( $this->parent->user->plan['taxonomies'][$taxonomy]['terms'][$term_slug]['has_term'] !== $term['has_term'] ){
-							
-							$user_has_layer = false;
-							break 2;
-						}				
-					}
-				}		
-			}			
+			$user_has_layer = true;
 		}
-		elseif( $this->parent->user->is_admin || $layer_type == 'user-layer' ){
+		elseif( $layer_type == 'cb-default-layer' ){
+			
+			if( !$this->parent->user->is_editor ){
+				
+				// get tailored user id
+
+				$layer_user_id = intval(get_post_meta( $item_id, 'layerUserId',true ));
+
+				if( $layer_user_id == 0 || $layer_user_id == $this->parent->user->ID ){
+
+					// get layer plan
+					
+					$layer_plan = $this->get_layer_plan_info( $item_id );
+					
+					foreach($layer_plan['taxonomies'] as $taxonomy => $tax){
+
+						foreach($tax['terms'] as $term_slug => $term){
+							
+							if(!isset($this->parent->user->plan['taxonomies'][$taxonomy]['terms'][$term_slug])){
+								
+								//var_dump($this->parent->user->plan['taxonomies'][$taxonomy]);exit;
+							}
+							
+							if( $term['has_term']===true ){
+								
+								$user_has_layer = true;
+								
+								if( !isset( $this->parent->user->plan['taxonomies'][$taxonomy]['terms'][$term_slug] ) ){
+									
+									$user_has_layer = false;
+									break 2;
+								}
+								elseif( $this->parent->user->plan['taxonomies'][$taxonomy]['terms'][$term_slug]['has_term'] !== $term['has_term'] ){
+									
+									$user_has_layer = false;
+									break 2;
+								}				
+							}
+						}		
+					}	
+				}
+			}
+			else{
+				
+				$user_has_layer = true;
+			}
+		}
+		elseif( $layer_type == 'user-layer' ){
 			
 			$user_has_layer = true;
 		}

@@ -40,6 +40,11 @@ class LTPLE_Client_Urls {
 			$this->editor = $this->home . '/' . $this->editorSlug . '/';
 		}
 		
+		if( $this->appsSlug = get_option( $this->parent->_base . 'appsSlug' )){
+			
+			$this->apps = $this->home . '/' . $this->appsSlug . '/';
+		}
+		
 		add_filter('wp_loaded', array( $this, 'init_urls'));
 	}
 	
@@ -53,6 +58,8 @@ class LTPLE_Client_Urls {
 			
 			$wp_rewrite->set_permalink_structure('/%postname%/');
 		}
+		
+		// get editor url
 		
 		if( empty( $this->editor ) ){
 			
@@ -68,6 +75,24 @@ class LTPLE_Client_Urls {
 			));
 			
 			$this->editor = $this->home . '/' . update_option( $this->parent->_base . 'editorSlug', get_post($post_id)->post_name );
+		}
+		
+		// get apps url
+		
+		if( empty( $this->apps ) ){
+			
+			$post_id = wp_insert_post( array(
+			
+				'post_title' 		=> 'Apps',
+				'post_type'     	=> 'page',
+				'comment_status' 	=> 'closed',
+				'ping_status' 		=> 'closed',
+				'post_content' 		=> '[ltple-client-apps]',
+				'post_status' 		=> 'publish',
+				'menu_order' 		=> 0
+			));
+			
+			$this->apps = $this->home . '/' . update_option( $this->parent->_base . 'appsSlug', get_post($post_id)->post_name );
 		}
 		
 		// get login url

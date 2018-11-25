@@ -69,8 +69,9 @@
     background: rgb(242, 242, 242);
     padding: 0px;
     font-size: 12px;
-    overflow: hidden;
+    overflow: visible !important;
     height: 41px;
+	/*border-top: 1px solid #fff;*/
     border-bottom: 1px solid #ddd;
 }
 

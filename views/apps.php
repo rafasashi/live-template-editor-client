@@ -47,9 +47,9 @@
 				
 				echo'<li class="gallery_type_title">Applications</li>';
 				
-				echo'<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app&output='.$output.'">Connected Apps</a></li>';
+				echo'<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->urls->apps . '?app&output='.$output.'">Connected Apps</a></li>';
 
-				//echo'<li'.( $currentTab == 'embedded' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?app=embedded&output='.$output.'">Embedded Plugin</a></li>';
+				//echo'<li'.( $currentTab == 'embedded' ? ' class="active"' : '' ).'><a href="'.$this->urls->apps . '?app=embedded&output='.$output.'">Embedded Plugin</a></li>';
 
 			echo'</ul>';
 			
@@ -71,7 +71,7 @@
 					
 						foreach( $this->apps->list as $app ){ 
 							
-							$connect_url = $this->urls->editor . '?app='.$app->slug . '&action=connect';
+							$connect_url = $this->urls->apps . '?app='.$app->slug . '&action=connect';
 							
 							//get item
 							
