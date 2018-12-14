@@ -123,7 +123,7 @@ class LTPLE_Client_Session {
 
 		if( isset($_GET['action']) && $_GET['action']=='logout' ){
 			
-			$this->get_domains(true);
+			$this->get_servers(true);
 		}
 		elseif( isset($_GET['ltple-status']) && $_GET['ltple-status']=='loggedin' ){
 			
@@ -165,28 +165,28 @@ class LTPLE_Client_Session {
 			
 			$user_email = sanitize_email($user_email);
 			
-			//get domain list
+			//get server list
 
-			$domain_list = array( $this->parent->server->url );
+			$server_list = array( $this->parent->server->url );
 			
-			//get valid domains
+			//get valid servers
 
-			$domains=[];
+			$servers=[];
 			
-			foreach($domain_list as $domain){
+			foreach($server_list as $server){
 				
-				$domain = trim($domain);
-				$domain = rtrim($domain,'/');
-				$domain = preg_replace("(^https?://)", "", $domain);
+				$server = trim($server);
+				$server = rtrim($server,'/');
+				$server = preg_replace("(^https?://)", "", $server);
 				
-				$domains[$domain]='';
+				$servers[$server]='';
 			}
 
 			//check referer
 			
 			$valid_referer=false;
 			
-			if(isset($domains[$user_ref])){
+			if(isset($servers[$user_ref])){
 				
 				$valid_referer=true;
 			}			
@@ -293,11 +293,11 @@ class LTPLE_Client_Session {
 			
 			if( is_admin() ) {
 				
-				add_action( 'admin_footer_text', array( $this, 'get_domains' ));
+				add_action( 'admin_footer_text', array( $this, 'get_servers' ));
 			}
 			else{
 				
-				add_action( 'wp_footer', array( $this, 'get_domains' ));
+				add_action( 'wp_footer', array( $this, 'get_servers' ));
 			}			
 		}
 	}
@@ -339,13 +339,13 @@ class LTPLE_Client_Session {
 	}
 	
 	
-	public function get_domains($loggingout=false){
+	public function get_servers($loggingout=false){
 		
 		if( $user = wp_get_current_user() ){
 
-			//get list of domains
+			//get list of servers
 			
-			$domains = array( $this->parent->server->url );
+			$servers = array( $this->parent->server->url );
 
 			//get encrypted user name
 			
@@ -357,29 +357,29 @@ class LTPLE_Client_Session {
 			$user_email = $user->user_email;
 			$user_email = $this->parent->ltple_encrypt_uri($user_email);
 			
-			//get current domain
+			//get current server
 			
-			$current_domain = get_site_url();
-			$current_domain = rtrim($current_domain,'/');
-			$current_domain = preg_replace("(^https?://)", "", $current_domain);
+			$current_server = get_site_url();
+			$current_server = rtrim($current_server,'/');
+			$current_server = preg_replace("(^https?://)", "", $current_server);
 			
 			//get encrypted user referer
 			
 			//$user_ref = $_SERVER['HTTP_HOST'];
-			$user_ref = $current_domain;
+			$user_ref = $current_server;
 			$user_ref = $this->parent->ltple_encrypt_uri($user_ref);
 			
-			if(!empty($domains)){
+			if(!empty($servers)){
 				
-				foreach($domains as $domain){
+				foreach($servers as $server){
 					
-					$domain = trim($domain);
-					$domain = rtrim($domain,'/');
-					$domain = preg_replace("(^https?://)", "", $domain);
+					$server = trim($server);
+					$server = rtrim($server,'/');
+					$server = preg_replace("(^https?://)", "", $server);
 
 					if( $loggingout === true ){
 
-						$url = $this->parent->request->proto . $domain . '/?ltple-token='.$user_email.'&ltple-key='.$this -> key_num . '&ltple-id='.$user_name.'&ltple-ref='.$user_ref.'&ltple-status=loggingout'.'&_' . time();
+						$url = $this->parent->request->proto . $server . '/?ltple-token='.$user_email.'&ltple-key='.$this -> key_num . '&ltple-id='.$user_name.'&ltple-ref='.$user_ref.'&ltple-status=loggingout'.'&_' . time();
 
 						$response = wp_remote_get( $url, array(
 						
@@ -391,13 +391,13 @@ class LTPLE_Client_Session {
 							),
 						)); 						
 					}
-					elseif($current_domain != $domain){
+					elseif($current_server != $server){
 						
 						//output html
 					
-						//echo '<img class="ltple" src="' . $this->parent->request->proto . $domain . '/?ltple-token='.$user_email.'&ltple-key='.$this -> key_num.'&ltple-id='.$user_name.'&ltple-ref='.$user_ref.'&_' . time() . '" height="1" width="1" style="border-style:none;" >';								
+						//echo '<img class="ltple" src="' . $this->parent->request->proto . $server . '/?ltple-token='.$user_email.'&ltple-key='.$this -> key_num.'&ltple-id='.$user_name.'&ltple-ref='.$user_ref.'&_' . time() . '" height="1" width="1" style="border-style:none;" >';								
 						
-						echo'<iframe class="ltple" src="' . $this->parent->request->proto . $domain . '/?ltple-token='.$user_email.'&ltple-key='.$this -> key_num.'&ltple-id='.$user_name.'&ltple-ref='.$user_ref.'&_' . time() . '" style="width:1px;height:1px;border-style:none;position:absolute;display:block;"></iframe>';
+						echo'<iframe class="ltple" src="' . $this->parent->request->proto . $server . '/?ltple-token='.$user_email.'&ltple-key='.$this -> key_num.'&ltple-id='.$user_name.'&ltple-ref='.$user_ref.'&_' . time() . '" style="width:1px;height:1px;border-style:none;position:absolute;display:block;"></iframe>';
 					}
 				}
 				

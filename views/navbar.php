@@ -35,7 +35,7 @@
 
 					echo'<a class="btn btn-sm btn-warning" href="'. $ltple->urls->editor .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Designs" data-content="The gallery is where you can find beautifull designs to start a project. New things are added every week.">';
 					
-						echo'Gallery';
+						echo'Desings';
 					
 					echo'</a>';
 				
@@ -50,19 +50,6 @@
 					echo'</a>';
 				
 				echo'</div>';
-				
-				if( ( empty($ltple->layer->id) || $ltple->layer->id < 1 ) && $ltple->settings->options->enable_ranking == 'on' ){
-				
-					echo'<div class="pull-left">';
-			 
-						echo'<a style="margin-left:5px;" class="popover-btn" href="' . $ltple->urls->editor . '?rank" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Popularity score" data-content="Your stars determine your rank in our World Ranking, give you visibility and drive traffic.">';
-			  
-							echo'<span class="badge"><span class="glyphicon glyphicon-star" aria-hidden="true"></span>  ' . $ltple->user->stars . '</span>';
-						
-						echo'</a>';
-						
-					echo'</div>';
-				}
 			}
 			
 			if( $ltple->layer->id > 0 ){
@@ -182,7 +169,7 @@
 		
 		echo'<div class="col-xs-6 col-sm-8 text-right" style="padding:0 5px;">';
 			
-			if( $ltple->layer->id > 0 ){			
+			if( isset($_GET['uri']) && $ltple->layer->id > 0 ){			
 			
 				if( is_admin() || ( $ltple->layer->type != 'cb-default-layer' && $ltple->user->plan["info"]["total_price_amount"] > 0 )){
 

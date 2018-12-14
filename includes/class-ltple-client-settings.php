@@ -62,8 +62,7 @@ class LTPLE_Client_Settings {
 		}
 		
 		$this->options->enable_ranking 		= get_option( $this->parent->_base . 'enable_ranking', 'off' );
-		$this->options->enable_subdomains 	= get_option( $this->parent->_base . 'enable_subdomains', 'off' );
-		
+
 		// get custom style
 		
 		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor', '#506988' );
@@ -249,7 +248,7 @@ class LTPLE_Client_Settings {
 		$this->settings = $this->settings_fields();
 		
 		do_action('ltple_plugin_settings');
-		
+
 		$this->schedule_actions();
 		
 		if( is_admin() ){
@@ -672,7 +671,7 @@ class LTPLE_Client_Settings {
 			)
 		);
 		
-		$settings['Marketing'] = array(
+		$settings['marketing'] = array(
 			'title'					=> __( 'Marketing', $this->plugin->slug ),
 			'description'			=> 'Some information about the targeted market',
 			'fields'				=> array(
@@ -735,81 +734,6 @@ class LTPLE_Client_Settings {
 				),
 			)
 		);
-		
-		/*
-		$embedded_info = $this->get_embedded_info();
-	
-		$settings['embedded'] = array(
-			'title'					=> __( 'Embedded', $this->plugin->slug ),
-			'description'			=> __( 'Embedded plugin settings', $this->plugin->slug ),
-			'fields'				=> array(
-				array(
-					'id' 			=> 'embedded_prefix',
-					'label'			=> __( 'Prefix' , $this->plugin->slug ),
-					'description'	=> 'Prefix for embedded data storage',
-					'type'			=> 'text',
-					'default'		=> $embedded_info['prefix'],
-					'placeholder'	=> $embedded_info['prefix'],
-				),
-				array(
-					'id' 			=> 'embedded_short',
-					'label'			=> __( 'Short title' , $this->plugin->slug ),
-					'description'	=> 'Short service title',
-					'type'			=> 'text',
-					'default'		=> $embedded_info['short_title'],
-					'placeholder'	=> $embedded_info['short_title'],
-				),
-				array(
-					'id' 			=> 'embedded_title',
-					'label'			=> __( 'Long title' , $this->plugin->slug ),
-					'description'	=> 'Long service title',
-					'type'			=> 'text',
-					'default'		=> $embedded_info['long_title'],
-					'placeholder'	=> $embedded_info['long_title'],
-				),
-				array(
-					'id' 			=> 'embedded_description',
-					'label'			=> __( 'Description' , $this->plugin->slug ),
-					'description'	=> 'Service description',
-					'type'			=> 'textarea',
-					'default'		=> $embedded_info['description'],
-					'placeholder'	=> 'Description',
-				),
-				array(
-				
-					'id' 			=> 'embedded_ggl_webmaster_id',
-					'label'			=> __( 'Webmaster ID' , $this->plugin->slug ),
-					'description'	=> 'Embedded Google Search Console ID',
-					'type'			=> 'text',
-					'placeholder'	=> 'dPPEAvdug2I0i53meGGxyn-CMjcNPaZjuFRHTwmBl2Q',
-				),					
-				array(
-				
-					'id' 			=> 'embedded_endpoint',
-					'label'			=> __( 'Endpoint' , $this->plugin->slug ),
-					'description'	=> 'REST API endpoint',
-					'type'			=> 'text',
-					'default'		=> $this->parent->urls->api_embedded,
-					'placeholder'	=> 'http://',
-					'disabled'		=> true,
-				),
-				
-			)
-		);
-		*/	
-
-		$settings['domains'] = array(
-			'title'					=> __( 'Domains', $this->plugin->slug ),
-			'description'			=> __( 'Domain & subdomain settings', $this->plugin->slug ),
-			'fields'				=> array(
-				array(
-					'id' 			=> 'enable_subdomains',
-					'label'			=> __( 'Enable Subdomains' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'switch',
-				),
-			)
-		);		
 
 		$settings['stars'] = array(
 			'title'					=> __( 'Stars', $this->plugin->slug ),
@@ -876,6 +800,7 @@ class LTPLE_Client_Settings {
 	 */
 	public function register_settings () {
 		
+		
 		// get tabs
 		
 		$this->tabs = array (
@@ -891,7 +816,6 @@ class LTPLE_Client_Settings {
 				'user-image' 	=> array( 'name' => 'Images'),
 				'user-bookmark' => array( 'name' => 'Bookmarks'),
 				'user-app' 		=> array( 'name' => 'Apps'),
-				'user-domain' 	=> array( 'name' => 'Domains'),
 			),
 			'email-campaigns' => array(
 			

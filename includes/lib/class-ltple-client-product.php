@@ -103,11 +103,11 @@ class LTPLE_Client_Product {
 		
 			if( !empty($this->ID) ){
 				
-				include($this->parent->views . $this->parent->_dev .'/product.php');
+				include($this->parent->views . '/product.php');
 			}
 			else{
 				
-				include($this->parent->views . $this->parent->_dev .'/products.php');
+				include($this->parent->views . '/products.php');
 			}
 			
 		echo '</div>'; 

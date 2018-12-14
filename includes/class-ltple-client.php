@@ -12,8 +12,6 @@ class LTPLE_Client {
 	 */
 	private static $_instance = null;
 	
-	public $_dev = null;
-
 	/**
 	 * Settings class object
 	 * @var     object
@@ -181,7 +179,6 @@ class LTPLE_Client {
 			$this->server 	= new LTPLE_Client_Server( $this );
 			 
 			$this->apps 	= new LTPLE_Client_Apps( $this );			
-			$this->whois 	= new LTPLE_Client_Whois( $this );
 			
 			$this->element 	= new LTPLE_Client_Element( $this );
 			$this->layer 	= new LTPLE_Client_Layer( $this );
@@ -191,7 +188,7 @@ class LTPLE_Client {
 			$this->product 	= new LTPLE_Client_Product( $this );
 
 			$this->image 	= new LTPLE_Client_Image( $this );
-			$this->domain 	= new LTPLE_Client_Domain( $this );
+
 			$this->bookmark = new LTPLE_Client_Bookmark( $this );
 			
 			$this->users 	= new LTPLE_Client_Users( $this );
@@ -199,18 +196,7 @@ class LTPLE_Client {
 			$this->channels = new LTPLE_Client_Channels( $this );			
 			$this->profile 	= new LTPLE_Client_Profile( $this );
 			
-			if( defined('LTPLE_SUBDOMAIN') && LTPLE_SUBDOMAIN === true ){
-				
-				if( is_admin() ) {
-					
-					exit;
-				}
-				else{
-					
-					add_action( 'init', array( $this, 'init_subdomain' ));
-				}
-			}
-			elseif( is_admin() ) {		
+			if( is_admin() ) {		
 				
 				add_action( 'init', array( $this, 'init_backend' ));
 				
@@ -350,45 +336,6 @@ class LTPLE_Client {
 		do_action( 'ltple_loaded');
 	}
 	
-	public function init_subdomain(){
-		
-		if( $this->settings->options->enable_subdomains == 'on' ){
-		
-			list($login,) = explode('.',$_SERVER['HTTP_HOST'],2);
-			
-			if( $user = get_user_by( 'login', $login ) ){
-				
-				$domains = LTPLE_Client_User_Domains::get_user_domains($user);
-				
-				foreach( $domains as $domain ){
-
-					if( !empty($domain->domainUrls) ){
-				
-						$url = $this->request->proto . $domain->post_title . '/';
-						
-						foreach( $domain->domainUrls as $post_id => $path ){
-
-							if( $this->urls->current == $url . $path ){
-								
-								$this->layer->set_layer($post_id);
-								
-								include( $this->views . $this->_dev .'/layer.php' );
-								
-								break 2;
-							}
-						}
-					}
-				}
-				
-				exit;
-			}
-			else{
-				
-				exit;
-			}
-		}
-	}
-
 	public function set_current_user(){
 
 		if( !empty($_GET['key']) && !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
@@ -459,13 +406,22 @@ class LTPLE_Client {
 						
 			// get user layers
 			
-			$this->user->layers = get_posts(array(
+			if( $this->user->layers = get_posts(array(
 			
 				'author'      => $this->user->ID,
 				'post_type'   => 'user-layer',
 				'post_status' => 'publish',
 				'numberposts' => -1
-			));	
+				
+			))){
+				
+				// get user layer type
+				
+				foreach( $this->user->layers as $layer ){
+					
+					$layer->type = $this->layer->get_layer_type($layer);
+				}
+			}
 			
 			// get user stars
 			
@@ -578,10 +534,13 @@ class LTPLE_Client {
 		
 		if( !$this->user->is_admin || !$this->user->is_editor ){
 			
-			$url = $this->urls->editor . '?my-profile';
+			if(!WP_DEBUG){
 			
-			wp_redirect($url);
-			exit;
+				$url = $this->urls->editor . '?my-profile';
+				
+				wp_redirect($url);
+				exit;
+			}
 		}
 		
 		// get user rights
@@ -632,7 +591,7 @@ class LTPLE_Client {
 				
 				add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
 						
-				include( $this->views . $this->_dev .'/editor-backend.php' );
+				include( $this->views . '/editor-backend.php' );
 				
 				exit;
 			}
@@ -888,7 +847,7 @@ class LTPLE_Client {
 			
 			if( ( $template_id > 0 && isset($this->profile->layer->ID) ) || $template_id == -2 ){
 				
-				$path = $this->views . $this->_dev . '/layer-profile.php';
+				$path = $this->views .  '/layer-profile.php';
 			}
 		}	
 		elseif( $post_id = url_to_postid( $this->urls->current ) ){
@@ -899,7 +858,7 @@ class LTPLE_Client {
 				
 				if( $_SERVER['HTTP_X_REF_KEY'] ){ //TODO improve ref rey validation via header
 					
-					$path = $this->views . $this->_dev .'/layer.php';
+					$path = $this->views . '/layer.php';
 				}
 				else{
 					
@@ -915,19 +874,19 @@ class LTPLE_Client {
 				
 				if( $visibility == 'anyone' ){
 					
-					$path = $this->views . $this->_dev .'/layer.php';
+					$path = $this->views . '/layer.php';
 				}
 				elseif( $visibility == 'registered' && $this->user->loggedin ){
 					
-					$path = $this->views . $this->_dev .'/layer.php';
+					$path = $this->views . '/layer.php';
 				}
 				elseif( $this->plan->user_has_layer( $post->ID ) === true && $this->user->loggedin ){
 					
-					$path = $this->views . $this->_dev .'/layer.php';
+					$path = $this->views . '/layer.php';
 				}
 				else{
 					
-					$path = $this->views . $this->_dev .'/preview.php';
+					$path = $this->views . '/preview.php';
 				}					
 			}
 			elseif( $post->post_type == 'user-layer' ){
@@ -939,11 +898,11 @@ class LTPLE_Client {
 				
 				if( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
 					
-					$path = $this->views . $this->_dev .'/layer.php';
+					$path = $this->views . '/layer.php';
 				}
 				elseif( isset($_REQUEST['p']) && isset($_REQUEST['tk']) &&  $_REQUEST['p'] == $this->ltple_decrypt_str($_REQUEST['tk']) ){
 					
-					$path = $this->views . $this->_dev .'/layer.php';
+					$path = $this->views . '/layer.php';
 				}
 				else{
 					
@@ -960,12 +919,12 @@ class LTPLE_Client {
 				
 				if( $post->layer_id > 0 ){
 					
-					$path = $this->views . $this->_dev .'/layer.php';
+					$path = $this->views . '/layer.php';
 				}
 			}
-			elseif( file_exists($this->views . $this->_dev .'/'.$post->post_type . '.php') ){
+			elseif( file_exists($this->views . '/'.$post->post_type . '.php') ){
 				
-				$path = $this->views . $this->_dev . '/' . $post->post_type . '.php';
+				$path = $this->views .  '/' . $post->post_type . '.php';
 			}
 		}
 		
@@ -1043,15 +1002,13 @@ class LTPLE_Client {
 		// get triggers
  		
 		$this->triggers = new LTPLE_Client_Triggers( $this );
-
+		
+		//-------------- user attributes -----------------
+		
 		// get user profile
 			
 		$this->user->profile = new LTPLE_Client_User_Profile( $this );
 		
-		// get user domains
-			
-		$this->user->domains = new LTPLE_Client_User_Domains( $this );
-					
 		// get user marketing channel
 		
 		$terms = wp_get_object_terms( $this->user->ID, 'marketing-channel' );
@@ -1109,9 +1066,9 @@ class LTPLE_Client {
 				}
 				else{
 					
-					//include( $this->views . $this->_dev .'/editor-iframe.php' );
+					//include( $this->views . '/editor-iframe.php' );
 					
-					include( $this->views . $this->_dev .'/editor-proxy.php' );
+					include( $this->views . '/editor-proxy.php' );
 				}
 			}
 			else{
@@ -1125,15 +1082,15 @@ class LTPLE_Client {
 		
 		if( isset( $_GET['output']) && $_GET['output'] == 'widget' ){
 			
-			include( $this->views . $this->_dev .'/widget.php' );
+			include( $this->views . '/widget.php' );
 		}
 		elseif( isset( $_GET['output']) && $_GET['output'] == 'embedded' ){		
 			
-			include( $this->views . $this->_dev .'/editor-embedded.php' );
+			include( $this->views . '/editor-embedded.php' );
 		}
 		elseif( isset($_GET['api']) ){
 
-			include($this->views . $this->_dev .'/api.php');
+			include($this->views . '/api.php');
 		}
 	}
 
@@ -1489,9 +1446,9 @@ class LTPLE_Client {
 		
 		if($this->user->loggedin){
 			
-			include($this->views . $this->_dev .'/navbar.php');
+			include($this->views . '/navbar.php');
 			
-			include($this->views . $this->_dev .'/apps.php');
+			include($this->views . '/apps.php');
 			
 			$this->viewIncluded = true;
 		}
@@ -1526,22 +1483,22 @@ class LTPLE_Client {
 			
 			if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
 				
-				include($this->views . $this->_dev .'/navbar-embedded.php');
+				include($this->views . '/navbar-embedded.php');
 			}
 			else{
 				
-				include($this->views . $this->_dev .'/navbar.php');
+				include($this->views . '/navbar.php');
 			}
 
 			if( empty( $this->user->can_spam ) && !isset($_POST['can_spam']) ){
 				
-				include($this->views . $this->_dev .'/newsletter-modal.php');
+				include($this->views . '/modals/newsletter.php');
 			}
 
 			/*
 			if( empty( $this->user->channel ) && !isset($_POST['marketing-channel']) ){
 				
-				include($this->views . $this->_dev .'/channel-modal.php');
+				include($this->views . '/modals/channel.php');
 			}
 			*/
 
@@ -1549,37 +1506,31 @@ class LTPLE_Client {
 			
 			if( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
 
-				include($this->views . $this->_dev .'/profile.php');
+				include($this->views . '/profile.php');
 				
 				$this->viewIncluded = true;	
 			}				
 			elseif( isset($_GET['media']) ){
 				
-				include($this->views . $this->_dev .'/media.php');
+				include($this->views . '/media.php');
 								
 				$this->viewIncluded = true;	
 			}
 			elseif( isset($_GET['rewards']) ){
 
-				include($this->views . $this->_dev .'/rewards.php');
+				include($this->views . '/rewards.php');
 								
 				$this->viewIncluded = true;	
 			}
-			elseif( ( isset($_GET['domain']) || !empty($_SESSION['domain']) ) ){
-
-				include($this->views . $this->_dev .'/domains.php');
-								
-				$this->viewIncluded = true;	
-			}				
 			elseif( isset($_GET['rank']) && $this->settings->options->enable_ranking == 'on' ){
 				
-				include($this->views . $this->_dev .'/ranking.php');
+				include($this->views . '/ranking.php');
 								
 				$this->viewIncluded = true;	
 			}
 			elseif( isset($_GET['my-profile']) ){
 				
-				include($this->views . $this->_dev .'/settings.php');
+				include($this->views . '/settings.php');
 								
 				$this->viewIncluded = true;	
 			}			
@@ -1588,22 +1539,15 @@ class LTPLE_Client {
 				if( $this->user->has_layer ){
 					
 
-					include( $this->views . $this->_dev .'/editor.php' );
+					include( $this->views . '/editor.php' );
 									
 					$this->viewIncluded = true;	
 				}
 				else{
 					
-					include($this->views . $this->_dev .'/upgrade.php');
+					include($this->views . '/upgrade.php');
 					
-					if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
-						
-						include($this->views . $this->_dev .'/gallery-embedded.php');
-					}
-					else{
-						
-						include($this->views . $this->_dev .'/gallery.php');
-					}
+					include($this->views . '/designs.php');
 					
 					$this->viewIncluded = true;	
 				}
@@ -1615,23 +1559,16 @@ class LTPLE_Client {
 			
 			if(!$this->viewIncluded){
 				
-				if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
-					
-					include($this->views . $this->_dev .'/gallery-embedded.php');
-				}
-				else{
-					
-					include($this->views . $this->_dev .'/gallery.php');
-				}
+				include($this->views . '/designs.php');
 			}
 		}
 		elseif( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
 
-			include($this->views . $this->_dev .'/profile.php');
+			include($this->views . '/profile.php');
 		}
 		elseif( isset($_GET['rank']) ){
 			
-			include($this->views . $this->_dev .'/ranking.php');
+			include($this->views . '/ranking.php');
 		}
 		else{
 			
@@ -1649,14 +1586,7 @@ class LTPLE_Client {
 				
 			echo'</div>';		
 			
-			if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
-				
-				include($this->views . $this->_dev .'/gallery-embedded.php');
-			}
-			else{
-				
-				include($this->views . $this->_dev .'/gallery.php');
-			}
+			include($this->views . '/designs.php'); 
 		}
 	}
 
@@ -1739,7 +1669,7 @@ class LTPLE_Client {
 
 				$this->message .='</div>';
 				
-				include( $this->views . $this->_dev .'/message.php' );					
+				include( $this->views . '/message.php' );					
 			}
 			elseif( $this->layer->type == 'user-layer' && $this->user->layer->post_author != $this->user->ID && !$this->user->is_admin ){
 				
@@ -1751,7 +1681,7 @@ class LTPLE_Client {
 
 				$this->message .='</div>';
 				
-				include( $this->views . $this->_dev .'/message.php' );					
+				include( $this->views . '/message.php' );					
 			}
 			elseif( $this->layer->type == 'user-layer' && isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
 				
@@ -1846,7 +1776,7 @@ class LTPLE_Client {
 
 					$_SESSION['message'] .='</div>';
 					
-					//include( $this->views . $this->_dev .'/message.php' );
+					//include( $this->views . '/message.php' );
 
 					//redirect page
 					
@@ -2223,7 +2153,7 @@ class LTPLE_Client {
 
 						$this->message .='</div>';
 						
-						include( $this->views . $this->_dev .'/message.php' );							
+						include( $this->views . '/message.php' );							
 					}
 				}
 				elseif( $_POST['postAction'] == 'save' ){				
@@ -2281,7 +2211,7 @@ class LTPLE_Client {
 
 								$this->message .='</div>';
 								
-								include( $this->views . $this->_dev .'/message.php' );
+								include( $this->views . '/message.php' );
 							}
 
 							$defaultLayerId	= intval( $defaultLayer->ID );
@@ -2366,7 +2296,7 @@ class LTPLE_Client {
 
 					$this->message .='</div>';
 					
-					include( $this->views . $this->_dev .'/message.php' );					
+					include( $this->views . '/message.php' );					
 				}
 			}			
 		}
@@ -2547,7 +2477,7 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-jquery-ui' );		
 	
-		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), '1.0.1' );
+		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), '1.0.2' );
 		wp_enqueue_style( $this->_token . '-frontend' );
 	
 		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );

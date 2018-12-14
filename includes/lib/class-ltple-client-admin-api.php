@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 	class LTPLE_Client_Admin_API {
 		
 		var $parent;
+		var $html;
 		
 		/**
 		 * Constructor function
@@ -38,7 +39,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 			$data = '';
 			
-			if ( !empty( $item->caps ) ) {
+			if ( !empty( $field['data'] ) ) {
+				
+				$data = $field['data'];
+				
+				$option_name .= $field['id'];
+			}
+			elseif ( !empty( $item->caps ) ) {
 				
 				// Get saved field data
 				
@@ -70,6 +77,21 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 				// Get data to display in field
 				if ( isset( $option ) ) {
+					$data = $option;
+				}
+
+			}
+			elseif ( !empty($item->term_id) ) {
+
+				// Get saved field data
+				
+				$option_name .= $field['id'];
+				
+				$option = get_term_meta( $item->term_id, $field['id'], true );
+
+				// Get data to display in field
+				if ( isset( $option ) ) {
+					
 					$data = $option;
 				}
 
@@ -507,11 +529,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 						$html .= '<tr>';
 							
-							$html .= '<th style="width:200px;">';
+							$html .= '<th style="width:150px;">';
 								
 								$html .= '<div for="' . $taxonomy . '">'.$taxonomy.'</div> ';
 									
 							$html .= '</th>';
+							
+							// attribute column
 							
 							$html .= '<td style="width:250px;">';
 							
@@ -532,35 +556,46 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							}
 							
 							$html .= '</td>';
+							
+							// storage column
 
 							$html .= '<td>';
-							
-								$taxonomy_options = [];
 								
-								foreach($terms as $i => $term){
-								
-									$taxonomy_options[$i] = $this->parent->layer->get_options( $taxonomy, $term );
+								foreach($terms as $term){
 									
-									if ( in_array( $term->slug, (array) $data ) ) {
+									$plan_options = (array) $data;
+									
+									if ( in_array( $term->slug, $plan_options ) ) {
 										
-										$total_fee_amount 	= $this->parent->plan->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);
-										$total_price_amount = $this->parent->plan->sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);
-										$total_storage 		= $this->parent->plan->sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
+										$total_fee_amount 	= $this->parent->plan->sum_save_urlstotal_price_amount( $total_fee_amount, $term->options, $total_fee_period);
+										$total_price_amount = $this->parent->plan->sum_save_urlstotal_price_amount( $total_price_amount, $term->options, $total_price_period);
+										$total_storage 		= $this->parent->plan->sum_save_urlstotal_storage( $total_storage, $term->options);
 									}
 
 									$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
 									
-										if($taxonomy_options[$i]['storage_unit']=='templates'&&$taxonomy_options[$i]['storage_amount']==1){
+										if( $term->options['storage_unit'] == 'templates' ){
 											
-											$html .= '+'.$taxonomy_options[$i]['storage_amount'].' template';
+											if( $term->options['storage_amount'] == 1 ){
+												
+												$html .= '+'.$term->options['storage_amount'].' project';
+											}
+											elseif( $term->options['storage_amount'] > 0 ){
+												
+												$html .= '+'.$term->options['storage_amount'].' projects';
+											}
+											else{
+												
+												$html .= $term->options['storage_amount'].' projects';
+											}
 										}
-										elseif($taxonomy_options[$i]['storage_amount']>0){
+										elseif($term->options['storage_amount']>0){
 											
-											$html .= '+'.$taxonomy_options[$i]['storage_amount'].' '.$taxonomy_options[$i]['storage_unit'];
+											$html .= '+'.$term->options['storage_amount'].' '.$term->options['storage_unit'];
 										}	
 										else{
 											
-											$html .= $taxonomy_options[$i]['storage_amount'].' '.$taxonomy_options[$i]['storage_unit'];
+											$html .= $term->options['storage_amount'].' '.$term->options['storage_unit'];
 										}														
 							
 									$html .= '</span>';
@@ -568,18 +603,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							$html .= '</td>';
 							
+							// price column
+							
 							$html .= '<td>';
 							
-							foreach($terms as $i => $term){
+							foreach($terms as $term){
 								
 								$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
 								
-									$html .= $taxonomy_options[$i]['price_amount'].$taxonomy_options[$i]['price_currency'].' / '.$taxonomy_options[$i]['price_period'];							
+									$html .= $term->options['price_amount'].$term->options['price_currency'].' / '.$term->options['price_period'];							
 							
 								$html .= '</span>';
 							}
 							
 							$html .= '</td>';
+							
+							// get addon options
+							
+							$this->html = '';
+							
+							do_action('ltple_api_layer_plan_option',$terms);
+							
+							$html .= $this->html;	
 							
 						$html .= '</tr>';
 							
@@ -594,6 +639,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						$html .= '</th>';
 						
 						$html .= '<td style="width:250px;"></td>';
+						
+						// total storage
 						
 						$html .= '<td>';
 							
@@ -622,6 +669,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 						$html .= '</td>'; 
 						
+						// total price
+						
 						$html .= '<td>';
 
 							if( $total_fee_amount > 0 ){
@@ -632,7 +681,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 							$html .= round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;
 
-						$html .= '</td>';				
+						$html .= '</td>';	
+
+						// get addon options total
+						
+						$this->html = '';
+						
+						do_action('ltple_api_layer_plan_option_total',$field['options'], $plan_options);
+						
+						$html .= $this->html;							
 					
 					$html .= '</table>';
 					
@@ -1087,39 +1144,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</div>';
 					*/
 
-				break;			
-				
-				case 'domain':
-					
-					$exts = array('.com','.net','.org');
-					
-					$html .= '<div class="input-group">';
-						
-						$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '[domain_name][name][]" placeholder="' . $placeholder . '" value="" '.$required.$disabled.'/>' . "\n";
-
-						$html .= '<span	class="input-group-addon" style="background:#fff;">';
-						
-							$html .= '<select name="'.esc_attr( $option_name ).'[domain_name][ext][]" style="border:none;">';
-
-								foreach ( $exts as $ext ) {
-									
-									$selected = false;
-									if ( isset($data['ext']) && $data['ext'] == $ext ) {
-										
-										$selected = true;
-									}
-									
-									$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $ext ) . '">' . $ext . '</option>';
-								}
-							
-							$html .= '</select> ';
-						
-						$html .= '</span>';
-						
-						$html .= '<input type="hidden" name="valid_domain[]" value="'.$field['id'].'" />';
-
-					$html .= '</div>';
-				
 				break;
 
 				case 'form':
@@ -1505,6 +1529,34 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 					$html .= '</div>';
 
+				break;
+
+				case 'license':
+					
+					if( !empty($data) ){
+					
+						$is_valid = $this->parent->license->is_valid();
+					}
+					else{
+						
+						$is_valid = false;
+					}
+
+					echo '<input class="regular-text" type="text" id="' . esc_attr( $option_name ) . '" name="' . esc_attr( $option_name ) . '"  value="' . $data . '" ' . ( $is_valid ? 'disabled' : '') . '>';
+					echo '<p class="submit">';
+									
+						if( !$is_valid ){
+							
+							echo '<input type="submit" name="activate_license" value="Activate" class="button-primary" />';
+						}
+						else{
+							
+							echo '<input type="hidden" name="' . esc_attr( $option_name ) . '" value="'.$data.'" />';
+							echo '<input type="submit" name="deactivate_license" value="Deactivate" class="button" />';
+						}
+						
+					echo '</p>';				
+						 
 				break;				
 				
 				case 'radio':

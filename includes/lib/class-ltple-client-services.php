@@ -109,15 +109,6 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 			echo $this->parent->plan->get_layer_price_fields($taxonomy_name,[]);
 			
 		echo'</div>';
-		/*
-		echo'<div class="form-field">';
-			
-			echo'<label for="'.$taxonomy_name.'-storage-amount">Storage</label>';
-
-			echo $this->parent->plan->get_layer_storage_fields($taxonomy_name,0);
-			
-		echo'</div>';
-		*/
 	}
 	
 	public function get_service_fields($term){
@@ -126,13 +117,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 		
 		$price=[];
 		$price['price_amount'] = get_option('price_amount_' . $term->slug); 
-		$price['price_period'] = get_option('price_period_' . $term->slug); 
-
-		/*
-		$storage=[];
-		$storage['storage_amount'] 	= get_option('storage_amount_' . $term->slug);
-		$storage['storage_unit'] 	= get_option('storage_unit_' . $term->slug);
-		*/
+		$price['price_period'] = get_option('price_period_' . $term->slug);
 		
 		//output our additional fields
 		
@@ -151,48 +136,6 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 			echo'</td>';
 			
 		echo'</tr>';
-
-		/*
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Storage </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-				
-				echo $this->parent->plan->get_layer_storage_fields($term->taxonomy,$storage);
-						
-			echo'</td>';
-			
-		echo'</tr>';		
-
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Meta </label>';
-			
-			echo'</th>';
-			
-				echo'<td>';
-					
-					$this->parent->admin->display_field(array(
-					
-						'type'				=> 'form',
-						'id'				=> 'meta_'.$term->slug,
-						'name'				=> $term->taxonomy . '-meta',
-						'array' 			=> [],
-						'description'		=> ''
-						
-					), false );
-					
-				echo'</td>';	
-			
-		echo'</tr>';
-		*/
 	}
 
 	public function set_service_taxonomy_columns($columns) {
@@ -229,34 +172,6 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 			
 			$content.= $price_amount . '$' . ' / ' . $price_period;
 		}
-		/*
-		elseif($column_name === 'storage') {
-			
-			if(!$storage_amount = get_option('storage_amount_' . $term->slug)){
-				
-				$storage_amount = 0;
-			}
-			
-			if(!$storage_unit = get_option('storage_unit_' . $term->slug)){
-				
-				$storage_unit = 'templates';
-			} 
-			
-			if($storage_unit=='templates'&&$storage_amount==1){
-				
-				$content.='+'.$storage_amount.' template';
-			}
-			elseif($storage_amount > 0){
-				
-				$content.='+'.$storage_amount.' '.$storage_unit;
-			}
-			else{
-				
-				$content.=$storage_amount.' '.$storage_unit;
-			}
-			
-		}
-		*/
 
 		return $content;
 	}

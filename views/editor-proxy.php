@@ -16,7 +16,7 @@
 	
 	$request_url = $this->server->url . '/server/?uri=' . $this->layer->id 
 												.'&lk=' . $this->layer->key 
-												.'&lo=' . $this->layer->outputMode
+												.'&lo=' . $this->layer->layerOutput
 												.'&pu=' . urlencode($this->urls->plans)												
 												.'&ref='. $ref 
 												.'&rk='	. $ref_key 

@@ -190,7 +190,7 @@ class LTPLE_Client_Login {
 		
 	public function add_shortcode_login(){
 		
-		include($this->parent->views . $this->parent->_dev .'/login.php');
+		include($this->parent->views . '/login.php');
 	}
 	
 	public function get_login_form_bottom() {

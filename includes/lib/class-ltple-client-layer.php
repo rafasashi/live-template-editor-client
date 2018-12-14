@@ -5,19 +5,22 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Layer extends LTPLE_Client_Object { 
 	
 	public $parent;
-	public $id			= -1;
-	public $defaultId	= -1;
-	public $uri			= '';
-	public $key			= ''; // gives the server proxy access to the layer
-	public $slug		= '';
-	public $title		= '';
-	public $type		= '';
-	public $form		= '';
-	public $outputMode	= '';
-	public $embedded	= '';
-	public $types		= '';
-	public $ranges		= '';
-	public $options		= '';
+	public $id				= -1;
+	public $defaultId		= -1;
+	public $uri				= '';
+	public $key				= ''; // gives the server proxy access to the layer
+	public $slug			= '';
+	public $title			= '';
+	public $type			= '';
+	public $form			= '';
+	public $embedded		= '';
+	public $outputs			= '';
+	public $types			= array(); 
+	public $ranges			= array(); 
+	public $accountOptions 	= array(); 
+	public $columns			= '';
+	public $column			= '';
+	public $options			= array(); 
 	
 	/**
 	 * Constructor function
@@ -159,96 +162,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( $post->post_type == 'cb-default-layer' ){
 				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-content',
-					__( 'Template HTML', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
+				$layer_type = $this->get_layer_type($post);
 				
-				$this->parent->admin->add_meta_box (
+				if( empty($_REQUEST['post']) ){
 					
-					'layer-css',
-					__( 'Template CSS', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
-				
-				$this->parent->admin->add_meta_box (
+					// remove all metaboxes except submit button
 					
-					'layer-js',
-					__( 'Template Javascript', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
-				
-				$this->parent->admin->add_meta_box (
+					global $wp_meta_boxes;
 					
-					'layer-elements',
-					__( 'Template Elements', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);		
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-meta',
-					__( 'Template Meta Data', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-static-url',
-					__( 'Template Static Content', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-output',
-					__( 'Template Settings', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'side'
-				);
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-visibility',
-					__( 'Template Visibility', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'side'
-				);
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-form',
-					__( 'Template Form', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'side'
-				);		
-				
-				/*
-				$this->parent->admin->add_meta_box (
-					
-					'layer-options',
-					__( 'Template Options', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'side'
-				);
-				*/
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-margin',
-					__( 'Template Margin', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'side'
-				);
-			
+					$submitbox = $wp_meta_boxes[$post->post_type]['side']['core']['submitdiv'];
+
+					$wp_meta_boxes[$post->post_type]['side']['core'] 	= array( 'submitdiv' => $submitbox );
+					$wp_meta_boxes[$post->post_type]['side']['low'] 	= array();
+					$wp_meta_boxes[$post->post_type]['normal'] 			= array();
+					$wp_meta_boxes[$post->post_type]['advanced'] 		= array();
+				}
+
 				$this->parent->admin->add_meta_box (
 				
 					'tagsdiv-layer-type',
@@ -265,13 +194,113 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'side'
 				);
 				
-				$this->parent->admin->add_meta_box (
+				if( !empty($_REQUEST['post']) ){
 					
-					'layer-user',
-					__( 'Template User ID', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'side'
-				);
+					$this->parent->admin->add_meta_box (
+						
+						'layer-user',
+						__( 'Template User ID', 'live-template-editor-client' ), 
+						array($post->post_type),
+						'side'
+					);				
+			
+					$this->parent->admin->add_meta_box (
+						
+						'layer-content',
+						__( 'Template HTML', 'live-template-editor-client' ), 
+						array($post->post_type),
+						'advanced'
+					);
+					
+					$this->parent->admin->add_meta_box (
+						
+						'layer-visibility',
+						__( 'Template Visibility', 'live-template-editor-client' ), 
+						array($post->post_type),
+						'side'
+					);				
+					
+					$this->parent->admin->add_meta_box (
+						
+						'layer-elements',
+						__( 'Template Elements', 'live-template-editor-client' ), 
+						array($post->post_type),
+						'advanced'
+					);		
+					
+					if( $layer_type->output != 'inline-css' ){
+						
+						$this->parent->admin->add_meta_box (
+							
+							'layer-css',
+							__( 'Template CSS', 'live-template-editor-client' ), 
+							array($post->post_type),
+							'advanced'
+						);
+					}				
+					
+					if( $layer_type->output == 'hosted-page' || $layer_type->output == 'downloadable' ){
+					
+						$this->parent->admin->add_meta_box (
+							
+							'layer-js',
+							__( 'Template Javascript', 'live-template-editor-client' ), 
+							array($post->post_type),
+							'advanced'
+						);
+						
+						$this->parent->admin->add_meta_box (
+							
+							'layer-static-url',
+							__( 'Template Static Content', 'live-template-editor-client' ), 
+							array($post->post_type),
+							'advanced'
+						);
+						
+						$this->parent->admin->add_meta_box (
+							
+							'layer-meta',
+							__( 'Template Meta Data', 'live-template-editor-client' ), 
+							array($post->post_type),
+							'advanced'
+						);
+					}
+					else{
+						
+						$this->parent->admin->add_meta_box (
+							
+							'layer-margin',
+							__( 'Template Margin', 'live-template-editor-client' ), 
+							array($post->post_type),
+							'side'
+						);
+
+						remove_meta_box( 'css-librarydiv', $post->post_type, 'side' );
+						remove_meta_box( 'js-librarydiv', $post->post_type, 'side' );
+						remove_meta_box( 'font-librarydiv', $post->post_type, 'side' );					
+					}
+					
+					if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
+					
+						$this->parent->admin->add_meta_box (
+							
+							'layer-form',
+							__( 'Template Form', 'live-template-editor-client' ), 
+							array($post->post_type),
+							'side'
+						);
+					}
+					
+					/*
+					$this->parent->admin->add_meta_box (
+						
+						'layer-options',
+						__( 'Template Options', 'live-template-editor-client' ), 
+						array($post->post_type),
+						'side'
+					);
+					*/
+				}
 			}
 			elseif( $post->post_type == 'user-layer' || ( !empty($this->parent->settings->options->postTypes) && in_array( $post->post_type, $this->parent->settings->options->postTypes ) ) ){
 				
@@ -283,65 +312,58 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'advanced'
 				);
 				
-				/*
-				$this->parent->admin->add_meta_box (
+				if( !empty($_REQUEST['post']) ){
 					
-					'layer-embedded',
-					__( 'Template Embedded', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
-				*/
-				
-				if( in_array( $post->post_type, $this->parent->settings->options->postTypes ) ){
-				
-					// get default layer id
+					if( in_array( $post->post_type, $this->parent->settings->options->postTypes ) ){
 					
-					$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
-					
-					if( $post->layer_id == 0 ){
+						// get default layer id
 						
-						return;
+						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
+						
+						if( $post->layer_id == 0 ){
+							
+							return;
+						}
 					}
+					
+					$this->parent->admin->add_meta_box (
+						
+						'layer-content',
+						__( 'Template HTML', 'live-template-editor-client' ), 
+						array($post->post_type),
+						'advanced'
+					); 				
+					
+					$this->parent->admin->add_meta_box (
+						
+						'layer-css',
+						__( 'Template CSS', 'live-template-editor-client' ), 
+						array($post->post_type),
+						'advanced'
+					);
+					
+					$this->parent->admin->add_meta_box (
+						
+						'layer-js',
+						__( 'Template Javascript', 'live-template-editor-client' ), 
+						array($post->post_type),
+						'advanced'
+					);
 				}
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-content',
-					__( 'Template HTML', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				); 				
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-css',
-					__( 'Template CSS', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-js',
-					__( 'Template Javascript', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
 			}
 		});		
 
 		add_action('account-option_add_form_fields', array( $this, 'add_layer_fields' ) );
-		add_action('account-option_edit_form_fields', array( $this, 'get_layer_type_fields' ) );	
+		add_action('account-option_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );	
 	
-		add_filter('manage_edit-account-option_columns', array( $this, 'set_account_columns' ) );
-		add_filter('manage_account-option_custom_column', array( $this, 'add_account_column_content' ),10,3);			
+		add_filter('manage_edit-account-option_columns', array( $this, 'set_account_option_columns' ) );
+		add_filter('manage_account-option_custom_column', array( $this, 'add_layer_column_content' ),10,3);			
 	
 		add_action('create_account-option', array( $this, 'save_layer_fields' ) );
 		add_action('edit_account-option', array( $this, 'save_layer_fields' ) );	
 
 		add_action('layer-type_add_form_fields', array( $this, 'add_layer_fields' ) );
-		add_action('layer-type_edit_form_fields', array( $this, 'get_layer_type_fields' ) );
+		add_action('layer-type_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );
 	
 		add_filter('manage_edit-layer-type_columns', array( $this, 'set_layer_type_columns' ) );
 		add_filter('manage_layer-type_custom_column', array( $this, 'add_layer_column_content' ),10,3);		
@@ -350,7 +372,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('edit_layer-type', array( $this, 'save_layer_fields' ) );	
 
 		add_action('layer-range_add_form_fields', array( $this, 'add_layer_fields' ) );
-		add_action('layer-range_edit_form_fields', array( $this, 'get_layer_type_fields' ) );
+		add_action('layer-range_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );
 	
 		add_filter('manage_edit-layer-range_columns', array( $this, 'set_layer_range_columns' ) );
 		add_filter('manage_layer-range_custom_column', array( $this, 'add_layer_column_content' ),10,3);
@@ -387,6 +409,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action( 'before_delete_post', array($this,'delete_static_contents'), 10, 3 );
 	
 		add_action( 'ltple_layer_loaded', array($this,'output_static_layer') );
+	}
+	
+	public function get_layer_outputs(){
+		
+		if( empty($this->outputs) ){
+		
+			$this->outputs = array(
+					
+				'inline-css'	=>'HTML',
+				'external-css'	=>'HTML + CSS',
+				'hosted-page'	=>'Hosted',
+				'downloadable'	=>'Downloadable',
+				'canvas'		=>'Canvas'
+			);
+			
+			do_action('ltple_layer_outputs');
+		}
+		
+		return $this->outputs;
 	}
 	
 	public function get_layer_types(){
@@ -427,7 +468,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_account_options(){
 
-		$this->options = $this->get_terms( 'account-option', array(
+		$this->accountOptions = $this->get_terms( 'account-option', array(
 
 			'1-template-storage' => array(
 			
@@ -710,6 +751,52 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		));
 	}
 	
+	public function get_layer_type($post){
+		
+		$term = null;
+		
+		if( is_numeric($post) ){
+			
+			$post = get_post($post);
+		}
+
+		if( isset($post->post_type) ){
+			
+			if( $post->post_type == 'user-layer' ){
+					
+				// get default layer id
+				
+				$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+				
+				$post = get_post($default_id);
+			}
+			
+			if( $post->post_type == 'cb-default-layer' ){
+				
+				$terms = wp_get_post_terms($post->ID,'layer-type');
+				
+				if( !empty($terms[0]) ){
+					
+					$term = $terms[0];
+
+					if( !$term->output = get_term_meta( $term->term_id, 'output', true ) ){
+						
+						$term->output = 'inline-css';
+					}
+				}				
+			}
+		}
+		
+		if( !isset($term->output) ){
+			
+			$term = new stdClass();
+			
+			$term->output = '';
+		}
+		
+		return $term;
+	}
+	
 	public function init_layer_backend(){
 		
 		add_filter('show_user_profile', array( $this, 'get_user_layers' ),2,10 );
@@ -933,14 +1020,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->layerMinWidth = '1000px';
 					}									
 					
-					// get output mode
-					
-					$this->outputMode 	= get_post_meta( $this->defaultId, 'layerOutput', true );
-					
 					//get page def
 					
 					$this->pageDef = get_post_meta( $this->defaultId, 'pageDef', true );
 					
+					// get default layer type
+					
+					$this->defaultLayerType = $this->get_layer_type($this->defaultId);
+								
 					//get default static path
 					
 					$this->defaultStaticPath = $this->get_static_path($this->defaultId,$this->defaultId);
@@ -999,7 +1086,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 					//get layer output
 					
-					$this->layerOutput = get_post_meta( $this->defaultId, 'layerOutput', true );
+					$this->layerOutput = $this->defaultLayerType->output;
 					
 					//get layer options
 					
@@ -1303,26 +1390,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			);		
 		}
 
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=> "layer-output"),
-				'id'		=> "layerOutput",
-				'label'		=> "",
-				'type'		=> 'select',
-				'options'	=> array(
-				
-					'inline-css'	=>'Inline Style',
-					'external-css'	=>'Style Sheet',
-					'hosted-page'	=>'Hosted Page',
-					'downloadable'	=>'Downloadable',
-					'canvas'		=>'Canvas'
-				),
-				'selected'	=>'inline-css',
-				'description'=>''
-		);
-		
 		$fields[]=array( 
 		
 			"metabox" =>
@@ -1581,6 +1648,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$options['storage_unit']	= $storage_unit;
 		$options['form']			= $form;
 		
+		// add addon options
+		
+		$this->options  = array();
+		
+		do_action('ltple_layer_options',$term_slug);
+		
+		$options = array_merge($options,$this->options);
+		
 		return $options;
 	}
 	
@@ -1613,7 +1688,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
 								}
 
-								include($this->parent->views . $this->parent->_dev .'/layer.php');
+								include($this->parent->views . '/layer.php');
 								
 								exit;
 							}							
@@ -1639,7 +1714,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
 						}						
 
-						include($this->parent->views . $this->parent->_dev .'/layer.php');
+						include($this->parent->views . '/layer.php');
 					}
 					elseif( $post->post_status == 'draft' ){
 						
@@ -1723,72 +1798,72 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $str;
 	}
 	
-	public function add_layer_fields($taxonomy_name){
+	public function add_layer_fields( $taxonomy, $term_slug = '' ){
 		
-		echo'<div class="form-field">';
-			
-			echo'<label for="'.$taxonomy_name.'-price-amount">Price</label>';
-
-			echo $this->parent->plan->get_layer_price_fields($taxonomy_name,[]);
-			
-		echo'</div>';
-		
-		echo'<div class="form-field">';
-			
-			echo'<label for="'.$taxonomy_name.'-storage-amount">Storage</label>';
-
-			echo $this->parent->plan->get_layer_storage_fields($taxonomy_name,0);
-			
-		echo'</div>';
-	}
-	
-	public function get_layer_type_fields($term){
-
 		//collect our saved term field information
 		
-		$price=[];
-		$price['price_amount'] = get_option('price_amount_' . $term->slug); 
-		$price['price_period'] = get_option('price_period_' . $term->slug); 
+		$price = $storage = [];
+
+		if( !empty($term_slug) ){
 		
-		$storage=[];
-		$storage['storage_amount'] 	= get_option('storage_amount_' . $term->slug);
-		$storage['storage_unit'] 	= get_option('storage_unit_' . $term->slug);
+			$price['price_amount'] = get_option('price_amount_' . $term_slug); 
+			$price['price_period'] = get_option('price_period_' . $term_slug); 
+
+			$storage['storage_amount'] 	= get_option('storage_amount_' . $term_slug);
+			$storage['storage_unit'] 	= get_option('storage_unit_' . $term_slug);
+		}	
+		
+		echo'<div class="form-field" style="margin-bottom:15px;">';
+			
+			echo'<label for="'.$taxonomy.'-price-amount">Price</label>';
+
+			echo $this->parent->plan->get_layer_price_fields($taxonomy,$price);
+			
+		echo'</div>';
+		
+		echo'<div class="form-field" style="margin-bottom:15px;">';
+			
+			echo'<label for="'.$taxonomy.'-storage-amount">Storage</label>';
+
+			echo $this->parent->plan->get_layer_storage_fields($taxonomy,$storage);
+			
+		echo'</div>';
+		
+		do_action('ltple_layer_plan_fields', $taxonomy, $term_slug);
+	}
+	
+	public function add_edit_layer_fields($term){
 		
 		//output our additional fields
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Price </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-				
-				echo $this->parent->plan->get_layer_price_fields($term->taxonomy,$price);
-				
-			echo'</td>';
-			
-		echo'</tr>';
 
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Storage </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-				
-				echo $this->parent->plan->get_layer_storage_fields($term->taxonomy,$storage);
-						
-			echo'</td>';
-			
-		echo'</tr>';
-		
 		if( $term->taxonomy == 'layer-type' ){
+		
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Type </label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$this->parent->admin->display_field( array(			
+						
+						'name'			=> 'output',
+						'id'			=> 'output',
+						'label'			=> "",
+						'type'			=> 'select',
+						'options'		=> $this->get_layer_outputs(),
+						'inline'		=> false,
+						'default'		=> 'inline-css',
+						'description'	=> '',
+						
+					), $term );
+					
+				echo'</td>';	
+				
+			echo'</tr>';		
 		
 			echo'<tr class="form-field">';
 			
@@ -1822,6 +1897,24 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 			echo'</tr>';
 		}
+		
+		// layer plan attributes
+		
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Plan </label>';
+			
+			echo'</th>';		
+		
+			echo'<td>';
+				
+				$this->add_layer_fields($term->taxonomy,$term->slug);
+				
+			echo'</td>';
+			
+		echo'</tr>';
 
 		echo'<tr class="form-field">';
 		
@@ -1987,139 +2080,168 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function set_layer_type_columns($columns) {
 
 		// Remove description, posts, wpseo columns
-		$columns = [];
+		$this->columns = [];
 		
 		// Add artist-website, posts columns
 
-		$columns['cb'] 			= '<input type="checkbox" />';
-		$columns['name'] 		= 'Name';
-		$columns['visibility'] 	= 'Visibility';
-		//$columns['slug'] 		= 'Slug';
-		$columns['description'] = 'Description';
-		$columns['price'] 		= 'Price';
-		$columns['storage'] 	= 'Storage';
-		//$columns['posts'] 	= 'Layers';
-		//$columns['users'] 	= 'Users';
+		$this->columns['cb'] 			= '<input type="checkbox" />';
+		$this->columns['name'] 			= 'Name';
+		$this->columns['output'] 		= 'Type';
+		$this->columns['visibility'] 	= 'Visibility';
+		//$this->columns['slug'] 		= 'Slug';
+		$this->columns['description'] 	= 'Description';
+		$this->columns['price'] 		= 'Price';
+		$this->columns['storage'] 		= 'Storage';
+		//$this->columns['posts'] 		= 'Layers';
+		//$this->columns['users'] 		= 'Users';
+		
+		do_action('ltple_layer_type_columns');
 
-		return $columns;
+		return $this->columns;
 	}	
 	
 	public function set_layer_range_columns($columns) {
 
 		// Remove description, posts, wpseo columns
-		$columns = [];
+		$this->columns = [];
 		
 		// Add artist-website, posts columns
 
-		$columns['cb'] 			= '<input type="checkbox" />';
-		$columns['name'] 		= 'Name';
-		//$columns['slug'] 		= 'Slug';
-		$columns['description'] = 'Description';
-		$columns['price'] 		= 'Price';
-		$columns['storage'] 	= 'Storage';
-		//$columns['posts'] 	= 'Layers';
-		//$columns['users'] 	= 'Users';
-
-		return $columns;
+		$this->columns['cb'] 			= '<input type="checkbox" />';
+		$this->columns['name'] 			= 'Name';
+		//$this->columns['slug'] 		= 'Slug';
+		$this->columns['description'] 	= 'Description';
+		$this->columns['price'] 		= 'Price';
+		$this->columns['storage'] 		= 'Storage';
+		//$this->columns['posts'] 		= 'Layers';
+		//$this->columns['users'] 		= 'Users';
+	
+		do_action('ltple_layer_range_columns');
+	
+		return $this->columns;
 	}
 	
-	public function set_account_columns($columns) {
+	public function set_account_option_columns($columns) {
 
 		// Remove description, posts, wpseo columns
-		$columns = [];
+		$this->columns = [];
 		
 		// Add artist-website, posts columns
 
-		$columns['cb'] 			= '<input type="checkbox" />';
-		$columns['name'] 		= 'Name';
-		//$columns['slug'] 		= 'Slug';
-		$columns['description'] = 'Description';
-		$columns['price'] 		= 'Price';
-		$columns['storage'] 	= 'Storage';
-		//$columns['posts'] 	= 'Layers';
-		//$columns['users'] 	= 'Users';
+		$this->columns['cb'] 			= '<input type="checkbox" />';
+		$this->columns['name'] 			= 'Name';
+		//$this->columns['slug'] 		= 'Slug';
+		$this->columns['description'] 	= 'Description';
+		$this->columns['price'] 		= 'Price';
+		$this->columns['storage'] 		= 'Storage';
+		//$this->columns['posts'] 		= 'Layers';
+		//$this->columns['users'] 		= 'Users';
+		
+		do_action('ltple_layer_option_columns');
 
-		return $columns;
+		return $this->columns;
 	}
 		
 	public function add_layer_column_content($content, $column_name, $term_id){
-	
-		$term= get_term($term_id);
 		
-		if($column_name === 'visibility') {
+		$this->column = $content;
+		
+		if( $term = get_term($term_id) ){
 			
-			if(!$visibility = get_option('visibility_' . $term->slug)){
+			if($column_name === 'output') {
 				
-				$visibility = 'anyone';
+				$outputs = $this->get_layer_outputs();
+				
+				if(!$output = get_term_meta($term->term_id,'output',true)){
+					
+					$output = 'inline-css';
+				}
+
+				$this->column .='<span class="label label-primary">'.$outputs[$output].'</span>';
+			}
+			elseif($column_name === 'visibility') {
+				
+				if(!$visibility = get_option('visibility_' . $term->slug)){
+					
+					$visibility = 'anyone';
+				}
+				
+				if( $visibility == 'admin' ){
+					
+					$this->column .='<span class="label label-warning">'.$visibility.'</span>';
+				}
+				elseif( $visibility == 'none' ){
+					
+					$this->column .='<span class="label label-danger">'.$visibility.'</span>';
+				}
+				else{
+					
+					$this->column .='<span class="label label-success">'.$visibility.'</span>';
+				}
+				
+			}
+			elseif($column_name === 'price') {
+				
+				if(!$price_amount = get_option('price_amount_' . $term->slug)){
+					
+					$price_amount = 0;
+				} 
+				
+				if(!$price_period = get_option('price_period_' . $term->slug)){
+					
+					$price_period = 'month';
+				} 	
+				
+				$this->column .=$price_amount.'$'.' / '.$price_period;
+			}
+			elseif($column_name === 'storage') {
+				
+				if(!$storage_amount = get_option('storage_amount_' . $term->slug)){
+					
+					$storage_amount = 0;
+				}
+				
+				if(!$storage_unit = get_option('storage_unit_' . $term->slug)){
+					
+					$storage_unit = 'templates';
+				} 
+				
+				if( $storage_unit == 'templates' ){
+					
+					if( $storage_amount == 1 ){
+						
+						$this->column .='+'.$storage_amount.' project';
+					}
+					elseif($storage_amount > 0){
+						
+						$this->column .='+'.$storage_amount.' projects';
+					}
+					else{
+						
+						$this->column .= $storage_amount.' projects';
+					}
+				}
+				elseif($storage_amount > 0){
+					
+					$this->column .='+'.$storage_amount.' '.$storage_unit;
+				}
+				else{
+					
+					$this->column .= $storage_amount.' '.$storage_unit;
+				}
+				
+			}
+			elseif($column_name === 'users') {
+				
+				$users=0;
+				
+				$this->column .=$users;
 			}
 			
-			if( $visibility == 'admin' ){
-				
-				$content.='<span class="label label-warning">'.$visibility.'</span>';
-			}
-			elseif( $visibility == 'none' ){
-				
-				$content.='<span class="label label-danger">'.$visibility.'</span>';
-			}
-			else{
-				
-				$content.='<span class="label label-success">'.$visibility.'</span>';
-			}
-			
-		}
-		elseif($column_name === 'price') {
-			
-			if(!$price_amount = get_option('price_amount_' . $term->slug)){
-				
-				$price_amount = 0;
-			} 
-			
-			if(!$price_period = get_option('price_period_' . $term->slug)){
-				
-				$price_period = 'month';
-			} 	
-			
-			$content.=$price_amount.'$'.' / '.$price_period;
-		}
-		elseif($column_name === 'storage') {
-			
-			if(!$storage_amount = get_option('storage_amount_' . $term->slug)){
-				
-				$storage_amount = 0;
-			}
-			
-			if(!$storage_unit = get_option('storage_unit_' . $term->slug)){
-				
-				$storage_unit = 'templates';
-			} 
-			
-			if($storage_unit=='templates'&&$storage_amount==1){
-				
-				$content.='+'.$storage_amount.' template';
-			}
-			elseif($storage_amount > 0){
-				
-				$content.='+'.$storage_amount.' '.$storage_unit;
-			}
-			else{
-				
-				$content.=$storage_amount.' '.$storage_unit;
-			}
-			
-		}
-		elseif($column_name === 'users') {
-			
-			$users=0;
-			
-			$content.=$users;
+			do_action('ltple_layer_column_content',$column_name,$term);
 		}
 
-		return $content;
-	}
-	
-	public function add_account_column_content($content, $column_name, $term_id){
-		
-		return $this->add_layer_column_content($content, $column_name, $term_id);
+		return $this->column;
 	}
 	
 	public function save_layer_fields($term_id){
@@ -2127,50 +2249,59 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( $this->parent->user->is_admin ){
 			
 			//collect all term related data for this new taxonomy
-			$term = get_term($term_id);
-						
-			//save our custom fields as wp-options
 			
-			if( isset($_POST[$term->taxonomy .'-price-amount']) && is_numeric($_POST[$term->taxonomy .'-price-amount']) ){
-
-				update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));			
-			}
-			
-			if( isset($_POST[$term->taxonomy .'-price-period']) ){
-
-				$periods = $this->parent->plan->get_price_periods();
-				$period = sanitize_text_field($_POST[$term->taxonomy . '-price-period']);
+			if( $term = get_term($term_id) ){
+							
+				//save our custom fields as wp-options
 				
-				if(isset($periods[$period])){
+				if( isset($_POST[$term->taxonomy .'-price-amount']) && is_numeric($_POST[$term->taxonomy .'-price-amount']) ){
+
+					update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));			
+				}
+				
+				if( isset($_POST[$term->taxonomy .'-price-period']) ){
+
+					$periods = $this->parent->plan->get_price_periods();
+					$period = sanitize_text_field($_POST[$term->taxonomy . '-price-period']);
 					
-					update_option('price_period_' . $term->slug, $period);	
+					if(isset($periods[$period])){
+						
+						update_option('price_period_' . $term->slug, $period);	
+					}
 				}
-			}
-			
-			if(isset($_POST[$term->taxonomy .'-storage-amount'])&&is_numeric($_POST[$term->taxonomy .'-storage-amount'])){
-
-				update_option('storage_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0));			
-			}
-			
-			if(isset($_POST[$term->taxonomy .'-storage-unit'])){
-
-				$storage_units = $this->parent->plan->get_storage_units();
-				$storage_unit = sanitize_text_field($_POST[$term->taxonomy . '-storage-unit']);
 				
-				if(isset($periods[$period])){			
-				
-					update_option('storage_unit_' . $term->slug, $storage_unit);			
+				if(isset($_POST[$term->taxonomy .'-storage-amount'])&&is_numeric($_POST[$term->taxonomy .'-storage-amount'])){
+
+					update_option('storage_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0));			
 				}
-			}
+				
+				if(isset($_POST[$term->taxonomy .'-storage-unit'])){
 
-			if(isset($_POST['visibility_'.$term->slug])){
+					$storage_units = $this->parent->plan->get_storage_units();
+					$storage_unit = sanitize_text_field($_POST[$term->taxonomy . '-storage-unit']);
+					
+					if(isset($periods[$period])){			
+					
+						update_option('storage_unit_' . $term->slug, $storage_unit);			
+					}
+				}
 
-				update_option('visibility_'.$term->slug, $_POST['visibility_'.$term->slug]);			
-			}
-			
-			if(isset($_POST[$term->taxonomy . '-meta'])){
+				if(isset($_POST['output'])){
 
-				update_option('meta_'.$term->slug, $_POST[$term->taxonomy . '-meta']);			
+					update_term_meta( $term->term_id, 'output', $_POST['output']);			
+				}			
+				
+				if(isset($_POST['visibility_'.$term->slug])){
+
+					update_option('visibility_'.$term->slug, $_POST['visibility_'.$term->slug]);			
+				}
+				
+				if(isset($_POST[$term->taxonomy . '-meta'])){
+
+					update_option('meta_'.$term->slug, $_POST[$term->taxonomy . '-meta']);			
+				}
+				
+				do_action('ltple_save_layer_fields',$term);
 			}
 		}
 	}

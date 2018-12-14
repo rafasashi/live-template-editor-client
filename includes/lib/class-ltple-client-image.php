@@ -395,7 +395,6 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 									
 									//upload image
 									
-				
 									if( $attach_id = media_handle_upload( $file, 0 ) ){
 				
 										// output message

@@ -10,7 +10,10 @@ class LTPLE_Client_Plan {
 	var $data;
 	var $message;
 	var $fields;
-	var $buttons = array();
+	var $user_plans		= array();
+	var $layerOptions 	= NULL;
+	var $buttons 		= array();
+	var $shortcode 		= '';
 	
 	/**
 	 * Constructor function
@@ -82,7 +85,7 @@ class LTPLE_Client_Plan {
 		
 		// add user-plan
 		
-		add_filter("user-plan_custom_fields", array( $this, 'add_user_plan_custom_fields' ));		
+		add_filter("user-plan_custom_fields", array( $this, 'add_user_plan_fields' ));		
 		
 		add_action( 'init', array( $this, 'init_plan' ));
 	}
@@ -115,25 +118,9 @@ class LTPLE_Client_Plan {
 		}
 	}	
 	
-	public function hasHosting($plan){
-		
-		if( !empty($plan['meta']) ){
-			
-			foreach( $plan['meta'] as $meta ){
-				
-				if(!empty($meta['domain_name'])){
-					
-					return true;
-				}
-			}
-		}
-		
-		return false;
-	}
-	
 	// Add user plan data custom fields
 
-	public function add_user_plan_custom_fields(){
+	public function add_user_plan_fields(){
 		
 		$fields=[];
 		
@@ -208,17 +195,15 @@ class LTPLE_Client_Plan {
 		
 		$atts = shortcode_atts( array(
 		
-			'id'		 	=> NULL,
-			'widget' 		=> 'false',
-			'title' 		=> NULL,
-			'thumb' 		=> false,
-			'content' 		=> NULL,
-			'button' 		=> NULL,
-			'show-storage' 	=> true
+			'id'		 		=> NULL,
+			'widget' 			=> 'false',
+			'title' 			=> NULL,
+			'thumb' 			=> false,
+			'content' 			=> NULL,
+			'button' 			=> NULL,
+			'attributes' 		=> true
 			
 		), $atts, 'subscription-plan' );		
-		
-		$subscription_plan = '';
 		
 		if(!is_null($atts['id'])&&is_numeric($atts['id'])){
 			
@@ -230,11 +215,9 @@ class LTPLE_Client_Plan {
 			$total_fee_period		='once';
 			$total_price_currency	='$';
 			
-			$option_name='plan_options';
-			
-			$options = $this->get_layer_custom_taxonomies_options();
-			
-			if($data = get_post_meta( $id, $option_name, true )){
+			$option_name = 'plan_options';
+
+			if( $plan_options = get_post_meta( $id, $option_name, true ) ){
 				
 				//get plan
 				
@@ -257,32 +240,32 @@ class LTPLE_Client_Plan {
 					
 					$plan_form 		= '';
 					$plan_content 	= $atts['content'];
-					$style='font-weight: bold;color: rgb(138, 206, 236);';
+					$style			= 'font-weight: bold;color: rgb(138, 206, 236);';
 				}
 				else{
 					
 					$plan_form 		= '';
 					$plan_content 	= $plan->post_content;
-					$style='margin-bottom: 0;padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);color: rgb(138, 206, 236);box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
+					$style 			= 'margin-bottom: 0;padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);color: rgb(138, 206, 236);box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
 				}
 
 				// get total_price_amount & total_storage
-				
-				foreach( $options as $taxonomy => $terms ) {
+					
+				$taxonomies = $this->get_layer_taxonomies_options();
+
+				foreach( $taxonomies as $taxonomy => $terms ) {
 					
 					$taxonomy_options = [];
 					
-					foreach($terms as $i => $term){
+					foreach($terms as $term){
 
-						$taxonomy_options[$i] = $this->parent->layer->get_options( $taxonomy, $term );
-
-						if ( in_array( $term->slug, $data ) ) {
+						if ( in_array( $term->slug, $plan_options ) ) {
 							
-							$total_price_amount = $this->sum_custom_taxonomy_total_price_amount( $total_price_amount, $taxonomy_options[$i], $total_price_period);	
-							$total_fee_amount 	= $this->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $taxonomy_options[$i], $total_fee_period);				
-							$total_storage 		= $this->sum_custom_taxonomy_total_storage( $total_storage, $taxonomy_options[$i]);
+							$total_price_amount = $this->sum_save_urlstotal_price_amount( $total_price_amount, $term->options, $total_price_period);	
+							$total_fee_amount 	= $this->sum_save_urlstotal_price_amount( $total_fee_amount, $term->options, $total_fee_period);				
+							$total_storage 		= $this->sum_save_urlstotal_storage( $total_storage, $term->options);
 
-							if( !empty($taxonomy_options[$i]['form']) && ( count($taxonomy_options[$i]['form']['input'])>1 || !empty($taxonomy_options[$i]['form']['name'][0]) ) ){
+							if( !empty($term->options['form']) && ( count($term->options['form']['input'])>1 || !empty($term->options['form']['name'][0]) ) ){
 
 								if( !empty($_POST['meta_'.$term->slug]) ){
 									
@@ -297,7 +280,7 @@ class LTPLE_Client_Plan {
 										'type'				=> 'form',
 										'id'				=> 'meta_'.$term->slug,
 										'name'				=> $term->taxonomy . '-meta',
-										'array' 			=> $taxonomy_options[$i],
+										'array' 			=> $term->options,
 										'action' 			=> '',
 										'method' 			=> 'post',
 										'description'		=> ''
@@ -354,13 +337,13 @@ class LTPLE_Client_Plan {
 
 				//get plan_data
 				
-				sort($data);
+				sort($plan_options);
 				ksort($total_storage);
 				
 				$plan_data=[];
 				$plan_data['id'] 		= $plan->ID;
 				$plan_data['name'] 		= $plan->post_title;
-				$plan_data['options'] 	= $data;
+				$plan_data['options'] 	= $plan_options;
 				$plan_data['price'] 	= $total_price_amount;
 				$plan_data['fee'] 		= $total_fee_amount;
 				$plan_data['currency']	= $total_price_currency;
@@ -378,11 +361,9 @@ class LTPLE_Client_Plan {
 					// display total upgrade price
 				}
 				
-				$plan_data=esc_attr( json_encode( $plan_data ) );
+				$plan_data = esc_attr( json_encode( $plan_data ) );
 				
-				//var_dump($plan_data);exit;
-
-				$plan_key=md5( 'plan' . $plan_data . $this->parent->_time . $this->parent->user->user_email );	
+				$plan_key = md5( 'plan' . $plan_data . $this->parent->_time . $this->parent->user->user_email );	
 
 				//get agreement url				
 				
@@ -427,78 +408,78 @@ class LTPLE_Client_Plan {
 					
 					if( !empty($services) ){
 						
-						$subscription_plan.= '<div class="row panel-body" style="background:#fff;">';
+						$this->shortcode .= '<div class="row panel-body" style="background:#fff;">';
 						
-							$subscription_plan.= '<div class="col-xs-12 col-md-6">';
+							$this->shortcode .= '<div class="col-xs-12 col-md-6">';
 								
-								$subscription_plan.= '<div class="page-header" style="margin-top:10px;">';
+								$this->shortcode .= '<div class="page-header" style="margin-top:10px;">';
 								
-									$subscription_plan.= '<h2>Addon Services</h2>';
+									$this->shortcode .= '<h2>Addon Services</h2>';
 									
-								$subscription_plan.= '</div>';
+								$this->shortcode .= '</div>';
 								
-								$subscription_plan.= '<form>';
+								$this->shortcode .= '<form>';
 									
 									foreach($services as $parent => $terms){
 										
-										$subscription_plan.= '<div class="panel panel-default">';
+										$this->shortcode .= '<div class="panel panel-default">';
 											
-											$subscription_plan.= '<div class="panel-heading">';
+											$this->shortcode .= '<div class="panel-heading">';
 											
-												$subscription_plan.= '<b>' . $parent . '</b>';
+												$this->shortcode .= '<b>' . $parent . '</b>';
 												
-											$subscription_plan.= '</div>';
+											$this->shortcode .= '</div>';
 											
-											$subscription_plan.= '<div class="panel-body">';
+											$this->shortcode .= '<div class="panel-body">';
 												
 												foreach($terms as $term){
 												
-													$subscription_plan.= '<span>';
+													$this->shortcode .= '<span>';
 														
-														$subscription_plan.= '<input class="" type="checkbox" name="addon-services[]" value="' . $term->term_id . '">';
+														$this->shortcode .= '<input class="" type="checkbox" name="addon-services[]" value="' . $term->term_id . '">';
 														
-														$subscription_plan.= ' ' . ucfirst($term->name);
+														$this->shortcode .= ' ' . ucfirst($term->name);
 													
-													$subscription_plan.= '</span>';
+													$this->shortcode .= '</span>';
 												}
 												
-											$subscription_plan.= '</div>';
+											$this->shortcode .= '</div>';
 											
-										$subscription_plan.= '</div>';
+										$this->shortcode .= '</div>';
 									}
 									
-								$subscription_plan.= '</form>';
+								$this->shortcode .= '</form>';
 								
-							$subscription_plan.= '</div>';
+							$this->shortcode .= '</div>';
 							
-						$subscription_plan.= '</div>';							
+						$this->shortcode .= '</div>';							
 					}
 					elseif( !empty($plan_form) ){
 						
-						$subscription_plan.= '<div class="row panel-body" style="background:#fff;">';
+						$this->shortcode .= '<div class="row panel-body" style="background:#fff;">';
 						
-							$subscription_plan.= '<div class="col-xs-12 col-md-6">';
+							$this->shortcode .= '<div class="col-xs-12 col-md-6">';
 
-								$subscription_plan.= $plan_form;
+								$this->shortcode .= $plan_form;
 
-							$subscription_plan.= '</div>';
+							$this->shortcode .= '</div>';
 							
-						$subscription_plan.= '</div>';						
+						$this->shortcode .= '</div>';						
 					}
 					else{
 
-						$subscription_plan.= '<iframe src="'.$agreement_url.'" style="width:100%;bottom: 0;border:0;height:' . ($iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
+						$this->shortcode .= '<iframe src="'.$agreement_url.'" style="width:100%;bottom: 0;border:0;height:' . ($iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
 					}
 				}
 				else{
 										
-					$subscription_plan.='<h2 id="plan_title" style="'.$style.'">' . $plan_title . '</h2>';
+					$this->shortcode .='<h2 id="plan_title" style="'.$style.'">' . $plan_title . '</h2>';
 					
 					if(!empty($_SESSION['message'])){ 
 					
 						//output message
 					
-						$subscription_plan.= $_SESSION['message'];
+						$this->shortcode .= $_SESSION['message'];
 						
 						$_SESSION['message'] = '';
 					}						
@@ -506,104 +487,115 @@ class LTPLE_Client_Plan {
 					
 						//output message
 					
-						$subscription_plan.= $this->message;
+						$this->shortcode .= $this->message;
 					}				
 					
 					if( $atts['thumb'] ){
 					
 						if( $plan_thumb = get_the_post_thumbnail_url($plan->ID) ){
 							
-							$subscription_plan.='<div id="plan_thumb">';
+							$this->shortcode .='<div id="plan_thumb">';
 								
-								$subscription_plan.= '<img src="'.$plan_thumb.'" style="width:100%;">';
+								$this->shortcode .= '<img src="'.$plan_thumb.'" style="width:100%;">';
 							
-							$subscription_plan.='</div>';
+							$this->shortcode .='</div>';
 						}
 						else{
 
-							$subscription_plan.='<div id="plan_thumb" style="background-size:cover;background-repeat: no-repeat;background-position: center center;width:100%;height:200px;background-image:url(\''.$this->parent->assets_url . 'images/plan_background.jpg'.'\');"></div>';
+							$this->shortcode .='<div id="plan_thumb" style="background-size:cover;background-repeat: no-repeat;background-position: center center;width:100%;height:200px;background-image:url(\''.$this->parent->assets_url . 'images/plan_background.jpg'.'\');"></div>';
 						}
 					}					
 
-					$subscription_plan.='<div id="plan_form">';
+					$this->shortcode .='<div id="plan_form">';
 						
 						if( !empty($plan_content) ){
 						
-							$subscription_plan.='<div class="well text-left">';
+							$this->shortcode .='<div class="well text-left">';
 							
-								$subscription_plan.= $plan_content;
+								$this->shortcode .= $plan_content;
 							
-							$subscription_plan.='</div>';
+							$this->shortcode .='</div>';
 						}
 						
-						$subscription_plan.='<div>'.PHP_EOL;
+						$this->shortcode .='<div>'.PHP_EOL;
 
 							// Output iframe
 							
-							if($atts['show-storage']===true){
+							if($atts['attributes']===true){
 							
-								$subscription_plan.= '<div id="plan_storage" style="display:block;">';				
+								$this->shortcode .= '<div id="plan_storage" style="display:block;">';				
 									
 									foreach($total_storage as $storage_unit => $total_storage_amount){
 										
 										if($total_storage_amount > 0 ){
 											
-											$subscription_plan.='<span style="display:block;">';
+											$this->shortcode .='<span style="display:block;">';
 											
-												if($storage_unit=='templates' && $total_storage_amount==1 ){
+												if($storage_unit=='templates' ){
 													
-													$subscription_plan.= $total_storage_amount.' template';
+													if( $total_storage_amount == 1 ){
+														
+														$this->shortcode .= '+' . $total_storage_amount.' saved project';
+													}
+													else{
+														
+														$this->shortcode .= '+' . $total_storage_amount.' saved projects';
+													}
 												}
 												else{
 													
-													$subscription_plan.= $total_storage_amount.' '.$storage_unit;
+													$this->shortcode .= '+' . $total_storage_amount.' saved '.$storage_unit;
 												}
 												
-											$subscription_plan.='</span>';
+											$this->shortcode .='</span>';
 										}
 									}
 
-								$subscription_plan.= '</div>';
+								$this->shortcode .= '</div>';
 								
-								$subscription_plan.='<hr id="plan_hr" style="display:block;"></hr>';
+								do_action('ltple_plan_shortcode_attributes',$taxonomies,$plan_options);
+								
+								$this->shortcode .='<hr id="plan_hr" style="display:block;"></hr>';
 							}
 							
-							$subscription_plan.= '<div id="plan_price">';				
+							$this->shortcode .= '<div id="plan_price">';				
 								
 								if( $total_fee_amount > 0 ){
 									
-									$subscription_plan.= htmlentities(' ').$total_fee_amount.$total_price_currency.' '. ( $total_fee_period == 'once' ? 'one time fee' : $total_fee_period );
+									$this->shortcode .= htmlentities(' ').$total_fee_amount.$total_price_currency.' '. ( $total_fee_period == 'once' ? 'one time fee' : $total_fee_period );
 									
 									if($total_price_amount > 0 ){
 										
-										$subscription_plan.= '<br>+';
+										$this->shortcode .= '<br>+';
 									}
 								}
 								
 								if($total_price_amount > 0 ){
 								
-									$subscription_plan.= $total_price_amount.$total_price_currency.' / '.$total_price_period;
+									$this->shortcode .= $total_price_amount.$total_price_currency.' / '.$total_price_period;
 								}
 								elseif($total_price_amount == 0 && $total_fee_amount == 0 ){
 									
-									$subscription_plan.= 'Free';
+									$this->shortcode .= 'Free';
 								}
 								
-							$subscription_plan.= '</div>';
+							$this->shortcode .= '</div>';
 							
-							$subscription_plan.= '</br>';
+							$this->shortcode .= '</br>';
 							
-							$subscription_plan.= '<div id="plan_button" ' . ( !empty($plan_content) ? 'style="padding-bottom:40px;"' : '' ) . '>';				
+							do_action('ltple_plan_shortcode_value',$taxonomies,$plan_options);
+							
+							$this->shortcode .= '<div id="plan_button" ' . ( !empty($plan_content) ? 'style="padding-bottom:40px;"' : '' ) . '>';				
 								
-								$subscription_plan.='<span class="payment-errors"></span>'.PHP_EOL;
+								$this->shortcode .='<span class="payment-errors"></span>'.PHP_EOL;
 
 								if( $plan_status == 'unlocked' ){
 									
-									$subscription_plan.='<a class="btn btn-info btn-lg" href="' . $this->parent->urls->current . '">'.PHP_EOL;
+									$this->shortcode .='<a class="btn btn-info btn-lg" href="' . $this->parent->urls->current . '">'.PHP_EOL;
 								
-										$subscription_plan.='Unlocked'.PHP_EOL;
+										$this->shortcode .='Unlocked'.PHP_EOL;
 								
-									$subscription_plan.='</a>'.PHP_EOL;
+									$this->shortcode .='</a>'.PHP_EOL;
 								}
 								else{
 									
@@ -613,7 +605,7 @@ class LTPLE_Client_Plan {
 									
 									if(!empty($this->buttons[$plan->ID])){
 										
-										$subscription_plan.= reset($this->buttons[$plan->ID]).PHP_EOL;
+										$this->shortcode .= reset($this->buttons[$plan->ID]).PHP_EOL;
 									}
 									else{
 									
@@ -621,146 +613,145 @@ class LTPLE_Client_Plan {
 										
 										if( $plan_status == 'renew' ){
 											
-											$subscription_plan.='<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+											$this->shortcode .='<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 											
-												$subscription_plan.='Renew'.PHP_EOL;
+												$this->shortcode .='Renew'.PHP_EOL;
 
-											$subscription_plan.='</button>'.PHP_EOL;									
+											$this->shortcode .='</button>'.PHP_EOL;									
 										}
 										else{
 											
-											$subscription_plan.='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+											$this->shortcode .='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 												
 												if(!empty($atts['button'])){
 													
-													$subscription_plan.= ucfirst($atts['button']).PHP_EOL;
+													$this->shortcode .= ucfirst($atts['button']).PHP_EOL;
 												}
 												elseif($total_price_amount == 0 && $total_fee_amount == 0 ){
 													
-													$subscription_plan.='Start'.PHP_EOL;
+													$this->shortcode .='Start'.PHP_EOL;
 												}
 												elseif($total_price_amount == 0 && $total_fee_amount > 0 ){
 													
-													$subscription_plan.='Order'.PHP_EOL;
+													$this->shortcode .='Order'.PHP_EOL;
 												}
 												elseif( $plan_status == 'upgrade' ){
 													
-													$subscription_plan.='Upgrade'.PHP_EOL;
+													$this->shortcode .='Upgrade'.PHP_EOL;
 												}
 												else{
 													
-													$subscription_plan.='Subscribe'.PHP_EOL;
+													$this->shortcode .='Subscribe'.PHP_EOL;
 												}
 
-											$subscription_plan.='</button>'.PHP_EOL;									
+											$this->shortcode .='</button>'.PHP_EOL;									
 										}
 
-										$subscription_plan.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+										$this->shortcode .='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 											
-											$subscription_plan.='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+											$this->shortcode .='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
 												
-												$subscription_plan.='<div class="modal-content">'.PHP_EOL;
+												$this->shortcode .='<div class="modal-content">'.PHP_EOL;
 												
-													$subscription_plan.='<div class="modal-header">'.PHP_EOL;
+													$this->shortcode .='<div class="modal-header">'.PHP_EOL;
 														
-														$subscription_plan.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+														$this->shortcode .='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 														
-														$subscription_plan.= '<h4 class="modal-title" id="myModalLabel">';
+														$this->shortcode .= '<h4 class="modal-title" id="myModalLabel">';
 														
-															$subscription_plan.= $plan->post_title;
+															$this->shortcode .= $plan->post_title;
 															
 															if( $total_price_amount > 0 && $plan_status != 'upgrade' ){
 															
-																$subscription_plan.= ' (' . $total_price_amount . $total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
+																$this->shortcode .= ' (' . $total_price_amount . $total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
 															}
 														
-														$subscription_plan.= '</h4>'.PHP_EOL;
+														$this->shortcode .= '</h4>'.PHP_EOL;
 													
-													$subscription_plan.='</div>'.PHP_EOL;
+													$this->shortcode .='</div>'.PHP_EOL;
 
 													if( $this->parent->user->loggedin ){
 														
-														//echo '<pre>';
-														//var_dump($this->parent->user->has_subscription);exit;
-														//var_dump($this->user_has_layer( $plan->ID ));exit;
+														$this->shortcode .= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
 
-														$subscription_plan.= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
-
-														$subscription_plan.= '<iframe data-src="' . get_permalink( $plan->ID ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$iframe_height.'px;overflow: hidden;"></iframe>';
+														$this->shortcode .= '<iframe data-src="' . get_permalink( $plan->ID ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$iframe_height.'px;overflow: hidden;"></iframe>';
 													}
 													else{
 														
-														$subscription_plan.='<div class="modal-body">'.PHP_EOL;
+														$this->shortcode .='<div class="modal-body">'.PHP_EOL;
 														
-															$subscription_plan.= '<div style="font-size:20px;padding:20px;margin:0px;" class="alert alert-warning">';
+															$this->shortcode .= '<div style="font-size:20px;padding:20px;margin:0px;" class="alert alert-warning">';
 																
-																$subscription_plan.= 'You need to log in first...';
+																$this->shortcode .= 'You need to log in first...';
 																
-																$subscription_plan.= '<div class="pull-right">';
+																$this->shortcode .= '<div class="pull-right">';
 
-																	$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-success" href="' . wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) . '">Login</a>';
+																	$this->shortcode .= '<a style="margin:0 2px;" class="btn-lg btn-success" href="' . wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) . '">Login</a>';
 																	
-																	$subscription_plan.= '<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'&action=register">Register</a>';
+																	$this->shortcode .= '<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'&action=register">Register</a>';
 																
-																$subscription_plan.= '</div>';
+																$this->shortcode .= '</div>';
 																
-															$subscription_plan.= '</div>';
+															$this->shortcode .= '</div>';
 														
-														$subscription_plan.='</div>'.PHP_EOL;
+														$this->shortcode .='</div>'.PHP_EOL;
 													}
 
-												$subscription_plan.='</div>'.PHP_EOL;
+												$this->shortcode .='</div>'.PHP_EOL;
 												
-											$subscription_plan.='</div>'.PHP_EOL;
+											$this->shortcode .='</div>'.PHP_EOL;
 											
-										$subscription_plan.='</div>'.PHP_EOL;
+										$this->shortcode .='</div>'.PHP_EOL;
 									}
 								}
 								
-							$subscription_plan.= '</div>'.PHP_EOL;
+							$this->shortcode .= '</div>'.PHP_EOL;
 							
-						$subscription_plan.='</div>'.PHP_EOL;
-					$subscription_plan.='</div>'.PHP_EOL;						
+						$this->shortcode .='</div>'.PHP_EOL;
+					$this->shortcode .='</div>'.PHP_EOL;						
 				}
 			}
 		}		
 		
-		return $subscription_plan;
+		return $this->shortcode ;
 	}
 	
-	public function get_layer_custom_taxonomies_options(){
+	public function get_layer_taxonomies_options(){
 		
-		//get custom taxonomies
-		
-		$taxonomies= $this->get_user_plan_custom_taxonomies();
+		if( is_null($this->layerOptions) ){
+			
+			//get custom taxonomies
+			
+			$taxonomies = $this->get_user_plan_taxonomies();
 
-		// get custom taxonomies options
-		
-		$options=[];
-		
-		foreach($taxonomies as $t){
-		
-			$taxonomy = $t['taxonomy'];
-			$taxonomy_name = $t['name'];
-			$is_hierarchical = $t['hierarchical'];
+			// get custom taxonomies options
 			
-			//get custom taxonomy terms
+			$this->layerOptions = [];
 			
-			$terms = get_terms( array(
+			foreach( $taxonomies as $taxonomy ){
+			
+				//get custom taxonomy terms
+				
+				$terms = get_terms( array(
+						
+					'taxonomy' 		=> $taxonomy['taxonomy'],
+					'hide_empty' 	=> false
+				));
+
+				foreach($terms as $term){
 					
-				'taxonomy' => $taxonomy,
-				'hide_empty' => false
-			));
+					// get term options
+					
+					$term->options = $this->parent->layer->get_options( $term->taxonomy, $term );				
 
-			//var_dump($terms);exit;
-			
-			foreach($terms as $term){
-
-				$options[$taxonomy_name][]=$term;
+					// add to array
+					
+					$this->layerOptions[$taxonomy['name']][] = $term;
+				}
 			}
 		}
 
-		return 	$options;	
+		return 	$this->layerOptions;	
 	}
 	
 	public function get_subscription_plan_fields(){
@@ -769,19 +760,17 @@ class LTPLE_Client_Plan {
 		
 		//get options
 		
-		$options = $this->get_layer_custom_taxonomies_options();
-		
-		//var_dump($options);exit;
+		$options = $this->get_layer_taxonomies_options();
 		
 		$this->fields[]=array(
 		
 			"metabox" =>
-				array('name'=> "plan_options"),
-				'type'		=> 'checkbox_multi_plan_options',
-				'id'		=> 'plan_options',
-				'label'		=> '',
-				'options'	=> $options,
-				'description'=> ''
+				array('name'	=> 'plan_options'),
+				'type'			=> 'checkbox_multi_plan_options',
+				'id'			=> 'plan_options',
+				'label'			=> '',
+				'options'		=> $options,
+				'description'	=> ''
 		);
 		
 		// get email models
@@ -824,7 +813,7 @@ class LTPLE_Client_Plan {
 	}
 	
 	
-	public function sum_custom_taxonomy_total_price_amount( &$total_price_amount=0, $options, $period='month'){
+	public function sum_save_urlstotal_price_amount( &$total_price_amount=0, $options, $period='month'){
 		
 		if($period == $options['price_period']){
 			
@@ -846,7 +835,7 @@ class LTPLE_Client_Plan {
 	}
 	
 	
-	public function sum_custom_taxonomy_total_storage( &$total_storage=[], $options){
+	public function sum_save_urlstotal_storage( &$total_storage=[], $options){
 		
 		$storage_unit=$options['storage_unit'];
 		$storage_amount=round(intval($options['storage_amount']),0);
@@ -897,201 +886,33 @@ class LTPLE_Client_Plan {
 				
 			$user_plan_id = $this->get_user_plan_id( $user->ID, true );
 			
-			$total_price_amount 	= 0;
-			$total_fee_amount 		= 0;
-			$total_price_period		='month';
-			$total_fee_period		='once';
-			$total_price_currency	='$';
+			$taxonomies = $this->get_layer_taxonomies_options();
 			
-			$taxonomies = $this->get_user_plan_custom_taxonomies();
+			$user_plan_options = array();
+			
+			foreach ( $taxonomies as $taxonomy => $terms ) {	
+			
+				foreach ( $terms as $term ) {
+					
+					if( is_object_in_term( $user_plan_id, $term->taxonomy, $term->term_id ) ){
+						
+						$user_plan_options[] = $term->slug;
+					}
+				}
+			}			
 
 			echo '<div class="postbox">';
 				
 				echo '<h3 style="margin:10px;">' . __( 'Plan & Pricing', 'live-template-editor-client' ) . '</h3>';
 			
-				echo '<table class="widefat fixed striped" style="border:none;">';
-					
-					foreach($taxonomies as $t){
-					
-						$taxonomy = $t['taxonomy'];
-						$taxonomy_name = $t['name'];
-						$is_hierarchical = $t['hierarchical'];
-					
-						$tax = get_taxonomy( $taxonomy );
-
-						/* Make sure the user can assign terms of the user taxonomy before proceeding. */
-						if ( !current_user_can( $tax->cap->assign_terms ) )
-							return;
-
-						/* Get the terms of the user taxonomy. */
-						$terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
-
-						echo '<tr>';
-						
-							echo '<th style="width:300px;">';
-								
-								echo '<label for="'.$taxonomy.'">'. __( $taxonomy_name, 'live-template-editor-client' ) . '</label>';
-							
-							echo '</th>';
-
-							/* If there are any layer-type terms, loop through them and display checkboxes. */
-							if ( !empty( $terms ) ) {
-								
-								echo '<td style="width:250px;">';
-								
-									foreach ( $terms as $term ) {							
-										
-										$input_name = $taxonomy.'[]';
-										$input_value = esc_attr( $term->slug );
-										$input_label =  $term->name;
-										
-										$checked = checked( true, is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ), false );
-										
-										if( 1==1 ){
-											
-											$disabled = '';
-										}
-										else{
-											
-											$disabled = disabled( true, true, false ); // untill subscription edition implemented	
-										}
-										
-										echo '<div style="height:20px;">';
-											echo '<input type="checkbox" name="'.$input_name.'" id="'.$taxonomy.'-'. $input_value .'" value="'. $input_value .'" '.$disabled.' '. $checked .' />'; 
-											echo '<label style="margin-bottom:0px; for="'.$taxonomy.'-'. $input_value .'">'. $input_label .'</label> ';
-										echo '</div>';
-									
-									}
-								
-								echo'</td>';
-								
-								echo '<td style="width:120px;">';
-								
-								$options=[];
-								
-								foreach ( $terms as $i => $term ) {
-									
-									$options[$i] = $this->parent->layer->get_options( $taxonomy, $term );
-									
-									if( is_object_in_term( $user_plan_id, $taxonomy, $term->term_id ) ){
-										
-										if( empty($term->parent) || !$this->is_parent_in_plan( $user_plan_id, $taxonomy, $term->parent ) ){
-										
-											$total_fee_amount 	= $this->sum_custom_taxonomy_total_price_amount( $total_fee_amount, $options[$i], $total_fee_period);
-											$total_price_amount = $this->sum_custom_taxonomy_total_price_amount( $total_price_amount, $options[$i], $total_price_period);
-											$total_storage 		= $this->sum_custom_taxonomy_total_storage( $total_storage, $options[$i]);
-										}
-									}
-									
-									echo '<span style="height:20px;display:block;padding:1px 0;margin:0;">';
-										
-										if($options[$i]['storage_unit']=='templates'&&$options[$i]['storage_amount']==1){
-											
-											echo '+'.$options[$i]['storage_amount'].' template';
-										}
-										elseif($options[$i]['storage_amount']>0){
-											
-											echo '+'.$options[$i]['storage_amount'].' '.$options[$i]['storage_unit'];
-										}
-										else{
-											
-											echo $options[$i]['storage_amount'].' '.$options[$i]['storage_unit'];
-										}
-								
-									echo '</span>';	
-										
-								}
-
-								echo'</td>';
-								
-								echo '<td>';
-								
-									foreach ( $terms as $i => $term ) {
-								
-										echo '<span style="height:20px;display:block;padding:1px 0 3px 0;margin:0;">';
-										
-											echo $options[$i]['price_amount'].$options[$i]['price_currency'].' / '.$options[$i]['price_period'];
-										
-										echo '</span>';
-									}
-									
-								echo'</td>';
-								
-							}
-							else {
-								
-								echo '<td>';
-								
-									echo __( 'There are no layer-types available.', 'live-template-editor-client' );
-								
-								echo'</td>';
-							}
-
-						echo'</tr>';
-					}
-					
-					echo '<tr style="font-weight:bold;">';
-					
-						echo '<th style="font-weight:bold;"><label for="price">'. __( 'TOTALS', 'live-template-editor-client' ) . '</label></th>';
-
-						echo '<td style="width:120px;">';
-
-						echo'</td>';
-						
-						echo '<td>';
-							
-							if(isset($total_storage)){
-								
-								foreach($total_storage as $storage_unit => $total_storage_amount){
-									
-									echo '<span style="display:block;">';
-									
-										if($storage_unit=='templates'&&$total_storage_amount==1){
-											
-											echo '+'.$total_storage_amount.' template';
-										}
-										elseif($total_storage_amount>0){
-											
-											echo '+'.$total_storage_amount.' '.$storage_unit;
-										}
-										else{
-											
-											echo $total_storage_amount.' '.$storage_unit;
-										}
-										
-									echo '</span>';
-								}							
-							}
-							else{
-								
-								echo '<span style="display:block;">';
-									
-									echo '+0 templates';
-									
-								echo '</span>';
-							}
-							
-						echo'</td>';
-						
-						echo '<td>';
-						
-							echo '<span style="font-size:16px;">';
-							
-								if( $total_fee_amount > 0 ){
-									
-									echo htmlentities(' ').round($total_fee_amount, 2).$total_price_currency.' '.$total_fee_period;
-									echo '<br>+';
-								}
-								
-								echo round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;
-							
-							echo '</span>';
-							
-						echo'</td>';
-		
-					echo'</tr>';
-						
-				echo'</table>';
+				echo $this->parent->admin->display_field( array(
+				
+					'type'			=> 'checkbox_multi_plan_options',
+					'id'			=> $this->parent->_base . 'user_plan_options',
+					'options'		=> $taxonomies,
+					'data'			=> $user_plan_options,
+					'description'	=> ''
+				));
 				
 			echo'</div>';				
 
@@ -1125,7 +946,7 @@ class LTPLE_Client_Plan {
 		}	
 	}
 	
-	public function get_user_plan_custom_taxonomies(){
+	public function get_user_plan_taxonomies(){
 		
 		$taxonomies=[];
 		$taxonomies[] = array(
@@ -1201,21 +1022,17 @@ class LTPLE_Client_Plan {
 				
 				$this->data = json_decode($plan_data,true);
 					
-				//var_dump($this->data);exit;
-				
 				if(!empty($this->data['name'])){
 					
 					do_action('ltple_update_user_plan');
 					
 					if( !empty($this->data['options']) ){
 							
-						//var_dump($plan);exit;
-								
-						$options 				= $this->get_layer_custom_taxonomies_options();
+						$taxonomies 			= $this->get_layer_taxonomies_options();
 						$user_has_subscription 	= 'false';
 						$all_updated_terms 		= [];
 						
-						foreach( $options as $taxonomy => $terms ) {
+						foreach( $taxonomies as $taxonomy => $terms ) {
 							
 							$update_terms=[];
 							$update_taxonomy='';
@@ -1224,15 +1041,15 @@ class LTPLE_Client_Plan {
 
 								if ( in_array( $term->slug, $this->data['options'] ) ) {
 									
-									$update_terms[]= $term->term_id;
-									$update_taxonomy=$term->taxonomy;
+									$update_terms[]		= $term->term_id;
+									$update_taxonomy 	= $term->taxonomy;
 									
 									if( $this->data["price"] > 0 ){
 										
 										$user_has_subscription = 'true';
 									}
 									
-									$all_updated_terms[]=$term->slug;
+									$all_updated_terms[] = $term->slug;
 								}
 							}
 
@@ -1252,50 +1069,6 @@ class LTPLE_Client_Plan {
 							$response = wp_set_object_terms( $user_plan_id, $update_terms, $update_taxonomy, $append );
 
 							clean_object_term_cache( $user_plan_id, $update_taxonomy );
-						}
-						
-						if($this->hasHosting($this->data)){
-
-							foreach($this->data['meta'] as $meta){
-								
-								if( !empty($meta['domain_name']['name']) ){
-									
-									// parse domains
-									
-									foreach($meta['domain_name']['name'] as $i => $name){
-										
-										if( !empty($meta['domain_name']['name']) ){
-
-											// get domain_name
-										
-											$domain_name = $name.$meta['domain_name']['ext'][$i];
-											
-											//check if domain exists
-											
-											$domain = get_page_by_title( $domain_name, OBJECT, 'user-domain' );
-
-											if( empty($domain) ){
-												
-												// add domain	
-												
-												$args = array(
-													
-													'post_author' 	=> $this->parent->user->ID,
-													'post_title' 	=> $domain_name,
-													'post_name' 	=> $domain_name,
-													'post_type' 	=> 'user-domain',
-													'post_status' 	=> 'publish'
-												);
-
-												if($domain_id = wp_insert_post( $args )){
-
-													// Do anything
-												}
-											}
-										}
-									}
-								}
-							}
 						}
 						
 						// hook triggers
@@ -1403,7 +1176,7 @@ class LTPLE_Client_Plan {
 						}
 					}
 					
-					include( $this->parent->views . $this->parent->_dev .'/message.php' );
+					include( $this->parent->views . '/message.php' );
 				}
 			}
 			else{
@@ -1420,7 +1193,7 @@ class LTPLE_Client_Plan {
 		
 		if($data = get_post_meta( $plan_id, $option_name, true )){
 			
-			$options 				= $this->get_layer_custom_taxonomies_options();
+			$options 				= $this->get_layer_taxonomies_options();
 			$all_updated_terms 		= [];
 			
 			foreach( $options as $taxonomy => $terms ) {
@@ -1486,9 +1259,8 @@ class LTPLE_Client_Plan {
 	
 	public function get_layer_plan_info( $item_id ){	
 
-		$taxonomies = $this->get_user_plan_custom_taxonomies();
-		//var_dump($taxonomies);exit;
-		
+		$taxonomies = $this->get_user_plan_taxonomies();
+
 		$user_plan = [];
 		
 		$user_plan['id'] = $item_id;
@@ -1565,138 +1337,137 @@ class LTPLE_Client_Plan {
 						
 						$options = $this->parent->layer->get_options( $taxonomy, $term );
 						
-						$user_plan['info']['total_fee_amount']	 = $this->sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_fee_amount'], $options, $user_plan['info']['total_fee_period'] );
-						$user_plan['info']['total_price_amount'] = $this->sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_price_amount'], $options, $user_plan['info']['total_price_period'] );
-						$user_plan['info']['total_storage'] 	 = $this->sum_custom_taxonomy_total_storage( $user_plan['info']['total_storage'], $options);
+						$user_plan['info']['total_fee_amount']	 = $this->sum_save_urlstotal_price_amount( $user_plan['info']['total_fee_amount'], $options, $user_plan['info']['total_fee_period'] );
+						$user_plan['info']['total_price_amount'] = $this->sum_save_urlstotal_price_amount( $user_plan['info']['total_price_amount'], $options, $user_plan['info']['total_price_period'] );
+						$user_plan['info']['total_storage'] 	 = $this->sum_save_urlstotal_storage( $user_plan['info']['total_storage'], $options);
 					}					
 				}
 			}
 		}
-		
-		//echo'<pre>';
-		//var_dump($user_plan);exit;
 		
 		return $user_plan;	
 	}
 	
 	public function get_user_plan_info( $user_id ){	
+		
+		if( !isset($this->user_plans[$user_id]) ){
+		
+			$user_plan_id 	= $this->get_user_plan_id( $user_id );
+			$taxonomies 	= $this->get_user_plan_taxonomies();
 
-		$user_plan_id 	 = $this->get_user_plan_id( $user_id );
-
-		$taxonomies = $this->get_user_plan_custom_taxonomies();
-		//var_dump($taxonomies);exit;
-		
-		$user_plan = [];
-		
-		$user_plan['id'] = $user_plan_id;
-		
-		$user_plan['info']['total_price_amount'] 	= 0;
-		$user_plan['info']['total_fee_amount'] 		= 0;
-		$user_plan['info']['total_price_period'] 	= 'month';
-		$user_plan['info']['total_fee_period'] 		= 'once';
-		$user_plan['info']['total_price_currency'] 	= '$';
-		
-		foreach($taxonomies as $i => $t){
+			$this->user_plans[$user_id] = [];
 			
-			$taxonomy 		 = $t['taxonomy'];
-			$taxonomy_name 	 = $t['name'];
-			$is_hierarchical = $t['hierarchical'];
+			$this->user_plans[$user_id]['id'] = $user_plan_id;
 			
-			$user_plan['taxonomies'][$taxonomy]['taxonomy']			= $taxonomy;
-			$user_plan['taxonomies'][$taxonomy]['name']				= $taxonomy_name;
-			$user_plan['taxonomies'][$taxonomy]['is_hierarchical']	= $is_hierarchical;
-			$user_plan['taxonomies'][$taxonomy]['terms']			= [];
+			$this->user_plans[$user_id]['info']['total_price_amount'] 	= 0;
+			$this->user_plans[$user_id]['info']['total_fee_amount'] 	= 0;
+			$this->user_plans[$user_id]['info']['total_price_period'] 	= 'month';
+			$this->user_plans[$user_id]['info']['total_fee_period'] 	= 'once';
+			$this->user_plans[$user_id]['info']['total_price_currency'] = '$';
 			
-			$terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
-			
-			if ( !empty($terms) ) {
+			foreach($taxonomies as $i => $t){
 				
-				foreach ( $terms as $term ) {						
+				$taxonomy 		 = $t['taxonomy'];
+				$taxonomy_name 	 = $t['name'];
+				$is_hierarchical = $t['hierarchical'];
+				
+				$this->user_plans[$user_id]['taxonomies'][$taxonomy]['taxonomy']			= $taxonomy;
+				$this->user_plans[$user_id]['taxonomies'][$taxonomy]['name']				= $taxonomy_name;
+				$this->user_plans[$user_id]['taxonomies'][$taxonomy]['is_hierarchical']	= $is_hierarchical;
+				$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms']			= [];
+				
+				$terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
+				
+				if ( !empty($terms) ) {
+					
+					foreach ( $terms as $term ) {						
 
-					$term_slug = $term->slug;
-					
-					$has_term = $in_term = false;
-					
-					if($user_plan_id > 0 ){
+						$term_slug = $term->slug;
 						
-						$has_term = $in_term = is_object_in_term( $user_plan_id, $taxonomy, $term->term_id );
-					}
-					
-					if($is_hierarchical === true && $term->parent > 0 && $has_term === false ){
+						$has_term = $in_term = false;
 						
-						$parent_id = $term->parent;
-						
-						while( $parent_id > 0 ){
+						if($user_plan_id > 0 ){
 							
-							if($has_term === false){
+							$has_term = $in_term = is_object_in_term( $user_plan_id, $taxonomy, $term->term_id );
+						}
+						
+						if($is_hierarchical === true && $term->parent > 0 && $has_term === false ){
+							
+							$parent_id = $term->parent;
+							
+							while( $parent_id > 0 ){
 								
-								foreach($terms as $parent){
+								if($has_term === false){
 									
-									if( $parent->term_id == $parent_id ){
+									foreach($terms as $parent){
 										
-										if($user_plan_id > 0 ){
+										if( $parent->term_id == $parent_id ){
 											
-											$has_term = is_object_in_term( $user_plan_id, $taxonomy, $parent->term_id );
+											if($user_plan_id > 0 ){
+												
+												$has_term = is_object_in_term( $user_plan_id, $taxonomy, $parent->term_id );
+											}
+											
+											$parent_id = $parent->parent;
+											
+											break;
 										}
-										
-										$parent_id = $parent->parent;
-										
-										break;
-									}
-								}								
-							}
-							else{
-								
-								break;
+									}								
+								}
+								else{
+									
+									break;
+								}
+							}					
+						}
+						
+						// push terms
+					
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]			= $term_slug;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]			= $term->term_id;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_group"]		= $term->term_group;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"]= $term->term_taxonomy_id;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		= $term->taxonomy;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	 	= $term->description;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["parent"]			= $term->parent;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			= $term->count;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["filter"]			= $term->filter;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]		= $has_term;
+						
+						if( $in_term === true ){
+							
+							if( empty($term->parent) || !$this->is_parent_in_plan( $user_plan_id, $taxonomy, $term->parent ) ){
+							
+								$options = $this->parent->layer->get_options( $taxonomy, $term );
+
+								$this->user_plans[$user_id]['info']['total_fee_amount']	 = $this->sum_save_urlstotal_price_amount( $this->user_plans[$user_id]['info']['total_fee_amount'], $options, $this->user_plans[$user_id]['info']['total_fee_period'] );
+								$this->user_plans[$user_id]['info']['total_price_amount'] = $this->sum_save_urlstotal_price_amount( $this->user_plans[$user_id]['info']['total_price_amount'], $options, $this->user_plans[$user_id]['info']['total_price_period'] );
+								$this->user_plans[$user_id]['info']['total_storage'] 	 = $this->sum_save_urlstotal_storage( $this->user_plans[$user_id]['info']['total_storage'], $options);
+							
+								do_action('ltple_user_plan_option_total',$user_id,$options);
 							}
 						}					
 					}
-					
-					// push terms
-				
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]			= $term_slug;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]			= $term->term_id;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_group"]		= $term->term_group;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"]= $term->term_taxonomy_id;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		= $term->taxonomy;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	 	= $term->description;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["parent"]			= $term->parent;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			= $term->count;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["filter"]			= $term->filter;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]		= $has_term;
-					
-					if( $in_term === true ){
-						
-						if( empty($term->parent) || !$this->is_parent_in_plan( $user_plan_id, $taxonomy, $term->parent ) ){
-						
-							$options = $this->parent->layer->get_options( $taxonomy, $term );
-
-							$user_plan['info']['total_fee_amount']	 = $this->sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_fee_amount'], $options, $user_plan['info']['total_fee_period'] );
-							$user_plan['info']['total_price_amount'] = $this->sum_custom_taxonomy_total_price_amount( $user_plan['info']['total_price_amount'], $options, $user_plan['info']['total_price_period'] );
-							$user_plan['info']['total_storage'] 	 = $this->sum_custom_taxonomy_total_storage( $user_plan['info']['total_storage'], $options);
-						}
-					}					
 				}
 			}
-		}
-		
-		// get stored user plan value
-		
-		$user_plan_value = get_post_meta( $user_plan_id, 'userPlanValue',true );
-		
-		// compare it with current value
-		
-		if( $user_plan_value=='' || $user_plan['info']['total_price_amount'] != intval($user_plan_value) ){
+			
+			// get stored user plan value
+			
+			$user_plan_value = get_post_meta( $user_plan_id, 'userPlanValue',true );
+			
+			// compare it with current value
+			
+			if( $user_plan_value=='' || $this->user_plans[$user_id]['info']['total_price_amount'] != intval($user_plan_value) ){
 
-			update_post_meta( $user_plan_id, 'userPlanValue', $user_plan['info']['total_price_amount'] );
+				update_post_meta( $user_plan_id, 'userPlanValue', $this->user_plans[$user_id]['info']['total_price_amount'] );
+			}
+
+			do_action('ltple_user_plan_info',$user_id);
 		}
-		
-		//echo'<pre>';
-		//var_dump($user_plan);exit;
-		
-		return $user_plan;	
+
+		return $this->user_plans[$user_id];	
 	}
 	
 	public function user_has_layer( $item_id, $layer_type = 'cb-default-layer' ){
@@ -1724,11 +1495,6 @@ class LTPLE_Client_Plan {
 					foreach($layer_plan['taxonomies'] as $taxonomy => $tax){
 
 						foreach($tax['terms'] as $term_slug => $term){
-							
-							if(!isset($this->parent->user->plan['taxonomies'][$taxonomy]['terms'][$term_slug])){
-								
-								//var_dump($this->parent->user->plan['taxonomies'][$taxonomy]);exit;
-							}
 							
 							if( $term['has_term']===true ){
 								
@@ -1895,7 +1661,7 @@ class LTPLE_Client_Plan {
 		return $units;
 	}
 	
-	public function get_layer_price_fields($taxonomy_name,$args=[]){
+	public function get_layer_price_fields( $taxonomy_name, $args = [] ){
 		
 		//get periods
 		
@@ -1903,7 +1669,8 @@ class LTPLE_Client_Plan {
 		
 		//get price_amount
 		
-		$price_amount=0;
+		$price_amount = 0;
+		
 		if(isset($args['price_amount'])){
 			
 			$price_amount=$args['price_amount'];
@@ -1911,7 +1678,8 @@ class LTPLE_Client_Plan {
 
 		//get price_period
 		
-		$price_period='';
+		$price_period = '';
+		
 		if(isset($args['price_period'])&&is_string($args['price_period'])){
 			
 			$price_period=$args['price_period'];
@@ -1956,7 +1724,7 @@ class LTPLE_Client_Plan {
 		return $price_fields;
 	}
 	
-	public function get_layer_storage_fields($taxonomy_name,$args=[]){
+	public function get_layer_storage_fields( $taxonomy_name, $args = [] ){
 
 		//get storage units
 		
@@ -1964,7 +1732,8 @@ class LTPLE_Client_Plan {
 	
 		//get storage_amount
 		
-		$storage_amount=0;
+		$storage_amount = 0;
+		
 		if(isset($args['storage_amount'])){
 			
 			$storage_amount=$args['storage_amount'];
@@ -1972,13 +1741,14 @@ class LTPLE_Client_Plan {
 
 		//get storage_unit
 		
-		$storage_unit='';
+		$storage_unit = '';
+		
 		if(isset($args['storage_unit'])&&is_string($args['storage_unit'])){
 			
 			$storage_unit=$args['storage_unit'];
 		}
 	
-		$storage_field='';
+		$storage_field = '';
 		
 		$storage_field.='<div class="input-group">';
 
@@ -2015,70 +1785,67 @@ class LTPLE_Client_Plan {
 	
 	public function save_custom_user_taxonomy_fields( $user_id ) {
 		
-		$taxonomies = $this->get_user_plan_custom_taxonomies();
+		if ( !current_user_can( 'administrator', $user_id ) )
+			return false;		
 		
-		$user_has_subscription = 'false';
-		
-		$all_updated_terms = [];
-		
-		foreach($taxonomies as $t){
-		
-			$taxonomy = $t['taxonomy'];
-			$taxonomy_name = $t['name'];
-			$is_hierarchical = $t['hierarchical'];
+		if( isset($_POST[$this->parent->_base . 'user_plan_options']) ){
 			
-			$tax = get_taxonomy( $taxonomy );
-
-			/* Make sure the current user can edit the user and assign terms before proceeding. */
-			if ( !current_user_can( 'administrator', $user_id ) && current_user_can( $tax->cap->assign_terms ) )
-				return false;
+			$user_has_subscription = 'false';
 			
-			if(isset($_POST)){
+			$all_updated_terms = [];
 			
-				$terms = [];
-			
-				if(isset($_POST[$taxonomy]) && is_array($_POST[$taxonomy])){
+			if( !empty($_POST[$this->parent->_base . 'user_plan_options']) ){
+				
+				$taxonomies = $this->get_layer_taxonomies_options();
+				
+				if( !empty($taxonomies) ){
 					
-					$terms = $_POST[$taxonomy];
+					$user_plan_id = $this->get_user_plan_id( $user_id );
 					
-					$all_updated_terms[]=$_POST[$taxonomy];
+					foreach($taxonomies as $taxonomy => $terms ){
 
-					if(!empty($terms)){
+						$term_ids = [];
 						
-						$user_has_subscription = 'true';
-					}						
-				}
-			
-				$user_plan_id = $this->get_user_plan_id( $user_id );
-			
-				wp_set_object_terms( $user_plan_id, $terms, $taxonomy);
-
-				clean_object_term_cache( $user_plan_id, $taxonomy );
-			}
-		}
-		
-		update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
-		
-		//send admin notification
+						foreach( $terms as $term ){
 							
-		wp_mail($this->parent->settings->options->emailSupport, 'Plan edited from dashboard - user id ' . $user_id . ' - ip ' . $this->parent->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL  . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);
+							if( in_array($term->slug,$_POST[$this->parent->_base . 'user_plan_options'])){
+								
+								$term_ids[] = $term->term_id;
+								
+								$all_updated_terms[] = $term->name;
+
+								$user_has_subscription = 'true';					
+							}
+						}
+						
+						wp_set_object_terms( $user_plan_id, $term_ids, $term->taxonomy );
+
+						clean_object_term_cache( $user_plan_id, $term->taxonomy );				
+					}
+				}
+			}
+			
+			update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
+			
+			//send admin notification
+								
+			//wp_mail($this->parent->settings->options->emailSupport, 'Plan edited from dashboard - user id ' . $user_id . ' - ip ' . $this->parent->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL  . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);
+		}
 	}
 	
 	public function unlock_output_request( $for = '+1 hour' ){
 
 		//get plan_data
 		
-		$plan_data = [];
-		$plan_data['name'] 			= 'unlock output';
-		$plan_data['for'] 			= $for;
-		$plan_data['subscriber']	= $this->parent->user->user_email;
-		$plan_data['client']		= $this->parent->client->url;
+		$plan_data 				 = [];
+		$plan_data['name'] 		 = 'unlock output';
+		$plan_data['for'] 		 = $for;
+		$plan_data['subscriber'] = $this->parent->user->user_email;
+		$plan_data['client']	 = $this->parent->client->url;
 
 		$plan_data=esc_attr( json_encode( $plan_data ) );
 		
-		//var_dump($plan_data);exit;
-
-		$plan_key=md5( 'plan' . $plan_data . $this->parent->_time . $this->parent->user->user_email );	
+		$plan_key = md5( 'plan' . $plan_data . $this->parent->_time . $this->parent->user->user_email );	
 
 		//get agreement url				
 		

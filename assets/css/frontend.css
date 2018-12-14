@@ -56,7 +56,7 @@
     background: #ffffff;
 }
 
-#media_library, #domains, #layer_gallery {
+#media_library, #panel, #layer_gallery {
 
     display: inline-block;
     width: 100%;

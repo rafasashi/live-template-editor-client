@@ -65,11 +65,6 @@
 			
 			$instance = LTPLE_Client::instance( __FILE__, $version );
 			
-			if ( is_null( $instance->_dev ) ) {
-				
-				$instance->_dev = $mode;
-			}				
-
 			if ( is_null( $instance->settings ) ) {
 				
 				$instance->settings = LTPLE_Client_Settings::instance( $instance );

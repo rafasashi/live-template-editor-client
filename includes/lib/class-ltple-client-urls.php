@@ -160,6 +160,10 @@ class LTPLE_Client_Urls {
 		}
 		
 		$this->product 	= $this->home . '/' . $product . '/';
+		
+		// get addon urls
+		
+		do_action('ltple_urls');
 	}
 	
 	/**
