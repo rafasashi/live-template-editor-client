@@ -10,10 +10,12 @@ class LTPLE_Client_Plan {
 	var $data;
 	var $message;
 	var $fields;
-	var $user_plans		= array();
-	var $layerOptions 	= NULL;
-	var $buttons 		= array();
-	var $shortcode 		= '';
+	var $subscription_plans	= NULL;
+	var $layer_options		= array();
+	var $user_plans			= array();
+	var $layerOptions 		= NULL;
+	var $buttons 			= array();
+	var $shortcode 			= '';
 	
 	/**
 	 * Constructor function
@@ -261,9 +263,9 @@ class LTPLE_Client_Plan {
 
 						if ( in_array( $term->slug, $plan_options ) ) {
 							
-							$total_price_amount = $this->sum_save_urlstotal_price_amount( $total_price_amount, $term->options, $total_price_period);	
-							$total_fee_amount 	= $this->sum_save_urlstotal_price_amount( $total_fee_amount, $term->options, $total_fee_period);				
-							$total_storage 		= $this->sum_save_urlstotal_storage( $total_storage, $term->options);
+							$total_price_amount = $this->sum_total_price_amount( $total_price_amount, $term->options, $total_price_period);	
+							$total_fee_amount 	= $this->sum_total_price_amount( $total_fee_amount, $term->options, $total_fee_period);				
+							$total_storage 		= $this->sum_total_storage( $total_storage, $term->options);
 
 							if( !empty($term->options['form']) && ( count($term->options['form']['input'])>1 || !empty($term->options['form']['name'][0]) ) ){
 
@@ -403,6 +405,8 @@ class LTPLE_Client_Plan {
 				//get subscription plan
 				
 				$iframe_height 	= 500;
+				
+				$this->shortcode = '';
 				
 				if( !is_null($atts['widget']) && $atts['widget']==='true' ){
 					
@@ -713,7 +717,7 @@ class LTPLE_Client_Plan {
 			}
 		}		
 		
-		return $this->shortcode ;
+		return $this->shortcode;
 	}
 	
 	public function get_layer_taxonomies_options(){
@@ -722,7 +726,7 @@ class LTPLE_Client_Plan {
 			
 			//get custom taxonomies
 			
-			$taxonomies = $this->get_user_plan_taxonomies();
+			$taxonomies = $this->get_plan_taxonomies();
 
 			// get custom taxonomies options
 			
@@ -813,7 +817,7 @@ class LTPLE_Client_Plan {
 	}
 	
 	
-	public function sum_save_urlstotal_price_amount( &$total_price_amount=0, $options, $period='month'){
+	public function sum_total_price_amount( &$total_price_amount=0, $options, $period='month'){
 		
 		if($period == $options['price_period']){
 			
@@ -835,10 +839,10 @@ class LTPLE_Client_Plan {
 	}
 	
 	
-	public function sum_save_urlstotal_storage( &$total_storage=[], $options){
+	public function sum_total_storage( &$total_storage=[], $options){
 		
-		$storage_unit=$options['storage_unit'];
-		$storage_amount=round(intval($options['storage_amount']),0);
+		$storage_unit 	= $options['storage_unit'];
+		$storage_amount = round(intval($options['storage_amount']),0);
 		
 		if(!isset($total_storage[$storage_unit])){
 			
@@ -946,7 +950,7 @@ class LTPLE_Client_Plan {
 		}	
 	}
 	
-	public function get_user_plan_taxonomies(){
+	public function get_plan_taxonomies(){
 		
 		$taxonomies=[];
 		$taxonomies[] = array(
@@ -1011,8 +1015,8 @@ class LTPLE_Client_Plan {
 			$plan_data = sanitize_text_field($_GET['pd']);
 			$plan_data = $this->parent->base64_urldecode($plan_data);
 
-			$this->key = sanitize_text_field($_GET['pk']);
-			$this->subscribed = sanitize_text_field($_GET['pv']);
+			$this->key 			= sanitize_text_field($_GET['pk']);
+			$this->subscribed 	= sanitize_text_field($_GET['pv']);
 			
 			// subscribed plan data
 			
@@ -1034,8 +1038,8 @@ class LTPLE_Client_Plan {
 						
 						foreach( $taxonomies as $taxonomy => $terms ) {
 							
-							$update_terms=[];
-							$update_taxonomy='';
+							$update_terms 		= [];
+							$update_taxonomy 	= '';
 							
 							foreach($terms as $i => $term){
 
@@ -1101,7 +1105,18 @@ class LTPLE_Client_Plan {
 							// update user has subscription						
 							
 							update_user_meta( $this->parent->user->ID , 'has_subscription', $user_has_subscription);
-
+							
+							// update period end
+							
+							//$this->parent->users->update_periods();
+							
+							wp_remote_request( $this->parent->urls->home . '/?ltple_update=periods', array(
+								
+								'method' 	=> 'GET',
+								'timeout' 	=> 100,
+								'blocking' 	=> false
+							));
+							
 							// store message
 							
 							$this->message .= '<div class="alert alert-success">';
@@ -1187,7 +1202,7 @@ class LTPLE_Client_Plan {
 		}	
 	}
 
-	public function bulk_update_users($users,$plan_id){
+	public function bulk_update_user_plan($users,$plan_id){
 		
 		$option_name='plan_options';
 		
@@ -1205,10 +1220,10 @@ class LTPLE_Client_Plan {
 
 					if ( in_array( $term->slug, $data ) ) {
 						
-						$update_terms[]= $term->term_id;
-						$update_taxonomy=$term->taxonomy;
+						$update_terms[] 	= $term->term_id;
+						$update_taxonomy 	= $term->taxonomy;
 						
-						$all_updated_terms[]=$term->slug;
+						$all_updated_terms[]= $term->slug;
 					}
 				}
 				
@@ -1256,96 +1271,205 @@ class LTPLE_Client_Plan {
 		}
 	}
 	
+	public function bulk_update_user_type($users,$term_id){
+			
+		if( !empty($users) ){
+			
+			$taxonomy = 'layer-type';
+			
+			foreach( $users as $user_id ){
+				
+				// update current user custom taxonomy
+				
+				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, true ) ){
+				
+					$response = wp_set_object_terms( $user_plan_id, array($term_id), $taxonomy, true );
+
+					clean_object_term_cache( $user_plan_id, $taxonomy );
+				}
+			}
+		}
+	}
+
+	public function bulk_update_user_range($users,$term_id){
+			
+		if( !empty($users) ){
+			
+			$taxonomy = 'layer-range';
+			
+			foreach( $users as $user_id ){
+				
+				// update current user custom taxonomy
+				
+				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, true ) ){
+				
+					$response = wp_set_object_terms( $user_plan_id, array($term_id), $taxonomy, true );
+
+					clean_object_term_cache( $user_plan_id, $taxonomy );
+				}
+			}
+		}
+	}
 	
-	public function get_layer_plan_info( $item_id ){	
-
-		$taxonomies = $this->get_user_plan_taxonomies();
-
-		$user_plan = [];
-		
-		$user_plan['id'] = $item_id;
-		
-		$user_plan['info']['total_price_amount'] 	= 0;
-		$user_plan['info']['total_fee_amount'] 		= 0;
-		$user_plan['info']['total_price_period'] 	= 'month';
-		$user_plan['info']['total_fee_period'] 		= 'once';
-		$user_plan['info']['total_price_currency'] 	= '$';
-		
-		foreach($taxonomies as $i => $t){
+	public function bulk_update_user_option($users,$term_id){
 			
-			$taxonomy 		 = $t['taxonomy'];
-			$taxonomy_name 	 = $t['name'];
-			$is_hierarchical = $t['hierarchical'];
+		if( !empty($users) ){
 			
-			$user_plan['taxonomies'][$taxonomy]['taxonomy']			= $taxonomy;
-			$user_plan['taxonomies'][$taxonomy]['name']				= $taxonomy_name;
-			$user_plan['taxonomies'][$taxonomy]['is_hierarchical']	= $is_hierarchical;
-			$user_plan['taxonomies'][$taxonomy]['terms']			= [];
+			$taxonomy = 'account-option';
 			
-			$terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
-			
-			if ( !empty($terms) ) {
+			foreach( $users as $user_id ){
 				
-				foreach ( $terms as $term ) {						
+				// update current user custom taxonomy
+				
+				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, true ) ){
+				
+					$response = wp_set_object_terms( $user_plan_id, array($term_id), $taxonomy, true );
 
-					$term_slug = $term->slug;
+					clean_object_term_cache( $user_plan_id, $taxonomy );
+				}
+			}
+		}
+	}
+	
+	public function get_subscription_plans(){	
+		
+		if( is_null($this->subscription_plans) ){
+			
+			$this->subscription_plans = array();
+			
+			if( $plans = get_posts(array(
+			
+				'post_type' 	=> 'subscription-plan',
+				'post_status' 	=> 'publish',
+				'numberposts' 	=> -1,
+			)) ){
+				
+				$taxonomies = $this->get_layer_taxonomies_options();
+				
+				foreach( $plans as $plan ){
 					
-					$has_term = $in_term = is_object_in_term( $item_id, $taxonomy, $term->term_id );
-
-					if($is_hierarchical === true && $term->parent > 0 && $has_term === false ){
+					$plan_id = $plan->ID;
+					$options = get_post_meta( $plan_id, 'plan_options', true );
+					
+					$this->subscription_plans[$plan_id]['id'] 		= $plan_id;
+					$this->subscription_plans[$plan_id]['options'] 	= $options;
+				
+					$this->subscription_plans[$plan_id]['info']['total_price_amount'] 	= 0;
+					$this->subscription_plans[$plan_id]['info']['total_fee_amount'] 	= 0;
+					$this->subscription_plans[$plan_id]['info']['total_price_period'] 	= 'month';
+					$this->subscription_plans[$plan_id]['info']['total_fee_period'] 	= 'once';
+					$this->subscription_plans[$plan_id]['info']['total_price_currency']	= '$';
+					
+					foreach( $taxonomies as $taxonomy => $terms ){
 						
-						$parent_id = $term->parent;
-						
-						while( $parent_id > 0 ){
+						foreach( $terms as $term ){
 							
-							if($has_term === false){
+							if( in_array($term->slug,$options) ){
+							
+								// add children terms
 								
-								foreach($terms as $parent){
-									
-									if( $parent->term_id == $parent_id ){
+								if( $children = get_term_children( $term->term_id, $term->taxonomy) ){
+							
+									foreach( $children as $child_id ){
 										
-										$has_term = is_object_in_term( $item_id, $taxonomy, $parent->term_id );
+										$child = get_term_by( 'id', $child_id, $term->taxonomy );
 										
-										$parent_id = $parent->parent;
-										
-										break;
+										$this->subscription_plans[$plan_id]['options'][] = $child->slug;
 									}
-								}								
+								}
+							
+								// sum values
+							
+								$this->subscription_plans[$plan_id]['info']['total_fee_amount']		= $this->sum_total_price_amount( $this->subscription_plans[$plan_id]['info']['total_fee_amount'], $term->options, $this->subscription_plans[$plan_id]['info']['total_fee_period'] );
+								$this->subscription_plans[$plan_id]['info']['total_price_amount'] 	= $this->sum_total_price_amount( $this->subscription_plans[$plan_id]['info']['total_price_amount'], $term->options, $this->subscription_plans[$plan_id]['info']['total_price_period'] );
+								$this->subscription_plans[$plan_id]['info']['total_storage'] 	 	= $this->sum_total_storage( $this->subscription_plans[$plan_id]['info']['total_storage'], $term->options);
 							}
-							else{
-								
-								break;
-							}
-						}					
+						}
 					}
-					
-					// push terms
-				
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]			= $term_slug;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]			= $term->term_id;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_group"]		= $term->term_group;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"] = $term->term_taxonomy_id;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		 = $term->taxonomy;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	 	= $term->description;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["parent"]			= $term->parent;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			 = $term->count;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["filter"]			= $term->filter;
-					$user_plan['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]		= $has_term;
-					
-					if( $in_term === true ){
-						
-						$options = $this->parent->layer->get_options( $taxonomy, $term );
-						
-						$user_plan['info']['total_fee_amount']	 = $this->sum_save_urlstotal_price_amount( $user_plan['info']['total_fee_amount'], $options, $user_plan['info']['total_fee_period'] );
-						$user_plan['info']['total_price_amount'] = $this->sum_save_urlstotal_price_amount( $user_plan['info']['total_price_amount'], $options, $user_plan['info']['total_price_period'] );
-						$user_plan['info']['total_storage'] 	 = $this->sum_save_urlstotal_storage( $user_plan['info']['total_storage'], $options);
-					}					
 				}
 			}
 		}
 		
-		return $user_plan;	
+		return $this->subscription_plans;
+	}
+	
+	public function get_layer_options( $item_id ){	
+		
+		if( !isset($this->layer_options[$item_id]) ){
+			
+			$plan_taxonomies = $this->get_plan_taxonomies();
+
+			$this->layer_options[$item_id] = [];
+			
+			$this->layer_options[$item_id]['id'] = $item_id;
+			
+			foreach($plan_taxonomies as $i => $t){
+				
+				$taxonomy 		 = $t['taxonomy'];
+				$taxonomy_name 	 = $t['name'];
+				$is_hierarchical = $t['hierarchical'];
+				
+				$this->layer_options[$item_id]['taxonomies'][$taxonomy]['taxonomy']			= $taxonomy;
+				$this->layer_options[$item_id]['taxonomies'][$taxonomy]['name']				= $taxonomy_name;
+				$this->layer_options[$item_id]['taxonomies'][$taxonomy]['is_hierarchical']	= $is_hierarchical;
+				$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms']			= [];
+				
+				$terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
+				
+				if ( !empty($terms) ) {
+					
+					foreach ( $terms as $term ) {						
+
+						$term_slug = $term->slug;
+						
+						$has_term = $in_term = is_object_in_term( $item_id, $taxonomy, $term->term_id );
+
+						if($is_hierarchical === true && $term->parent > 0 && $has_term === false ){
+							
+							$parent_id = $term->parent;
+							
+							while( $parent_id > 0 ){
+								
+								if($has_term === false){
+									
+									foreach($terms as $parent){
+										
+										if( $parent->term_id == $parent_id ){
+											
+											$has_term = is_object_in_term( $item_id, $taxonomy, $parent->term_id );
+											
+											$parent_id = $parent->parent;
+											
+											break;
+										}
+									}								
+								}
+								else{
+									
+									break;
+								}
+							}					
+						}
+						
+						// push terms
+					
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]			= $term_slug;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]			= $term->term_id;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_group"]		= $term->term_group;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"]= $term->term_taxonomy_id;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		= $term->taxonomy;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	 	= $term->description;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["parent"]			= $term->parent;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			= $term->count;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["filter"]			= $term->filter;
+						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]		= $has_term;					
+					}
+				}
+			}
+		}
+		
+		return $this->layer_options[$item_id];	
 	}
 	
 	public function get_user_plan_info( $user_id ){	
@@ -1353,7 +1477,7 @@ class LTPLE_Client_Plan {
 		if( !isset($this->user_plans[$user_id]) ){
 		
 			$user_plan_id 	= $this->get_user_plan_id( $user_id );
-			$taxonomies 	= $this->get_user_plan_taxonomies();
+			$taxonomies 	= $this->get_plan_taxonomies();
 
 			$this->user_plans[$user_id] = [];
 			
@@ -1425,12 +1549,12 @@ class LTPLE_Client_Plan {
 					
 						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]			= $term_slug;
 						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
-						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]			= $term->term_id;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]		= $term->term_id;
 						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
 						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_group"]		= $term->term_group;
 						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"]= $term->term_taxonomy_id;
 						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		= $term->taxonomy;
-						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	 	= $term->description;
+						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	= $term->description;
 						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["parent"]			= $term->parent;
 						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			= $term->count;
 						$this->user_plans[$user_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["filter"]			= $term->filter;
@@ -1442,9 +1566,9 @@ class LTPLE_Client_Plan {
 							
 								$options = $this->parent->layer->get_options( $taxonomy, $term );
 
-								$this->user_plans[$user_id]['info']['total_fee_amount']	 = $this->sum_save_urlstotal_price_amount( $this->user_plans[$user_id]['info']['total_fee_amount'], $options, $this->user_plans[$user_id]['info']['total_fee_period'] );
-								$this->user_plans[$user_id]['info']['total_price_amount'] = $this->sum_save_urlstotal_price_amount( $this->user_plans[$user_id]['info']['total_price_amount'], $options, $this->user_plans[$user_id]['info']['total_price_period'] );
-								$this->user_plans[$user_id]['info']['total_storage'] 	 = $this->sum_save_urlstotal_storage( $this->user_plans[$user_id]['info']['total_storage'], $options);
+								$this->user_plans[$user_id]['info']['total_fee_amount']	 = $this->sum_total_price_amount( $this->user_plans[$user_id]['info']['total_fee_amount'], $options, $this->user_plans[$user_id]['info']['total_fee_period'] );
+								$this->user_plans[$user_id]['info']['total_price_amount'] = $this->sum_total_price_amount( $this->user_plans[$user_id]['info']['total_price_amount'], $options, $this->user_plans[$user_id]['info']['total_price_period'] );
+								$this->user_plans[$user_id]['info']['total_storage'] 	 = $this->sum_total_storage( $this->user_plans[$user_id]['info']['total_storage'], $options);
 							
 								do_action('ltple_user_plan_option_total',$user_id,$options);
 							}
@@ -1490,7 +1614,7 @@ class LTPLE_Client_Plan {
 
 					// get layer plan
 					
-					$layer_plan = $this->get_layer_plan_info( $item_id );
+					$layer_plan = $this->get_layer_options( $item_id );
 					
 					foreach($layer_plan['taxonomies'] as $taxonomy => $tax){
 

@@ -193,7 +193,8 @@ class LTPLE_Client {
 			
 			$this->users 	= new LTPLE_Client_Users( $this );
 			$this->programs = new LTPLE_Client_Programs( $this );
-			$this->channels = new LTPLE_Client_Channels( $this );			
+			$this->channels = new LTPLE_Client_Channels( $this );
+			$this->network 	= new LTPLE_Client_Network( $this );			
 			$this->profile 	= new LTPLE_Client_Profile( $this );
 			
 			if( is_admin() ) {		
@@ -244,7 +245,7 @@ class LTPLE_Client {
 		return $output;
 	}
 	
-	private function ltple_decrypt_str($string, $secret_key = ''){
+	public function ltple_decrypt_str($string, $secret_key = ''){
 		
 		$output = false;
 
@@ -435,6 +436,14 @@ class LTPLE_Client {
 			
 			$this->user->referredBy = get_user_meta( $this->user->ID, $this->_base . 'referredBy', false );
 			
+			// get period end
+			
+			$this->user->period_end = intval(get_user_meta( $this->user->ID, $this->_base . 'period_end', true ));
+			
+			// get remaining days
+			
+			$this->user->remaining_days = $this->user->period_end > 0 ? ceil( ($this->user->period_end - time()) / (60 * 60 * 24) ) : 0;
+
 			// get user rights
 			
 			$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
@@ -847,7 +856,7 @@ class LTPLE_Client {
 			
 			if( ( $template_id > 0 && isset($this->profile->layer->ID) ) || $template_id == -2 ){
 				
-				$path = $this->views .  '/layer-profile.php';
+				$path = $this->views .  '/user-profile.php';
 			}
 		}	
 		elseif( $post_id = url_to_postid( $this->urls->current ) ){
@@ -1301,6 +1310,12 @@ class LTPLE_Client {
 				
 				echo'}';
 				
+				echo ' .bs-callout-primary h4{';
+				
+					echo'color:'.$this->settings->linkColor . ';';
+				
+				echo'}';
+				
 				echo'footer#colophon h1, footer#colophon h2, footer#colophon h3{';
 				
 					echo'border-bottom: 1px solid '.$this->settings->mainColor . ' !important;';
@@ -1321,14 +1336,14 @@ class LTPLE_Client {
 						echo'background-color: '.$this->settings->mainColor . ';';
 						 
 					echo'}';
-				}
+				} 
 			}
 			
 			if( !empty($this->settings->linkColor) ){
 				
 				echo' a, .colortext, code, .infoareaicon, .fontawesome-icon.circle-white, .wowmetaposts span a:hover, h1.widget-title, .testimonial-name, .mainthemetextcolor, .primarycolor, footer#colophon a:hover, .icon-box-top h1:hover, .icon-box-top.active a h1{';
 					
-					echo'color:'.$this->settings->linkColor.';';
+					echo'color:'.$this->settings->linkColor . ';';
 					
 				echo'}';				
 			}
@@ -1590,7 +1605,7 @@ class LTPLE_Client {
 		}
 	}
 
-	public function ltple_get_dropdown_posts( $args ){
+	public function get_dropdown_posts( $args ){
 		
 		$defaults = array(
 		
@@ -1631,15 +1646,80 @@ class LTPLE_Client {
 				
 				$args['selected'] = intval($args['selected']);
 				
-				foreach( $posts as $p ){
+				foreach( $posts as $post ){
 					
 					$selected = '';
-					if( $p->ID == $args['selected'] ){
+					if( $post->ID == $args['selected'] ){
 						
 						$selected = ' selected';
 					}
 					
-					$dropdown .= '<option value="' . $p->ID . '"'.$selected.'>' . esc_html( $p->post_title ) . '</option>';
+					$dropdown .= '<option value="' . $post->ID . '"'.$selected.'>' . esc_html( $post->post_title ) . '</option>';
+				}
+			
+			$dropdown .= '</select>';			
+		}
+		
+		if($args['name'] === false){
+			
+			return $dropdown;
+		}
+		else{
+			
+			echo $dropdown;
+		}
+	}
+	
+	public function get_dropdown_terms( $args ){
+		
+		$defaults = array(
+		
+			'taxonomy' 			=> 'category', 
+			'show_option_none'  => 'Select a post', 
+			'name' 				=> null, 
+			'selected' 			=> '',
+			'style' 			=> '', 
+			'echo' 				=> true, 
+			'orderby' 			=> 'title', 
+			'order' 			=> 'ASC' 
+		);
+
+		$args = array_merge($defaults, $args);
+		
+		$terms = get_terms(
+			array(
+			
+				'taxonomy'  	=> $args['taxonomy'],
+				'numberposts' 	=> -1,
+				'orderby'		=> $args['orderby'], 
+				'order' 		=> $args['order']
+			)
+		);
+		 
+		$dropdown = '';
+		
+		if( $terms ){
+			
+			if( !is_string($args['name']) ){
+				
+				$args['name'] = $args['taxonomy'].'_select';
+			}
+			
+			$dropdown .= '<select' . ( !empty($args['style']) ? ' style="' . $args['style'] . '"' : '' ).' id="'.$args['name'].'" name="'.$args['name'].'">';
+				
+				$dropdown .= '<option value="-1">'.$args['show_option_none'].'</option>';
+				
+				$args['selected'] = intval($args['selected']);
+				
+				foreach( $terms as $term ){
+					
+					$selected = '';
+					if( $term->term_id == $args['selected'] ){
+						
+						$selected = ' selected';
+					}
+					
+					$dropdown .= '<option value="' . $term->term_id . '"'.$selected.'>' . esc_html( $term->name ) . '</option>';
 				}
 			
 			$dropdown .= '</select>';			

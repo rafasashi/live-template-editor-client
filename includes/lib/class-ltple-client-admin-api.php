@@ -567,9 +567,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									
 									if ( in_array( $term->slug, $plan_options ) ) {
 										
-										$total_fee_amount 	= $this->parent->plan->sum_save_urlstotal_price_amount( $total_fee_amount, $term->options, $total_fee_period);
-										$total_price_amount = $this->parent->plan->sum_save_urlstotal_price_amount( $total_price_amount, $term->options, $total_price_period);
-										$total_storage 		= $this->parent->plan->sum_save_urlstotal_storage( $total_storage, $term->options);
+										$total_fee_amount 	= $this->parent->plan->sum_total_price_amount( $total_fee_amount, $term->options, $total_fee_period);
+										$total_price_amount = $this->parent->plan->sum_total_price_amount( $total_price_amount, $term->options, $total_price_period);
+										$total_storage 		= $this->parent->plan->sum_total_storage( $total_storage, $term->options);
 									}
 
 									$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';

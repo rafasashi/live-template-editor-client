@@ -13,7 +13,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 
-		$this->parent->register_taxonomy( 'addon-service', __( 'Addon Service', 'live-template-editor-client' ), __( 'Addon Service', 'live-template-editor-client' ),  array('subscription-plan'), array(
+		$this->parent->register_taxonomy( 'addon-service', __( 'Addon Services', 'live-template-editor-client' ), __( 'Addon Service', 'live-template-editor-client' ),  array('subscription-plan'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,

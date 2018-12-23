@@ -15,7 +15,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 
-		$this->parent->register_taxonomy( 'element-library', __( 'Element Library', 'live-template-editor-client' ), __( 'Element Library', 'live-template-editor-client' ),
+		$this->parent->register_taxonomy( 'element-library', __( 'Element Libraries', 'live-template-editor-client' ), __( 'Element Library', 'live-template-editor-client' ),
 			
 			array('cb-default-layer'), 
 			

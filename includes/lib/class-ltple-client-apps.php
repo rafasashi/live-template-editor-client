@@ -41,7 +41,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_taxonomy( 'app-type', __( 'App Type', 'live-template-editor-client' ), __( 'App Type', 'live-template-editor-client' ),  array('user-image','user-bookmark','user-app'), array(
+		$this->parent->register_taxonomy( 'app-type', __( 'App Types', 'live-template-editor-client' ), __( 'App Type', 'live-template-editor-client' ),  array('user-image','user-bookmark','user-app'), array(
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,

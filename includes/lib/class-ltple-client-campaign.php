@@ -17,7 +17,7 @@ class LTPLE_Client_Campaign extends LTPLE_Client_Object {
 
 		$this->taxonomy = 'campaign-trigger';	
 
-		$this->parent->register_taxonomy( 'campaign-trigger', __( 'Campaign Trigger', 'live-template-editor-client' ), __( 'Campaign Trigger', 'live-template-editor-client' ),  array('email-campaign'), array(
+		$this->parent->register_taxonomy( 'campaign-trigger', __( 'Campaign Triggers', 'live-template-editor-client' ), __( 'Campaign Trigger', 'live-template-editor-client' ),  array('email-campaign'), array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> false,

@@ -19,6 +19,30 @@
 			$this->list = new stdClass();
 			
 			add_filter('ltple_loaded', array( $this, 'init_users' ));
+			
+			add_filter('init', array( $this, 'init_periods' ));
+		}
+		
+		public function init_periods(){
+			
+			// update subscription periods
+		
+			if( !empty($_REQUEST['ltple_update']) && $_REQUEST['ltple_update'] == 'periods' ){
+				
+				$this->update_periods();
+			}
+			
+			if( is_admin() ){
+				
+				// schedule update subscription periods
+				
+				add_action( $this->parent->_base . 'update_periods', array( $this, 'update_periods'));
+				
+				if( !wp_next_scheduled( $this->parent->_base . 'update_periods' )) {
+					
+					wp_schedule_event( time(), 'daily' , $this->parent->_base . 'update_periods' );
+				}
+			}
 		}
 		
 		public function init_users(){
@@ -106,15 +130,23 @@
 							
 							echo '</div>';
 							
-							echo '<div class="actions" style="display:inline;">';
+							echo '<div class="actions" style="display:inline-block;width:100%;">';
 							
-							do_action('ltple_user_filter');								
+								do_action('ltple_user_filter');
+							
+							echo '</div>';
+							
+							echo '<div class="actions" style="display:inline-block;width:100%;">';
+							
+								do_action('ltple_user_updater');						
 						}
 					} );
 					
 					add_filter( 'ltple_user_tab', array( $this, 'display_user_tab') );
 					
 					add_filter( 'ltple_user_filter', array( $this, 'display_user_filter') );
+					
+					add_filter( 'ltple_user_updater', array( $this, 'display_user_updater') );
 					
 					// query filters
 					
@@ -127,8 +159,65 @@
 					//add_action('load-users.php', array( $this, 'bulk_send_email_model') );
 					add_action('load-users.php', array( $this, 'bulk_schedule_email_model') );
 					add_action('load-users.php', array( $this, 'bulk_add_plan') );
+					add_action('load-users.php', array( $this, 'bulk_add_type') );
+					add_action('load-users.php', array( $this, 'bulk_add_range') );
+					add_action('load-users.php', array( $this, 'bulk_add_option') );
 					add_action('load-users.php', array( $this, 'bulk_add_stars') );
 				}				
+			}
+		}
+		
+		public function update_periods(){
+			
+			$api_url = $this->parent->server->url . '/wp-json/ltple-subscription/v1/periods';
+			
+			$response = wp_remote_get( $api_url );
+			
+			if( !empty($response['body']) ){
+				
+				$body = json_decode($response['body'],true);
+				
+				if( !empty($body['data']) ){
+					
+					$periods = $this->parent->ltple_decrypt_str($body['data']);
+					
+					if( !empty($periods) ){
+						
+						$periods = json_decode($periods,true);
+						
+						if( !empty($periods) && is_array($periods) ){
+							
+							// get users with subscription
+							
+							if( $users = get_users(array(
+							
+								'meta_query'  => array(
+								
+									'relation' => 'AND',
+									
+									array(
+										'key'     	=> 'has_subscription',
+										'compare' 	=> '=',
+										'value'		=> 'true',
+									)
+								),
+								'fields' => array('id','user_email'),
+								
+							))){
+								
+								foreach( $users as $user ){
+
+									if( !empty($periods[$user->user_email]) ){
+										
+										$period_end = $periods[$user->user_email];
+										
+										update_user_meta($user->id, $this->parent->_base . 'period_end', $period_end);
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		
@@ -208,7 +297,11 @@
 				
 				echo '</span>';
 			}
-			
+		}
+		
+		
+		public function display_user_updater() {
+
 			// add bulk stars
 			
 			echo '<span>';
@@ -234,7 +327,7 @@
 
 			echo '<span>';
 			
-				echo $this->parent->ltple_get_dropdown_posts(array(
+				echo $this->parent->get_dropdown_posts(array(
 				
 					'show_option_none'  => 'Select an email',
 					'post_type'     	=> $post_type,
@@ -256,10 +349,76 @@
 
 			echo '<span>';
 			
-				echo $this->parent->ltple_get_dropdown_posts(array(
+				echo $this->parent->get_dropdown_posts(array(
 				
 					'show_option_none'  => 'Select a plan',
 					'post_type'     	=> $post_type,
+					'name'    	  		=> $name,
+					'style'    	  		=> 'width:130px;',
+					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+					'echo'		   		=> false
+				));
+
+				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+			
+			echo '</span>';
+			
+			// add layer type
+			
+			$taxonomy = 'layer-type';
+			
+			$name = $taxonomy.'1';
+
+			echo '<span>';
+			
+				echo $this->parent->get_dropdown_terms(array(
+				
+					'show_option_none'  => 'Select a type',
+					'taxonomy'     		=> $taxonomy,
+					'name'    	  		=> $name,
+					'style'    	  		=> 'width:130px;',
+					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+					'echo'		   		=> false
+				));
+
+				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+			
+			echo '</span>';
+			
+			// add layer range
+			
+			$taxonomy = 'layer-range';
+			
+			$name = $taxonomy.'1';
+
+			echo '<span>';
+			
+				echo $this->parent->get_dropdown_terms(array(
+				
+					'show_option_none'  => 'Select a range',
+					'taxonomy'     		=> $taxonomy,
+					'name'    	  		=> $name,
+					'style'    	  		=> 'width:130px;',
+					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+					'echo'		   		=> false
+				));
+
+				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+			
+			echo '</span>';
+			
+			// add layer option
+			
+			$taxonomy = 'account-option';
+			
+			$name = $taxonomy.'1';
+
+			echo '<span>';
+			
+				echo $this->parent->get_dropdown_terms(array(
+				
+					'show_option_none'  => 'Select an option',
+					'taxonomy'     		=> $taxonomy,
 					'name'    	  		=> $name,
 					'style'    	  		=> 'width:130px;',
 					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
@@ -303,6 +462,22 @@
 			return (round($time/31207680) == 1) ? '1 yr ago' : round($time/31207680).' yrs ago' ;
 
 			endswitch;
+		}
+		
+		public function get_user_remaining_days($user_id){
+			
+			$days = 0;
+			
+			$period_end = intval(get_user_meta($user_id, $this->parent->_base . 'period_end', true ));
+			
+			if( !empty($period_end) ){
+				
+				$datediff = $period_end - time();
+				
+				$days = ceil( $datediff / (60 * 60 * 24) );					
+			}
+
+			return $days;			
 		}
 		
 		public function get_user_avatar($avatar, $id_or_email, $size, $alt, $args){
@@ -415,6 +590,7 @@
 				$this->list->{$user_id} = new stdClass();
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
 				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
+				$this->list->{$user_id}->period		= intval(get_user_meta($user_id, $this->parent->_base . 'period_end', true ));
 				$this->list->{$user_id}->last_seen 	= get_user_meta($user_id, $this->parent->_base . '_last_seen',true);
 				$this->list->{$user_id}->last_uagent= $this->get_browser(get_user_meta($user_id, $this->parent->_base . '_last_uagent',true));
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
@@ -429,15 +605,16 @@
 				
 			}
 			
-			$user_role = $this->list->{$user_id}->role;
-			$user_plan = $this->list->{$user_id}->plan;
-			$user_seen = $this->list->{$user_id}->last_seen;
-			$user_agent= $this->list->{$user_id}->last_uagent;
-			$user_stars= $this->list->{$user_id}->stars;
-			$can_spam  = $this->list->{$user_id}->can_spam;
-			$last_sent = $this->list->{$user_id}->sent;
-			$referredBy= $this->list->{$user_id}->referredBy;
-			$channel   = $this->list->{$user_id}->channel;
+			$user_role 	= $this->list->{$user_id}->role;
+			$user_plan 	= $this->list->{$user_id}->plan;
+			$user_seen 	= $this->list->{$user_id}->last_seen;
+			$user_agent	= $this->list->{$user_id}->last_uagent;
+			$user_stars	= $this->list->{$user_id}->stars;
+			$can_spam  	= $this->list->{$user_id}->can_spam;
+			$last_sent 	= $this->list->{$user_id}->sent;
+			$referredBy	= $this->list->{$user_id}->referredBy;
+			$channel   	= $this->list->{$user_id}->channel;
+			$period_end = $this->list->{$user_id}->period;
 			
 			$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
 			
@@ -454,8 +631,33 @@
 					}
 					
 					$row .= $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].'/'.$user_plan['info']['total_price_period'];
-
+					
 				$row .= '</span>';
+
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
+					
+					if( !empty($period_end) ){
+						
+						$datediff = $period_end - time();
+						
+						$days = ceil( $datediff / (60 * 60 * 24) );
+			
+						$row .= $days . ' ' . ( ($days == 1 || $days == -1) ? 'day' : 'days' ) ;					
+					}
+					else{
+						
+						$row .= $period_end . ' days';
+					}
+					
+				$row .= '</span>';
+				
+				$update_period_url  = add_query_arg(array_merge(array('ltple_update'=>'periods'),$_REQUEST),$this->parent->urls->current);
+				
+				$row .= '<a href="'.$update_period_url.'">';
+				
+					$row .= "<img src='" . $this->parent->assets_url . "images/send.png' width=25 height=25>";
+				
+				$row .= '</a>';
 			}
 			elseif ($column_name == "plan") {
 					
@@ -1062,11 +1264,9 @@
 			}
 		}
 		
-		
 		public function bulk_add_plan() {
 			
 			$post_type 	= 'subscription-plan';
-			$model_id 	= null;
 			
 			if ( isset( $_REQUEST[$post_type.'1'] ) && is_numeric( $_REQUEST[$post_type.'1'] ) && $_REQUEST[$post_type.'1'] != '-1' ) {
 				
@@ -1105,7 +1305,7 @@
 				
 					$m = 0;
 				
-					$this->parent->plan->bulk_update_users($users,$plan_id);
+					$this->parent->plan->bulk_update_user_plan($users,$plan_id);
 					
 					//reset time limit
 					
@@ -1114,7 +1314,164 @@
 					add_action( 'admin_notices', array( $this, 'output_add_plan_notice'));
 				}
 			}
-		}		
+		}
+
+		
+		public function bulk_add_type() {
+			
+			$taxonomy 	= 'layer-type';
+			
+			if ( isset( $_REQUEST[$taxonomy.'1'] ) && is_numeric( $_REQUEST[$taxonomy.'1'] ) && $_REQUEST[$taxonomy.'1'] != '-1' ) {
+				
+				$term_id = intval($_REQUEST[$taxonomy.'1']);
+			}
+			elseif ( isset( $_REQUEST[$taxonomy.'2'] ) && is_numeric( $_REQUEST[$taxonomy.'2'] ) && $_REQUEST[$taxonomy.'2'] != '-1' ) {
+				
+				$term_id = intval($_REQUEST[$taxonomy.'2']);
+			}
+
+			if( !empty($term_id) ){
+				
+				$users 	= array();
+
+				if( !empty($_REQUEST['selectAll']) ){
+					
+					$users = get_users(array(
+					
+						'fields' => 'id',					
+					));
+				}
+				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
+					
+					$users = $_REQUEST['users'];
+				}
+
+				if( !empty($users) ){
+		
+					//get time limit
+					
+					$max_execution_time = ini_get('max_execution_time'); 
+					
+					//remove time limit
+					
+					set_time_limit(0);				
+				
+					$m = 0;
+					
+					$this->parent->plan->bulk_update_user_type($users,$term_id);
+					
+					add_action( 'admin_notices', array( $this, 'output_add_type_notice'));
+				
+					//reset time limit
+					
+					set_time_limit($max_execution_time);				
+				}
+			}
+		}
+		
+		public function bulk_add_range() {
+			
+			$taxonomy 	= 'layer-range';
+
+			if ( isset( $_REQUEST[$taxonomy.'1'] ) && is_numeric( $_REQUEST[$taxonomy.'1'] ) && $_REQUEST[$taxonomy.'1'] != '-1' ) {
+				
+				$term_id = intval($_REQUEST[$taxonomy.'1']);
+			}
+			elseif ( isset( $_REQUEST[$taxonomy.'2'] ) && is_numeric( $_REQUEST[$taxonomy.'2'] ) && $_REQUEST[$taxonomy.'2'] != '-1' ) {
+				
+				$term_id = intval($_REQUEST[$taxonomy.'2']);
+			}
+
+			if( !empty($term_id) ){
+				
+				$users 	= array();
+
+				if( !empty($_REQUEST['selectAll']) ){
+					
+					$users = get_users(array(
+					
+						'fields' => 'id',					
+					));
+				}
+				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
+					
+					$users = $_REQUEST['users'];
+				}
+
+				if( !empty($users) ){
+		
+					//get time limit
+					
+					$max_execution_time = ini_get('max_execution_time'); 
+					
+					//remove time limit
+					
+					set_time_limit(0);				
+				
+					$m = 0;
+					
+					$this->parent->plan->bulk_update_user_range($users,$term_id);
+					
+					add_action( 'admin_notices', array( $this, 'output_add_range_notice'));
+				
+					//reset time limit
+					
+					set_time_limit($max_execution_time);				
+				}
+			}			
+		}
+		
+		public function bulk_add_option() {
+			
+			$taxonomy 	= 'account-option';
+			
+			if ( isset( $_REQUEST[$taxonomy.'1'] ) && is_numeric( $_REQUEST[$taxonomy.'1'] ) && $_REQUEST[$taxonomy.'1'] != '-1' ) {
+				
+				$term_id = intval($_REQUEST[$taxonomy.'1']);
+			}
+			elseif ( isset( $_REQUEST[$taxonomy.'2'] ) && is_numeric( $_REQUEST[$taxonomy.'2'] ) && $_REQUEST[$taxonomy.'2'] != '-1' ) {
+				
+				$term_id = intval($_REQUEST[$taxonomy.'2']);
+			}
+
+			if( !empty($term_id) ){
+				
+				$users 	= array();
+
+				if( !empty($_REQUEST['selectAll']) ){
+					
+					$users = get_users(array(
+					
+						'fields' => 'id',					
+					));
+				}
+				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
+					
+					$users = $_REQUEST['users'];
+				}
+
+				if( !empty($users) ){
+		
+					//get time limit
+					
+					$max_execution_time = ini_get('max_execution_time'); 
+					
+					//remove time limit
+					
+					set_time_limit(0);				
+				
+					$m = 0;
+					
+					$this->parent->plan->bulk_update_user_option($users,$term_id);
+					
+					add_action( 'admin_notices', array( $this, 'output_add_option_notice'));
+				
+					//reset time limit
+					
+					set_time_limit($max_execution_time);				
+				}
+			}			
+		}
 		
 		public function output_send_email_admin_notice(){
 			
@@ -1165,6 +1522,45 @@
 				echo'<p>';
 				
 					echo 'Plan(s) succesfully added';
+					
+				echo'</p>';
+				
+			echo'</div>';
+		}
+
+		public function output_add_type_notice(){
+			
+			echo'<div class="notice notice-success">';
+			
+				echo'<p>';
+				
+					echo 'Layer type succesfully added';
+					
+				echo'</p>';
+				
+			echo'</div>';
+		}
+		
+		public function output_add_range_notice(){
+			
+			echo'<div class="notice notice-success">';
+			
+				echo'<p>';
+				
+					echo 'Layer range succesfully added';
+					
+				echo'</p>';
+				
+			echo'</div>';
+		}
+
+		public function output_add_option_notice(){
+			
+			echo'<div class="notice notice-success">';
+			
+				echo'<p>';
+				
+					echo 'Account option succesfully added';
 					
 				echo'</p>';
 				

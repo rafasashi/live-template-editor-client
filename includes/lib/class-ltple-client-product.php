@@ -53,9 +53,8 @@ class LTPLE_Client_Product {
 					
 					$this->image = get_the_post_thumbnail_url($q->ID);
 					
-					$layer_plan = $this->parent->plan->get_layer_plan_info($q->ID);
-					
-					$this->info 		= $layer_plan['info'];
+					$layer_plan = $this->parent->plan->get_layer_options($q->ID);
+
 					$this->taxonomies 	= $layer_plan['taxonomies'];
 					
 					add_filter('document_title_parts', array($this,'get_title'), 99,1);

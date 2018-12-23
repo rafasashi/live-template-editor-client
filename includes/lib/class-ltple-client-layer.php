@@ -72,7 +72,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 
-		$this->parent->register_taxonomy( 'layer-type', __( 'Template Type', 'live-template-editor-client' ), __( 'Template Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'layer-type', __( 'Template Types', 'live-template-editor-client' ), __( 'Template Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -86,7 +86,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'layer-range', __( 'Template Ranges', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -100,7 +100,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'account-option', __( 'Template Options', 'live-template-editor-client' ), __( 'Account Option', 'live-template-editor-client' ),  array('user-plan'), array(
+		$this->parent->register_taxonomy( 'account-option', __( 'Template Options', 'live-template-editor-client' ), __( 'Template Option', 'live-template-editor-client' ),  array('user-plan'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -114,7 +114,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'css-library', __( 'CSS Library', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'css-library', __( 'CSS Libraries', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -128,7 +128,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'js-library', __( 'JS Library', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'js-library', __( 'JS Libraries', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -142,7 +142,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'font-library', __( 'Font Library', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'font-library', __( 'Font Libraries', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -194,6 +194,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'side'
 				);
 				
+				$this->parent->admin->add_meta_box (
+					
+					'layer-margin',
+					__( 'Template Margin', 'live-template-editor-client' ), 
+					array($post->post_type),
+					'side'
+				);	
+				
 				if( !empty($_REQUEST['post']) ){
 					
 					$this->parent->admin->add_meta_box (
@@ -237,8 +245,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							array($post->post_type),
 							'advanced'
 						);
-					}				
-					
+					}
+
 					if( $layer_type->output == 'hosted-page' || $layer_type->output == 'downloadable' ){
 					
 						$this->parent->admin->add_meta_box (
@@ -251,29 +259,24 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->parent->admin->add_meta_box (
 							
-							'layer-static-url',
-							__( 'Template Static Content', 'live-template-editor-client' ), 
-							array($post->post_type),
-							'advanced'
-						);
-						
-						$this->parent->admin->add_meta_box (
-							
 							'layer-meta',
 							__( 'Template Meta Data', 'live-template-editor-client' ), 
 							array($post->post_type),
 							'advanced'
 						);
+						
+						if( $layer_type->output == 'downloadable' ){
+						
+							$this->parent->admin->add_meta_box (
+								
+								'layer-static-url',
+								__( 'Template Static Content', 'live-template-editor-client' ), 
+								array($post->post_type),
+								'advanced'
+							);
+						}
 					}
 					else{
-						
-						$this->parent->admin->add_meta_box (
-							
-							'layer-margin',
-							__( 'Template Margin', 'live-template-editor-client' ), 
-							array($post->post_type),
-							'side'
-						);
 
 						remove_meta_box( 'css-librarydiv', $post->post_type, 'side' );
 						remove_meta_box( 'js-librarydiv', $post->post_type, 'side' );
@@ -774,7 +777,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			if( $post->post_type == 'cb-default-layer' ){
 				
 				$terms = wp_get_post_terms($post->ID,'layer-type');
-				
+			
 				if( !empty($terms[0]) ){
 					
 					$term = $terms[0];
@@ -889,9 +892,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function init_layer(){
 
-		$this->url = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/');
+		$this->dirUrl = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/');
 
-		$this->dir = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');	
+		$this->dirPath = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');	
 
 		// get layer key
 	
@@ -949,6 +952,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );
 					}
 					
+					// get default layer type
+					
+					$this->defaultLayerType = $this->get_layer_type($this->defaultId);
+								
 					// get layer Content
 					
 					$this->layerContent = get_post_meta( $this->id, 'layerContent', true );
@@ -958,31 +965,34 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->layerContent = get_post_meta( $this->defaultId, 'layerContent', true );
 					}
 					
+					// get default css
+
+					$this->defaultCss = get_post_meta( $this->defaultId, 'layerCss', true );
+					
 					// get layer css
 
 					$this->layerCss = get_post_meta( $this->id, 'layerCss', true );
 					
 					if( $this->layerCss == '' && $this->id != $this->defaultId ){
 						
-						$this->layerCss = get_post_meta( $this->defaultId, 'layerCss', true );
+						if( $this->defaultLayerType->output != 'hosted-page' ){
+						
+							$this->layerCss = $this->defaultCss;
+						}
 					}
-					
-					// get default css
 
-					$this->defaultCss = get_post_meta( $this->defaultId, 'layerCss', true );
+					// get default js
 
+					$this->defaultJs = get_post_meta( $this->defaultId, 'layerJs', true );
+										
 					// get layer js
 					
 					$this->layerJs = get_post_meta( $this->id, 'layerJs', true );
 					
 					if( $this->layerJs == '' && $this->id != $this->defaultId ){
 						
-						$this->layerJs = get_post_meta( $this->defaultId, 'layerJs', true );
+						$this->layerJs = $this->defaultJs;
 					}
-					
-					// get default js
-
-					$this->defaultJs = get_post_meta( $this->defaultId, 'layerJs', true );
 					
 					// get default elements
 
@@ -1024,10 +1034,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$this->pageDef = get_post_meta( $this->defaultId, 'pageDef', true );
 					
-					// get default layer type
-					
-					$this->defaultLayerType = $this->get_layer_type($this->defaultId);
-								
 					//get default static path
 					
 					$this->defaultStaticPath = $this->get_static_path($this->defaultId,$this->defaultId);
@@ -1040,9 +1046,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$this->defaultStaticJsPath = $this->get_static_asset_path($this->id,'js','default_script');
 
+					//get default static dir url
+					
+					$this->defaultStaticDirUrl = $this->get_static_dir_url($this->defaultId,$this->defaultLayerType->output);					
+					
 					//get default static url
 					
-					$this->defaultStaticUrl = $this->get_static_url($this->defaultId,$this->defaultId);
+					$this->defaultStaticUrl = $this->get_static_url($this->defaultId,$this->defaultId,$this->defaultLayerType->output);
 					
 					//get default static css url
 					
@@ -1085,7 +1095,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$this->layerStaticDir = $this->get_static_dir($this->id);
 								
 					//get layer output
-					
+
 					$this->layerOutput = $this->defaultLayerType->output;
 					
 					//get layer options
@@ -1384,7 +1394,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'label'			=> '<b>Template Static Url</b>',
 					'type'			=> 'slug',
 					'style'			=> "margin: 15px 0 5px 0;",
-					'base'			=> $this->url . '<b>' . $post_id . '</b>/',
+					'base'			=> $this->dirUrl . '<b>' . $post_id . '</b>/',
 					'slash'			=> false,
 					'placeholder'	=> "template1/index.html"
 			);		
@@ -1731,15 +1741,34 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	}
 	
-	public static function sanitize_url($url){
+	public static function isAbsolutePath($file){
 		
-		if( is_ssl() ){
+		return strspn($file, '/\\', 0, 1)
+			|| (strlen($file) > 3 && ctype_alpha($file[0])
+				&& substr($file, 1, 1) === ':'
+				&& strspn($file, '/\\', 2, 1)
+			)
+			|| null !== parse_url($file, PHP_URL_SCHEME)
+		;
+	}	
+	
+	public static function sanitize_url( $url, $dirUrl = '' ){
+		
+		if( !empty($url) ){
+		
+			if( !empty($dirUrl) && !self::isAbsolutePath($url) ){
+				
+				$url = $dirUrl . $url;
+			}
 			
-			$url = str_replace( 'http://', 'https://', $url);
-		}
-		else{
-			
-			$url = str_replace( 'https://', 'http://', $url);
+			if( is_ssl() ){
+				
+				$url = str_replace( 'http://', 'https://', $url);
+			}
+			else{
+				
+				$url = str_replace( 'https://', 'http://', $url);
+			}
 		}
 		
 		return $url;
@@ -2342,7 +2371,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function get_static_url($postId,$defaultId){
+	public function get_static_dir_url($postId,$output){
+		
+		$static_url = '';
+		
+		if( $output == 'hosted-page' ){
+			
+			$static_url = $this->dirUrl . $postId . '/';	
+		}
+	
+		return $static_url;
+	}	
+	
+	public function get_static_url($postId,$defaultId,$output=''){
 		
 		$layerStaticUrl = get_post_meta( $defaultId, 'layerStaticUrl', true );
 		
@@ -2351,21 +2392,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$layerStaticUrl = 'index.html';
 		}
 		
-		$static_url = $this->url . $postId . '/' . $layerStaticUrl;				
+		$static_url = $this->get_static_dir_url($postId,$output) . $layerStaticUrl;				
 	
 		return $static_url;
 	}
 	
 	public function get_static_asset_url($postId, $type = 'css', $filename = 'style'){
 		
-		$static_url = $this->url . $postId . '/assets/'.$type.'/' . $filename . '.' . $type;
+		$static_url = $this->dirUrl . $postId . '/assets/'.$type.'/' . $filename . '.' . $type;
 		
 		return $static_url;
 	}
 	
 	public function get_static_dir($postId,$empty=false){
 		
-		$static_dir = $this->dir . $postId;
+		$static_dir = $this->dirPath . $postId;
 		
 		if( !is_dir($static_dir) ){
 			
@@ -2383,7 +2424,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_static_asset_dir($postId, $type = 'css'){
 		
-		$static_dir = $this->dir . $postId . '/assets/' . $type;
+		$static_dir = $this->dirPath . $postId . '/assets/' . $type;
 		
 		if( !is_dir($static_dir) ){
 			

@@ -468,15 +468,20 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit.php?post_type=user-layer'
 		);
-		 
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'User Network', $this->plugin->slug ),
+			__( 'User Network', $this->plugin->slug ),
+			'edit_pages',
+			'edit-tags.php?taxonomy=user-contact'
+		);
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'Services & Apps', $this->plugin->slug ),
 			__( 'Services & Apps', $this->plugin->slug ),
 			'edit_pages',
 			'edit-tags.php?post_type=subscription-plan&taxonomy=addon-service'
-		); 		
-		
+		);
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'Subscription Plans', $this->plugin->slug ),
@@ -816,6 +821,10 @@ class LTPLE_Client_Settings {
 				'user-image' 	=> array( 'name' => 'Images'),
 				'user-bookmark' => array( 'name' => 'Bookmarks'),
 				'user-app' 		=> array( 'name' => 'Apps'),
+			),
+			'user-network' => array(
+			
+				'user-contact' 	=> array( 'name' => 'Emails', 'post-type' => '' ),
 			),
 			'email-campaigns' => array(
 			

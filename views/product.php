@@ -12,6 +12,53 @@
 	$product_url = $this->parent->urls->product . '?id=' . $this->ID;
 	
 	$modal_id='modal_'.md5($permalink);
+	
+	// get from value
+	
+	$from_amount 	= null;
+	$from_currency 	= '$';
+	
+	$subscription_plans = $this->parent->plan->get_subscription_plans();
+	
+	$layer_options = array();
+	
+	foreach( $this->taxonomies['layer-type']['terms'] as $term ){
+		
+		if($term['has_term']){
+			
+			$layer_options[] = $term['slug'];
+		}
+	}
+	
+	foreach( $this->taxonomies['layer-range']['terms'] as $term ){
+		
+		if($term['has_term']){
+			
+			$layer_options[] = $term['slug'];
+		}
+	}
+	
+	foreach( $subscription_plans as $plan ){
+		
+		$in_plan = true;
+		
+		foreach( $layer_options as $option ){
+			
+			if( !in_array($option,$plan['options']) ){
+				
+				$in_plan = false;
+				break;
+			}
+		}
+		
+		if($in_plan){
+		
+			if( is_null($from_amount) || $plan['info']['total_price_amount'] < $from_amount ){
+
+				$from_amount = $plan['info']['total_price_amount'];
+			}
+		}
+	}
 
 	echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> ' . $this->post_title . ' template</h1>';
 	
@@ -35,9 +82,13 @@
 				
 					echo'<div class="col-xs-4 text-right" style="padding:15px 0;text-align:center;font-weight:bold;font-size:21px;">';
 						
-						echo 'from ';
-						echo $this->info['total_price_currency'];
-						echo $this->info['total_price_amount'];
+						if( !is_null($from_amount) ){
+						
+							echo 'from ';
+						
+							echo $from_amount;
+							echo $from_currency;
+						}
 					
 					echo'</div>';
 					
