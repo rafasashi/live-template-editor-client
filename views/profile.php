@@ -1,304 +1,245 @@
 <?php
+	
+	$is_public = $this->is_public();
+	
+	$self_profile = ( $this->parent->user->loggedin && $this->user->ID  == $this->parent->user->ID ? true : false );
+	
+	if( $is_public || $self_profile ){
 
-if( $displayedUser = get_user_by( 'ID', intval($_GET['pr'])) ){
-
-	$background_color = '#fff';
-	
-	$background_image = $this->image->get_banner_url($displayedUser->ID) . '?' . time();
-
-	echo'<style>';
-	
-	echo'
-	
-		@import url("https://fonts.googleapis.com/css?family=Pacifico");
-	
-		.profile-overlay {
-			
-			width: 100%;
-			height: 350px;
-			position: absolute;
-			background-image: linear-gradient(to bottom right,#284d6b,' . $this->settings->mainColor . ');
-			opacity: .5;
-		}
-	
-		.profile-heading {
-			
-			height: 350px;
-			padding-top: 130px;
-			background-color: #333;
-			background-image: url("' . $background_image . '");
-			background-position: center center;
-			background-size: cover;
-			background-attachment: fixed;
-			background-repeat: no-repeat;
-		}
+		$background_color = '#fff';
 		
-		.profile-heading h2 {
-			
-			color: #fff;
-			font-weight: normal;
-			font-size: 53px;
-			font-family: "Pacifico", cursive;
-			position: relative;
-			text-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
-		}
-			
-		.profile-avatar img {
-
-			border: solid 10px '.$background_color.';
-			border-radius: 100px;
-			margin-top: 70px;
-			position: relative;
-		}
-				
-		.profile-menu {
-			
-			padding: 90px 15px 0 15px;
-		}
-
-		.profile-menu ul {
-			
-			font-size: 16px;
-		}			
-    
-		.profile-content {
-			
-			display: inline-block;
-			padding-top: 50px;
-			background-color: '.$background_color.';
-			width: 100%;
-			min-height: 500px;
-		}		
+		$background_image = $this->parent->image->get_banner_url($this->user->ID) . '?' . time();
 		
-	';
-	
-	echo'</style>';
+		// is profile editable
+		
+		$editable = ( $this->parent->user->loggedin && $this->parent->user->ID == $this->user->ID ? true : false );
+		
+		// get name
+		
+		$name = get_user_meta( $this->user->ID , 'nickname', true );
+		
+		// get profile picture
+		
+		$picture = $this->parent->image->get_avatar_url( $this->user->ID );
+		
+		// get tabs
+		
+		$tabs = $this->get_profile_tabs();
+		
+		echo'<style>';
+		
+		echo'
+		
+			@import url("https://fonts.googleapis.com/css?family=Pacifico");
+		
+			.profile-overlay {
+				
+				width: 100%;
+				height: 350px;
+				position: absolute;
+				background-image: linear-gradient(to bottom right,#284d6b,' . $this->parent->settings->mainColor . ');
+				opacity: .5;
+			}
+		
+			.profile-heading {
+				
+				height: 350px;
+				padding-top: 130px;
+				background-color: #333;
+				background-image: url("' . $background_image . '");
+				background-position: center center;
+				background-size: cover;
+				background-attachment: fixed;
+				background-repeat: no-repeat;
+			}
+			
+			.profile-heading h2 {
+				
+				color: #fff;
+				font-weight: normal;
+				font-size: 53px;
+				font-family: "Pacifico", cursive;
+				position: relative;
+				text-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
+			}
+				
+			.profile-avatar img {
 
-	echo'<div id="profile_page" class="row">';
+				border: solid 10px '.$background_color.';
+				border-radius: 100px;
+				margin-top: 70px;
+				position: relative;
+				background:#fff;
+			}
+					
+			.profile-menu {
+				
+				padding: 90px 15px 0 15px;
+			}
 
-		echo'<div class="col-xs-12">';
+			.profile-menu ul {
+				
+				font-size: 16px;
+			}			
+		
+			.profile-content {
+				
+				display: inline-block;
+				padding-top: 30px;
+				padding-bottom: 100px;
+				background-color: '.$background_color.';
+				width: 100%;
+				min-height: 500px;
+			}		
 			
-			echo'<div class="profile-overlay"></div>';
+		';
+		
+		echo'</style>';
+		
+		echo'<div id="profile_page" class="row">';
 
-			echo'<div class="profile-heading text-center">';
-			
-				// get name
+			echo'<div class="col-xs-12">';
 				
-				$name = get_user_meta( $displayedUser->ID , 'nickname', true );
-				
-				echo '<h2>' . $name . '</h2>';			
-			
-				// get profile picture
-				
-				$picture = get_user_meta( $displayedUser->ID , $this->_base . 'profile_picture', true );
-				
-				if( empty($picture) ){
+				echo'<div class="profile-overlay"></div>';
+
+				echo'<div class="profile-heading text-center" style="'.( $editable ? 'padding-top:80px;' : 'padding-top:125px;').'">';
 					
-					$picture = get_avatar_url( $displayedUser->ID );
-				}
-				
-				echo '<div class="profile-avatar">';
-				
-					echo'<img src="'.$picture.'" height="150" width="150" />';
-					
-				echo '</div>';
-								
-			echo'</div>'; //profile-overlay
-			
-			echo'<div class="profile-menu">';
-			
-				echo'<div class="col-xs-12 col-sm-1"></div>';
-			
-				echo'<div class="col-xs-12 col-sm-10">';
-				
-					$tabs = [];
-					$tabs['about-me']['name'] = 'About Me';
-					
-					if( !empty($this->directory) ){
-					
-						foreach( $this->directory->list as $directory ){
-							
-							if( !empty( $directory->directory_singular ) ){
-								
-								$name = strtolower($directory->directory_singular);
-								
-								$tabs[$name]['name'] = ucwords($name);
-							}
-						}
-					}
-					
-					echo'<ul class="nav nav-tabs" role="tablist" style="overflow: visible;">';
+					echo '<h2>' . $name . '</h2>';
+
+					if( $editable ){
 						
-						$active = ' active';
+						echo '<a title="Edit profile" href="' . $this->parent->urls->profile . '">';
 						
-						foreach( $tabs as $slug => $tab){
+							echo '<span class="fa fa-pencil" style="
+								color: #fff;
+								font-size: 28px;
+								position: relative;
+								border: 4px solid #fff;
+								border-radius: 250px;
+								height: 45px;
+								width: 45px;
+								text-align: center;
+								padding: 5px;
+								box-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
+							"></span>';
 							
-							echo'<li role="presentation" class="'.$active.'">';
-							
-								echo'<a href="#' . $slug . '" aria-controls="' . $slug . '" role="tab" data-toggle="tab">'.$tab['name'].'</a>';
-							
-							echo'</li>';
-							
-							$active = '';
-						}
-						
-					echo'</ul>';
+						echo '</a>';
+					}				
 					
-				echo'</div>';
-				
-				echo'<div class="col-xs-12 col-sm-1"></div>';
-			
-			echo'</div>'; //profile-menu
-			
-			echo'<div class="profile-content">';
-			
-				echo'<div class="col-xs-12 col-sm-1"></div>';
-			
-				echo'<div class="col-xs-12 col-sm-10">';		
-				
-					echo'<div class="tab-content">';
+					echo '<div class="profile-avatar">';
 					
-						// about me
-
-						echo'<div class="tab-pane active" id="about-me">';
+						echo'<img src="' . $picture . '" height="150" width="150" />';
 						
-							echo'<div class="col-xs-12 col-sm-8">';
-
-								echo'<table class="form-table">';
+					echo '</div>';
+									
+				echo'</div>'; //profile-overlay
+			
+				echo'<div class="profile-menu">';
+				
+					echo'<div class="col-xs-12 col-sm-1"></div>';
+				
+					echo'<div class="col-xs-12 col-sm-10">';
+					
+						if( !$is_public && $self_profile ){
+							
+							echo '<div class="alert alert-warning row" style="margin: 20px 0 !important;">';
 								
-									foreach( $this->profile->fields as $field ){
+								echo'<div class="col-xs-9">';
+								
+									echo 'Your profile is restrected, only you can see this page.';
+								
+								echo '</div>';
+								
+								echo'<div class="col-xs-3 text-right">';
+								
+									echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-policy">Edit</a>';
+								
+								echo '</div>';
+								
+							echo '</div>';			
+						}						
+						
+						echo'<ul class="nav nav-tabs" role="tablist" style="overflow: visible;">';
+							
+							foreach( $tabs as $tab){
+								
+								if( !empty($tab['name']) ){
+
+									$active = ( $tab['slug'] == $this->tab ? ' active' : '');
+
+									$url = $this->parent->urls->profile . $this->user->ID . '/';
+
+									if( $tab['slug'] != 'about-me' ){
 										
-										echo'<tr>';
-										
-											echo'<th style="width:200px;><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
-											
-											echo'<td>';
-											
-												if( isset($displayedUser->{$field['id']}) ){
-													
-													$meta = $displayedUser->{$field['id']};
-												}
-												else{
-													
-													$meta = get_user_meta( $displayedUser->ID , $field['id'] );
-												}
-												
-												if(!empty($meta)){
-												
-													if(	$field['id'] == 'user_url'){
-															
-														echo '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
-													}
-													else{
-														
-														echo '<p>';
-														
-															echo str_replace(PHP_EOL,'</p><p>',strip_tags($meta));
-															
-														echo '</p>';
-													}
-												}
-												else{
-													
-													echo '';
-												}
-											
-											echo'</td>';
-											
-										echo'</tr>';
+										$url .= $tab['slug'] . '/';
 									}
 									
-								echo'</table>';
-								
-							echo'</div>';
-							
-						echo'</div>';
-						
-						// directories
-
-						if( !empty($this->directory) ){
-						
-							foreach( $this->directory->list as $directory ){
-								
-								$name = strtolower($directory->directory_singular);
+									echo'<li role="presentation" class="'.$active.'">';
 									
-								echo'<div class="tab-pane" id="'.$name.'">';
-								
-									echo'<div class="col-xs-12 col-sm-8">';
-
-										echo'<table class="form-table">';
-											
-											foreach( $directory->directory_form['name'] as $e => $name ){
-												
-												$input = $directory->directory_form['input'][$e];
-												
-												if( $input != 'submit' && $input != 'label' && $input != 'title' ){
-
-													$field_id = $this->_base . 'dir_' . $directory->ID . '_' . str_replace(array('-',' '),'_',$name);
-										
-													$value = get_user_option($field_id,$displayedUser->ID);
-													
-													echo'<tr>';
-													
-														echo'<th style="width:200px;"><label for="'.$name.'">' . ucfirst( str_replace(array('-','_'),' ',$name) ) . '</label></th>';
-														
-														echo'<td>';
-														
-															if( is_array($value) ){
-																
-																if( !empty($value) ){
-																	
-																	foreach($value as $v){
-																		
-																		echo ucwords($v);
-																		echo '<br/>';
-																	}
-																}
-																else{
-																	
-																	echo '-';
-																}
-															}
-															elseif( !empty($value) ){
-																
-																echo ucwords($value);
-															}
-															else{
-																
-																echo '-';
-															}
-														
-														echo'</td>';
-														
-													echo'</tr>';
-												}
-											}
-											
-										echo'</table>';
-										
-									echo'</div>';
+										echo'<a href="' . $url . '" role="tab">'.$tab['name'].'</a>';
 									
-								echo'</div>';								
+									echo'</li>';
+								}
 							}
-						}						
+							
+						echo'</ul>';
 						
 					echo'</div>';
 					
-				echo'</div>';
+					echo'<div class="col-xs-12 col-sm-1"></div>';
 				
-				echo'<div class="col-xs-12 col-sm-1"></div>';
+				echo'</div>'; //profile-menu
+				
+				echo'<div class="profile-content">';
+				
+					echo'<div class="col-xs-12 col-sm-1"></div>';
+				
+					echo'<div class="col-xs-12 col-sm-10">';		
+					
+						echo'<div class="tab-content">';
+							
+							foreach( $tabs as $tab){
+								
+								if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
 
-			echo '</div>';
-			
-		echo '</div>';	
+									echo'<div class="tab-pane active" id="'.$tab['slug'].'">';
+									
+										echo'<div class="col-xs-12 col-sm-8">';
+										
+											if(!empty($this->parent->message)){ 
+											
+												//output message
+											
+												echo $this->parent->message;
+											}									
+										
+											echo $tab['content'];
+											
+										echo'</div>';
+										
+									echo'</div>';
+									
+									break;
+								}							
+							}					
+							
+						echo'</div>';
+						
+					echo'</div>';
+					
+					echo'<div class="col-xs-12 col-sm-1"></div>';
 
-	echo '</div>';
-}
-else{
-	
-	echo '<div class="alert alert-warning">';
-	
-		echo 'This profile doesn\'t exits...';
+				echo '</div>';
+				
+			echo '</div>';	
+
+		echo '</div>';
+	}
+	else{ 
 		
-	echo '</div>';
-}
+		echo '<div class="alert alert-warning" style="padding-top:50px;">';
+		
+			echo 'This profile is not accessible...';
+			
+		echo '</div>';
+	}

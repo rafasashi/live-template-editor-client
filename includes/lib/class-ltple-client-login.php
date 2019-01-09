@@ -178,6 +178,7 @@ class LTPLE_Client_Login {
 
 		// set $redirect_to default value
 		
+		/*
 		if( get_user_meta( $user->ID , 'has_subscription', true) === 'true'){
 			
 			return $this->parent->urls->editor;
@@ -186,6 +187,9 @@ class LTPLE_Client_Login {
 			
 			return $this->parent->urls->plans;
 		}
+		*/
+		
+		return $this->parent->urls->profile . $user->ID . '/';
 	}
 		
 	public function add_shortcode_login(){

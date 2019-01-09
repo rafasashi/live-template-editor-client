@@ -32,6 +32,18 @@
 			add_action( 'edit_user_profile', array( $this, 'get_user_stars' ) );
 			
 			add_action( 'edit_user_profile_update', array( $this, 'save_user_stars' ) );
+		
+			add_shortcode('ltple-client-ranking', array( $this , 'get_ranking_shortcode' ) );
+		}
+		
+		public function get_ranking_shortcode(){
+			
+			if( $this->parent->settings->options->enable_ranking == 'on' ){
+			
+				include($this->parent->views . '/navbar.php');
+			
+				include($this->parent->views . '/ranking.php');	
+			}
 		}
 		
 		public function get_triggers(){

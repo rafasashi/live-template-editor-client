@@ -1996,12 +1996,12 @@ class LTPLE_Client_Plan {
 	/**
 	 * Main LTPLE_Client_Plan Instance
 	 *
-	 * Ensures only one instance of LTPLE_Client_Stars is loaded or can be loaded.
+	 * Ensures only one instance of LTPLE_Client_Plan is loaded or can be loaded.
 	 *
 	 * @since 1.0.0
 	 * @static
 	 * @see LTPLE_Client()
-	 * @return Main LTPLE_Client_Stars instance
+	 * @return Main LTPLE_Client_Plan instance
 	 */
 	public static function instance ( $parent ) {
 		

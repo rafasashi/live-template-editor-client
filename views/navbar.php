@@ -4,7 +4,7 @@
 
 	// get navbar
 	
-	if( !empty($_GET['pr']) ){
+	if( $ltple->profile->id > 0 ){
 		
 		echo'<div style="background: transparent;padding: 8px 15px;margin: 0;position: absolute;width: 100%;z-index: 1000;right: 0;left: 0;">';
 	}
@@ -33,7 +33,7 @@
 				
 				echo'<div class="pull-left">';
 
-					echo'<a class="btn btn-sm btn-warning" href="'. $ltple->urls->editor .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Designs" data-content="The gallery is where you can find beautifull designs to start a project. New things are added every week.">';
+					echo'<a style="background:' . $ltple->settings->mainColor . ';border:1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="'. $ltple->urls->editor .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Designs" data-content="The gallery is where you can find beautifull designs to start a project. New things are added every week.">';
 					
 						echo'Desings';
 					
@@ -43,13 +43,15 @@
 				
 				echo'<div class="pull-left">';
 
-					echo'<a style="margin-left:6px;" class="btn btn-sm btn-primary" href="' . $ltple->urls->editor . '?media=user-images" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
+					echo'<a style="margin-left:6px;background: ' . $ltple->settings->mainColor . '99;border: 1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="' . $ltple->urls->editor . '?media=user-images" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
 						
 						echo'Media';
 					
 					echo'</a>';
 				
 				echo'</div>';
+				
+				do_action('ltple_left_navbar');
 			}
 			
 			if( $ltple->layer->id > 0 ){
@@ -75,12 +77,20 @@
 						}
 					} 
 				}
+			}
+
+		echo'</div>';
+		
+		echo'<div class="col-xs-6 col-sm-8 text-right" style="padding:0 5px;">';
+			
+			if( isset($_GET['uri']) && $ltple->layer->id > 0 ){
+
 			
 				if( !empty($elemLibraries) && ( isset($_GET['edit']) || $this->user->plan["info"]["total_price_amount"] == 0 || $this->layer->type != 'cb-default-layer' ) ){
 					
 					echo'<div class="pull-left">';
 					
-						echo '<a style="margin-left:6px;" id="elementsBtn" class="btn btn-sm btn-info" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Elements</a>';
+						echo '<a style="margin-left:6px;border:1px solid #761b86;background:#9C27B0;" id="elementsBtn" class="btn btn-sm" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Elements</a>';
 				
 						echo '<div id="LiveTplEditorDndDialog" title="Elements library" style="display:none;">';
 						echo '<div id="LiveTplEditorDndPanel">';
@@ -162,14 +172,7 @@
 						echo '</div>';				
 				
 					echo'</div>';
-				}
-			}
-
-		echo'</div>';
-		
-		echo'<div class="col-xs-6 col-sm-8 text-right" style="padding:0 5px;">';
-			
-			if( isset($_GET['uri']) && $ltple->layer->id > 0 ){			
+				}			
 			
 				if( is_admin() || ( $ltple->layer->type != 'cb-default-layer' && $ltple->user->plan["info"]["total_price_amount"] > 0 )){
 
@@ -196,7 +199,7 @@
 								
 								echo'<div id="navLoader" style="float:left;margin-right:10px;display:none;"><img src="' . $this->assets_url . 'loader.gif" style="height: 20px;"></div>';				
 								
-								echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Save</button>';
+								echo'<button style="background-color:#5869ca;border: 1px solid #3F51B5;" class="btn btn-sm" type="button" id="saveBtn">Save</button>';
 								
 							echo'</form>';
 						}
@@ -205,13 +208,13 @@
 						
 						// view button
 						
-						echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:0px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+						echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:1px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 						
 						// delete button
 						
 						if( $ltple->layer->type == 'user-layer' ){
 
-							echo '<a class="btn btn-sm btn-danger" href="#removeCurrentTpl" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</a>';
+							echo '<a style="border: 1px solid #c70000;background: #f44336;" class="btn btn-sm" href="#removeCurrentTpl" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</a>';
 						
 							echo'<div style="display:none;" id="removeCurrentTpl" title="Remove current template">';
 								
@@ -250,7 +253,7 @@
 							
 							echo'<div id="navLoader" style="float:left;margin-right:10px;display:none;"><img src="' . $this->assets_url . 'loader.gif" style="height: 20px;"></div>';
 							
-							echo'<button style="background-color: #3F51B5;border: 1px solid #5869ca;margin-right:5px;" class="btn btn-sm btn-primary" type="button" id="saveBtn">Update</button>';
+							echo'<button style="background-color:#5869ca;border:1px solid #3F51B5;" class="btn btn-sm" type="button" id="saveBtn">Update</button>';
 						}
 						else{
 							
@@ -261,18 +264,20 @@
 					
 					// view button
 					
-					echo '<a target="_blank" class="btn btn-sm btn-default" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:0px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+					echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:1px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 					
 				}				
 			}
 			
 			if( $ltple->user->ID > 0  ){
-			
+				
+				do_action('ltple_right_navbar');
+				 
 				if( !empty($ltple->user->layers) && !is_admin() ){ 
 
 					echo'<div style="margin:0 2px;" class="btn-group">';
 					
-						echo'<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load <span class="caret"></span></button>';
+						echo'<button style="border: 1px solid #3d8840;" type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load <span class="caret"></span></button>';
 						
 						echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 							
@@ -310,7 +315,7 @@
 			
 				echo'<div style="margin:0 2px;" class="btn-group">';
 				
-					echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:2px;font-size:15px;height:26px;background:transparent;border:none;color:rgb(177, 177, 177);"><span class="glyphicon glyphicon-cog icon-cog" aria-hidden="true"></span></button>';
+					echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:2px;font-size:14px;height:28px;background:#345774;border:1px solid #1b2e3e;color: #fff;"><span class="glyphicon glyphicon-cog icon-cog" aria-hidden="true"></span></button>';
 										
 					echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 						
@@ -377,30 +382,3 @@
 		echo'</div>';
 		
 	echo'</div>';
-
-	if( $ltple->user->plan["info"]["total_price_amount"] == 0 ){
-
-		echo'<div class="row" style="background-color: #65c5e8;font-size: 18px;color: #fff;padding: 20px;">';
-			
-			echo'<div class="col-xs-1 text-right">';
-			
-				echo'<span style="font-size:40px;" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ';
-			
-			echo'</div>';
-			
-			echo'<div class="col-xs-9">';
-
-				echo'You are using a Demo version of ' . strtoupper(get_bloginfo( 'name' )) . '. Many features are missing such as: </br>';
-				echo'Save & Load templates, Generate Meme images, Insert images from the Media Library, Copy CSS...';
-			
-			echo'</div>';
-			
-			echo'<div class="col-xs-2 text-right">';
-			
-				echo'<a class="btn btn-success btn-lg" href="' . $ltple->urls->plans . '"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> Upgrade now</a>';
-			
-			echo'</div>';
-			
-		echo'</div>';
-
-	}

@@ -18,7 +18,7 @@
 
 					echo '<div style="display:block;margin:30px;">';
 					
-						echo '<a style="display:block;width:100%;" class="btn-lg btn-success" href="' . $this->parent->urls->plans . '" target="_parent" title="View plans">View plans</a>';
+						echo '<a style="display:block;width:100%;" class="btn-lg btn-success" href="' . $ltple->urls->plans . '" target="_parent" title="View plans">View plans</a>';
 					
 					echo '</div>';
 					

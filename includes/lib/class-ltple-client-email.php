@@ -10,6 +10,7 @@ class LTPLE_Client_Email {
 	var $imported;
 	var $dnsList = array();
 	var $maxRequests = 100;
+	var $notification_settings = null;	
 	
 	/**
 	 * Constructor function
@@ -202,6 +203,46 @@ class LTPLE_Client_Email {
 		return $this->dnsList[$domain];
 	}
 	
+	public function get_notification_settings( $field = 'default' ){
+		
+		// get notification settings
+		
+		if( is_null($this->notification_settings) ){
+			
+			$this->notification_settings = array( 
+			
+				'series' => array(
+				
+					'default' 		=> 'false',
+					'description' 	=> 'Receive news about the platform and stay informed',
+				)
+			);
+			
+			do_action('ltple_notification_settings');
+		}
+		
+		// output notification settings
+		
+		$notification_settings = array();
+		
+		if( $field == 'all' ){
+			
+			$notification_settings = $this->notification_settings;
+		}
+		elseif( !empty($this->notification_settings) ){
+			
+			foreach($this->notification_settings as $key => $data ){
+				
+				if( isset($data[$field]) ){
+					
+					$notification_settings[$key] = $data[$field];
+				}
+			}
+		}
+		
+		return $notification_settings;
+	}
+	
 	public function init_email(){
 		
 		// newsletter subscription
@@ -216,6 +257,12 @@ class LTPLE_Client_Email {
 			}
 			
 			update_user_meta($this->parent->user->ID, $this->parent->_base . '_can_spam', $can_spam);
+			
+			$notify = $this->parent->users->get_user_notification_settings($this->parent->user->ID);
+			
+			$notify['series'] = $can_spam;
+			
+			update_user_meta($this->parent->user->ID, $this->parent->_base . 'notify', $notify);			
 		}
 		
 		// newsletter unsubscription
@@ -226,13 +273,48 @@ class LTPLE_Client_Email {
 			
 			if(is_numeric($unsubscriber_id)){
 				
-				update_user_meta(intval($unsubscriber_id), $this->parent->_base . '_can_spam', 'false');
+				$channel = 'series';
+				
+				if( !empty($_GET['channel']) ){
+					
+					$channel = $this->parent->ltple_decrypt_uri(sanitize_text_field($_GET['channel']));
+				}
+				
+				if( !empty($channel) ){
+				
+					if( $channel == 'series' ){
+						
+						// update can_spam parameter
+						
+						update_user_meta(intval($unsubscriber_id), $this->parent->_base . '_can_spam', 'false');
+					}
+					
+					// update notify settings
+					
+					$notify = $this->parent->users->get_user_notification_settings($unsubscriber_id);
+					
+					$notify[$channel] = 'false';
+					
+					update_user_meta($unsubscriber_id, $this->parent->_base . 'notify', $notify);					
+						
+					// output message
+						
+					$this->parent->message ='<div class="alert alert-success">';
 
-				$this->parent->message ='<div class="alert alert-success">';
+						$this->parent->message .= '<b>Congratulations</b>! You successfully unsbuscribed from the newsletter';
 
-					$this->parent->message .= '<b>Congratulations</b>! You successfully unsbuscribed from the newsletter';
+					$this->parent->message .='</div>';
+				}
+				else{
+					
+					// output error message
+						
+					$this->parent->message ='<div class="alert alert-warning">';
 
-				$this->parent->message .='</div>';
+						$this->parent->message .= 'This subscription channel could not be found...';
+
+					$this->parent->message .='</div>';					
+				}
 			}
 		}		
 		
@@ -382,6 +464,7 @@ class LTPLE_Client_Email {
 		
 		if( !is_null($user) ){
 			
+			$shortcodes[] 	= '*|NAME|*';
 			$shortcodes[] 	= '*|FNAME|*';
 			$shortcodes[] 	= '*|LNAME|*';
 			$shortcodes[] 	= '*|EMAIL|*';			
@@ -394,8 +477,9 @@ class LTPLE_Client_Email {
 		
 		if( !is_null($user) ){
 			
-			$data[] 		= ( $user->first_name !='' ? ucfirst($user->first_name) : ucfirst($user->user_nicename) );
-			$data[]			= ( $user->last_name  !='' ? ucfirst($user->last_name ) : '' );
+			$data[] 		= ( $user->nickname 	!='' ? ucfirst($user->nickname) : ucfirst($user->user_nicename) );
+			$data[] 		= ( $user->first_name 	!='' ? ucfirst($user->first_name) : ucfirst($user->user_nicename) );
+			$data[]			= ( $user->last_name  	!='' ? ucfirst($user->last_name ) : '' );
 			$data[]			= 	$user->user_email;
 		}
 		
@@ -423,9 +507,11 @@ class LTPLE_Client_Email {
 		return $title;
 	}
 	
-	public function get_footer($user){
+	public function get_footer($user,$channel='series'){
 		
-		$footer = '<div style="text-align:center;"><a style="font-size: 11px;" href="' . $this->parent->urls->editor . '?unsubscribe=' . $this->parent->ltple_encrypt_uri($user->ID) . '">Unsubscribe from this Newsletter</a></div>';
+		$unsubscribe_url = $this->parent->urls->editor . '?unsubscribe=' . $this->parent->ltple_encrypt_uri($user->ID) . '&channel=' . $this->parent->ltple_encrypt_uri($channel);
+		
+		$footer = '<div style="text-align:center;"><a style="font-size: 11px;" href="' . $unsubscribe_url . '">Unsubscribe from this Newsletter</a></div>';
 		
 		return $footer;
 	}
@@ -481,7 +567,7 @@ class LTPLE_Client_Email {
 					//$headers[] = 'MIME-Version: 1.0';
 					$headers[] = 'Content-type: text/html';
 					
-					$preMessage = "<html><body><div style='width:100%;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$this->get_footer($user)."<div style='clear:both'></div></div></body></html>";
+					$preMessage = "<html><body><div style='width:100%;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$this->get_footer($user,'series')."<div style='clear:both'></div></div></body></html>";
 			
 					if(!wp_mail($user->user_email, $Email_title, $preMessage, $headers)){
 						
@@ -683,7 +769,7 @@ class LTPLE_Client_Email {
 
 								$message .= '<td style="font-family: Arial, sans-serif;height:150px;font-size:16px;color:#666666;text-align:center;border:0;background-color:#FFFFFF;">';
 																								
-									$message .=  '<a style="background: #ff9800;color: #fff;padding: 17px;text-decoration: none;border-radius: 5px;font-weight: bold;font-size: 20px;" href="'.$editor_url.'">Start Editing </a>' . PHP_EOL . PHP_EOL;
+									$message .=  '<a style="background: ' . $this->parent->settings->mainColor . ';color: #fff;padding: 17px;text-decoration: none;border-radius: 5px;font-weight: bold;font-size: 20px;" href="'.$editor_url.'">Start Editing </a>' . PHP_EOL . PHP_EOL;
 
 								$message .=  '</td>';
 							$message .=  '</tr>';
@@ -713,7 +799,7 @@ class LTPLE_Client_Email {
 			//$headers[] = 'MIME-Version: 1.0';
 			$headers[] = 'Content-type: text/html';
 
-			$preMessage = "<html><body><div style='width:700px;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$this->get_footer($user)."<div style='clear:both'></div></div></body></html>";
+			$preMessage = "<html><body><div style='width:700px;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$this->get_footer($user,'series')."<div style='clear:both'></div></div></body></html>";
 			
 			if(!wp_mail($user->user_email, $Email_title, $preMessage, $headers)){
 				
@@ -1100,12 +1186,12 @@ class LTPLE_Client_Email {
 
 												$invitation_content .= '<td style="font-family: Arial, sans-serif;height:150px;font-size:16px;color:#666666;text-align:center;border:0;background-color:#FFFFFF;">';
 																												
-													$invitation_content .=  '<a style="background: #ff9800;color: #fff;padding: 17px;text-decoration: none;border-radius: 5px;font-weight: bold;font-size: 20px;" href="'.$editor_url.'">Let\'s do it! </a>' . PHP_EOL . PHP_EOL;
+													$invitation_content .=  '<a style="background: ' . $this->parent->settings->mainColor . ';color: #fff;padding: 17px;text-decoration: none;border-radius: 5px;font-weight: bold;font-size: 20px;" href="'.$editor_url.'">Let\'s do it! </a>' . PHP_EOL . PHP_EOL;
 
 												$invitation_content .=  '</td>';
 											$invitation_content .=  '</tr>';
 										$invitation_content .=  '</table>';
-										
+										 
 									$invitation_content .=  '<td>';
 								$invitation_content .=  '<tr>';
 							$invitation_content .=  '</table>';

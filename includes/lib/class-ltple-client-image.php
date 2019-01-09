@@ -158,11 +158,9 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					}
 				}
 			}
-			elseif( isset($_REQUEST['my-profile']) ){
-				
-				add_action( 'ltple_user_loaded', array( $this, 'upload_avatar_image' ), 0 );
-				add_action( 'ltple_user_loaded', array( $this, 'upload_banner_image' ), 0 );
-			}
+			
+			add_action( 'ltple_update_profile', array( $this, 'upload_avatar_image' ), 0 );
+			add_action( 'ltple_update_profile', array( $this, 'upload_banner_image' ), 0 );
 		}
 	}
 	
@@ -613,24 +611,99 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		return false;
 	}
 	
-	public function get_avatar_path($user_id){
+	public function get_avatar_path($user_id,$md5=''){
 		
 		if( is_numeric($user_id) ){
 			
-			return $this->dir . $user_id . '/avatar.png';
+			if( !empty($md5) ){
+				
+				$md5 = '_' . $md5;
+			}
+			
+			return $this->dir . $user_id . '/avatar'.$md5.'.png';
 		}
 
 		return false;
 	}
 	
-	public function get_avatar_url($user_id){
+	public function get_local_avatar_url($user_id){
+			
+		if( file_exists($this->get_avatar_path($user_id)) ){
 		
+			$url = $this->url . $user_id . '/avatar.png';
+		}
+		else{
+			
+			$url = $this->parent->assets_url . 'images/avatar.png';
+		}
+			
+		return $url;
+	}
+	
+	public function get_avatar_url($user_id){
+
 		if( is_numeric($user_id) ){
 			
-			return $this->url . $user_id . '/avatar.png';
+			if( !$url = get_user_meta( $user_id , $this->parent->_base . 'profile_picture', true ) ){
+				
+				$url = $this->get_local_avatar_url($user_id);
+			}
+			else{
+				
+				$url = $this->parse_avatar_url($url,$user_id);
+			}
+		}
+		else{
+			
+			$url = $this->parent->assets_url . 'images/avatar.png';
 		}
 
-		return false;
+		return $url;
+	}
+	
+	public function parse_avatar_url($url,$user_id){
+		
+		$md5 = md5(str_replace(array('http://','https://'),'',$url));
+		
+		$path = $this->get_avatar_path($user_id,$md5);
+		
+		if( file_exists($path) ){
+			
+			$url = $this->url . $user_id . '/avatar_'.$md5.'.png';
+		}
+		else{
+			
+			$image = wp_get_image_editor( $url );
+			
+			if ( !is_wp_error( $image ) ){
+				
+				// resize image
+				
+				$image->resize( 125, 125, true );
+				$image->save( $path );
+
+				$url = $this->url . $user_id . '/avatar_'.$md5.'.png';
+			}
+			else{
+				
+				$default_url = $this->parent->assets_url . 'images/avatar.png';
+				
+				$image = wp_get_image_editor( $default_url );
+				
+				if ( !is_wp_error( $image ) ){
+					
+					$image->save( $path );
+					
+					$url = $this->url . $user_id . '/avatar_'.$md5.'.png';
+				}
+				else{
+					
+					$url = $default_url;
+				}
+			}
+		}
+		
+		return $url;
 	}
 	
 	public function get_banner_path($user_id){

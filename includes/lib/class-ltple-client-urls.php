@@ -161,6 +161,53 @@ class LTPLE_Client_Urls {
 		
 		$this->product 	= $this->home . '/' . $product . '/';
 		
+		// get profile url
+		
+		$profile = get_option( $this->parent->_base . 'profileSlug' );
+		
+		if( empty( $profile ) ){
+			
+			$post_id = wp_insert_post( array(
+			
+				'post_title' 		=> 'Profile',
+				'post_type'     	=> 'page',
+				'comment_status' 	=> 'closed',
+				'ping_status' 		=> 'closed',
+				'post_content' 		=> '[ltple-client-profile]',
+				'post_status' 		=> 'publish',
+				'menu_order' 		=> 0
+			));
+			
+			$profile = update_option( $this->parent->_base . 'profileSlug', get_post($post_id)->post_name );
+		}
+		
+		$this->profile 	= $this->home . '/' . $profile . '/';
+		
+		// get ranking url
+		
+		if( $this->parent->settings->options->enable_ranking == 'on' ){
+			
+			$ranking = get_option( $this->parent->_base . 'rankingSlug' );
+			
+			if( empty( $ranking ) ){
+				
+				$post_id = wp_insert_post( array(
+				
+					'post_title' 		=> 'Ranking',
+					'post_type'     	=> 'page',
+					'comment_status' 	=> 'closed',
+					'ping_status' 		=> 'closed',
+					'post_content' 		=> '[ltple-client-ranking]',
+					'post_status' 		=> 'publish',
+					'menu_order' 		=> 0
+				));
+				
+				$ranking = update_option( $this->parent->_base . 'rankingSlug', get_post($post_id)->post_name );
+			}
+			
+			$this->ranking 	= $this->home . '/' . $ranking . '/';
+		}
+		
 		// get addon urls
 		
 		do_action('ltple_urls');

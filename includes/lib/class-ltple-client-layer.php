@@ -1459,12 +1459,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			"metabox" =>
 			
 				array('name'=>"layer-margin"),
-				'id'		=>"layerMargin",
-				'label'		=>"",
-				'type'		=>'margin',
-				'placeholder'=>'0px',
-				'default'	=>'-120px 0px -20px 0px',
-				'description'=>''
+				'id'			=>"layerMargin",
+				'label'			=>"",
+				'type'			=>'text',
+				'placeholder'	=>'0px',
+				'default'		=>'-120px 0px -20px 0px',
+				'description'	=>''
 		);
 		
 		$fields[]=array( 

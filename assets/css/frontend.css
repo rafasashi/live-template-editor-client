@@ -1,3 +1,16 @@
+.fixed-table-toolbar {
+    margin-top: -48px;
+    margin-bottom: -6px;
+    margin-right: 5px;
+    display: inline-block;
+    float: right;
+}
+
+.fixed-table-toolbar .btn {
+
+	padding: 8px 15px;
+}
+
 .fixed-table-toolbar .columns label {color:#fff;}
 
 .alert{margin-bottom:0 !important;}

@@ -9,7 +9,7 @@
 		$_SESSION['message'] ='';
 	}
 
-	$tab = ( !empty($_GET['rank']) ? $_GET['rank'] : 'world-ranking' );
+	$tab = ( !empty($_GET['tab']) ? $_GET['tab'] : 'world-ranking' );
 	
 	echo'<div id="media_library">';
 
@@ -19,17 +19,17 @@
 				
 				echo'<li class="gallery_type_title">Ranking System</li>';
 				
-				echo'<li' . ( $tab == 'world-ranking' ? ' class="active"' : '' ) . '><a href="' . $this->urls->editor . '?rank=world-ranking" >World Ranking</a></li>';
+				echo'<li' . ( $tab == 'world-ranking' ? ' class="active"' : '' ) . '><a href="' . $this->parent->urls->ranking . '?tab=world-ranking" >World Ranking</a></li>';
 				
-				if($this->user->loggedin){
+				if($this->parent->user->loggedin){
 				
-					echo'<li' . ( $tab == 'ranking-rules' ? ' class="active"' : '' ) . '><a href="' . $this->urls->editor . '?rank=ranking-rules" >Rules & Points</a></li>';
+					echo'<li' . ( $tab == 'ranking-rules' ? ' class="active"' : '' ) . '><a href="' . $this->parent->urls->ranking . '?tab=ranking-rules" >Rules & Points</a></li>';
 
 					echo'<li class="gallery_type_title">Referral Tools</li>';
 				
-					echo'<li' . ( $tab == 'my-ref-urls' ? ' class="active"' : '' ) . '><a href="' . $this->urls->editor . '?rank=my-ref-urls" >My Referral urls</a></li>';
+					echo'<li' . ( $tab == 'my-ref-urls' ? ' class="active"' : '' ) . '><a href="' . $this->parent->urls->ranking . '?tab=my-ref-urls" >My Referral urls</a></li>';
 					
-					echo'<li' . ( $tab == 'invite-contacts' ? ' class="active"' : '' ) . '><a href="' . $this->urls->editor . '?rank=invite-contacts" >Invite Contacts <span class="label label-success pull-right">new</span></a></li>';
+					echo'<li' . ( $tab == 'invite-contacts' ? ' class="active"' : '' ) . '><a href="' . $this->parent->urls->ranking . '?tab=invite-contacts" >Invite Contacts <span class="label label-success pull-right">new</span></a></li>';
 				}
 				
 			echo'</ul>';
@@ -63,13 +63,13 @@
 								
 									array(
 									
-										'key' 		=> $this->_base . 'stars',
+										'key' 		=> $this->parent->_base . 'stars',
 										'value' 	=> 0,
 										'compare' 		=> '>',
 									),
 									array(
 									
-										'key' 		=> $this->_base . '_last_seen',
+										'key' 		=> $this->parent->_base . '_last_seen',
 										'value' 	=> 0,
 										'compare' 		=> '>',
 									)
@@ -82,7 +82,7 @@
 								
 								$pageLinks = paginate_links( array(
 								
-									'base' 		=> $this->urls->editor . '?' . remove_query_arg('t', $_SERVER['QUERY_STRING']) . '%_%',
+									'base' 		=> $this->parent->urls->ranking . '?' . remove_query_arg('t', $_SERVER['QUERY_STRING']) . '%_%',
 									'format' 	=> '&t=%#%', // this defines the query parameter that will be used, in this case "p"
 									'prev_text' => __('&laquo; Previous'), // text for previous page
 									'next_text' => __('Next &raquo;'), // text for next page
@@ -122,19 +122,14 @@
 										foreach( $q->results as $id => $user ){
 
 											$rank 	= $id + 1 + $offset;
-											$stars 	= $user->{$this->_base . 'stars'};
+											$stars 	= $user->{$this->parent->_base . 'stars'};
 											
-											$picture = get_user_meta( $user->ID , $this->_base . 'profile_picture', true );
-											
-											if( empty($picture) ){
-												
-												$picture = get_avatar_url( $user->ID );
-											}									
+											$picture = $this->parent->image->get_avatar_url( $user->ID );							
 
 											echo'<tr>';
 											
 												echo'<td style="font-size:16px;font-weight:bold;text-align:center;"># '.$rank.'</td>';
-												echo'<td style="font-size:15px;padding:1px;"><a href="' . $this->urls->editor . '?pr='.$user->ID.'">' . '<img src="'.$picture.'" height="35" width="35" /> '. ucfirst( $user->user_nicename ) . '</a></td>';
+												echo'<td style="font-size:15px;padding:1px;"><a href="' . $this->parent->urls->profile . $user->ID . '/">' . '<img src="'.$picture.'" height="35" width="35" /> '. ucfirst( $user->nickname ) . '</a></td>';
 												echo'<td style="text-align:center;">'.( !empty($user->user_url) ? '<a target="_blank" href="'.$user->user_url . '"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>' : '').'</td>';
 												echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;"><span class="glyphicon glyphicon-star" aria-hidden="true"></span> ' . $stars . '</span></td>';
 											
@@ -155,7 +150,7 @@
 					
 				}
 				
-				if($this->user->loggedin){
+				if($this->parent->user->loggedin){
 				
 					//---------------------- output ranking system --------------------------
 					
@@ -181,7 +176,7 @@
 							
 							echo'<div class="tab-content row" style="padding:0 15px;">';
 
-								foreach( $this->stars->triggers as $group => $trigger ){
+								foreach( $this->parent->stars->triggers as $group => $trigger ){
 									
 									echo'<table class="table table-striped table-bordered">';
 										
@@ -199,7 +194,7 @@
 											
 											foreach( $trigger as $key => $data){
 												
-												$stars = get_option($this->_base . $key . '_stars');
+												$stars = get_option($this->parent->_base . $key . '_stars');
 												
 												if( !empty($stars) && $stars!==0 ){
 													
@@ -253,7 +248,7 @@
 									
 										echo'<h3>My Referral ID</h3>';
 									
-										echo'<input class="form-control" type="text" value="' . $this->user->refId . '" />';
+										echo'<input class="form-control" type="text" value="' . $this->parent->user->refId . '" />';
 									
 									echo'</div>';
 									
@@ -261,7 +256,7 @@
 								
 										echo'<h3>My ref link to the main page</h3>';
 									
-										echo'<input class="form-control" type="text" value="' . $this->urls->editor . '?ri=' . $this->user->refId . '" />';
+										echo'<input class="form-control" type="text" value="' . $this->parent->urls->editor . '?ri=' . $this->parent->user->refId . '" />';
 									
 									echo'</div>';
 									
@@ -269,7 +264,7 @@
 								
 										echo'<h3>My ref link to the login page</h3>';
 									
-										echo'<input class="form-control" type="text" value="' . $this->urls->login . '?ri=' . $this->user->refId . '" />';
+										echo'<input class="form-control" type="text" value="' . $this->parent->urls->login . '?ri=' . $this->parent->user->refId . '" />';
 									
 									echo'</div>';
 									
@@ -277,7 +272,7 @@
 								
 										echo'<h3>My ref link to the plans</h3>';
 									
-										echo'<input class="form-control" type="text" value="' . $this->urls->plans . '?ri=' . $this->user->refId . '" />';
+										echo'<input class="form-control" type="text" value="' . $this->parent->urls->plans . '?ri=' . $this->parent->user->refId . '" />';
 									
 									echo'</div>';
 									
@@ -318,7 +313,7 @@
 									
 									// get import emails
 									
-									echo $this->email->get_invitation_form();								
+									echo $this->parent->email->get_invitation_form();								
 								
 								echo'</div>';			
 

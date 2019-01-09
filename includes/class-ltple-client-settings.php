@@ -45,7 +45,7 @@ class LTPLE_Client_Settings {
 		// get options
 		
 		$this->options 				 	= new stdClass();
-		$this->options->emailSupport 	= get_option( $this->parent->_base . 'email_support');	
+		$this->options->emailSupport 	= str_replace('@gmail.com','+'.time().'@gmail.com',get_option( $this->parent->_base . 'email_support'));	
 		
 		$this->options->postTypes = array();
 		
@@ -94,8 +94,6 @@ class LTPLE_Client_Settings {
 				$custom_post_types['default-image'] 	= '';
 				$custom_post_types['user-image'] 		= '';
 				$custom_post_types['user-url'] 			= '';
-				
-				
 				
 				$custom_post_types['email-model'] 		= '';
 				$custom_post_types['email-campaign'] 	= '';

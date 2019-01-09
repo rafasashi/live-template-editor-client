@@ -1,5 +1,6 @@
-<div class="modal-backdrop in"></div>
-<div class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="channelModal" style="display:block;">
+<div id="newsletterPreferencesBackdrop" class="modal-backdrop in"></div>
+
+<div id="newsletterPreferences" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="channelModal" style="display:block;">
 	
 	<div class="modal-dialog modal-lg" role="document">
 		
@@ -7,7 +8,7 @@
 		
 			<div class="modal-header">
 
-				<h4 class="modal-title" id="channelModal">Welcome <?php echo $this->user->display_name; ?>!</h4>
+				<h4 class="modal-title" id="channelModal">Newsletter Preferences</h4>
 			
 			</div>
 		  
@@ -35,7 +36,7 @@
 						
 						<span class="input-group-btn">
 							
-							<button class="btn btn-primary" type="button" id="submitBtn">Submit</button>
+							<button class="btn btn-primary" type="button" id="submitNewsletterPreferences">Submit</button>
 							
 						</span>
 						
@@ -66,9 +67,26 @@
 
 		$(document).ready(function(){
 			
-			$('#submitBtn').on('click', function (e) {
+			$('#submitNewsletterPreferences').on('click', function (e) {
 				
-				this.closest( "form" ).submit();
+				e.preventDefault();
+				
+				$form = $(this).closest("form");
+
+				$.ajax({
+					
+					type 		: $form.attr('method'),
+					url  		: $form.attr('action'),
+					data		: $form.serialize(),
+					beforeSend	: function() {
+
+						$('#newsletterPreferences').css('display','none');
+						$('#newsletterPreferencesBackdrop').css('display','none');
+					},
+					success: function(data) {
+						
+					}
+				});
 			});
 		});
 		

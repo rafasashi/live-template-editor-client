@@ -319,6 +319,13 @@
 			endwhile; wp_reset_query();						
 		}
 	}
+	
+	//ouput demo message
+	
+	if( $this->user->loggedin && $this->user->plan["info"]["total_price_amount"] == 0 ){
+		
+		//$this->get_demo_message();
+	}
 
 	// output gallery 
 	 
@@ -358,7 +365,7 @@
 							
 							echo '<li'.$class.'>';
 							
-								echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge pull-right" style="margin-top: 4px;padding: 1px 5px;font-size:11px;">' . $layer_count . '</span></a>';
+								echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge pull-right hidden-xs" style="margin-top: 4px;padding: 1px 5px;font-size:11px;">' . $layer_count . '</span></a>';
 								
 							echo '</li>';					
 						}
@@ -366,7 +373,7 @@
 							
 							echo '<li'.$class.'>';
 							
-								echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge pull-right" style="margin-top: 4px;padding: 1px 5px;font-size:11px;">' . $layer_count . '</span> <span class="label label-warning pull-right" style="margin-right:8px;padding: 2px 4px;font-size: 10px;"> admin </span></a>';
+								echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge pull-right hidden-xs" style="margin-top: 4px;padding: 1px 5px;font-size:11px;">' . $layer_count . '</span> <span class="label label-warning pull-right hidden-xs" style="margin-right:8px;padding: 2px 4px;font-size: 10px;"> admin </span></a>';
 								
 							echo '</li>';						
 						}

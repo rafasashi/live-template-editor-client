@@ -54,12 +54,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				if( isset($item->{$field['id']}) ){
 					
 					$option = $item->{$field['id']};
+					
 				}
 				else{
 					
 					$option = get_user_meta( $item->ID, $field['id'], true );
+					
 				}
-
+				
 				// Get data to display in field
 				if ( isset( $option ) ) {
 					
@@ -136,7 +138,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 			// Show default data if no option saved and default is supplied
 
-			if ( empty($data) && isset( $field['default'] ) ) {
+			if( $data === '' && isset( $field['default'] ) ) {
 				
 				$data = $field['default'];
 				
@@ -201,18 +203,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						}
 						
 					$html .= '</div>' . "\n";
-				break;
-				
-				case 'margin':
-					
-					$value = esc_attr( $data );
-					
-					if($value == ''){
-						
-						$value = esc_attr( $field['default'] );
-					}
-					
-					$html .= '<input class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . $value . '" '.$required.$disabled.'/>' . "\n";
 				break;
 				
 				case 'password':
@@ -1593,7 +1583,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				case 'avatar':
 					
 					$checked = array();
-					
+
 					foreach ( $field['options'] as $k => $v ) {
 
 						if( $k === 0){
@@ -1629,7 +1619,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 						$html .= '<div class="input-group-btn">';
 						
-							$html .= '<input class="btn btn-sm btn-default" value="Upload" type="submit">';
+							$html .= '<input style="height: 26px;line-height: 0px;" class="btn btn-sm btn-default" value="Upload" type="submit">';
 						
 						$html .= '</div>';
 						
@@ -1647,7 +1637,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 						$html .= '<div class="input-group-btn">';
 						
-							$html .= '<input class="btn btn-sm btn-default" value="Upload" type="submit">';
+							$html .= '<input style="height: 26px;line-height: 0px;" class="btn btn-sm btn-default" value="Upload" type="submit">';
 						
 						$html .= '</div>';
 						

@@ -84,6 +84,7 @@ class LTPLE_Client {
 	public $layer;
 	public $message;
 	public $dialog;
+	public $title;
 	public $triggers;
 	
 	/**
@@ -220,7 +221,7 @@ class LTPLE_Client {
 		return $secret_iv;
 	}	
 	
-	private function ltple_encrypt_str($string, $secret_key = ''){
+	public function ltple_encrypt_str($string, $secret_key = ''){
 		
 		$output = false;
 
@@ -299,18 +300,29 @@ class LTPLE_Client {
 		
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
-
+		
+		add_action( 'login_enqueue_scripts', array( $this, 'get_login_logo' ) );
+		add_filter( 'login_headerurl', array( $this, 'get_login_logo_url' ) );
+		add_filter( 'login_headertitle', array( $this, 'get_login_logo_url_title' ) );
+		
+		// add head
+		
+		remove_action( 'wp_head', '_wp_render_title_tag', 1 );
 		add_action( 'wp_head', array( $this, 'get_header') );
 		
-		add_filter( 'wp_nav_menu', array( $this, 'get_menu' ), 10, 2);
+		// add menu
 		
-		add_action( 'wp_footer', array( $this, 'get_footer') );				
+		add_filter( 'wp_nav_menu', array( $this, 'get_menu' ), 10, 2);			
 
 		// add editor shortcodes
 		
 		add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
 
 		add_shortcode('ltple-client-apps', array( $this , 'get_apps_shortcode' ) );		
+		
+		// add footer
+		
+		add_action( 'wp_footer', array( $this, 'get_footer') );	
 		
 		// Custom default layer template
 		
@@ -393,10 +405,11 @@ class LTPLE_Client {
 				$this->user->is_editor = current_user_can( 'editor', $this->user->ID );			
 			}
 			
-			// get user can spam
+			// get user notification settings
 			
-			$this->user->can_spam = get_user_meta( $this->user->ID, $this->_base . '_can_spam',true);
-
+			$this->user->can_spam 	= get_user_meta( $this->user->ID, $this->_base . '_can_spam',true);
+			$this->user->notify 	= get_user_meta( $this->user->ID, $this->_base . 'notify',true);
+			
 			// get user last seen
 			
 			$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
@@ -494,7 +507,7 @@ class LTPLE_Client {
 		}			
 		else{
 			
-			$url = $this->urls->editor;
+			$url = $this->urls->profile . $user->ID . '/';
 		}
 		
         wp_redirect( $url );
@@ -545,7 +558,7 @@ class LTPLE_Client {
 			
 			if(!WP_DEBUG){
 			
-				$url = $this->urls->editor . '?my-profile';
+				$url = $this->urls->profile;
 				
 				wp_redirect($url);
 				exit;
@@ -848,18 +861,7 @@ class LTPLE_Client {
 	
 	public function editor_templates( $path ){
 
-		if( isset($_GET['pr']) && is_numeric($_GET['pr']) ){
-			
-			$template_id = get_user_meta( intval($_GET['pr']) , 'ltple_profile_template', true );
-			
-			$template_id = floatval($template_id);
-			
-			if( ( $template_id > 0 && isset($this->profile->layer->ID) ) || $template_id == -2 ){
-				
-				$path = $this->views .  '/user-profile.php';
-			}
-		}	
-		elseif( $post_id = url_to_postid( $this->urls->current ) ){
+		if( $post_id = url_to_postid( $this->urls->current ) ){
 			
 			$post = get_post($post_id);
 			
@@ -1013,11 +1015,7 @@ class LTPLE_Client {
 		$this->triggers = new LTPLE_Client_Triggers( $this );
 		
 		//-------------- user attributes -----------------
-		
-		// get user profile
-			
-		$this->user->profile = new LTPLE_Client_User_Profile( $this );
-		
+
 		// get user marketing channel
 		
 		$terms = wp_get_object_terms( $this->user->ID, 'marketing-channel' );
@@ -1109,14 +1107,18 @@ class LTPLE_Client {
 
 		if( !empty($post) ){
 		
+			$service_name = get_bloginfo( 'name' );
+		
 			// output default meta tags
 			
-			$title = ucfirst($post->post_title);
+			$this->title = ucfirst($post->post_title);
 			
-			echo '<title>'.$title.'</title>'.PHP_EOL;
-			echo '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
-			echo '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
-			echo '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;
+			do_action('ltple_header_title');
+			
+			echo '<title>' . $this->title .  ' | ' . $service_name . '</title>'.PHP_EOL;
+			echo '<meta name="subject" content="'.$this->title.'" />'.PHP_EOL;
+			echo '<meta property="og:title" content="'.$this->title.'" />'.PHP_EOL;
+			echo '<meta name="twitter:title" content="'.$this->title.'" />'.PHP_EOL;
 			
 			$author_name = get_the_author_meta('display_name', $post->post_author );
 			$author_mail = get_the_author_meta('user_email', $post->post_author );
@@ -1182,8 +1184,6 @@ class LTPLE_Client {
 			
 			echo '<meta name="classification" content="Business" />' . PHP_EOL;
 			//echo '<meta name="classification" content="products, product classifications, company classification, company type, industry" />' . PHP_EOL;
-			
-			$service_name = get_bloginfo( 'name' );
 			
 			echo '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
 			echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
@@ -1448,6 +1448,26 @@ class LTPLE_Client {
 	
 	public function get_footer(){
 
+		// collect information
+		
+		if($this->user->loggedin){	
+
+			if( empty( $this->user->can_spam ) && !isset($_POST['can_spam']) ){
+				
+				include($this->views . '/modals/newsletter.php');
+			} 
+			
+			/*
+			if( empty( $this->user->channel ) && !isset($_POST['marketing-channel']) ){
+				
+				include($this->views . '/modals/channel.php');
+			}
+			*/
+			
+			do_action('ltple_collect_user_information');
+		}
+		
+		do_action('ltple_footer');
 	}
 	
 	public function get_apps_shortcode(){
@@ -1496,36 +1516,11 @@ class LTPLE_Client {
 		
 		if($this->user->loggedin){	
 			
-			if( !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
-				
-				include($this->views . '/navbar-embedded.php');
-			}
-			else{
-				
-				include($this->views . '/navbar.php');
-			}
-
-			if( empty( $this->user->can_spam ) && !isset($_POST['can_spam']) ){
-				
-				include($this->views . '/modals/newsletter.php');
-			}
-
-			/*
-			if( empty( $this->user->channel ) && !isset($_POST['marketing-channel']) ){
-				
-				include($this->views . '/modals/channel.php');
-			}
-			*/
+			include($this->views . '/navbar.php');
 
 			$this->viewIncluded = false;			
 			
-			if( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
-
-				include($this->views . '/profile.php');
-				
-				$this->viewIncluded = true;	
-			}				
-			elseif( isset($_GET['media']) ){
+			if( isset($_GET['media']) ){
 				
 				include($this->views . '/media.php');
 								
@@ -1537,15 +1532,9 @@ class LTPLE_Client {
 								
 				$this->viewIncluded = true;	
 			}
-			elseif( isset($_GET['rank']) && $this->settings->options->enable_ranking == 'on' ){
-				
-				include($this->views . '/ranking.php');
-								
-				$this->viewIncluded = true;	
-			}
 			elseif( isset($_GET['my-profile']) ){
 				
-				include($this->views . '/settings.php');
+				include($this->views . '/billing.php');
 								
 				$this->viewIncluded = true;	
 			}			
@@ -1577,14 +1566,6 @@ class LTPLE_Client {
 				include($this->views . '/designs.php');
 			}
 		}
-		elseif( isset($_GET['pr']) && !isset($this->profile->layer->ID) ){
-
-			include($this->views . '/profile.php');
-		}
-		elseif( isset($_GET['rank']) ){
-			
-			include($this->views . '/ranking.php');
-		}
 		else{
 			
 			echo'<div style="font-size:20px;padding:20px;margin:0;" class="alert alert-warning">';
@@ -1603,6 +1584,32 @@ class LTPLE_Client {
 			
 			include($this->views . '/designs.php'); 
 		}
+	}
+	
+	public function get_demo_message(){
+		
+		echo'<div class="row" style="background-color: #65c5e8;font-size: 18px;color: #fff;padding: 20px;">';
+			
+			echo'<div class="col-xs-1 text-right">';
+			
+				echo'<span style="font-size:40px;" class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ';
+			
+			echo'</div>';
+			
+			echo'<div class="col-xs-9">';
+
+				echo'You are using a Demo version of ' . strtoupper(get_bloginfo( 'name' )) . '. Many features are missing such as: </br>';
+				echo'Save & Load templates, Generate Meme images, Insert images from the Media Library, Copy CSS...';
+			
+			echo'</div>';
+			
+			echo'<div class="col-xs-2 text-right">';
+			
+				echo'<a class="btn btn-success btn-lg" href="' . $this->urls->plans . '"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> Upgrade now</a>';
+			
+			echo'</div>';
+			
+		echo'</div>';		
 	}
 
 	public function get_dropdown_posts( $args ){
@@ -2557,7 +2564,7 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-jquery-ui' );		
 	
-		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), '1.0.2' );
+		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), '1.0.3' );
 		wp_enqueue_style( $this->_token . '-frontend' );
 	
 		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );
@@ -2637,7 +2644,38 @@ class LTPLE_Client {
 		wp_enqueue_style( $this->_token . '-toggle-switch' );
 		
 	} // End admin_enqueue_scripts ()
-
+	
+	public function get_login_logo(){
+		
+		echo'<style type="text/css">';
+		
+			echo'#login h1 a, .login h1 a {';
+			
+				if( !empty($this->settings->options->logo_url) ){
+					
+					echo'background-image:url('.$this->settings->options->logo_url.');';
+					echo'background-repeat:no-repeat;';
+				}
+				else{
+					
+					echo'display:none;';
+				}
+				
+			echo'}';
+			
+		echo'</style>';		
+	}
+	
+	public function get_login_logo_url() {
+		
+		return home_url();
+	}
+	
+	public function get_login_logo_url_title() {
+		
+		return get_bloginfo('name');
+	}
+		
 	/**
 	 * Load plugin localisation
 	 * @access  public
