@@ -128,10 +128,46 @@
 			$response_body = gzdecode ($response_body);			
 
 			echo $response_body;
-		}
-		elseif( !empty( $this->_dev ) ){
 			
-			echo $this->urls->current;
+			//----------  editor modals  ---------------
+			
+			?>
+			
+			<div class="modal fade" id="media_library_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content">
+					
+						<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+						<h3 class="modal-title text-left">Media library</h3>
+						</div>
+						
+						<div id="media_library_container"></div>
+						<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url('<?php echo $this->assets_url; ?>loader.gif');height:64px;"></div>
+						<iframe id="media_library_iframe" src=""  data-src="<?php echo $this->urls->media; ?>?output=widget" style="margin-top: -64px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height:450px;"></iframe>
+					
+					</div>
+				</div>
+			</div>
+			
+			<div class="modal fade" id="bookmarks_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content">
+					
+						<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+						<h3 class="modal-title text-left">Media Library</h3>
+						</div>
+						
+						<div id="media_library_container"></div>
+						
+						<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url('<?php echo $this->assets_url; ?>loader.gif');height:64px;"></div>
+						<iframe id="bookmarks_iframe" src=""  data-src="<?php echo $this->urls->media; ?>user-payment-urls/?output=widget" style="margin-top: -64px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height:450px;"></iframe>
+					</div>
+				</div>
+			</div>
+			
+			<?php
 		}
 		else{
 			

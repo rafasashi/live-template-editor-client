@@ -9,6 +9,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 	var $mainApps;
 	var $taxonomy;
 	var $list = array();
+	var $userApps = array();
 	
 	/**
 	 * Constructor function
@@ -135,43 +136,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		// get all apps
 		
-		$this->list = $this->get_terms( $this->taxonomy, array(
-
-			'paypal-me' => array(
-			
-				'name' 		=> 'Paypal.me',
-				'options' 	=> array(
-				
-					'thumbnail' => $this->parent->assets_url . 'images/apps/payme.png',
-					'types' 	=> array('payment'),
-					'api_client'=> 'bookmark',
-					'parameters'=> array (
-					
-						'input' => array ( 'url', 'filename' ),
-						'key' 	=> array ( 'resource', 'amount' ),
-						'value' => array ( 'https://www.paypal.me/{username}', '0'),
-					),
-				),
-			),
-			'venmo' => array(
-			
-				'name' 		=> 'Venmo',
-				'options' 	=> array(
-				
-					'thumbnail' => $this->parent->assets_url . 'images/apps/venmo.jpg',
-					'types' 	=> array('payment'),
-					'api_client'=> 'bookmark',
-					'parameters'=> array (
-					
-						'input' => array ( 'url', 'parameter', 'parameter', 'parameter', 'parameter' ),
-						'key' 	=> array ( 'resource', 'txn', 'audience', 'amount', 'note' ),
-						'value' => array ( 'https://venmo.com/{username}', 'pay', 'public|friends|private', '0', ''),
-					),
-				),
-			),
-			
-		),'DESC');
-		
 		do_action('ltple_list_apps');
 		
 		if(is_admin()){
@@ -219,6 +183,8 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 					
 					$this->includeApp($this->app);
 					
+					$this->{$this->app}->init_app();
+					
 					break;
 				}
 			}
@@ -232,37 +198,45 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				$this->app = $terms[0]->slug;
 				
 				$this->includeApp($this->app);
+				
+				if( isset($this->{$this->app}->init_app) ){
+					
+					$this->{$this->app}->init_app();
+				}
 			}
 		}
 	}
 	
-	public function includeApp($appSlug){
+	public function includeApp( $appSlug ){
 		
-		// get api client
+		if( !isset($this->{$appSlug}) ){
 		
-		$apiClient = preg_replace_callback(
-			'/[-_](.)/', 
-			function ($matches) {
-				
-				return '_'.strtoupper($matches[1]);
-			},
-			get_option('api_client_'.$appSlug)
-		);
-
-		// include api client
-
-		$className = 'LTPLE_Integrator_' .  ucfirst( $apiClient );
-		
-		if(class_exists($className)){
+			// get api client
 			
-			include( $this->parent->vendor . '/autoload.php' );
+			$apiClient = preg_replace_callback(
+				'/[-_](.)/', 
+				function ($matches) {
+					
+					return '_'.strtoupper($matches[1]);
+				},
+				get_option('api_client_'.$appSlug)
+			);
+			
+			// include api client
 
-			$this->{$appSlug} = new $className($appSlug, $this->parent, $this);
-		}
-		else{
+			$className = 'LTPLE_Integrator_' .  ucfirst( $apiClient );
+			
+			if(class_exists($className)){
+				
+				include( $this->parent->vendor . '/autoload.php' );
 
-			echo 'Could not found API Client: "'.$apiClient.'"';
-			exit;
+				$this->{$appSlug} = new $className($appSlug, $this->parent, $this);
+			}
+			else{
+
+				echo 'Could not found API Client: "'.$apiClient.'"';
+				exit;
+			}			
 		}
 	}
 	
@@ -354,7 +328,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		$ref_url = urlencode( $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] );
 		
-		$url = $this->parent->urls->editor . '?media='.$tab.'&app='.$appSlug.'&action='.$action.'&ref='.str_replace(urlencode('output=widget'), urlencode('output=default'),$ref_url);
+		$url = $this->parent->urls->media . $tab . '/?app='.$appSlug.'&action='.$action.'&ref='.str_replace(urlencode('output=widget'), urlencode('output=default'),$ref_url);
 		
 		return $url;
 	}
@@ -365,19 +339,91 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		if(is_numeric($user_id)){
 			
-			$apps = get_posts(array(
+			// gety user apps
+			
+			if( !isset($this->userApps[$user_id]) ){
+			
+				if( $apps = get_posts(array(
+						
+					'author'      => $user_id,
+					'post_type'   => 'user-app',
+					'post_status' => 'publish',
+					'numberposts' => -1,
 					
-				'author'      => $user_id,
-				'post_type'   => 'user-app',
-				'post_status' => 'publish',
-				'numberposts' => -1
-			));
+				)) ){
+					
+					foreach( $apps as $app ){
+						
+						// get app type and user name
+						
+						if( strpos($app->post_title,' - ') != false ){
+							
+							list($app->app_slug,$app->user_name) = explode(' - ',$app->post_title);
+							
+							$app->app_name = ucfirst(str_replace('-',' ',$app->app_slug));
+							
+							// get app parameters
+							
+							/*
+							$app->parameters = array();
+							
+							$parameters = get_option('parameters_'.$app->app_slug);
+							
+							if( !empty($parameters['key']) ){
+								
+								foreach($parameters['key'] as $i => $key){
+
+									$app->parameters[$key] = array(
+									
+										'key' 	=> $key,
+										'input' => $parameters['input'][$i],
+										'value' => $parameters['value'][$i],
+									);
+								}
+							}
+							*/
+							
+							// get app data
+							
+							$app->app_data = $this->getAppData($app,$app->post_author,false);
+							
+							// get app class name
+							
+							$className = 'App_' . ucwords(str_replace('-','_',$app->app_slug),'_');
+							
+							if( isset($this->parent->{$className}) ){
+								
+								$methods = array(
+								
+									'user_profile' 	=> 'get_user_profile_url',
+									'social_icon' 	=> 'get_social_icon_url',
+								);
+								
+								// get app data
+								
+								foreach( $methods as $key => $method ){
+
+									$app->{$key} = ( method_exists($this->parent->{$className}, $method) ? $this->parent->{$className}->{$method}($app) : '' );
+								}
+							}
+						}
+					}
+				}
+				
+				$this->userApps[$user_id] = $apps;
+			}
+			else{
+				
+				$apps = $this->userApps[$user_id];
+			}
+			
+			// filter user apps
 
 			if( !empty($apps) && !empty($app_slug) ){
 				
 				foreach($apps as $i => $app){
 
-					if( $app_slug != strtok($app->post_title, ' - ')){
+					if( $app_slug != $app->app_slug ){
 
 						unset($apps[$i]);
 					}
@@ -388,31 +434,27 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return $apps;
 	}
 	
-	public function getAppData($app_id, $user_id = NULL, $array = false ){
+	public function getAppData($app, $user_id = NULL, $array = false ){
 		
 		$app_data = NULL;
 		
-		if( is_numeric($app_id) ){
+		if( is_numeric($app) ){
 			
-			$app = get_post($app_id);				
+			$app = get_post($app);
 
-			if( isset($app->post_author) ){
-
-				if( intval($app->post_author) != intval($user_id) && !in_array_field($app->ID, 'ID', $this->mainApps) ){
-					
-					echo 'User app access restricted...';
-					exit;
-				}
-				else{
-
-					$app_data = json_decode(get_post_meta( $app->ID, 'appData', true ),$array);
-				}
-			}
 		}
-		else{
-			
-			//echo 'Wrong app id request...';
-			//exit;
+
+		if( isset($app->post_author) ){
+
+			if( intval($app->post_author) != intval($user_id) && !in_array_field($app->ID, 'ID', $this->mainApps) ){
+				
+				echo 'User app access restricted...';
+				exit;
+			}
+			else{
+
+				$app_data = json_decode(get_post_meta( $app->ID, 'appData', true ),$array);
+			}
 		}
 
 		return $app_data;

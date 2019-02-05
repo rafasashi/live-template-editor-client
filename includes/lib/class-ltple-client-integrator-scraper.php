@@ -85,6 +85,11 @@ class LTPLE_Integrator_Scraper {
 		}
 	}
 	
+	public function init_app(){
+		
+		return true;
+	}
+	
 	public static function extractEmails( $string, $first_only = false ){
 		
 		$emails = ( $first_only ? '' : [] );
@@ -263,7 +268,7 @@ class LTPLE_Integrator_Scraper {
 				$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 				curl_close($ch);
 				
-				if( $httpcode >= 300 ){
+				if( $httpcode >= 400 ){
 					
 					$this->message .= '<div class="alert alert-warning">';
 						

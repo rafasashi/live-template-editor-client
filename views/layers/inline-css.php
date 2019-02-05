@@ -52,7 +52,7 @@
 	}
 	
 	$layerContent = $ltple->layer->sanitize_content($layerContent);
-
+	
 	// parse content elements
 	
 	libxml_use_internal_errors( true );
@@ -105,7 +105,7 @@
 	$layerCss 	= sanitize_text_field($layerCss);
 	
 	$layerContent = str_replace('<?xml encoding="UTF-8">','',$layerContent);
-	
+
 	// get google fonts
 	
 	$googleFonts = [];
@@ -359,4 +359,3 @@
 		$layer .='</script>' .PHP_EOL;
 		
 	$layer .='</body></html>' .PHP_EOL;
-	

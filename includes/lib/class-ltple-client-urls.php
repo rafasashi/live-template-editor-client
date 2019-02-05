@@ -45,7 +45,7 @@ class LTPLE_Client_Urls {
 			$this->apps = $this->home . '/' . $this->appsSlug . '/';
 		}
 		
-		add_filter('wp_loaded', array( $this, 'init_urls'));
+		add_filter('init', array( $this, 'init_urls'));
 	}
 	
 	public function init_urls(){
@@ -60,8 +60,10 @@ class LTPLE_Client_Urls {
 		}
 		
 		// get editor url
+
+		$editor = get_option( $this->parent->_base . 'editorSlug' );
 		
-		if( empty( $this->editor ) ){
+		if( empty( $editor ) ){
 			
 			$post_id = wp_insert_post( array(
 			
@@ -74,12 +76,16 @@ class LTPLE_Client_Urls {
 				'menu_order' 		=> 0
 			));
 			
-			$this->editor = $this->home . '/' . update_option( $this->parent->_base . 'editorSlug', get_post($post_id)->post_name );
+			$editor = update_option( $this->parent->_base . 'editorSlug', get_post($post_id)->post_name );
 		}
+		
+		$this->editor = $this->home . '/' . $editor . '/';		
 		
 		// get apps url
 		
-		if( empty( $this->apps ) ){
+		$apps = get_option( $this->parent->_base . 'appsSlug' );
+
+		if( empty( $apps ) ){
 			
 			$post_id = wp_insert_post( array(
 			
@@ -92,8 +98,10 @@ class LTPLE_Client_Urls {
 				'menu_order' 		=> 0
 			));
 			
-			$this->apps = $this->home . '/' . update_option( $this->parent->_base . 'appsSlug', get_post($post_id)->post_name );
+			$apps = update_option( $this->parent->_base . 'appsSlug', get_post($post_id)->post_name );
 		}
+		
+		$this->apps = $this->home . '/' . $apps . '/';		
 		
 		// get login url
 		
@@ -181,7 +189,14 @@ class LTPLE_Client_Urls {
 			$profile = update_option( $this->parent->_base . 'profileSlug', get_post($post_id)->post_name );
 		}
 		
-		$this->profile 	= $this->home . '/' . $profile . '/';
+		if( defined('REW_PRIMARY_SITE') ){
+			
+			$this->profile 	= REW_PRIMARY_SITE . '/' . $profile . '/';
+		}
+		else{
+			
+			$this->profile 	= $this->home . '/' . $profile . '/';
+		}
 		
 		// get ranking url
 		

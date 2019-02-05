@@ -16,6 +16,7 @@ class LTPLE_Client_Plan {
 	var $layerOptions 		= NULL;
 	var $buttons 			= array();
 	var $shortcode 			= '';
+	var $iframe_height		= 500;
 	
 	/**
 	 * Constructor function
@@ -192,7 +193,62 @@ class LTPLE_Client_Plan {
 			echo '</div>';
 		}		
 	}
+	
+	public function get_agreement_url( $data ){
+		
+		//get plan_data
+		
+		$plan_data =array(
+		
+			'id' 		=> '',
+			'name' 		=> '',
+			'options' 	=> array(),
+			'price' 	=> 0,
+			'fee' 		=> 0,
+			'currency' 	=> '$',
+			'period' 	=> 'month',
+			'fperiod' 	=> 'once',
+			'storage' 	=> array('templates' => 0 ),
+			'subscriber'=> $this->parent->user->user_email,
+			'client'	=> $this->parent->client->url,
+			'meta' 		=> array(),
+			'upgrade' 	=> array(),
+			'sponsored'	=> '',
+		);
+		
+		if( !empty($data) ){
+			
+			foreach( $plan_data as $k => $v ){
+				
+				if( isset($data[$k]) ){
+					
+					$value = $data[$k];
+					
+					if( $k == 'plan_options' ){
+						
+						sort($value);
+					}
+					elseif( $k == 'total_storage' ){
+						
+						ksort($value);
+					}
+					
+					$plan_data[$k] = $value;
+				}
+			}
+		}
 
+		$plan_data = esc_attr( json_encode( $plan_data ) );
+		
+		$plan_key = md5( 'plan' . $plan_data . $this->parent->_time . $this->parent->user->user_email );	
+
+		//get agreement url				
+		
+		$agreement_url = $this->parent->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->parent->base64_urlencode($plan_data) . '&_=' . $this->parent->_time;
+		
+		return $agreement_url;
+	}
+	
 	public function get_subscription_plan_shortcode( $atts ){
 		
 		$atts = shortcode_atts( array(
@@ -337,39 +393,28 @@ class LTPLE_Client_Plan {
 					}
 				}
 
-				//get plan_data
-				
-				sort($plan_options);
-				ksort($total_storage);
-				
-				$plan_data=[];
-				$plan_data['id'] 		= $plan->ID;
-				$plan_data['name'] 		= $plan->post_title;
-				$plan_data['options'] 	= $plan_options;
-				$plan_data['price'] 	= $total_price_amount;
-				$plan_data['fee'] 		= $total_fee_amount;
-				$plan_data['currency']	= $total_price_currency;
-				$plan_data['period'] 	= $total_price_period;
-				$plan_data['fperiod']	= $total_fee_period;
-				$plan_data['storage'] 	= $total_storage;
-				$plan_data['subscriber']= $this->parent->user->user_email;
-				$plan_data['client']	= $this->parent->client->url;
-				$plan_data['meta']		= ( !empty($_SESSION['pm_' . $plan->ID]) ? $_SESSION['pm_' . $plan->ID] : '' );
+				//get agreement url	
+
+				$plan_data = array(
+					
+					'id' 		=> $plan->ID,
+					'name' 		=> $plan->post_title,
+					'options' 	=> $plan_options,
+					'price' 	=> $total_price_amount,
+					'fee' 		=> $total_fee_amount,
+					'currency'	=> $total_price_currency,
+					'period' 	=> $total_price_period,
+					'fperiod'	=> $total_fee_period,
+					'storage' 	=> $total_storage,
+					'meta'		=> ( !empty($_SESSION['pm_' . $plan->ID]) ? $_SESSION['pm_' . $plan->ID] : '' ),
+				);
 				
 				if( $plan_status == 'upgrade' ){
 					
 					$plan_data['upgrade'] = $plan_upgrade;
-					
-					// display total upgrade price
-				}
+				}				
 				
-				$plan_data = esc_attr( json_encode( $plan_data ) );
-				
-				$plan_key = md5( 'plan' . $plan_data . $this->parent->_time . $this->parent->user->user_email );	
-
-				//get agreement url				
-				
-				$agreement_url = $this->parent->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->parent->base64_urlencode($plan_data) . '&_=' . $this->parent->_time;
+				$agreement_url = $this->get_agreement_url($plan_data);
 
 				//get addon services
 				
@@ -403,9 +448,7 @@ class LTPLE_Client_Plan {
 				}
 				
 				//get subscription plan
-				
-				$iframe_height 	= 500;
-				
+
 				$this->shortcode = '';
 				
 				if( !is_null($atts['widget']) && $atts['widget']==='true' ){
@@ -472,7 +515,7 @@ class LTPLE_Client_Plan {
 					}
 					else{
 
-						$this->shortcode .= '<iframe src="'.$agreement_url.'" style="width:100%;bottom: 0;border:0;height:' . ($iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
+						$this->shortcode .= '<iframe src="'.$agreement_url.'" style="width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
 					}
 				}
 				else{
@@ -678,7 +721,7 @@ class LTPLE_Client_Plan {
 														
 														$this->shortcode .= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
 
-														$this->shortcode .= '<iframe data-src="' . get_permalink( $plan->ID ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$iframe_height.'px;overflow: hidden;"></iframe>';
+														$this->shortcode .= '<iframe data-src="' . get_permalink( $plan->ID ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$this->iframe_height.'px;overflow: hidden;"></iframe>';
 													}
 													else{
 														
@@ -1048,7 +1091,7 @@ class LTPLE_Client_Plan {
 									$update_terms[]		= $term->term_id;
 									$update_taxonomy 	= $term->taxonomy;
 									
-									if( $this->data["price"] > 0 ){
+									if( $this->data['price'] > 0 ){
 										
 										$user_has_subscription = 'true';
 									}
@@ -1157,7 +1200,6 @@ class LTPLE_Client_Plan {
 								$this->message .='</div>' . PHP_EOL;
 							$this->message .='</noscript>' . PHP_EOL;	
 
-							
 							//Facebook Pixel Code for subscription completed
 							
 							$this->message .='<script>' . PHP_EOL;	
@@ -1190,6 +1232,10 @@ class LTPLE_Client_Plan {
 							$this->message .= '</div>';						
 						}
 					}
+					elseif( $this->data['fee'] > 0 ){
+						
+						do_action('ltple_one_time_payment');			
+					}
 					
 					include( $this->parent->views . '/message.php' );
 				}
@@ -1204,10 +1250,10 @@ class LTPLE_Client_Plan {
 
 	public function bulk_update_user_plan($users,$plan_id){
 		
-		$option_name='plan_options';
+		$option_name = 'plan_options';
 		
-		if($data = get_post_meta( $plan_id, $option_name, true )){
-			
+		if( $plan = $this->get_plan_info($plan_id) ){
+
 			$options 				= $this->get_layer_taxonomies_options();
 			$all_updated_terms 		= [];
 			
@@ -1218,7 +1264,7 @@ class LTPLE_Client_Plan {
 				
 				foreach($terms as $i => $term){
 
-					if ( in_array( $term->slug, $data ) ) {
+					if ( in_array( $term->slug, $plan['options'] ) ) {
 						
 						$update_terms[] 	= $term->term_id;
 						$update_taxonomy 	= $term->taxonomy;
@@ -1254,19 +1300,16 @@ class LTPLE_Client_Plan {
 			
 				$this->parent->email->schedule_campaign( $plan_id, $user );
 			
-				/*
-				
-				//	TODO set has_subscription
-				
-				if( $price > 0 ){
+				if( $plan['info']['total_price_amount'] > 0 ){
 
 					// update user has subscription		
 
-									
-					
 					update_user_meta( $user_id , 'has_subscription', 'true');
-				}
-				*/			
+				
+					// update periods
+					
+					$this->parent->users->update_periods();
+				}		
 			}
 		}
 	}
@@ -1331,19 +1374,33 @@ class LTPLE_Client_Plan {
 		}
 	}
 	
+	public function get_plan_info($plan_id){
+		
+		$plans = $this->get_subscription_plans( $plan_id );
+		
+		if( !empty($plans[$plan_id]) ){
+				
+			return $plans[$plan_id];
+		}
+		
+		return false;
+	}
+	
 	public function get_subscription_plans(){	
 		
 		if( is_null($this->subscription_plans) ){
 			
 			$this->subscription_plans = array();
 			
-			if( $plans = get_posts(array(
+			$args = array(
 			
 				'post_type' 	=> 'subscription-plan',
 				'post_status' 	=> 'publish',
 				'numberposts' 	=> -1,
-			)) ){
-				
+			);
+			
+			if( $plans = get_posts($args) ){
+
 				$taxonomies = $this->get_layer_taxonomies_options();
 				
 				foreach( $plans as $plan ){
@@ -1594,7 +1651,7 @@ class LTPLE_Client_Plan {
 		return $this->user_plans[$user_id];	
 	}
 	
-	public function user_has_layer( $item_id, $layer_type = 'cb-default-layer' ){
+	public function user_has_layer( $item_id, $type = 'cb-default-layer' ){
 		
 		$user_has_layer = false;
 		
@@ -1602,20 +1659,20 @@ class LTPLE_Client_Plan {
 			
 			$user_has_layer = true;
 		}
-		elseif( $layer_type == 'cb-default-layer' ){
+		elseif( $type == 'cb-default-layer' ){
 			
 			if( !$this->parent->user->is_editor ){
-				
-				// get tailored user id
 
-				$layer_user_id = intval(get_post_meta( $item_id, 'layerUserId',true ));
-
-				if( $layer_user_id == 0 || $layer_user_id == $this->parent->user->ID ){
-
+				if( has_term( $this->parent->user->user_email, 'user-contact', $item_id ) ){
+						
+					$user_has_layer = true;
+				}
+				else{
+					
 					// get layer plan
 					
 					$layer_plan = $this->get_layer_options( $item_id );
-					
+			
 					foreach($layer_plan['taxonomies'] as $taxonomy => $tax){
 
 						foreach($tax['terms'] as $term_slug => $term){
@@ -1636,7 +1693,7 @@ class LTPLE_Client_Plan {
 								}				
 							}
 						}		
-					}	
+					}
 				}
 			}
 			else{
@@ -1644,7 +1701,7 @@ class LTPLE_Client_Plan {
 				$user_has_layer = true;
 			}
 		}
-		elseif( $layer_type == 'user-layer' ){
+		elseif( $type == 'user-layer' ){
 			
 			$user_has_layer = true;
 		}
@@ -1964,16 +2021,10 @@ class LTPLE_Client_Plan {
 		$plan_data 				 = [];
 		$plan_data['name'] 		 = 'unlock output';
 		$plan_data['for'] 		 = $for;
-		$plan_data['subscriber'] = $this->parent->user->user_email;
-		$plan_data['client']	 = $this->parent->client->url;
-
-		$plan_data=esc_attr( json_encode( $plan_data ) );
-		
-		$plan_key = md5( 'plan' . $plan_data . $this->parent->_time . $this->parent->user->user_email );	
 
 		//get agreement url				
 		
-		$agreement_url = $this->parent->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->parent->base64_urlencode($plan_data) . '&_=' . $this->parent->_time;
+		$agreement_url = $this->get_agreement_url($plan_data);
 
 		$reponse = wp_remote_post($agreement_url);
 

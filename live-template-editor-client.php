@@ -74,7 +74,6 @@
 		}
 		
 		// start plugin
-
-				
+	
 		LTPLE_Client( '1.2.4' );
 	}

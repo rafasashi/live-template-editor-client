@@ -85,7 +85,9 @@ class LTPLE_Client {
 	public $message;
 	public $dialog;
 	public $title;
+	public $canonical_url;
 	public $triggers;
+	public $inWidget;
 	
 	/**
 	 * Constructor function.
@@ -120,6 +122,8 @@ class LTPLE_Client {
 		$this->vendor  		= WP_CONTENT_DIR . '/vendor';
 		$this->assets_dir 	= trailingslashit( $this->dir ) . 'assets';
 		$this->assets_url 	= esc_url( trailingslashit( plugins_url( '/assets/', $this->file ) ) );
+		
+		$this->inWidget = ( ( isset($_GET['output']) && $_GET['output'] == 'widget' ) ? true : false );
 		
 		//$this->script_suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 		
@@ -178,8 +182,12 @@ class LTPLE_Client {
 			
 			$this->api 		= new LTPLE_Client_Json_API( $this );
 			$this->server 	= new LTPLE_Client_Server( $this );
+			
+			$this->media 	= new LTPLE_Client_Media( $this );
 			 
-			$this->apps 	= new LTPLE_Client_Apps( $this );			
+			$this->apps 	= new LTPLE_Client_Apps( $this );
+
+			$this->gallery 	= new LTPLE_Client_Gallery( $this );			
 			
 			$this->element 	= new LTPLE_Client_Element( $this );
 			$this->layer 	= new LTPLE_Client_Layer( $this );
@@ -317,7 +325,7 @@ class LTPLE_Client {
 		// add editor shortcodes
 		
 		add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
-
+		
 		add_shortcode('ltple-client-apps', array( $this , 'get_apps_shortcode' ) );		
 		
 		// add footer
@@ -407,8 +415,8 @@ class LTPLE_Client {
 			
 			// get user notification settings
 			
-			$this->user->can_spam 	= get_user_meta( $this->user->ID, $this->_base . '_can_spam',true);
-			$this->user->notify 	= get_user_meta( $this->user->ID, $this->_base . 'notify',true);
+			$this->user->notify 	= $this->users->get_user_notification_settings( $this->user->ID );
+			$this->user->can_spam 	= $this->user->notify['series'];
 			
 			// get user last seen
 			
@@ -744,6 +752,7 @@ class LTPLE_Client {
 			'videos' 	=> [],
 			'blogs' 	=> [],
 			'payment' 	=> [],
+			'streaming' => [],
 		);
 	}
 	
@@ -948,49 +957,6 @@ class LTPLE_Client {
 	}
 	
 	public function editor_output() {
-		
-		$this->all = new stdClass();
-		
-		// get all layer types
-		
-		$this->all->layerType = get_terms( array(
-				
-			'taxonomy' 		=> 'layer-type',
-			'orderby' 		=> 'count',
-			'order' 		=> 'DESC',
-			'hide_empty' 	=> true,
-		));
-		
-		foreach( $this->all->layerType as $term ){
-		
-			$term->visibility = get_option('visibility_'.$term->slug,'anyone');
-			
-			// count posts in term
-			
-			$q = new WP_Query([
-				'posts_per_page' => 0,
-				'post_type' => 'cb-default-layer',
-				'tax_query' => [
-					[
-						'taxonomy' => $term->taxonomy,
-						'terms' => $term,
-						'field' => 'slug'
-					]
-				]
-			]);
-			
-			$term->count = $q->found_posts; // replace term count by real post type count
-		}
-		
-		// get all layer ranges
-		
-		$this->all->layerRange = get_terms( array(
-				
-			'taxonomy' 		=> 'layer-range',
-			'orderby' 		=> 'count',
-			'order' 		=> 'DESC',
-			'hide_empty'	=> true, 
-		));
 			
 		// get layer type
 				
@@ -1064,16 +1030,23 @@ class LTPLE_Client {
 
 			if( $this->layer->key == md5( 'layer' . $this->layer->id . $this->_time )){
 				
-				if( !empty($_POST['domId']) && !empty($_POST['base64']) ){
+				if( !empty($_POST['base64']) && !empty($_POST['domId']) ){
 					
 					// handle cropped image upload
 					
-					echo $this->image->upload_cropped_image($this->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
+					echo $this->image->upload_editor_image($this->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
+					
+					exit;
+				}
+				elseif( !empty($_FILES) && !empty($_POST['location']) && $_POST['location'] == 'media' ){
+						
+					// handle canvas image upload
+					
+					echo $this->image->upload_canvas_image();
+					
 					exit;
 				}
 				else{
-					
-					//include( $this->views . '/editor-iframe.php' );
 					
 					include( $this->views . '/editor-proxy.php' );
 				}
@@ -1102,9 +1075,9 @@ class LTPLE_Client {
 	}
 
 	public function get_header(){
-
+		
 		global $post;
-
+		
 		if( !empty($post) ){
 		
 			$service_name = get_bloginfo( 'name' );
@@ -1188,14 +1161,16 @@ class LTPLE_Client {
 			echo '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
 			echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
 			
-			$url = get_permalink( $post->ID );
+			$this->canonical_url = get_permalink( $post->ID );
 			
-			echo '<meta name="url" content="'.$url.'" />' . PHP_EOL;
-			echo '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
-			echo '<meta name="original-source" content="'.$url.'" />' . PHP_EOL;
-			echo '<link rel="original-source" href="'.$url.'" />' . PHP_EOL;
-			echo '<meta property="og:url" content="'.$url.'" />' . PHP_EOL;
-			echo '<meta name="twitter:url" content="'.$url.'" />' . PHP_EOL;
+			do_action('ltple_header_canonical_url');
+			
+			echo '<meta name="url" content="'.$this->canonical_url.'" />' . PHP_EOL;
+			echo '<meta name="canonical" content="'.$this->canonical_url.'" />' . PHP_EOL;
+			echo '<meta name="original-source" content="'.$this->canonical_url.'" />' . PHP_EOL;
+			echo '<link rel="original-source" href="'.$this->canonical_url.'" />' . PHP_EOL;
+			echo '<meta property="og:url" content="'.$this->canonical_url.'" />' . PHP_EOL;
+			echo '<meta name="twitter:url" content="'.$this->canonical_url.'" />' . PHP_EOL;
 			
 			echo '<meta name="rating" content="General" />' . PHP_EOL;
 			echo '<meta name="directory" content="submission" />' . PHP_EOL;
@@ -1427,14 +1402,12 @@ class LTPLE_Client {
 	public function get_menu( $items, $args ){
 		
 		if($args->menu_id == 'main-menu'){
-			
-			$homeLogo = $this->settings->options->logo_url;
-			
+
 			$home  = '<div id="header_logo">';
 			
 				$home .= '<a href="' . $this->urls->home . '">';
 					
-					$home .= '<img src="' . ( !empty($homeLogo) ? $homeLogo : $this->assets_url . 'images/home.png' ) . '">';
+					$home .= '<img src="' . ( !empty($this->settings->options->logo_url) ? $this->settings->options->logo_url : $this->assets_url . 'images/home.png' ) . '">';
 
 				$home .= '</a>';
 				
@@ -1450,8 +1423,53 @@ class LTPLE_Client {
 
 		// collect information
 		
-		if($this->user->loggedin){	
+		if( $this->user->loggedin && !is_admin() && !$this->inWidget ){	
+			
+			// credit account credits from server
+			
+			$credits_url = $this->server->url . '/agreement/?overview=' . $this->ltple_encrypt_uri($this->user->user_email) . '&credit';
+			
+			echo'<script>' . PHP_EOL;	
+			
+				echo';(function($){' . PHP_EOL;	
 
+					echo'$(document).ready(function(){' . PHP_EOL;	
+						
+						echo'if( $("#accountCreditsValue").length ){' . PHP_EOL;	
+							
+							echo'function refresh_account_credits(){' . PHP_EOL;
+							
+								echo'$.get({
+									
+									url: "'.$credits_url .'", 
+									cache: false
+									
+								},function( data ) {' . PHP_EOL;
+									
+									echo'$( "#accountCreditsValue" ).html( data );' . PHP_EOL;
+								
+								echo'});' . PHP_EOL;
+
+							echo'}' . PHP_EOL;						
+							
+							echo'refresh_account_credits();' . PHP_EOL;
+							
+							echo'setInterval(function(){' . PHP_EOL;
+							
+								echo'refresh_account_credits();' . PHP_EOL;
+
+							echo'}, 60000);' . PHP_EOL;  // every minute
+							
+						echo'}' . PHP_EOL;
+						
+					echo'});' . PHP_EOL;			
+
+				echo'})(jQuery);' . PHP_EOL;			
+			
+			echo'</script>';			
+			
+			// collect usr information
+			
 			if( empty( $this->user->can_spam ) && !isset($_POST['can_spam']) ){
 				
 				include($this->views . '/modals/newsletter.php');
@@ -1520,13 +1538,7 @@ class LTPLE_Client {
 
 			$this->viewIncluded = false;			
 			
-			if( isset($_GET['media']) ){
-				
-				include($this->views . '/media.php');
-								
-				$this->viewIncluded = true;	
-			}
-			elseif( isset($_GET['rewards']) ){
+			if( isset($_GET['rewards']) ){
 
 				include($this->views . '/rewards.php');
 								
@@ -1585,6 +1597,7 @@ class LTPLE_Client {
 			include($this->views . '/designs.php'); 
 		}
 	}
+
 	
 	public function get_demo_message(){
 		

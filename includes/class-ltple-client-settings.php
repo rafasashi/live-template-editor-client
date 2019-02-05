@@ -61,6 +61,11 @@ class LTPLE_Client_Settings {
 			$this->options->logo_url = $this->parent->assets_url . 'images/home.png';
 		}
 		
+		if( !$this->options->profile_header = get_option( $this->parent->_base . 'profileHeader' )){
+			
+			$this->options->profile_header = plugins_url() . '/' . $this->plugin->slug . '/assets/images/profile_header.jpg';
+		}
+		
 		$this->options->enable_ranking 		= get_option( $this->parent->_base . 'enable_ranking', 'off' );
 
 		// get custom style
@@ -605,6 +610,13 @@ class LTPLE_Client_Settings {
 					'placeholder'	=> __( 'editor', $this->plugin->slug )
 				),
 				array(
+					'id' 			=> 'mediaSlug',
+					'label'			=> __( 'Media' , $this->plugin->slug ),
+					'description'	=> '[ltple-client-media]',
+					'type'			=> 'slug',
+					'placeholder'	=> __( 'editor', $this->plugin->slug )
+				),
+				array(
 					'id' 			=> 'appsSlug',
 					'label'			=> __( 'Apps' , $this->plugin->slug ),
 					'description'	=> '[ltple-client-apps]',
@@ -644,8 +656,16 @@ class LTPLE_Client_Settings {
 					'label'			=> __( 'Home Logo' , $this->plugin->slug ),
 					'description'	=> 'Logo url 100 x 50 recommended',
 					'type'			=> 'text',
-					'placeholder'	=> 'http://',
+					'placeholder'	=> 'https://',
 					'default'		=> $this->options->logo_url
+				),
+				array(
+					'id' 			=> 'profileHeader',
+					'label'			=> __( 'Profile Header' , $this->plugin->slug ),
+					'description'	=> 'Header url 1920 x 1080 recommended',
+					'type'			=> 'text',
+					'placeholder'	=> 'https://',
+					'default'		=> $this->options->profile_header
 				),
 				array(
 					'id' 			=> 'mainColor',

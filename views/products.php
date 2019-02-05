@@ -10,8 +10,10 @@
 	echo'<div id="layer_detail" class="col-xs-12">';
 		
 		echo'<div class="row">';	
-		
-			foreach($this->parent->all->layerType as $term){
+			
+			$all_types = $this->parent->gallery->get_all_types();
+			
+			foreach( $all_types as $term ){
 				
 				if($term->visibility == 'anyone'){
 					

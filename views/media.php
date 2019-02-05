@@ -11,406 +11,36 @@
 		$_SESSION['message'] ='';
 	}	
 	
-	$inWidget = false;
 	$output='default';
 	$target='_self';
 
-	if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
+	if( $this->parent->inWidget ){
 		
-		$inWidget 	= true;
-		$output		= $_GET['output'];
+		$output		= 'widget';
 		$target		= '_blank';
 	}
-	
-	// get current tab
-	
-	$currentTab = ( !empty($_GET['media']) ? $_GET['media'] : 'image-library' );
-	
-	if( $currentTab == 'image-library' ){
+
+	if( $this->type == 'image-library' ){
 		
-		//------------------ get default images ------------
-
-		//get image types
-
-		$default_images = [];
-
-		foreach( $this->image->types as $term ){
-			
-			$default_images[$term->slug] = [];
-		}
-			
-		$loop = new WP_Query( array( 'post_type' => 'default-image', 'posts_per_page' => -1 ) );
+		// get current tab
 		
-		//var_dump($loop);exit;
-		
-		$home_url = home_url();
-		
-		while ( $loop->have_posts() ) : $loop->the_post(); 
-			
-			global $post;
-			$image = $post;
+		$tab = ( !empty($_REQUEST['tab']) ? $_REQUEST['tab'] : 'backgrounds' );
 
-			$editor_url = $this->urls->editor . '?uri=' . $image->ID;
-
-			//get permalink
-			
-			$permalink = get_permalink($image);
-			
-			//get post_title
-			
-			$image_title = the_title('','',false);
-			
-			//get terms
-			
-			$terms = wp_get_object_terms( $image->ID, 'image-type' );
-			//var_dump($terms);exit;
-			
-			//get image_type
-			
-			$image_type='image';
-			
-			if( !isset($terms->errors) && isset($terms[0]->slug) ){
-				
-				$image_type = $terms[0]->slug;
-			}
-			
-			//get item
-			
-			$item='';
-			
-			$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
-				
-				$item.='<div class="panel panel-default">';
-					
-					$item.='<div class="panel-heading">';
-
-						$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
-						
-					$item.='</div>';
-
-					$item.='<div class="panel-body">';
-						
-						$item.='<div class="thumb_wrapper">';
-						
-							$item.= '<img class="lazy" data-original="'.$image->post_content.'" />';
-						
-						$item.='</div>'; //thumb_wrapper
-						
-						$item.='<div class="text-right">';
-
-							if($inWidget){
-								
-								$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="'.$image->post_content.'">Insert</a>';							
-							}
-							else{
-
-								$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $image->post_content .'" />';
-							}
-							
-						$item.='</div>';
-						
-					$item.='</div>'; //panel-body
-
-				$item.='</div>';
-				
-			$item.='</div>';
-			
-			//merge item
-			
-			$default_images[$image_type][]=$item;
-			
-		endwhile; wp_reset_query();		
-
+		$default_images = $this->parent->media->get_default_images($tab);
 	}
-	elseif( $currentTab == 'user-images' ){
-			
-		//get user images
+	elseif( $this->type == 'user-images' ){
+
+		// get current tab
 		
-		$image_providers = [];
+		$tab = ( !empty($_REQUEST['tab']) ? $_REQUEST['tab'] : 'upload' );
 		
-		if( $this->user->ID  > 0 ){
-			
-			//-----------------get images from core library-------------------
-			
-			if( $this->user->plan["info"]["total_price_amount"] > 0 ){
-				
-				$query_images = new WP_Query( array(
-				
-					'post_type'      	=> 'attachment',
-					'post_mime_type' 	=> 'image',
-					'post_status'    	=> 'inherit',
-					'posts_per_page' 	=> -1,
-					'author' 			=> $this->user->ID,
-				) );
-
-				$images = array();
-				
-				foreach ( $query_images->posts as $image ){
-					
-					$image_url = wp_get_attachment_url( $image->ID );
-					
-					$image_title = get_the_title( $image->ID );
-					
-					//get item
-					
-					$item='';
-					
-					$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
-						
-						$item.='<div class="panel panel-default">';
-							
-							$item.='<div class="panel-heading">';
-								
-								$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
-								
-								if(!$inWidget){
-								
-									$item.='<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?media=user-images&output='.$output.'&att=' . $image->ID . '&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-								}
-								
-							$item.='</div>';
-
-							$item.='<div class="panel-body">';
-								
-								$item.='<div class="thumb_wrapper">';
-								
-									$item.= '<img class="lazy" data-original="' . $image_url . '" />';
-								
-								$item.='</div>'; //thumb_wrapper
-								
-								$item.='<div class="text-right">';
-
-									if($inWidget){
-
-										$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
-									}
-									else{
-										
-										$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image_url . '" />';
-									}
-									
-								$item.='</div>';							
-								
-							$item.='</div>'; //panel-body
-
-						$item.='</div>';
-						
-					$item.='</div>';
-					
-					//merge item
-					
-					$image_providers['upload'][]=$item;				
-				}
-			}
-			
-			//-------------------get images from apps------------------------
-			
-			$loop = new WP_Query( array( 'post_type' => 'user-image', 'posts_per_page' => -1, 'author' => $this->user->ID ) );
-			
-			while ( $loop->have_posts() ) : $loop->the_post(); 
-				
-				global $post;
-				$image = $post;
-
-				$editor_url = $this->urls->editor . 'editor/?uri=' . $image->ID;
-
-				//get permalink
-				
-				$permalink = get_permalink($image);
-				
-				//get post_title
-				
-				$image_title = the_title('','',false);
-				
-				//get terms
-				
-				$terms = wp_get_object_terms( $image->ID, 'app-type' );
-				
-				//get image_provider
-				
-				$image_provider = 'url';
-				
-				if( !isset($terms->errors) && isset($terms[0]->slug) ){
-					
-					$image_provider = $terms[0]->slug;
-				}
-				
-				//get item
-				
-				$item='';
-				
-				$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
-					
-					$item.='<div class="panel panel-default">';
-						
-						$item.='<div class="panel-heading">';
-							
-							$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
-							
-							if(!$inWidget){
-							
-								$item.='<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?media=user-images&output='.$output.'&uri=' . $image->ID . '&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-							}
-							
-						$item.='</div>';
-
-						$item.='<div class="panel-body">';
-							
-							$item.='<div class="thumb_wrapper">';
-							
-								$item.= '<img class="lazy" data-original="'.$image->post_content.'" />';
-									
-							$item.='</div>'; //thumb_wrapper
-
-							$item.='<div class="text-right">';
-
-								if($inWidget){
-
-									$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="'.$image->post_content.'">Insert</a>';
-								}
-								else{
-									
-									$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $image->post_content .'" />';
-								}
-								
-							$item.='</div>';							
-							
-						$item.='</div>'; //panel-body
-
-					$item.='</div>';
-					
-				$item.='</div>';
-				
-				//merge item
-				
-				$image_providers[$image_provider][]=$item;
-				
-			endwhile; wp_reset_query();					
-		}
+		$image_providers = $this->parent->media->get_user_images($this->parent->user->ID,$tab);
 	}
-	elseif( $currentTab == 'edited-images' ){
-
-		// get user image path
-	
-		$image_dir = $this->image->dir . $this->user->ID . '/';
-		$image_url = $this->image->url . $this->user->ID . '/';					
-	
-		// get  edited images
-		
-		$edited_images = [];
-		
-		$images = glob( $image_dir . '*.png');
-
-		foreach ($images as $image) {
-			
-			$item = '';
-			
-			$item.='<div class="col-xs-3 col-sm-3 col-lg-2">';
-
-				$item.='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
-					
-			$item.='</div>';
-
-			$item.='<div class="col-xs-7 col-sm-7 col-lg-8">';
-
-				$item.='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
-				$item.='<br>';
-				$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $image_url . basename($image) .'" />';
-
-			$item.='</div>';
-			
-			$item.='<div class="col-xs-2 col-sm-2 col-lg-2">';
-			
-				if($inWidget){
-
-					$item.='<a style="display:block;margin-top:11px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$image_url . basename($image).'">Insert</a>';
-				}
-				else{
-					
-					// TODO management buttons (move image...)
-					
-					//$item.='x';
-				}
-			
-			$item.='</div>';						
-			
-			$edited_images['cropped'][] = $item;
-		}
-	}
-	elseif( $currentTab == 'user-payment-urls' ){
+	elseif( $this->type == 'user-payment-urls' ){
 		
 		//get user bookmarks
 		
-		$bookmarks = [];
-		
-		if( $this->user->ID  > 0 ){
-			
-			//get user apps
-			
-			$loop = new WP_Query( array( 'post_type' => 'user-bookmark', 'posts_per_page' => -1, 'author' => $this->user->ID ) );
-			
-			//var_dump($loop);exit;
-			
-			while ( $loop->have_posts() ) : $loop->the_post(); 
-				
-				global $post;
-				$bookmark = $post;
-
-				$editor_url = $this->urls->editor . 'editor/?uri=' . $bookmark->ID;
-
-				//get permalink
-				
-				$permalink = get_permalink($bookmark);
-				
-				//get post_title
-				
-				$bookmark_title = the_title('','',false);
-				
-				//get terms
-				
-				$terms = wp_get_object_terms( $bookmark->ID, 'app-type' );
-				
-				//get bookmark_provider
-				
-				$bookmark_provider = $terms[0]->slug;
-
-				//get item
-				
-				$item='';
-				
-				$item.='<div class="col-xs-2 col-sm-2 col-lg-1">';
-
-					$item.='<img class="lazy" data-original="' . $this->assets_url . '/images/payment.png" />';
-						
-				$item.='</div>';
-
-				$item.='<div class="col-xs-8 col-sm-8 col-lg-9">';
-
-					$item.='<b style="overflow:hidden;width:90%;display:block;">' . $bookmark_title . '</b>';
-					$item.='<br>';
-					$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $bookmark->post_content .'" />';
-
-				$item.='</div>';
-				
-				$item.='<div class="col-xs-2 col-sm-2 col-lg-2">';
-				
-					if($inWidget){
-
-						$item.='<a style="display:block;margin-top:11px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$bookmark->post_content.'">Insert</a>';
-					}
-					else{
-						
-						$item.='<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?media=user-payment-urls&output='.$output.'&id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-					}
-				
-				$item.='</div>';
-				
-				//merge item
-				
-				$bookmarks[$bookmark_provider][]=$item;
-				
-			endwhile; wp_reset_query();					
-		}
+		$this->parent->media->get_user_bookmarks($this->parent->user->ID);
 	}
 	
 	// output library
@@ -423,12 +53,12 @@
 				
 				echo'<li class="gallery_type_title">Images</li>';
 				
-				echo'<li'.( $currentTab == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?media=image-library&output='.$output.'">Image Library</a></li>';
-				echo'<li'.( $currentTab == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?media=user-images&output='.$output.'">Imported Images</a></li>';
-				//echo'<li'.( $currentTab == 'edited-images' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?media=edited-images&output='.$output.'" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Edited Images" data-content="All the images uploaded during the edition process (cropped, resized...). Hosted images will be removed upon template deletion or plan cancelation." data-original-title="" title="">Edited Images <span class="label label-info pull-right hidden-xs hidden-sm hidden-md">hosted</span></a></li>';
+				echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/?output='.$output.'">Image Library</a></li>';
+				echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-images/?output='.$output.'">My Images</a></li>';
+				//echo'<li'.( $this->type == 'edited-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'edited-images/?output='.$output.'" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Edited Images" data-content="All the images uploaded during the edition process (cropped, resized...). Hosted images will be removed upon template deletion or plan cancelation." data-original-title="" title="">Edited Images <span class="label label-info pull-right hidden-xs hidden-sm hidden-md">hosted</span></a></li>';
 				
 				echo'<li class="gallery_type_title">Bookmarks</li>';
-				echo'<li'.( $currentTab == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?media=user-payment-urls&output='.$output.'">Payment Urls</a></li>';
+				echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-payment-urls/?output='.$output.'">Payment Urls</a></li>';
 					
 			echo'</ul>';
 		echo'</div>';
@@ -437,7 +67,7 @@
 
 			echo'<div class="tab-content">';
 			
-				if( $currentTab == 'image-library' ){
+				if( $this->type == 'image-library' ){
 			  
 					//output default images
 					
@@ -447,14 +77,21 @@
 						
 						$active=' class="active"';
 						
-						foreach($default_images as $image_type => $items){
+						foreach( $default_images as $image_type => $items ){
 							
-							if($image_type != ''){
+							if( $image_type != '' ){
 								
-								echo'<li role="presentation"'.$active.'><a href="#'.$image_type.'" aria-controls="'.$image_type.'" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$image_type)).'</a></li>';
+								if( $image_type == $tab ){
+									
+									$active = ' class="active"';
+								}
+								else{
+									
+									$active = '';
+								}							
+								
+								echo'<li role="presentation"'.$active.'><a href="'. add_query_arg('tab',$image_type,$this->parent->urls->current) . '">'.strtoupper(str_replace(array('-','_'),' ',$image_type)).'</a></li>';
 							}
-
-							$active='';
 						}
 						
 						echo'</ul>';
@@ -463,11 +100,11 @@
 						  
 						echo'<div class="tab-content row" style="margin-top:20px;">';
 							
-							$active=' active';
+							if( !empty($default_images[$tab]) ){
 							
-							foreach($default_images as $image_type => $items){
+								$items = $default_images[$tab];
 								
-								echo'<div role="tabpanel" class="tab-pane'.$active.'" id="'.$image_type.'">';
+								echo'<div role="tabpanel" class="tab-pane active" id="'.$tab.'">';
 									
 									foreach($items as $item){
 
@@ -475,24 +112,21 @@
 									}
 
 								echo'</div>';
-								
-								$active='';
 							}
 							
 						echo'</div>';
 						
 					echo'</div>';
 				}
-				
-				if( $currentTab == 'user-images' ){
+				elseif( $this->type == 'user-images' ){
 
 					//output user images	
 					
 					echo '<div id="user-images">';
 
-						if( !empty($_GET['app']) && !empty($this->apps->{$_GET['app']}->message) ){
+						if( !empty($_GET['app']) && !empty($this->parent->apps->{$_GET['app']}->message) ){
 							
-							echo $this->apps->{$_GET['app']}->message;
+							echo $this->parent->apps->{$_GET['app']}->message;
 						}
 						else{	
 					
@@ -500,40 +134,24 @@
 							
 							//get app list
 							
-							$apps = [];
-
-							$item = new stdClass();
-							$item->name 	= 'Upload';
-							$item->slug 	= 'upload';
-							$item->types 	= ['images'];
-							$item->pro 		= true;
-							
-							$apps[] = $item;					
-
-							$item = new stdClass();
-							$item->name 	= 'Url';
-							$item->slug 	= 'url';
-							$item->types 	= ['images'];
-							$item->pro 		= false;
-							
-							$apps[] = $item;
-
-							if( !empty($this->apps->list) ){
-								
-								$apps = array_merge($apps,$this->apps->list);
-							}
+							$apps = $this->parent->media->get_app_list();
 
 							//output list
-							
-							$active=' class="active"';
 							
 							foreach($apps as $app){
 								
 								if( in_array('images',$app->types) ){
 								
-									echo'<li role="presentation"'.$active.'><a href="#' . $app->slug . '" aria-controls="' . $app->slug . '" role="tab" data-toggle="tab">' . ( $app->pro === true && $this->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . strtoupper($app->name) . '</a></li>';
-
-									$active='';
+									if( $app->slug == $tab ){
+										
+										$active=' class="active"';
+									}
+									else{
+										
+										$active='';
+									}
+								
+									echo'<li role="presentation"'.$active.'><a href="' . add_query_arg('tab',$app->slug,$this->parent->urls->current) . '">' . ( $app->pro === true && $this->parent->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . strtoupper($app->name) . '</a></li>';
 								}
 							}
 							
@@ -543,13 +161,11 @@
 							  
 							echo'<div class="tab-content row" style="margin-top:20px;">';
 
-								$active	 = ' active';
-
 								foreach( $apps as $app ){
 									
-									if( in_array('images',$app->types) ){
+									if( in_array('images',$app->types) && $app->slug == $tab ){
 									
-										echo'<div role="tabpanel" class="tab-pane'.$active.'" id="'.$app->slug.'">';
+										echo'<div role="tabpanel" class="tab-pane active" id="'.$app->slug.'">';
 
 											if( $app->slug == 'upload' ){
 
@@ -559,14 +175,7 @@
 														
 														echo '<div class="panel-heading"><b>Upload image</b></div>';
 														
-														$media_url = $this->urls->editor . '?media=user-images';
-														
-														if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
-																	
-															$media_url .= '&output=widget';
-														}														
-									
-														if( $app->pro === true && $this->user->plan["info"]["total_price_amount"] == 0 ){
+														if( $app->pro === true && $this->parent->user->plan["info"]["total_price_amount"] == 0 ){
 															
 															echo '<div class="alert alert-warning">';
 															
@@ -576,6 +185,13 @@
 														}
 														else{
 															
+															$media_url = $this->parent->urls->media . 'user-images/';
+														
+															if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
+																		
+																$media_url .= '?output=widget';
+															}														
+									
 															echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
 																
 																echo '<label>Image File</label>';
@@ -606,6 +222,58 @@
 													}								
 												}												
 											}
+											elseif( $app->slug == 'canvas' ){
+												
+												if( !$this->parent->inWidget ){
+													
+													echo'<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">';
+													
+														echo'<div class="panel panel-default" style="background:#efefef;">';
+															
+															echo '<div class="panel-heading"><b>Start a canvas</b></div>';
+															
+															if( $app->pro === true && $this->parent->user->plan["info"]["total_price_amount"] == 0 ){
+																
+																echo '<div class="alert alert-warning">';
+																
+																	echo 'You need a paid plan to <b>start a canvas</b>';
+																	
+																echo '</div>';
+															}
+															else{
+																
+																$media_url = add_query_arg('layer[output]','canvas',$this->parent->urls->editor);
+																	
+																if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
+																	
+																	$media_url = add_query_arg('output','widget',$media_url);
+																}														
+																
+																echo '<a href="'.$media_url.'" style="width: 100%;display: inline-block;text-align: center;padding: 40px 20px;font-size: 40px;font-weight: bold;color: #888;">';
+																	
+																	echo '<div style="font-size: 80px;padding: 10px 0px;">+</div>';
+																	
+																	echo '<br>';
+																	
+																	echo '<div style="padding: 5px 0px;">New</div>';
+																	
+																echo '</a>';
+															}
+															
+														echo'</div>';//add-image-wrapper												
+						
+														
+													echo '</div>';
+												}
+												
+												if(isset($image_providers[$app->slug])){
+													
+													foreach($image_providers[$app->slug] as $item){
+
+														echo $item;
+													}								
+												}												
+											}
 											else{
 											
 												// add images based on provider
@@ -617,15 +285,15 @@
 														
 														echo '<div class="panel-heading"><b>Import image urls</b></div>';
 														
-														foreach( $this->user->apps as $user_app ){
+														foreach( $this->parent->user->apps as $user_app ){
 
 															if(strpos($user_app->post_name ,$app->slug. '-')===0){
 																
-																echo '<a href="'.$this->apps->getAppUrl($app->slug,'importImg','user-images').'&output='.$output.'&id=' . $user_app->ID .'" style="width:100%;text-align:left;" class="btn btn-md btn-info"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> '.ucfirst($user_app->post_title).'</a>';
+																echo '<a href="'.$this->parent->apps->getAppUrl($app->slug,'importImg','user-images').'&output='.$output.'&id=' . $user_app->ID .'" style="width:100%;text-align:left;" class="btn btn-md btn-info"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> '.ucfirst($user_app->post_title).'</a>';
 															}
 														}
 														
-														echo '<a target="'.$target.'" href="'.$this->apps->getAppUrl($app->slug,'connect','user-images').'" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
+														echo '<a target="'.$target.'" href="'.$this->parent->apps->getAppUrl($app->slug,'connect','user-images').'" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
 													}
 													else{
 														
@@ -680,7 +348,7 @@
 											
 										echo'</div>';
 										
-										$active='';
+										break;
 									}
 								}
 								
@@ -689,94 +357,15 @@
 					
 					echo'</div>';//user-images
 				}
-				/*
-				if( $currentTab == 'edited-images' ){
-				
-					//output edited images	
-					
-					echo '<div id="edited-images">';
-
-						if( !empty($_GET['app']) && !empty($this->apps->{$_GET['app']}->message) ){
-							
-							echo $this->apps->{$_GET['app']}->message;
-						}
-						else{	
-					
-							echo'<ul class="nav nav-pills" role="tablist">';
-	
-								$active=' class="active"';
-								
-								echo'<li role="presentation"'.$active.'><a href="#cropped" aria-controls="cropped" role="tab" data-toggle="tab">'.strtoupper('cropped').'</a></li>';
-
-								$active='';
-									
-							echo'</ul>';
-
-							//output Tab panes
-							  
-							echo'<div class="tab-content row">';
-	
-								$active = ' active';
-								
-								if(!empty($edited_images)){
-
-									foreach($edited_images as $image_type => $items){
-										
-										echo'<div role="tabpanel" class="tab-pane'.$active.'" id="'.$image_type.'">';
-											
-											echo '<table class="table table-striped panel-default">';
-											echo '<tbody>';
-											
-												if(!empty($items)){
-											
-													foreach($items as $item){
-														
-														echo '<tr>';	
-															echo '<td style="border:0;padding: 15px 0;">';
-														
-																echo $item;
-																
-															echo '</td>';
-														echo '</tr>';
-													}
-												}
-												else{
-													
-													echo '<tr>';
-														echo '<td>';
-														
-															echo 'No '.$image_type.' images found...';
-															
-														echo '</td>';
-													echo '</tr>';														
-													
-												}
-											
-												echo '</tbody>';
-											echo '</table>';											
-
-										echo'</div>';
-										
-										$active='';
-									}									
-								}
-
-							echo'</div>';
-						}
-					
-					echo'</div>';//user-images
-				}
-				*/
-			
-				if( $currentTab == 'user-payment-urls' ){
+				elseif( $this->type == 'user-payment-urls' ){
 				
 					//output user-payment-urls
 					
 					echo '<div id="user-payment-urls">';
 					
-						if( !empty($_GET['app']) && !empty($this->apps->{$_GET['app']}->message) ){
+						if( !empty($_GET['app']) && !empty($this->parent->apps->{$_GET['app']}->message) ){
 							
-							echo $this->apps->{$_GET['app']}->message;
+							echo $this->parent->apps->{$_GET['app']}->message;
 						}
 						else{			
 						
@@ -784,7 +373,7 @@
 							
 							//get app list
 
-							$apps = $this->apps->list;
+							$apps = $this->parent->apps->list;
 							
 							//output list
 							
@@ -825,7 +414,7 @@
 												
 												$options =[];
 												
-												foreach( $this->user->apps as $user_app ){
+												foreach( $this->parent->user->apps as $user_app ){
 
 													if(strpos($user_app->post_name ,$app->slug. '-')===0){
 
@@ -835,7 +424,7 @@
 
 												if(!empty($options)){
 
-													echo '<form style="padding:10px;" target="_self" action="'.$this->urls->editor . '?media=user-payment-urls'.'#' . $app->slug . '" class="saveBookmarkForm" method="post">';
+													echo '<form style="padding:10px;" target="_self" action="'.$this->parent->urls->media . 'user-payment-urls/'.'#' . $app->slug . '" class="saveBookmarkForm" method="post">';
 														
 														echo '<div style="padding-bottom:10px;display:block;">';
 															
@@ -845,7 +434,7 @@
 																										
 															echo'<label>Account</label>';
 					
-															echo $this->admin->display_field(array(
+															echo $this->parent->admin->display_field(array(
 								
 																'id' 			=> 'id',
 																'description' 	=> '',
@@ -869,7 +458,7 @@
 																			
 																			echo'<label>'.ucfirst($key).'</label>';
 																			
-																			echo $this->admin->display_field(array(
+																			echo $this->parent->admin->display_field(array(
 												
 																				'id' 			=> $key,
 																				'description' 	=> '',
@@ -881,7 +470,7 @@
 																			
 																			echo'<label>'.ucfirst($key).'</label>';
 																			
-																			echo $this->admin->display_field(array(
+																			echo $this->parent->admin->display_field(array(
 												
 																				'id' 			=> $key,
 																				'description' 	=> '',
@@ -904,7 +493,7 @@
 																				
 																				echo'<label>'.ucfirst($key).'</label>';
 																			
-																				echo $this->admin->display_field(array(
+																				echo $this->parent->admin->display_field(array(
 													
 																					'id' 			=> $key,
 																					'description' 	=> '',
@@ -915,7 +504,7 @@
 																			}
 																			else{
 
-																				echo $this->admin->display_field(array(
+																				echo $this->parent->admin->display_field(array(
 													
 																					'id' 			=> $key,
 																					'type'			=> 'hidden',
@@ -933,7 +522,7 @@
 																			
 																			echo'<label>'.ucfirst($key).'</label>';
 																			
-																			echo $this->admin->display_field(array(
+																			echo $this->parent->admin->display_field(array(
 												
 																				'id' 			=> $key,
 																				'description' 	=> '',
@@ -963,7 +552,7 @@
 													echo '</form>';
 												}
 												
-												echo '<a target="_self" href="'.$this->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output. '#' . $app->slug . '" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
+												echo '<a target="_self" href="'.$this->parent->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output. '#' . $app->slug . '" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
 												
 											echo'</div>';//add-bookmark-wrapper
 											echo'</div>';//add-bookmark

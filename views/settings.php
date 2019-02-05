@@ -25,6 +25,8 @@
 				
 				echo'<li'.( $currentTab == 'privacy-settings' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=privacy-settings">Privacy Settings</a></li>';
 				
+				echo'<li'.( $currentTab == 'social-accounts' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=social-accounts">Social Accounts</a></li>';
+				
 				echo'<li'.( $currentTab == 'email-notifications' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=email-notifications">Email Notifications</a></li>';
 								
 				do_action('ltple_profile_settings_sidebar');
@@ -139,21 +141,21 @@
 								
 							echo'</div>';
 							
-							echo'<div class="col-xs-12 col-sm-2 text-right">';
-								
-								echo'<a target="_blank" class="label label-primary" style="font-size: 13px;" href="'.$this->parent->urls->profile . $this->parent->user->ID . '/">view profile</a>';
-								
-							echo'</div>';
+							if(!empty($this->parent->profile->privacySettings )){
 							
-							echo'<div class="col-xs-12 col-sm-2"></div>';
-							
-							echo'<div class="clearfix"></div>';
-						
-							echo'<div class="col-xs-12 col-sm-8">';
-
-								echo'<table class="form-table">';
+								echo'<div class="col-xs-12 col-sm-2 text-right">';
 									
-									if(!empty($this->parent->profile->privacySettings )){
+									echo'<a target="_blank" class="label label-primary" style="font-size: 13px;" href="'.$this->parent->urls->profile . $this->parent->user->ID . '/">view profile</a>';
+									
+								echo'</div>';
+								
+								echo'<div class="col-xs-12 col-sm-2"></div>';
+								
+								echo'<div class="clearfix"></div>';
+							
+								echo'<div class="col-xs-12 col-sm-8">';
+
+									echo'<table class="form-table">';
 										
 										foreach( $this->parent->profile->privacySettings as $field ){
 											
@@ -169,23 +171,98 @@
 												
 											echo'</tr>';
 										}
-									}
+										
+									echo'</table>';
 									
-								echo'</table>';
+								echo'</div>';
+								
+								echo'<div class="clearfix"></div>';
+								
+								echo'<div class="col-xs-12 col-sm-6"></div>';
+								
+								echo'<div class="col-xs-12 col-sm-2 text-right">';
+							
+									echo'<button class="btn btn-sm btn-primary" style="width:100%;margin-top: 10px;">Save</button>';
+									
+								echo'</div>';
+
+								echo'<div class="col-xs-12 col-sm-4"></div>';
+							}
+							
+						echo'</form>';
+						
+					echo'</div>';
+				}
+				elseif( $currentTab == 'social-accounts' ){
+				
+					//---------------------- output Social Accounts --------------------------
+					
+					echo'<div class="tab-pane active" id="social-accounts">';
+					
+						echo'<form action="' . $this->parent->urls->current . '" method="post" class="tab-content row" style="margin:20px;">';
+							
+							echo'<input type="hidden" name="settings" value="social-accounts" />';
+							
+							echo'<div class="col-xs-12 col-sm-6">';
+						
+								echo'<h3>Social Accounts</h3>';
 								
 							echo'</div>';
-							
-							echo'<div class="clearfix"></div>';
-							
-							echo'<div class="col-xs-12 col-sm-6"></div>';
 							
 							echo'<div class="col-xs-12 col-sm-2 text-right">';
-						
-								echo'<button class="btn btn-sm btn-primary" style="width:100%;margin-top: 10px;">Save</button>';
 								
-							echo'</div>';
+								echo'<a target="_blank" class="label label-primary" style="font-size: 13px;" href="'.$this->parent->urls->apps . '">+ add accounts</a>';
+								
+							echo'</div>';							
+							
+							if(!empty($this->parent->profile->socialAccounts )){		
+	
+								echo'<div class="col-xs-12 col-sm-2"></div>';
+								
+								echo'<div class="clearfix"></div>';
+								
+								echo'<div class="col-xs-12 col-sm-8">';
 
-							echo'<div class="col-xs-12 col-sm-4"></div>';
+									echo'<table class="form-table">';
+										
+										foreach( $this->parent->profile->socialAccounts as $label => $fields ){
+											
+											echo'<tr>';
+											
+												echo'<th><label for="'.$label.'">'.$label.'</label></th>';
+												
+												echo'<td style="padding:10px;">';
+													
+													foreach( $fields as $field ){
+														
+														echo'<div style="padding:10px;">';
+														
+															$this->parent->admin->display_field( $field , $this->parent->user );
+													
+														echo'</div>';
+													}
+													
+												echo'</td>';
+												
+											echo'</tr>';
+										}
+										
+									echo'</table>';
+									
+								echo'</div>';
+								
+								echo'<div class="clearfix"></div>';
+								
+								echo'<div class="col-xs-12 col-sm-6"></div>';
+								
+								echo'<div class="col-xs-12 col-sm-2 text-right">';
+							
+									echo'<button class="btn btn-sm btn-primary" style="width:100%;margin-top: 10px;">Save</button>';
+									
+								echo'</div>';
+
+								echo'<div class="col-xs-12 col-sm-4"></div>';
+							}
 								
 						echo'</form>';
 						

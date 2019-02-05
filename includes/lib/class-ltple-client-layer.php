@@ -202,15 +202,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'side'
 				);	
 				
-				if( !empty($_REQUEST['post']) ){
-					
-					$this->parent->admin->add_meta_box (
-						
-						'layer-user',
-						__( 'Template User ID', 'live-template-editor-client' ), 
-						array($post->post_type),
-						'side'
-					);				
+				if( !empty($_REQUEST['post']) ){			
 			
 					$this->parent->admin->add_meta_box (
 						
@@ -466,6 +458,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'storage_unit' 	=> 'templates',
 				),
 			),
+			'addons' => array(
+			
+				'name' 		=> 'Addons',
+				'options' 	=> array(
+				
+					'price_amount'	=> 0,
+					'price_period' 	=> 'month',
+					'storage_amount'=> 0,
+					'storage_unit' 	=> 'templates',
+				),
+			),
 		));
 	}
 	
@@ -541,7 +544,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			),
 		));
 	}
-	
 	
 	public function get_css_libraries(){
 		
@@ -763,7 +765,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$post = get_post($post);
 		}
 
-		if( isset($post->post_type) ){
+		if( !empty($post->post_type) ){
 			
 			if( $post->post_type == 'user-layer' ){
 					
@@ -774,7 +776,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$post = get_post($default_id);
 			}
 			
-			if( $post->post_type == 'cb-default-layer' ){
+			if( !is_null($post) && $post->post_type == 'cb-default-layer' ){
 				
 				$terms = wp_get_post_terms($post->ID,'layer-type');
 			
@@ -1207,6 +1209,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'description'=>''
 		);
 		
+		// json object
+		
 		$fields[]=array(
 		
 			"metabox" =>
@@ -1296,6 +1300,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					</table>'
 		);
 		
+		// get layer content
+		
 		$fields[]=array(
 		
 			"metabox" =>
@@ -1307,6 +1313,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'placeholder'	=> "HTML content",
 				//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
 		);		
+		
+		// get layer css
 		
 		$fields[]=array(
 		
@@ -1466,18 +1474,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'default'		=>'-120px 0px -20px 0px',
 				'description'	=>''
 		);
-		
-		$fields[]=array( 
-		
-			"metabox" =>
-			
-				array('name'	=> "layer-user"),
-				'id'			=> "layerUserId",
-				'label'			=> "",
-				'type'			=> 'number',
-				'default'		=> 0,
-				'description'	=> ''
-		); 
 		
 		return $fields;
 	}
@@ -1925,6 +1921,50 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				echo'</td>';	
 				
 			echo'</tr>';
+			
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Addon range </label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$options = array( '-1' => 'none' );
+					
+					$ranges = get_terms( array(
+							
+						'taxonomy' 		=> 'layer-range',
+						'orderby' 		=> 'name',
+						'order' 		=> 'ASC',
+						'hide_empty'	=> false, 
+					));
+					
+					if( !empty($ranges) ){
+							
+						foreach( $ranges as $range ){
+							
+							$options[$range->term_id] = $range->name;
+						}
+					} 
+					
+					$this->parent->admin->display_field( array(			
+						
+						'name'			=> 'addon_range',
+						'id'			=> 'addon_range',
+						'label'			=> "",
+						'type'			=> 'select',
+						'options'		=> $options,
+						'inline'		=> false,
+						'description'	=> '',
+						
+					), $term );				
+					
+				echo'</td>';	
+				
+			echo'</tr>';
 		}
 		
 		// layer plan attributes
@@ -2325,6 +2365,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					update_option('visibility_'.$term->slug, $_POST['visibility_'.$term->slug]);			
 				}
 				
+				if(isset($_POST['addon_range'])){
+
+					update_term_meta( $term->term_id, 'addon_range', $_POST['addon_range']);			
+				}
+				
 				if(isset($_POST[$term->taxonomy . '-meta'])){
 
 					update_option('meta_'.$term->slug, $_POST[$term->taxonomy . '-meta']);			
@@ -2635,134 +2680,129 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->copy_dir($src,$dst);
 	}
 	
-	public function output_static_layer( $args = array() ){
-		
-		if( isset($args[0]) ){
-		
-			$output = $args[0];
+	public function output_static_layer( $output ){
 
-			if( !empty($output) ){
+		if( !empty($output) ){
+			
+			if( isset($_GET['filetree']) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
 				
-				if( isset($_GET['filetree']) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
+				echo'<!DOCTYPE html>';
+
+				echo'<head>';
+
+					echo'<meta charset="utf-8">';
+					echo'<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">';
+					echo'<meta name="viewport" content="width=device-width, initial-scale=1">';
 					
-					echo'<!DOCTYPE html>';
-
-					echo'<head>';
-
-						echo'<meta charset="utf-8">';
-						echo'<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">';
-						echo'<meta name="viewport" content="width=device-width, initial-scale=1">';
-						
-						echo'<title></title>';
-						
-						echo'<link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">';
-						echo'<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet" type="text/css">';
-						echo'<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">';
-						echo'<link href="' . $this->parent->assets_url . 'css/filetree.css" rel="stylesheet" type="text/css">';
-						
-						echo'<style>';
-						echo'body { background-color:#182f42; color:#fff; font-family:\'Quicksand\';}';
-						echo'.container { margin:150px auto; max-width:640px;}';
-						echo'</style>';
-						
-					echo'</head>';
-
-					echo'<body>';
-						
-						echo'<div class="filetree">';
-						
-							echo $this->get_filetree( $this->layerStaticDir );
-
-						echo'</div>';
-						
-						echo'<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>';
-						echo'<script src="' . $this->parent->assets_url . 'js/filetree.js"></script>';
-
-					echo'</body>';
+					echo'<title></title>';
 					
-					exit;
+					echo'<link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">';
+					echo'<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet" type="text/css">';
+					echo'<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">';
+					echo'<link href="' . $this->parent->assets_url . 'css/filetree.css" rel="stylesheet" type="text/css">';
+					
+					echo'<style>';
+					echo'body { background-color:#182f42; color:#fff; font-family:\'Quicksand\';}';
+					echo'.container { margin:150px auto; max-width:640px;}';
+					echo'</style>';
+					
+				echo'</head>';
+
+				echo'<body>';
+					
+					echo'<div class="filetree">';
+					
+						echo $this->get_filetree( $this->layerStaticDir );
+
+					echo'</div>';
+					
+					echo'<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>';
+					echo'<script src="' . $this->parent->assets_url . 'js/filetree.js"></script>';
+
+				echo'</body>';
+				
+				exit;
+			}
+			elseif(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && $this->layerOutput == 'downloadable' ){
+			 
+				// sanitize content
+				
+				$output = str_replace(array('<?php'),'',$output);
+				
+				// remove absolute image path
+				
+				$output = str_replace($this->parent->image->url,'assets/images/',$output);
+				
+				// store static output
+				
+				//if( $this->type == 'user-layer' || !file_exists($this->layerStaticPath) ){ 
+				
+					file_put_contents($this->layerStaticPath,$output);
+				//}
+				
+				// store static css
+				
+				if( !empty( $this->defaultCss ) ){
+				
+					file_put_contents($this->defaultStaticCssPath,$this->defaultCss);
 				}
-				elseif(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && $this->layerOutput == 'downloadable' ){
-				 
-					// sanitize content
+				
+				if( $this->type == 'user-layer' && $this->layerCss != $this->defaultCss ){
 					
-					$output = str_replace(array('<?php'),'',$output);
+					file_put_contents($this->layerStaticCssPath,$this->layerCss);
+				}					
+				
+				// store static js
+				
+				if( !empty( $this->defaultJs) ){
+				
+					file_put_contents($this->defaultStaticJsPath,$this->defaultJs);
+				}
+				
+				if( $this->type == 'user-layer' && $this->layerJs != $this->defaultJs ){
 					
-					// remove absolute image path
+					file_put_contents($this->layerStaticJsPath,$this->layerJs);
+				}
+				
+				// output content
+				
+				if( isset($_GET['preview']) ){
 					
-					$output = str_replace($this->parent->image->url,'assets/images/',$output);
+					echo '<!DOCTYPE html>';
 					
-					// store static output
+					echo '<head>';
 					
-					//if( $this->type == 'user-layer' || !file_exists($this->layerStaticPath) ){ 
-					
-						file_put_contents($this->layerStaticPath,$output);
-					//}
-					
-					// store static css
-					
-					if( !empty( $this->defaultCss ) ){
-					
-						file_put_contents($this->defaultStaticCssPath,$this->defaultCss);
-					}
-					
-					if( $this->type == 'user-layer' && $this->layerCss != $this->defaultCss ){
+						echo '<title>';
 						
-						file_put_contents($this->layerStaticCssPath,$this->layerCss);
-					}					
-					
-					// store static js
-					
-					if( !empty( $this->defaultJs) ){
-					
-						file_put_contents($this->defaultStaticJsPath,$this->defaultJs);
-					}
-					
-					if( $this->type == 'user-layer' && $this->layerJs != $this->defaultJs ){
-						
-						file_put_contents($this->layerStaticJsPath,$this->layerJs);
-					}
-					
-					// output content
-					
-					if( isset($_GET['preview']) ){
-						
-						echo '<!DOCTYPE html>';
-						
-						echo '<head>';
-						
-							echo '<title>';
+							echo 'Preview - ' . $this->title;
 							
-								echo 'Preview - ' . $this->title;
-								
-							echo '</title>';
+						echo '</title>';
+					
+					echo '</head>';
+					
+					echo '<body>';
+					
+						echo '<iframe src="' . $this->layerStaticUrl . '" style="position:fixed;top:0px;left:0px;bottom:0px;right:0px;width:100%;height:100%;border:none;margin:0;padding:0;overflow:hidden;z-index:999999;" />';
 						
-						echo '</head>';
-						
-						echo '<body>';
-						
-							echo '<iframe src="' . $this->layerStaticUrl . '" style="position:fixed;top:0px;left:0px;bottom:0px;right:0px;width:100%;height:100%;border:none;margin:0;padding:0;overflow:hidden;z-index:999999;" />';
-							
-						echo '</body>';
-					}
-					else{
-						
-						wp_redirect($this->layerStaticUrl);exit;
-						
-						// add base
-						
-						$content  = '<head>' . PHP_EOL;
-						$content .= '<base href="' . dirname($this->layerStaticUrl) . '/">';
-						
-						$output = str_replace('<head>',$content,$output);
-						
-						echo $output;
-					}
+					echo '</body>';
 				}
 				else{
 					
+					wp_redirect($this->layerStaticUrl);exit;
+					
+					// add base
+					
+					$content  = '<head>' . PHP_EOL;
+					$content .= '<base href="' . dirname($this->layerStaticUrl) . '/">';
+					
+					$output = str_replace('<head>',$content,$output);
+					
 					echo $output;
 				}
+			}
+			else{
+				
+				echo $output;
 			}
 		}
 	}

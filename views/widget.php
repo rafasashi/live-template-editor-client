@@ -13,11 +13,7 @@
 	
 		<?php
 		
-			if( isset($_GET['media']) ){
-				
-				include( $this->views .'/media.php' );
-			}
-			elseif( isset($_GET['app']) ){
+			if( isset($_GET['app']) ){
 				
 				include( $this->views .'/apps.php' );
 			}
@@ -52,8 +48,8 @@
 					else{
 						
 						// addon widgets
-						
-						echo the_content();
+
+						echo apply_filters( 'the_content', $post->post_content );
 					}
 				}
 			}

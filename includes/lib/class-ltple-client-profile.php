@@ -4,12 +4,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class LTPLE_Client_Profile {
 
-	var $parent;
+	private $parent;
+	
 	var $id = 0;
 	var $slug;
 	var $tabs = null;
 	var $user = null;
 	var $privacySettings = null;
+	var $socialAccounts = null;
 	var $notificationSettings = null;
 	var $pictures;
 	
@@ -37,12 +39,12 @@ class LTPLE_Client_Profile {
 			return $query_vars;
 		}, 1);
 		
-		add_filter('template_redirect', array( $this, 'get_profile_pameters' ));
+		add_filter('template_redirect', array( $this, 'get_profile_parameters' ));
 		
 		add_shortcode('ltple-client-profile', array( $this , 'get_profile_shortcode' ) );
 	}
 	
-	public function get_profile_pameters(){
+	public function get_profile_parameters(){
 		
 		// get displayed user id
 		
@@ -60,10 +62,18 @@ class LTPLE_Client_Profile {
 			}	
 			
 			add_filter('ltple_header_title', array($this,'get_profile_title'),10,1);
+			
+			add_filter('the_seo_framework_title_from_custom_field', array($this,'get_profile_title'),10);
+			
+			add_filter('ltple_header_canonical_url', array($this,'get_profile_url'),10);
+			
+			add_filter('the_seo_framework_rel_canonical_output', '__return_empty_string');
+			
+			add_filter('get_canonical_url', array($this,'get_profile_url'),10);
 		}
 		elseif( !is_admin() && $this->parent->user->loggedin ){
 				
-			$this->pictures	= $this->get_profile_pictures();
+			$this->pictures	= $this->get_profile_picture_fields();
 		}
 	}
 	
@@ -84,6 +94,15 @@ class LTPLE_Client_Profile {
 				}
 			}
 		}
+		
+		return $this->parent->title;
+	}
+	
+	public function get_profile_url(){
+		
+		$this->parent->canonical_url = $this->parent->urls->profile . $this->id . '/';
+	
+		return $this->parent->canonical_url;
 	}
 	
 	public function get_profile_shortcode(){
@@ -155,6 +174,13 @@ class LTPLE_Client_Profile {
 						$content = wp_kses_post($_POST[$id]);
 
 						update_user_meta( $this->parent->user->ID, $id, $content );
+					
+						if( $id == $this->parent->_base . 'profile_picture' ){
+							
+							// refresh image
+							
+							$this->parent->image->parse_avatar_url($content,$this->parent->user->ID,true);
+						}
 					}
 				}
 			}
@@ -169,6 +195,22 @@ class LTPLE_Client_Profile {
 					$content = ( !empty($_POST[$id]) ? wp_kses_post($_POST[$id]) : 'off' );
 
 					update_user_meta( $this->parent->user->ID, $id, $content );
+				}
+			}
+			elseif( $_POST['settings'] == 'social-accounts' ){
+				
+				// save privacy settings
+
+				foreach( $this->socialAccounts as $label => $fields){
+					
+					foreach( $fields as $field ){
+					
+						$id = $field['id'];
+					
+						$content = ( !empty($_POST[$id]) ? wp_kses_post($_POST[$id]) : 'off' );
+
+						update_user_meta( $this->parent->user->ID, $id, $content );
+					}
 				}
 			}
 			elseif( $_POST['settings'] == 'email-notifications' && !empty($this->parent->user->notify) ){
@@ -204,8 +246,8 @@ class LTPLE_Client_Profile {
 		}
 	}
 	
-	public function get_profile_pictures( $user_id = 0, $userApps = array() ){
-	
+	public function get_profile_picture_fields( $user_id = 0, $userApps = array() ){
+	 
 		if( $user_id == 0) {
 			
 			$user_id = $this->parent->user->ID;
@@ -262,7 +304,7 @@ class LTPLE_Client_Profile {
 	}
 	
 	public function get_profile_tabs(){
-				
+
 		if( is_null($this->tabs) ){
 		
 			$this->tabs = [];
@@ -274,7 +316,9 @@ class LTPLE_Client_Profile {
 			$this->tabs['about-me']['name'] = 'About Me';
 			
 			$this->tabs['about-me']['content'] = '<table class="form-table">';
-			
+				
+				$this->fields = $this->get_general_fields();
+				
 				foreach( $this->fields as $field ){
 					
 					$this->tabs['about-me']['content'] .= '<tr>';
@@ -361,28 +405,35 @@ class LTPLE_Client_Profile {
 			'top'
 		);
 		
-		if( !is_admin() && $this->parent->user->loggedin ){
-
-			// get profile fields
+		if( !is_admin() ){
 			
-			if( !empty($_GET['tab']) && $_GET['tab'] == 'privacy-settings' ){
-				
-				$this->set_privacy_fields();
-			}
-			elseif( !empty($_GET['tab']) && $_GET['tab'] == 'email-notifications' ){
-				
-				$this->set_notification_fields();
-			}
-			else{
-				
-				$this->pictures	= $this->get_profile_pictures();
-				
-				$this->fields = $this->get_general_fields();
-			}
+			if( $this->parent->user->loggedin ){
 			
-			// update profile fields
-		
-			$this->handle_update_profile();
+				// get profile fields
+				
+				if( !empty($_GET['tab']) && $_GET['tab'] == 'privacy-settings' ){
+					
+					$this->set_privacy_fields();
+				}
+				elseif( !empty($_GET['tab']) && $_GET['tab'] == 'social-accounts' ){
+					
+					$this->set_social_fields();
+				}
+				elseif( !empty($_GET['tab']) && $_GET['tab'] == 'email-notifications' ){
+					
+					$this->set_notification_fields();
+				}
+				else{
+					
+					$this->pictures	= $this->get_profile_picture_fields();
+					
+					$this->fields = $this->get_general_fields();
+				}
+				
+				// update profile fields
+			
+				$this->handle_update_profile();
+			}
 		}
 	}
 	
@@ -430,6 +481,34 @@ class LTPLE_Client_Profile {
 		
 		return $fields;
 	}
+	
+	public function set_social_fields(){
+		
+		if( is_null($this->socialAccounts) ){
+			
+			if ( $apps = $this->parent->apps->getUserApps($this->parent->user->ID) ){
+				
+				foreach( $apps as $app ){
+					
+					if( !empty( $app->user_profile ) ){
+						
+						$this->socialAccounts[$app->app_name][$app->ID] = array(
+
+							'id' 			=> $this->parent->_base . 'app_profile_' . $app->ID,
+							'label'			=> ucfirst($app->user_name),
+							'description'	=> 'Add <a target="_blank" href="' . $app->user_profile . '">' . ucfirst($app->user_name) . ' <span class="fa fa-external-link" style="font-weight:bold;font-size:10px;"></span></a> social icon in My Profile',
+							'type'			=> 'switch',
+							'default'		=> 'on',
+						);						
+					}
+				}
+			}
+			
+			do_action('ltple_social_accounts');
+		}
+		
+		return $this->privacySettings;
+	}	
 	
 	public function set_privacy_fields(){
 		

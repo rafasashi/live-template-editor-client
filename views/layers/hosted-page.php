@@ -443,6 +443,13 @@
 						$head .= '<meta name="twitter:image" content="'.$content.'" />'.PHP_EOL;
 						
 					}
+					elseif( $key == 'meta_favicon' ){
+						
+						$head .= '<link rel="icon" href="'.$content.'" sizes="32x32"/>'.PHP_EOL;
+						$head .= '<link rel="icon" href="'.$content.'" sizes="192x192"/>'.PHP_EOL;
+						$head .= '<link rel="apple-touch-icon-precomposed" href="'.$content.'"/>'.PHP_EOL;
+						$head .= '<meta name="msapplication-TileImage" content="'.$content.'"/>'.PHP_EOL;				
+					}
 					elseif( $key == 'meta_facebook-id' ){
 						
 						$head .= '<meta property="fb:admins" content="'.$content.'"/>'.PHP_EOL;
@@ -606,7 +613,7 @@
 	$layer .= '<html>';
 	$layer .= $head;
 
-	$layer .= '<body style="background:#fff;padding:0;margin:0;display:flex !important;width:100%;">';
+	$layer .= '<body style="background:#fff;padding:0;margin:0;display:flex !important;width:100%;overflow-x:hidden;">';
 		
 		//include style-sheets
 		

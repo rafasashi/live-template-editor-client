@@ -11,6 +11,8 @@
 		var $referent;
 		var $referral;
 		var $referrals;
+		
+		var $bbpAuthorLinks = array();
 
 		public function __construct ( $parent ) {
 			
@@ -18,9 +20,27 @@
 			
 			$this->list = new stdClass();
 			
+			add_filter('init', array( $this, 'init_periods' ));
+			
 			add_filter('ltple_loaded', array( $this, 'init_users' ));
 			
-			add_filter('init', array( $this, 'init_periods' ));
+			add_filter('author_link', array($this, 'get_author_url'),9999,2);
+			
+			add_filter('bbp_suppress_private_author_link', array($this, 'get_bbp_author_link'),9999);
+				
+			add_filter('template_redirect', array( $this, 'redirect_user_profile' ));
+			
+			add_filter('bbp_template_before_user_profile', array( $this, 'redirect_bbpress_profile' ));
+			
+			add_filter('bbp_template_before_user_subscriptions', array( $this, 'redirect_bbpress_profile' ));
+			
+			add_filter('bbp_template_before_user_topics_created', array( $this, 'redirect_bbpress_profile' ));			
+			
+			add_filter('bbp_template_before_user_replies', array( $this, 'redirect_bbpress_profile' ));
+			
+			add_filter('bbp_template_before_user_favorites', array( $this, 'redirect_bbpress_profile' ));
+			
+			add_filter('bbp_user_edit_before', array( $this, 'redirect_bbpress_edit_profile' ));
 		}
 		
 		public function init_periods(){
@@ -43,6 +63,115 @@
 					wp_schedule_event( time(), 'daily' , $this->parent->_base . 'update_periods' );
 				}
 			}
+		}
+		
+		public function get_author_url( $url, $author_id ){
+			
+			if( !empty($this->parent->urls->profile) ){
+				
+				$url = $this->parent->urls->profile . $author_id. '/';
+			}
+			
+			return $url;
+		}
+
+		public function get_bbp_author_link( $link ){
+			
+			$md5 = md5($link);
+			
+			if( isset($this->bbpAuthorLinks[$md5]) ){
+				
+				$link = $this->bbpAuthorLinks[$md5];
+			}
+			else{
+				
+				$regexp = "<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>";
+			  
+				if( preg_match_all("/$regexp/siU", $link, $matches) ) {
+					
+					$link = '';
+					
+					if( !empty($matches[2][0]) ){
+						
+						$author_name = basename($matches[2][0]);
+
+						if( $author = get_user_by('slug',$author_name) ){
+							
+							$url = $this->parent->urls->profile . $author->ID . '/';
+							
+							$name = ucfirst($author->nickname);
+							
+							$picture = $this->parent->image->get_avatar_url($author->ID);
+							
+							$link .= '<a style="display:inline-block;" href="'.$url.'" title="View '.$name.'\'s profile" class="bbp-author-avatar">';
+								
+								$link .= '<img style="border:0;border-radius:250px;" alt="" src="'.$picture.'" srcset="'.$picture.'" class="avatar photo" />';
+							
+							$link .= '</a>';
+							
+							$link .= '&nbsp;';
+							
+							$link .= '<a href="'.$url.'" title="View '.$name.'\'s profile" class="bbp-author-name">';
+							
+								$link .= $name;
+							
+							$link .= '</a>';					
+						}
+					}
+				}
+				
+				$this->bbpAuthorLinks[$md5] = $link;
+			}
+			
+			return $link;
+		}		
+		
+		public function redirect_user_profile(){
+			
+			if( is_author() ){
+				
+				$author_name = get_query_var('author_name');
+				
+				if( $author = get_user_by('slug',$author_name) ){
+					
+					$url = $this->parent->urls->profile . $author->ID . '/';
+					
+					wp_redirect($url);
+				}
+				else{
+					
+					echo 'No profile found...';
+				}
+				
+				exit;
+			}
+		}
+		
+		public function redirect_bbpress_profile(){
+			
+			$author_name = get_query_var('author_name');
+			
+			if( $author = get_user_by('slug',$author_name) ){
+				
+				$url = $this->parent->urls->profile . $author->ID . '/';
+				
+				wp_redirect($url);
+			}
+			else{
+				
+				echo 'This page doesn\'t exists...';
+			}
+			
+			exit;
+		}
+
+		public function redirect_bbpress_edit_profile(){
+			
+			$url = $this->parent->urls->profile;
+				
+			wp_redirect($url);
+			
+			exit;
 		}
 		
 		public function init_users(){
@@ -153,23 +282,14 @@
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_last_seen') );
-					
-					// custom bulk actions
-					
-					//add_action('load-users.php', array( $this, 'bulk_send_email_model') );
-					add_action('load-users.php', array( $this, 'bulk_schedule_email_model') );
-					add_action('load-users.php', array( $this, 'bulk_add_plan') );
-					add_action('load-users.php', array( $this, 'bulk_add_type') );
-					add_action('load-users.php', array( $this, 'bulk_add_range') );
-					add_action('load-users.php', array( $this, 'bulk_add_option') );
-					add_action('load-users.php', array( $this, 'bulk_add_stars') );
+					add_filter( 'pre_get_users', array( $this, 'filter_users_by_role') );
 				}				
 			}
 		}
 		
 		public function update_periods(){
 			
-			$api_url = $this->parent->server->url . '/wp-json/ltple-subscription/v1/periods';
+			$api_url = $this->parent->server->url . '/wp-json/ltple-subscription/v1/periods?_=' . time();
 			
 			$response = wp_remote_get( $api_url );
 			
@@ -188,7 +308,7 @@
 						if( !empty($periods) && is_array($periods) ){
 							
 							// get users with subscription
-							
+
 							if( $users = get_users(array(
 							
 								'meta_query'  => array(
@@ -214,7 +334,7 @@
 										update_user_meta($user->id, $this->parent->_base . 'period_end', $period_end);
 									}
 								}
-							}
+							}							
 						}
 					}
 				}
@@ -488,7 +608,7 @@
 
 			return $avatar;
 		}
-
+		
 		public function get_browser( $user_agent ) {
 			
 			$browser = '';
@@ -523,7 +643,7 @@
 			<script type="text/javascript">
 			
 				jQuery(document).ready(function() {
-					  
+
 					// find and update all segmentation href
 					  
 					jQuery('.subsubsub a').each(function() {
@@ -917,15 +1037,17 @@
 			<script type="text/javascript">
 			
 				jQuery(document).ready(function() {
-					  
+					  					
 					// append to top dropdown
 					jQuery('<option>').val('export-emails').text('<?php _e('Export emails')?>').appendTo("select[name='action']");
 					
 					// append to bottom dropdown
 					jQuery('<option>').val('export-emails').text('<?php _e('Export emails')?>').appendTo("select[name='action2']");
 				
-					jQuery('form').attr('method','post');
-					
+					// switch method to get
+					jQuery('form').attr('method','get');  
+					 
+					// select all users
 					jQuery('#cb-select-all-1').click( function(){
 						
 						if( jQuery(this).is(':checked') ){
@@ -1018,7 +1140,18 @@
 					//$sendback = add_query_arg( array( 'exported' => $exported, 'ltple_view' => $_REQUEST['ltple_view'] ), $sendback );		
 				
 				break;
-				default: return;
+				default:
+					
+					// custom bulk actions
+					
+					$this->bulk_schedule_email_model();
+					$this->bulk_add_plan();
+					$this->bulk_add_type();
+					$this->bulk_add_range();
+					$this->bulk_add_option();
+					$this->bulk_add_stars();					
+				
+				return;
 			}
 		 
 			// redirect client
@@ -1043,6 +1176,16 @@
 			return $value;
 		}
 
+		public function filter_users_by_role( $query ) {
+
+			if( !empty($_REQUEST['role']) ){
+				
+				$query->set( 'role', $_REQUEST['role']);
+			}
+			
+			return $query;
+		}		
+		
 		public function filter_users_by_last_seen( $query ) {
 			
 			$compare = '';
@@ -1242,6 +1385,24 @@
 		}
 		*/
 		
+		public function get_all_selected_users( $field ) {
+			
+			$selected_users = array();
+			
+			if( $users = new WP_User_Query(array('fields'=>array($field))) ){
+				
+				if( !empty($users->results) ){
+					
+					foreach( $users->results as $user){
+						
+						$selected_users[] = $user->{$field};
+					}
+				}
+			}
+
+			return $selected_users;
+		}
+		
 		public function bulk_schedule_email_model() {
 			
 			$post_type 	= 'email-model';
@@ -1270,46 +1431,34 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$meta_query = array();
-
-					$meta_query[] = array (
-							
-						array(
-						
-							'key' 		=> $this->parent->_base . '_email_sent',
-							'value'		=> $model_slug,
-							'compare'	=> 'NOT LIKE',
-						)
-					);					
-					
-					$users = get_users(array(
-					
-						'fields' => 'id',
-						'meta_query' => $meta_query,						
-					));
+					$users = $this->get_all_selected_users('id');
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
 					$users = $_REQUEST['users'];
 				}
-
+				
 				if( !empty($users) ){
+					
+					$max_users = 10;
+
+					// prepare user list
+
+					$users = array_chunk($users,$max_users);
 		
 					//get time limit
 					
 					$max_execution_time = ini_get('max_execution_time'); 
 					
 					//remove time limit
-					
+
 					set_time_limit(0);				
 				
 					$m = 0;
 				
-					foreach( $users as $i => $user_id){
+					foreach( $users as $i => $user_ids){
 
-						//var_dump(get_user_meta($user_id, $this->parent->_base . '_email_sent',true));exit;
-					
-						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , $this->parent->_base . 'send_email_event' , [$model_id,intval($user_id)] );
+						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , $this->parent->_base . 'bulk_send_email_event' , [$model_id,$user_ids] );
 					
 						if ($i % 10 == 0) {
 							
@@ -1345,10 +1494,7 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = get_users(array(
-					
-						'fields' => 'id',					
-					));
+					$users = $this->get_all_selected_users('id');
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
@@ -1398,10 +1544,7 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = get_users(array(
-					
-						'fields' => 'id',					
-					));
+					$users = $this->get_all_selected_users('id');
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
@@ -1450,10 +1593,7 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = get_users(array(
-					
-						'fields' => 'id',					
-					));
+					$users = $this->get_all_selected_users('id');;
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
@@ -1502,10 +1642,7 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = get_users(array(
-					
-						'fields' => 'id',					
-					));
+					$users = $this->get_all_selected_users('id');
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
@@ -1649,7 +1786,7 @@
 				
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = get_users(array('fields'=>'id'));
+					$users = $this->get_all_selected_users('id');
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					

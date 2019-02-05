@@ -60,6 +60,11 @@ class LTPLE_Integrator_Bookmark {
 		}
 	}
 	
+	public function init_app(){
+		
+		return true;
+	}
+	
 	public function appDeleteBookmark(){
 	
 		if( isset($_GET['id']) ){
@@ -236,7 +241,7 @@ class LTPLE_Integrator_Bookmark {
 			$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 			curl_close($ch);
 			
-			if( $httpcode >= 300 ){
+			if( $httpcode >= 400 ){
 				
 				$this->message .= '<div class="alert alert-warning">';
 					

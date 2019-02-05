@@ -10,15 +10,22 @@
 		
 		$_SESSION['message'] = '';
 	}
-	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
+	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && ( $this->layer->layerOutput != 'canvas' || !isset($_GET['quick']) ) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
 	
 		$has_storage = ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? false : true );
 
 		echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
 			
 			echo '<h2>Start a new project</h2>';
-
-			echo'<hr></hr>';
+			
+			if($this->layer->layerOutput == 'canvas'){
+				
+				echo'<hr>';
+				
+				echo'<a href="'.add_query_arg('quick','',$this->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Start a quick canvas</a>';
+			}
+			
+			echo'<hr>';
 			
 			if($has_storage){
 				
@@ -30,7 +37,7 @@
 					
 					echo'<div class="input-group">';					
 						
-						echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-lg required" placeholder="Template Title">';
+						echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-lg required" placeholder="Project Title">';
 						echo'<input type="hidden" name="postContent" id="postContent" value="">';
 						
 						if( $is_embedded ){
@@ -52,7 +59,7 @@
 
 							echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 								
-							echo'<input class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="border-radius: 0 3px 3px 0;" value="Start" />';
+							echo'<input class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="border-radius: 0 3px 3px 0;padding: 8px 15px;" value="Start" />';
 						
 						echo'</span>';
 						
@@ -142,6 +149,21 @@
 		if( $this->layer->layerImgProxy != '' ){
 		
 			echo ' var imgProxy = " ' . $this->layer->layerImgProxy . '";' . PHP_EOL;				
+		}
+		
+		//include quick edit
+		
+		if( $this->layer->layerOutput == 'canvas' && isset($_GET['quick']) ){
+			
+			echo ' var quickEdit = true;' .PHP_EOL;
+		}
+		elseif( !$this->user->plan["info"]["total_price_amount"] > 0 ){
+			
+			echo ' var quickEdit = false;' .PHP_EOL;
+		}
+		else{
+			
+			echo ' var quickEdit = false;' .PHP_EOL;
 		}
 		
 		//include page def

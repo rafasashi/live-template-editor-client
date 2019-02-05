@@ -22,7 +22,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	public function __construct ( $parent ) {
 		
 		$this->parent = $parent;
-		
+	
 		$this->parent->register_post_type( 'default-image', __( 'Default Images', 'live-template-editor-client' ), __( 'Default Image', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
@@ -289,14 +289,6 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 							$_SESSION['message'] .='</div>';					
 						}
 					}
-					else{
-						
-						$_SESSION['message'] ='<div class="alert alert-danger">';
-
-							$_SESSION['message'] .= 'This image doesn\'t exist';
-
-						$_SESSION['message'] .='</div>';					
-					}
 				}				
 				
 				if( $this->att > 0 ){
@@ -537,7 +529,96 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function upload_cropped_image($name,$base64){
+	public function upload_canvas_image(){
+		
+		if( !empty($this->parent->user->ID) ){
+			
+			$file = 'file';
+						
+			if($_FILES[$file]['error'] !== UPLOAD_ERR_OK ) {
+				
+				if( intval($_FILES[$file]['error']) != 4 ){
+					
+					echo "upload error : " . $_FILES[$file]['error'];
+					exit;
+				}
+			}
+			else{
+				
+				$mime = explode('/',$_FILES[$file]['type']);
+				
+				if($mime[0] !== 'image') {
+					
+					echo 'This is not a valid image type...';
+					exit;							
+				}
+				
+				if( $data = file_get_contents($_FILES[$file]['tmp_name'])){
+					
+					// rename file
+					
+					$md5 = md5($data);
+					
+					$_FILES[$file]['name'] = $md5 . '.' . $mime[1];
+								
+					//check if image exists
+					
+					$q = new WP_Query(array(
+						
+						'name' 			=> $md5,
+						'post_author' 	=> $this->parent->user->ID,
+						'post_type' 	=> 'attachment',
+						'posts_per_page'=> -1,
+					));
+
+					if( $q->post_count == 0 ){
+						
+						//require the needed files
+						
+						require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+						require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+						require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+						
+						//upload image
+						
+						if( $attach_id = media_handle_upload( $file, 0 ) ){
+							
+							// update upload source
+							
+							if( is_numeric($attach_id) && update_post_meta($attach_id,$this->parent->_base . 'upload_source','canvas') ) {
+							
+								// output message
+								
+								echo 'Canvas uploaded';
+							}
+							else{
+								
+								echo'Error saving canvas...';	
+							}
+						}
+						else{
+								
+							echo'Error uploading canvas...';									
+						}
+					}
+					else{
+						
+						// output warning message
+
+						echo 'This image already exists...';									
+					}
+				}
+				else{
+					
+					echo 'Error uploading your image...';
+					exit;									
+				}
+			}		
+		
+		}
+	}
+	
+	public function upload_editor_image($name,$base64){
 		
 		if( !empty($this->parent->user->ID) ){
 		
@@ -644,7 +725,9 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 
 		if( is_numeric($user_id) ){
 			
-			if( !$url = get_user_meta( $user_id , $this->parent->_base . 'profile_picture', true ) ){
+			$url = get_user_meta( $user_id , $this->parent->_base . 'profile_picture', true );
+
+			if( empty($url) ){
 				
 				$url = $this->get_local_avatar_url($user_id);
 			}
@@ -661,13 +744,13 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		return $url;
 	}
 	
-	public function parse_avatar_url($url,$user_id){
+	public function parse_avatar_url($url,$user_id,$refresh=false){
 		
 		$md5 = md5(str_replace(array('http://','https://'),'',$url));
 		
 		$path = $this->get_avatar_path($user_id,$md5);
 		
-		if( file_exists($path) ){
+		if( !$refresh && file_exists($path) ){
 			
 			$url = $this->url . $user_id . '/avatar_'.$md5.'.png';
 		}
@@ -725,8 +808,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				return $this->url . $user_id . '/banner.png';
 			}
 			else{
-				
-				return plugins_url() . '/' . $this->parent->settings->plugin->slug . '/assets/images/profile_header.jpg';
+				 
+				return $this->parent->settings->options->profile_header;
 			}
 		}
 

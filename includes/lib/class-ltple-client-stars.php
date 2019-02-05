@@ -98,7 +98,7 @@
 				'description' => 'when you connect any new App'
 			);
 			
-			// wpforo triggers
+			// forum triggers
 			
 			if( is_plugin_active('wpforo/wpforo.php') ){
 				
@@ -111,6 +111,18 @@
 						
 					'description' => 'when you post a message on a forum topic'
 				);						
+			}
+			elseif( is_plugin_active('bbpress/bbpress.php') ){
+				
+				$this->triggers['forum interaction']['bbp_new_topic'] = array(
+						
+					'description' => 'when you start a new topic on the forum'
+				);
+
+				$this->triggers['forum interaction']['bbp_new_reply'] = array(
+						
+					'description' => 'when you reply to a forum topic'
+				);					
 			}
 
 			return true;

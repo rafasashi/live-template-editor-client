@@ -105,6 +105,8 @@ class LTPLE_Client_Email {
 		// add cron events
 			
 		add_action( $this->parent->_base . 'send_email_event', array( $this, 'send_model'),1,2);
+		
+		add_action( $this->parent->_base . 'bulk_send_email_event', array( $this, 'bulk_send_model'),1,2);
 
 		// setup phpmailer
 
@@ -575,7 +577,7 @@ class LTPLE_Client_Email {
 						
 						wp_mail($this->parent->settings->options->emailSupport, 'Error sending email model id ' . $model_id . ' to ' . $user->user_email, print_r($phpmailer->ErrorInfo,true));
 						
-						var_dump($phpmailer->ErrorInfo);exit;				
+						//var_dump($phpmailer->ErrorInfo);exit;				
 					}
 					else{
 						
@@ -603,6 +605,16 @@ class LTPLE_Client_Email {
 		}
 		
 		return false;
+	}
+	
+	public function bulk_send_model( $model_id, $user_ids ){
+		
+		foreach( $user_ids as $user_id ){
+			
+			$this->send_model($model_id,$user_id);
+		}
+		
+		return true;
 	}
 	
 	public function send_subscription_summary( $user, $plan_id = null ){

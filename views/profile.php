@@ -5,9 +5,9 @@
 	$self_profile = ( $this->parent->user->loggedin && $this->user->ID  == $this->parent->user->ID ? true : false );
 	
 	if( $is_public || $self_profile ){
-
-		$background_color = '#fff';
-		
+	
+		// get background
+	
 		$background_image = $this->parent->image->get_banner_url($this->user->ID) . '?' . time();
 		
 		// is profile editable
@@ -24,7 +24,13 @@
 		
 		// get tabs
 		
-		$tabs = $this->get_profile_tabs();
+		$tabs = $this->get_profile_tabs($this->user->ID);
+		
+		// get apps
+		
+		$apps = $this->parent->apps->getUserApps($this->user->ID);
+		
+		// profile style
 		
 		echo'<style>';
 		
@@ -65,9 +71,9 @@
 				
 			.profile-avatar img {
 
-				border: solid 10px '.$background_color.';
+				border: solid 20px #f9f9f9;
 				border-radius: 100px;
-				margin-top: 70px;
+				margin:0px;
 				position: relative;
 				background:#fff;
 			}
@@ -87,7 +93,7 @@
 				display: inline-block;
 				padding-top: 30px;
 				padding-bottom: 100px;
-				background-color: '.$background_color.';
+				background-color: #fff;
 				width: 100%;
 				min-height: 500px;
 			}		
@@ -96,142 +102,180 @@
 		
 		echo'</style>';
 		
-		echo'<div id="profile_page" class="row">';
+		echo'<div id="profile_page">';
 
-			echo'<div class="col-xs-12">';
+			echo'<div class="profile-overlay"></div>';
+
+			echo'<div class="profile-heading text-center" style="'.( $editable ? 'padding-top:80px;' : 'padding-top:125px;').'">';
 				
-				echo'<div class="profile-overlay"></div>';
-
-				echo'<div class="profile-heading text-center" style="'.( $editable ? 'padding-top:80px;' : 'padding-top:125px;').'">';
+				echo '<h2>' . $name . '</h2>';
+				
+				// mobile avatar
+				
+				echo '<div class="profile-avatar text-center hidden-sm hidden-md hidden-lg" style="margin:10px;">';
+				
+					echo'<img style="border:solid 5px #f9f9f9;" src="' . $picture . '" height="100" width="100" />';
 					
-					echo '<h2>' . $name . '</h2>';
-
-					if( $editable ){
-						
-						echo '<a title="Edit profile" href="' . $this->parent->urls->profile . '">';
-						
-							echo '<span class="fa fa-pencil" style="
-								color: #fff;
-								font-size: 28px;
-								position: relative;
-								border: 4px solid #fff;
-								border-radius: 250px;
-								height: 45px;
-								width: 45px;
-								text-align: center;
-								padding: 5px;
-								box-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
-							"></span>';
-							
-						echo '</a>';
-					}				
+				echo '</div>';			
+				
+				if( $editable ){
 					
-					echo '<div class="profile-avatar">';
+					echo '<a class="hidden-xs" title="Edit profile" href="' . $this->parent->urls->profile . '">';
+					
+						echo '<span class="fa fa-pencil" style="
+							color: #fff;
+							font-size: 28px;
+							position: relative;
+							border: 4px solid #fff;
+							border-radius: 250px;
+							height: 45px;
+							width: 45px;
+							text-align: center;
+							padding: 5px;
+							box-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
+						"></span>';
+						
+					echo '</a>';
+				}
+								
+			echo'</div>'; //profile-overlay
+			
+			echo'<div id="panel">';
+			
+				echo'<div class="col-xs-3 col-sm-2 text-center hidden-xs">';
+						
+					// user avatar	
+						
+					echo '<div class="profile-avatar text-center" style="margin: -60px 10px 10px 10px;">';
 					
 						echo'<img src="' . $picture . '" height="150" width="150" />';
 						
 					echo '</div>';
-									
-				echo'</div>'; //profile-overlay
-			
-				echo'<div class="profile-menu">';
-				
-					echo'<div class="col-xs-12 col-sm-1"></div>';
-				
-					echo'<div class="col-xs-12 col-sm-10">';
 					
-						if( !$is_public && $self_profile ){
-							
-							echo '<div class="alert alert-warning row" style="margin: 20px 0 !important;">';
-								
-								echo'<div class="col-xs-9">';
-								
-									echo 'Your profile is restrected, only you can see this page.';
-								
-								echo '</div>';
-								
-								echo'<div class="col-xs-3 text-right">';
-								
-									echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-policy">Edit</a>';
-								
-								echo '</div>';
-								
-							echo '</div>';			
-						}						
+					// user stars
+					
+					echo '<span class="badge" style="background-color:#fff;color:' . $this->parent->settings->mainColor . ';font-size:18px;border-radius: 25px;padding: 8px 18px;box-shadow: inset 0px 0px 1px #666;">';
 						
-						echo'<ul class="nav nav-tabs" role="tablist" style="overflow: visible;">';
-							
-							foreach( $tabs as $tab){
+						echo '<span class="glyphicon glyphicon-star" aria-hidden="true"></span> ';
+						
+						echo $this->parent->stars->get_count($this->user->ID);
+				
+					echo '</span>';
+					
+					// social icons
+				
+					if( !empty($apps) ){
+						
+						echo '<div id="social-icons" class="text-center" style="margin:20px 0;">';
+						
+							foreach( $apps as $app ){
 								
-								if( !empty($tab['name']) ){
-
-									$active = ( $tab['slug'] == $this->tab ? ' active' : '');
-
-									$url = $this->parent->urls->profile . $this->user->ID . '/';
-
-									if( $tab['slug'] != 'about-me' ){
+								if( !empty($app->user_profile) && !empty($app->social_icon) ){
+									
+									$show_profile = get_user_meta($this->user->ID,$this->parent->_base . 'app_profile_' . $app->ID,true);
+									
+									if( $show_profile != 'off' ){
 										
-										$url .= $tab['slug'] . '/';
+										echo'<a href="' . $app->user_profile . '" style="margin:5px;display:inline-block;" ref="nofollow" target="_blank">';
+											
+											echo'<img src="' . $app->social_icon . '" style="height:30px;width:30px;border-radius:250px;" />';
+											
+										echo'</a>';
 									}
-									
-									echo'<li role="presentation" class="'.$active.'">';
-									
-										echo'<a href="' . $url . '" role="tab">'.$tab['name'].'</a>';
-									
-									echo'</li>';
 								}
 							}
-							
-						echo'</ul>';
 						
-					echo'</div>';
-					
-					echo'<div class="col-xs-12 col-sm-1"></div>';
+						echo '</div>';
+					}
 				
-				echo'</div>'; //profile-menu
+				echo '</div>';
 				
-				echo'<div class="profile-content">';
+				echo'<div class="col-xs-12 col-sm-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
 				
-					echo'<div class="col-xs-12 col-sm-1"></div>';
-				
-					echo'<div class="col-xs-12 col-sm-10">';		
-					
-						echo'<div class="tab-content">';
+					echo'<ul class="nav nav-pills" role="tablist" style="overflow:visible;margin-top:0;">';
+						
+						foreach( $tabs as $tab){
 							
-							foreach( $tabs as $tab){
-								
-								if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
+							if( !empty($tab['name']) ){
 
-									echo'<div class="tab-pane active" id="'.$tab['slug'].'">';
+								$active = ( $tab['slug'] == $this->tab ? ' active' : '');
+
+								$url = $this->parent->urls->profile . $this->user->ID . '/';
+
+								if( $tab['slug'] != 'about-me' ){
 									
-										echo'<div class="col-xs-12 col-sm-8">';
+									$url .= $tab['slug'] . '/';
+								}
+								
+								echo'<li role="presentation" class="'.$active.'">';
+								
+									echo'<a href="' . $url . '" role="tab">'.$tab['name'].'</a>';
+								
+								echo'</li>';
+							}
+						}
+						
+					echo'</ul>';
+					
+					if( !$is_public && $self_profile ){
+						
+						echo '<div class="alert alert-warning row" style="margin: 20px 0 !important;">';
+							
+							echo'<div class="col-xs-9">';
+							
+								echo 'Your profile is restrected, only you can see this page.';
+							
+							echo '</div>';
+							
+							echo'<div class="col-xs-3 text-right">';
+							
+								echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-policy">Edit</a>';
+							
+							echo '</div>';
+							
+						echo '</div>';			
+					}
+					
+					echo'<div class="profile-content">';
+					
+						echo'<div class="col-xs-12 col-sm-10">';		
+						
+							echo'<div class="tab-content">';
+								
+								foreach( $tabs as $tab){
+									
+									if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
+
+										echo'<div class="tab-pane active" id="'.$tab['slug'].'">';
 										
-											if(!empty($this->parent->message)){ 
+											echo'<div class="col-xs-12 col-sm-8">';
 											
-												//output message
+												if(!empty($this->parent->message)){ 
+												
+													//output message
+												
+													echo $this->parent->message;
+												}									
 											
-												echo $this->parent->message;
-											}									
-										
-											echo $tab['content'];
+												echo $tab['content'];
+												
+											echo'</div>';
 											
 										echo'</div>';
 										
-									echo'</div>';
-									
-									break;
-								}							
-							}					
+										break;
+									}							
+								}					
+								
+							echo'</div>';
 							
 						echo'</div>';
 						
-					echo'</div>';
+					echo '</div>';
 					
-					echo'<div class="col-xs-12 col-sm-1"></div>';
-
 				echo '</div>';
 				
-			echo '</div>';	
+			echo '</div>';
 
 		echo '</div>';
 	}
