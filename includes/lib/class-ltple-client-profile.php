@@ -113,7 +113,7 @@ class LTPLE_Client_Profile {
 
 			include($this->parent->views . '/profile.php');
 		}
-		else{
+		elseif( $this->parent->user->loggedin ){
 			
 			include($this->parent->views . '/settings.php');
 		}

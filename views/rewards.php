@@ -28,9 +28,9 @@
 	
 	// ------------- output panel --------------------
 	
-	echo'<div id="media_library">';
+	echo'<div id="media_library" class="wrapper">';
 
-		echo'<div class="col-xs-3 col-sm-2" style="padding:0;">';
+		echo '<div id="sidebar">';
 		
 			echo'<ul class="nav nav-tabs tabs-left">';
 				
@@ -42,7 +42,7 @@
 			
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;min-height:700px;">';
+		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;min-height:700px;">';
 			
 			if( $currentTab == 'unlock' ){
 

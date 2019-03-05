@@ -4,6 +4,8 @@
 	
 	if( !empty($ltple->layer->layerOutput) ){
 	
+		http_response_code(200);
+	
 		if( file_exists( $ltple->views . '/layers/' . $ltple->layer->layerOutput  . '.php' ) ){
 			
 			include_once( $ltple->views . '/layers/' . $ltple->layer->layerOutput  . '.php' );

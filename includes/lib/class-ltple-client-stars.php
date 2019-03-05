@@ -13,17 +13,17 @@
 		 
 		public function __construct ( $parent ) {
 
-			$this->parent 	= $parent;
+			$this->parent = $parent;
 			
 			$this->get_triggers();
-			
+			 
 			if( !empty($this->triggers) ){
 				
 				foreach( $this->triggers as $group => $trigger ){
 					
 					foreach($trigger as $key => $data){
 						
-						add_action( $key, array( $this,  'add_triggered_stars') );
+						add_action( $key, array( $this, 'add_triggered_stars') );
 					}
 				}
 			}
@@ -89,7 +89,7 @@
 			$this->triggers['plan subscription']['ltple_paid_plan_subscription'] = array(
 				
 				'description' => 'when you subscribe to a pro plan'
-			);			
+			);		
 			
 			// connected apps triggers
 			
@@ -192,16 +192,29 @@
 			}			
 		}
 		
-		public function add_triggered_stars( $user_id = null ){
+		public function add_triggered_stars( $user = null ){
 			
-			if( !is_numeric($user_id) ){
+			$user_id = 0;
+			
+			if( is_numeric($user) ){
+				
+				$user_id = intval($user);
+			}
+			elseif( !empty( $user->ID ) ){
+				
+				$user_id = $user->ID;
+			}
+			elseif( !empty($this->parent->user->ID) ){
 				
 				$user_id = $this->parent->user->ID;
-			}			
+			}
 			
-			$option_name = $this->parent->_base . current_filter().'_stars';
+			if( $user_id > 0 ){
+			
+				$option_name = $this->parent->_base . current_filter().'_stars';
 
-			$this->add_stars( $user_id, $option_name );
+				$this->add_stars( $user_id, $option_name );
+			}
 		}
 			
 		public function get_user_stars( $user ) {

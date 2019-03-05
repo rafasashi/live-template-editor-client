@@ -13,9 +13,9 @@
 	
 	$currentTab = ( !empty($_GET['my-profile']) ? $_GET['my-profile'] : 'billing-info' );
 
-	echo'<div id="media_library">';
+	echo'<div id="media_library" class="wrapper">';
 
-		echo'<div class="col-xs-3 col-sm-2" style="padding:0;">';
+		echo '<div id="sidebar">';
 		
 			echo'<ul class="nav nav-tabs tabs-left">';
 				
@@ -29,7 +29,7 @@
 			
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
+		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
 			
 			echo'<div class="tab-content">';
 				
@@ -37,7 +37,7 @@
 					
 					echo'<div class="tab-pane active" id="billing-info">';
 					
-						echo'<form action="' . $this->urls->current . '" method="post" class="tab-content row" style="margin:20px;">';
+						echo'<form action="' . $this->urls->current . '" method="post" class="tab-content" style="margin-top:20px;">';
 
 							echo'<div class="col-xs-12">';
 						
@@ -54,7 +54,7 @@
 								echo '<div style="margin-bottom:20px;background: rgb(248, 248, 248);display:block;padding:20px;text-align:left;border-left: 5px solid #888;">';
 									
 									echo'<b>Price</b>: ' . $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].' / '.$user_plan['info']['total_price_period'] . '<br/>';
-									echo'<b>Storage</b>: ' . ( !empty($user_plan['info']['total_storage']['templates']) ? $user_plan['info']['total_storage']['templates'] : 0 ) . ' templates' . '<br/>';
+									echo'<b>Storage</b>: ' . ( !empty($user_plan['info']['total_storage']['templates']) ? $user_plan['info']['total_storage']['templates'] : 0 ) . ' saved projects' . '<br/>';
 									
 								echo '</div>';							
 								

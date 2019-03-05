@@ -39,9 +39,9 @@
 	
 	// ------------- output panel --------------------
 	
-	echo'<div id="media_library">';
+	echo'<div id="media_library" class="wrapper">';
 
-		echo'<div class="col-xs-3 col-sm-2" style="padding:0;">';
+		echo '<div id="sidebar">';
 		
 			echo'<ul class="nav nav-tabs tabs-left">';
 				
@@ -55,11 +55,11 @@
 			
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;min-height:700px;">';
+		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;min-height:700px;">';
 			
 			if( $currentTab == 'apps' ){
 				
-				echo'<div class="tab-content" style="margin-top:15px;">';
+				echo'<div class="tab-content">';
 			
 					$app_types = $this->get_app_types();
 			
@@ -81,19 +81,23 @@
 								
 								$item.='<div class="panel panel-default">';
 									
+									/*
 									$item.='<div class="panel-heading">';
 
 										$item.='<b>' . $app->name . '</b>';
 										
 									$item.='</div>';
-
+									*/
+									
+									$item.='<div class="thumb_wrapper" style="background-image:url(' . $app->thumbnail . ');background-size:cover;background-repeat:no-repeat;background-color:#fff;background-position:center;height:150px;"></div>';
+									
 									$item.='<div class="panel-body">';
 										
-										$item.='<div class="thumb_wrapper" style="background:#ffffff;height: 120px;margin-bottom: 20px;">';
-											
-											$item.= '<img class="lazy" data-original="'.$app->thumbnail.'" />';
+										$item.='<div class="col-xs-12">';
+
+											$item.='<b>' . $app->name . '</b>';
 										
-										$item.='</div>'; //thumb_wrapper
+										$item.='</div>';									
 										
 										$item.='<div class="col-xs-7 text-left">';
 										
@@ -199,7 +203,7 @@
 							
 							//output Tab panes
 							
-							echo'<div class="tab-content row" style="margin-top:20px;">';
+							echo'<div class="tab-content" style="margin-top:20px;">';
 								
 								$active=' active';
 								

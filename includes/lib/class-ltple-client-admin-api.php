@@ -16,7 +16,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 			add_action( 'save_post', array( $this, 'save_meta_boxes' ), 10, 1 );
 			
+			add_shortcode('ltple-client-admin', array( $this , 'get_admin_frontend' ) );
+						
 			do_action( 'updated_option', array( $this, 'settings_updated' ), 10, 3 );
+		}
+		
+		public function get_admin_frontend(){
+			
+			
 		}
 
 		/**
@@ -44,6 +51,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				$data = $field['data'];
 				
 				$option_name .= $field['id'];
+			}
+			elseif( !empty($field['callback']) ){
+				
+				add_filter('ltple_admin_api_get_' . $field['id'],$field['callback'],10,1);
+				
+				$data = apply_filters('ltple_admin_api_get_' . $field['id'],$item);
 			}
 			elseif ( !empty( $item->caps ) ) {
 				
@@ -1697,7 +1710,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						'name'    	   => $field['name'],
 						'show_count'   => false,
 						'hierarchical' => true,
-						'selected'     => $field['selected'],
+						'selected'     => $data,
 						'echo'		   => false,
 						'class'		   => 'form-control',
 						'hide_empty'   => false
@@ -1903,6 +1916,32 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			}
 		}
 
+		public function add_meta_boxes($fields){
+			
+			if( !empty($fields) ){
+				
+				foreach( $fields as $field ){
+					
+					if( !empty($field['metabox']) ){
+					
+						if( !isset($field['metabox']['add_new']) || $field['metabox']['add_new'] || !empty($_REQUEST['post']) ){
+						
+							if( !empty($field['metabox']['name']) && !empty($field['metabox']['title']) && !empty($field['metabox']['screen']) && !empty($field['metabox']['context']) ){
+								
+								$this->add_meta_box(
+									
+									$field['metabox']['name'],
+									$field['metabox']['title'],
+									$field['metabox']['screen'],
+									$field['metabox']['context']
+								);						
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		/**
 		 * Display metabox content
 		 * @param  object $post Post object

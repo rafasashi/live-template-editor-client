@@ -99,29 +99,13 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			echo 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
 		echo '</style>';
 
+		include($this->parent->views . '/navbar.php');
+		
 		if($this->parent->user->loggedin){
-			
-			include($this->parent->views . '/navbar.php');
-			
+
 			include($this->parent->views . '/media.php');
 
 			do_action('ltple_media');
-		}
-		else{
-			
-			echo'<div style="font-size:20px;padding:20px;margin:0;" class="alert alert-warning">';
-				
-				echo'You need to log in first...';
-				
-				echo'<div class="pull-right">';
-
-					echo'<a style="margin:0 2px;" class="btn-lg btn-success" href="'. wp_login_url( $this->parent->request->proto . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'">Login</a>';
-					
-					echo'<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( $this->parent->urls->editor ) .'&action=register">Register</a>';
-				
-				echo'</div>';
-				
-			echo'</div>';
 		}
 	}
 	
@@ -212,19 +196,23 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				$item.='<div class="panel panel-default">';
 					
+					/*
 					$item.='<div class="panel-heading">';
 
 						$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
 						
 					$item.='</div>';
+					*/
+
+					$item.='<div class="thumb_wrapper" style="">';
+					
+						$item.= '<img class="lazy" data-original="'.$image->post_content . '" />';
+					
+					$item.='</div>'; //thumb_wrapper
 
 					$item.='<div class="panel-body">';
 						
-						$item.='<div class="thumb_wrapper">';
-						
-							$item.= '<img class="lazy" data-original="'.$image->post_content.'" />';
-						
-						$item.='</div>'; //thumb_wrapper
+						$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
 						
 						$item.='<div class="text-right">';
 
@@ -321,25 +309,21 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					
 					$item.='<div class="panel panel-default">';
 						
-						$item.='<div class="panel-heading">';
-							
-							$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
-							
-							if(!$this->parent->inWidget){
-							
-								$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-images/?att=' . $image->ID . '&imgAction=delete&tab='.$tab.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-							}
-							
-						$item.='</div>';
+						if(!$this->parent->inWidget){
+						
+							$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-images/?att=' . $image->ID . '&imgAction=delete&tab='.$tab.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
+						}						
+						
+						$item.='<div class="thumb_wrapper">';
+						
+							$item.= '<img class="lazy" data-original="' . $image_url . '" />';
+						
+						$item.='</div>'; //thumb_wrapper						
 
 						$item.='<div class="panel-body">';
 							
-							$item.='<div class="thumb_wrapper">';
-							
-								$item.= '<img class="lazy" data-original="' . $image_url . '" />';
-							
-							$item.='</div>'; //thumb_wrapper
-							
+							$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
+
 							$item.='<div class="text-right">';
 
 								if($this->parent->inWidget){
@@ -437,7 +421,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						
 						$item.='<div class="panel-heading">';
 							
-							$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
+							$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
 							
 							if(!$this->parent->inWidget){
 							
@@ -533,7 +517,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 				$item.='<div class="col-xs-8 col-sm-8 col-lg-9">';
 
-					$item.='<b style="overflow:hidden;width:90%;display:block;">' . $bookmark_title . '</b>';
+					$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $bookmark_title . '</b>';
 					$item.='<br>';
 					$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $bookmark->post_content .'" />';
 
@@ -547,7 +531,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					}
 					else{
 						
-						$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-payment-urls/?output='.$output.'&id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
+						$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-payment-urls/?id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
 					}
 				
 				$item.='</div>';

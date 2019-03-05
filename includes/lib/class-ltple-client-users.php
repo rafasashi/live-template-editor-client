@@ -64,6 +64,22 @@
 				}
 			}
 		}
+	
+		public function is_pro_user($user_id){
+			
+			$is_pro = false;
+			
+			$period_end = intval(get_user_meta( $user_id, $this->parent->_base . 'period_end', true ));
+			
+			$remaining_days = $period_end > 0 ? ceil( ($period_end - time()) / (60 * 60 * 24) ) : 0;		
+			
+			if( $remaining_days > 0 ){
+				
+				$is_pro = true;
+			}
+			
+			return $is_pro;
+		}
 		
 		public function get_author_url( $url, $author_id ){
 			

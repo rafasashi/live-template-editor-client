@@ -13,17 +13,22 @@
 	$iframe_key = md5( 'iframe' . $this->layer->key . $ref_key . $this->_time . $this->user->user_email );
 	
 	// NB: query unvisible for the final user
+
+	$request_url = add_query_arg(array(
 	
-	$request_url = $this->server->url . '/server/?uri=' . $this->layer->id 
-												.'&lk=' . $this->layer->key 
-												.'&lo=' . $this->layer->layerOutput
-												.'&pu=' . urlencode($this->urls->plans)												
-												.'&ref='. $ref 
-												.'&rk='	. $ref_key 
-												.'&_=' 	. $this->_time
-												.'&ik='	. $iframe_key
-												.( ( !empty($this->_dev) ) ? '&debug=1' : '' );
+		'uri' 	=> $this->layer->id,
+		'lk'	=> $this->layer->key,
+		'lo'	=> $this->layer->layerOutput,
+		'pu'	=> urlencode($this->urls->plans),
+		'ref'	=> $ref,
+		'rk'	=> $ref_key,
+		'ik'	=> $iframe_key,
+		'_'		=> $this->_time,
+	
+	),$this->server->url . '/server/');
 												
+	//dump($request_url);
+	
 	// get request_method
 	
 	$request_method = $_SERVER['REQUEST_METHOD'];	

@@ -9,24 +9,37 @@
 	
 	$editor_url = $this->parent->urls->editor . '?uri=' . $this->ID;
 	
-	$product_url = $this->parent->urls->product . '?id=' . $this->ID;
+	$product_url = $this->parent->urls->product . $this->ID . '/';
+	
+	$layer_type = '';
+
+	$terms = wp_get_object_terms( $this->ID, 'layer-type' );
+	
+	if( !empty($terms[0]->slug) ){
+		
+		$layer_type = ucfirst($terms[0]->name);
+	}
+				
+	$layer_range = '';
+
+	$terms = wp_get_object_terms( $this->ID, 'layer-range' );
+	
+	if(!empty($terms[0]->slug)){
+		
+		$layer_range = ucfirst($terms[0]->name);
+	}
 	
 	$modal_id='modal_'.md5($permalink);
 	
 	// get from value
-	
-	$from_amount 	= null;
-	$from_currency 	= '$';
-	
-	$subscription_plans = $this->parent->plan->get_subscription_plans();
-	
-	$layer_options = array();
+
+	$this->parent->plan->options = array();
 	
 	foreach( $this->taxonomies['layer-type']['terms'] as $term ){
 		
 		if($term['has_term']){
 			
-			$layer_options[] = $term['slug'];
+			$this->parent->plan->options[] = $term['slug'];
 		}
 	}
 	
@@ -34,32 +47,15 @@
 		
 		if($term['has_term']){
 			
-			$layer_options[] = $term['slug'];
+			$this->parent->plan->options[] = $term['slug'];
 		}
 	}
+
+	$plans = $this->parent->plan->get_plans_by_options($this->parent->plan->options);
 	
-	foreach( $subscription_plans as $plan ){
-		
-		$in_plan = true;
-		
-		foreach( $layer_options as $option ){
-			
-			if( !in_array($option,$plan['options']) ){
-				
-				$in_plan = false;
-				break;
-			}
-		}
-		
-		if($in_plan){
-		
-			if( is_null($from_amount) || $plan['info']['total_price_amount'] < $from_amount ){
-
-				$from_amount = $plan['info']['total_price_amount'];
-			}
-		}
-	}
-
+	$from_amount = $plans[0]['info']['total_price_amount'];
+	$from_currency 	= $plans[0]['info']['total_price_currency'];
+	
 	echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> ' . $this->post_title . ' template</h1>';
 	
 	echo'<div id="layer_detail" class="col-xs-12">';
@@ -80,26 +76,40 @@
 
 				echo'<div class="row bs-callout bs-callout-primary">';
 				
-					echo'<div class="col-xs-4 text-right" style="padding:15px 0;text-align:center;font-weight:bold;font-size:21px;">';
+					echo'<div class="col-xs-4 text-right" style="padding:0;text-align:center;font-weight:bold;font-size:21px;">';
 						
 						if( !is_null($from_amount) ){
 						
-							echo 'from ';
+							echo'<span class="badge" style="';
+							
+								echo'font-size:17px;';
+								echo'padding: 10px 15px;';
+								echo'background:#ffffff;';
+								echo'color:' . $this->parent->settings->mainColor . ';';
+								echo'border-radius:4px;';
+								echo'border: 1px solid ' . $this->parent->settings->mainColor . ';';
+								
+							echo'">';				
 						
-							echo $from_amount;
-							echo $from_currency;
+								echo 'from ';
+							
+								echo $from_amount;
+								echo $from_currency;
+							
+							echo '</span>';
 						}
 					
 					echo'</div>';
 					
 					echo'<div class="col-xs-8 text-right" style="padding:5px 0;">';
 						
-						echo'<button type="button" class="btn btn-warning btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+						echo'<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 							
 							echo'Preview'.PHP_EOL;
 						
 						echo'</button>'.PHP_EOL;
-
+							
+							$has_layer = $this->parent->plan->user_has_layer( $this->ID );
 
 							echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 								
@@ -117,7 +127,7 @@
 									  
 										echo'<div class="modal-body">'.PHP_EOL;
 											
-											if( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $this->ID ) === true ){
+											if( $this->parent->user->loggedin && $has_layer === true ){
 												
 												echo '<iframe data-src="'.$permalink.'" style="width: 100%;position:relative;bottom: 0;border:0;height: 350px;overflow: hidden;"></iframe>';											
 											}
@@ -130,17 +140,9 @@
 
 										echo'<div class="modal-footer">'.PHP_EOL;
 										
-											if($this->parent->user->loggedin){
+											if( $this->parent->user->loggedin  && $has_layer === true ){
 
-												echo'<a class="btn btn-lg btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
-											}
-											else{
-												
-												echo'<button type="button" class="btn btn-lg btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
-												
-													echo'<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
-											
-												echo'</button>'.PHP_EOL;								
+												echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
 											}
 											
 										echo'</div>'.PHP_EOL;
@@ -153,22 +155,26 @@
 
 							if($this->parent->user->loggedin){
 								
-								if($this->parent->plan->user_has_layer( $this->ID ) === true){
+								if( $has_layer === true){
 									
-									echo'<a class="btn btn-lg btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+									echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
 								}
 								else{
 									
-									echo'<button type="button" class="btn btn-lg btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+									echo $this->get_checkout_button($this,$layer_type);
+									
+									/*
+									echo'<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 								
-										echo'<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
+										echo'<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Get'.PHP_EOL;
 							
 									echo'</button>'.PHP_EOL;
+									*/
 								}
 							}
 							else{
 								
-								echo'<button type="button" class="btn btn-lg btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
+								echo'<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
 								
 									echo'<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
 							
@@ -183,26 +189,14 @@
 
 					echo '<b>' . $this->post_title . '</b> is a ';
 					
-					$layer_type = '';
-
-					$terms = wp_get_object_terms( $this->ID, 'layer-type' );
-					
-					if( !empty($terms[0]->slug) ){
-						
-						$layer_type = ucfirst($terms[0]->name);
+					if( !empty($layer_type) ){
 						
 						echo '<b>'.$layer_type.'</b> ';
 					}
 				
 					echo' template ';
 					
-					$layer_range = '';
-
-					$terms = wp_get_object_terms( $this->ID, 'layer-range' );
-					
-					if(!empty($terms[0]->slug)){
-						
-						$layer_range = ucfirst($terms[0]->name);
+					if( !empty($layer_range) ){
 						
 						echo'from the <b>'.$layer_range.' range</b> ';
 					}
@@ -259,6 +253,8 @@
 		
 			echo'<div class="col-lg-12">';
 			
+				//echo do_shortcode('[ltple-client-checkout]');
+			
 				echo'<div class="well text-center">';
 				
 					echo'For more information about a tailored template looking like <b>' . $this->post_title . '</b> please contact us directly.';
@@ -313,7 +309,7 @@
 					
 					echo '<p style="margin: 0 5px;">';
 					
-						echo 'Insert your contents into <b>' . $this->post_title . '</b> template directly form the editor, import images to your library, build custom payment links and add them to your list of bookmarks.';
+						echo 'Insert your contents into <b>' . $this->post_title . '</b> template directly from the editor, import images to your library, build custom payment links and add them to your list of bookmarks.';
 
 					echo '</p>';
 					
@@ -413,7 +409,7 @@
 											
 											echo '<div class="col-xs-3">';
 											
-												echo '<a class="thumbnail" href="'. $this->parent->urls->product . '?id=' . $post->ID . '">';
+												echo '<a class="thumbnail" href="'. $this->parent->urls->product . $post->ID . '/">';
 											
 													echo get_the_post_thumbnail($post->ID, array(150,150));
 											
@@ -423,7 +419,7 @@
 											
 											echo '<div class="col-xs-9">';
 											
-												echo '<a href="'. $this->parent->urls->product . '?id=' . $post->ID . '" style="font-weight:bold;">';
+												echo '<a href="'. $this->parent->urls->product . $post->ID . '/" style="font-weight:bold;">';
 												
 													echo $post->post_title;
 												

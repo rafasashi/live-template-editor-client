@@ -66,10 +66,16 @@ class LTPLE_Client_Settings {
 			$this->options->profile_header = plugins_url() . '/' . $this->plugin->slug . '/assets/images/profile_header.jpg';
 		}
 		
+		if( !$this->options->social_icon = get_option( $this->parent->_base . 'socialIcon' )){
+			
+			$this->options->social_icon = $this->parent->assets_url . 'images/social_icon.png';
+		}
+		
 		$this->options->enable_ranking 		= get_option( $this->parent->_base . 'enable_ranking', 'off' );
 
 		// get custom style
 		
+		$this->navbarColor 	= get_option( $this->parent->_base . 'navbarColor', '#182f42' );
 		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor', '#506988' );
 		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor', '#506988' );	
 		$this->borderColor 	= get_option( $this->parent->_base . 'borderColor', '#182f42' );
@@ -666,6 +672,22 @@ class LTPLE_Client_Settings {
 					'type'			=> 'text',
 					'placeholder'	=> 'https://',
 					'default'		=> $this->options->profile_header
+				),
+				array(
+					'id' 			=> 'socialIcon',
+					'label'			=> __( 'Social Icon' , $this->plugin->slug ),
+					'description'	=> 'Icon url 120 x 120 recommended',
+					'type'			=> 'text',
+					'placeholder'	=> 'https://',
+					'default'		=> $this->options->social_icon
+				),
+				array(
+					'id' 			=> 'navbarColor',
+					'label'			=> __( 'Navbar Color' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'text',
+					'placeholder'	=> '#182f42',
+					'default'		=> '#182f42',
 				),
 				array(
 					'id' 			=> 'mainColor',

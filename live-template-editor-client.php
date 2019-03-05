@@ -42,6 +42,7 @@
 		require_once( 'includes/class-ltple-client.php' );
 		require_once( 'includes/class-ltple-client-settings.php' );
 		require_once( 'includes/class-ltple-client-object.php' );
+		require_once( 'includes/class-ltple-client-theme.php' );
 			
 		// Autoload plugin libraries
 		
@@ -75,5 +76,5 @@
 		
 		// start plugin
 	
-		LTPLE_Client( '1.2.4' );
+		LTPLE_Client( '1.3.1' );
 	}

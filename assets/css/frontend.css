@@ -1,9 +1,79 @@
+
+/* ---------------------------------------------------
+    SIDEBAR STYLE
+----------------------------------------------------- */
+#ltple-wrapper .wrapper {
+    display: flex !important;
+    align-items: stretch !important;
+}
+
+#ltple-wrapper #sidebar {
+    min-width: 250px !important;
+    max-width: 250px !important;
+    transition: all 0.3s !important;
+}
+
+#ltple-wrapper #sidebar.active {
+    margin-left: -250px !important;
+}
+
+#ltple-wrapper #sidebarCollapse {
+    width: 32px;
+    height: 28px;
+	border-top: 0;
+    border-right: 1px solid #ddd;
+	border-bottom: 0;
+	border-left: 0;
+    color: #777;
+    text-align: left;
+    font-size: 16px;
+    display: block;
+    background: transparent;
+    padding: 3px 5px;
+    margin: 0 10px 0 0;
+}
+
+/* ---------------------------------------------------
+    CONTENT STYLE
+----------------------------------------------------- */
+#ltple-wrapper #content {
+    padding: 15px !important;
+	margin: 0px !important;
+    min-height: 100vh !important;
+    transition: all 0.3s !important;
+	width: 100% !important;
+}
+
+/* ---------------------------------------------------
+    MEDIAQUERIES
+----------------------------------------------------- */
+@media (max-width: 768px) {
+	
+    #ltple-wrapper #sidebar {
+        margin-left: -250px !important;
+    }
+    #ltple-wrapper #sidebar.active {
+        margin-left: 0 !important;
+    }
+    
+	#ltple-wrapper #sidebarCollapse span {
+        display: none !important;
+    }
+}
+
+/* ---------------------------------------------------
+    BS TABLE
+----------------------------------------------------- */
+
 .fixed-table-toolbar {
     margin-top: -48px;
     margin-bottom: -6px;
     margin-right: 5px;
+	padding-right: 0px;
     display: inline-block;
+	background: transparent;
     float: right;
+	width: auto; 
 }
 
 .fixed-table-toolbar .btn {
@@ -13,7 +83,28 @@
 
 .fixed-table-toolbar .columns label {color:#fff;}
 
+@media (max-width: 768px) {
+	
+	.fixed-table-toolbar {
+		margin-top: 0 !important;
+		margin-bottom: -8px !important;
+		margin-right: 0 !important;
+		padding-right: 10px !important;
+		float: none !important;
+		background: #eee !important;
+		width: 100% !important;
+	}
+}
+
+/* ---------------------------------------------------
+    ALERTS
+----------------------------------------------------- */
+
 .alert{margin-bottom:0 !important;}
+
+/* ---------------------------------------------------
+    MODALS
+----------------------------------------------------- */
 
 .modal-header{
 	
@@ -35,6 +126,10 @@
 	}
 }
 
+/* ---------------------------------------------------
+    PANELS
+----------------------------------------------------- */
+
 .panel-default>.panel-heading{
 	
 	height: 43px;
@@ -47,6 +142,7 @@
     overflow: hidden;
 	text-align: center;
 	background:url("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQED6APoAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAQABADAREAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAACQAK/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwDfwA/wQEAB/9k=");
+	box-shadow:inset 0 -1px 12px -6px rgba(0,0,0,0.75);
 }
 
 .gallery_type_title {

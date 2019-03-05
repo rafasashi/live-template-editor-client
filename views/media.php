@@ -10,7 +10,7 @@
 		
 		$_SESSION['message'] ='';
 	}	
-	
+	 
 	$output='default';
 	$target='_self';
 
@@ -40,14 +40,14 @@
 		
 		//get user bookmarks
 		
-		$this->parent->media->get_user_bookmarks($this->parent->user->ID);
+		$bookmarks = $this->parent->media->get_user_bookmarks($this->parent->user->ID);
 	}
 	
 	// output library
 		
-	echo'<div id="media_library">';
+	echo'<div id="media_library" class="wrapper">';
 
-		echo'<div class="col-xs-3 col-sm-2" style="padding:0;">';
+		echo '<div id="sidebar">';
 		
 			echo'<ul class="nav nav-tabs tabs-left">';
 				
@@ -63,7 +63,7 @@
 			echo'</ul>';
 		echo'</div>';
 
-		echo'<div class="col-xs-9 col-sm-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;padding-top:15px;min-height:700px;">';
+		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;padding-top:15px;min-height:700px;">';
 
 			echo'<div class="tab-content">';
 			
@@ -98,7 +98,7 @@
 
 						//output Tab panes
 						  
-						echo'<div class="tab-content row" style="margin-top:20px;">';
+						echo'<div class="tab-content" style="margin-top:20px;">';
 							
 							if( !empty($default_images[$tab]) ){
 							
@@ -159,7 +159,7 @@
 
 							//output Tab panes
 							  
-							echo'<div class="tab-content row" style="margin-top:20px;">';
+							echo'<div class="tab-content" style="margin-top:20px;">';
 
 								foreach( $apps as $app ){
 									
@@ -393,7 +393,7 @@
 
 							//output Tab panes
 							  
-							echo'<div class="tab-content row" style="margin-top:20px;">';
+							echo'<div class="tab-content" style="margin-top:20px;">';
 
 								$active	 = ' active';
 

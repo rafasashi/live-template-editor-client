@@ -12,52 +12,70 @@
 		$_SESSION['message'] = '';
 	}
 	
-	$layer_type = ( !empty($_GET['gallery']) ? $_GET['gallery'] : '' );
-
-	if( empty($layer_type) ){
-		
-		$all_types = $this->gallery->get_all_types();
+	// get layer type
+	
+	$all_types = $this->gallery->get_all_types();
+	
+	if( !$layer_type = ( !empty($_GET['gallery']) ? $_GET['gallery'] : false ) ){
 		
 		foreach($all_types as $term){
 						
 			if( $term->visibility == 'anyone' || $this->user->is_editor ){
-			
+				
 				$layer_type = $term->slug;
+				
 				break; 
 			}
 		}		
 	}
 	
+	// get layer type name
+	
+	foreach($all_types as $term){
+					
+		if( $layer_type == $term->slug ){
+			
+			$layer_type_name = $term->name;
+			
+			break; 
+		}
+	}	
+	
 	if( $term = get_term_by('slug',$layer_type,'layer-type') ){
 		
 		//get addon range
 
-		$addon_range = ( !empty($this->user->user_email) ? $this->gallery->get_type_addon_range($term) : null );
-		
+		$addon_range = $this->gallery->get_type_addon_range($term);
+
 		//get item ranges
 		
 		$ranges = $this->gallery->get_type_ranges($layer_type,$addon_range);
-
+		
+		//get layer range
+		
 		$layer_range = ( !empty($_GET['range']) ? $_GET['range'] : key($ranges) );
+		
+		//get layer range name
+		
+		$layer_range_name = ( !empty($ranges[$layer_range]['name']) ? $ranges[$layer_range]['name'] : '' );
 		
 		// get gallery items 
 		
 		$items = $this->gallery->get_range_items($layer_type,$layer_range,$addon_range);	
 
+		do_action('ltple_gallery_before_output',$layer_type,$layer_range);
 		
 		// output gallery 
 		 
-		echo '<div id="layer_gallery">';
+		echo '<div id="layer_gallery" class="wrapper">';
 
-			echo '<div class="col-xs-3 col-sm-2" style="padding:0;">';
+			echo '<div id="sidebar">';
 				
 				echo '<ul class="nav nav-tabs tabs-left">';
 					
 					echo '<li class="gallery_type_title" style="border-top: none;">Template library</li>';
 
 						$class='';
-						
-						$all_types = $this->gallery->get_all_types();
 						
 						foreach( $all_types as $term ){
 							
@@ -104,9 +122,10 @@
 						}
 					
 				echo'</ul>';
+				
 			echo'</div>';
 
-			echo'<div class="col-xs-9 col-sm-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;padding-top:15px;min-height:700px;">';
+			echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;padding-top:15px;min-height:700px;">';
 				
 				echo'<div class="tab-content">';
 				
@@ -115,7 +134,7 @@
 						//output Nav tabs
 						
 						echo'<ul class="nav nav-pills" role="tablist">';
-
+						
 							if(!empty($ranges)){
 								
 								foreach( $ranges as $range ){
@@ -135,17 +154,65 @@
 								}							
 							}
 							
-							// addons tab
-							
-							// marketplace tab
+							do_action('ltple_gallery_tab',$layer_type,$layer_range);
 
 						echo'</ul>';
 
 						//output Tab panes
 						  
-						echo'<div class="tab-content row" style="margin-top:20px;">';
+						echo'<div class="tab-content" style="margin-top:20px;">';
 							
 							if(!empty($items)){
+								
+								$this->plan->options = array($layer_type,$layer_range);
+								
+								$has_options = $this->plan->user_has_options($this->plan->options);
+								
+								$plans = $this->plan->get_plans_by_options( $this->plan->options );
+	
+								echo'<div class="row bs-callout bs-callout-primary" style="background:#fff;">';
+									
+									echo'<div class="col-xs-12 col-sm-9 col-md-10" style="padding-bottom:5px;">';
+									
+										echo'<h4>' . ucfirst($layer_type_name) .  ' > ' . ucfirst($layer_range_name) .  '</h4>';
+										
+										echo'<p>';
+										
+											if( $has_options === true ){
+												
+												echo'Edit any template from ' . ucfirst($layer_range_name) .  ' gallery';
+											}
+											elseif( !empty($plans) ){
+												
+												echo'You need the <span class="label label-success">'.$plans[0]['title'].'</span> plan'.( count($plans) > 1 ? ' or higher ' : ' ').'to <span class="label label-default">unlock all</span> the templates from this gallery';
+											}
+											else{
+											
+												echo'No plan available to unlock this gallery';
+											}
+										
+										echo'</p>';
+									
+									echo'</div>';
+																	
+									if( !$has_options && !empty($plans) ){
+										
+										echo'<div class="col-xs-12 col-sm-3 col-md-2">';
+														
+											echo'<button type="button" class="btn btn-sm" data-toggle="modal" data-target="'.( $this->user->loggedin  === true ? '#upgrade_plan' : '#login_first').'" style="width:100%;font-size:12px;background:' . $this->settings->mainColor . '99;color:#fff;border:1px solid ' . $this->settings->mainColor . ';">';
+											
+												echo '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> ' . ( $this->user->plan['info']['total_price_amount'] > 0 ? 'upgrade' : 'start' );
+												
+												echo '<br>';
+												
+												echo '<span style="font-size:10px;">from '.$plans[0]['price_tag'].'</span>';
+												
+											echo'</button>';
+
+										echo'</div>';
+									}
+									
+								echo'</div>';
 								
 								$active=' active';
 							
@@ -162,27 +229,29 @@
 									
 									$active='';
 								}
+							
+								echo'<div class="pagination" style="display: inline-block;width: 100%;padding: 0px 15px;">';
+									
+									echo paginate_links( array(
+										'base'         => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
+										'total'        => $this->gallery->max_num_pages,
+										'current'      => max( 1, get_query_var( 'paged' ) ),
+										'format'       => '?paged=%#%',
+										'show_all'     => false,
+										'type'         => 'plain',
+										'end_size'     => 2,
+										'mid_size'     => 1,
+										'prev_next'    => true,
+										'prev_text'    => sprintf( '<i></i> %1$s', __( 'Prev', 'live-template-editor-client' ) ),
+										'next_text'    => sprintf( '%1$s <i></i>', __( 'Next', 'live-template-editor-client' ) ),
+										'add_args'     => false,
+										'add_fragment' => '',
+									) );
+									
+								echo'</div>	';
 							}
 							
-							echo'<div class="pagination" style="display: inline-block;width: 100%;padding: 0px 15px;">';
-								
-								echo paginate_links( array(
-									'base'         => str_replace( 999999999, '%#%', esc_url( get_pagenum_link( 999999999 ) ) ),
-									'total'        => $this->gallery->max_num_pages,
-									'current'      => max( 1, get_query_var( 'paged' ) ),
-									'format'       => '?paged=%#%',
-									'show_all'     => false,
-									'type'         => 'plain',
-									'end_size'     => 2,
-									'mid_size'     => 1,
-									'prev_next'    => true,
-									'prev_text'    => sprintf( '<i></i> %1$s', __( 'Prev', 'live-template-editor-client' ) ),
-									'next_text'    => sprintf( '%1$s <i></i>', __( 'Next', 'live-template-editor-client' ) ),
-									'add_args'     => false,
-									'add_fragment' => '',
-								) );
-								
-							echo'</div>	';					
+							do_action('ltple_gallery_items',$layer_type,$layer_range);					
 							
 						echo'</div>';
 						
@@ -206,4 +275,7 @@
 			echo'</div>	';
 
 		echo'</div>';
+		
+		do_action('ltple_gallery_after_output');
 	}
+	

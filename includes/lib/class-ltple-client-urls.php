@@ -80,6 +80,50 @@ class LTPLE_Client_Urls {
 		}
 		
 		$this->editor = $this->home . '/' . $editor . '/';		
+
+		// get admin frontend url
+		
+		$admin = get_option( $this->parent->_base . 'adminSlug' );
+
+		if( empty( $admin ) ){
+			
+			$post_id = wp_insert_post( array(
+			
+				'post_title' 		=> 'Admin',
+				'post_type'     	=> 'page',
+				'comment_status' 	=> 'closed',
+				'ping_status' 		=> 'closed',
+				'post_content' 		=> '[ltple-client-admin]',
+				'post_status' 		=> 'publish',
+				'menu_order' 		=> 0
+			));
+			
+			$admin = update_option( $this->parent->_base . 'adminSlug', get_post($post_id)->post_name );
+		}
+		
+		$this->admin = $this->home . '/' . $admin . '/';		
+		
+		// get checkout url
+		
+		$checkout = get_option( $this->parent->_base . 'checkoutSlug' );
+
+		if( empty( $checkout ) ){
+			
+			$post_id = wp_insert_post( array(
+			
+				'post_title' 		=> 'Checkout',
+				'post_type'     	=> 'page',
+				'comment_status' 	=> 'closed',
+				'ping_status' 		=> 'closed',
+				'post_content' 		=> '[ltple-client-checkout]',
+				'post_status' 		=> 'publish',
+				'menu_order' 		=> 0
+			));
+			
+			$checkout = update_option( $this->parent->_base . 'checkoutSlug', get_post($post_id)->post_name );
+		}
+		
+		$this->checkout = $this->home . '/' . $checkout . '/';	
 		
 		// get apps url
 		

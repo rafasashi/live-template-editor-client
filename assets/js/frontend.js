@@ -4,45 +4,55 @@
 			
 		//responsive menu
 		
+		function navigationResize() {
+
+			$('.library-content .nav li.more').before($('.library-content .nav #overflow > li'));
+
+			var $navItemMore = $('.library-content .nav > li.more'),
+				$navItems = $('.library-content .nav > li:not(.more)'),
+				navItemMoreWidth = navItemWidth = $navItemMore.width() + 50,
+				windowWidth = $('.library-content .nav li.more').parent().width(),
+				offset, navOverflowWidth;
+			  
+			$navItems.each(function() {
+				  
+				navItemWidth += $(this).width();
+			});
+			  
+			navItemWidth > windowWidth ? $navItemMore.show() : $navItemMore.hide();
+				
+			while (navItemWidth > windowWidth) {
+				
+				navItemWidth -= $navItems.last().width();
+				$navItems.last().prependTo('.library-content .nav #overflow');
+				$navItems.splice(-1,1);
+			}
+			  
+			navOverflowWidth = $('.library-content .nav #overflow').width();  
+			offset = navItemMoreWidth - navOverflowWidth;
+				
+			$('.library-content .nav #overflow').css({
+				'left': offset
+			});
+		}		
+		
 		if( $(".library-content .nav").length ){
 		
 			$(".library-content .nav").append('<li class="more dropdown" style="display:none;"><button style="padding:3px 8px;margin:8px 0px;background:#b1b1b1;" class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button><ul id="overflow" class="dropdown-menu dropdown-menu-right"></ul></li>').css('overflow','visible');
 			
 			window.onresize = navigationResize;
+			
 			navigationResize();
+		}
 
-			function navigationResize() {
-
-				$('.library-content .nav li.more').before($('.library-content .nav #overflow > li'));
-
-				var $navItemMore = $('.library-content .nav > li.more'),
-					$navItems = $('.library-content .nav > li:not(.more)'),
-					navItemMoreWidth = navItemWidth = $navItemMore.width() + 50,
-					windowWidth = $('.library-content .nav li.more').parent().width(),
-					offset, navOverflowWidth;
-				  
-				$navItems.each(function() {
-					  
-					navItemWidth += $(this).width();
-				});
-				  
-				navItemWidth > windowWidth ? $navItemMore.show() : $navItemMore.hide();
-					
-				while (navItemWidth > windowWidth) {
-					
-					navItemWidth -= $navItems.last().width();
-					$navItems.last().prependTo('.library-content .nav #overflow');
-					$navItems.splice(-1,1);
-				}
-				  
-				navOverflowWidth = $('.library-content .nav #overflow').width();  
-				offset = navItemMoreWidth - navOverflowWidth;
-					
-				$('.library-content .nav #overflow').css({
-					'left': offset
-				});
-			}
-		}		
+		// responsive sidebar
+		
+		$('#sidebarCollapse').on('click', function () {
+			
+			$('#sidebar').toggleClass('active');
+			
+			//$(window).trigger('resize'); //to be fixed
+		});
 					
 		//modal always on top 
 		

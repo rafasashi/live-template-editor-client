@@ -10,7 +10,7 @@
 		
 		$_SESSION['message'] = '';
 	}
-	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && ( $this->layer->layerOutput != 'canvas' || !isset($_GET['quick']) ) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
+	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick']) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
 	
 		$has_storage = ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? false : true );
 
@@ -18,11 +18,17 @@
 			
 			echo '<h2>Start a new project</h2>';
 			
-			if($this->layer->layerOutput == 'canvas'){
+			if( $this->layer->layerOutput == 'canvas' ){
 				
 				echo'<hr>';
 				
 				echo'<a href="'.add_query_arg('quick','',$this->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Start a quick canvas</a>';
+			}
+			elseif( $this->layer->layerOutput == 'inline-css' || $this->layer->layerOutput == 'external-css' ){
+				
+				echo'<hr>';
+				
+				echo'<a href="'.add_query_arg('quick','',$this->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without saving )</a>';				
 			}
 			
 			echo'<hr>';
@@ -114,7 +120,7 @@
 		
 		if( $this->user->loggedin && $this->user->plan["info"]["total_price_amount"] == 0 ){
 			
-			$this->get_demo_message();
+			//$this->get_demo_message();
 		}			
 		
 		// get iframe url

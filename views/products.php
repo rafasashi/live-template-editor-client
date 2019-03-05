@@ -49,7 +49,7 @@
 									
 									echo '<div class="col-xs-3">';
 									
-										echo '<a class="thumbnail" href="'. $this->parent->urls->product . '?id=' . $post->ID . '">';
+										echo '<a class="thumbnail" href="'. $this->parent->urls->product . $post->ID . '/">';
 									
 											echo get_the_post_thumbnail($post->ID, array(150,150));
 									
@@ -59,7 +59,7 @@
 									
 									echo '<div class="col-xs-9">';
 									
-										echo '<a href="'. $this->parent->urls->product . '?id=' . $post->ID . '" style="font-weight:bold;">';
+										echo '<a href="'. $this->parent->urls->product . $post->ID . '/" style="font-weight:bold;">';
 										
 											echo $post->post_title;
 										
@@ -87,16 +87,3 @@
 		echo'</div>';
 
 	echo'</div>';
-	
-	if( !$this->parent->user->loggedin ){
-
-		// login modal
-		
-		include( $this->parent->views  . '/modals/login.php');
-	}
-	else{
-		
-		// upgrade plan modal
-		
-		include( $this->parent->views  . '/modals/upgrade.php');				
-	}

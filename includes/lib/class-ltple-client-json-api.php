@@ -34,13 +34,46 @@ class LTPLE_Client_Json_API {
 		return $url;
 	}
 	
-	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar' ){
+	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar', $card=false ){
 						
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );
-								
+		
+		$responsive = ( $card ? false : true );
+		
 		if(!$show_toolbar){
 			
 			echo'<style>#'.$toolbar.'{display:none;}</style>';
+		}
+		
+		if( $card ){
+			
+			echo'<style>
+			
+				tr {
+					
+					float:left;
+					margin:3px;
+					padding:5px;
+					border-radius: 3px;
+					border:none;
+					height:300px;
+					width:30%;
+					overflow:hidden;
+					background-color: #fff !important;
+					box-shadow:0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);					
+				}
+				
+				td {
+					
+					border:none !important;
+				}
+			
+				.card-view .title {
+					
+					display:none !important;
+				}
+			
+			</style>';
 		}
 		
 		if($form){
@@ -92,6 +125,10 @@ class LTPLE_Client_Json_API {
 			echo 'data-show-columns="'.( $columns ? 'true' : 'false' ).'" ';
 			echo 'data-show-export="'.( $export ? 'true' : 'false' ).'" ';
 			echo 'data-show-refresh="true" ';
+			echo 'data-buttons-class="primary" ';
+			echo 'data-card-view="'.( $card ? 'true' : 'false' ).'" ';
+			echo 'data-mobile-responsive="'.( $responsive ? 'true' : 'false' ).'" ';
+			echo 'data-filter-control="true" ';
 			//echo 'data-sort-order="desc" ';   
 			//echo 'data-sort-name="description" ';
 			echo ( $show_toolbar ? 'data-toolbar="#'.$toolbar.'" ' : '' );
@@ -105,11 +142,12 @@ class LTPLE_Client_Json_API {
 					
 						foreach($field as $key => $value){
 							
-							if($key!='content'){
+							if( $key!= 'content' ){
 								
 								echo 'data-'.$key.'="'.$value.'" ';
 							}
 						}
+						
 					echo '>'.(!empty($field['content']) ? $field['content'] : '').'</th>';				
 				}
 

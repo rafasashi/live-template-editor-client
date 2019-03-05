@@ -137,6 +137,8 @@ class LTPLE_Client {
 
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );		
 		
+		add_action( 'init', array( $this, 'register_theme' ) );
+		
 		if(isset($_POST['imgData']) && isset($_POST["submitted"])&& isset($_POST["download_image_nonce_field"]) && $_POST["submitted"]=='true'){
 			
 			// dowload meme image
@@ -182,6 +184,8 @@ class LTPLE_Client {
 			
 			$this->api 		= new LTPLE_Client_Json_API( $this );
 			$this->server 	= new LTPLE_Client_Server( $this );
+			
+			$this->checkout = new LTPLE_Client_Checkout( $this );
 			
 			$this->media 	= new LTPLE_Client_Media( $this );
 			 
@@ -312,15 +316,6 @@ class LTPLE_Client {
 		add_action( 'login_enqueue_scripts', array( $this, 'get_login_logo' ) );
 		add_filter( 'login_headerurl', array( $this, 'get_login_logo_url' ) );
 		add_filter( 'login_headertitle', array( $this, 'get_login_logo_url_title' ) );
-		
-		// add head
-		
-		remove_action( 'wp_head', '_wp_render_title_tag', 1 );
-		add_action( 'wp_head', array( $this, 'get_header') );
-		
-		// add menu
-		
-		add_filter( 'wp_nav_menu', array( $this, 'get_menu' ), 10, 2);			
 
 		// add editor shortcodes
 		
@@ -415,8 +410,9 @@ class LTPLE_Client {
 			
 			// get user notification settings
 			
-			$this->user->notify 	= $this->users->get_user_notification_settings( $this->user->ID );
-			$this->user->can_spam 	= $this->user->notify['series'];
+			$this->user->notify 		= $this->users->get_user_notification_settings( $this->user->ID );
+			$this->user->can_spam 		= $this->user->notify['series'];
+			$this->user->can_spam_set 	= ( !empty(get_user_meta($this->user->ID, $this->_base . '_can_spam',true)) ? true : false );
 			
 			// get user last seen
 			
@@ -463,8 +459,8 @@ class LTPLE_Client {
 			
 			// get remaining days
 			
-			$this->user->remaining_days = $this->user->period_end > 0 ? ceil( ($this->user->period_end - time()) / (60 * 60 * 24) ) : 0;
-
+			$this->user->remaining_days = $this->user->period_end > 0 ? ceil( ($this->user->period_end - time()) / (60 * 60 * 24) ) : 0;		
+			
 			// get user rights
 			
 			$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
@@ -1060,7 +1056,11 @@ class LTPLE_Client {
 		
 		// Custom outputs
 		
-		if( isset( $_GET['output']) && $_GET['output'] == 'widget' ){
+		if( strpos($this->urls->current,$this->urls->admin) === 0 ){
+			
+			include( $this->views . '/admin.php' );
+		}
+		elseif( isset( $_GET['output']) && $_GET['output'] == 'widget' ){
 			
 			include( $this->views . '/widget.php' );
 		}
@@ -1077,7 +1077,7 @@ class LTPLE_Client {
 	public function get_header(){
 		
 		global $post;
-		
+
 		if( !empty($post) ){
 		
 			$service_name = get_bloginfo( 'name' );
@@ -1247,7 +1247,16 @@ class LTPLE_Client {
 				echo 'border-radius:0;';
 				echo 'box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
 				
-			echo'}';				
+			echo'}';
+
+			if( !empty($this->settings->navbarColor) ){
+				
+				echo' .navbar{';
+					
+					echo'background:'.$this->settings->navbarColor.' !important;';
+					
+				echo'}';
+			}
 			
 			if( !empty($this->settings->mainColor) ){
 		
@@ -1469,8 +1478,8 @@ class LTPLE_Client {
 			echo'</script>';			
 			
 			// collect usr information
-			
-			if( empty( $this->user->can_spam ) && !isset($_POST['can_spam']) ){
+
+			if( empty( $this->user->can_spam_set ) && !isset($_POST['can_spam']) ){
 				
 				include($this->views . '/modals/newsletter.php');
 			} 
@@ -1495,31 +1504,15 @@ class LTPLE_Client {
 		echo '<style>';
 			echo '.pgheadertitle{display:none;}.tabs-left,.tabs-right{border-bottom:none;padding-top:2px}.tabs-left{border-right:0px solid #ddd}.tabs-right{border-left:0px solid #ddd}.tabs-left>li,.tabs-right>li{float:none;margin-bottom:2px}.tabs-left>li{margin-right:-1px}.tabs-right>li{margin-left:-1px}.tabs-left>li.active>a,.tabs-left>li.active>a:focus,.tabs-left>li.active>a:hover{border-left: 5px solid #F86D18;border-top:0;border-right:0;border-bottom:0; }.tabs-right>li.active>a,.tabs-right>li.active>a:focus,.tabs-right>li.active>a:hover{border-bottom:0px solid #ddd;border-left-color:transparent}.tabs-left>li>a{border-radius:4px 0 0 4px;margin-right:0;display:block}.tabs-right>li>a{border-radius:0 4px 4px 0;margin-right:0}.sideways{margin-top:50px;border:none;position:relative}.sideways>li{height:20px;width:120px;margin-bottom:100px}.sideways>li>a{border-bottom:0px solid #ddd;border-right-color:transparent;text-align:center;border-radius:4px 4px 0 0}.sideways>li.active>a,.sideways>li.active>a:focus,.sideways>li.active>a:hover{border-bottom-color:transparent;border-right-color:#ddd;border-left-color:#ddd}.sideways.tabs-left{left:-50px}.sideways.tabs-right{right:-50px}.sideways.tabs-right>li{-webkit-transform:rotate(90deg);-moz-transform:rotate(90deg);-ms-transform:rotate(90deg);-o-transform:rotate(90deg);transform:rotate(90deg)}.sideways.tabs-left>li{-webkit-transform:rotate(-90deg);-moz-transform:rotate(-90deg);-ms-transform:rotate(-90deg);-o-transform:rotate(-90deg);transform:rotate(-90deg)}';
 			echo 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
-		echo '</style>';		
+		echo '</style>';
+
+		include($this->views . '/navbar.php');
 		
 		if($this->user->loggedin){
-			
-			include($this->views . '/navbar.php');
-			
+
 			include($this->views . '/apps.php');
 			
 			$this->viewIncluded = true;
-		}
-		else{
-			
-			echo'<div style="font-size:20px;padding:20px;margin:0;" class="alert alert-warning">';
-				
-				echo'You need to log in first...';
-				
-				echo'<div class="pull-right">';
-
-					echo'<a style="margin:0 2px;" class="btn-lg btn-success" href="'. wp_login_url( $this->request->proto . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'">Login</a>';
-					
-					echo'<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( $this->urls->editor ) .'&action=register">Register</a>';
-				
-				echo'</div>';
-				
-			echo'</div>';
 		}
 	}
 	
@@ -1532,10 +1525,10 @@ class LTPLE_Client {
 			echo 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
 		echo '</style>';	
 		
+		include($this->views . '/navbar.php');
+		
 		if($this->user->loggedin){	
 			
-			include($this->views . '/navbar.php');
-
 			$this->viewIncluded = false;			
 			
 			if( isset($_GET['rewards']) ){
@@ -1554,7 +1547,6 @@ class LTPLE_Client {
 				
 				if( $this->user->has_layer ){
 					
-
 					include( $this->views . '/editor.php' );
 									
 					$this->viewIncluded = true;	
@@ -1563,7 +1555,7 @@ class LTPLE_Client {
 					
 					include($this->views . '/upgrade.php');
 					
-					include($this->views . '/designs.php');
+					include($this->views . '/gallery.php');
 					
 					$this->viewIncluded = true;	
 				}
@@ -1575,30 +1567,15 @@ class LTPLE_Client {
 			
 			if(!$this->viewIncluded){
 				
-				include($this->views . '/designs.php');
+				include($this->views . '/gallery.php');
 			}
 		}
 		else{
 			
-			echo'<div style="font-size:20px;padding:20px;margin:0;" class="alert alert-warning">';
-				
-				echo'You need to log in first...';
-				
-				echo'<div class="pull-right">';
-
-					echo'<a style="margin:0 2px;" class="btn-lg btn-success" href="'. wp_login_url( $this->request->proto . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'">Login</a>';
-					
-					echo'<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( $this->urls->editor ) .'&action=register">Register</a>';
-				
-				echo'</div>';
-				
-			echo'</div>';		
-			
-			include($this->views . '/designs.php'); 
+			include($this->views . '/gallery.php'); 
 		}
 	}
 
-	
 	public function get_demo_message(){
 		
 		echo'<div class="row" style="background-color: #65c5e8;font-size: 18px;color: #fff;padding: 20px;">';
@@ -2548,6 +2525,11 @@ class LTPLE_Client {
 
 		return $post_type;
 	}
+	
+	public function register_theme() {
+		
+		$this->theme = new LTPLE_Client_Theme($this);
+	}
 
 	/**
 	 * Wrapper function to register a new taxonomy
@@ -2577,11 +2559,15 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-jquery-ui' );		
 	
-		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), '1.0.3' );
-		wp_enqueue_style( $this->_token . '-frontend' );
-	
+		wp_register_style( $this->_token . '-bootstrap-css', esc_url( $this->assets_url ) . 'css/bootstrap.min.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-bootstrap-css' );		
+
+		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-frontend' );		
+		
 		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-bootstrap-table' );	
+		wp_enqueue_style( $this->_token . '-bootstrap-table' );
+
 		
 		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-toggle-switch' );	
@@ -2598,23 +2584,32 @@ class LTPLE_Client {
 		
 		wp_enqueue_script('jquery-ui-dialog');
 		
-		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend' . $this->script_suffix . '.js', array( 'jquery' ), $this->_version );
+		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-js' );			
+		
+		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery' ), $this->_version );
 		wp_enqueue_script( $this->_token . '-frontend' );
 		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-lazyload' );	
 
-		wp_register_script($this->_token . '-sprintf', esc_url( $this->assets_url ) . 'js/sprintf.js', array( 'jquery' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-sprintf' );		
+		//wp_register_script($this->_token . '-sprintf', esc_url( $this->assets_url ) . 'js/sprintf.js', array( 'jquery' ), $this->_version);
+		//wp_enqueue_script( $this->_token . '-sprintf' );	
 		
 		wp_register_script($this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'js/bootstrap-table.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap-table' );
 
-		wp_register_script($this->_token . '-bootstrap-table-export', esc_url( $this->assets_url ) . 'js/bootstrap-table-export.js', array( 'jquery', $this->_token . 'sprintf' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-bootstrap-table-export' );
+		//wp_register_script($this->_token . '-bootstrap-table-export', esc_url( $this->assets_url ) . 'js/bootstrap-table-export.js', array( 'jquery', $this->_token . 'sprintf' ), $this->_version);
+		//wp_enqueue_script( $this->_token . '-bootstrap-table-export' );
 		
-		wp_register_script($this->_token . '-table-export', esc_url( $this->assets_url ) . 'js/tableExport.js', array( 'jquery' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-table-export' ); 
+		//wp_register_script($this->_token . '-table-export', esc_url( $this->assets_url ) . 'js/tableExport.js', array( 'jquery' ), $this->_version);
+		//wp_enqueue_script( $this->_token . '-table-export' ); 
+		
+		wp_register_script($this->_token . '-bootstrap-table-mobile', esc_url( $this->assets_url ) . 'js/bootstrap-table-mobile.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-table-mobile' ); 		
+
+		wp_register_script($this->_token . '-bootstrap-table-filter-control', esc_url( $this->assets_url ) . 'js/bootstrap-table-filter-control.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-table-filter-control' ); 		
 		
 	} // End enqueue_scripts ()
 

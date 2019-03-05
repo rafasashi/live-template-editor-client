@@ -78,25 +78,67 @@ class LTPLE_Client_Gallery {
 				'meta_query' 	=> $meta_query,
 			))){
 				
-				foreach( $all_types as $term ){
+				foreach( $all_types as $key => $term ){
 				
 					$term->visibility = get_option('visibility_'.$term->slug,'anyone');
 					
-					// count posts in term
+					if( $term->visibility == 'anyone' || $this->parent->user->is_editor ){
+						
+						$tax_query = array('relation'=>'AND');
+						
+						$tax_query[0] = array('relation'=>'AND');
+						
+						$tax_query[0][] = array(
 					
-					$q = new WP_Query([
-						'posts_per_page' => 0,
-						'post_type' 	=> 'cb-default-layer',
-						'tax_query' => [
-							[
-								'taxonomy' => $term->taxonomy,
-								'terms' => $term,
-								'field' => 'slug'
-							]
-						]
-					]);
+							'taxonomy' 	=> $term->taxonomy,
+							'terms' 	=> $term,
+							'field' 	=> 'slug'
+						);
+
+						$tax_query[0][] = array(
 					
-					$term->count = $q->found_posts; // replace term count by real post type count
+							'taxonomy' 			=> 'layer-range',
+							'operator'			=> 'EXISTS'
+						);
+						
+						$tax_query[1] = array('relation'=>'OR');
+
+						$tax_query[1][] = array(
+						
+							'taxonomy' 			=> 'user-contact',
+							'field' 			=> 'slug',
+							'terms' 			=> $this->parent->user->user_email,
+							'include_children' 	=> false,
+							'operator'			=> 'IN'
+						);
+						
+						$tax_query[1][] = array(
+						
+							'taxonomy' 			=> 'user-contact',
+							'operator'			=> 'NOT EXISTS'
+						);
+						
+						// count posts in term
+						
+						$q = new WP_Query([
+							'posts_per_page' 	=> 0,
+							'post_type' 		=> 'cb-default-layer',
+							'tax_query' 		=> $tax_query,
+						]);
+						
+						if( $q->found_posts > 0 ){
+						
+							$term->count = $q->found_posts; // replace term count by real post type count
+						}
+						else{
+							
+							unset($all_types[$key]);
+						}
+					}
+					else{
+						
+						unset($all_types[$key]);
+					}
 				}
 			}
 			
@@ -140,22 +182,31 @@ class LTPLE_Client_Gallery {
 	
 	public function get_type_addon_range($term){
 		
+		$term_id = 0;
+		
 		if( is_object($term) && !empty($term->term_id) ){
 			
 			$term_id = $term->term_id;
 		}
-		else{
+		elseif( is_numeric($term) ){
 			
 			$term_id = intval($term);
+		}
+		elseif($term = get_term_by('slug',$term,'layer-type')){
+			
+			$term_id = $term->term_id;
 		}
 		
 		$addon_range = null;
 		
-		$id = intval(get_term_meta($term_id,'addon_range',true));
+		if( $term_id > 0 ){
 		
-		if( $id > 0 ){
+			$id = intval(get_term_meta($term_id,'addon_range',true));
 			
-			$addon_range = get_term_by('id',$id,'layer-range');
+			if( $id > 0 ){
+				
+				$addon_range = get_term_by('id',$id,'layer-range');
+			}
 		}
 		
 		return $addon_range;
@@ -165,17 +216,25 @@ class LTPLE_Client_Gallery {
 		
 		$ranges = [];
 		
+		// get layer ranges
+		
 		$meta_query = $this->get_meta_query();
 		
-		$tax_query = array(
+		$tax_query = array('relation'=>'AND');
 		
-			array(
-				'taxonomy' 			=> 'layer-type',
-				'field' 			=> 'slug',
-				'terms' 			=> $layer_type,
-				'include_children' 	=> false,
-				'operator'			=> 'IN'
-			)
+		$tax_query[] = array(
+		
+			'taxonomy' 			=> 'layer-type',
+			'field' 			=> 'slug',
+			'terms' 			=> $layer_type,
+			'include_children' 	=> false,
+			'operator'			=> 'IN'
+		);
+		
+		$tax_query[] = array(
+		
+			'taxonomy' 			=> 'layer-range',
+			'operator'			=> 'EXISTS'
 		);
 		
 		if( !empty($addon_range) ){
@@ -183,11 +242,11 @@ class LTPLE_Client_Gallery {
 			$tax_query[] = array(
 			
 				'taxonomy' 			=> 'layer-range',
-				'field' 			=> 'id',
-				'terms' 			=> $addon_range->term_id,
+				'field' 			=> 'slug',
+				'terms' 			=> $addon_range->slug,
 				'include_children' 	=> false,
 				'operator'			=> 'NOT IN'
-			);
+			);			
 		}
 		
 		$args = array( 
@@ -199,55 +258,14 @@ class LTPLE_Client_Gallery {
 		);		
 
 		$query = new WP_Query($args);
-		
-		$posts = array();
-		
-		if( !empty($query->posts) ){
-			
-			$posts = $query->posts;
-		}
-		
-		if( !empty($addon_range) ){
-			
-			$args = array( 
-				'post_type' 		=> 'cb-default-layer', 
-				'posts_per_page'	=> -1,
-				'fields'		 	=> 'ids',
-				'tax_query' 		=> array(
-		
-					array(
-						'taxonomy' 			=> 'layer-type',
-						'field' 			=> 'slug',
-						'terms' 			=> $layer_type,
-						'include_children' 	=> false,
-						'operator'			=> 'IN'
-					),
-					array(
-					
-						'taxonomy' 			=> 'user-contact',
-						'field' 			=> 'slug',
-						'terms' 			=> $this->parent->user->user_email,
-						'include_children' 	=> false,
-						'operator'			=> 'IN'
-					)
-				)
-			);
 
-			$query = new WP_Query($args);
-			
-			if( !empty($query->posts) ){
-				
-				$posts = array_merge($query->posts,$posts);
-			}				
-		}
+		if( !empty($query->posts) ){
 		
-		if( !empty($posts) ){
-		
-			foreach( $posts as $post_id ){
+			foreach( $query->posts as $post_id ){
 				
-				if( $layer_ranges = wp_get_post_terms( $post_id, 'layer-range' ) ){
+				if( $layer_range = wp_get_post_terms( $post_id, 'layer-range' ) ){
 					
-					foreach( $layer_ranges as $range ){
+					foreach( $layer_range as $range ){
 						
 						if( !isset($ranges[$range->slug]) ){
 							
@@ -259,32 +277,77 @@ class LTPLE_Client_Gallery {
 							
 							++$ranges[$range->slug]['count'];
 						}
-					}
+					}					
 				}
-			}
-			
-			if( !empty($ranges) ){
-			
-				// order by count
-				
-				$counts = array();
-				
-				foreach( $ranges as $key => $range ){
-					
-					$counts[$key] = $range['count'];
-				}
-				
-				array_multisort($counts, SORT_DESC, $ranges);
 			}
 		}
 
+		if( !empty($addon_range) ){
+			
+			// get addon range
+
+			$tax_query = array('relation'=>'AND');
+			
+			$tax_query[] = array(
+			
+				'taxonomy' 			=> 'user-contact',
+				'field' 			=> 'slug',
+				'terms' 			=> $this->parent->user->user_email,
+				'include_children' 	=> false,
+				'operator'			=> 'IN'
+			);
+			
+			$args = array( 
+				'post_type' 		=> 'cb-default-layer', 
+				'posts_per_page'	=> -1,
+				'fields'		 	=> 'ids',
+				'tax_query' 		=> $tax_query,
+				'meta_query' 		=> $meta_query,
+			);		
+
+			$query = new WP_Query($args);
+		
+			if( !empty($query->posts) ){
+
+				foreach( $query->posts as $post_id ){
+					
+					if( !isset($ranges[$addon_range->slug]) ){
+						
+						$ranges[$addon_range->slug]['name'] 	= $addon_range->name;
+						$ranges[$addon_range->slug]['slug'] 	= $addon_range->slug;
+						$ranges[$addon_range->slug]['count'] 	= 1;
+					}
+					else{
+						
+						++$ranges[$addon_range->slug]['count'];
+					}
+				}
+			}
+		}
+
+		// sort ranges
+		
+		if( !empty($ranges) ){
+		
+			// order by count
+			
+			$counts = array();
+			
+			foreach( $ranges as $key => $range ){
+				
+				$counts[$key] = $range['count'];
+			}
+			
+			array_multisort($counts, SORT_DESC, $ranges);
+		}
+		
 		return $ranges;
 	}
 	
 	public function get_range_items($layer_type,$layer_range,$addon_range=null){
 		
 		$items =[];
-
+		
 		if( !empty($layer_range) ){
 			
 			$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
@@ -300,15 +363,6 @@ class LTPLE_Client_Gallery {
 				'terms' 			=> $layer_type,
 				'include_children' 	=> false,
 				'operator'			=> 'IN'
-			);				
-			
-			$tax_query[] = array(
-			
-				'taxonomy' 			=> 'layer-range',
-				'field' 			=> 'slug',
-				'terms' 			=> $layer_range,
-				'include_children' 	=> false,
-				'operator'			=> 'IN'
 			);
 			
 			if( !empty($addon_range->slug) && $addon_range->slug == $layer_range ){
@@ -321,6 +375,17 @@ class LTPLE_Client_Gallery {
 					'include_children' 	=> false,
 					'operator'			=> 'IN'
 				);					
+			}
+			else{
+				
+				$tax_query[] = array(
+				
+					'taxonomy' 			=> 'layer-range',
+					'field' 			=> 'slug',
+					'terms' 			=> $layer_range,
+					'include_children' 	=> false,
+					'operator'			=> 'IN'
+				);				
 			}
 			
 			if( $query = new WP_Query(array( 
@@ -335,7 +400,7 @@ class LTPLE_Client_Gallery {
 				
 				$this->max_num_pages = $query->max_num_pages;
 				
-				$all_types = $this->get_all_types();
+				$all_types = $this->get_all_types($addon_range);
 				
 				foreach($all_types as $term){
 					
@@ -349,7 +414,7 @@ class LTPLE_Client_Gallery {
 								
 								//get layer_range
 								
-								$layer_range='out of range';
+								$layer_range = null;
 								
 								$terms = wp_get_object_terms( $post->ID, 'layer-range' );
 								
@@ -358,20 +423,16 @@ class LTPLE_Client_Gallery {
 									$layer_range = $terms[0]->slug;
 								}				
 								
-								//get item
+								if( !empty($layer_range) ){
 								
-								$item = $this->get_item($post);
-								
-								if( !empty($addon_range->slug) && $addon_range->slug == $layer_range ){
+									//get item
 									
-									// get addon count
+									$item = $this->get_item($post);
+
+									//merge item
 									
-									
+									$items[$layer_range][]=$item;
 								}
-								
-								//merge item
-								
-								$items[$layer_range][]=$item;					
 							}
 							
 						endwhile; wp_reset_query();						
@@ -385,7 +446,7 @@ class LTPLE_Client_Gallery {
 	
 	public function get_item($post){
 							
-		$item='';
+		$item = '';
 		
 		if( !empty($post) ){
 			
@@ -404,51 +465,16 @@ class LTPLE_Client_Gallery {
 			$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4",$post->ID) ) . '" id="post-' . $post->ID . '">';
 				
 				$item.='<div class="panel panel-default">';
-					
-					$item.='<div class="panel-heading">';
-						
-						$item.='<b>' . $post_title . '</b>';
-						
-					$item.='</div>';
 
+					$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center;"></div>'; //thumb_wrapper					
+					
 					$item.='<div class="panel-body">';
 						
-						if ( $image_id = get_post_thumbnail_id( $post->ID ) ){
-							
-							if ($src = wp_get_attachment_image_src( $image_id, 'medium' )){
-								
-								$item.='<div class="thumb_wrapper" style="background:url(' . $src[0] . ');background-size:cover;background-repeat:no-repeat;">';
-									
-									//$item.= '<img src="' . $src[0] . '"/>';
-								
-								$item.='</div>'; //thumb_wrapper
-							}
-							else{
-								$item.='<div class="thumb_wrapper" style="background:#ffffff;"></div>';
-							}
-						}
-						else{
-							$item.='<div class="thumb_wrapper" style="background:#ffffff;"></div>';
-						}
-
-						$excerpt= strip_tags(get_the_excerpt( $post->ID ),'<span>');
-						
-						$item.='<div class="post_excerpt" style="overflow:hidden;height:20px;">';
-						
-							if(!empty($excerpt)){
-								
-								$item.=$excerpt;
-							}
-							else{
-								
-								$item.=$post_title;
-							}
-							
-						$item.='</div>';
-						
+						$item.= apply_filters('ltple_gallery_item_title','<b>' . $post_title . '</b>',$post);
+						 
 					$item.='</div>';
 					
-					$item.='<div class="panel-footer text-right">';
+					$item.='<div style="background:#fff;border:none;" class="panel-footer text-right">';
 						
 						if( $this->parent->inWidget === true ){
 							
@@ -466,11 +492,13 @@ class LTPLE_Client_Gallery {
 							}												
 						}
 						else{
+							
+							// info button
+							
+							$item.='<a class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $this->parent->urls->product . $post->ID . '/" title="More info about '. $post_title .' template">Info</a>';
 						
-							$item.='<a class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $this->parent->urls->product .'?id=' . $post->ID . '" title="More info about '. $post_title .' template">Info</a>';
-						
-							//$item.='<a class="btn btn-sm btn-warning" href="'. $permalink .'" target="_blank" title="'. $post_title .'">Preview</a>';
-						
+							// preview button
+							
 							$modal_id='modal_'.md5($permalink);
 							
 							$item.='<button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;

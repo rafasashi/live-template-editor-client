@@ -1,10 +1,14 @@
 <?php
 	
 	$is_public = $this->is_public();
-	
+
 	$self_profile = ( $this->parent->user->loggedin && $this->user->ID  == $this->parent->user->ID ? true : false );
 	
 	if( $is_public || $self_profile ){
+		
+		// is user pro 
+		
+		$is_pro = $this->parent->users->is_pro_user($this->user->ID);
 	
 		// get background
 	
@@ -71,11 +75,12 @@
 				
 			.profile-avatar img {
 
-				border: solid 20px #f9f9f9;
+				border: solid 10px #f9f9f9;
 				border-radius: 100px;
 				margin:0px;
 				position: relative;
 				background:#fff;
+				box-shadow:6px -10px 6px -7px rgba(0, 0, 0, 0.27), -7px -10px 6px -7px rgba(0, 0, 0, 0.27);
 			}
 					
 			.profile-menu {
@@ -98,6 +103,15 @@
 				min-height: 500px;
 			}		
 			
+			#social_icons img {
+			
+				background:#fff;
+				border:1px solid #eee;
+				padding:1px;
+				height:30px;
+				width:30px;
+				border-radius:250px;
+			}
 		';
 		
 		echo'</style>';
@@ -112,9 +126,14 @@
 				
 				// mobile avatar
 				
-				echo '<div class="profile-avatar text-center hidden-sm hidden-md hidden-lg" style="margin:10px;">';
+				echo '<div class="profile-avatar text-center hidden-sm hidden-md hidden-lg" style="margin:10px;position:relative;">';
 				
 					echo'<img style="border:solid 5px #f9f9f9;" src="' . $picture . '" height="100" width="100" />';
+					
+					if( $is_pro ){
+						
+						echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';									
+					}
 					
 				echo '</div>';			
 				
@@ -140,15 +159,20 @@
 								
 			echo'</div>'; //profile-overlay
 			
-			echo'<div id="panel">';
+			echo'<div id="panel" style="box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
 			
-				echo'<div class="col-xs-3 col-sm-2 text-center hidden-xs">';
+				echo'<div class="col-xs-12 col-sm-3 col-md-2 text-center" style="padding:30px;">';
 						
-					// user avatar	
+					// desktop avatar	
 						
-					echo '<div class="profile-avatar text-center" style="margin: -60px 10px 10px 10px;">';
+					echo '<div class="profile-avatar text-center hidden-xs" style="margin: -90px 10px 25px 10px;position:relative;">';
 					
 						echo'<img src="' . $picture . '" height="150" width="150" />';
+						
+						if( $is_pro ){
+							
+							echo'<span class="label label-primary" style="position:absolute;bottom:10%;right:16%;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';					
+						}						
 						
 					echo '</div>';
 					
@@ -163,11 +187,13 @@
 					echo '</span>';
 					
 					// social icons
-				
-					if( !empty($apps) ){
+
+					echo '<div id="social_icons" class="text-center" style="margin:20px 0 0 0;">';
+							
+						do_action('ltple_before_social_icons');
 						
-						echo '<div id="social-icons" class="text-center" style="margin:20px 0;">';
-						
+						if( !empty($apps) ){		
+							
 							foreach( $apps as $app ){
 								
 								if( !empty($app->user_profile) && !empty($app->social_icon) ){
@@ -178,21 +204,23 @@
 										
 										echo'<a href="' . $app->user_profile . '" style="margin:5px;display:inline-block;" ref="nofollow" target="_blank">';
 											
-											echo'<img src="' . $app->social_icon . '" style="height:30px;width:30px;border-radius:250px;" />';
+											echo'<img src="' . $app->social_icon . '" />';
 											
 										echo'</a>';
 									}
 								}
 							}
+						}
 						
-						echo '</div>';
-					}
+						do_action('ltple_after_social_icons');
+						
+					echo '</div>';
 				
 				echo '</div>';
+
+				echo'<div class="col-xs-12 col-sm-9 col-md-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
 				
-				echo'<div class="col-xs-12 col-sm-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
-				
-					echo'<ul class="nav nav-pills" role="tablist" style="overflow:visible;margin-top:0;">';
+					echo'<ul class="nav nav-pills" role="tablist" style="box-shadow:inset 0px 2px 5px -4px rgba(0,0,0,0.75);overflow:visible;margin-top:0;">';
 						
 						foreach( $tabs as $tab){
 							
@@ -238,38 +266,26 @@
 					
 					echo'<div class="profile-content">';
 					
-						echo'<div class="col-xs-12 col-sm-10">';		
-						
-							echo'<div class="tab-content">';
-								
-								foreach( $tabs as $tab){
-									
-									if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
-
-										echo'<div class="tab-pane active" id="'.$tab['slug'].'">';
-										
-											echo'<div class="col-xs-12 col-sm-8">';
-											
-												if(!empty($this->parent->message)){ 
-												
-													//output message
-												
-													echo $this->parent->message;
-												}									
-											
-												echo $tab['content'];
-												
-											echo'</div>';
-											
-										echo'</div>';
-										
-										break;
-									}							
-								}					
-								
-							echo'</div>';
+						foreach( $tabs as $tab){
 							
-						echo'</div>';
+							if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
+
+								echo'<div class="tab-pane active" id="'.$tab['slug'].'">';
+								
+									if(!empty($this->parent->message)){ 
+									
+										//output message
+									
+										echo $this->parent->message;
+									}									
+								
+									echo $tab['content'];
+									
+								echo'</div>';
+								
+								break;
+							}							
+						}					
 						
 					echo '</div>';
 					
@@ -278,6 +294,13 @@
 			echo '</div>';
 
 		echo '</div>';
+		
+		if( !$this->parent->user->loggedin ){
+
+			// login modal
+			
+			include( $this->parent->views  . '/modals/login.php');
+		}
 	}
 	else{ 
 		

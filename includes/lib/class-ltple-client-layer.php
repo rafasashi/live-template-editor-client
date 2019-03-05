@@ -5,6 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Layer extends LTPLE_Client_Object { 
 	
 	public $parent;
+	
+	public $defaultFields 	= array();
+	public $userFields 		= array();
+	
 	public $id				= -1;
 	public $defaultId		= -1;
 	public $uri				= '';
@@ -14,10 +18,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $type			= '';
 	public $form			= '';
 	public $embedded		= '';
-	public $outputs			= '';
+	public $outputs			= '';	
 	public $types			= array(); 
-	public $ranges			= array(); 
-	public $accountOptions 	= array(); 
+	public $ranges			= array();
+	public $accountOptions 	= array();
 	public $columns			= '';
 	public $column			= '';
 	public $options			= array(); 
@@ -46,7 +50,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'hierarchical' 			=> true,
 			'show_in_rest' 			=> false,
 			//'supports' 			=> array( 'title', 'editor', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array( 'title', 'excerpt', 'thumbnail' ),
+			'supports' 				=> array( 'title', 'excerpt', 'thumbnail', 'author' ),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		)); 
@@ -160,9 +164,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			global $post;
 			
+			$fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type );
+			
 			if( $post->post_type == 'cb-default-layer' ){
-				
-				$layer_type = $this->get_layer_type($post);
 				
 				if( empty($_REQUEST['post']) ){
 					
@@ -177,125 +181,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$wp_meta_boxes[$post->post_type]['normal'] 			= array();
 					$wp_meta_boxes[$post->post_type]['advanced'] 		= array();
 				}
+				
+				$layer_type = $this->get_layer_type($post);	
+				
+				if( $layer_type->output != 'hosted-page' && $layer_type->output != 'downloadable' ){		
 
-				$this->parent->admin->add_meta_box (
-				
-					'tagsdiv-layer-type',
-					__( 'Template Type', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'side'
-				);
-				
-				$this->parent->admin->add_meta_box ( 
-				
-					'layer-rangediv',
-					__( 'Template Range', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'side'
-				);
-				
-				$this->parent->admin->add_meta_box (
-					
-					'layer-margin',
-					__( 'Template Margin', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'side'
-				);	
-				
-				if( !empty($_REQUEST['post']) ){			
-			
-					$this->parent->admin->add_meta_box (
-						
-						'layer-content',
-						__( 'Template HTML', 'live-template-editor-client' ), 
-						array($post->post_type),
-						'advanced'
-					);
-					
-					$this->parent->admin->add_meta_box (
-						
-						'layer-visibility',
-						__( 'Template Visibility', 'live-template-editor-client' ), 
-						array($post->post_type),
-						'side'
-					);				
-					
-					$this->parent->admin->add_meta_box (
-						
-						'layer-elements',
-						__( 'Template Elements', 'live-template-editor-client' ), 
-						array($post->post_type),
-						'advanced'
-					);		
-					
-					if( $layer_type->output != 'inline-css' ){
-						
-						$this->parent->admin->add_meta_box (
-							
-							'layer-css',
-							__( 'Template CSS', 'live-template-editor-client' ), 
-							array($post->post_type),
-							'advanced'
-						);
-					}
-
-					if( $layer_type->output == 'hosted-page' || $layer_type->output == 'downloadable' ){
-					
-						$this->parent->admin->add_meta_box (
-							
-							'layer-js',
-							__( 'Template Javascript', 'live-template-editor-client' ), 
-							array($post->post_type),
-							'advanced'
-						);
-						
-						$this->parent->admin->add_meta_box (
-							
-							'layer-meta',
-							__( 'Template Meta Data', 'live-template-editor-client' ), 
-							array($post->post_type),
-							'advanced'
-						);
-						
-						if( $layer_type->output == 'downloadable' ){
-						
-							$this->parent->admin->add_meta_box (
-								
-								'layer-static-url',
-								__( 'Template Static Content', 'live-template-editor-client' ), 
-								array($post->post_type),
-								'advanced'
-							);
-						}
-					}
-					else{
-
-						remove_meta_box( 'css-librarydiv', $post->post_type, 'side' );
-						remove_meta_box( 'js-librarydiv', $post->post_type, 'side' );
-						remove_meta_box( 'font-librarydiv', $post->post_type, 'side' );					
-					}
-					
-					if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
-					
-						$this->parent->admin->add_meta_box (
-							
-							'layer-form',
-							__( 'Template Form', 'live-template-editor-client' ), 
-							array($post->post_type),
-							'side'
-						);
-					}
-					
-					/*
-					$this->parent->admin->add_meta_box (
-						
-						'layer-options',
-						__( 'Template Options', 'live-template-editor-client' ), 
-						array($post->post_type),
-						'side'
-					);
-					*/
+					remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
+					remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
+					remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );					
 				}
+				
+				$this->parent->admin->add_meta_boxes($fields);
 			}
 			elseif( $post->post_type == 'user-layer' || ( !empty($this->parent->settings->options->postTypes) && in_array( $post->post_type, $this->parent->settings->options->postTypes ) ) ){
 				
@@ -354,8 +250,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_filter('manage_edit-account-option_columns', array( $this, 'set_account_option_columns' ) );
 		add_filter('manage_account-option_custom_column', array( $this, 'add_layer_column_content' ),10,3);			
 	
-		add_action('create_account-option', array( $this, 'save_layer_fields' ) );
-		add_action('edit_account-option', array( $this, 'save_layer_fields' ) );	
+		add_action('create_account-option', array( $this, 'save_layer_taxonomy_fields' ) );
+		add_action('edit_account-option', array( $this, 'save_layer_taxonomy_fields' ) );	
 
 		add_action('layer-type_add_form_fields', array( $this, 'add_layer_fields' ) );
 		add_action('layer-type_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );
@@ -363,8 +259,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_filter('manage_edit-layer-type_columns', array( $this, 'set_layer_type_columns' ) );
 		add_filter('manage_layer-type_custom_column', array( $this, 'add_layer_column_content' ),10,3);		
 		
-		add_action('create_layer-type', array( $this, 'save_layer_fields' ) );
-		add_action('edit_layer-type', array( $this, 'save_layer_fields' ) );	
+		add_action('create_layer-type', array( $this, 'save_layer_taxonomy_fields' ) );
+		add_action('edit_layer-type', array( $this, 'save_layer_taxonomy_fields' ) );	
 
 		add_action('layer-range_add_form_fields', array( $this, 'add_layer_fields' ) );
 		add_action('layer-range_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );
@@ -372,8 +268,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_filter('manage_edit-layer-range_columns', array( $this, 'set_layer_range_columns' ) );
 		add_filter('manage_layer-range_custom_column', array( $this, 'add_layer_column_content' ),10,3);
 	
-		add_action('create_layer-range', array( $this, 'save_layer_fields' ) );
-		add_action('edit_layer-range', array( $this, 'save_layer_fields' ) );			
+		add_action('create_layer-range', array( $this, 'save_layer_taxonomy_fields' ) );
+		add_action('edit_layer-range', array( $this, 'save_layer_taxonomy_fields' ) );			
 
 		add_action('css-library_edit_form_fields', array( $this, 'get_css_library_fields' ) );	
 		add_action('create_css-library', array( $this, 'save_library_fields' ) );
@@ -404,6 +300,502 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action( 'before_delete_post', array($this,'delete_static_contents'), 10, 3 );
 	
 		add_action( 'ltple_layer_loaded', array($this,'output_static_layer') );
+	}
+	
+	
+	public function get_default_layer_fields($post=null){
+		
+		if( empty($this->defaultFields) ){
+		
+			//get post
+			
+			if( empty($post) ){
+				
+				$post_id = get_the_ID();
+				
+				$post = get_post($post_id);
+			}
+			
+			//get layer types
+			
+			$layer_types=[];
+			
+			foreach($this->types as $term){
+				
+				$layer_types[$term->slug]=$term->name;
+			}
+
+			//get current layer type
+			
+			$layer_type = $this->get_layer_type($post);			
+			
+			$this->defaultFields[]=array(
+			
+				"metabox" =>
+				
+					array(
+				
+						'name' 		=> 'tagsdiv-layer-type',
+						'title' 	=> __( 'Template Type', 'live-template-editor-client' ), 
+						'screen'	=> array('cb-default-layer'),
+						'context' 	=> ( !empty($layer_type->output) ? 'side' : 'advanced' ),
+						'taxonomy'	=> 'layer-type',
+						'frontend'	=> false,
+					),
+					
+					'id'			=> "new-tag-layer-type",
+					'name'			=> 'tax_input[layer-type]',
+					'label'			=> "",
+					'type'			=> 'select',
+					'options'		=> $layer_types,
+					'callback' 		=> array($this,'get_layer_type_slug'),
+					'description'	=> ''
+			);
+			
+			//get current layer range
+			
+			$layer_range = $this->get_layer_range($post);	
+			
+			$this->defaultFields[]=array(
+			
+				"metabox" =>
+				
+					array( 
+				
+						'name' 		=> 'layer-rangediv',
+						'title' 	=> __( 'Template Range', 'live-template-editor-client' ), 
+						'screen'	=> array('cb-default-layer'),
+						'context' 	=> 'side',
+						'taxonomy'	=> 'layer-range',
+						'frontend'	=> false,
+					),
+					
+					'type'		=> 'dropdown_categories',
+					'id'		=> 'layer-range',
+					'name'		=> 'tax_input[layer-range][]',
+					'label'		=> '',
+					'taxonomy'	=> 'layer-range',
+					'callback' 	=> array($this,'get_layer_range_id'),
+					'description'=>''
+			);
+			
+			if( !empty($layer_type->output) ){
+				
+				// json object
+				/*
+				$this->defaultFields[]=array(
+				
+					"metabox" =>
+					
+						array(
+					
+							'name' 		=> 'metabox_1',
+							'title' 	=> __( 'Template JSON', 'live-template-editor-client' ), 
+							'screen'	=> array('cb-default-layer'),
+							'context' 	=> 'advanced',
+							'add_new'	=> false
+						),					
+
+						'id'=>"pageDef",
+						'label'=>"",
+						'type'=>'textarea',
+						'placeholder'=>"JSON object",
+						'description'=>'
+						
+							<table class="widefat fixed striped" cellspacing="0">
+								<thead>
+								
+									<tr>
+									
+										<th>option</th>
+										<th>description</th>
+										<th>default</th>
+										<th>possible values</th>
+										
+									</tr>
+									
+								</thead>
+								<tbody>
+								
+									<tr>
+									
+										<td><strong>name</strong></td>
+										<td>ID of the element</td>
+										<td>null</td>
+										<td>String</td>
+										
+									</tr>
+									<tr>
+									
+										<td><strong>iconClass</strong></td>
+										<td>Class of the icon before the element name</td>
+										<td>glyphicon glyphicon-plus</td>
+										<td>String</td>
+										
+									</tr>							
+									<tr>
+									
+										<td><strong>props</strong></td>
+										<td>List of editable CSS propertises</td>
+										<td>null</td>
+										<td>Array</td>
+									</tr>
+									
+									<tr>
+										<td><strong>labels</strong></td>
+										<td>Labels of the editable CSS propertises</td>
+										<td>null</td>
+										<td>Array</td>
+									</tr>
+									
+									<tr>
+									
+										<td><strong>editorsConfig</strong></td>
+										<td>Configuration of some editable CSS propertise surch as background-image or image source</td>
+										<td>null</td>
+										<td>Object{"prop":{"urls":Object}}</td>
+										
+									</tr>
+									
+									<tr>
+									
+										<td><strong>draggable</strong></td>
+										<td>Is the element draggable inside the preview</td>
+										<td>false</td>
+										<td>String</td>
+										
+									</tr>
+									
+									<tr>
+									
+										<td><strong>contenteditable</strong></td>
+										<td>Is the element content editable</td>
+										<td>true</td>
+										<td>String</td>
+										
+									</tr>
+									
+								</tbody>
+								
+							</table>'
+				);
+				*/
+				
+				// get layer content
+				
+				$this->defaultFields[]=array(
+				
+					"metabox" =>
+					
+						array(
+					
+							'name' 		=> 'layer-content',
+							'title' 	=> __( 'Template HTML', 'live-template-editor-client' ), 
+							'screen'	=> array('cb-default-layer'),
+							'context' 	=> 'advanced',
+							'add_new'	=> false,
+						),
+						
+						'id'			=> "layerContent",
+						'label'			=> "",
+						'type'			=> 'textarea',
+						'placeholder'	=> "HTML content",
+						//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+				);
+
+				$this->defaultFields[]=array(
+				
+					"metabox" =>
+					
+						array(
+					
+							'name' 		=> 'layer-margin',
+							'title' 	=> __( 'Template Margin', 'live-template-editor-client' ), 
+							'screen'	=> array('cb-default-layer'),
+							'context' 	=> 'side',
+							'add_new'	=> false,
+						),
+						
+						'id'			=>"layerMargin",
+						'label'			=>"",
+						'type'			=>'text',
+						'placeholder'	=>'0px',
+						'default'		=>'-120px 0px -20px 0px',
+						'description'	=>''
+				);				
+
+				if( $layer_type->output != 'inline-css' ){
+					
+					// get layer css
+					
+					$this->defaultFields[]=array(
+					
+						"metabox" =>
+						
+							array(
+						
+								'name' 		=> 'layer-css',
+								'title' 	=> __( 'Template CSS', 'live-template-editor-client' ), 
+								'screen'	=> array('cb-default-layer'),
+								'context' 	=> 'advanced',
+								'add_new'	=> false,
+							),
+							
+							'id'			=> "layerCss",
+							'label'			=> "",
+							'type'			=> 'textarea',
+							'stripcslashes'	=> false,
+							'placeholder'	=> "Internal CSS style sheet",
+							'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+					);
+				}
+				
+				if( $layer_type->output == 'hosted-page' || $layer_type->output == 'downloadable' ){		
+					
+					$this->defaultFields[]=array(
+					
+						"metabox" =>
+						
+							array(
+						
+								'name' 		=> 'layer-js',
+								'title' 	=> __( 'Template Javascript', 'live-template-editor-client' ), 
+								'screen'	=> array('cb-default-layer'),
+								'context' 	=> 'advanced'
+							),
+							
+							'id'			=> "layerJs",
+							'label'			=> "",
+							'type'			=> 'textarea',
+							'placeholder'	=> "Additional Javascript",
+							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+					);
+					
+					$this->defaultFields[]=array(
+					
+						"metabox" =>
+						
+							array(
+						
+								'name' 		=> 'layer-meta',
+								'title' 	=> __( 'Template Meta Data', 'live-template-editor-client' ), 
+								'screen'	=> array('cb-default-layer'),
+								'context' 	=> 'advanced'
+							),
+							
+							'id'			=> "layerMeta",
+							'label'			=> "",
+							'type'			=> 'textarea',
+							'placeholder'	=> "JSON",
+							'description'	=> '<i>Additional Meta Data</i>'
+					);
+					
+					$this->defaultFields[]=array(
+					
+						"metabox" =>
+						
+							array(
+						
+								'name' 		=> 'layer-elements',
+								'title' 	=> __( 'Template Elements', 'live-template-editor-client' ), 
+								'screen'	=> array('cb-default-layer'),
+								'context' 	=> 'advanced'
+							),
+							
+							'id'			=> "layerElements",
+							'name'			=> "layerElements",
+							'type'			=> 'element',
+							'description'	=> '',
+							
+					);				
+					
+					if( $layer_type->output == 'downloadable' ){
+						
+						$this->defaultFields[]=array(
+						
+							"metabox" =>
+							
+								array(
+							
+									'name' 		=> 'layer-static-url',
+									'title' 	=> __( 'Template Static Content', 'live-template-editor-client' ), 
+									'screen'	=> array('cb-default-layer'),
+									'context' 	=> 'advanced'
+								),
+								
+								'id'			=> "layerStaticTpl",
+								'type'			=> 'file',
+								'label'			=> '<b>Upload Archive</b>',
+								'accept'		=> '.zip,.tar',
+								'script'		=> 'jQuery(document).ready(function($){$(\'form#post\').attr(\'enctype\',\'multipart/form-data\');});',
+								'placeholder'	=> "archive.zip",
+								'style'			=> "padding:5px;margin: 15px 0 5px 0;",
+								'description'	=> "Upload a static template (zip,tar)",
+						);					
+					}
+				}
+				
+				if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
+							
+					$this->defaultFields[]=array( 
+					
+						"metabox" =>
+						
+							array(
+						
+								'name' 		=> 'layer-form',
+								'title' 	=> __( 'Template Form', 'live-template-editor-client' ), 
+								'screen'	=> array('cb-default-layer'),
+								'context' 	=> 'side',
+								'frontend' 	=> false,
+							),
+							
+							'id'			=> "layerForm",
+							'label'			=> "",
+							'type'			=> 'radio',
+							'options'		=> array(
+							
+								'none'		=> 'None',
+								'importer'	=> 'Importer',
+								//'scraper'	=> 'Scraper',
+							),
+							'inline'		=> false,
+							'description'	=> ''
+					);				
+				}
+			}
+
+			$this->defaultFields[]=array( 
+			
+				"metabox" =>
+				
+					array(
+				
+						'name' 		=> 'layer-visibility',
+						'title' 	=> __( 'Template Visibility', 'live-template-editor-client' ), 
+						'screen'	=> array('cb-default-layer'),
+						'context' 	=> 'side',
+						'frontend' 	=> false,
+					),
+						
+					'id'			=> "layerVisibility",
+					'label'			=> "",
+					'type'			=> 'radio',
+					'options'		=> array(
+					
+						'subscriber'	=> 'Subscriber',
+						'registered'	=> 'Registered',
+						'anyone'		=> 'Anyone',
+					),
+					'inline'		=> false,
+					'description'	=> ''
+			);
+			
+			/*
+			$this->defaultFields[]=array(
+			
+				"metabox" =>
+				
+					array(
+				
+						'name' 		=> 'layer-options',
+						'title' 	=> __( 'Template Options', 'live-template-editor-client' ), 
+						'screen'	=> array('cb-default-layer'),
+						'context' 	=> 'side',
+						'add_new'	=> false,
+					),
+					
+					'id'		=>"layerOptions",
+					'label'		=>"",
+					'type'		=>'checkbox_multi',
+					'options'	=>array(
+					
+						'line-break'	=> 'Line break (Enter)',
+						'wrap-text'		=> 'Auto wrap text',
+					
+					),
+					'checked'	=>array('margin-top'),
+					'description'=>''
+			);
+			*/
+			
+			do_action('ltple_default_layer_fields');
+			
+		}
+		
+		return $this->defaultFields;
+	}
+	
+	public function get_user_layer_fields(){
+		
+		if( empty($this->userFields) ){
+		
+			$this->userFields[]=array(
+			
+				"metabox" =>
+				
+					array('name'=>"layer-content"),
+					'id'			=> "layerContent",
+					'label'			=> "",
+					'type'			=> 'textarea',
+					'placeholder'	=> "HTML content",
+					//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+			);
+		
+			$this->userFields[]=array(
+			
+				"metabox" =>
+				
+					array('name'=>"layer-css"),
+					'id'			=> "layerCss",
+					'label'			=> "",
+					'type'			=> 'textarea',
+					'stripcslashes'	=> false,
+					'placeholder'	=> "Internal CSS style sheet",
+					'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+			);
+			
+			$this->userFields[]=array(
+			
+				"metabox" =>
+				
+					array('name'=>"layer-js"),
+					'id'			=> "layerJs",
+					'label'			=> "",
+					'type'			=> 'textarea',
+					'placeholder'	=> "Additional Javascript",
+					'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+			);
+
+			$this->userFields[]=array(
+				"metabox" =>
+				
+					array('name'=>"default_layer_id"),
+					'id'			=> "defaultLayerId",
+					'label'			=> "Default Template ID",
+					'type'			=> 'edit_layer',
+					'placeholder'	=> "",
+					'description'	=> '',
+					'disabled'		=> true,
+			);
+
+			$this->userFields[]=array(
+			
+				"metabox" =>
+				
+					array('name'=>"layer-embedded"),
+					'id'			=> "layerEmbedded",
+					'label'			=> "",
+					'type'			=> 'text',
+					'placeholder'	=> "http://",
+					'disabled'		=> true,
+			);			
+		
+			do_action('ltple_user_layer_fields');
+		
+		}
+		
+		return $this->userFields;
 	}
 	
 	public function get_layer_outputs(){
@@ -442,6 +834,54 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			),
 		));		
 	}
+	
+	public function get_layer_range_id($post){
+		
+		$layer_range_id = 0;
+		
+		$layer_range = $this->get_layer_range($post);
+		
+		if( !empty($layer_range->term_id) ){
+			
+			$layer_range_id = $layer_range->term_id;
+		}
+		
+		return $layer_range_id;
+	}
+	
+	public function get_layer_range($post){
+		
+		$term = null;
+		
+		if( is_numeric($post) ){
+			
+			$post = get_post($post);
+		}
+
+		if( !empty($post->post_type) ){
+			
+			if( $post->post_type == 'user-layer' ){
+					
+				// get default layer id
+				
+				$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+				
+				$post = get_post($default_id);
+			}
+			
+			if( !is_null($post) && $post->post_type == 'cb-default-layer' ){
+				
+				$terms = wp_get_post_terms($post->ID,'layer-range');
+			
+				if( !empty($terms[0]) ){
+					
+					$term = $terms[0];
+				}				
+			}
+		}
+		
+		return $term;
+	}	
 	
 	public function get_layer_ranges(){
 		
@@ -756,6 +1196,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		));
 	}
 	
+	public function get_layer_type_slug($post){
+		
+		$layer_type_slug = '';
+		
+		$layer_type = $this->get_layer_type($post);
+		
+		if( !empty($layer_type->slug) ){
+			
+			$layer_type_slug = $layer_type->slug;
+		}
+		
+		return $layer_type_slug;
+	}
+	
 	public function get_layer_type($post){
 		
 		$term = null;
@@ -800,6 +1254,27 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $term;
+	}
+	
+	public function get_thumbnail_url($post){
+
+		if( $image_id = get_post_thumbnail_id( $post->ID ) ){
+			
+			if ($src = wp_get_attachment_image_src( $image_id, 'medium' )){
+				
+				$image_url = $src[0];
+			}
+			else{
+				
+				$image_url = $this->parent->assets_url . 'images/default_item.png';
+			}
+		}
+		else{
+			
+			$image_url = $this->parent->assets_url . 'images/default_item.png';
+		}
+
+		return $image_url;
 	}
 	
 	public function init_layer_backend(){
@@ -1139,413 +1614,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}
 	}
-	
-	public function get_default_layer_fields(){
-		
-		$fields=[];
-		
-		//get post id
-		
-		$post_id=get_the_ID();
-		
-		//get layer types
-		
-		$layer_types=[];
-		
-		foreach($this->types as $term){
-			
-			$layer_types[$term->slug]=$term->name;
-		}
-		
-		//get current layer type
-		
-		$terms = wp_get_post_terms( $post_id, 'layer-type' );
-		
-		$default_layer_type='';
 
-		if(isset($terms[0]->slug)){
-			
-			$default_layer_type=$terms[0]->slug;
-		}
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"tagsdiv-layer-type"),
-				
-				'id'=>"new-tag-layer-type",
-				'name'=>'tax_input[layer-type]',
-				'label'=>"",
-				'type'=>'select',
-				'options'=>$layer_types,
-				'selected'=>$default_layer_type,
-				'description'=>''
-		);
-		
-		//get current layer range
-		
-		$terms = wp_get_post_terms( $post_id, 'layer-range' );
-
-		$default_layer_range='';
-
-		if(isset($terms[0]->term_id)){
-			
-			$default_layer_range=$terms[0]->term_id;
-		}
-
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"layer-rangediv"),
-				
-				'type'		=> 'dropdown_categories',
-				'id'		=> 'layer-range',
-				'name'		=> 'tax_input[layer-range][]',
-				'label'		=> '',
-				'taxonomy'	=> 'layer-range',
-				'selected'	=> $default_layer_range,
-				'description'=>''
-		);
-		
-		// json object
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"metabox_1"),
-				'id'=>"pageDef",
-				'label'=>"",
-				'type'=>'textarea',
-				'placeholder'=>"JSON object",
-				'description'=>'
-				
-					<table class="widefat fixed striped" cellspacing="0">
-						<thead>
-						
-							<tr>
-							
-								<th>option</th>
-								<th>description</th>
-								<th>default</th>
-								<th>possible values</th>
-								
-							</tr>
-							
-						</thead>
-						<tbody>
-						
-							<tr>
-							
-								<td><strong>name</strong></td>
-								<td>ID of the element</td>
-								<td>null</td>
-								<td>String</td>
-								
-							</tr>
-							<tr>
-							
-								<td><strong>iconClass</strong></td>
-								<td>Class of the icon before the element name</td>
-								<td>glyphicon glyphicon-plus</td>
-								<td>String</td>
-								
-							</tr>							
-							<tr>
-							
-								<td><strong>props</strong></td>
-								<td>List of editable CSS propertises</td>
-								<td>null</td>
-								<td>Array</td>
-							</tr>
-							
-							<tr>
-								<td><strong>labels</strong></td>
-								<td>Labels of the editable CSS propertises</td>
-								<td>null</td>
-								<td>Array</td>
-							</tr>
-							
-							<tr>
-							
-								<td><strong>editorsConfig</strong></td>
-								<td>Configuration of some editable CSS propertise surch as background-image or image source</td>
-								<td>null</td>
-								<td>Object{"prop":{"urls":Object}}</td>
-								
-							</tr>
-							
-							<tr>
-							
-								<td><strong>draggable</strong></td>
-								<td>Is the element draggable inside the preview</td>
-								<td>false</td>
-								<td>String</td>
-								
-							</tr>
-							
-							<tr>
-							
-								<td><strong>contenteditable</strong></td>
-								<td>Is the element content editable</td>
-								<td>true</td>
-								<td>String</td>
-								
-							</tr>
-							
-						</tbody>
-						
-					</table>'
-		);
-		
-		// get layer content
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array( 'name' => "layer-content" ),
-				'id'			=> "layerContent",
-				'label'			=> "",
-				'type'			=> 'textarea',
-				'placeholder'	=> "HTML content",
-				//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-		);		
-		
-		// get layer css
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array( 'name' => "layer-css" ),
-				'id'			=> "layerCss",
-				'label'			=> "",
-				'type'			=> 'textarea',
-				'stripcslashes'	=> false,
-				'placeholder'	=> "Internal CSS style sheet",
-				'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array( 'name' => "layer-js" ),
-				'id'			=> "layerJs",
-				'label'			=> "",
-				'type'			=> 'textarea',
-				'placeholder'	=> "Additional Javascript",
-				'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
-		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array( 'name' => "layer-elements" ),
-				'id'			=> "layerElements",
-				'name'			=> "layerElements",
-				'type'			=> 'element',
-				'description'	=> '',
-				
-		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array( 'name' => "layer-meta" ),
-				'id'			=> "layerMeta",
-				'label'			=> "",
-				'type'			=> 'textarea',
-				'placeholder'	=> "JSON",
-				'description'	=> '<i>Additional Meta Data</i>'
-		);
-
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array( 'name' => "layer-static-url" ),
-				'id'			=> "layerStaticTpl",
-				'type'			=> 'file',
-				'label'			=> '<b>Upload Archive</b>',
-				'accept'		=> '.zip,.tar',
-				'script'		=> 'jQuery(document).ready(function($){$(\'form#post\').attr(\'enctype\',\'multipart/form-data\');});',
-				'placeholder'	=> "archive.zip",
-				'style'			=> "padding:5px;margin: 15px 0 5px 0;",
-				'description'	=> "Upload a static template (zip,tar)",
-		);		
-		
-		$post_id = 0;
-		
-		if( !empty($_GET['post']) ){
-			
-			$post_id = intval($_GET['post']);
-		}
-		elseif( !empty($_POST['post_ID']) ){
-			
-			$post_id = intval($_POST['post_ID']);
-		}
-		
-		if( $post_id > 0 ){
-			
-			$fields[]=array(
-			
-				"metabox" =>
-				
-					array( 'name' => "layer-static-url" ),
-					'id'			=> "layerStaticUrl",
-					'label'			=> '<b>Template Static Url</b>',
-					'type'			=> 'slug',
-					'style'			=> "margin: 15px 0 5px 0;",
-					'base'			=> $this->dirUrl . '<b>' . $post_id . '</b>/',
-					'slash'			=> false,
-					'placeholder'	=> "template1/index.html"
-			);		
-		}
-
-		$fields[]=array( 
-		
-			"metabox" =>
-			
-				array('name'	=> "layer-visibility"),
-				'id'			=> "layerVisibility",
-				'label'			=> "",
-				'type'			=> 'radio',
-				'options'		=> array(
-				
-					'subscriber'	=> 'Subscriber',
-					'registered'	=> 'Registered',
-					'anyone'		=> 'Anyone',
-				),
-				'inline'		=> false,
-				'description'	=> ''
-		); 
-		
-		$fields[]=array( 
-		
-			"metabox" =>
-			
-				array('name'	=> "layer-form"),
-				'id'			=> "layerForm",
-				'label'			=> "",
-				'type'			=> 'radio',
-				'options'		=> array(
-				
-					'none'		=> 'None',
-					'importer'	=> 'Importer',
-					//'scraper'	=> 'Scraper',
-				),
-				'inline'		=> false,
-				'description'	=> ''
-		);
-
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"layer-options"),
-				'id'		=>"layerOptions",
-				'label'		=>"",
-				'type'		=>'checkbox_multi',
-				'options'	=>array(
-				
-					'line-break'	=> 'Line break (Enter)',
-					'wrap-text'		=> 'Auto wrap text',
-				
-				),
-				'checked'	=>array('margin-top'),
-				'description'=>''
-		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"layer-margin"),
-				'id'			=>"layerMargin",
-				'label'			=>"",
-				'type'			=>'text',
-				'placeholder'	=>'0px',
-				'default'		=>'-120px 0px -20px 0px',
-				'description'	=>''
-		);
-		
-		return $fields;
-	}
-	
-	public function get_user_layer_fields(){
-				
-		$fields=[];
-	
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"layer-content"),
-				'id'			=> "layerContent",
-				'label'			=> "",
-				'type'			=> 'textarea',
-				'placeholder'	=> "HTML content",
-				//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-		);
-	
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"layer-css"),
-				'id'			=> "layerCss",
-				'label'			=> "",
-				'type'			=> 'textarea',
-				'stripcslashes'	=> false,
-				'placeholder'	=> "Internal CSS style sheet",
-				'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-		);
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"layer-js"),
-				'id'			=> "layerJs",
-				'label'			=> "",
-				'type'			=> 'textarea',
-				'placeholder'	=> "Additional Javascript",
-				'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
-		);
-
-		$fields[]=array(
-			"metabox" =>
-			
-				array('name'=>"default_layer_id"),
-				'id'			=> "defaultLayerId",
-				'label'			=> "Default Template ID",
-				'type'			=> 'edit_layer',
-				'placeholder'	=> "",
-				'description'	=> '',
-				'disabled'		=> true,
-		);
-
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"layer-embedded"),
-				'id'			=> "layerEmbedded",
-				'label'			=> "",
-				'type'			=> 'text',
-				'placeholder'	=> "http://",
-				'disabled'		=> true,
-		);			
-		
-		return $fields;
-	}
-	
 	public function get_user_layers( $user, $context='admin-dashboard' ) {
 
 		echo '<div class="postbox">';
@@ -2313,7 +2382,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->column;
 	}
 	
-	public function save_layer_fields($term_id){
+	public function save_layer_taxonomy_fields($term_id){
 
 		if( $this->parent->user->is_admin ){
 			
@@ -2375,7 +2444,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					update_option('meta_'.$term->slug, $_POST[$term->taxonomy . '-meta']);			
 				}
 				
-				do_action('ltple_save_layer_fields',$term);
+				do_action('ltple_save_layer_taxonomy_fields',$term);
 			}
 		}
 	}
