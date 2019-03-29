@@ -5,7 +5,7 @@
 		echo $this->message;
 	}
 
-	echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> Last added Templates</h1>';
+	echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> Newly added Templates</h1>';
 	
 	echo'<div id="layer_detail" class="col-xs-12">';
 		
@@ -21,14 +21,23 @@
 					
 					$q = get_posts( array(
 					
-						'post_type' => 'cb-default-layer',
-						'numberposts' => 3,
-						'tax_query' => array(
+						'post_type' 	=> 'cb-default-layer',
+						'numberposts' 	=> 3,
+						'meta_query' 	=> array(
+						
 							array(
-								'taxonomy' => 'layer-type',
-								'field' => 'id',
-								'terms' => $term->term_id,
-								'include_children' => false
+								'key' 			=> 'layerVisibility',
+								'value' 		=> 'assigned',
+								'compare' 		=> '!=',
+							)
+						),
+						'tax_query' 	=> array(
+						
+							array(
+								'taxonomy' 			=> 'layer-type',
+								'field' 			=> 'id',
+								'terms' 			=> $term->term_id,
+								'include_children' 	=> false
 							)
 						)
 					));			

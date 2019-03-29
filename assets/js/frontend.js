@@ -62,7 +62,9 @@
 		
 		$('.modal').on('shown.bs.modal', function (e) {
 			
-			var modalIframe = $(this).find('iframe');
+			var $modal = $(this);
+			
+			var modalIframe = $modal.find('iframe');
 			
 			if(modalIframe.length > 0){
 				
@@ -76,7 +78,43 @@
 					
 						//console.log(iframeSrc);
 					
-						modalIframe.attr("src", iframeSrc);
+						modalIframe.attr("src", iframeSrc).on('load',function(){
+							
+							// get input id
+									
+							var inputId = modalIframe.attr("data-input-id");
+							
+							if( typeof inputId !== typeof undefined ){
+							
+								// insert media
+								
+								modalIframe.contents().find(".insert_media").off();
+								
+								modalIframe.contents().find(".insert_media").on("click", function(e){
+
+									e.preventDefault();
+									e.stopPropagation();
+									
+									// get media src
+									
+									var src = $(this).attr("data-src");
+																		
+									// set input change
+									 
+									$(inputId).val( src );
+									
+									// trigger input change
+				
+									$(inputId).trigger("change");
+								
+									// close current modal
+
+									$modal.modal("toggle");
+								
+								});	
+
+							}							
+						});
 					}
 				}				
 			}
@@ -226,7 +264,63 @@
 			
 			$(this).on('click',function(e){
 				
-				$(id).dialog('open');
+				var $dialog = $(id);
+				
+				$dialog.dialog('open');
+				
+				var dialogIframe = $dialog.find('iframe');
+				
+				if(dialogIframe.length > 0){
+					
+					var iframeSrc = dialogIframe.attr("src");
+					
+					if(typeof iframeSrc == typeof undefined || iframeSrc == false){
+						
+						iframeSrc = dialogIframe.attr("data-src");
+						
+						if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
+						
+							//console.log(iframeSrc);
+
+							dialogIframe.attr("src", iframeSrc).on('load',function(){
+								
+								// get input id
+										
+								//var inputId = dialogIframe.attr("data-input-id");
+								
+								//if( typeof inputId !== typeof undefined ){
+								
+									// insert media
+									
+									dialogIframe.contents().find(".insert_media").off();
+									
+									dialogIframe.contents().find(".insert_media").on("click", function(e){
+
+										e.preventDefault();
+										e.stopPropagation();
+										
+										// get media src
+										
+										var mediaSrc = window.location.origin + '/image-proxy.php?url=' + encodeURIComponent( $(this).attr("data-src") );
+
+										// get editor iframe
+										
+										var editorIframe = document.getElementById("editorIframe").contentWindow;
+										
+										// insert media
+										
+										editorIframe.insertMedia(mediaSrc);
+										
+										// close current dialog
+
+										$dialog.dialog("close");
+									});	
+
+								//}							
+							});
+						}
+					}				
+				}
 			});
 		});
 	});
@@ -237,14 +331,17 @@
 		
 		var anchor = location.hash || $("a[data-toggle=tab]").first().attr("href");
 		
-		var tabs = anchor.substring(1).split('_');
-					
-		$.each(tabs,function(n){
-			
-			$('a[href=#' + tabs[n] + ']').tab('show');
-		});
+		if( typeof anchor != typeof undefined ){
 		
-		$('a[href=' + anchor + ']').tab('show');
+			var tabs = anchor.substring(1).split('_');
+						
+			$.each(tabs,function(n){
+				
+				$('a[href=#' + tabs[n] + ']').tab('show');
+			});
+			
+			$('a[href=' + anchor + ']').tab('show');
+		}
 	});
 		
 })(jQuery);

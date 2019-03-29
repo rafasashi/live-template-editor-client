@@ -1596,7 +1596,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				case 'avatar':
 					
 					$checked = array();
-
+					
+					$data = remove_query_arg('_',$data);
+					
 					foreach ( $field['options'] as $k => $v ) {
 
 						if( $k === 0){
@@ -1616,12 +1618,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					}
 					
 					foreach ( $field['options'] as $k => $v ) {
-
+						
+						$image_url = add_query_arg('_',time(),$v);
+						
 						$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" style="width:50px;text-align:center;display:inline-block;">';
 						
-							$html .= '<img class="img-circle" src="'.add_query_arg(time(),'',$v).'" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
+							$html .= '<img class="img-circle" src="' . $image_url . '" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
 						
-							$html .= '<input type="radio" ' . checked( $checked[$k], true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $v ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" />';
+							$html .= '<input type="radio" ' . checked( $checked[$k], true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $image_url ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" />';
 
 						$html .= '</div>';
 					}

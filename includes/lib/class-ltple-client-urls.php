@@ -103,6 +103,28 @@ class LTPLE_Client_Urls {
 		
 		$this->admin = $this->home . '/' . $admin . '/';		
 		
+		// get dashboard url
+		
+		$dashboard = get_option( $this->parent->_base . 'dashboardSlug' );
+
+		if( empty( $dashboard ) ){
+			
+			$post_id = wp_insert_post( array(
+			
+				'post_title' 		=> 'Dashboard',
+				'post_type'     	=> 'page',
+				'comment_status' 	=> 'closed',
+				'ping_status' 		=> 'closed',
+				'post_content' 		=> '[ltple-client-dashboard]',
+				'post_status' 		=> 'publish',
+				'menu_order' 		=> 0
+			));
+			
+			$dashboard = update_option( $this->parent->_base . 'dashboardSlug', get_post($post_id)->post_name );
+		}
+		
+		$this->dashboard = $this->home . '/' . $dashboard . '/';			
+		
 		// get checkout url
 		
 		$checkout = get_option( $this->parent->_base . 'checkoutSlug' );

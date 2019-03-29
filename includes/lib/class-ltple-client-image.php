@@ -469,9 +469,9 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 						
 						$q = new WP_Query(array(
 							
-							'post_author' => $this->parent->user->ID,
-							'post_type' => 'user-image',
-							'numberposts' => -1,
+							'post_author' 	=> $this->parent->user->ID,
+							'post_type' 	=> 'user-image',
+							'numberposts' 	=> -1,
 						));
 						
 						//var_dump($q);exit;
@@ -529,7 +529,78 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function upload_canvas_image(){
+	public function upload_post_image($image_url,$post_id,$source=''){
+		
+		if( !empty($this->parent->user->ID) ){
+			
+			if ( !function_exists('media_handle_upload') ) {
+				
+				require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+				require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+				require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+			}			
+			
+			if( $tmp = download_url( $image_url ) ){
+				
+				list($type,$ext) = explode('/',mime_content_type($tmp));
+				
+				if( $type == 'image' ){
+					
+					if( $data = file_get_contents($tmp) ){
+					
+						if( !empty($source) ){
+							
+							$source .= '_';
+						}
+					
+						$md5 = $source . md5($data);
+
+						//check if image exists
+						
+						$q = new WP_Query(array(
+							
+							'name' 			=> $md5,
+							'post_author' 	=> $this->parent->user->ID,
+							'post_type' 	=> 'attachment',
+							'posts_per_page'=> -1,
+						));
+
+						if( $q->post_count == 0 ){					
+							
+							$file_array = array(
+							
+								'name' 		=> $md5 . '.' . $ext,
+								'tmp_name' 	=> $tmp,
+							);
+							
+							$post_data = array(
+							
+								'post_title' => $md5,
+							);
+
+							if ( $attach_id = media_handle_sideload( $file_array, null, null, $post_data ) ) {
+								
+								set_post_thumbnail($post_id, $attach_id);
+								
+								if( !empty($source) ){
+								
+									update_post_meta($attach_id,$this->parent->_base . 'upload_source',$source);
+								}
+							}
+						}
+						else{
+							
+							set_post_thumbnail($post_id, $q->posts[0]->ID);
+						}
+					}
+				}
+			}
+
+			@unlink($file_array['tmp_name']);
+		}
+	}
+	
+	public function upload_collage_image(){
 		
 		if( !empty($this->parent->user->ID) ){
 			
@@ -589,11 +660,11 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 							
 								// output message
 								
-								echo 'Canvas uploaded';
+								echo 'Collage uploaded';
 							}
 							else{
 								
-								echo'Error saving canvas...';	
+								echo'Error saving collage...';	
 							}
 						}
 						else{
@@ -735,12 +806,14 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				
 				$url = $this->parse_avatar_url($url,$user_id);
 			}
+			
+			$url = add_query_arg(array('_','876756564564'),$url);
 		}
 		else{
 			
 			$url = $this->parent->assets_url . 'images/avatar.png';
 		}
-
+		
 		return $url;
 	}
 	

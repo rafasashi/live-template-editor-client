@@ -305,54 +305,61 @@
 		
 		public function update_periods(){
 			
-			$api_url = $this->parent->server->url . '/wp-json/ltple-subscription/v1/periods?_=' . time();
-			
-			$response = wp_remote_get( $api_url );
-			
-			if( !empty($response['body']) ){
+			if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
 				
-				$body = json_decode($response['body'],true);
+				$api_url = $this->parent->server->url . '/wp-json/ltple-subscription/v1/periods?_=' . time();
 				
-				if( !empty($body['data']) ){
+				$response = wp_remote_get( $api_url );
+				
+				if( is_array($response) && !empty($response['body']) ){
 					
-					$periods = $this->parent->ltple_decrypt_str($body['data']);
+					$body = json_decode($response['body'],true);
 					
-					if( !empty($periods) ){
+					if( !empty($body['data']) ){
 						
-						$periods = json_decode($periods,true);
+						$periods = $this->parent->ltple_decrypt_str($body['data']);
 						
-						if( !empty($periods) && is_array($periods) ){
+						if( !empty($periods) ){
 							
-							// get users with subscription
-
-							if( $users = get_users(array(
+							$periods = json_decode($periods,true);
 							
-								'meta_query'  => array(
+							if( !empty($periods) && is_array($periods) ){
 								
-									'relation' => 'AND',
+								// get users with subscription
+
+								if( $users = get_users(array(
+								
+									'meta_query'  => array(
 									
-									array(
-										'key'     	=> 'has_subscription',
-										'compare' 	=> '=',
-										'value'		=> 'true',
-									)
-								),
-								'fields' => array('id','user_email'),
-								
-							))){
-								
-								foreach( $users as $user ){
+										'relation' => 'AND',
+										
+										array(
+											'key'     	=> 'has_subscription',
+											'compare' 	=> '=',
+											'value'		=> 'true',
+										)
+									),
+									'fields' => array('id','user_email'),
+									
+								))){
+									
+									foreach( $users as $user ){
 
-									if( !empty($periods[$user->user_email]) ){
-										
-										$period_end = $periods[$user->user_email];
-										
-										update_user_meta($user->id, $this->parent->_base . 'period_end', $period_end);
+										if( intval($user->id) > 1 && !empty($periods[$user->user_email]) ){
+											
+											$period_end = $periods[$user->user_email];
+											
+											update_user_meta($user->id, $this->parent->_base . 'period_end', $period_end);
+										}
 									}
-								}
-							}							
+								}							
+							}
 						}
 					}
+				}
+				else{
+					
+					dump($response);
 				}
 			}
 		}

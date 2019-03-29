@@ -157,7 +157,7 @@
 					echo '</a>';
 				}
 								
-			echo'</div>'; //profile-overlay
+			echo'</div>';
 			
 			echo'<div id="panel" style="box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
 			

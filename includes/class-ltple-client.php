@@ -187,6 +187,8 @@ class LTPLE_Client {
 			
 			$this->checkout = new LTPLE_Client_Checkout( $this );
 			
+			$this->dashboard = new LTPLE_Client_Dashboard( $this );
+			
 			$this->media 	= new LTPLE_Client_Media( $this );
 			 
 			$this->apps 	= new LTPLE_Client_Apps( $this );
@@ -320,6 +322,8 @@ class LTPLE_Client {
 		// add editor shortcodes
 		
 		add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
+		
+		// add apps shortcodes
 		
 		add_shortcode('ltple-client-apps', array( $this , 'get_apps_shortcode' ) );		
 		
@@ -472,6 +476,8 @@ class LTPLE_Client {
 				$this->user->layer = get_post($this->layer->id);
 			}
 			
+			$this->user->programs = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-programs',true) );
+		
 			do_action('ltple_user_loaded');
 			
 			$this->update = new LTPLE_Client_Update( $this );
@@ -1038,7 +1044,7 @@ class LTPLE_Client {
 						
 					// handle canvas image upload
 					
-					echo $this->image->upload_canvas_image();
+					echo $this->image->upload_collage_image();
 					
 					exit;
 				}
@@ -1387,7 +1393,7 @@ class LTPLE_Client {
 		
 		?>
 		<!-- Facebook Pixel Code -->
-		
+		<!--
 		<script>
 		!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 		n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -1401,11 +1407,10 @@ class LTPLE_Client {
 		<noscript><img height="1" width="1" style="display:none"
 		src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"
 		/></noscript>
-		
+		-->
 		<!-- End Facebook Pixel Code -->
 		
 		<?php
-	
 	}
 	
 	public function get_menu( $items, $args ){
@@ -1498,32 +1503,16 @@ class LTPLE_Client {
 	}
 	
 	public function get_apps_shortcode(){
-		
-		// vertical tab styling
-		
-		echo '<style>';
-			echo '.pgheadertitle{display:none;}.tabs-left,.tabs-right{border-bottom:none;padding-top:2px}.tabs-left{border-right:0px solid #ddd}.tabs-right{border-left:0px solid #ddd}.tabs-left>li,.tabs-right>li{float:none;margin-bottom:2px}.tabs-left>li{margin-right:-1px}.tabs-right>li{margin-left:-1px}.tabs-left>li.active>a,.tabs-left>li.active>a:focus,.tabs-left>li.active>a:hover{border-left: 5px solid #F86D18;border-top:0;border-right:0;border-bottom:0; }.tabs-right>li.active>a,.tabs-right>li.active>a:focus,.tabs-right>li.active>a:hover{border-bottom:0px solid #ddd;border-left-color:transparent}.tabs-left>li>a{border-radius:4px 0 0 4px;margin-right:0;display:block}.tabs-right>li>a{border-radius:0 4px 4px 0;margin-right:0}.sideways{margin-top:50px;border:none;position:relative}.sideways>li{height:20px;width:120px;margin-bottom:100px}.sideways>li>a{border-bottom:0px solid #ddd;border-right-color:transparent;text-align:center;border-radius:4px 4px 0 0}.sideways>li.active>a,.sideways>li.active>a:focus,.sideways>li.active>a:hover{border-bottom-color:transparent;border-right-color:#ddd;border-left-color:#ddd}.sideways.tabs-left{left:-50px}.sideways.tabs-right{right:-50px}.sideways.tabs-right>li{-webkit-transform:rotate(90deg);-moz-transform:rotate(90deg);-ms-transform:rotate(90deg);-o-transform:rotate(90deg);transform:rotate(90deg)}.sideways.tabs-left>li{-webkit-transform:rotate(-90deg);-moz-transform:rotate(-90deg);-ms-transform:rotate(-90deg);-o-transform:rotate(-90deg);transform:rotate(-90deg)}';
-			echo 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
-		echo '</style>';
 
 		include($this->views . '/navbar.php');
 		
 		if($this->user->loggedin){
 
 			include($this->views . '/apps.php');
-			
-			$this->viewIncluded = true;
 		}
 	}
 	
 	public function get_editor_shortcode(){
-		
-		// vertical tab styling
-		
-		echo '<style>';
-			echo '.pgheadertitle{display:none;}.tabs-left,.tabs-right{border-bottom:none;padding-top:2px}.tabs-left{border-right:0px solid #ddd}.tabs-right{border-left:0px solid #ddd}.tabs-left>li,.tabs-right>li{float:none;margin-bottom:2px}.tabs-left>li{margin-right:-1px}.tabs-right>li{margin-left:-1px}.tabs-left>li.active>a,.tabs-left>li.active>a:focus,.tabs-left>li.active>a:hover{border-left: 5px solid #F86D18;border-top:0;border-right:0;border-bottom:0; }.tabs-right>li.active>a,.tabs-right>li.active>a:focus,.tabs-right>li.active>a:hover{border-bottom:0px solid #ddd;border-left-color:transparent}.tabs-left>li>a{border-radius:4px 0 0 4px;margin-right:0;display:block}.tabs-right>li>a{border-radius:0 4px 4px 0;margin-right:0}.sideways{margin-top:50px;border:none;position:relative}.sideways>li{height:20px;width:120px;margin-bottom:100px}.sideways>li>a{border-bottom:0px solid #ddd;border-right-color:transparent;text-align:center;border-radius:4px 4px 0 0}.sideways>li.active>a,.sideways>li.active>a:focus,.sideways>li.active>a:hover{border-bottom-color:transparent;border-right-color:#ddd;border-left-color:#ddd}.sideways.tabs-left{left:-50px}.sideways.tabs-right{right:-50px}.sideways.tabs-right>li{-webkit-transform:rotate(90deg);-moz-transform:rotate(90deg);-ms-transform:rotate(90deg);-o-transform:rotate(90deg);transform:rotate(90deg)}.sideways.tabs-left>li{-webkit-transform:rotate(-90deg);-moz-transform:rotate(-90deg);-ms-transform:rotate(-90deg);-o-transform:rotate(-90deg);transform:rotate(-90deg)}';
-			echo 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
-		echo '</style>';	
 		
 		include($this->views . '/navbar.php');
 		
@@ -1734,7 +1723,7 @@ class LTPLE_Client {
 	
 	public function update_user_layer(){	
 		
-		if( $this->user->loggedin ){
+		if( $this->user->loggedin && !empty($this->layer->id) ){
 
 			if( $this->layer->type == 'user-layer' && empty( $this->user->layer ) ){
 				
@@ -2375,7 +2364,23 @@ class LTPLE_Client {
 					
 					include( $this->views . '/message.php' );					
 				}
-			}			
+			}
+			elseif( $_SERVER['REQUEST_METHOD'] === 'POST' ){
+				
+				if( !empty($this->layer->layerOutput) && $this->layer->layerOutput == 'image' ){
+				
+					if( $this->layer->upload_image_template() ){
+						
+						echo 'Template successfully saved!';
+						exit;					
+					}
+					else{
+						
+						echo 'Error Saving Template....';
+						exit;					
+					}
+				}
+			}	
 		}
 	}
 
@@ -2587,7 +2592,7 @@ class LTPLE_Client {
 		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap-js' );			
 		
-		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery' ), $this->_version );
+		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery' ), time() );
 		wp_enqueue_script( $this->_token . '-frontend' );
 		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);

@@ -122,7 +122,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		$apps[] = $item;
 
 		$item = new stdClass();
-		$item->name 	= 'Canvas';
+		$item->name 	= 'Collages';
 		$item->slug 	= 'canvas';
 		$item->types 	= ['images'];
 		$item->pro 		= true;
@@ -212,7 +212,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 					$item.='<div class="panel-body">';
 						
-						$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
+						//$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
 						
 						$item.='<div class="text-right">';
 
@@ -297,55 +297,58 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			
 			foreach ( $query_images->posts as $image ){
 				
-				$image_url = wp_get_attachment_url( $image->ID );
+				if( $image->post_mime_type != 'image/vnd.adobe.photoshop' ){
 				
-				$image_title = get_the_title( $image->ID );
-				
-				//get item
-				
-				$item='';
-				
-				$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
+					$image_url = wp_get_attachment_url( $image->ID );
 					
-					$item.='<div class="panel panel-default">';
+					$image_title = get_the_title( $image->ID );
+					
+					//get item
+					
+					$item='';
+					
+					$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
 						
-						if(!$this->parent->inWidget){
-						
-							$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-images/?att=' . $image->ID . '&imgAction=delete&tab='.$tab.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-						}						
-						
-						$item.='<div class="thumb_wrapper">';
-						
-							$item.= '<img class="lazy" data-original="' . $image_url . '" />';
-						
-						$item.='</div>'; //thumb_wrapper						
-
-						$item.='<div class="panel-body">';
+						$item.='<div class="panel panel-default">';
 							
-							$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
+							if(!$this->parent->inWidget){
+							
+								$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-images/?att=' . $image->ID . '&imgAction=delete&tab='.$tab.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
+							}						
+							
+							$item.='<div class="thumb_wrapper">';
+							
+								$item.= '<img class="lazy" data-original="' . $image_url . '" />';
+							
+							$item.='</div>'; //thumb_wrapper						
 
-							$item.='<div class="text-right">';
-
-								if($this->parent->inWidget){
-
-									$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
-								}
-								else{
-									
-									$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image_url . '" />';
-								}
+							$item.='<div class="panel-body">';
 								
-							$item.='</div>';							
-							
-						$item.='</div>'; //panel-body
+								//$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
 
+								$item.='<div class="text-right">';
+
+									if($this->parent->inWidget){
+
+										$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
+									}
+									else{
+										
+										$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image_url . '" />';
+									}
+									
+								$item.='</div>';							
+								
+							$item.='</div>'; //panel-body
+
+						$item.='</div>';
+						
 					$item.='</div>';
 					
-				$item.='</div>';
-				
-				//merge item
-				
-				$user_images[$tab][]=$item;				
+					//merge item
+					
+					$user_images[$tab][]=$item;
+				}
 			}
 			
 			//-------------------get images from apps------------------------
@@ -421,7 +424,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						
 						$item.='<div class="panel-heading">';
 							
-							$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
+							//$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
 							
 							if(!$this->parent->inWidget){
 							

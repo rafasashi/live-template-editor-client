@@ -22,7 +22,13 @@
 				
 				echo'<hr>';
 				
-				echo'<a href="'.add_query_arg('quick','',$this->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Start a quick canvas</a>';
+				echo'<a href="'.add_query_arg('quick','',$this->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Start a quick collage</a>';
+			}
+			elseif( $this->layer->layerOutput == 'image' ){
+				
+				echo'<hr>';
+				
+				echo'<a href="'.add_query_arg('quick','',$this->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit image ( without saving )</a>';
 			}
 			elseif( $this->layer->layerOutput == 'inline-css' || $this->layer->layerOutput == 'external-css' ){
 				
@@ -115,7 +121,7 @@
 		echo'</div>';
 	}
 	else{
-		
+
 		// ouput demo message
 		
 		if( $this->user->loggedin && $this->user->plan["info"]["total_price_amount"] == 0 ){
@@ -142,115 +148,122 @@
 	//---------- editor settings ---------------
 		
 	echo'<script id="LiveTplEditorSettings">' .PHP_EOL;
-
-		if( $this->layer->layerOutput != '' ){
+		
+		if( $this->layer->layerOutput == 'image' ){
 			
-			echo ' var layerOutput = "' . $this->layer->layerOutput . '";' . PHP_EOL;
-		}
-		
-		echo ' var layerSettings = ' . json_encode($this->layer->layerSettings) . ';' .PHP_EOL;
-		
-		//include image proxy
-		
-		if( $this->layer->layerImgProxy != '' ){
-		
-			echo ' var imgProxy = " ' . $this->layer->layerImgProxy . '";' . PHP_EOL;				
-		}
-		
-		//include quick edit
-		
-		if( $this->layer->layerOutput == 'canvas' && isset($_GET['quick']) ){
-			
-			echo ' var quickEdit = true;' .PHP_EOL;
-		}
-		elseif( !$this->user->plan["info"]["total_price_amount"] > 0 ){
-			
-			echo ' var quickEdit = false;' .PHP_EOL;
+			echo ' var layerImageTpl = "' . $this->urls->home . '?p=' . $this->layer->id . '&_=' . time() . '";' . PHP_EOL;
 		}
 		else{
-			
-			echo ' var quickEdit = false;' .PHP_EOL;
-		}
 		
-		//include page def
-		
-		if( $this->layer->pageDef != '' ){
-			
-			echo ' var pageDef = ' . $this->layer->pageDef . ';' .PHP_EOL;
-		}
-		else{
-			
-			echo ' var pageDef = {};' .PHP_EOL;
-		}
-		
-		//include  line break setting
-
-		if( !is_array( $this->layer->layerOptions ) ){
-			
-			echo ' var disableReturn 	= true;' .PHP_EOL;
-			echo ' var autoWrapText 	= false;' .PHP_EOL;
-		}
-		else{
-			
-			if( !in_array('line-break',$this->layer->layerOptions) ){
+			if( $this->layer->layerOutput != '' ){
 				
-				echo ' var disableReturn = true;' .PHP_EOL;
+				echo ' var layerOutput = "' . $this->layer->layerOutput . '";' . PHP_EOL;
+			}
+			
+			echo ' var layerSettings = ' . json_encode($this->layer->layerSettings) . ';' .PHP_EOL;
+			
+			//include image proxy
+			
+			if( $this->layer->layerImgProxy != '' ){
+			
+				echo ' var imgProxy = " ' . $this->layer->layerImgProxy . '";' . PHP_EOL;				
+			}
+			
+			//include quick edit
+			
+			if( $this->layer->layerOutput == 'canvas' && isset($_GET['quick']) ){
+				
+				echo ' var quickEdit = true;' .PHP_EOL;
+			}
+			elseif( !$this->user->plan["info"]["total_price_amount"] > 0 ){
+				
+				echo ' var quickEdit = false;' .PHP_EOL;
 			}
 			else{
 				
-				echo ' var disableReturn = false;' .PHP_EOL;
+				echo ' var quickEdit = false;' .PHP_EOL;
 			}
 			
-			if(in_array('wrap-text',$this->layer->layerOptions)){
-				
-				echo ' var autoWrapText = true;' .PHP_EOL;
-			}
-			else{ 
-				
-				echo ' var autoWrapText = false;' .PHP_EOL;
-			}
-		}
-		
-		//include icon settings
-		
-		$enableIcons = 'false';
-		
-		if( in_array_field( 'font-awesome-4-7-0', 'slug', $this->layer->layerCssLibraries ) ){
+			//include page def
 			
-			$enableIcons = 'true';
-		}
-		
-		echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
-		
-		//include DnD settings
-		
-		$classes = [ 'ltple-droppable'];
-		
-		if( !empty($this->layer->layerHtmlLibraries) ){
+			if( $this->layer->pageDef != '' ){
+				
+				echo ' var pageDef = ' . $this->layer->pageDef . ';' .PHP_EOL;
+			}
+			else{
+				
+				echo ' var pageDef = {};' .PHP_EOL;
+			}
+			
+			//include line break setting
 
-			foreach( $this->layer->layerHtmlLibraries as $term ){
+			if( !is_array( $this->layer->layerOptions ) ){
 				
-				$droppable_classes = get_option( 'droppable_classes_' . $term->slug );
+				echo ' var disableReturn 	= true;' .PHP_EOL;
+				echo ' var autoWrapText 	= false;' .PHP_EOL;
+			}
+			else{
 				
-				$droppable_classes = str_replace(' ','',$droppable_classes);
-				
-				$droppable_classes = explode(',',$droppable_classes);
-				
-				foreach($droppable_classes as $class){
+				if( !in_array('line-break',$this->layer->layerOptions) ){
 					
-					if( !empty($class) && !in_array( $class, $classes ) ){
+					echo ' var disableReturn = true;' .PHP_EOL;
+				}
+				else{
+					
+					echo ' var disableReturn = false;' .PHP_EOL;
+				}
+				
+				if(in_array('wrap-text',$this->layer->layerOptions)){
+					
+					echo ' var autoWrapText = true;' .PHP_EOL;
+				}
+				else{ 
+					
+					echo ' var autoWrapText = false;' .PHP_EOL;
+				}
+			}
+			
+			//include icon settings
+			
+			$enableIcons = 'false';
+			
+			if( in_array_field( 'font-awesome-4-7-0', 'slug', $this->layer->layerCssLibraries ) ){
+				
+				$enableIcons = 'true';
+			}
+			
+			echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
+			
+			//include DnD settings
+			
+			$classes = [ 'ltple-droppable'];
+			
+			if( !empty($this->layer->layerHtmlLibraries) ){
+
+				foreach( $this->layer->layerHtmlLibraries as $term ){
+					
+					$droppable_classes = get_option( 'droppable_classes_' . $term->slug );
+					
+					$droppable_classes = str_replace(' ','',$droppable_classes);
+					
+					$droppable_classes = explode(',',$droppable_classes);
+					
+					foreach($droppable_classes as $class){
 						
-						$classes[] = $class;
+						if( !empty($class) && !in_array( $class, $classes ) ){
+							
+							$classes[] = $class;
+						}
 					}
 				}
 			}
-		}
-		
-		echo ' var droppableClasses = ' . json_encode(array_values($classes)) . ';' . PHP_EOL;
-
-		if( $this->layer->layerForm == 'importer' ){
 			
-			echo ' var layerForm = "' . $this->layer->layerForm . '";';
+			echo ' var droppableClasses = ' . json_encode(array_values($classes)) . ';' . PHP_EOL;
+
+			if( $this->layer->layerForm == 'importer' ){
+				
+				echo ' var layerForm = "' . $this->layer->layerForm . '";';
+			}
 		}
 		
 	echo'</script>' . PHP_EOL;

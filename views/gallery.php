@@ -12,34 +12,42 @@
 		$_SESSION['message'] = '';
 	}
 	
+	// get gallery sections
+	
+	$all_sections = $this->gallery->get_all_sections();
+	
 	// get layer type
 	
-	$all_types = $this->gallery->get_all_types();
+	$layer_type = $layer_type_name = '';
 	
-	if( !$layer_type = ( !empty($_GET['gallery']) ? $_GET['gallery'] : false ) ){
+	if( $all_types = $this->gallery->get_all_types() ){
+	
+		if( !$layer_type = ( !empty($_GET['gallery']) ? $_GET['gallery'] : false ) ){
+			
+			foreach($all_types as $term){
+							
+				if( $term->visibility == 'anyone' || $this->user->is_editor ){
+					
+					$layer_type = $term->slug;
+					
+					break; 
+				}
+			}		
+		}
+		
+		// get layer type name
 		
 		foreach($all_types as $term){
 						
-			if( $term->visibility == 'anyone' || $this->user->is_editor ){
+			if( $layer_type == $term->slug ){
 				
-				$layer_type = $term->slug;
+				$layer_type_name = $term->name;
 				
 				break; 
 			}
 		}		
 	}
 	
-	// get layer type name
-	
-	foreach($all_types as $term){
-					
-		if( $layer_type == $term->slug ){
-			
-			$layer_type_name = $term->name;
-			
-			break; 
-		}
-	}	
 	
 	if( $term = get_term_by('slug',$layer_type,'layer-type') ){
 		
@@ -73,53 +81,99 @@
 				
 				echo '<ul class="nav nav-tabs tabs-left">';
 					
-					echo '<li class="gallery_type_title" style="border-top: none;">Template library</li>';
+					echo '<li class="gallery_type_title" style="border-top: none;background-color: #4276a0 !important;color: #fff;border-bottom: 1px solid #26455f;">';
+					
+						echo 'All Templates';
+						
+						// filters
+						
+						/*
+						echo '<button class="btn btn-xs btn-info pull-right" style="';
+							echo 'padding: 3px 7px;';
+							echo 'margin: 5px;';
+							echo 'background: #fff;';
+							echo 'color: #4276a0;';
+							echo 'font-size: 9px;';
+							echo 'line-height: 16px;';
+						echo '">filter</button>';
+						*/
+						
+					echo '</li>';
+					
+					foreach( $all_sections as $section => $type_ids ){
+					
+						echo '<li class="gallery_type_title" style="border-top:none;background-color:#fff !important;border:1px solid #fff;color:#4276a0;font-size:14px;box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);">'.$section.'</li>';
 
+						$outputs = $this->layer->get_layer_outputs();
+											
 						$class='';
 						
-						foreach( $all_types as $term ){
+						foreach( $type_ids as $id ){
 							
-							$gallery_url = add_query_arg($_GET,$this->urls->editor);
-							 
-							$gallery_url = add_query_arg('gallery',$term->slug,$gallery_url);
+							if( isset($all_types[$id]) ){
+								
+								$term = $all_types[$id];
 							
-							$gallery_url = remove_query_arg(array('range','uri'),$gallery_url);
-							
-							if( $term->slug == $layer_type ){
+								$gallery_url = add_query_arg($_GET,$this->urls->editor);
+								 
+								$gallery_url = add_query_arg('gallery',$term->slug,$gallery_url);
 								
-								$class=' class="active" style="border-top: none;"';
+								$gallery_url = remove_query_arg(array('range','uri'),$gallery_url);
 								
-								$layer_count = 0;
-								
-								foreach($ranges as $range){
+								if( $term->slug == $layer_type ){
 									
-									$layer_count += $range['count'];
+									$class=' class="active" style="border-top: none;"';
+									
+									$layer_count = 0;
+									
+									foreach($ranges as $range){
+										
+										$layer_count += $range['count'];
+									}
 								}
-							}
-							else{
-								
-								$class='';
-								
-								$layer_count = $term->count;
-							}
+								else{
+									
+									$class='';
+									
+									$layer_count = $term->count;
+								}
 
-							if($term->visibility == 'anyone'){
-								
 								echo '<li'.$class.'>';
 								
-									echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge pull-right hidden-xs" style="margin-top: 4px;padding: 1px 5px;font-size:11px;">' . $layer_count . '</span></a>';
+									echo '<a style="display:inline-block;width:100%;" href="' . $gallery_url . '">';
+										
+										echo '<div>';
+										
+											echo $term->name;
+										
+											echo ' <span class="badge pull-right hidden-xs" style="margin-top:13px;padding:1px 5px;font-size:12px;">' . $layer_count . '</span>';
+										
+										echo '</div>';
+										
+										echo '<div>';
+											
+											if(!$output = get_term_meta($term->term_id,'output',true)){
+												
+												$output = 'inline-css';
+											}
+											
+											$label_style = 'margin-right:8px;padding:2px 4px;font-size:10px;';
+											
+											echo '<span class="label label-primary pull-left hidden-xs" style="' . $label_style . '">'.$outputs[$output].'</span> ';											
+																		
+											if( $term->visibility == 'admin' ){
+												
+												echo '<span class="label label-warning pull-left hidden-xs" style="'.$label_style.'"> admin </span> ';
+											}
+										
+										echo '</div>';
+										
+									echo '</a>';
 									
-								echo '</li>';					
-							}
-							elseif( $this->user->is_editor ){
-								
-								echo '<li'.$class.'>';
-								
-									echo '<a href="' . $gallery_url . '">' . $term->name . ' <span class="badge pull-right hidden-xs" style="margin-top: 4px;padding: 1px 5px;font-size:11px;">' . $layer_count . '</span> <span class="label label-warning pull-right hidden-xs" style="margin-right:8px;padding: 2px 4px;font-size: 10px;"> admin </span></a>';
-									
-								echo '</li>';						
+								echo '</li>';
 							}
 						}
+					}
 					
 				echo'</ul>';
 				

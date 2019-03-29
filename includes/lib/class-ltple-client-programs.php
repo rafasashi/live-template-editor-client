@@ -31,9 +31,9 @@
 			
 			if( current_user_can( 'administrator' ) ){
 				
-				$user_programs = $this->parent->editedUser->programs;
-				
-				if(!is_array($user_programs)){
+				$user_programs = json_decode( get_user_meta( $user->ID, $this->parent->_base . 'user-programs',true) );
+
+				if( !is_array($user_programs) ){
 					
 					$user_programs = [];
 				}
@@ -64,6 +64,7 @@
 						
 				echo'</div>';
 				
+				/*
 				if( user_can( $user->ID, 'administrator' ) ){
 					
 					echo '<div class="postbox" style="min-height:45px;">';
@@ -74,6 +75,7 @@
 							
 					echo'</div>';
 				}
+				*/
 			}	
 		}
 

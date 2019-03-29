@@ -32,7 +32,7 @@
 				
 				echo'<div class="pull-left">';
 
-					echo'<a style="background:' . $ltple->settings->mainColor . ';border:1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="'. $ltple->urls->editor .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Templates" data-content="The gallery is where you can find beautifull templates to start a project. New things are added every weeks.">';
+					echo'<a style="background:' . $ltple->settings->mainColor . ';border:1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="'. $ltple->urls->editor .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Templates" data-content="The gallery is where you can find templates to start a project. New things are added every weeks.">';
 					
 						echo'Gallery';
 					
@@ -87,93 +87,105 @@
 				if( $ltple->user->loggedin === true ){
 					
 					if( isset($_GET['uri']) && $ltple->layer->id > 0 ){
-
-						if( !empty($elemLibraries) && ( isset($_GET['edit']) || $this->user->plan["info"]["total_price_amount"] == 0 || $this->layer->type != 'cb-default-layer' ) ){
-							
-							echo'<div class="pull-left">';
-							
-								echo '<a style="margin-left:6px;border:1px solid #761b86;background:#9C27B0;" id="elementsBtn" class="btn btn-sm" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Elements</a>';
 						
-								echo '<div id="LiveTplEditorDndDialog" title="Elements library" style="display:none;">';
-								echo '<div id="LiveTplEditorDndPanel">';
+						// insert button
+						
+						if( $this->layer->layerOutput == 'image' ){
+
+							echo '<button style="margin-left:2px;margin-right:2px;border:1px solid #761b86;background:#9C27B0;" id="elementsBtn" class="btn btn-sm" href="#" data-toggle="dialog" data-target="#LiveImgEditorElements" data-height="450" data-width="75%" data-resizable="false">Insert</button>';
+					
+							echo '<div id="LiveImgEditorElements" title="Elements library" style="display:none;">'; 
+							echo '<div id="LiveImgEditorElementsPanel">';
 								
-									echo '<div id="dragitemslist">';
-										
-										$list = [];
-										
-										foreach( $elemLibraries as $elements ){
+								echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
+								
+								echo'<iframe data-src="' . $this->urls->media . '?output=widget" style="border:0;width:100%;height:100%;position:absolute;top:0;bottom:0;right:0;left:0;"></iframe>';
+								
+							echo '</div>';
+							echo '</div>';										
+						}					
+						elseif( !empty($elemLibraries) && ( isset($_GET['edit']) || isset($_GET['quick']) || $ltple->layer->type == 'user-layer' ) ){
+							
+							echo '<button style="margin-left:2px;margin-right:2px;border:1px solid #761b86;background:#9C27B0;" id="elementsBtn" class="btn btn-sm" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Insert</button>';
+					
+							echo '<div id="LiveTplEditorDndDialog" title="Elements library" style="display:none;">';
+							echo '<div id="LiveTplEditorDndPanel">';
+							
+								echo '<div id="dragitemslist">';
 									
-											if( !empty($elements['name']) ){
+									$list = [];
+									
+									foreach( $elemLibraries as $elements ){
+								
+										if( !empty($elements['name']) ){
+											
+											foreach( $elements['name'] as $e => $name ){
 												
-												foreach( $elements['name'] as $e => $name ){
+												if( !empty($elements['type'][$e]) ){
+												
+													$type = $elements['type'][$e];
 													
-													if( !empty($elements['type'][$e]) ){
+													$item = '<li draggable="true" data-insert-html="' . str_replace( array('\\"','"',"\\'"), "'", $elements['content'][$e] ) . '">';
 													
-														$type = $elements['type'][$e];
-														
-														$item = '<li draggable="true" data-insert-html="' . str_replace( array('\\"','"',"\\'"), "'", $elements['content'][$e] ) . '">';
-														
-															$item .= '<span>'.$name.'</span>';
-														
-															if( !empty($elements['image'][$e]) ){
-														
-																$item .= '<img title="'.$name.'" height="150" src="' . $elements['image'][$e] . '" />';
-															}
-															else{
-																
-																$item .= '<div style="height: 115px;width: 150px;background: #afcfff;border: 4px solid #fff;"></div>';
-															}
-														$item .= '</li>';
-														
-														$list[$type][] = $item;
-													}
+														$item .= '<span>'.$name.'</span>';
+													
+														if( !empty($elements['image'][$e]) ){
+													
+															$item .= '<img title="'.$name.'" height="150" src="' . $elements['image'][$e] . '" />';
+														}
+														else{
+															
+															$item .= '<div style="height: 115px;width: 150px;background: #afcfff;border: 4px solid #fff;"></div>';
+														}
+													$item .= '</li>';
+													
+													$list[$type][] = $item;
 												}
 											}
 										}
-											
-										//echo'<div class="library-content">';
-												
-											echo'<ul class="nav nav-pills" role="tablist">';
-
-											$active=' class="active"';
-											
-											foreach($list as $type => $items){
-												
-												echo'<li role="presentation"'.$active.'><a href="#' . $type . '" aria-controls="' . $type . '" role="tab" data-toggle="tab">'.ucfirst(str_replace(array('-','_'),' ',$type)).' <span class="badge">'.count($list[$type]).'</span></a></li>';
-												
-												$active='';
-											}							
-
-											echo'</ul>';
-											
-										//echo'</div>';
-
-										echo'<div id="dragitemslistcontainer" class="tab-content row">';
-											
-											$active=' active';
+									}
 										
-											foreach($list as $type => $items){
-												
-												echo'<ul role="tabpanel" class="tab-pane'.$active.'" id="' . $type . '">';
-												
-												foreach($items as $item){
+									//echo'<div class="library-content">';
+											
+										echo'<ul class="nav nav-pills" role="tablist">';
 
-													echo $item;
-												}
-												
-												echo'</ul>';
-												
-												$active='';
+										$active=' class="active"';
+										
+										foreach($list as $type => $items){
+											
+											echo'<li role="presentation"'.$active.'><a href="#' . $type . '" aria-controls="' . $type . '" role="tab" data-toggle="tab">'.ucfirst(str_replace(array('-','_'),' ',$type)).' <span class="badge">'.count($list[$type]).'</span></a></li>';
+											
+											$active='';
+										}							
+
+										echo'</ul>';
+										
+									//echo'</div>';
+
+									echo'<div id="dragitemslistcontainer" class="tab-content row">';
+										
+										$active=' active';
+									
+										foreach($list as $type => $items){
+											
+											echo'<ul role="tabpanel" class="tab-pane'.$active.'" id="' . $type . '">';
+											
+											foreach($items as $item){
+
+												echo $item;
 											}
 											
-										echo'</div>';
-									
-									echo '</div>';
-									
+											echo'</ul>';
+											
+											$active='';
+										}
+										
+									echo'</div>';
+								
 								echo '</div>';
-								echo '</div>';				
-						
-							echo'</div>';
+								
+							echo '</div>';
+							echo '</div>';				
 						}
 
 						if( is_admin() || ( $ltple->layer->type != 'cb-default-layer' && $ltple->user->plan["info"]["total_price_amount"] > 0 )){
@@ -208,7 +220,10 @@
 								
 								// view button 
 								
-								echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:1px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+								if( $ltple->layer->layerOutput != 'image' ){
+								
+									echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:2px;margin-right:2px;border:1px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+								}
 								
 								// delete button
 								
@@ -266,12 +281,13 @@
 							
 								// view button
 							
-								echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:4px;margin-right:2px;border:1px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+								echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:2px;margin-right:2px;border:1px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 							}
 						}
 
 						if( $ltple->layer->layerOutput == 'canvas' && ( $ltple->layer->type == 'user-layer' || isset($_REQUEST['edit']) || isset($_REQUEST['quick']) ) ){
 							
+							/*
 							echo '<div style="margin:0 2px;" class="btn-group">';
 								
 								echo '<button id="uploadImgBtn" type="button" class="btn btn-sm dropdown-toggle" style="border: 1px solid #773680;background: #a44caf;">';
@@ -281,6 +297,7 @@
 								echo '</button>';
 								
 							echo '</div>';
+							*/
 							
 							echo '<div style="margin:0 2px;" class="btn-group">';
 								
@@ -291,7 +308,19 @@
 								echo '</button>';
 								
 							echo '</div>';
-						}					
+						}
+						elseif( $ltple->layer->layerOutput == 'image' ){
+
+							echo '<div style="margin:0 2px;" class="btn-group">';
+								
+								echo '<button id="downloadImgBtn" type="button" class="btn btn-sm dropdown-toggle" style="border: 1px solid #386e82;background: #4c94af;">';
+								
+									echo 'Download';
+								
+								echo '</button>';
+								
+							echo '</div>';							
+						}	
 					}
 					
 					if( $ltple->user->ID > 0  ){
@@ -340,7 +369,7 @@
 					
 						echo'<div style="margin:0 2px;" class="btn-group">';
 						
-							echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-left:2px;font-size:14px;height:28px;background:#345774;border:1px solid #1b2e3e;color: #fff;"><span class="glyphicon glyphicon-cog icon-cog" aria-hidden="true"></span></button>';
+							echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size:14px;height:28px;background:#345774;border:1px solid #1b2e3e;color: #fff;"><span class="glyphicon glyphicon-cog icon-cog" aria-hidden="true"></span></button>';
 												
 							echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 								

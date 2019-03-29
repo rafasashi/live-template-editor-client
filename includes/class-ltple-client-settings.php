@@ -96,7 +96,7 @@ class LTPLE_Client_Settings {
 		
 		add_action('edit_form_after_title', function() {
 			
-			if($screen=get_current_screen()){
+			if( $screen = get_current_screen() ){
 				
 				$custom_post_types=[];
 				
@@ -240,7 +240,7 @@ class LTPLE_Client_Settings {
 		
 			foreach( $this->tabs[$this->tabIndex] as $tab => $data ){
 				
-				echo '<a class="nav-tab '.( $tab == $taxonomy ? 'nav-tab-active' : '' ).'" href="edit-tags.php?post_type='.$data['post-type'].'&taxonomy='.$tab.'">'.$data['name'].'</a>';
+				echo '<a class="nav-tab '.( $tab == $taxonomy ? 'nav-tab-active' : '' ).'" href="edit-tags.php?taxonomy='.$tab . ( !empty($data['post-type']) ? '&post_type='.$data['post-type'] : '' ) . '">'.$data['name'].'</a>';
 			}
 			
 		echo '</h2>';
@@ -873,7 +873,8 @@ class LTPLE_Client_Settings {
 				'email-invitation' 	=> array( 'name' => 'Invitations'),
 			),
 			'gallery-settings' => array(
-			
+				
+				'gallery-section' 	=> array( 'name' => 'Sections' ),
 				'layer-type' 		=> array( 'name' => 'Types', 	'post-type' => 'cb-default-layer' ),
 				'layer-range' 		=> array( 'name' => 'Ranges', 	'post-type' => 'cb-default-layer' ),
 				'account-option' 	=> array( 'name' => 'Options', 	'post-type' => 'cb-default-layer' ),

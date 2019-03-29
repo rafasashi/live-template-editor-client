@@ -1,6 +1,6 @@
 <!DOCTYPE>
 <?php
-
+	
 	/* Config */
 	
 	$timeout = 30; // seconds
@@ -126,7 +126,7 @@
 					}
 				}
 			}
-			
+
 			// get response body
 			
 			$response_body = substr($response, $header_length);

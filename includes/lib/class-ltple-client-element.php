@@ -274,32 +274,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	
 	}
 	
-	public function get_fields($term){
-
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Droppable classes</label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-				
-				$this->parent->admin->display_field( array(
-				
-					'type'				=> 'text',
-					'id'				=> 'droppable_classes_' . $term->slug,
-					'name'				=> 'droppable_classes_' . $term->slug,
-					'default' 			=> 'ltple-droppable',
-					'placeholder' 		=> 'ltple-droppable',
-					'description' 		=> 'Comma separated list of classes after or before which an element can be dropped',
-					
-				), false );
-				
-			echo'</td>';
-			
-		echo'</tr>';	
+	public function get_fields($term){	
 	
 		echo'<tr class="form-field">';
 		
@@ -346,11 +321,6 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 				exit;
 			}
 		}
-		
-		if( isset($_POST['droppable_classes_'.$term->slug]) ){
-
-			update_option('droppable_classes_'.$term->slug, $_POST['droppable_classes_'.$term->slug]);			
-		}
 	}
 	
 	public function get_bulk_actions($bulk_actions){
@@ -382,14 +352,11 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 						
 						$elements = $this->group_keys($elements);
 						
-						$droppable_classes = get_option( 'droppable_classes_' . $term->slug );
-
 						$content[$term->slug] = array(
 						
 							'name' 		=> $term->name,
 							'options'	=> array(
 								
-								'droppable_classes'	=> $droppable_classes,
 								'elements'			=> $elements
 							)
 						);

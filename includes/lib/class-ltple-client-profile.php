@@ -148,8 +148,8 @@ class LTPLE_Client_Profile {
 			if( $_POST['settings'] == 'general-info' ){
 				
 				// save general information
-
-				foreach( $this->fields as $field){
+				
+				foreach( $this->fields as $field ){
 					
 					$id = $field['id'];
 					

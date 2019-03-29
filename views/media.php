@@ -230,7 +230,7 @@
 													
 														echo'<div class="panel panel-default" style="background:#efefef;">';
 															
-															echo '<div class="panel-heading"><b>Start a canvas</b></div>';
+															echo '<div class="panel-heading"><b>Start a collage</b></div>';
 															
 															if( $app->pro === true && $this->parent->user->plan["info"]["total_price_amount"] == 0 ){
 																

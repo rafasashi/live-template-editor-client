@@ -89,7 +89,7 @@
 									$item.='</div>';
 									*/
 									
-									$item.='<div class="thumb_wrapper" style="background-image:url(' . $app->thumbnail . ');background-size:cover;background-repeat:no-repeat;background-color:#fff;background-position:center;height:150px;"></div>';
+									$item.='<div class="thumb_wrapper" style="background-image:url(' . $app->thumbnail . ');background-size:cover;background-repeat:no-repeat;background-color:#fff;background-position:center center;height:150px;"></div>';
 									
 									$item.='<div class="panel-body">';
 										

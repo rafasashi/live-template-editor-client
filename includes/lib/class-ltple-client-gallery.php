@@ -4,8 +4,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class LTPLE_Client_Gallery {
 	
-	var $all_types = null;
-	var $all_ranges = null;
+	var $all_sections 	= null;
+	var $all_types 		= null;
+	var $all_ranges 	= null;
 	var $max_num_pages;
 	
 	/**
@@ -14,6 +15,20 @@ class LTPLE_Client_Gallery {
 	public function __construct ( $parent ) {
 
 		$this->parent 	= $parent;
+		
+		$this->parent->register_taxonomy( 'gallery-section', __( 'Gallery Sections', 'live-template-editor-client' ), __( 'Gallery Section', 'live-template-editor-client' ),  array(), array(
+			'hierarchical' 			=> false,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => false,
+			'rewrite' 				=> false,
+			'sort' 					=> '',
+		));
 	}
 	
 	public function get_meta_key($key){
@@ -154,12 +169,47 @@ class LTPLE_Client_Gallery {
 				}
 				
 				array_multisort($counts, SORT_DESC, $all_types);
+				
+				foreach( $all_types as $type ){
+					
+					$this->all_types[$type->term_id] = $type;
+				}
 			}
-			
-			$this->all_types = $all_types;
 		}
 		
 		return $this->all_types;
+	}
+	
+	public function get_all_sections(){
+		
+		if( is_null($this->all_sections) ){
+			
+			$this->all_sections = array();
+			
+			if( $all_types = $this->get_all_types() ){
+			
+				foreach( $all_types as $term ){
+					
+					// get section name
+					
+					$section = 'Templates';
+					
+					if( $section_id = get_term_meta($term->term_id,'gallery_section',true)){
+						
+						$sections = $this->parent->layer->get_gallery_sections();
+						
+						if( !empty($sections[$section_id]) ){
+							
+							$section = $sections[$section_id]->name;
+						}
+					}
+					
+					$this->all_sections[$section][] = $term->term_id;
+				}
+			}
+		}
+
+		return $this->all_sections;
 	}
 	
 	public function get_all_ranges(){
@@ -466,7 +516,7 @@ class LTPLE_Client_Gallery {
 				
 				$item.='<div class="panel panel-default">';
 
-					$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center;"></div>'; //thumb_wrapper					
+					$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:top center;"></div>'; //thumb_wrapper					
 					
 					$item.='<div class="panel-body">';
 						
