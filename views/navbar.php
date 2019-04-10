@@ -86,13 +86,13 @@
 				
 				if( $ltple->user->loggedin === true ){
 					
-					if( isset($_GET['uri']) && $ltple->layer->id > 0 ){
+					if(  $ltple->layer->id > 0 && ( isset($_GET['uri']) || is_admin() ) ){
 						
 						// insert button
 						
 						if( $this->layer->layerOutput == 'image' ){
 
-							echo '<button style="margin-left:2px;margin-right:2px;border:1px solid #761b86;background:#9C27B0;" id="elementsBtn" class="btn btn-sm" href="#" data-toggle="dialog" data-target="#LiveImgEditorElements" data-height="450" data-width="75%" data-resizable="false">Insert</button>';
+							echo '<button style="margin-left:2px;margin-right:2px;border:1px solid #761b86;background:#9C27B0;" id="elementsBtn" class="btn btn-sm pull-left" href="#" data-toggle="dialog" data-target="#LiveImgEditorElements" data-height="450" data-width="75%" data-resizable="false">Insert</button>';
 					
 							echo '<div id="LiveImgEditorElements" title="Elements library" style="display:none;">'; 
 							echo '<div id="LiveImgEditorElementsPanel">';
@@ -104,9 +104,64 @@
 							echo '</div>';
 							echo '</div>';										
 						}					
-						elseif( !empty($elemLibraries) && ( isset($_GET['edit']) || isset($_GET['quick']) || $ltple->layer->type == 'user-layer' ) ){
+						elseif( !empty($elemLibraries) && ( isset($_GET['edit']) || isset($_GET['quick']) || $ltple->layer->type == 'user-layer' || is_admin() ) ){
 							
-							echo '<button style="margin-left:2px;margin-right:2px;border:1px solid #761b86;background:#9C27B0;" id="elementsBtn" class="btn btn-sm" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Insert</button>';
+							echo'<style>'.PHP_EOL;
+
+								echo'#dragitemslistcontainer {
+									
+									margin: 0;
+									padding: 0;
+									/*
+									height: 69px;
+									overflow: hidden;
+									border-bottom: 3px solid #eee;
+									background: rgb(201, 217, 231);
+									*/
+									width: 100%;
+									display:inline-block;
+								}
+
+								#dragitemslistcontainer li {
+									
+									float: left;
+									position: relative;
+									text-align: center;
+									list-style: none;
+									cursor: move; /* fallback if grab cursor is unsupported */
+									cursor: grab;
+									cursor: -moz-grab;
+									cursor: -webkit-grab;
+								}
+
+								#dragitemslistcontainer li:active {
+									cursor: grabbing;
+									cursor: -moz-grabbing;
+									cursor: -webkit-grabbing;
+								}
+
+								#dragitemslistcontainer span {
+									
+									float: left;
+									position: absolute;
+									left: 0;
+									right: 0;
+									background: rgba(52, 87, 116, 0.49);
+									color: #fff;
+									font-weight: bold;
+									padding: 15px 5px;
+									font-size: 16px;
+									line-height: 25px;
+									margin: 48px 4px 0 4px;
+								}
+
+								#dragitemslistcontainer li img {
+									margin:3px 2px;
+								}';		
+
+							echo'</style>'.PHP_EOL;							
+							
+							echo '<button style="margin-left:2px;margin-right:2px;border:1px solid #761b86;background:#9C27B0;" id="elementsBtn" class="btn btn-sm pull-left" href="#" data-toggle="dialog" data-target="#LiveTplEditorDndDialog" data-height="300" data-width="500" data-resizable="false">Insert</button>';
 					
 							echo '<div id="LiveTplEditorDndDialog" title="Elements library" style="display:none;">';
 							echo '<div id="LiveTplEditorDndPanel">';
@@ -135,7 +190,9 @@
 														}
 														else{
 															
-															$item .= '<div style="height: 115px;width: 150px;background: #afcfff;border: 4px solid #fff;"></div>';
+															$item .= '<img title="'.$name.'" height="150" src="' . $this->server->url . '/c/p/live-template-editor-resources/assets/images/flow-charts/corporate/testimonials-slider.jpg" />';
+															
+															//$item .= '<div style="height: 115px;width: 150px;background: #afcfff;border: 4px solid #fff;"></div>';
 														}
 													$item .= '</li>';
 													
@@ -221,8 +278,14 @@
 								// view button 
 								
 								if( $ltple->layer->layerOutput != 'image' ){
-								
-									echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:2px;margin-right:2px;border:1px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+									
+									$preview = add_query_arg(array(
+									
+										'preview' => '',
+									
+									), get_post_permalink( $ltple->layer->id ));
+									
+									echo '<a target="_blank" class="btn btn-sm" href="' . $preview . '" style="margin-left:2px;margin-right:2px;border:1px solid #9c6433;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 								}
 								
 								// delete button
@@ -346,7 +409,7 @@
 													
 													echo '<h4>Are you sure you want to delete this template?</h4>';						
 
-													echo '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '&postAction=delete&confirmed" target="'.( $ltple->layer->id == $layer->ID ? '_self' : '_blank' ).'">Yes</a>';
+													echo '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '&postAction=delete&confirmed" target="'.( $ltple->layer->id == $layer->ID ? '_self' : '_self' ).'">Yes</a>';
 													
 													//echo '<button style="margin:10px;" type="button" class="btn btn-xs btn-danger ui-button ui-widget" role="button" title="Close"><span class="ui-button-text">No</span></button>';
 

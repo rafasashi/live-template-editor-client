@@ -263,8 +263,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 				case 'textarea':
 				 
-					if( !isset($field['stripcslashes']) || $field['stripcslashes'] == true ){
+					if( is_array($data) ){
 						
+						$data = json_encode($data, JSON_PRETTY_PRINT);
+					}				 
+				 
+					if( !isset($field['stripcslashes']) || $field['stripcslashes'] == true ){
+
 						$data = stripcslashes($data);
 					}
 					
@@ -385,75 +390,51 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							foreach( $layers as $layer ){
 								
-								$terms = wp_get_object_terms( $layer->ID, 'layer-type' );
+								$layer_type = $this->parent->layer->get_layer_type($layer);
 								
-								if(!empty($terms[0]->slug)){
+								if( $layer_type->output == 'hosted-page' ){
 									
-									$layer_type=$terms[0]->slug;
-								}
-								else{
+									$item = '';
 									
-									$layer_type = 'Layer';
-								}
-								
-								$item = '';
-								
-								$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4",$layer->ID) ) . '" id="post-' . $layer->ID . '">';
-									
-									$item.='<div class="panel panel-default">';
+									$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4",$layer->ID) ) . '" id="post-' . $layer->ID . '">';
 										
-										$item.='<div class="panel-heading">';
+										$item.='<div class="panel panel-default">';
 											
-											$item.='<b>' . $layer->post_title . '</b>';
+											$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($layer) . ');height:120px;background-size:cover;background-repeat:no-repeat;background-position:top center;"></div>'; //thumb_wrapper
 											
-										$item.='</div>';
-
-										$item.='<div class="panel-body">';
-											
-											$item.='<div class="thumb_wrapper" style="background:#ffffff;height:125px;overflow:hidden;">';
-											
-												//$item.= '<a class="entry-thumbnail" href="'. $permalink .'" target="_blank" title="'. $layer_title .'">';
-
-												if ( $image_id = get_post_thumbnail_id( $layer->ID ) ){
-													
-													if ($src = wp_get_attachment_image_src( $image_id, 'full' )){
-
-														$item.= '<img style="width:100%;" class="lazy" data-original="' . $src[0] . '"/>';
-													}
+											$item.='<div class="panel-body" style="height:50px;overflow:hidden;">';
 												
+												$item.='<b>' . $layer->post_title . '</b>';
+												
+											$item.='</div>';
+											
+											$item.='<div class="panel-footer text-right">';
+
+												if( intval($data) == $layer->ID ){
+
+													$item.='<button type="button" class="btn btn-xs btn-success layer-selected" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
+														
+														$item.='Selected'.PHP_EOL;
+													
+													$item.='</button>'.PHP_EOL;																			
 												}
-												//$item.= '</a>';
-											
-											$item.='</div>'; //thumb_wrapper
-											
+												else{
+													
+													$item.='<button type="button" class="btn btn-xs btn-warning" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
+														
+														$item.='Select'.PHP_EOL;
+													
+													$item.='</button>'.PHP_EOL;										
+												}
+
+											$item.='</div>';
+										
 										$item.='</div>';
 										
-										$item.='<div class="panel-footer text-right">';
-
-											if( intval($data) == $layer->ID ){
-
-												$item.='<button type="button" class="btn btn-xs btn-success layer-selected" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
-													
-													$item.='Selected'.PHP_EOL;
-												
-												$item.='</button>'.PHP_EOL;																			
-											}
-											else{
-												
-												$item.='<button type="button" class="btn btn-xs btn-warning" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
-													
-													$item.='Select'.PHP_EOL;
-												
-												$item.='</button>'.PHP_EOL;										
-											}
-
-										$item.='</div>';
-									
 									$item.='</div>';
-									
-								$item.='</div>';
 
-								$items[$layer_type][]=$item;
+									$items[$layer_type->slug][]=$item;
+								}
 							}
 							
 							if( !empty($items) ){

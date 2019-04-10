@@ -71,6 +71,8 @@ class LTPLE_Client_Settings {
 			$this->options->social_icon = $this->parent->assets_url . 'images/social_icon.png';
 		}
 		
+		$this->titleBkg 	= get_option( $this->parent->_base . 'titleBkg', '' );
+		
 		$this->options->enable_ranking 		= get_option( $this->parent->_base . 'enable_ranking', 'off' );
 
 		// get custom style
@@ -79,7 +81,7 @@ class LTPLE_Client_Settings {
 		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor', '#506988' );
 		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor', '#506988' );	
 		$this->borderColor 	= get_option( $this->parent->_base . 'borderColor', '#182f42' );
-							
+		
 		// Initialise settings
 		add_action( 'init', array( $this, 'init_settings' ), 11 );
 
@@ -682,6 +684,14 @@ class LTPLE_Client_Settings {
 					'default'		=> $this->options->social_icon
 				),
 				array(
+					'id' 			=> 'titleBkg',
+					'label'			=> __( 'Title Background' , $this->plugin->slug ),
+					'description'	=> 'Header url 2560 x 470 recommended',
+					'type'			=> 'text',
+					'placeholder'	=> 'https://',
+					'default'		=> '',
+				),
+				array(
 					'id' 			=> 'navbarColor',
 					'label'			=> __( 'Navbar Color' , $this->plugin->slug ),
 					'description'	=> '',
@@ -904,6 +914,7 @@ class LTPLE_Client_Settings {
 	
 		$this->addons = array(
 			
+			/*
 			'addon-plugin' 		=> array(
 			
 				'title' 		=> 'Addon Plugin',
@@ -914,6 +925,7 @@ class LTPLE_Client_Settings {
 				'author' 		=> 'Rafasashi',
 				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),
+			*/
 			'affiliate-program' => array(
 			
 				'title' 		=> 'Affiliate Program',
@@ -941,26 +953,6 @@ class LTPLE_Client_Settings {
 				'addon_name' 	=> 'live-template-editor-directory',
 				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-directory/archive/master.zip',
 				'description'	=> 'This is a directory plugin for live template editor.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			'seo-suite' => array(
-			
-				'title' 		=> 'SEO Suite',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-seo',
-				'addon_name' 	=> 'live-template-editor-seo',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-seo/archive/master.zip',
-				'description'	=> 'SEO Suite including management and tracking of user backlinks.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			'cause-plugin' => array(
-			
-				'title' 		=> 'Cause Plugin',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-cause',
-				'addon_name' 	=> 'live-template-editor-cause',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-cause/archive/master.zip',
-				'description'	=> 'Cause and donation plugin for Live Template Editor',
 				'author' 		=> 'Rafasashi',
 				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
 			),

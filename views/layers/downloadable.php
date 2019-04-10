@@ -2,71 +2,71 @@
 
 	//get page def
 	
-	$pageDef = $ltple->layer->pageDef;
+	$pageDef =$this->pageDef;
 	
 	//get default static directory url
 	
-	$defaultStaticDirUrl = $ltple->layer->defaultStaticDirUrl;
+	$defaultStaticDirUrl =$this->defaultStaticDirUrl;
 	
 	//get layer static css url
 
-	$layerStaticCssUrl = $ltple->layer->sanitize_url( $ltple->layer->layerStaticCssUrl );
+	$layerStaticCssUrl =$this->sanitize_url($this->layerStaticCssUrl );
 	
 	//get layer static js url
 	
-	$layerStaticJsUrl = $ltple->layer->sanitize_url( $ltple->layer->layerStaticJsUrl );
+	$layerStaticJsUrl =$this->sanitize_url($this->layerStaticJsUrl );
 	
 	//get default static css url
 	
-	$defaultStaticCssUrl = $ltple->layer->sanitize_url( $ltple->layer->defaultStaticCssUrl );
+	$defaultStaticCssUrl =$this->sanitize_url($this->defaultStaticCssUrl );
 	
 	//get default static js url
 	
-	$defaultStaticJsUrl = $ltple->layer->sanitize_url( $ltple->layer->defaultStaticJsUrl );
+	$defaultStaticJsUrl =$this->sanitize_url($this->defaultStaticJsUrl );
 	
 	//get default static path
 	
-	$defaultStaticPath = $ltple->layer->defaultStaticPath;
+	$defaultStaticPath =$this->defaultStaticPath;
 	
 	//get layer options
 	
-	$layerOptions = $ltple->layer->layerOptions;
+	$layerOptions =$this->layerOptions;
 	
 	//get layer settings
 	
-	$layerSettings = $ltple->layer->layerSettings;
+	$layerSettings =$this->layerSettings;
 
 	//get layer embedded
 	
-	$layerEmbedded = $ltple->layer->layerEmbedded;
+	$layerEmbedded =$this->layerEmbedded;
 	
 	//get layer form
 	
-	$layerForm = $ltple->layer->layerForm;
+	$layerForm =$this->layerForm;
 	
 	//get css libraries
 
-	$layerCssLibraries = $ltple->layer->layerCssLibraries;
+	$layerCssLibraries =$this->layerCssLibraries;
 
 	//get js libraries
 	
-	$layerJsLibraries = $ltple->layer->layerJsLibraries;
+	$layerJsLibraries =$this->layerJsLibraries;
 	
 	//get font libraries
 	
-	$layerFontLibraries = $ltple->layer->layerFontLibraries;	
+	$layerFontLibraries =$this->layerFontLibraries;	
 	
 	//get layer image proxy
 	
-	$layerImgProxy = $ltple->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
+	$layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
 	
 	//get layer margin
 	
-	$layerMargin = $ltple->layer->layerMargin;
+	$layerMargin =$this->layerMargin;
 	
 	//get layer Min Width
 	
-	$layerMinWidth = $ltple->layer->layerMinWidth;
+	$layerMinWidth =$this->layerMinWidth;
 
 	// get layer content
 	
@@ -133,7 +133,7 @@
 			
 			if( !empty($nodeValue) ){
 				
-				$link = $ltple->layer->sanitize_url($nodeValue,$defaultStaticDirUrl);
+				$link =$this->sanitize_url($nodeValue,$defaultStaticDirUrl);
 			
 				if( !in_array($link,$headLinks) ){
 					
@@ -165,7 +165,7 @@
 				
 				//normalize link
 				
-				$link = $ltple->layer->sanitize_url($nodeValue,$defaultStaticDirUrl);
+				$link =$this->sanitize_url($nodeValue,$defaultStaticDirUrl);
 
 				$node->setAttribute('src',$link);
 			}
@@ -178,9 +178,9 @@
 		
 		// get body
 		
-		if( !empty($ltple->layer->layerContent) ){
+		if( !empty($this->parent->layer->layerContent) ){
 		
-			$layerContent = $ltple->layer->layerContent;
+			$layerContent =$this->layerContent;
 		}
 		else{
 			
@@ -190,9 +190,9 @@
 	}
 	else{
 		
-		$layerContent = $ltple->layer->layerContent;
+		$layerContent =$this->layerContent;
 		
-		$layerContent = $ltple->layer->sanitize_content($layerContent);
+		$layerContent =$this->sanitize_content($layerContent);
 	}
 	}
 	
@@ -233,15 +233,15 @@
 	}
 	elseif( empty($_POST) ){
 		
-		$defaultCss = $ltple->layer->defaultCss;
+		$defaultCss =$this->defaultCss;
 		
-		$layerCss = $ltple->layer->layerCss;
+		$layerCss =$this->layerCss;
 		
-		$defaultJs = $ltple->layer->defaultJs;
+		$defaultJs =$this->defaultJs;
 		
-		$layerJs = $ltple->layer->layerJs;
+		$layerJs =$this->layerJs;
 
-		$layerMeta = $ltple->layer->layerMeta;
+		$layerMeta =$this->layerMeta;
 	}
 	
 	$defaultCss = sanitize_text_field($defaultCss);
@@ -318,7 +318,7 @@
 		
 			foreach( $fontsLibraries as $font ){
 		
-				$font = $ltple->layer->sanitize_url( $font );
+				$font =$this->sanitize_url( $font );
 				
 				if( !empty($font) && !in_array($font,$headLinks) ){
 		
@@ -333,7 +333,7 @@
 			
 			foreach($layerCssLibraries as $term){
 				
-				$css_url = $ltple->layer->sanitize_url( get_option( 'css_url_' . $term->slug) );
+				$css_url =$this->sanitize_url( get_option( 'css_url_' . $term->slug) );
 				
 				if( !empty($css_url) && !in_array($css_url,$headLinks) ){
 
@@ -346,7 +346,7 @@
 				
 				if( !empty($css_content) ){
 				
-					$head .= stripcslashes($css_content);
+					$head .= '<style>' . stripcslashes($css_content) . '</style>';
 				}
 			}
 		}
@@ -362,7 +362,7 @@
 			
 			foreach($layerMeta['link'] as $url){
 				
-				$url = $ltple->layer->sanitize_url( $url );
+				$url =$this->sanitize_url( $url );
 				
 				if( !empty($url) && !in_array($url,$headLinks) ){
 				
@@ -377,7 +377,7 @@
 		
 		if( !empty($defaultStaticCssUrl) ){
 			
-			$defaultStaticCssUrl = $ltple->layer->sanitize_url( $defaultStaticCssUrl );
+			$defaultStaticCssUrl =$this->sanitize_url( $defaultStaticCssUrl );
 			
 			if( !empty($defaultStaticCssUrl) && !in_array($defaultStaticCssUrl,$headLinks) ){
 			
@@ -387,9 +387,9 @@
 			}
 		}
 		
-		if( $ltple->layer->type == 'user-layer' && $layerCss != $defaultCss ){
+		if($this->type == 'user-layer' && $layerCss != $defaultCss ){
 			
-			$layerStaticCssUrl = $ltple->layer->sanitize_url( $layerStaticCssUrl );
+			$layerStaticCssUrl =$this->sanitize_url( $layerStaticCssUrl );
 			
 			if( !empty($layerStaticCssUrl) && !in_array($layerStaticCssUrl,$headLinks) ){
 			
@@ -433,8 +433,8 @@
 					}
 					elseif( $key == 'link_author' ){
 						
-						$head .= '<link rel="author" href="' . $ltple->layer->sanitize_url( $content ) . '" />'.PHP_EOL;
-						$head .= '<link rel="publisher" href="' . $ltple->layer->sanitize_url( $content ) . '" />'.PHP_EOL;
+						$head .= '<link rel="author" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
+						$head .= '<link rel="publisher" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
 					}
 					elseif( $key == 'meta_image' ){
 						
@@ -464,7 +464,7 @@
 						}
 						elseif( $markup == 'link' ){
 							
-							$head .= '<link rel="'.$name.'" href="' . $ltple->layer->sanitize_url( $content ) . '" />'.PHP_EOL;
+							$head .= '<link rel="'.$name.'" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
 						}
 					}
 				}
@@ -475,7 +475,7 @@
 			
 			// output default title
 			
-			$title = ucfirst($ltple->layer->title);
+			$title = ucfirst($this->parent->layer->title);
 			
 			$head .= '<title>'.$title.'</title>'.PHP_EOL;
 			$head .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
@@ -485,7 +485,7 @@
 		
 		// output default meta tags
 		
-		$ggl_webmaster_id = get_option( $ltple->_base . 'embedded_ggl_webmaster_id' );
+		$ggl_webmaster_id = get_option( $this->parent->_base . 'embedded_ggl_webmaster_id' );
 		
 		if( !empty($ggl_webmaster_id) ){
 		
@@ -530,7 +530,7 @@
 		}
 		*/
 		
-		$content = ucfirst($ltple->layer->title);
+		$content = ucfirst($this->parent->layer->title);
 		
 		if( empty($layerSettings['meta_description']) ){
 			
@@ -551,7 +551,7 @@
 		
 		if( !empty($layerEmbedded) ){
 		
-			$url = $ltple->layer->sanitize_url( $layerEmbedded );
+			$url =$this->sanitize_url( $layerEmbedded );
 			
 			$head .= '<meta name="url" content="'.$url.'" />' . PHP_EOL;
 			//$head .= '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
@@ -579,7 +579,7 @@
 		*/
 		
 		/*
-		$ggl_analytics_id = get_option( $ltple->_base . 'embedded_ggl_analytics_id' );
+		$ggl_analytics_id = get_option( $this->parent->_base . 'embedded_ggl_analytics_id' );
 						
 		if( !empty($ggl_analytics_id) ){
 		
@@ -612,7 +612,7 @@
 	$layer .= '<html>';
 	$layer .= $head;
 
-	$layer .= '<body style="background:#fff;padding:0;margin:0;display:flex !important;width:100%;overflow-x:hidden;">';
+	$layer .= '<body style="background-color:#fff;padding:0;margin:0;display:flex !important;width:100%;overflow-x:hidden;">';
 		
 		//include style-sheets
 		
@@ -622,7 +622,7 @@
 		
 		//include layer
 		
-		if( empty($_POST) && $layerForm == 'importer' && empty($ltple->layer->layerContent) ){
+		if( empty($_POST) && $layerForm == 'importer' && empty($this->parent->layer->layerContent) ){
 			
 			$layer .='<script>' .PHP_EOL;
 
@@ -638,7 +638,7 @@
 				
 					if( !empty($layerForm) ){
 						
-						$layer .='<h4>'.ucfirst($ltple->layer->title).'</h4>';
+						$layer .='<h4>'.ucfirst($this->parent->layer->title).'</h4>';
 					}
 					
 				$layer .= '</div>';
@@ -722,7 +722,7 @@
 			
 		$layer .='</script>' .PHP_EOL;
 		
-		if( $ltple->layer->type == 'user-layer' && !empty($layerJs) ){
+		if($this->type == 'user-layer' && !empty($layerJs) ){
 
 			$layer .= '<script src="'.$layerStaticJsUrl.'"></script>' .PHP_EOL;
 		}

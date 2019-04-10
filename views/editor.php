@@ -1,9 +1,7 @@
 <?php
 	
-	$is_embedded = ( (isset($_GET['output']) && $_GET['output'] == 'embedded' && !empty($this->layer->embedded)) ? true : false );
-
 	$output = ( !empty($_GET['output']) ? '&output='. sanitize_text_field($_GET['output']) : '' );
-	
+		
 	if( !empty($_SESSION['message']) ){
 		
 		echo $_SESSION['message'];
@@ -51,12 +49,7 @@
 						
 						echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-lg required" placeholder="Project Title">';
 						echo'<input type="hidden" name="postContent" id="postContent" value="">';
-						
-						if( $is_embedded ){
-							
-							echo'<input type="hidden" name="postEmbedded" id="postEmbedded" value="' . $this->layer->embedded['url'] . '">';
-						}
-						
+
 						/*
 						echo'<input type="hidden" name="postCss" id="postCss" value="">';
 						echo'<input type="hidden" name="postJs" id="postJs" value="">';
@@ -133,11 +126,6 @@
 		
 		$iframe_url = $this->urls->editor . '?uri=' . $this->layer->id . '&lk=' . md5( 'layer' . $this->layer->id . $this->_time ) . '&_=' . $this->_time;
 
-		if( $is_embedded ){
-			
-			$iframe_url .= '&le=' . urlencode($_GET['le']);
-		} 	
-
 		// output editor iframe
 		
 		echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
@@ -151,7 +139,7 @@
 		
 		if( $this->layer->layerOutput == 'image' ){
 			
-			echo ' var layerImageTpl = "' . $this->urls->home . '?p=' . $this->layer->id . '&_=' . time() . '";' . PHP_EOL;
+			echo ' var layerImageTpl = "' . $this->urls->home . '?t=' . $this->layer->id . '&_=' . time() . '";' . PHP_EOL;
 		}
 		else{
 		
@@ -234,32 +222,8 @@
 			
 			echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
 			
-			//include DnD settings
+			//include forms
 			
-			$classes = [ 'ltple-droppable'];
-			
-			if( !empty($this->layer->layerHtmlLibraries) ){
-
-				foreach( $this->layer->layerHtmlLibraries as $term ){
-					
-					$droppable_classes = get_option( 'droppable_classes_' . $term->slug );
-					
-					$droppable_classes = str_replace(' ','',$droppable_classes);
-					
-					$droppable_classes = explode(',',$droppable_classes);
-					
-					foreach($droppable_classes as $class){
-						
-						if( !empty($class) && !in_array( $class, $classes ) ){
-							
-							$classes[] = $class;
-						}
-					}
-				}
-			}
-			
-			echo ' var droppableClasses = ' . json_encode(array_values($classes)) . ';' . PHP_EOL;
-
 			if( $this->layer->layerForm == 'importer' ){
 				
 				echo ' var layerForm = "' . $this->layer->layerForm . '";';

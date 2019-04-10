@@ -239,11 +239,13 @@
 						
 						echo'</a>';
 						
+						/*
 						echo'<a href="https://plus.google.com/share?url='.urlencode( $product_url ).'" target="_blank" title="share on google plus" style="margin:5px;">';
 						
 							echo'<i class="fa fa-google-plus-square" aria-hidden="true"></i>';
 					
 						echo'</a>';
+						*/
 						
 						echo'<a href="http://pinterest.com/pin/create/link/?url='.urlencode( $product_url ).'&description='.urlencode( 'Awesome ' . $this->post_title . ' template!' ).'" target="_blank" title="share on pinterest" style="margin:5px;">';
 						
@@ -254,6 +256,12 @@
 						echo'<a href="https://www.linkedin.com/cws/share?url='.urlencode( $product_url ).'&title='.urlencode( $this->post_title ).'&summary='.urlencode( $this->post_excerpt ).'" target="_blank" title="share on linkedin" style="margin:5px;">';
 						
 							echo'<i class="fa fa-linkedin-square" aria-hidden="true"></i>';
+					
+						echo'</a>';
+						
+						echo'<a href="https://www.reddit.com/submit?url='.urlencode( $product_url ).'&title='.urlencode( $this->post_title ) .'" target="_blank" title="share on reddit" style="margin:5px;">';
+						
+							echo'<i class="fa fa-reddit-square" aria-hidden="true"></i>';
 					
 						echo'</a>';
 					

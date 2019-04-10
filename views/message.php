@@ -9,7 +9,7 @@
 		
 	</head>
 	
-	<body style="background:#FFFFFF;">
+	<body style="background-color:#FFFFFF;">
 	
 		<div id="messageBox">
 		

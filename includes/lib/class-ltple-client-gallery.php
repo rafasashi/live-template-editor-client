@@ -559,7 +559,7 @@ class LTPLE_Client_Gallery {
 
 							$item.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 								
-								$item.='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+								$item.='<div class="modal-dialog modal-lg" style="width:95% !important;" role="document">'.PHP_EOL;
 									
 									$item.='<div class="modal-content">'.PHP_EOL;
 									

@@ -25,7 +25,11 @@ echo '<html>';
 
 	echo '<body style="margin:0px;padding:0px;overflow:hidden;">';
 		
-		echo do_shortcode( '[ltple-client-editor]' );
+		echo '<div id="ltple-wrapper" class="boxedcontent" style="position:absolute;z-index:auto;border:none;">';
+		
+			echo do_shortcode( '[ltple-client-editor]' );
+		
+		echo '</div>';
 		
 		wp_footer();
 		

@@ -2,7 +2,7 @@
 	
 	if( !isset($_GET['preview']) ){
 		
-		if( $attachment_url = wp_get_attachment_url( $ltple->layer->layerImageTpl->ID ) ){
+		if( $attachment_url = wp_get_attachment_url($this->layerImageTpl->ID ) ){
 			
 			// CORS Allow from any origin
 			
@@ -16,7 +16,7 @@
 				header('Access-Control-Max-Age: 86400');    // cache for 1 day
 			}
 
-			header('Content-type: ' . $ltple->layer->layerImageTpl->post_mime_type);
+			header('Content-type: ' .$this->layerImageTpl->post_mime_type);
 			readfile($attachment_url);		
 		}
 		
@@ -25,8 +25,8 @@
 		die;		
 	}
 	else{
-		
-		$img_url = $ltple->layer->get_thumbnail_url($ltple->layer->layerImageTpl);
+
+		$img_url =$this->get_thumbnail_url($this->parent->layer->id);
 		
 		$layer = '<img src="'.$img_url.'" />';
 	}

@@ -1408,11 +1408,16 @@
 		}
 		*/
 		
-		public function get_all_selected_users( $field ) {
+		public function get_all_selected_users( $field, $meta_query = array() ) {
 			
 			$selected_users = array();
 			
-			if( $users = new WP_User_Query(array('fields'=>array($field))) ){
+			if( $users = new WP_User_Query( array( 
+				
+				'fields' 		=> array($field),
+				'meta_query' 	=> $meta_query,
+				
+			))){
 				
 				if( !empty($users->results) ){
 					
@@ -1547,7 +1552,6 @@
 			}
 		}
 
-		
 		public function bulk_add_type() {
 			
 			$taxonomy 	= 'layer-type';
@@ -1575,7 +1579,7 @@
 				}
 
 				if( !empty($users) ){
-		
+					
 					//get time limit
 					
 					$max_execution_time = ini_get('max_execution_time'); 

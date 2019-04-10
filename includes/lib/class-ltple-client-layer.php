@@ -18,7 +18,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $type			= '';
 	public $form			= '';
 	public $embedded		= '';
-	public $outputs			= '';	
+	public $outputs			= '';
+
+	public $is_local		= false;	
 	
 	public $sections		= null;
 	public $types			= null; 
@@ -32,7 +34,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	/**
 	 * Constructor function
 	 */ 
-	 
+	
 	public function __construct( $parent ) {
 		
 		$this->parent = $parent;
@@ -201,7 +203,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$this->parent->admin->add_meta_boxes($fields);
 			}
-			elseif( $post->post_type == 'user-layer' || ( !empty($this->parent->settings->options->postTypes) && in_array( $post->post_type, $this->parent->settings->options->postTypes ) ) ){
+			elseif( $post->post_type == 'user-layer' || $this->is_local ){
 				
 				$this->parent->admin->add_meta_box (
 				
@@ -213,16 +215,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( !empty($_REQUEST['post']) ){
 					
-					if( in_array( $post->post_type, $this->parent->settings->options->postTypes ) ){
-					
-						// get default layer id
-						
-						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
-						
-						if( $post->layer_id == 0 ){
+					if( $this->is_local ){
+
+						if( $this->defaultId < 1 ){
 							
 							return;
 						}
+					}
+					else{
+						
+						$this->parent->admin->add_meta_box (
+							
+							'layer-settings',
+							__( 'Template Settings', 'live-template-editor-client' ), 
+							array($post->post_type),
+							'advanced'
+						);				
 					}
 					
 					$this->parent->admin->add_meta_box (
@@ -248,17 +256,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						array($post->post_type),
 						'advanced'
 					);
-					
-					$this->parent->admin->add_meta_box (
-						
-						'layer-settings',
-						__( 'Template Settings', 'live-template-editor-client' ), 
-						array($post->post_type),
-						'advanced'
-					);
 				}
 			}
-		});		
+		});
 		
 		// default layer
 		
@@ -335,8 +335,26 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action( 'before_delete_post', array($this,'delete_static_contents'), 10, 3 );
 	
 		add_action( 'ltple_layer_loaded', array($this,'output_static_layer') );
+		
+		add_action( 'wp_head', array( $this, 'get_hosted_page_header') );
+		
+		add_filter( 'the_content', array($this,'get_hosted_page_content'),99999 );
 	}
 	
+	public function is_local_page($post){
+		
+		if( is_numeric($post) ){
+			
+			$post = get_post($post);
+		}
+		
+		if( !empty($post) && $post->post_type != 'cb-default-layer' && $post->post_type != 'user-layer' && !empty($this->parent->settings->options->postTypes) && in_array( $post->post_type, $this->parent->settings->options->postTypes ) ){
+			
+			return true;
+		}
+		
+		return false;
+	}
 	
 	public function get_default_layer_fields($post=null){
 		
@@ -595,6 +613,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 								array(
 							
+									'name' 		=> 'layer-json',
+									'title' 	=> __( 'Template JSON', 'live-template-editor-client' ), 
+									'screen'	=> array('cb-default-layer'),
+									'context' 	=> 'advanced'
+								),
+								
+								'id'			=> "layerJson",
+								'label'			=> "",
+								'type'			=> 'textarea',
+								'placeholder'	=> "JSON Data",
+								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+						);						
+						
+						$this->defaultFields[]=array(
+						
+							"metabox" =>
+							
+								array(
+							
 									'name' 		=> 'layer-js',
 									'title' 	=> __( 'Template Javascript', 'live-template-editor-client' ), 
 									'screen'	=> array('cb-default-layer'),
@@ -607,6 +644,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'placeholder'	=> "Additional Javascript",
 								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 						);
+						
 						
 						$this->defaultFields[]=array(
 						
@@ -625,7 +663,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'type'			=> 'textarea',
 								'placeholder'	=> "JSON",
 								'description'	=> '<i>Additional Meta Data</i>'
-						);				
+						);	
+						
 						
 						if( $layer_type->output == 'downloadable' ){
 							
@@ -1120,7 +1159,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'options' 	=> array(
 						
 							'css_url'	 => $this->parent->assets_url . 'css/material-kit.css',
-							'css_content' => '<style>.card .card-image{height:auto;}</style>',
+							'css_content' => '.card .card-image{height:auto;}',
 						),
 					),				
 				),
@@ -1134,17 +1173,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'css_content' => '',
 				),
 			),
-			'elementor-1-2-3' => array(
+			'elementor-2-2-7' => array(
 			
-				'name' 		=> 'Elementor 1.2.3',
+				'name' 		=> 'Elementor 2.2.7',
 				'options' 	=> array(
 				
-					'css_url'	 => '',
-					'css_content' =>''
-						. '<link href="' . plugins_url('elementor/assets/css/animations.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>'
-						. '<link href="' . plugins_url('elementor/assets/css/frontend.min.css?ver=1.0.1') . '" rel="stylesheet" type="text/css"/>'
-						. '<style>.elementor-widget-heading .elementor-heading-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image .widget-image-caption{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-text-editor{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-button .elementor-button{font-family:Roboto,sans-serif;font-weight:500;background-color:#61ce70}.elementor-widget-divider .elementor-divider-separator{border-top-color:#7a7a7a}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-image-box .elementor-image-box-content .elementor-image-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-icon.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon.elementor-view-framed .elementor-icon,.elementor-widget-icon.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-stacked .elementor-icon{background-color:#6ec1e4}.elementor-widget-icon-box.elementor-view-framed .elementor-icon,.elementor-widget-icon-box.elementor-view-default .elementor-icon{color:#6ec1e4;border-color:#6ec1e4}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-icon-box .elementor-icon-box-content .elementor-icon-box-description{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-image-gallery .gallery-item .gallery-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-image-carousel .elementor-image-carousel-caption{font-family:Roboto,sans-serif;font-weight:500}.elementor-widget-icon-list .elementor-icon-list-icon i{color:#6ec1e4}.elementor-widget-icon-list .elementor-icon-list-text{color:#54595f;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-counter .elementor-counter-number-wrapper{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-counter .elementor-counter-title{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-progress .elementor-progress-wrapper .elementor-progress-bar{background-color:#6ec1e4}.elementor-widget-progress .elementor-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-testimonial .elementor-testimonial-name{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-testimonial .elementor-testimonial-job{color:#54595f;font-family:Roboto\ Slab,sans-serif;font-weight:400}.elementor-widget-tabs .elementor-tab-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-tabs .elementor-tab-title.active{color:#61ce70}.elementor-widget-tabs .elementor-tab-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-accordion .elementor-accordion .elementor-accordion-title.active{color:#61ce70}.elementor-widget-accordion .elementor-accordion .elementor-accordion-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title{color:#6ec1e4;font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-toggle .elementor-toggle .elementor-toggle-title.active{color:#61ce70}.elementor-widget-toggle .elementor-toggle .elementor-toggle-content{color:#7a7a7a;font-family:Roboto,sans-serif;font-weight:400}.elementor-widget-alert .elementor-alert-title{font-family:Roboto,sans-serif;font-weight:600}.elementor-widget-alert .elementor-alert-description{font-family:Roboto,sans-serif;font-weight:400}</style>'		
-					,
+					'css_url'	 	=> 'https://ltple.recuweb.com/c/p/live-template-editor-resources/assets/elementor/2.2.7/frontend.min.css',
+					'css_content' 	=> '',
 				),
 			),			
 			'animate-3-5-2' => array(
@@ -1154,15 +1189,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					'css_url'	  => 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css',
 					'css_content' => '',
-				),
-			),
-			'slick-1-6-0' => array(
-			
-				'name' 		=> 'Slick 1.6.0',
-				'options' 	=> array(
-				
-					'css_url'	  => 'http://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css',
-					'css_content' => '<style>.slick-slide{height:auto !important;}</style>',
 				),
 			),
 		));
@@ -1241,39 +1267,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								</script>
 							',
 						),
-					),
-					'slick-1-6-0' => array(
-					
-						'name' 		=> 'Slick 1.6.0',
-						'options' 	=> array(
-						
-							'js_url'		=> plugins_url('elementor/assets/lib/slick/slick.min.js?ver=1.6.0'),
-							'js_content'	=> '',
-						),
-					),					
-					'elementor-1-2-3' => array(
-					
-						'name' 		=> 'Elementor 1.2.3',
-						'options' 	=> array(
-						
-							'js_url'		=> '',
-							'js_content'	=> '
-								<script>//<![CDATA[
-									var elementorFrontendConfig={"isEditMode":"","stretchedSectionContainer":"","is_rtl":""};
-								//]]></script>'
-								. '<script src="' . plugins_url('elementor/assets/lib/waypoints/waypoints.min.js?ver=4.0.2') . '"></script>' . PHP_EOL
-								. '<script src="' . plugins_url('elementor/assets/lib/jquery-numerator/jquery-numerator.min.js?ver=0.2.1') . '"></script>' . PHP_EOL
-								. '<script src="' . plugins_url('elementor/assets/js/frontend.min.js?ver=1.2.3') . '"></script>' . PHP_EOL								
-								. '<script>
-								;(function($){
-									$(document).ready(function(){
-										//$(\'.slick-slider\').slick("unslick");
-									});
-								})(jQuery);	
-								</script>
-							',
-						),
-					),					
+					),				
 				)
 			),
 		));
@@ -1364,9 +1358,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_thumbnail_url($post){
 		
-		if( !empty($post->ID ) ){
+		$post_id = 0;
 		
-			if( $image_id = get_post_thumbnail_id( $post->ID ) ){
+		if( is_numeric($post) ){
+		
+			$post_id = intval($post);
+		}
+		elseif( is_object($post) && !empty($post->ID) ){
+			
+			$post_id = $post->ID;
+		}
+		
+		if( $post_id > 0 ){
+			
+			if( $image_id = get_post_thumbnail_id( $post_id ) ){
 				
 				if ($src = wp_get_attachment_image_src( $image_id, 'medium_large' )){
 					
@@ -1450,7 +1455,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( is_admin() ){
 			
-			if( !empty($_REQUEST['action']) && $_REQUEST['action'] == 'ltple' && !empty($_REQUEST['post']) && intval($_REQUEST['post']) > 0 ){
+			if( !empty($_REQUEST['post']) && intval($_REQUEST['post']) > 0 ){
 				
 				$this->uri = intval($_REQUEST['post']);
 			}				
@@ -1460,7 +1465,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			if( isset($_GET['uri']) ){
 				
 				$this->uri = intval($_GET['uri']);
-			}	
+			}
+			elseif( isset($_REQUEST['t']) ){
+				
+				$this->uri = intval($_REQUEST['t']);
+			}			
 			elseif( strpos($this->parent->urls->current, $this->parent->urls->editor) === false ){
 				
 				$this->uri = url_to_postid($this->parent->urls->current);
@@ -1499,7 +1508,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			//set layer data
 			
 			$this->set_layer($this->uri);
-		}				
+			
+			// remove local page support
+			
+			if( is_admin() && $this->is_local && $this->defaultId > 0 ){
+				
+				remove_post_type_support($this->type,'editor');
+				remove_post_type_support($this->type,'revisions');
+			}			
+		}
 	}
 	
 	public function set_layer($uri){
@@ -1507,8 +1524,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( $q = get_post($uri) ){
 			
 			if( $q->post_status == 'publish' || $q->post_status == 'draft' ){
-
-				if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || in_array( $q->post_type, $this->parent->settings->options->postTypes ) ){
+				
+				$this->is_local = $this->is_local_page($q);
+				
+				if( $q->post_type == 'cb-default-layer' || $q->post_type == 'user-layer' || $this->is_local ){
 				
 					$this->id 		= $q->ID;
 					$this->type 	= $q->post_type;
@@ -1558,6 +1577,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					}
 					else{
 						
+						//get layer image proxy
+						
+						$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
+
 						// get layer Content
 						
 						$this->layerContent = get_post_meta( $this->id, 'layerContent', true );
@@ -1586,7 +1609,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						// get default js
 
 						$this->defaultJs = get_post_meta( $this->defaultId, 'layerJs', true );
-											
+							
+						// get default json
+
+						$this->defaultJson = get_post_meta( $this->defaultId, 'layerJson', true );
+							
 						// get layer js
 						
 						$this->layerJs = get_post_meta( $this->id, 'layerJs', true );
@@ -1704,6 +1731,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->layerSettings = get_post_meta( $this->id, 'layerSettings', true );
 
+						if( is_string($this->layerSettings) ){
+							
+							$this->layerSettings = json_decode($this->layerSettings,true);
+						}
+						
 						//get layer embedded
 						
 						$this->layerEmbedded = get_post_meta( $this->id, 'layerEmbedded', true );	
@@ -1731,10 +1763,886 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						//get layer image proxy
 
 						$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
+					
+						if( $this->layerOutput == 'hosted-page' ){
+							
+							$this->parse_hosted_content();
+						}
 					}
 				}
 			}
 		}
+	}
+	
+	public function extract_css_urls( $str ){
+		
+		$urls = array( );
+	 
+		$url_pattern     = '(([^\\\\\'", \(\)]*(\\\\.)?)+)';
+		
+		$urlfunc_pattern = 'url\(\s*[\'"]?' . $url_pattern . '[\'"]?\s*\)';
+		
+		$pattern         = '/(' .
+			 '(@import\s*[\'"]' . $url_pattern     . '[\'"])' .
+			'|(@import\s*'      . $urlfunc_pattern . ')'      .
+			'|('                . $urlfunc_pattern . ')'      .  ')/iu';
+		
+		if ( !preg_match_all( $pattern, $str, $matches ) )
+			return $urls;
+	 
+		foreach ( $matches[11] as $match )
+			if ( !empty($match) )
+				$urls[] = 
+					preg_replace( '/\\\\(.)/u', '\\1', $match );
+	 
+		return $urls;
+	}
+
+	public function parse_css_content($content,$prepend,$source='',$charset='utf-8'){
+		
+		// protect unicode numbers
+		
+		$content = str_replace('\\','\\\\',$content);
+		
+		// parse content
+		
+		include_once($this->parent->vendor . '/autoload.php');
+		
+		$cssSettings = Sabberworm\CSS\Settings::create();
+		
+		$cssSettings->withDefaultCharset($charset);
+		
+		$cssSettings->withMultibyteSupport(false); // use mb_* functions
+		
+		$cssParser = new Sabberworm\CSS\Parser($content,$cssSettings);
+		
+		$css = $cssParser->parse();
+		
+		// remove rules
+		
+		/*
+		foreach( $css->getAllRuleSets() as $rule ) {
+			
+			$rule->removeRule('cursor');
+		}
+		*/
+		
+		foreach( $css->getAllValues() as $value ) {
+			
+			if( !empty($source) ){
+				
+				// replace relative path to absolute
+			
+				if( method_exists($value,'__toString') ) {
+					
+					$str = $value->__toString();
+					
+					if( strpos($str,'url(') !== false ){
+
+						$urls = $this->extract_css_urls($str);
+						
+						if( !empty($urls) ){
+						
+							foreach( $urls as $url){
+								
+								$abs_url = $this->parent->get_absolute_url($url, $source);
+								
+								$newUrl = new \Sabberworm\CSS\Value\CSSString($abs_url);
+								
+								$value->setURL($newUrl);							
+							}
+						}
+					}
+				}
+			}
+		}
+				
+		// prepend selectors
+		
+		foreach( $css->getAllDeclarationBlocks() as $block ) {
+			
+			//dump($block);
+			
+			foreach( $block->getSelectors() as $selector ) {
+				
+				$name = $selector->getSelector();
+				
+				$valid = true;
+				
+				/*
+				
+				// filter selectors
+				
+				$filters = '.glyphicon-';
+				
+				$filters = explode(' ',$filters);
+				
+				if( !empty($filters) ){
+				
+					foreach( $filters as $filter ){
+					
+						if( strpos($name,$filter) !== false ){
+							
+							$valid = false;
+							break;
+						}
+					}
+				}
+				*/
+				
+				if( $valid ){
+
+					$selector->setSelector( $prepend . ' ' . $selector->getSelector() );
+				}
+				else{
+					
+					// remove block
+					
+					$css->removeDeclarationBlockBySelector($block, true);
+				}
+			}
+		}
+		
+		//$content = $css->render(Sabberworm\CSS\OutputFormat::createPretty());
+		
+		//$content = $css->render(Sabberworm\CSS\OutputFormat::createCompact());
+		
+		$content = $css->render();
+
+		// restore unicode numbers
+		
+		$content = str_replace('\\\\','\\',$content);
+		
+		return $content;
+	}
+	
+	public function parse_hosted_content(){
+		
+		// get layer content
+		
+		$layerHead 			= '';
+		$layerContent 		= '';
+		
+		$headStyles = array();
+		$headLinks = array();
+
+		if( !empty($this->defaultStaticPath) && file_exists($this->defaultStaticPath) ){
+			
+			$output = file_get_contents($this->defaultStaticPath);
+
+			// strip html comments
+			
+			$output = preg_replace('/<!--(.*)-->/Uis', '', $output);
+			
+			// parse dom elements
+			
+			libxml_use_internal_errors( true );
+			
+			$dom= new DOMDocument();
+			$dom->loadHTML('<?xml encoding="UTF-8">' . $output); 
+
+			$xpath = new DOMXPath($dom);
+			
+			// remove nodes
+			
+			$nodes = $xpath->query('//meta|//title|//base');
+			
+			foreach ($nodes as $node) {
+				
+				$node->parentNode->removeChild($node);
+			}
+
+			// remove duplicate styles
+			
+			$nodes = $xpath->query('//style');
+			
+			foreach ($nodes as $node) {
+				
+				$nodeValue 	= $node->nodeValue;
+				
+				if( !empty($nodeValue) ){
+				
+					if( !in_array($nodeValue,$headStyles) ){
+					
+						$headStyles[] = $nodeValue;
+					}
+					else{
+					
+						$node->parentNode->removeChild($node);
+					}
+				}
+			}		
+			
+			// remove duplicate links
+			
+			$nodes = $xpath->query('//link');
+			
+			foreach ($nodes as $node) {
+				
+				$nodeValue 	= $node->getAttribute('href');
+				
+				if( !empty($nodeValue) ){
+					
+					$link = $this->sanitize_url($nodeValue,$this->defaultStaticDirUrl);
+				
+					if( !in_array($link,$headLinks) ){
+						
+						if( $link != $nodeValue ){
+							
+							//normalize link
+							
+							$node->setAttribute('href',$link);
+						}
+					
+						$headLinks[] = $link;
+					}
+					else{
+					
+						$node->parentNode->removeChild($node);
+					}
+				}
+			}
+			
+			// parse relative image urls
+			
+			$nodes = $xpath->query('//img');
+			
+			foreach ($nodes as $node) {
+				
+				$nodeValue 	= $node->getAttribute('src');
+				
+				if( !empty($nodeValue) ){
+					
+					//normalize link
+					
+					$link =$this->sanitize_url($nodeValue,$this->defaultStaticDirUrl);
+
+					$node->setAttribute('src',$link);
+				}
+			}
+
+			// get head
+			
+			$layerHead = $dom->saveHtml( $xpath->query('/html/head')->item(0) );
+			$layerHead = preg_replace('~<(?:!DOCTYPE|/?(?:head))[^>]*>\s*~i', '', $layerHead);
+			
+			// get body
+			
+			if( !empty($this->parent->layer->layerContent) ){
+			
+				$layerContent =$this->layerContent;
+			}
+			else{
+				
+				$layerContent = $dom->saveHtml( $xpath->query('/html/body')->item(0) );
+				$layerContent = preg_replace('~<(?:!DOCTYPE|/?(?:body))[^>]*>\s*~i', '', $layerContent);
+			}
+		}
+		else{
+			
+			$layerContent = $this->layerContent;
+			
+			$layerContent = $this->sanitize_content($layerContent);
+		}
+
+		// parse content elements
+		
+		libxml_use_internal_errors( true );
+		
+		$dom= new DOMDocument();
+		$dom->loadHTML('<?xml encoding="UTF-8">' . $layerContent); 
+
+		$xpath = new DOMXPath($dom);
+
+		// remove pagespeed_url_hash
+		
+		$links = [];
+		
+		$nodes = $xpath->query('//img');
+		
+		foreach ($nodes as $node) {
+			
+			$node->removeAttribute('pagespeed_url_hash');
+		}			
+		
+		$layerContent = $dom->saveHtml( $xpath->query('/html/body')->item(0) );
+		$layerContent = preg_replace('~<(?:!DOCTYPE|/?(?:body))[^>]*>\s*~i', '', $layerContent);
+
+		//get style-sheet
+		
+		$defaultCss 	= '';
+		$layerCss 		= '';
+		$defaultJs 		= '';
+		$defaultJson 	= '';
+		$layerJs 		= '';
+		$layerMeta 		= '';
+		
+		$this->layerStyleClasses = array(
+			
+			'layer-' . $this->defaultId,
+			'layer-' . $this->id,
+		);
+		
+		if( isset($_POST['importCss']) ){
+
+			$layerCss = stripcslashes($_POST['importCss']);
+		}
+		elseif( empty($_POST) ){
+			
+			$defaultCss = $this->parse_css_content($this->defaultCss, '.layer-' . $this->defaultId);
+			
+			$layerCss = $this->layerCss;
+			
+			$defaultJs = $this->defaultJs;
+			
+			$defaultJson = $this->defaultJson;
+			
+			$layerJs = $this->layerJs;
+
+			$layerMeta = $this->layerMeta;
+		}
+		
+		$defaultCss = sanitize_text_field($defaultCss);
+		$layerCss 	= sanitize_text_field($layerCss);
+		
+		$layerContent = str_replace('<?xml encoding="UTF-8">','',$layerContent);
+		
+		// get google fonts
+		
+		$googleFonts = [];
+		$fontsLibraries = [];
+		
+		if( !empty($layerCss) ){
+			
+			$regex = '`\/\/fonts\.googleapis\.com\/css\?family=([0-9A-Za-z\|\,\+\:]+)`';
+			$fonts = preg_match($regex, $layerCss,$match);
+			
+			if(isset($match[1])){
+				
+				$googleFonts = array_merge( $googleFonts, explode('|',$match[1]));
+			}
+		}
+		
+		// get font libraries
+		
+		if( !empty($this->layerFontLibraries) ){
+			
+			foreach($this->layerFontLibraries as $term){
+				
+				$font_url = get_option( 'font_url_' . $term->slug);
+				
+				if( !empty($font_url) ){
+					
+					$regex = '`\/\/fonts\.googleapis\.com\/css\?family=([0-9A-Za-z\|\,\+\:]+)`';
+					$fonts = preg_match($regex, $font_url,$match);
+
+					if(isset($match[1])){
+						
+						$googleFonts = array_merge( $googleFonts, explode('|',$match[1]));
+					}
+					else{
+						
+						$fontsLibraries[] = $font_url;
+					}	
+				}
+			}
+		}
+
+		// get head content
+
+		$head = '';
+		
+		// font library
+		
+		if( !empty($googleFonts) ){
+		
+			$head .= '<link href="//fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
+		}
+		
+		if( !empty($fontsLibraries) ){
+		
+			foreach( $fontsLibraries as $font ){
+		
+				$font = $this->sanitize_url( $font );
+				
+				if( !empty($font) && !in_array($font,$headLinks) ){
+		
+					$head .= '<link href="' . $font . '" rel="stylesheet" />';
+				
+					$headLinks[] = $font;
+				}
+			}
+		}	
+		
+		if( !empty($this->layerCssLibraries) ){
+			
+			foreach($this->layerCssLibraries as $term){
+				
+				$this->layerStyleClasses[] = 'style-' . $term->term_id;
+				
+				$css_url = $this->get_css_parsed_url($term);
+				
+				if( !empty($css_url) ){
+					
+					$css_url = $this->sanitize_url($css_url);
+					
+					if( !empty($css_url) && !in_array($css_url,$headLinks) ){
+
+						$head .= '<link href="' . $css_url . '" rel="stylesheet" type="text/css" />';
+							
+						$headLinks[] = $css_url;
+					}					
+				}
+				else{
+				
+					$css_url = $this->sanitize_url(get_option( 'css_url_' . $term->slug));
+					
+					if( !empty($css_url) && !in_array($css_url,$headLinks) ){
+
+						$head .= '<link href="' . $css_url . '" rel="stylesheet" type="text/css" />';
+							
+						$headLinks[] = $css_url;
+					}
+					
+					$css_content = get_option( 'css_content_' . $term->slug);
+					
+					if( !empty($css_content) ){
+					
+						$head .= '<style>' . stripcslashes($css_content) . '</style>';
+					}
+				}
+			}
+		}
+		
+		$head .= PHP_EOL;
+	
+		if( !empty($layerHead) ){
+			
+			$head .= $layerHead;
+		}
+		
+		if(!empty($layerMeta['link'])){
+			
+			foreach($layerMeta['link'] as $url){
+				
+				$url =$this->sanitize_url( $url );
+				
+				if( !empty($url) && !in_array($url,$headLinks) ){
+				
+					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />';
+			
+					$headLinks[] = $url;
+				}
+			}
+		}			
+		
+
+		// output css files
+		
+		if( !empty($this->defaultStaticCssUrl) ){
+			
+			$this->defaultStaticCssUrl =$this->sanitize_url( $this->defaultStaticCssUrl );
+			
+			if( !empty($this->defaultStaticCssUrl) && !in_array($this->defaultStaticCssUrl,$headLinks) ){
+			
+				$head .= '<link href="' . $this->defaultStaticCssUrl . '" rel="stylesheet" />';
+			
+				$headLinks[] = $this->defaultStaticCssUrl;
+			}
+		}
+		
+		if($this->type == 'user-layer' && $layerCss != $defaultCss ){
+			
+			$this->layerStaticCssUrl =$this->sanitize_url( $this->layerStaticCssUrl );
+			
+			if( !empty($this->layerStaticCssUrl) && !in_array($this->layerStaticCssUrl,$headLinks) ){
+			
+				$head .= '<link href="' . $this->layerStaticCssUrl . '" rel="stylesheet" />';
+			
+				$headLinks[] = $this->layerStaticCssUrl;
+			}
+		}
+		
+		// add meta
+		
+		if(!$this->is_local_page($this->id)){ 
+			
+			// output custom meta tags
+			
+			if( !empty($this->layerSettings) ){
+
+				foreach( $this->layerSettings as $key => $content ){
+					
+					if( !empty($content) ){
+					
+						if( $key == 'meta_title' ){
+							
+							$title = ucfirst($content);
+							
+							$head .= '<title>'.$title.'</title>'.PHP_EOL;
+							$head .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
+							$head .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
+							$head .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;		
+						}
+						elseif( $key == 'meta_keywords' ){
+
+							$content = implode(',',explode(PHP_EOL,$content));
+						
+							$head .= '<meta name="keywords" content="'.$content.'" />'.PHP_EOL;
+							
+						}
+						elseif( $key == 'meta_description' ){
+							
+							$head .= '<meta name="description" content="'.$content.'" />'.PHP_EOL;
+							$head .= '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
+							$head .= '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
+							$head .= '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
+							$head .= '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
+						}
+						elseif( $key == 'link_author' ){
+							
+							$head .= '<link rel="author" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
+							$head .= '<link rel="publisher" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
+						}
+						elseif( $key == 'meta_image' ){
+							
+							$head .= '<meta property="og:image" content="'.$content.'" />'.PHP_EOL;
+							$head .= '<meta name="twitter:image" content="'.$content.'" />'.PHP_EOL;
+							
+						}
+						elseif( $key == 'meta_favicon' ){
+							
+							$head .= '<link rel="icon" href="'.$content.'" sizes="32x32"/>'.PHP_EOL;
+							$head .= '<link rel="icon" href="'.$content.'" sizes="192x192"/>'.PHP_EOL;
+							$head .= '<link rel="apple-touch-icon-precomposed" href="'.$content.'"/>'.PHP_EOL;
+							$head .= '<meta name="msapplication-TileImage" content="'.$content.'"/>'.PHP_EOL;				
+						}
+						elseif( $key == 'meta_facebook-id' ){
+							
+							$head .= '<meta property="fb:admins" content="'.$content.'"/>'.PHP_EOL;
+							
+						}				
+						else{
+							
+							list($markup,$name) = explode('_',$key);
+							
+							if( $markup == 'meta' ){
+								
+								$head .= '<meta name="'.$name.'" content="'.$content.'" />'.PHP_EOL;
+							}
+							elseif( $markup == 'link' ){
+								
+								$head .= '<link rel="'.$name.'" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
+							}
+						}
+					}
+				}
+			}
+			
+			if( empty($this->layerSettings['meta_title']) ){
+				
+				// output default title
+				
+				$title = ucfirst($this->parent->layer->title);
+				
+				$head .= '<title>'.$title.'</title>'.PHP_EOL;
+				$head .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
+				$head .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
+				$head .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;					
+			}			
+			
+			// output default meta tags
+			
+			$ggl_webmaster_id = get_option( $this->parent->_base . 'embedded_ggl_webmaster_id' );
+			
+			if( !empty($ggl_webmaster_id) ){
+			
+				$head .= '<meta name="google-site-verification" content="'.$ggl_webmaster_id.'" />'.PHP_EOL;
+			}
+			
+			/*
+			
+			//TODO $post doesnt exist
+			
+			$author_name = get_the_author_meta('display_name', $post->post_author );
+			$author_mail = get_the_author_meta('user_email', $post->post_author );
+			
+			if( empty($this->layerSettings['meta_author']) ){
+				
+				$head .= '<meta name="author" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
+				$head .= '<meta name="creator" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
+				$head .= '<meta name="owner" content="' . $author_name . '" />' . PHP_EOL;
+				$head .= '<meta name="reply-to" content="'.$author_mail.'" />' . PHP_EOL;					
+			}
+			*/
+			
+			$locale = get_locale();
+			
+			if( empty($this->layerSettings['meta_language']) ){
+				
+				$head .= '<meta name="language" content="' . $locale . '" />'.PHP_EOL;
+			}
+			
+			$robots = 'index,follow';
+			
+			if( empty($this->layerSettings['meta_robots']) ){
+				
+				$head .= '<meta name="robots" content="'.$robots.'" />' . PHP_EOL;
+			}
+			/*
+			$revised = $post->post_date;
+			
+			if( empty($this->layerSettings['meta_revised']) ){
+			
+				$head .= '<meta name="revised" content="' . $revised . '" />' . PHP_EOL;
+			}
+			*/
+			
+			$content = ucfirst($this->parent->layer->title);
+			
+			if( empty($this->layerSettings['meta_description']) ){
+				
+				$head .= '<meta name="description" content="'.$content.'" />'.PHP_EOL;
+				$head .= '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
+				$head .= '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
+				$head .= '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
+				$head .= '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
+			}
+			
+			$head .= '<meta name="classification" content="Business" />' . PHP_EOL;
+			//$head .= '<meta name="classification" content="products, product classifications, company classification, company type, industry" />' . PHP_EOL;
+			
+			$service_name = get_bloginfo( 'name' );
+			
+			$head .= '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
+			$head .= '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
+			
+			if( !empty($this->layerEmbedded) ){
+			
+				$url =$this->sanitize_url( $this->layerEmbedded );
+				
+				$head .= '<meta name="url" content="'.$url.'" />' . PHP_EOL;
+				//$head .= '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
+				$head .= '<meta name="original-source" content="'.$url.'" />' . PHP_EOL;
+				$head .= '<link rel="original-source" href="'.$url.'" />' . PHP_EOL;
+				$head .= '<meta property="og:url" content="'.$url.'" />' . PHP_EOL;
+				$head .= '<meta name="twitter:url" content="'.$url.'" />' . PHP_EOL;
+			}
+			
+			$head .= '<meta name=viewport content="width=device-width, initial-scale=1">' . PHP_EOL;
+			
+			$head .= '<meta name="rating" content="General" />' . PHP_EOL;
+			$head .= '<meta name="directory" content="submission" />' . PHP_EOL;
+			$head .= '<meta name="coverage" content="Worldwide" />' . PHP_EOL;
+			$head .= '<meta name="distribution" content="Global" />' . PHP_EOL;
+			$head .= '<meta name="target" content="all" />' . PHP_EOL;
+			$head .= '<meta name="medium" content="blog" />' . PHP_EOL;
+			$head .= '<meta property="og:type" content="article" />' . PHP_EOL;
+			$head .= '<meta name="twitter:card" content="summary" />' . PHP_EOL;
+			
+			/*
+			$head .= '<meta name="geo.position" content="latitude; longitude" />' . PHP_EOL;
+			$head .= '<meta name="geo.placename" content="Place Name" />' . PHP_EOL;
+			$head .= '<meta name="geo.region" content="Country Subdivision Code" />' . PHP_EOL;
+			*/
+
+			/*
+			$ggl_analytics_id = get_option( $this->parent->_base . 'embedded_ggl_analytics_id' );
+							
+			if( !empty($ggl_analytics_id) ){
+			
+				?>
+				<script> 
+				
+					<!-- Google Analytics Code -->
+				
+					(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+					(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+					m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+					})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+					ga('create', '<?php echo $ggl_analytics_id; ?>', 'auto');
+					ga('send', 'pageview');
+					
+					<!-- End Google Analytics Code -->
+					
+				</script>
+
+				<?php					
+			}
+			*/	
+		}			
+
+		$this->layerHeadContent = $head;
+		
+		// get body content
+		
+		$body = '';
+		
+		//include style-sheets
+		
+		if( $defaultCss!='' ){
+			
+			$body .= '<style id="LiveTplEditorDefaultStyleSheet">'.PHP_EOL;
+				
+				$body .= $defaultCss .PHP_EOL;
+			
+			$body .= '</style>'.PHP_EOL;
+		}
+		
+		$body .= '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
+		
+			if( $layerCss!='' ){
+
+				$body .= $layerCss .PHP_EOL;
+			}
+			
+		$body .= '</style>'.PHP_EOL;		
+		
+		//include layer
+		
+		$layer_template = get_page_template_slug( $this->id );
+		
+		if( empty($_REQUEST['t']) && $this->is_local_page($this->id) && $layer_template != 'templates/full-page.php' ){
+		
+			$body .='<div class="' . implode(' ',$this->layerStyleClasses) . '">' .PHP_EOL;
+		}
+		
+			if( empty($_POST) && $this->layerForm == 'importer' && empty($this->parent->layer->layerContent) ){
+				
+				$body .='<script>' .PHP_EOL;
+
+					$body .= ' var layerFormActive = true;' .PHP_EOL;
+					
+				$body .='</script>' .PHP_EOL;
+				
+				$body .= '<div class="container">';
+				
+					$body .= '<div class="panel panel-default" style="margin:50px;">';
+					
+					$body .= '<div class="panel-heading">';
+					
+						if( !empty($this->layerForm) ){
+							
+							$body .='<h4>'.ucfirst($this->parent->layer->title).'</h4>';
+						}
+						
+					$body .= '</div>';
+					
+					$body .= '<div class="panel-body">';
+					
+						$body .= '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
+						
+							if( $this->layerForm == 'importer' ){
+						
+								$body .= '<div class="col-xs-3">';
+								
+									$body .='<label>HTML</label>';
+									
+								$body .= '</div>';
+								
+								$body .= '<div class="col-xs-9">';
+								
+									$body .= '<div class="form-group">';
+									
+										$body .= '<textarea class="form-control" name="importHtml" style="min-height:100px;"></textarea>';
+										
+									$body .= '</div>';
+									
+								$body .= '</div>';
+
+								$body .= '<div class="col-xs-12 text-right">';
+									
+									$body .= '<input class="btn btn-primary btn-md" type="submit" value="Import" />';
+									
+								$body .= '</div>';
+							}							
+						
+						$body .= '</form>';
+						
+					$body .= '</div>';
+					$body .= '</div>';
+				
+				$body .= '</div>';
+			} 
+			else{
+
+				$body .= '<layer class="editable" style="width:100%;' . ( !empty($this->layerMargin) ? 'margin:'.$this->layerMargin.';' : '' ) . '">';
+								
+					$body .= $layerContent;
+				
+				$body .= '</layer>' .PHP_EOL;
+			}
+		
+		if( empty($_REQUEST['t']) && $this->is_local_page($this->id) && $layer_template != 'templates/full-page.php' ){
+		
+			$body .='</div>' .PHP_EOL;
+		}
+		
+		if( !empty($defaultJson) ){
+			
+			$body .= '<script>'.$defaultJson.'</script>' .PHP_EOL;
+		}
+
+		if( !empty($this->layerJsLibraries) ){
+			
+			foreach($this->layerJsLibraries as $term){
+				
+				$js_skip = 'off';
+				
+				if( $this->is_local ){
+				
+					$js_skip = get_option( 'js_skip_local_' . $term->slug);
+				}
+				
+				if( $js_skip != 'on' ){
+					
+					$js_url = get_option( 'js_url_' . $term->slug);
+					
+					if( !empty($js_url) ){
+						
+						$body .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
+					}
+					
+					$js_content = get_option( 'js_content_' . $term->slug);
+					
+					if( !empty($js_content) ){
+					
+						$body .= stripcslashes($js_content) .PHP_EOL;	
+					}
+				}
+			}
+		}
+		
+		if( !empty($layerMeta['script']) ){
+			
+			foreach($layerMeta['script'] as $url){
+				
+				$body .= '<script src="'.$url.'"></script>' .PHP_EOL;
+			}
+		}
+		
+		//include layer script
+		
+		$body .='<script id="LiveTplEditorScript">' .PHP_EOL;
+		
+			if( $layerJs != '' ){
+
+				$body .= $layerJs .PHP_EOL;				
+			}				
+			
+		$body .='</script>' .PHP_EOL;
+		
+		if($this->type == 'user-layer' && !empty($layerJs) ){
+
+			$body .= '<script src="'.$this->layerStaticJsUrl.'"></script>' .PHP_EOL;
+		}
+		elseif( !empty($defaultJs) ){
+			
+			$body .= '<script src="'.$this->defaultStaticJsUrl.'"></script>' .PHP_EOL;
+		}
+		
+		$this->layerBodyContent = $body;
 	}
 	
 	public function get_layer_attachments($post_id){
@@ -1942,7 +2850,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	}
 	
-	public static function isAbsolutePath($file){
+	public static function is_absolute_path($file){
 		
 		return strspn($file, '/\\', 0, 1)
 			|| (strlen($file) > 3 && ctype_alpha($file[0])
@@ -1957,7 +2865,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !empty($url) ){
 		
-			if( !empty($dirUrl) && !self::isAbsolutePath($url) ){
+			if( !empty($dirUrl) && !self::is_absolute_path($url) ){
 				
 				$url = $dirUrl . $url;
 			}
@@ -2271,7 +3179,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			echo'<th valign="top" scope="row">';
 				
-				echo'<label for="category-text">Url </label>';
+				echo'<label for="category-text">Remote Url </label>';
 			
 			echo'</th>';
 			
@@ -2295,7 +3203,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			echo'<th valign="top" scope="row">';
 				
-				echo'<label for="category-text">Content </label>';
+				echo'<label for="category-text">CSS Content </label>';
 			
 			echo'</th>';
 			
@@ -2306,16 +3214,212 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'type'				=> 'textarea',
 					'id'				=> 'css_content_'.$term->slug,
 					'name'				=> 'css_content_'.$term->slug,
-					'placeholder'		=> htmlentities('<style></style>'),
-					'description'		=> '<i>with ' . htmlentities('<style></style>') . ' or ' . htmlentities('<link></link>') . '</i>'
+					'placeholder'		=> '.style{display:block;}',
+					'description'		=> '<i>without ' . htmlentities('<style></style>') . '</i>'
 					
 				), false );				
 					
 			echo'</td>';
 			
 		echo'</tr>';
+		
+		$parse = get_option('css_parse_'.$term->slug,'off');
+		
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Parse Content</label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+					
+				$this->parent->admin->display_field(array(
+				
+					'type'			=> 'switch',
+					'id'			=> 'css_parse_'.$term->slug,
+					'name'			=> 'css_parse_'.$term->slug,
+					'data'			=> $parse,
+					'description'	=> 'Prepend unique class name to CSS selectors',
+					
+				), false );				
+					
+			echo'</td>';
+			
+		echo'</tr>';
+		
+		if( $parse == 'on' ){
+			
+			/*
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Md5 </label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+						
+					$this->parent->admin->display_field(array(
+					
+						'type'		=> 'text',
+						'id'		=> 'css_md5_'.$term->slug,
+						'name'		=> 'css_md5_'.$term->slug,
+						'disabled'	=> true,
+						
+					), false );				
+						
+				echo'</td>';
+				
+			echo'</tr>';
+			*/
+			
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Source </label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+						
+					$this->parent->admin->display_field(array(
+					
+						'type'		=> 'text',
+						'id'		=> 'css_source_'.$term->slug,
+						'name'		=> 'css_source_'.$term->slug,
+						'data'		=> $this->get_css_parsed_url($term),
+						'disabled'	=> true,
+						
+					), false );				
+						
+				echo'</td>';
+				
+			echo'</tr>';
+		}
 	}
 	
+	public function get_css_parsed_url($term){
+		
+		$css_parse = get_option('css_parse_'.$term->slug);
+	
+		if( $css_parse == 'on' ){
+			
+			$attach_id = intval(get_option('css_attachment_'.$term->slug));		
+
+			$css_url = get_option('css_url_'.$term->slug);
+			
+			$css_content = get_option('css_content_'.$term->slug);
+
+			$css_md5 = get_option('css_md5_'.$term->slug);
+			
+			$css_version = '1.0.6';
+			
+			$styleName = 'style-' . $term->term_id;
+			
+			$md5 = md5($css_url.$css_content.$styleName.$css_version);
+			
+			if( $css_md5 != $md5 ){
+				
+				$content = '';
+				
+				if( !empty($css_url) ){
+					
+					$response = wp_remote_get($css_url);
+					
+					if ( is_array( $response ) ) {
+						
+						$body = $response['body'];
+
+						if( !empty($body) ){
+							
+							$content .= $this->parse_css_content($body, '.' . $styleName, $css_url);
+						}
+					}
+				}
+				
+				if( !empty($css_content) ){
+					
+					$content .= $this->parse_css_content($css_content, '.' . $styleName, $css_content);
+				}
+				
+				//dump($content);
+
+				if( !empty($content) ){
+					
+					// remove current attachement
+					
+					$css_attachement = get_post($attach_id);
+					
+					if(!empty($css_attachement)){
+						
+						wp_delete_attachment( $css_attachement->ID, true );
+					}				
+				
+					// add style to media
+					
+					if ( !function_exists('media_handle_upload') ) {
+						
+						require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+						require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+						require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+					}
+
+					// create archive
+					
+					$tmp = wp_tempnam($styleName) . '.css';
+					
+					file_put_contents($tmp,$content);
+					
+					$file_array = array(
+					
+						'name' 		=> $styleName . '.css',
+						'tmp_name' 	=> $tmp,
+					);
+					
+					$post_data = array(
+					
+						'post_title' 		=> $styleName,
+						'post_mime_type' 	=> 'text/css',
+					);
+
+					if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
+					
+					$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
+					
+					@unlink($tmp);
+					
+					if( is_numeric($attach_id) ){
+					
+						update_option('css_attachment_'.$term->slug,$attach_id);
+					}
+					else{
+						
+						dump($attach_id);
+					}
+				}
+				
+				//update md5
+				
+				update_option('css_md5_'.$term->slug,$md5);
+			}
+			
+			if( is_numeric($attach_id) ){
+				
+				$url = wp_get_attachment_url($attach_id);
+				
+				if(!empty($url)){
+				
+					return $url . '?' . $md5;
+				}
+			} 			
+		}
+		
+		return false;
+	}
 	
 	public function get_js_library_fields($term){
 
@@ -2325,7 +3429,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			echo'<th valign="top" scope="row">';
 				
-				echo'<label for="category-text">Url </label>';
+				echo'<label for="category-text">Remote Url </label>';
 			
 			echo'</th>';
 			
@@ -2349,7 +3453,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			echo'<th valign="top" scope="row">';
 				
-				echo'<label for="category-text">Content </label>';
+				echo'<label for="category-text">JS Content </label>';
 			
 			echo'</th>';
 			
@@ -2362,6 +3466,29 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'name'				=> 'js_content_'.$term->slug,
 					'placeholder'		=> htmlentities('<script></script>'),
 					'description'		=> '<i>with '.htmlentities('<script></script>').'</i>'
+					
+				), false );				
+					
+			echo'</td>';
+			
+		echo'</tr>';
+		
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Skip local pages</label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+					
+				$this->parent->admin->display_field(array(
+				
+					'type'			=> 'switch',
+					'id'			=> 'js_skip_local_'.$term->slug,
+					'name'			=> 'js_skip_local_'.$term->slug,
+					'description'	=> 'Skip the library in local pages to avoid conflict with the current theme',
 					
 				), false );				
 					
@@ -2704,6 +3831,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				update_option('css_content_'.$term->slug, $_POST['css_content_'.$term->slug]);			
 			}
 			
+			if(isset($_POST['css_parse_'.$term->slug])){
+
+				update_option('css_parse_'.$term->slug, $_POST['css_parse_'.$term->slug]);			
+			}
+			
 			if(isset($_POST['js_url_'.$term->slug])){
 
 				update_option('js_url_'.$term->slug, $_POST['js_url_'.$term->slug]);			
@@ -2712,6 +3844,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			if(isset($_POST['js_content_'.$term->slug])){
 
 				update_option('js_content_'.$term->slug, $_POST['js_content_'.$term->slug]);			
+			}
+			
+			if(isset($_POST['js_skip_local_'.$term->slug])){
+
+				update_option('js_skip_local_'.$term->slug, $_POST['js_skip_local_'.$term->slug]);			
 			}
 			
 			if(isset($_POST['font_url_'.$term->slug])){
@@ -2727,7 +3864,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $output == 'hosted-page' ){
 			
-			$static_url = $this->dirUrl . $postId . '/';	
+			$static_url = $this->sanitize_url( $this->dirUrl . $postId . '/' );	
 		}
 	
 		return $static_url;
@@ -2742,14 +3879,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$layerStaticUrl = 'index.html';
 		}
 		
-		$static_url = $this->get_static_dir_url($postId,$output) . $layerStaticUrl;				
+		$static_url = $this->sanitize_url( $this->get_static_dir_url($postId,$output) . $layerStaticUrl );				
 	
 		return $static_url;
 	}
 	
 	public function get_static_asset_url($postId, $type = 'css', $filename = 'style'){
 		
-		$static_url = $this->dirUrl . $postId . '/assets/'.$type.'/' . $filename . '.' . $type;
+		$static_url = $this->sanitize_url( $this->dirUrl . $postId . '/assets/'.$type.'/' . $filename . '.' . $type );
 		
 		return $static_url;
 	}
@@ -3135,28 +4272,43 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function delete_static_contents($post_id){
 		
-		$dir = $this->dir . $post_id . '/';
-		
-		if ( is_dir( $dir ) ){
+		if( $post = get_post($post_id) ){
 			
-			$it = new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS );
-			
-			$files = new RecursiveIteratorIterator( $it, RecursiveIteratorIterator::CHILD_FIRST );
-			
-			foreach ( $files as $file ) {
+			if( $post->post_type == 'cb-default-layer' || $post->post_type == 'user-layer' ){
 				
-				if ( $file->isDir() ) {
+				$layer_type = $this->get_layer_type($post);
+				
+				if( $layer_type->output == 'hosted-page' || $layer_type->output == 'downloadable' ){
+				
+					$dir = $this->dir . $post_id . '/';
 					
-					rmdir( $file->getRealPath() );
+					if ( is_dir( $dir ) ){
+						
+						$it = new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS );
+						
+						$files = new RecursiveIteratorIterator( $it, RecursiveIteratorIterator::CHILD_FIRST );
+						
+						foreach ( $files as $file ) {
+							
+							if ( $file->isDir() ) {
+								
+								rmdir( $file->getRealPath() );
+							}
+							else {
+								
+								unlink( $file->getRealPath() );
+							}
+						}
+						rmdir( $dir );
+					}
 				}
-				else {
+				elseif( $layer_type->output == 'image' ){
 					
-					unlink( $file->getRealPath() );
+					$this->delete_layer_attachments($post->ID,0);
 				}
 			}
-			rmdir( $dir );
 		}
-
+		
 		return true;
 	}
 	
@@ -3195,6 +4347,47 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$dst = $this->get_static_dir($post_id,true);
 
 		return $this->copy_dir($src,$dst);
+	}
+	
+	public function output_layer(){
+		
+		if( !empty($this->layerOutput) ){
+		
+			http_response_code(200);
+		
+			if( file_exists( $this->parent->views . '/layers/' . $this->layerOutput  . '.php' ) ){
+				
+				include_once( $this->parent->views . '/layers/' . $this->layerOutput  . '.php' );
+			}
+			else{
+				
+				do_action( 'ltple_' . $this->layerOutput . '_layer' );
+			}
+			
+			do_action( 'ltple_layer_loaded', $layer );
+		}
+	}
+	
+	public function get_hosted_page_header(){
+		
+		global $post;
+		
+		if( !isset($_REQUEST['uri']) && $this->is_local_page($post) && !empty($this->layerOutput) && $this->layerOutput == 'hosted-page' ){
+			
+			echo $this->layerHeadContent;
+		}
+	}
+	
+	public function get_hosted_page_content($content){
+		
+		global $post;
+		
+		if( !isset($_REQUEST['uri']) && $this->is_local_page($post) && !empty($this->layerOutput) && $this->layerOutput == 'hosted-page' ){
+			
+			$content = $this->layerBodyContent;
+		}
+		
+		return $content;
 	}
 	
 	public function output_static_layer( $output ){

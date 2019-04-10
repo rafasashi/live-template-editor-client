@@ -119,7 +119,7 @@ class LTPLE_Client {
 		$this->file 		= $file;
 		$this->dir 			= dirname( $this->file );
 		$this->views   		= trailingslashit( $this->dir ) . 'views';
-		$this->vendor  		= WP_CONTENT_DIR . '/vendor';
+		$this->vendor  		= trailingslashit( $this->dir ) . 'vendor';
 		$this->assets_dir 	= trailingslashit( $this->dir ) . 'assets';
 		$this->assets_url 	= esc_url( trailingslashit( plugins_url( '/assets/', $this->file ) ) );
 		
@@ -622,7 +622,9 @@ class LTPLE_Client {
 				// add editor shortcodes
 				
 				add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
-						
+				
+				// output backend editor
+				
 				include( $this->views . '/editor-backend.php' );
 				
 				exit;
@@ -871,8 +873,17 @@ class LTPLE_Client {
 	}
 	
 	public function editor_templates( $path ){
-
-		if( $post_id = url_to_postid( $this->urls->current ) ){
+		
+		if( !empty($_REQUEST['t']) && is_numeric($_REQUEST['t']) ){
+			
+			$post_id = intval($_REQUEST['t']);
+		}
+		else{
+			
+			$post_id = url_to_postid( $this->urls->current );
+		}
+		
+		if( !empty($post_id) ){
 			
 			$post = get_post($post_id);
 			
@@ -922,9 +933,17 @@ class LTPLE_Client {
 					
 					$path = $this->views . '/layer.php';
 				}
-				elseif( isset($_REQUEST['p']) && isset($_REQUEST['tk']) &&  $_REQUEST['p'] == $this->ltple_decrypt_str($_REQUEST['tk']) ){
+				elseif( isset($_REQUEST['t']) && isset($_REQUEST['tk']) ){
 					
-					$path = $this->views . '/layer.php';
+					if( $_REQUEST['t'] == $this->ltple_decrypt_str($_REQUEST['tk']) ){
+					
+						$path = $this->views . '/layer.php';
+					}
+					else{
+						
+						echo 'Wrong template token...';
+						exit;
+					}
 				}
 				else{
 					
@@ -932,7 +951,11 @@ class LTPLE_Client {
 					exit;
 				}				
 			}
-			elseif( in_array( $post->post_type, $this->settings->options->postTypes ) ){
+			elseif( !empty($_REQUEST['t']) ){
+				
+				$path = $this->views . '/layer.php';
+			}
+			elseif( $this->layer->is_local_page($post) ){
 				
 				if(!is_numeric($post->layer_id)){
 				
@@ -941,7 +964,9 @@ class LTPLE_Client {
 				
 				if( $post->layer_id > 0 ){
 					
-					$path = $this->views . '/layer.php';
+					// custom page
+					
+					return $path;
 				}
 			}
 			elseif( file_exists($this->views . '/'.$post->post_type . '.php') ){
@@ -1265,7 +1290,7 @@ class LTPLE_Client {
 			}
 			
 			if( !empty($this->settings->mainColor) ){
-		
+			
 				echo' .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover{';	
 				
 					echo'background-color:'.$this->settings->mainColor.' !important;';
@@ -1281,6 +1306,45 @@ class LTPLE_Client {
 				echo'.nav-next a:hover, .nav-next a:hover, .nav-previous a:hover, .nav-previous a:hover{';
 					
 					echo'color:#fff !important;';
+					
+				echo'}';
+
+				echo'.single .entry-content {';
+				
+					echo'font-size: 16px;';
+					echo'line-height: 40px;';
+					
+				echo'}';			
+				
+				echo'.single .entry-content h1, .single .entry-content h2, .single .entry-content h3, .single .entry-content h4{';
+					
+					echo'color:' . $this->settings->mainColor . ' !important;';
+					echo'font-weight:bold !important;';
+				
+				echo'}';
+				
+				echo'.panel-header h1{';
+
+					echo'font-size: 24px;';
+				
+					if( $this->settings->titleBkg ){
+							
+						echo'font-weight: normal !important;';
+						echo'text-transform: uppercase !important;';
+						echo'padding: 45px 30px !important;';						
+							
+						echo'color:#fff !important;';
+						
+						echo'background-image: url(' . $this->settings->titleBkg . ') !important;';
+						echo'background-size: cover !important;';
+						echo'background-position: center center !important;';
+						echo'background-repeat: no-repeat !important;';
+						echo'background-repeat: no-repeat !important;';
+					}
+					else{
+						
+						echo'color:' . $this->settings->mainColor . ' !important;';
+					}
 					
 				echo'}';
 					
@@ -1336,58 +1400,7 @@ class LTPLE_Client {
 					echo'color:'.$this->settings->linkColor . ';';
 					
 				echo'}';				
-			}
-
-			echo'#dragitemslistcontainer {
-				
-				margin: 0;
-				padding: 0;
-				/*
-				height: 69px;
-				overflow: hidden;
-				border-bottom: 3px solid #eee;
-				background: rgb(201, 217, 231);
-				*/
-				width: 100%;
-				display:inline-block;
-			}
-
-			#dragitemslistcontainer li {
-				
-				float: left;
-				position: relative;
-				text-align: center;
-				list-style: none;
-				cursor: move; /* fallback if grab cursor is unsupported */
-				cursor: grab;
-				cursor: -moz-grab;
-				cursor: -webkit-grab;
-			}
-
-			#dragitemslistcontainer li:active {
-				cursor: grabbing;
-				cursor: -moz-grabbing;
-				cursor: -webkit-grabbing;
-			}
-
-			#dragitemslistcontainer span {
-				
-				float: left;
-				position: absolute;
-				left: 0;
-				right: 0;
-				background: rgba(0, 0, 0, 0.1);
-				color: #fff;
-				font-weight: bold;
-				padding: 3px;
-				font-size: 10px;
-				line-height: 9px;
-				margin: 48px 4px 0 4px;
-			}
-
-			#dragitemslistcontainer li img {
-				margin:3px 2px;
-			}';		
+			}	
 
 		echo'</style>'.PHP_EOL;
 		
@@ -2325,7 +2338,7 @@ class LTPLE_Client {
 
 								if( !empty($post_embedded) ){
 									
-									$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['p'].'&action=edit&ult='.urlencode($post_title).'&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id.$post_title);
+									$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['t'].'&action=edit&ult='.urlencode($post_title).'&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id.$post_title);
 								}
 								else{
 									
@@ -2559,7 +2572,7 @@ class LTPLE_Client {
 	 * @since   1.0.0
 	 * @return void
 	 */
-	public function enqueue_styles () {
+	public function enqueue_styles() {
 		
 		wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-jquery-ui' );		

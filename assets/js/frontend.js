@@ -142,9 +142,9 @@
 		
 		// set collapse
 
-		if( $('.collapse').length  > 0 ){
+		if( $('.navbar-collapse').length  > 0 ){
 		
-			$('.collapse').collapse({"toggle": false});
+			$('.navbar-collapse').collapse({"toggle": false});
 		}
 		
 		// set tooltips & popovers

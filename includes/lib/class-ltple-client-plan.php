@@ -381,10 +381,10 @@ class LTPLE_Client_Plan {
 					
 					$plan_form 		= '';
 					$plan_content 	= $atts['content'];
-					$style			= 'font-weight: bold;color: rgb(138, 206, 236);';
+					$style			= 'font-weight: bold;color:' . $this->parent->settings->mainColor . ';';
 				}
 				else{
-					
+					 
 					$plan_form 		= '';
 					$plan_content 	= $plan->post_content;
 					$style 			= 'margin-bottom: 0;padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);color: rgb(138, 206, 236);box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
@@ -1259,16 +1259,17 @@ class LTPLE_Client_Plan {
 		return $plans;		
 	}
 	
-	public function get_user_plan_id( $user_id, $create=false ){	
+	public function get_user_plan_id( $user_id, $create=false, $tax_query = array() ){	
 	
 		// get user plan id
 	
 		$q = get_posts(array(
 		
-			'author'      => $user_id,
-			'post_type'   => 'user-plan',
-			'post_status' => 'publish',
-			'numberposts' => 1
+			'author'      	=> $user_id,
+			'post_type'  	=> 'user-plan',
+			'post_status' 	=> 'publish',
+			'numberposts' 	=> 1,
+			'tax_query' 	=> $tax_query
 		));
 		
 		if(!empty($q)){
@@ -1639,8 +1640,15 @@ class LTPLE_Client_Plan {
 				
 				// update current user custom taxonomy
 				
-				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, true ) ){
-				
+				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, false, array(
+					array(
+						'taxonomy' 	=> $taxonomy,
+						'terms' 	=> $term_id,
+						'field' 	=> 'id',
+						'operator' 	=> 'NOT IN',
+					),				
+				))){
+
 					$response = wp_set_object_terms( $user_plan_id, array($term_id), $taxonomy, true );
 
 					clean_object_term_cache( $user_plan_id, $taxonomy );
@@ -1659,7 +1667,14 @@ class LTPLE_Client_Plan {
 				
 				// update current user custom taxonomy
 				
-				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, true ) ){
+				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, false, array(
+					array(
+						'taxonomy' 	=> $taxonomy,
+						'terms' 	=> $term_id,
+						'field' 	=> 'id',
+						'operator' 	=> 'NOT IN',
+					),				
+				))){
 				
 					$response = wp_set_object_terms( $user_plan_id, array($term_id), $taxonomy, true );
 
@@ -2113,6 +2128,10 @@ class LTPLE_Client_Plan {
 			}
 		}
 		elseif( $type == 'user-layer' ){
+			
+			$user_has_layer = true;
+		}
+		elseif( is_admin() ){
 			
 			$user_has_layer = true;
 		}

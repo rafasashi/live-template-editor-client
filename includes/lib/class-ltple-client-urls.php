@@ -255,6 +255,7 @@ class LTPLE_Client_Urls {
 			$profile = update_option( $this->parent->_base . 'profileSlug', get_post($post_id)->post_name );
 		}
 		
+		/*
 		if( defined('REW_PRIMARY_SITE') ){
 			
 			$this->profile 	= REW_PRIMARY_SITE . '/' . $profile . '/';
@@ -263,6 +264,9 @@ class LTPLE_Client_Urls {
 			
 			$this->profile 	= $this->home . '/' . $profile . '/';
 		}
+		*/
+		
+		$this->profile 	= $this->home . '/' . $profile . '/';
 		
 		// get ranking url
 		

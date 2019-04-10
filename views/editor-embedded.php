@@ -63,7 +63,7 @@
 		
 		echo'<body style="background:#f5f5f5;">';
 
-			if( !empty($this->layer->embedded['p']) ){
+			if( !empty($this->layer->embedded['t']) ){
 				
 				if(!empty($_SESSION['message'])){
 					
