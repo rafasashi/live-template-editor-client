@@ -46,8 +46,17 @@ class LTPLE_Client_Urls {
 		}
 		
 		add_filter('init', array( $this, 'init_urls'));
+		
+		add_filter('post_type_link', array( $this, 'parse_permalink'),1,2);
 	}
 	
+	public function parse_permalink( $post_link, $post ){
+			
+		$post_link = str_replace('%author%', $post->post_author, $post_link);
+						
+		return $post_link;
+	}
+		
 	public function init_urls(){
 		
 		// force permalink structure
@@ -234,40 +243,7 @@ class LTPLE_Client_Urls {
 		}
 		
 		$this->product 	= $this->home . '/' . $product . '/';
-		
-		// get profile url
-		
-		$profile = get_option( $this->parent->_base . 'profileSlug' );
-		
-		if( empty( $profile ) ){
-			
-			$post_id = wp_insert_post( array(
-			
-				'post_title' 		=> 'Profile',
-				'post_type'     	=> 'page',
-				'comment_status' 	=> 'closed',
-				'ping_status' 		=> 'closed',
-				'post_content' 		=> '[ltple-client-profile]',
-				'post_status' 		=> 'publish',
-				'menu_order' 		=> 0
-			));
-			
-			$profile = update_option( $this->parent->_base . 'profileSlug', get_post($post_id)->post_name );
-		}
-		
-		/*
-		if( defined('REW_PRIMARY_SITE') ){
-			
-			$this->profile 	= REW_PRIMARY_SITE . '/' . $profile . '/';
-		}
-		else{
-			
-			$this->profile 	= $this->home . '/' . $profile . '/';
-		}
-		*/
-		
-		$this->profile 	= $this->home . '/' . $profile . '/';
-		
+
 		// get ranking url
 		
 		if( $this->parent->settings->options->enable_ranking == 'on' ){

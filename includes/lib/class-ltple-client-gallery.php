@@ -230,38 +230,6 @@ class LTPLE_Client_Gallery {
 		return $this->all_ranges;
 	}
 	
-	public function get_type_addon_range($term){
-		
-		$term_id = 0;
-		
-		if( is_object($term) && !empty($term->term_id) ){
-			
-			$term_id = $term->term_id;
-		}
-		elseif( is_numeric($term) ){
-			
-			$term_id = intval($term);
-		}
-		elseif($term = get_term_by('slug',$term,'layer-type')){
-			
-			$term_id = $term->term_id;
-		}
-		
-		$addon_range = null;
-		
-		if( $term_id > 0 ){
-		
-			$id = intval(get_term_meta($term_id,'addon_range',true));
-			
-			if( $id > 0 ){
-				
-				$addon_range = get_term_by('id',$id,'layer-range');
-			}
-		}
-		
-		return $addon_range;
-	}
-	
 	public function get_type_ranges($layer_type,$addon_range=null){
 		
 		$ranges = [];
@@ -528,9 +496,9 @@ class LTPLE_Client_Gallery {
 						
 						if( $this->parent->inWidget === true ){
 							
-							if($this->parent->plan->user_has_layer( $post->ID ) === true){
+							if($this->parent->plan->user_has_layer( $post ) === true){
 								
-								$item.='<a target="_blank" class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+								$item.='<a target="_blank" class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 							}
 							else{
 								
@@ -573,7 +541,7 @@ class LTPLE_Client_Gallery {
 									  
 										$item.='<div class="modal-body">'.PHP_EOL;
 											
-											if( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post->ID ) === true ){
+											if( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post ) === true ){
 												
 												$item.= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
 
@@ -590,7 +558,7 @@ class LTPLE_Client_Gallery {
 										
 											if($this->parent->user->loggedin){
 
-												$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+												$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 											}
 											else{
 												
@@ -611,9 +579,9 @@ class LTPLE_Client_Gallery {
 						
 							if($this->parent->user->loggedin){
 								
-								if($this->parent->plan->user_has_layer( $post->ID ) === true){
+								if($this->parent->plan->user_has_layer( $post ) === true){
 									
-									$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+									$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 								}
 								else{
 									

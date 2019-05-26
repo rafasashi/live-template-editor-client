@@ -51,6 +51,8 @@
 		
 			echo'<ul class="nav nav-tabs tabs-left">';
 				
+				echo'<li class="gallery_type_title gallery_head">Media Library</li>';
+				
 				echo'<li class="gallery_type_title">Images</li>';
 				
 				echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/?output='.$output.'">Image Library</a></li>';

@@ -197,6 +197,7 @@ class LTPLE_Client {
 			
 			$this->element 	= new LTPLE_Client_Element( $this );
 			$this->layer 	= new LTPLE_Client_Layer( $this );
+			$this->tutorials = new LTPLE_Client_Tutorials( $this );
 			
 			$this->services = new LTPLE_Client_Services( $this );			
 			$this->plan 	= new LTPLE_Client_Plan( $this );
@@ -221,7 +222,7 @@ class LTPLE_Client {
 			else{
 				
 				add_action( 'init', array( $this, 'init_frontend' ));
-			}			
+			}
 		}
 
 	} // End __construct ()
@@ -544,7 +545,7 @@ class LTPLE_Client {
 	
 		add_filter('manage_user-image_posts_columns', array( $this, 'set_user_image_columns'));
 		add_action('manage_user-image_posts_custom_column', array( $this, 'add_user_image_column_content'), 10, 2);
-		
+				
 		//get current user
 		
 		$this->user = wp_get_current_user();
@@ -866,7 +867,7 @@ class LTPLE_Client {
 
 		if($column_name === 'image') {
 			
-			$post = get_post($post_id);
+			global $post;
 			
 			echo '<img src="' . $post->post_content . '" style="width:100px;" />';
 		}		
@@ -913,7 +914,7 @@ class LTPLE_Client {
 					
 					$path = $this->views . '/layer.php';
 				}
-				elseif( $this->plan->user_has_layer( $post->ID ) === true && $this->user->loggedin ){
+				elseif( $this->plan->user_has_layer( $post ) === true && $this->user->loggedin ){
 					
 					$path = $this->views . '/layer.php';
 				}
@@ -1018,12 +1019,8 @@ class LTPLE_Client {
 
 		$this->user->plan 		= $this->plan->get_user_plan_info( $this->user->ID );
 		
-		$this->user->has_layer 	= $this->plan->user_has_layer( $this->layer->id, $this->layer->type );
-		
-		// count user templates
-			
-		$this->user->layerCount = intval( count_user_posts( $this->user->ID, 'user-layer' ) );
-		
+		$this->user->has_layer 	= $this->plan->user_has_layer( $this->layer->id );
+
 		// Custom default layer post
 		
 		if( $this->layer->defaultId > 0 ){
@@ -1358,10 +1355,25 @@ class LTPLE_Client {
 					
 				echo'}';
 				
-				echo ' .bs-callout-primary, .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
+				echo ' .bs-callout {';
+					
+					echo 'background-color:#fff !important;';
+					
+				echo'}';
+				
+				echo ' .bs-callout-primary{';
 				
 					echo'border-left: 5px solid '.$this->settings->mainColor . ' !important;';
+					
+				echo'}';				
 				
+				echo ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
+				
+					echo'border-left: 5px solid '.$this->settings->mainColor . ' !important;';
+					echo'background-color: #fbfbfb !important;';
+					echo'margin-top: -1px;';
+					echo'padding: 12px;';
+					
 				echo'}';
 				
 				echo ' .bs-callout-primary h4{';
@@ -1378,11 +1390,87 @@ class LTPLE_Client {
 				
 				echo' .gallery_type_title {';
 				
-					echo'color:rgb(146, 144, 144);';
-					echo'background-color:rgb(242, 242, 242) !important;';
+					echo'color: #4276a0;';
+					echo'border: none !important;';
+					echo'background-color: #fff !important;';
+					echo'font-size:13px;';
+					echo'box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);';
+					echo'height:41px;';
+					echo'text-transform: uppercase;';
+						
+				echo'}';
+				
+				echo'.gallery_head {';
+					
+					echo'background-color:#4276a0 !important;';
+					echo'color:#fff !important;';
 				
 				echo'}';
-
+				
+				echo'#plan_table table {';
+					
+					echo'width: 100%;';
+					
+				echo'}';
+				
+				echo'#plan_table table th {';
+				
+					//echo'background-color: '.$this->settings->mainColor . ';';
+					echo'background-color: #4276a0;';
+					echo'color: #fff;';
+					echo'font-weight: bold;';
+					
+				echo'}';
+			
+				echo'#plan_table table .badge{';
+				
+					echo'font-size: 17px;';
+					echo'padding: 2px 8px;';
+					echo'border-radius: 5px;';
+					echo'line-height: 15px;';
+					echo'margin-top: -2px;';
+					
+				echo'}';
+			
+				echo'#plan_table table th .badge{';
+				
+					echo'background-color: #fff;';
+					//echo'color: '.$this->settings->mainColor . ';';
+					echo'color: #4276a0;';
+					
+				echo'}';
+				
+				echo'#plan_table table td .badge{';
+				
+					echo'background-color: #4276a0;';
+					echo'color: #fff;';
+					
+				echo'}';
+				
+				echo'#plan_table table td {';
+				
+					echo'font-size: 19px;';
+					echo'color: #4276a0;';
+					
+				echo'}';
+				
+				echo'#plan_table .plan_section {';
+					
+					echo'color: '.$this->settings->mainColor . ';';
+					echo'font-size: 22px;';
+					echo'font-weight: normal;';
+					echo'display: block;';
+					echo'cursor: pointer;';
+					echo'width: 100%;';
+					echo'text-align: left;';
+					echo'border: none;';
+					echo'background: #fff;';
+					echo'padding: 20px;';
+					echo'margin: 15px 0 15px 0;';
+					echo'box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);';
+				
+				echo'}';
+				
 				if( is_plugin_active('wpforo/wpforo.php') ){
 					
 					echo' #wpforo-wrap .wpfl-1 .wpforo-category, #wpforo-wrap .wpfl-2 .wpforo-category, #wpforo-wrap .wpfl-3 .wpforo-category {';
@@ -1432,7 +1520,7 @@ class LTPLE_Client {
 
 			$home  = '<div id="header_logo">';
 			
-				$home .= '<a href="' . $this->urls->home . '">';
+				$home .= '<a href="' . ( $this->user->loggedin ? $this->urls->dashboard : $this->urls->home )  . '">';
 					
 					$home .= '<img src="' . ( !empty($this->settings->options->logo_url) ? $this->settings->options->logo_url : $this->assets_url . 'images/home.png' ) . '">';
 
@@ -1523,51 +1611,51 @@ class LTPLE_Client {
 
 			include($this->views . '/apps.php');
 		}
+		else{
+			
+			echo $this->login->get_form();
+		}
 	}
 	
 	public function get_editor_shortcode(){
 		
 		include($this->views . '/navbar.php');
 		
-		if($this->user->loggedin){	
-			
-			$this->viewIncluded = false;			
+		if($this->user->loggedin){
 			
 			if( isset($_GET['rewards']) ){
 
 				include($this->views . '/rewards.php');
-								
-				$this->viewIncluded = true;	
 			}
 			elseif( isset($_GET['my-profile']) ){
 				
 				include($this->views . '/billing.php');
-								
-				$this->viewIncluded = true;	
 			}			
 			elseif( $this->layer->id > 0 ){
 				
-				if( $this->user->has_layer ){
+				if( $this->user->has_layer || $this->user->is_admin ){
 					
-					include( $this->views . '/editor.php' );
-									
-					$this->viewIncluded = true;	
+					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
+						
+						include( $this->views . '/edit.php' );
+					}
+					else{
+					
+						include( $this->views . '/editor.php' );
+					}
 				}
 				else{
 					
 					include($this->views . '/upgrade.php');
 					
 					include($this->views . '/gallery.php');
-					
-					$this->viewIncluded = true;	
 				}
 			}
-			else{
+			elseif( !empty($_REQUEST['list']) ){
 				
-				do_action('ltple_editor');
-			}			
-			
-			if(!$this->viewIncluded){
+				include( $this->views . '/list.php' );
+			}
+			else{
 				
 				include($this->views . '/gallery.php');
 			}
@@ -1736,9 +1824,9 @@ class LTPLE_Client {
 	
 	public function update_user_layer(){	
 		
-		if( $this->user->loggedin && !empty($this->layer->id) ){
-
-			if( $this->layer->type == 'user-layer' && empty( $this->user->layer ) ){
+		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
+			
+			if( $this->layer->type == $this->layer->layerStorage && empty( $this->user->layer ) ){
 				
 				//--------cannot be found --------
 				
@@ -1750,7 +1838,7 @@ class LTPLE_Client {
 				
 				include( $this->views . '/message.php' );					
 			}
-			elseif( $this->layer->type == 'user-layer' && $this->user->layer->post_author != $this->user->ID && !$this->user->is_admin ){
+			elseif( $this->layer->type == $this->layer->layerStorage && $this->user->layer->post_author != $this->user->ID && !$this->user->is_admin ){
 				
 				//--------permission denied--------
 				
@@ -1762,7 +1850,109 @@ class LTPLE_Client {
 				
 				include( $this->views . '/message.php' );					
 			}
-			elseif( $this->layer->type == 'user-layer' && isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
+			elseif( $this->layer->type == $this->layer->layerStorage && isset($_POST['postAction'])&& $_POST['postAction']=='edit' ){
+						
+				if( !empty($_POST['id']) ){
+					
+					// edit post
+					
+					$post_id = intval($_POST['id']);
+					
+					if( $post = get_post($post_id) ){
+						
+						if( $this->user->is_admin || intval($post->post_author) == $this->user->ID ){
+							
+							if( !empty($_POST['image_url']) ){
+								
+								//upload image
+								
+								$this->image->upload_post_image($_POST['image_url'],$post_id,'seller');
+							}
+							
+							//update main data
+							
+							$args = array();
+							
+							if( !empty($_POST['post_title']) ){
+								
+								$args['post_title'] = $_POST['post_title'];
+							}
+							
+							if( !empty($_POST['post_status']) ){
+								
+								$args['post_status'] = $_POST['post_status'];
+							}
+							
+							if( !empty($args) ){
+								
+								$time = current_time('mysql');
+								
+								$args['ID'] 			= $post_id;
+								$args['post_date'] 		= $time;
+								$args['post_date_gmt'] 	= get_gmt_from_date( $time );
+		
+								wp_update_post($args);
+							}
+							
+							if( $post->post_type == 'cb-default-layer' ){
+							
+								$fields = $this->layer->get_default_layer_fields($post);
+							}
+							else{
+								
+								$fields = $this->layer->get_user_layer_fields($post);
+							}
+							
+							if( !empty($fields) ){
+								
+								foreach( $fields as $field ){
+								
+									if( !empty($field['metabox']['taxonomy']) ){
+										
+										//update terms
+										
+										$taxonomy = $field['metabox']['taxonomy'];
+										
+										if( isset($_POST['tax_input'][$taxonomy]) ){
+											
+											$terms = array();
+											
+											if( is_string($_POST['tax_input'][$taxonomy]) ){
+												
+												$terms = array($_POST['tax_input'][$taxonomy]);
+											}
+											elseif( is_array($_POST['tax_input'][$taxonomy]) ){
+												
+												$terms = $_POST['tax_input'][$taxonomy];
+											}
+											
+											wp_set_post_terms( $post_id, $terms, $taxonomy, false );
+										}
+									}
+									elseif( isset($_POST[$field['id']]) ){
+											
+										//update meta
+											
+										update_post_meta($post_id,$field['id'],$_POST[$field['id']]);
+									}
+								}
+							}
+							
+							do_action('ltple_edit_layer');
+						}
+					}
+					
+					$redirect_url = add_query_arg( array( 
+					
+						'edited' => '',
+					
+					), $this->urls->current);
+					
+					wp_redirect($redirect_url);
+					exit;
+				}
+			}
+			elseif( $this->layer->type == $this->layer->layerStorage && isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
 				
 				// get local images
 			
@@ -1825,7 +2015,11 @@ class LTPLE_Client {
 					$_SESSION['message'] .= '</div>';
 				}
 				else{
-
+					
+					// get layer type
+					
+					$layer_type = $this->layer->get_layer_type($this->user->layer);
+					
 					//delete images
 					
 					foreach ($images as $image) {
@@ -1865,6 +2059,11 @@ class LTPLE_Client {
 
 					unset($params['uri'],$params['postAction']);
 					
+					if( !empty($layer_type->storage) ){
+						
+						$params['list'] = $layer_type->storage;
+					}
+					
 					$url = $this->urls->editor;
 					
 					$query = http_build_query($params);
@@ -1901,14 +2100,14 @@ class LTPLE_Client {
 				$post_settings 	= ( !empty($_POST['postSettings']) 	? json_decode(stripcslashes($_POST['postSettings']),true): '' );
 				
 				$post_name 	= $post_title;			
-
+				
 				if( $_POST['postAction'] == 'update' ){
 					
 					//update layer
 					
 					if( $this->user->is_editor ){
 					
-						if( $this->layer->type == 'user-layer' ){
+						if( $this->layer->type == $this->layer->layerStorage ){
 							
 							$layer	= get_page_by_path( $this->layer->slug, OBJECT, $this->layer->type);
 						}
@@ -1959,7 +2158,7 @@ class LTPLE_Client {
 
 					$layer = '';
 					
-					if( $this->layer->type == 'user-layer' ){
+					if( $this->layer->type == $this->layer->layerStorage ){
 						
 						$layer	= get_page_by_path( $this->layer->slug, OBJECT, $this->layer->type);
 					}
@@ -2248,45 +2447,47 @@ class LTPLE_Client {
 						$post_author	= $this->user->layer->post_author;
 						$post_title		= $this->user->layer->post_title;
 						$post_name		= $this->user->layer->post_name;
+						$post_status 	= $this->user->layer->post_status;
 						$post_type		= $this->layer->type; // user-layer, post, page...
 						
 						$defaultLayerId	= intval(get_post_meta( $post_id, 'defaultLayerId', true));
 					}
 					else{
 						
-						$post_type		= 'user-layer';
+						$post_type		= $this->layer->layerStorage;
+						
+						if( $post_type == 'user-menu' ){
+							
+							$post_status = 'publish';
+						}
+						else{
+							
+							$post_status = ( $this->layer->layerOutput == 'hosted-page' ? 'draft' : 'publish' );
+						}
+						
 						$defaultLayer 	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 						
 						if( !empty($defaultLayer) ){
 						
 							if( empty($post_title) ){
 							
-								$post_title 	= $defaultLayer->post_title;
+								$post_title = $defaultLayer->post_title;
 							}
 							
 							if( empty($post_content) ){
 							
-								$post_content 	= $defaultLayer->post_content;
+								$post_content = $defaultLayer->post_content;
 							}
 							
 							$post_author = $this->user->ID;
 							
-							if( $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates'] ){
+							if( !$this->plan->remaining_storage_amount($defaultLayer) > 0 ){
 								
+								$layer_type = $this->layer->get_layer_type($defaultLayer);
+
 								$this->message ='<div class="alert alert-danger">';
 								
-									if( $this->user->plan['info']['total_storage']['templates'] == 1 ){
-										
-										$this->message .= 'You can\'t save more than ' . $this->user->plan['info']['total_storage']['templates'] . ' template with the current plan...';
-									}
-									elseif( $this->user->plan['info']['total_storage']['templates'] == 0 ){
-										
-										$this->message .= 'You can\'t save templates with the current plan...';
-									}
-									else{
-										
-										$this->message .= 'You can\'t save more than ' . $this->user->plan['info']['total_storage']['templates'] . ' templates with the current plan...';
-									}
+									$this->message .= 'You can\'t save more <b>' . $layer_type->name . '</b> projects with the current plan...';
 
 								$this->message .='</div>';
 								
@@ -2306,6 +2507,8 @@ class LTPLE_Client {
 					
 					if( $post_title!='' && is_int($defaultLayerId) && $defaultLayerId > 0 ){
 						
+						$time = current_time('mysql');
+						
 						$post_id = wp_update_post(array(
 							
 							'ID' 			=> $post_id,
@@ -2313,7 +2516,9 @@ class LTPLE_Client {
 							'post_title' 	=> $post_title,
 							'post_name' 	=> $post_name,
 							'post_type' 	=> $post_type,
-							'post_status' 	=> 'publish'
+							'post_status' 	=> $post_status,
+							'post_date' 	=> $time,
+							'post_date_gmt' => get_gmt_from_date($time),
 						));
 						
 						if( is_numeric($post_id) ){
@@ -2340,6 +2545,10 @@ class LTPLE_Client {
 									
 									$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['t'].'&action=edit&ult='.urlencode($post_title).'&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id.$post_title);
 								}
+								elseif( $this->layer->layerOutput == 'hosted-page' ){
+									
+									$user_layer_url = $this->urls->editor . '?action=edit&uri=' . $post_id;
+								}
 								else{
 									
 									$user_layer_url = $this->urls->editor . '?uri=' . $post_id;
@@ -2364,7 +2573,7 @@ class LTPLE_Client {
 						echo 'Error saving user layer...';
 						exit;
 					}
-				}	
+				}
 				else{
 					
 					http_response_code(404);
@@ -2605,7 +2814,7 @@ class LTPLE_Client {
 		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap-js' );			
 		
-		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery' ), time() );
+		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-frontend' );
 		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
@@ -2639,8 +2848,8 @@ class LTPLE_Client {
 	 */
 	public function admin_enqueue_styles ( $hook = '' ) {
 	
-		wp_register_style( $this->_token . '-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-admin' );
+		wp_register_style( $this->_token . '-server-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-server-admin' );
 		
 		wp_register_style( $this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'css/bootstrap.min.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-bootstrap' );	
@@ -2657,8 +2866,8 @@ class LTPLE_Client {
 		
 		wp_enqueue_script('jquery-ui-sortable');
 		
-		wp_register_script( $this->_token . '-admin', esc_url( $this->assets_url ) . 'js/admin' . $this->script_suffix . '.js', array( 'jquery' ), $this->_version );
-		wp_enqueue_script( $this->_token . '-admin' );
+		wp_register_script( $this->_token . '-client-admin', esc_url( $this->assets_url ) . 'js/admin.js', array( 'jquery' ), $this->_version );
+		wp_enqueue_script( $this->_token . '-client-admin' );
 
 		wp_register_script($this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap' );		

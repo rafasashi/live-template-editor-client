@@ -31,7 +31,7 @@ class LTPLE_Client_Dashboard {
 					'content' 	=> $this->get_recent_posts(array(
 
 						'post_type' 	=> 'cb-default-layer',
-						'numberposts' 	=> 4,
+						'numberposts' 	=> 10,
 						'meta_query' 	=> array(
 						
 							array(
@@ -48,7 +48,7 @@ class LTPLE_Client_Dashboard {
 					'content' 	=> $this->get_recent_posts(array(
 
 						'post_type' 	=> 'post',
-						'numberposts' 	=> 4,
+						'numberposts' 	=> 10,
 						
 					)),
 				),					
@@ -71,6 +71,10 @@ class LTPLE_Client_Dashboard {
 
 			include($this->parent->views . '/dashboard.php');
 		}
+		else{
+			
+			echo $this->parent->login->get_form();
+		}
 	}
 	
 	public function get_widget_box($content,$title='',$class='col-xs-12 col-sm-6 col-md-4'){
@@ -81,14 +85,11 @@ class LTPLE_Client_Dashboard {
 		
 			$widget_box .= '<div class="'.$class.'">';
 				
-				$widget_box .= '<div class="panel panel-default">';
+				$widget_box .= '<h4 style="border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:10px;color:#888;">'.$title.'</h4>';				
 				
-					$widget_box .= '<div class="panel panel-body">';
-						
-						if( !empty($title) ){
-						
-							$widget_box .= '<h4>'.$title.'</h4>';
-						}
+				$widget_box .= '<div class="panel panel-default" style="padding:10px !important;">';
+				
+					$widget_box .= '<div class="panel-body" style="padding:0 !important;height:310px !important;overflow-x:hidden !important;overflow-y:auto !important;">';
 						
 						$widget_box .= $content;
 						
@@ -160,6 +161,56 @@ class LTPLE_Client_Dashboard {
 		}
 
 		return $recent_posts;
+	}
+	
+	public function get_sidebar( $currentTab = 'home', $output = '' ){
+			
+		$sidebar =  '<div id="sidebar">';
+			
+			$sidebar .= '<ul class="nav nav-tabs tabs-left">';
+
+				$sidebar .= '<li class="gallery_type_title gallery_head">Dashboard</li>';
+				
+				$sidebar .= '<li class="gallery_type_title">Manage</li>';
+				
+				$sidebar .= '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '">Overview</a></li>';
+				
+				$sidebar .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->profile .'">Profile Settings</a></li>';
+				
+				$sidebar .= '<li><a href="' . $this->parent->urls->media .'user-images/">Media Library</a></li>';
+				
+				$sidebar = apply_filters('ltple_dashboard_manage_sidebar',$sidebar,$currentTab,$output);
+				
+				$sidebar .= '<li class="gallery_type_title">Design</li>';
+				
+				$sidebar .= '<li><a href="' . $this->parent->urls->editor . '?list=user-layer">Templates</a></li>';
+				
+				$sidebar .= '<li><a href="' . $this->parent->urls->editor . '?list=user-psd">Images</a></li>';
+				
+				//$sidebar .= '<li><a href="' . $this->parent->urls->editor . '?layer[output]=canvas">Memes & Collages</a></li>';
+				
+				//$sidebar .= '<li><a href="' . $this->parent->urls->media . '">Media Library</a></li>';
+				
+				$sidebar = apply_filters('ltple_dashboard_design_sidebar',$sidebar,$currentTab,$output);
+
+					$sidebar .= '<li class="gallery_type_title">Publish</li>';
+							
+					$sidebar .= '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->editor . '?list=user-page">Hosted Pages</a></li>';
+				
+
+				$sidebar = apply_filters('ltple_dashboard_publish_sidebar',$sidebar,$currentTab,$output);
+
+				$sidebar .= '<li class="gallery_type_title">Connect</li>';
+
+				$sidebar = apply_filters('ltple_dashboard_connect_sidebar',$sidebar,$currentTab,$output);
+				
+				$sidebar = apply_filters('ltple_dashboard_sidebar',$sidebar,$currentTab,$output);
+				
+			$sidebar .= '</ul>';
+			
+		$sidebar .= '</div>';
+		
+		return $sidebar;
 	}
 	
 	/**

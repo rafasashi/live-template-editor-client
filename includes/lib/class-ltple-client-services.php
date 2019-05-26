@@ -200,29 +200,6 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 					update_option('price_period_' . $term->slug, $period);	
 				}
 			}
-
-			/*
-			if(isset($_POST[$term->taxonomy .'-storage-amount'])&&is_numeric($_POST[$term->taxonomy .'-storage-amount'])){
-
-				update_option('storage_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0));			
-			}
-			
-			if(isset($_POST[$term->taxonomy .'-storage-unit'])){
-
-				$storage_units = $this->parent->plan->get_storage_units();
-				$storage_unit = sanitize_text_field($_POST[$term->taxonomy . '-storage-unit']);
-				
-				if(isset($periods[$period])){			
-				
-					update_option('storage_unit_' . $term->slug, $storage_unit);			
-				}
-			}
-		
-			if(isset($_POST[$term->taxonomy . '-meta'])){
-
-				update_option('meta_'.$term->slug, $_POST[$term->taxonomy . '-meta']);			
-			}
-			*/
 		}
 	}
 }

@@ -43,14 +43,6 @@
 
 		$this->parent->plan->options = array();
 		
-		foreach( $this->taxonomies['layer-type']['terms'] as $term ){
-			
-			if($term['has_term']){
-				
-				$this->parent->plan->options[] = $term['slug'];
-			}
-		}
-		
 		foreach( $this->taxonomies['layer-range']['terms'] as $term ){
 			
 			if($term['has_term']){
@@ -58,8 +50,8 @@
 				$this->parent->plan->options[] = $term['slug'];
 			}
 		}
-
-		$has_layer = $this->parent->plan->user_has_layer( $this->ID );
+		
+		$has_layer = $this->parent->plan->user_has_layer( $this );
 
 		$from_amount = null;
 		
@@ -160,7 +152,7 @@
 											
 												if( $this->parent->user->loggedin  && $has_layer === true ){
 
-													echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+													echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 												}
 												
 											echo'</div>'.PHP_EOL;
@@ -175,7 +167,7 @@
 									
 									if( $has_layer === true){
 										
-										echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+										echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 									}
 									else{
 										

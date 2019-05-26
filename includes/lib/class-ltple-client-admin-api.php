@@ -40,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 			// Check for prefix on option name
 			
-			$option_name = ( isset( $data['prefix'] ) ? $data['prefix'] : '' );
+			$option_name = ( isset( $data['prefix'] ) ? $data['prefix'] : '' ) . $field['id'];
 
 			// Get saved data
 			
@@ -50,7 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				$data = $field['data'];
 				
-				$option_name .= $field['id'];
+				
 			}
 			elseif( !empty($field['callback']) ){
 				
@@ -62,69 +62,37 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				// Get saved field data
 				
-				$option_name .= $field['id'];
-				
-				if( isset($item->{$field['id']}) ){
-					
-					$option = $item->{$field['id']};
-					
-				}
-				else{
-					
-					$option = get_user_meta( $item->ID, $field['id'], true );
-					
-				}
-				
-				// Get data to display in field
-				if ( isset( $option ) ) {
-					
-					$data = $option;
-				}
-
+				$data = get_user_meta( $item->ID, $field['id'], true );
 			} 
 			elseif ( !empty($item->ID) ) {
 
 				// Get saved field data
 				
-				$option_name .= $field['id'];
-				
-				$option = get_post_meta( $item->ID, $field['id'], true );
-
-				// Get data to display in field
-				if ( isset( $option ) ) {
-					$data = $option;
-				}
-
+				$data = get_post_meta( $item->ID, $field['id'], true );
 			}
 			elseif ( !empty($item->term_id) ) {
 
 				// Get saved field data
 				
-				$option_name .= $field['id'];
-				
-				$option = get_term_meta( $item->term_id, $field['id'], true );
-
-				// Get data to display in field
-				if ( isset( $option ) ) {
-					
-					$data = $option;
-				}
-
+				$data = get_term_meta( $item->term_id, $field['id'], true );
 			} 
 			else{
 
 				// Get saved option
 				
-				$option_name .= $field['id'];
-				
-				$option = get_option( $option_name );
+				$data = get_option( $option_name );
+			}
+			
+			// Show default data if no option saved and default is supplied
 
-				// Get data to display in field
+			if( $data === '' && isset( $field['default'] ) ) {
 				
-				if ( isset( $option ) ) {
-					
-					$data = $option;
-				}
+				$data = $field['default'];
+				
+			} 
+			elseif ( $data === false ) {
+				
+				$data = '';
 			}
 			
 			// get field id
@@ -147,18 +115,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			if( !empty($field['class']) ){
 				
 				$class = ' class="'.$field['class'].'"';
-			}
-
-			// Show default data if no option saved and default is supplied
-
-			if( $data === '' && isset( $field['default'] ) ) {
-				
-				$data = $field['default'];
-				
-			} 
-			elseif ( $data === false ) {
-				
-				$data = '';
 			}
 			
 			$disabled = ( ( isset($field['disabled']) && $field['disabled'] === true ) ? ' disabled="disabled"' : '' );
@@ -377,122 +333,146 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					//$html .= '<hr/>';
 					
 					if( empty($data) || !is_numeric($data) ){
-
-						$layers = get_posts(array( 
-					
-							'post_type' 	=> 'cb-default-layer', 
-							'posts_per_page'=> -1				
-						));
 						
-						if( !empty( $layers ) ){
+						$postTypes = $this->parent->layer->postTypes;
+						
+						if( !empty($item) && in_array($item->post_type,$postTypes) ){
 							
-							$items = [];
+							// get valid output
 							
-							foreach( $layers as $layer ){
+							$valid_output = 'hosted-page';
+							
+							if( $item->post_type == 'email-model' ){
 								
-								$layer_type = $this->parent->layer->get_layer_type($layer);
-								
-								if( $layer_type->output == 'hosted-page' ){
-									
-									$item = '';
-									
-									$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4",$layer->ID) ) . '" id="post-' . $layer->ID . '">';
-										
-										$item.='<div class="panel panel-default">';
-											
-											$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($layer) . ');height:120px;background-size:cover;background-repeat:no-repeat;background-position:top center;"></div>'; //thumb_wrapper
-											
-											$item.='<div class="panel-body" style="height:50px;overflow:hidden;">';
-												
-												$item.='<b>' . $layer->post_title . '</b>';
-												
-											$item.='</div>';
-											
-											$item.='<div class="panel-footer text-right">';
-
-												if( intval($data) == $layer->ID ){
-
-													$item.='<button type="button" class="btn btn-xs btn-success layer-selected" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
-														
-														$item.='Selected'.PHP_EOL;
-													
-													$item.='</button>'.PHP_EOL;																			
-												}
-												else{
-													
-													$item.='<button type="button" class="btn btn-xs btn-warning" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
-														
-														$item.='Select'.PHP_EOL;
-													
-													$item.='</button>'.PHP_EOL;										
-												}
-
-											$item.='</div>';
-										
-										$item.='</div>';
-										
-									$item.='</div>';
-
-									$items[$layer_type->slug][]=$item;
-								}
+								$valid_output = 'inline-css';
 							}
 							
-							if( !empty($items) ){
+							// get layers
+							
+							$layers = get_posts( array( 
+						
+								'post_type' 		=> 'cb-default-layer', 
+								'posts_per_page'	=> -1,
+								/*
+								'tax_query'			=> array(
 								
-								$html .= '<ul class="nav nav-tabs" role="tablist" style="margin-top:10px;">';
+									'taxonomy' 	=> 'layer-type',
+									'terms' 	=> $layerTypes, // how to get them?
+									'field' 	=> 'slug'
+								)
+								*/
+							));
 
-									$active=' class="active"';
+							if( !empty( $layers ) ){
+								
+								$items = [];
+								
+								foreach( $layers as $layer ){
 									
-									foreach($items as $type => $type_items){
+									$layer_type = $this->parent->layer->get_layer_type($layer);
+									
+									if( $layer_type->output == $valid_output ){
 										
-										$html .= '<li role="presentation"'.$active.'><a href="#' . $type . '" aria-controls="' . $type . '" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$type)).'</a></li>';
+										$item = '';
 										
-										$active='';
+										$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4",$layer->ID) ) . '" id="post-' . $layer->ID . '">';
+											
+											$item.='<div class="panel panel-default">';
+												
+												$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($layer) . ');height:120px;background-size:cover;background-repeat:no-repeat;background-position:top center;"></div>'; //thumb_wrapper
+												
+												$item.='<div class="panel-body" style="height:50px;overflow:hidden;">';
+													
+													$item.='<b>' . $layer->post_title . '</b>';
+													
+												$item.='</div>';
+												
+												$item.='<div class="panel-footer text-right">';
+
+													if( intval($data) == $layer->ID ){
+
+														$item.='<button type="button" class="btn btn-xs btn-success layer-selected" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
+															
+															$item.='Selected'.PHP_EOL;
+														
+														$item.='</button>'.PHP_EOL;																			
+													}
+													else{
+														
+														$item.='<button type="button" class="btn btn-xs btn-warning" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
+															
+															$item.='Select'.PHP_EOL;
+														
+														$item.='</button>'.PHP_EOL;										
+													}
+
+												$item.='</div>';
+											
+											$item.='</div>';
+											
+										$item.='</div>';
+
+										$items[$layer_type->slug][]=$item;
 									}
-
-								$html .= '</ul>';	
-
-								$html .= '<div class="tab-content row" style="margin-top:10px;">';
-
-									$active=' active';
+								}
 								
-									foreach($items as $type => $type_items){
-										
-										$html .= '<div role="tabpanel" class="tab-pane'.$active.'" id="' . $type . '">';
-										
-										foreach($type_items as $item){
+								if( !empty($items) ){
+									
+									$html .= '<ul class="nav nav-tabs" role="tablist" style="margin-top:10px;">';
 
-											$html .= $item;
+										$active=' class="active"';
+										
+										foreach($items as $type => $type_items){
+											
+											$html .= '<li role="presentation"'.$active.'><a href="#' . $type . '" aria-controls="' . $type . '" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$type)).'</a></li>';
+											
+											$active='';
+										}
+
+									$html .= '</ul>';	
+
+									$html .= '<div class="tab-content row" style="margin-top:10px;">';
+
+										$active=' active';
+									
+										foreach($items as $type => $type_items){
+											
+											$html .= '<div role="tabpanel" class="tab-pane'.$active.'" id="' . $type . '">';
+											
+											foreach($type_items as $item){
+
+												$html .= $item;
+											}
+											
+											$html .= '</div>';
+											
+											$active='';
 										}
 										
-										$html .= '</div>';
-										
-										$active='';
-									}
+									$html .= '</div>';
 									
-								$html .= '</div>';
-								
-								$html .= '<script>';
-								
-									$html .= ';(function($){';
-										
-										$html .= '$(document).ready(function(){';
+									$html .= '<script>';
+									
+										$html .= ';(function($){';
+											
+											$html .= '$(document).ready(function(){';
 
-											$html .= '$(\'[data-toggle="layer"]\').on(\'click\', function (e) {';
-												
-												$html .= '$(".layer-selected").html("Select").removeClass("btn-success layer-selected").addClass("btn-warning");';
-												
-												$html .= '$(this).html("Selected").removeClass("btn-warning").addClass("btn-success layer-selected");';
-												
-												$html .= '$("#defaultLayerId").val($(this).data(\'target\'));';
-												
-											$html .= '});';							
-										
-										$html .= '});';
-										
-									$html .= '})(jQuery);';								
-								
-								$html .= '</script>';
+												$html .= '$(\'[data-toggle="layer"]\').on(\'click\', function (e) {';
+													
+													$html .= '$(".layer-selected").html("Select").removeClass("btn-success layer-selected").addClass("btn-warning");';
+													
+													$html .= '$(this).html("Selected").removeClass("btn-warning").addClass("btn-success layer-selected");';
+													
+													$html .= '$("#defaultLayerId").val($(this).data(\'target\'));';
+													
+												$html .= '});';							
+											
+											$html .= '});';
+											
+										$html .= '})(jQuery);';								
+									
+									$html .= '</script>';
+								}
 							}
 						}
 					}
@@ -508,172 +488,181 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$total_price_currency	='$';
 					
 					$html .= '<table class="widefat fixed striped" style="border:none;">';
-					
-					foreach ( $field['options'] as $taxonomy => $terms ) {
+						
+						foreach ( $field['options'] as $taxonomy => $terms ) {
+							
+							$html .= '<tr>';
+							
+								$html .= '<th style="width:100%;font-weight:bold;">';
+									
+									$html .= '<div for="' . $taxonomy . '">'.$taxonomy.'</div> ';
+										
+								$html .= '</th>';
+
+							$html .= '</tr>';
+							
+							$html .= '<tr>';
+		
+								// attribute column
+								
+								$html .= '<td style="width:100%;">';
+									
+									$html .= '<table style="width:100%;">';
+										
+										foreach( $terms as $term ){
+											
+											$html .= '<tr style="border-bottom: 1px solid #eee;">';
+
+												$checked = false;
+												
+												if ( in_array( $term->slug, (array) $data ) ) {
+													
+													$checked = true;
+												}
+												
+												$html .= '<td>';
+												
+													$html .= '<span style="display:block;padding:1px 0;margin:0;">';
+														
+														$html .= '<div for="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" class="checkbox_multi"><input type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $term->slug ) . '" id="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" /> ' . $term->name . '</div> ';
+													
+													$html .= '</span>';
+													
+												$html .= '</td>';
+												
+												// storage column
+												
+												$html .= '<td>';
+													
+													$plan_options = (array) $data;
+														
+													if ( in_array( $term->slug, $plan_options ) ) {
+														
+														$total_fee_amount 	= $this->parent->plan->sum_total_price_amount( $total_fee_amount, $term->options, $total_fee_period);
+														$total_price_amount = $this->parent->plan->sum_total_price_amount( $total_price_amount, $term->options, $total_price_period);
+														$total_storage 		= $this->parent->plan->sum_total_storage( $total_storage, $term->options);														
+													}
+													
+													if( !empty($term->options['storage']) ){
+														
+														foreach( $term->options['storage'] as $storage_unit => $storage_amount ){
+															
+															if( $storage_amount > 0){
+																
+																$html .='<span class="label label-primary">+' . $storage_amount . '</span> <span class="label label-info">' . $storage_unit . '</span><br>';
+															}
+															else{
+																
+																$html .='<span class="label label-primary">' . $storage_amount . '</span> <span class="label label-info">' . $storage_unit . '</span><br>';
+															}
+														}
+													}
+													
+												$html .= '</td>';
+												
+												// price column
+												
+												$html .= '<td>';
+
+													$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
+													
+														$html .= $term->options['price_amount'].$term->options['price_currency'].' / '.$term->options['price_period'];							
+												
+													$html .= '</span>';
+													
+												$html .= '</td>';
+	
+												if( $term->taxonomy == 'account-option' ){
+													
+													// get addon options
+													
+													$this->html = '';
+												
+													do_action('ltple_api_layer_plan_option',$term);
+												
+													$html .= $this->html;
+												}
+												
+											$html .= '</tr>';
+										}
+									
+									$html .= '</table>';
+								
+								$html .= '</td>';
+
+							$html .= '</tr>';
+						}
+
+						$html .= '<tr>';
+							
+							$html .= '<td>';
+								
+								$html .= '<span style="font-weight:bold;" for="totals">TOTALS</span> ';
+									
+							$html .= '</td>';
+							
+						$html .= '</tr>';
 						
 						$html .= '<tr>';
 							
-							$html .= '<th style="width:150px;">';
-								
-								$html .= '<div for="' . $taxonomy . '">'.$taxonomy.'</div> ';
-									
-							$html .= '</th>';
+							$html .= '<table style="width:100%;margin:10px;">';
 							
-							// attribute column
+								$html .= '<tr>';
 							
-							$html .= '<td style="width:250px;">';
-							
-							foreach($terms as $term){
-
-								$checked = false;
-								
-								if ( in_array( $term->slug, (array) $data ) ) {
+									$html .= '<td></td>';
 									
-									$checked = true;
-								}
-								
-								$html .= '<span style="display:block;padding:1px 0;margin:0;">';
+									// total storage
 									
-									$html .= '<div for="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" class="checkbox_multi"><input type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $term->slug ) . '" id="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" /> ' . $term->name . '</div> ';
-								
-								$html .= '</span>';
-							}
-							
-							$html .= '</td>';
-							
-							// storage column
-
-							$html .= '<td>';
-								
-								foreach($terms as $term){
-									
-									$plan_options = (array) $data;
-									
-									if ( in_array( $term->slug, $plan_options ) ) {
+									$html .= '<td>';
 										
-										$total_fee_amount 	= $this->parent->plan->sum_total_price_amount( $total_fee_amount, $term->options, $total_fee_period);
-										$total_price_amount = $this->parent->plan->sum_total_price_amount( $total_price_amount, $term->options, $total_price_period);
-										$total_storage 		= $this->parent->plan->sum_total_storage( $total_storage, $term->options);
-									}
-
-									$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
-									
-										if( $term->options['storage_unit'] == 'templates' ){
-											
-											if( $term->options['storage_amount'] == 1 ){
+										if(!empty($total_storage)){
+	
+											foreach( $total_storage as $storage_unit => $storage_amount ){
 												
-												$html .= '+'.$term->options['storage_amount'].' project';
-											}
-											elseif( $term->options['storage_amount'] > 0 ){
-												
-												$html .= '+'.$term->options['storage_amount'].' projects';
-											}
-											else{
-												
-												$html .= $term->options['storage_amount'].' projects';
-											}
-										}
-										elseif($term->options['storage_amount']>0){
-											
-											$html .= '+'.$term->options['storage_amount'].' '.$term->options['storage_unit'];
-										}	
-										else{
-											
-											$html .= $term->options['storage_amount'].' '.$term->options['storage_unit'];
-										}														
-							
-									$html .= '</span>';
-								}
-							
-							$html .= '</td>';
-							
-							// price column
-							
-							$html .= '<td>';
-							
-							foreach($terms as $term){
-								
-								$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
-								
-									$html .= $term->options['price_amount'].$term->options['price_currency'].' / '.$term->options['price_period'];							
-							
-								$html .= '</span>';
-							}
-							
-							$html .= '</td>';
-							
-							// get addon options
-							
-							$this->html = '';
-							
-							do_action('ltple_api_layer_plan_option',$terms);
-							
-							$html .= $this->html;	
-							
-						$html .= '</tr>';
-							
-					}
-
-					$html .= '<tr style="font-weight:bold;">';
-						
-						$html .= '<th style="width:200px;">';
-							
-							$html .= '<div style="font-weight:bold;" for="totals">TOTALS</div> ';
-								
-						$html .= '</th>';
-						
-						$html .= '<td style="width:250px;"></td>';
-						
-						// total storage
-						
-						$html .= '<td>';
-							
-							if(!empty($total_storage)){
-								
-								foreach($total_storage as $storage_unit => $total_storage_amount){
-									
-									$html .= '<span style="display:block;">';
-									
-										if($storage_unit=='templates'&&$total_storage_amount==1){
-											
-											$html .= '+'.$total_storage_amount.' template';
-										}
-										elseif($total_storage_amount>0){
-											
-											$html .= '+'.$total_storage_amount.' '.$storage_unit;
-										}									
-										else{
-											
-											$html .= $total_storage_amount.' '.$storage_unit;
+												if( $storage_amount > 0 ){
+													
+													$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">+'.$storage_amount.' '.$storage_unit . '</span>';
+												}
+												elseif( $storage_amount < 0 ){
+													
+													$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">'.$storage_amount.' '.$storage_unit . '</span>';
+												}
+											}							
 										}
 										
-									$html .= '</span>';
-								}							
-							}
+									$html .= '</td>';								
+									
+									// total price
+									
+									$html .= '<td>';
+										
+										$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
+											
+											if( $total_fee_amount > 0 ){
+												
+												$html .= htmlentities(' ').round($total_fee_amount, 2).$total_price_currency.' '.$total_fee_period;
+												$html .= '<br>+';
+											}
 							
-						$html .= '</td>'; 
-						
-						// total price
-						
-						$html .= '<td>';
+											$html .= round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;
 
-							if( $total_fee_amount > 0 ){
+										$html .= '</span>';	
+										
+									$html .= '</td>';	
+
+									// get addon options total
+									
+									$this->html = '';
+									
+									do_action('ltple_api_layer_plan_option_total',$field['options'], $plan_options);
+									
+									$html .= $this->html;
+
+								$html .= '</tr>';
 								
-								$html .= htmlentities(' ').round($total_fee_amount, 2).$total_price_currency.' '.$total_fee_period;
-								$html .= '<br>+';
-							}
-			
-							$html .= round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;
-
-						$html .= '</td>';	
-
-						// get addon options total
+							$html .= '</table>';
 						
-						$this->html = '';
-						
-						do_action('ltple_api_layer_plan_option_total',$field['options'], $plan_options);
-						
-						$html .= $this->html;							
+						$html .= '</tr>'; 
 					
 					$html .= '</table>';
 					
@@ -875,7 +864,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 				
 				case 'key_value':
-
+					
 					if( !isset($data['key']) || !isset($data['value']) ){
 
 						$data = ['key' => [ 0 => '' ], 'value' => [ 0 => '' ]];
@@ -1131,7 +1120,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 
 				case 'form':
-
+					
 					if( !isset($data['name']) || !isset($data['value']) ){
 
 						$data = array(
@@ -1177,6 +1166,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 											foreach ( $inputs as $input ) {
 												
 												$selected = false;
+												
 												if ( isset($data['input'][$e]) && $data['input'][$e] == $input ) {
 													
 													$selected = true;
@@ -1386,9 +1376,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				case 'element':
 					
 					//$types = ['grid','section','form','media','mix'];
-					$types = ['headers','features','blogs','teams','projects','products','pricing','testimonials','contact'];
+					$types = ['headers','sections','components','buttons','features','blogs','teams','projects','products','pricing','testimonials','contact','images','videos','widgets'];
 					
-					if( !isset($data['name']) ){
+					if( !is_array($data) || !isset($data['name']) ){
 
 						$data = array(
 						
@@ -1396,6 +1386,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							'category' 	=> [ 0 => '' ],
 							'image' 	=> [ 0 => '' ],
 							'content' 	=> [ 0 => '' ],
+							'drop' 		=> [ 0 => '' ],
 						);
 					}
 
@@ -1409,8 +1400,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							foreach( $data['name'] as $e => $name) {
 								
-								$image 		= $data['image'][$e];
-								$content 	= stripslashes($data['content'][$e]);
+								$image 		= ( !empty($data['image'][$e]) ? $data['image'][$e] : '' );
+								$content 	= ( !empty($data['content'][$e]) ? stripslashes($data['content'][$e]) : '' );
+								$drop 		= ( !empty($data['drop'][$e]) ? $data['drop'][$e] : 'out' );
 								
 								if($e > 0){
 									
@@ -1494,6 +1486,25 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 											$html .= '</div>';
 										
 										$html .= '</div>';
+										
+										// drop
+										
+										$html .= '<div class="form-group">';
+									
+											$html .= '<label class="col-sm-2">Drop</label>';
+											
+											$html .= '<div class="col-sm-10">';
+	
+												$html .= '<select style="height:35px;" class="form-control" name="'.$field['name'].'[drop][]">';
+													
+													$html .= '<option value="in"' .( $drop == 'in' ? '  selected="selected"' : '' ).'/>In</option>';
+													$html .= '<option value="out"'.( $drop == 'out' ? ' selected="selected"' : '' ).'>Out</option>';
+												
+												$html .= '</select> ';
+												
+											$html .= '</div>';
+										
+										$html .= '</div>';									
 										
 									$html .= '</div>';
 									
@@ -1933,30 +1944,35 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		 * @param  array  $args Arguments unique to this metabox
 		 * @return void
 		 */
-		public function meta_box_content ( $post, $args ) {
+		public function meta_box_content( $post, $args ) {
+			
+			if( !empty($post->post_type) ){
+				
+				$fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type );
+				
+				if ( is_array( $fields ) && !empty($fields) ){
 
-			$fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type );
-
-			if ( ! is_array( $fields ) || 0 == count( $fields ) ) return;
-
-			echo '<div class="custom-field-panel">' . "\n";
-
-			foreach ( $fields as $field ) {
-
-				if ( ! isset( $field['metabox'] ) ) continue;
-
-				if ( ! is_array( $field['metabox'] ) ) {
+					echo '<div class="custom-field-panel">' . "\n";
 					
-					$field['metabox'] = array( $field['metabox'] );
-				}
+						foreach ( $fields as $field ) {
+							
+							if( isset($field['metabox']) ){
+							
+								if( is_string( $field['metabox'] ) ) {
+									
+									$field['metabox'] = array( $field['metabox'] );
+								}
 
-				if ( in_array( $args['id'], $field['metabox'] ) ) {
+								if( is_array($field['metabox']) && $field['metabox']['name'] == $args['id'] ){
+									
+									$this->display_meta_box_field( $field, $post );
+								}
+							}
+						}
 
-					$this->display_meta_box_field( $field, $post );
+					echo '</div>' . "\n";
 				}
 			}
-
-			echo '</div>' . "\n";
 		}
 
 		/**
@@ -1965,22 +1981,85 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		 * @param  object $post  Post object
 		 * @return void
 		 */
-		public function display_meta_box_field ( $field = array(), $post ) {
+		public function display_meta_box_field( $field = array(), $post, $echo = true ) {
 
-			if ( ! is_array( $field ) || 0 == count( $field ) ) return;
+			if( is_array($field) && !empty($field)){
 
-			$meta_box  = '<p class="form-field form-group">' . PHP_EOL;
-			
-				if(!empty($field['label'])){
+				$meta_box  = '<div class="form-field form-group">' . PHP_EOL;
+				
+					if( !empty($field['label']) && !empty($field['id']) ){
+						
+						$meta_box .= '<div for="' . $field['id'] . '">' . $field['label'] . '</div> ' . PHP_EOL;
+					}
 					
-					$meta_box .= '<div for="' . $field['id'] . '">' . $field['label'] . '</div> ' . PHP_EOL;
+					$meta_box .= $this->display_field( $field, $post, false ) . PHP_EOL;
+					
+				$meta_box .= '</div>' . PHP_EOL;
+				
+				if( $echo === true ){
+				
+					echo $meta_box;
 				}
-				
-				$meta_box .= $this->display_field( $field, $post, false ) . PHP_EOL;
-				
-			$meta_box .= '</p>' . PHP_EOL;
+				else{
+					
+					return $meta_box;
+				}
+			}
+		}
+		
+		public function display_frontend_metaboxes( $fields, $post, $context = 'advanced' ) {
 
-			echo $meta_box;
+			$metaboxes = array();
+			
+			foreach ( $fields as $field ) {
+				
+				if( !isset($field['metabox']['frontend']) || $field['metabox']['frontend'] === true ){
+				
+					if( !isset($field['metabox']['context']) || $field['metabox']['context'] == $context ){
+						
+						$name = $field['metabox']['frontend'];
+						
+						if( !isset($metaboxes[$name]) ){
+							
+							$metaboxes[$name] = array(
+							
+								'title' 	=> $field['metabox']['title'],
+								'content' 	=> $this->display_meta_box_field( $field, $post, false),
+							);
+						}
+						else{
+							
+							$metaboxes[$name]['content'] .= $this->display_meta_box_field( $field, $post, false);
+						}
+					}
+				}
+			}
+			
+			if( !empty($metaboxes) ){ 
+				
+				foreach( $metaboxes as $metabox ){
+					
+					echo'<div class="panel panel-default">';
+						
+						if( !empty($metabox['title']) ){	
+							
+							echo'<div class="panel-heading">';
+							
+								echo $metabox['title'];
+							
+							echo'</div>';
+						}
+							
+						echo'<div class="panel-body">';
+						
+							echo $metabox['content'];
+						
+						echo'</div>';
+						
+					echo'</div>';
+					
+				}
+			}
 		}
 
 		/**

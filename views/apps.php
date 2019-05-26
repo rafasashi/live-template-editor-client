@@ -40,20 +40,8 @@
 	// ------------- output panel --------------------
 	
 	echo'<div id="media_library" class="wrapper">';
-
-		echo '<div id="sidebar">';
 		
-			echo'<ul class="nav nav-tabs tabs-left">';
-				
-				echo'<li class="gallery_type_title">Applications</li>';
-				
-				echo'<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->urls->apps . '?app&output='.$output.'">Connected Apps</a></li>';
-
-				//echo'<li'.( $currentTab == 'embedded' ? ' class="active"' : '' ).'><a href="'.$this->urls->apps . '?app=embedded&output='.$output.'">Embedded Plugin</a></li>';
-
-			echo'</ul>';
-			
-		echo'</div>';
+		echo $this->dashboard->get_sidebar($currentTab,$output);
 
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;min-height:700px;">';
 			

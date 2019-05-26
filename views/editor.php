@@ -10,8 +10,6 @@
 	}
 	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick']) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
 	
-		$has_storage = ( ( !isset($this->user->plan['info']['total_storage']) || $this->user->layerCount + 1 > $this->user->plan['info']['total_storage']['templates']) ? false : true );
-
 		echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
 			
 			echo '<h2>Start a new project</h2>';
@@ -37,7 +35,7 @@
 			
 			echo'<hr>';
 			
-			if($has_storage){
+			if( $this->plan->remaining_storage_amount($this->layer->id) > 0 ){
 				
 				// get editor url
 				
@@ -69,38 +67,18 @@
 						echo'</span>';
 						
 					echo'</div>';
+					
 				echo'</form>';
 			}
 			else{
 				
+				$layer_type = $this->layer->get_layer_type($this->layer->id);
+				
 				echo'<div class="alert alert-warning">';
 					
-					echo'You need to free up storage space first... ( ' . $this->user->layerCount . '/' . $this->user->plan['info']['total_storage']['templates'] . ' )';
+					echo'You can\'t save more <b>' . $layer_type->name . '</b> projects with the current plan...';
 			
-				echo'</div>';
-				
-				foreach($this->user->layers as $i => $layer) {
-					
-					echo '<hr></hr>';
-					
-					echo'<div style="display:block;">';
-					
-						echo'<div class="col-xs-9">';
-							
-							echo '<a target="_blank" href="' . $this->urls->editor . '?uri=' . $layer->ID . '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
-						
-						echo'</div>';
-						
-						echo'<div class="col-xs-3 text-right">';
-							
-							echo '<a class="btn-xs btn-danger" href="' . $this->urls->editor . '?uri=' . $layer->ID . '&postAction=delete" style="padding: 5px 10px;font-weight: bold;">x</a>';
-						
-						echo'</div>';
-						
-					echo'</div>';
-					
-					echo '<div class="clearfix"></div>';
-				}			
+				echo'</div>';				
 			}	
 
 		echo'</div>';

@@ -47,15 +47,6 @@ class LTPLE_Client_Settings {
 		$this->options 				 	= new stdClass();
 		$this->options->emailSupport 	= str_replace('@gmail.com','+'.time().'@gmail.com',get_option( $this->parent->_base . 'email_support'));	
 		
-		$this->options->postTypes = array();
-		
-		if( $postTypes = get_option( $this->parent->_base . 'post_types' ) ){
-			
-			$this->options->postTypes = $postTypes;
-			
-			//var_dump($this->options->postTypes);exit;
-		}
-		
 		if( !$this->options->logo_url = get_option( $this->parent->_base . 'homeLogo' )){
 			
 			$this->options->logo_url = $this->parent->assets_url . 'images/home.png';
@@ -507,6 +498,14 @@ class LTPLE_Client_Settings {
 			__( 'Email Models', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=email-model'
+		);
+
+		add_submenu_page(
+			'live-template-editor-client',
+			__( 'Tutorials', $this->plugin->slug ),
+			__( 'Tutorials', $this->plugin->slug ),
+			'edit_pages',
+			'edit.php?post_type=tutorial'
 		);		
 		
 		do_action('ltple_admin_menu');
@@ -595,7 +594,6 @@ class LTPLE_Client_Settings {
 			
 				'post' 			=> 'Post',
 				'page' 			=> 'Page',
-				'email-model' 	=> 'Email Model',
 			),
 		);
 		
@@ -868,6 +866,9 @@ class LTPLE_Client_Settings {
 			'user-contents' => array(
 			
 				'user-layer' 	=> array( 'name' => 'Templates'),
+				'user-page' 	=> array( 'name' => 'Pages'),
+				'user-menu' 	=> array( 'name' => 'Menus'),
+				'user-psd' 		=> array( 'name' => 'PSDs'),
 				'user-image' 	=> array( 'name' => 'Images'),
 				'user-bookmark' => array( 'name' => 'Bookmarks'),
 				'user-app' 		=> array( 'name' => 'Apps'),
@@ -895,7 +896,7 @@ class LTPLE_Client_Settings {
 				'css-library' 		=> array( 'name' => 'CSS', 		'post-type' => 'cb-default-layer' ),
 				'js-library' 		=> array( 'name' => 'JS', 		'post-type' => 'cb-default-layer' ),
 				'font-library' 		=> array( 'name' => 'Fonts', 	'post-type' => 'cb-default-layer' ),
-				'element-library' 	=> array( 'name' => 'HTML', 	'post-type' => 'cb-default-layer' ),
+				'element-library' 	=> array( 'name' => 'Elements',	'post-type' => 'cb-default-layer' ),
 			),
 			'services-apps' => array(
 			

@@ -246,82 +246,94 @@
 		});
 		
 		// set dialog
-
-		$('[data-toggle="dialog"]').each(function(e){
+		
+		function set_dialogs(){
 			
-			var id 		= $(this).data('target');
-			var width 	= $(this).attr('data-width') || 'auto';
-			var height 	= $(this).attr('data-height') || 'auto';
-			var resizable = $(this).attr('data-resizable') || false;
-			
-			$(id).dialog({
+			$('[data-toggle="dialog"]').each(function(e){
 				
-				autoOpen 	: false,
-				width 		: width,
-				height 		: height,
-				resizable 	: resizable
-			});
-			
-			$(this).on('click',function(e){
+				var id 		= $(this).data('target');
+				var width 	= $(this).attr('data-width') || 'auto';
+				var height 	= $(this).attr('data-height') || 'auto';
+				var resizable = $(this).attr('data-resizable') || false;
 				
-				var $dialog = $(id);
-				
-				$dialog.dialog('open');
-				
-				var dialogIframe = $dialog.find('iframe');
-				
-				if(dialogIframe.length > 0){
+				$(id).dialog({
 					
-					var iframeSrc = dialogIframe.attr("src");
+					autoOpen 	: false,
+					width 		: width,
+					height 		: height,
+					resizable 	: resizable
+				});
+				
+				$(this).on('click',function(e){
 					
-					if(typeof iframeSrc == typeof undefined || iframeSrc == false){
+					var $dialog = $(id);
+					
+					$dialog.dialog('open');
+					
+					var dialogIframe = $dialog.find('iframe');
+					
+					if(dialogIframe.length > 0){
 						
-						iframeSrc = dialogIframe.attr("data-src");
+						var iframeSrc = dialogIframe.attr("src");
 						
-						if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
-						
-							//console.log(iframeSrc);
+						if(typeof iframeSrc == typeof undefined || iframeSrc == false){
+							
+							iframeSrc = dialogIframe.attr("data-src");
+							
+							if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
+							
+								//console.log(iframeSrc);
 
-							dialogIframe.attr("src", iframeSrc).on('load',function(){
-								
-								// get input id
-										
-								//var inputId = dialogIframe.attr("data-input-id");
-								
-								//if( typeof inputId !== typeof undefined ){
-								
-									// insert media
+								dialogIframe.attr("src", iframeSrc).on('load',function(){
 									
-									dialogIframe.contents().find(".insert_media").off();
+									// get input id
+											
+									//var inputId = dialogIframe.attr("data-input-id");
 									
-									dialogIframe.contents().find(".insert_media").on("click", function(e){
-
-										e.preventDefault();
-										e.stopPropagation();
-										
-										// get media src
-										
-										var mediaSrc = window.location.origin + '/image-proxy.php?url=' + encodeURIComponent( $(this).attr("data-src") );
-
-										// get editor iframe
-										
-										var editorIframe = document.getElementById("editorIframe").contentWindow;
-										
+									//if( typeof inputId !== typeof undefined ){
+									
 										// insert media
 										
-										editorIframe.insertMedia(mediaSrc);
+										dialogIframe.contents().find(".insert_media").off();
 										
-										// close current dialog
+										dialogIframe.contents().find(".insert_media").on("click", function(e){
 
-										$dialog.dialog("close");
-									});	
+											e.preventDefault();
+											e.stopPropagation();
+											
+											// get media src
+											
+											var mediaSrc = window.location.origin + '/image-proxy.php?url=' + encodeURIComponent( $(this).attr("data-src") );
 
-								//}							
-							});
-						}
-					}				
-				}
+											// get editor iframe
+											
+											var editorIframe = document.getElementById("editorIframe").contentWindow;
+											
+											// insert media
+											
+											editorIframe.insertMedia(mediaSrc);
+											
+											// close current dialog
+
+											$dialog.dialog("close");
+										});	
+
+									//}							
+								});
+							}
+						}				
+					}
+				});
 			});
+		}
+		
+		set_dialogs();
+		
+		// bootstrap table callbacks
+		
+		$('#table').on('load-success.bs.table', function(e) {
+			
+			set_dialogs();
 		});
 	});
 	

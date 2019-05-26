@@ -16,19 +16,34 @@
 	
 	// ------------- output panel --------------------
 	
+	echo '<style>';
+	
+	echo '			
+	#dashboard .panel-body::-webkit-scrollbar-track{
+		
+		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+		border-radius: 10px;
+		background-color: #fff;
+	}
+
+	#dashboard .panel-body::-webkit-scrollbar{
+		
+		width: 10px;
+		background-color: #fff;
+	}
+
+	#dashboard .panel-body::-webkit-scrollbar-thumb{
+		
+		border-radius: 10px;
+		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+		background-color: '.$this->parent->settings->mainColor . '99;
+	}';
+	
+	echo '</style>';
+	
 	echo'<div id="media_library" class="wrapper">';
 
-		echo '<div id="sidebar">';
-		
-			echo'<ul class="nav nav-tabs tabs-left">';
-				
-				echo'<li class="gallery_type_title">Dashboard</li>';
-				
-				echo'<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '">Home</a></li>';
-			
-			echo'</ul>';
-			
-		echo'</div>';
+		echo $this->parent->dashboard->get_sidebar($currentTab);
 
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;min-height:700px;">';
 			
@@ -36,7 +51,7 @@
 				
 				$boxes = $this->get_all_boxes();
 				
-				echo'<div class="tab-content">';
+				echo'<div id="dashboard" class="tab-content">';
 					
 					foreach( $boxes as $box ){
 						

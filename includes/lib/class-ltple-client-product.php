@@ -184,7 +184,7 @@ class LTPLE_Client_Product {
 
 			$options = array();
 			
-			if( $addon_range = $this->parent->gallery->get_type_addon_range($layer_type) ){
+			if( $addon_range = $this->parent->layer->get_type_addon_range($layer_type) ){
 				
 				$options[] = $addon_range->slug;
 			}
@@ -235,13 +235,13 @@ class LTPLE_Client_Product {
 	
 		if($this->parent->user->loggedin){
 			
-			if($this->parent->plan->user_has_layer( $post->ID ) === true){
+			if($this->parent->plan->user_has_layer( $post ) === true){
 				
 				//get editor_url
 
 				$editor_url = $this->parent->urls->editor . '?uri='.$post->ID;
 								
-				$button.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Edit layer">Edit</a>';
+				$button.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 			}
 			elseif( $this->parent->plan->user_has_options( array($layer_type) ) ){
 				

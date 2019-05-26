@@ -45,6 +45,21 @@ class LTPLE_Client_Login {
 		}
 	}
 	
+	public function get_form(){
+		
+		$form = '';
+		
+		$form .= '<style>';
+		
+			$form .= file_get_contents( $this->parent->assets_dir . '/css/login.css' );
+		
+		$form .= '</style>';
+		
+		$form .= do_shortcode('[ltple-client-login]');
+		
+		return $form;
+	}
+	
 	public function handle_custom_registration( $errors = NULL, $sanitized_user_login = NULL, $user_email = NULL ){
 		
 		if( !empty($errors) ){
@@ -175,21 +190,17 @@ class LTPLE_Client_Login {
 	}
 	
 	public function set_login_redirect_url( $redirect_to, $request, $user ) {
-
-		// set $redirect_to default value
 		
-		/*
-		if( get_user_meta( $user->ID , 'has_subscription', true) === 'true'){
-			
-			return $this->parent->urls->editor;
-		}
-		else{
-			
-			return $this->parent->urls->plans;
-		}
-		*/
+		//$url = $this->parent->urls->profile . $user->ID . '/';
 		
-		return $this->parent->urls->profile . $user->ID . '/';
+		$url = $this->parent->urls->dashboard;
+		
+		if( !empty($redirect_to) && $redirect_to != admin_url() ){
+			
+			$url = $redirect_to;
+		}
+		
+		return $url;
 	}
 		
 	public function add_shortcode_login(){

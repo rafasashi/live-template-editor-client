@@ -42,29 +42,32 @@
 		
 			@import url("https://fonts.googleapis.com/css?family=Pacifico");
 		
-			.profile-overlay {
-				
-				width: 100%;
-				height: 350px;
-				position: absolute;
-				background-image: linear-gradient(to bottom right,#284d6b,' . $this->parent->settings->mainColor . ');
-				opacity: .5;
-			}
-		
 			.profile-heading {
 				
-				height: 350px;
-				padding-top: 130px;
+				height:350px;
 				background-color: #333;
 				background-image: url("' . $background_image . '");
 				background-position: center center;
 				background-size: cover;
-				background-attachment: fixed;
+				background-attachment: '. ( $this->tab == 'about-me' ? 'scroll' : 'scroll' ).';
 				background-repeat: no-repeat;
+				border-bottom:5px solid ' . $this->parent->settings->mainColor . ';
+				position:relative;
+				overflow:hidden;
+			}		
+		
+			.profile-overlay {
+				
+				width:100%;
+				height:350px;
+				position:absolute;
+				background-image: linear-gradient(to bottom right,#284d6b,' . $this->parent->settings->mainColor . ');
+				opacity:'. ( $this->tab == 'about-me' ? '.5' : '.7' ).';
 			}
 			
 			.profile-heading h2 {
 				
+				padding-top:'.( $editable ? '80px' : '125px').';
 				color: #fff;
 				font-weight: normal;
 				font-size: 53px;
@@ -75,7 +78,7 @@
 				
 			.profile-avatar img {
 
-				border: solid 10px #f9f9f9;
+				border: solid 7px #f9f9f9;
 				border-radius: 100px;
 				margin:0px;
 				position: relative;
@@ -96,7 +99,7 @@
 			.profile-content {
 				
 				display: inline-block;
-				padding-top: 30px;
+				padding-top: 15px;
 				padding-bottom: 100px;
 				background-color: #fff;
 				width: 100%;
@@ -118,50 +121,88 @@
 		
 		echo'<div id="profile_page">';
 
-			echo'<div class="profile-overlay"></div>';
-
-			echo'<div class="profile-heading text-center" style="'.( $editable ? 'padding-top:80px;' : 'padding-top:125px;').'">';
+			if( $this->tab == 'about-me' ){
 				
-				echo '<h2>' . $name . '</h2>';
+				// full header
 				
-				// mobile avatar
-				
-				echo '<div class="profile-avatar text-center hidden-sm hidden-md hidden-lg" style="margin:10px;position:relative;">';
-				
-					echo'<img style="border:solid 5px #f9f9f9;" src="' . $picture . '" height="100" width="100" />';
+				echo'<div class="profile-heading text-center">';
 					
-					if( $is_pro ){
+					echo'<div class="profile-overlay"></div>';
+					
+					echo '<h2>' . $name . '</h2>';
+					
+					// mobile avatar
+					
+					echo '<div class="profile-avatar text-center hidden-sm hidden-md hidden-lg" style="margin:10px;position:relative;">';
+					
+						echo'<img style="border:solid 5px #f9f9f9;" src="' . $picture . '" height="100" width="100" />';
 						
-						echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';									
+						if( $is_pro ){
+							
+							echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';									
+						}
+						
+					echo '</div>';			
+					
+					if( $editable ){
+						
+						echo '<a class="hidden-xs" title="Edit profile" href="' . $this->parent->urls->profile . '">';
+						
+							echo '<span class="fa fa-pencil" style="
+								color: #fff;
+								font-size: 28px;
+								position: relative;
+								border: 4px solid #fff;
+								border-radius: 250px;
+								height: 45px;
+								width: 45px;
+								text-align: center;
+								padding: 5px;
+								box-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
+							"></span>';
+							
+						echo '</a>';
 					}
-					
-				echo '</div>';			
 				
-				if( $editable ){
+				echo'</div>';
+			}
+			else{
+				
+				// light header
+
+				echo'<div class="profile-heading text-center" style="height:100px;padding:0;">';
+				
+					echo'<div class="profile-overlay"></div>';
+				
+					// mobile avatar
 					
-					echo '<a class="hidden-xs" title="Edit profile" href="' . $this->parent->urls->profile . '">';
-					
-						echo '<span class="fa fa-pencil" style="
-							color: #fff;
-							font-size: 28px;
-							position: relative;
-							border: 4px solid #fff;
-							border-radius: 250px;
-							height: 45px;
-							width: 45px;
-							text-align: center;
-							padding: 5px;
-							box-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
-						"></span>';
+					echo'<div class="col-xs-3 col-sm-3 col-md-3 col-lg-2">';
+
+						echo '<div class="profile-avatar text-left hidden-sm hidden-md hidden-lg" style="padding:12px 8px;position:absolute;">';
 						
-					echo '</a>';
-				}
+							echo'<img style="border:solid 5px #f9f9f9;" src="' . $picture . '" height="70" width="70" />';
+							
+							if( $is_pro ){
 								
-			echo'</div>';
+								echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';									
+							}
+							
+						echo '</div>';					
+					
+					echo'</div>';
+					
+					echo'<div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">';
+					
+						echo '<h2 style="font-size:30px;float:left;padding:31px 0 0 0;margin:0;">' . $name . '</h2>';
+					
+					echo'</div>';
+					
+				echo'</div>';
+			}
 			
 			echo'<div id="panel" style="box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
 			
-				echo'<div class="col-xs-12 col-sm-3 col-md-2 text-center" style="padding:30px;">';
+				echo'<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2  text-center'.( $this->tab != 'about-me' ? ' hidden-xs' : '' ).'" style="padding:30px;">';
 						
 					// desktop avatar	
 						
@@ -218,7 +259,7 @@
 				
 				echo '</div>';
 
-				echo'<div class="col-xs-12 col-sm-9 col-md-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
+				echo'<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
 				
 					echo'<ul class="nav nav-pills" role="tablist" style="box-shadow:inset 0px 2px 5px -4px rgba(0,0,0,0.75);overflow:visible;margin-top:0;">';
 						
@@ -257,7 +298,7 @@
 							
 							echo'<div class="col-xs-3 text-right">';
 							
-								echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-policy">Edit</a>';
+								echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-policy">Start</a>';
 							
 							echo '</div>';
 							

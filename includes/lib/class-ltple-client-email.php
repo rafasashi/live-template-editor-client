@@ -736,8 +736,7 @@ class LTPLE_Client_Email {
 								$message .= '<td style="background: rgb(248, 248, 248);display:block;padding:20px;margin:20px;text-align:left;border-left: 5px solid #888;">';
 									
 									$message .='<b>Price</b>: ' . $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].' / '.$user_plan['info']['total_price_period'] . PHP_EOL;
-									$message .='<b>Storage</b>: ' . $user_plan['info']['total_storage']['templates']. ' project(s)' . PHP_EOL;
-									
+			
 									$message .= PHP_EOL;
 									
 									if( !empty($user_plan['taxonomies']['layer-type']['terms']) ){

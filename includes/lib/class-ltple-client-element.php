@@ -6,7 +6,6 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	
 	public $parent;
 
-	
 	/**
 	 * Constructor function
 	 */ 
@@ -63,7 +62,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 		add_filter('init', array( $this, 'init_element_frontend' ));
 		
-		add_action('wp_loaded', array($this,'get_element_types'));
+		add_action('wp_loaded', array($this,'get_element_types'));	
 	}
 	
 	public function get_element_types(){
@@ -205,68 +204,17 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 		add_action('edit_element-library', array( $this, 'save_fields' ) );	
 	
-		add_action( 'load-edit-tags.php', function(){
-			
-			if( !empty($_GET['taxonomy']) && $_GET['taxonomy'] == 'element-library' ){
-				
-				$screen = get_current_screen();
-				
-				add_filter( 'bulk_actions-' . $screen->id, array( $this, 'get_bulk_actions' ) );
-				add_filter( 'handle_bulk_actions-' . $screen->id, array( $this, 'handle_bulk_actions' ), 10, 3 );
-				
-				if( !isset($_GET['tag_ID']) ){
-				
-					add_action('ltple_taxonomy_action', array( $this, 'get_import_field' ) );
-				}
-				
-				if( !empty($_FILES['importedElementLibrary']) ){
-					
-					foreach ($_FILES as $file => $array) {
-						
-						if($_FILES[$file]['error'] !== UPLOAD_ERR_OK ) {
-							
-							if( intval($_FILES[$file]['error']) != 4 ){
-								
-								echo "upload error : " . $_FILES[$file]['error'];
-								exit;
-							}
-						}
-						elseif( !in_array($_FILES[$file]['type'], array('application/octet-stream','application/json'))  ) {
-							
-							echo '"' . $_FILES[$file]['type'] . '" is not a valid file type...';
-							exit;							
-						}
-						elseif( $json = file_get_contents($_FILES[$file]['tmp_name'])){
-							
-							if( $library = json_decode($json,true) ){
-								
-								foreach( $library as $slug => $elements){
-
-									if( !empty($elements['name']) && !empty($elements['options']['elements']) ){
-										
-										$library[$slug]['options']['elements'] = $this->index_keys($elements['options']['elements']);
-									}
-									else{
-										
-										unset($library[$slug]);
-									}
-								}
-								
-								if( !empty($library) ){
-									
-									$this->types = array_merge($this->types, $this->get_terms( 'element-library', $library ));
-								}
-							}
-							else{
-								
-								echo 'This is not a valid json type...';
-								exit;									
-							}
-						}
-					}
-				}				
-			}
-		});
+		add_filter('rew_export_term', array( $this, 'filter_exported_term' ),10,1 );
+	}
+	
+	function filter_exported_term($term){
+		
+		if( !empty($term['slug']) ){
+		
+			$term['options']['elements_' . $term['slug']] = get_option( 'elements_' . $term['slug'] );
+		}
+		
+		return $term;
 	}
 	
 	public function init_element_frontend(){
@@ -321,86 +269,5 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 				exit;
 			}
 		}
-	}
-	
-	public function get_bulk_actions($bulk_actions){
-		
-		$bulk_actions['export'] = 'Export';
-		
-		return $bulk_actions;
-	}
-	
-	public function handle_bulk_actions( $redirect_to, $action, $ids ){
-		
-		if($action == 'export'){
-			
-			$terms = get_terms( 'element-library', array(
-			
-				'include' 	 => $ids,
-				'hide_empty' => false,
-			) );
-			
-			if(!empty($terms)){
-				
-				$content = array();
-				
-				foreach( $terms as $term ){
-					
-					$elements = get_option( 'elements_' . $term->slug );
-
-					if( !empty($elements['name'][0]) ){
-						
-						$elements = $this->group_keys($elements);
-						
-						$content[$term->slug] = array(
-						
-							'name' 		=> $term->name,
-							'options'	=> array(
-								
-								'elements'			=> $elements
-							)
-						);
-					}
-				}
-				
-				// get json file
-				
-				$json = json_encode($content, JSON_PRETTY_PRINT);
-
-				// output the file	
-				
-				header('Content-type: application/json');
-				header('Content-Disposition: attachment; filename="elements.json"');
-				header('Content-Length: ' . strlen($json));
-				
-				echo $json;
-				exit;				
-			}
-		}
-	}
-	
-	public function get_import_field(){
-		
-		echo '<div style="background:#f1f1f1;padding:5px 15px;border-radius:4px;">';
-		
-			echo '<h2>Import Element Library (JSON)</h2>';
-			
-			echo'<form method="post" action="" enctype="multipart/form-data">';
-		
-				echo '<div class="input-group" style="margin:15px 0;">';
-				
-					echo '<input style="padding:5px;" class="form-control" type="file" name="importedElementLibrary" accept=".json">';
-					
-					echo '<div class="input-group-btn">';
-					
-						echo '<input class="btn btn-default" value="Import" type="submit">';
-
-					echo '</div>';
-					
-				echo '</div>';
-				
-			echo'</form>';
-			
-		echo '</div>';
 	}
 }

@@ -15,19 +15,7 @@
 
 	echo'<div id="media_library" class="wrapper">';
 
-		echo '<div id="sidebar">';
-		
-			echo'<ul class="nav nav-tabs tabs-left">';
-				
-				echo'<li class="gallery_type_title">My Account</li>';
-				
-				echo'<li'.( $currentTab == 'billing-info' ? ' class="active"' : '' ).'><a href="'.$this->urls->editor . '?my-profile">Billing Info</a></li>';
-
-				do_action('ltple_billing_settings_sidebar');
-				
-			echo'</ul>';
-			
-		echo'</div>';
+		echo $this->dashboard->get_sidebar($currentTab);
 
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
 			
@@ -54,70 +42,13 @@
 								echo '<div style="margin-bottom:20px;background: rgb(248, 248, 248);display:block;padding:20px;text-align:left;border-left: 5px solid #888;">';
 									
 									echo'<b>Price</b>: ' . $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].' / '.$user_plan['info']['total_price_period'] . '<br/>';
-									echo'<b>Storage</b>: ' . ( !empty($user_plan['info']['total_storage']['templates']) ? $user_plan['info']['total_storage']['templates'] : 0 ) . ' saved projects' . '<br/>';
-									
-								echo '</div>';							
-								
-								echo '<div class="panel panel-default">';
-								
-									echo '<div class="panel-heading"><b>Template Types</b></div>';
-									
-									echo '<div class="panel-body">';
-										
-										$none = true;
-										
-										if( !empty($user_plan['taxonomies']['layer-type']['terms']) ){
-
-											foreach( $user_plan['taxonomies']['layer-type']['terms'] as $term ){
-												
-												if( $term['has_term'] ){
-													
-													echo '<div class="col-xs-12">'.ucfirst($term['name']).'</div>';
-												
-													$none = false;
-												}
-											}
-										}
-										
-										if( $none === true ){
-											
-											echo '<div class="col-xs-12">none</div>';
-										}
-										
-									echo '</div>';
 									
 								echo '</div>';
 								
-								echo '<div class="panel panel-default">';
-							
-									echo '<div class="panel-heading"><b>Template Ranges</b></div>';
-									
-									echo '<div class="panel-body">';								
-											
-										$none = true;
-											
-										if( !empty($user_plan['taxonomies']['layer-range']['terms']) ){
+								echo $this->plan->get_plan_table($user_plan);
 
-											foreach( $user_plan['taxonomies']['layer-range']['terms'] as $term ){
-												
-												if( $term['has_term'] ){
-													
-													echo '<div class="col-xs-12">'.ucfirst($term['name']).'</div>';
-												
-													$none = false;
-												}
-											}
-										}
-										
-										if( $none === true ){
-											
-											echo '<div class="col-xs-12">none</div>';
-										}
-										
-									echo '</div>';
-									
-								echo '</div>';
-
+								echo'<hr>';
+								
 								echo '<div class="panel panel-default">';
 							
 									echo '<div class="panel-heading"><b>License & Payment</b></div>';

@@ -107,6 +107,10 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 			do_action('ltple_media');
 		}
+		else{
+			
+			echo $this->parent->login->get_form();
+		}
 	}
 	
 	public function get_app_list(){
@@ -118,7 +122,8 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		$item->slug 	= 'upload';
 		$item->types 	= ['images'];
 		$item->pro 		= true;
-
+	
+		/*
 		$apps[] = $item;
 
 		$item = new stdClass();
@@ -126,6 +131,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		$item->slug 	= 'canvas';
 		$item->types 	= ['images'];
 		$item->pro 		= true;
+		*/
 		
 		$apps[] = $item;					
 

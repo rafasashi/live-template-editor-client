@@ -7,7 +7,7 @@ class LTPLE_Client_Profile {
 	private $parent;
 	
 	var $id = 0;
-	var $slug;
+	var $slug = null;
 	var $tabs = null;
 	var $user = null;
 	var $privacySettings = null;
@@ -36,6 +36,11 @@ class LTPLE_Client_Profile {
 				$query_vars[] = 'tab';
 			}
 			
+			if(!in_array('slug',$query_vars)){
+			
+				$query_vars[] = 'slug';
+			}
+			
 			return $query_vars;
 		}, 1);
 		
@@ -59,6 +64,11 @@ class LTPLE_Client_Profile {
 			if( !$this->tab = get_query_var('tab') ){
 				
 				$this->tab = 'about-me';
+			}
+			
+			if( !$this->tabSlug = get_query_var('slug') ){
+				
+				$this->tabSlug = '';
 			}	
 			
 			add_filter('ltple_header_title', array($this,'get_profile_title'),10,1);
@@ -107,13 +117,13 @@ class LTPLE_Client_Profile {
 	
 	public function get_profile_shortcode(){
 		
-		include($this->parent->views . '/navbar.php');
-
 		if( $this->id > 0 ){
 
 			include($this->parent->views . '/profile.php');
 		}
 		elseif( $this->parent->user->loggedin ){
+			
+			include($this->parent->views . '/navbar.php');
 			
 			include($this->parent->views . '/settings.php');
 		}
@@ -383,12 +393,44 @@ class LTPLE_Client_Profile {
 		}
 		
 		return $this->tabs;
-	}		
+	}
+
+	public function get_slug(){
+		
+		if( is_null( $this->slug ) ){
+			
+			$slug = get_option( $this->parent->_base . 'profileSlug' );
+		
+			if( empty( $slug ) ){
+				
+				$post_id = wp_insert_post( array(
+				
+					'post_title' 		=> 'Profile',
+					'post_type'     	=> 'page',
+					'comment_status' 	=> 'closed',
+					'ping_status' 		=> 'closed',
+					'post_content' 		=> '[ltple-client-profile]',
+					'post_status' 		=> 'publish',
+					'menu_order' 		=> 0
+				));
+				
+				$slug = update_option( $this->parent->_base . 'profileSlug', get_post($post_id)->post_name );
+			}
+			
+			$this->slug = $slug;
+		}
+		
+		return $this->slug;
+	}
 	
 	public function init_profile(){
 		
-		$this->slug = get_option( $this->parent->_base . 'profileSlug' );
-
+		// get profile url
+		
+		$this->slug = $this->get_slug();
+		
+		$this->parent->urls->profile = $this->parent->urls->home . '/' . $this->slug . '/';
+		
 		// add rewrite rules
 
 		add_rewrite_rule(
@@ -402,6 +444,13 @@ class LTPLE_Client_Profile {
 		
 			$this->slug . '/([0-9]+)/([^/]+)/?$',
 			'index.php?pagename=' . $this->slug . '&pr=$matches[1]&tab=$matches[2]',
+			'top'
+		);
+		
+		add_rewrite_rule(
+		
+			$this->slug . '/([0-9]+)/([^/]+)/([^/]+)/?$',
+			'index.php?pagename=' . $this->slug . '&pr=$matches[1]&tab=$matches[2]&slug=$matches[3]',
 			'top'
 		);
 		

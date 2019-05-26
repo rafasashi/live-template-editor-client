@@ -53,7 +53,7 @@
 		
 		//get addon range
 
-		$addon_range = $this->gallery->get_type_addon_range($term);
+		$addon_range = $this->layer->get_type_addon_range($term);
 
 		//get item ranges
 		
@@ -81,9 +81,9 @@
 				
 				echo '<ul class="nav nav-tabs tabs-left">';
 					
-					echo '<li class="gallery_type_title" style="border-top: none;background-color: #4276a0 !important;color: #fff;border-bottom: 1px solid #26455f;">';
+					echo '<li class="gallery_type_title gallery_head">';
 					
-						echo 'All Templates';
+						echo 'Template Gallery';
 						
 						// filters
 						
@@ -102,7 +102,7 @@
 					
 					foreach( $all_sections as $section => $type_ids ){
 					
-						echo '<li class="gallery_type_title" style="border-top:none;background-color:#fff !important;border:1px solid #fff;color:#4276a0;font-size:14px;box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);">'.$section.'</li>';
+						echo '<li class="gallery_type_title">'.$section.'</li>';
 
 						$outputs = $this->layer->get_layer_outputs();
 											
@@ -218,13 +218,13 @@
 							
 							if(!empty($items)){
 								
-								$this->plan->options = array($layer_type,$layer_range);
+								$this->plan->options = array($layer_range);
 								
 								$has_options = $this->plan->user_has_options($this->plan->options);
 								
 								$plans = $this->plan->get_plans_by_options( $this->plan->options );
-	
-								echo'<div class="row bs-callout bs-callout-primary" style="background:#fff;">';
+								
+								echo'<div class="row bs-callout bs-callout-primary">';
 									
 									echo'<div class="col-xs-12 col-sm-9 col-md-10" style="padding-bottom:5px;">';
 									

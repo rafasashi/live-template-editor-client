@@ -80,6 +80,7 @@
 			
 			return $is_pro;
 		}
+
 		
 		public function get_author_url( $url, $author_id ){
 			
@@ -436,6 +437,25 @@
 
 					echo '<input name="'.$name.'" type="number" value="'.( isset($_REQUEST[$name]) ? intval($_REQUEST[$name]) : -1).'" style="width:55px;float:left;">';
 
+					//echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
+				
+				echo '</span>';
+				
+				echo '<span>';
+					
+					echo '<label style="padding:7px;float:left;">';
+						echo ' License';
+					echo '</label>';
+					
+					$filter = 'licenseStatus';
+					$name = $filter.'1';							
+					
+					echo'<select name="'.$name.'">';
+						echo'<option value="any" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('any')) ? ' selected="selected"' : '').'>Any</option>';
+						echo'<option value="running" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('running')) ? ' selected="selected"' : '').'>Running</option>';								
+						//echo'<option value="outdated" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('outdated')) ? ' selected="selected"' : '').'>Outdated</option>';
+					echo'</select>';
+
 					echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
 				
 				echo '</span>';
@@ -611,13 +631,20 @@
 			
 			$days = 0;
 			
-			$period_end = intval(get_user_meta($user_id, $this->parent->_base . 'period_end', true ));
+			if( user_can( $user_id, 'administrator' ) ){
+				
+				$days = 100000000;
+			}
+			else{
 			
-			if( !empty($period_end) ){
+				$period_end = intval(get_user_meta($user_id, $this->parent->_base . 'period_end', true ));
 				
-				$datediff = $period_end - time();
-				
-				$days = ceil( $datediff / (60 * 60 * 24) );					
+				if( !empty($period_end) ){
+					
+					$datediff = $period_end - time();
+					
+					$days = ceil( $datediff / (60 * 60 * 24) );					
+				}
 			}
 
 			return $days;			
@@ -1308,17 +1335,20 @@
 			if( $this->view == 'leads' ){
 				
 				$userPlanValue		= 1;
-				$planValueOperator	= '<';				
+				$planValueOperator	= '<';
+				$licenseStatus		= 'any';
 			}
 			elseif( $this->view == 'conversions' ){
 				
 				$userPlanValue		= 0;
 				$planValueOperator	= '>';
+				$licenseStatus		= 'any';
 			}
 			else{
 				
 				$userPlanValue		= $this->get_filter_value('userPlanValue');
 				$planValueOperator	= $this->get_filter_value('planValueOperator');
+				$licenseStatus		= $this->get_filter_value('licenseStatus');
 			}
 			
 			$comparition = [];
@@ -1334,19 +1364,24 @@
 
 			if( !is_null($userPlanValue) && $userPlanValue > -1 ){
 
+				$meta_query = array();
+				
+				$meta_query[] = array(
+				
+					'key'		=> 'userPlanValue',
+					'value'		=> $userPlanValue,
+					'type'		=> 'NUMERIC',
+					'compare'	=> $comparition[$planValueOperator]['operator']
+				);
+				
+				
+			
 				$q = new WP_Query(array(
 				
 					'posts_per_page'=> -1,
 					'post_type'		=> 'user-plan',
 					'fields' 		=> 'post_author',
-					'meta_query'	=> array(
-						array(
-							'key'		=> 'userPlanValue',
-							'value'		=> $userPlanValue,
-							'type'		=> 'NUMERIC',
-							'compare'	=> $comparition[$planValueOperator]['operator']
-						)
-					)
+					'meta_query'	=> $meta_query,
 				));
 
 				if(!empty($q->posts)){
@@ -1364,6 +1399,13 @@
 					
 					$query->set( 'meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
 				}
+			}
+			
+			if( !is_null($licenseStatus) && $licenseStatus == 'running' ){
+				
+				$query->set( 'meta_key', $this->parent->_base . 'period_end' );
+				$query->set( 'meta_value', time() );
+				$query->set( 'meta_compare', '>' );
 			}
 			
 			return $query;

@@ -133,7 +133,7 @@
 			$response_body = substr($response, $header_length);
 			$response_body = gzdecode ($response_body);			
 
-			echo $response_body;
+			echo do_shortcode($response_body);
 			
 			//----------  editor modals  ---------------
 			

@@ -19,7 +19,9 @@
 		
 			echo'<ul class="nav nav-tabs tabs-left">';
 				
-				echo'<li class="gallery_type_title">My Profile</li>';
+				echo'<li class="gallery_type_title gallery_head">My Profile</li>';
+				
+				echo'<li class="gallery_type_title">Profile Settings</li>';
 				
 				echo'<li'.( $currentTab == 'general-info' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '">General Info</a></li>';
 				
@@ -29,6 +31,10 @@
 				
 				echo'<li'.( $currentTab == 'email-notifications' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=email-notifications">Email Notifications</a></li>';
 								
+				echo'<li><a href="' . wp_lostpassword_url() . '">Reset Password</a></li>';			
+				
+				echo'<li'.( $currentTab == 'billing-info' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=billing-info">Billing Info</a></li>';
+				
 				do_action('ltple_profile_settings_sidebar');
 				
 			echo'</ul>';
@@ -329,6 +335,66 @@
 						echo'</form>';
 						
 					echo'</div>';
+				}
+				elseif( $currentTab == 'billing-info' ){
+					
+					echo'<div class="tab-pane active" id="billing-info">';
+					
+						echo'<form action="' . $this->parent->urls->current . '" method="post" class="tab-content" style="margin-top:20px;">';
+
+							echo'<div class="col-xs-12">';
+						
+								echo'<h3>Billing Information</h3>';
+								
+								echo'<hr></hr>';
+								
+							echo'</div>';
+
+							echo'<div class="col-xs-12">';
+
+								$user_plan = $this->parent->plan->get_user_plan_info( $this->parent->user->ID );
+									
+								echo '<div style="margin-bottom:20px;background: rgb(248, 248, 248);display:block;padding:20px;text-align:left;border-left: 5px solid #888;">';
+									
+									echo'<b>Price</b>: ' . $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].' / '.$user_plan['info']['total_price_period'] . '<br/>';
+									
+								echo '</div>';
+								
+								echo $this->parent->plan->get_plan_table($user_plan);
+
+								echo'<hr>';
+								
+								echo '<div class="panel panel-default">';
+							
+									echo '<div class="panel-heading"><b>License & Payment</b></div>';
+									
+									echo '<div class="panel-body">';								
+			
+										echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->parent->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
+			
+										echo '<iframe src="' . $this->parent->server->url . '/agreement/?overview=' . $this->parent->ltple_encrypt_uri($this->parent->user->user_email) . '&_='.time().'" style="margin-top: -65px;position:relative;top:0;bottom:0;width:100%;height:500px;overflow:hidden;border:0;"></iframe>';
+										
+									echo '</div>';
+									
+								echo '</div>';									
+								
+							echo'</div>';
+							
+							echo'<div class="clearfix"></div>';
+							
+							echo'<div class="col-xs-12 col-sm-6"></div>';
+							
+							echo'<div class="col-xs-12 col-sm-2 text-right">';
+						
+								//echo'<button class="btn btn-sm btn-warning" style="width:100%;margin-top: 10px;">Save</button>';
+								
+							echo'</div>';
+
+							echo'<div class="col-xs-12 col-sm-4"></div>';
+								
+						echo'</form>';
+						
+					echo'</div>';					
 				}
 				else{
 					

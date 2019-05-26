@@ -96,9 +96,12 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			$this->app = $_SESSION['app'];
 		}
 		
-		add_filter('wp_loaded', array( $this, 'init_apps'));
+		add_filter( 'wp_loaded', array( $this, 'init_apps'));
 		
-		add_filter("user-app_custom_fields", array( $this, 'get_fields' ));
+		add_filter( 'user-app_custom_fields', array( $this, 'get_fields' ));
+		
+		add_filter( 'ltple_dashboard_connect_sidebar', array( $this, 'get_sidebar_content' ),1,3);
+	
 	}
 
 	// Add app data custom fields
@@ -130,6 +133,15 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		);
 		
 		return $fields;
+	}
+	
+	public function get_sidebar_content($sidebar,$currentTab,$output){
+		
+		$sidebar .= '<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->apps . '?app&output='.$output.'">Applications</a></li>';
+
+		//$sidebar .= '<li'.( $currentTab == 'embedded' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->apps . '?app=embedded&output='.$output.'">Embedded Plugin</a></li>';
+
+		return $sidebar;
 	}
 	
 	public function init_apps(){

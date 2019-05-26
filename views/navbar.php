@@ -17,24 +17,31 @@
 		
 			echo'<div class="col-xs-6 col-sm-4" style="z-index:10;padding:0 8px;">';			
 				
-				if( $ltple->profile->id == 0 ){
+				echo'<div class="pull-left">';
 				
-					echo'<div class="pull-left">';
-					
-						echo'<button type="button" id="sidebarCollapse">';
-								
-							echo'<i class="glyphicon glyphicon-align-left"></i>';
+					echo'<button type="button" id="sidebarCollapse">';
 							
-						echo'</button>';
-
-					echo'</div>';
-				}
+						echo'<i class="glyphicon glyphicon-align-left"></i>';
+						
+					echo'</button>';
+					
+				echo'</div>';
 				
 				echo'<div class="pull-left">';
+				
+					echo'<a class="menuIconBtn" href="' . $ltple->urls->dashboard . '" style="width: 32px;height: 28px;border-top: 0;border-right: 1px solid #ddd;border-bottom: 0;border-left: 0;color: #777;text-align: left;font-size: 16px;display: block;background: transparent;padding: 3px 5px;margin: 0 10px 0 0;">';
+							
+						echo'<i class="glyphicon glyphicon-th-large"></i>';
+						
+					echo'</a>';
+					
+				echo'</div>';
+				
+				echo'<div class="pull-left hidden-xs">';
 
 					echo'<a style="background:' . $ltple->settings->mainColor . ';border:1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="'. $ltple->urls->editor .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Templates" data-content="The gallery is where you can find templates to start a project. New things are added every weeks.">';
 					
-						echo'Gallery';
+						echo'Templates';
 					
 					echo'</a>';
 				
@@ -42,7 +49,7 @@
 				
 				if( $ltple->user->loggedin === true ){
 					
-					echo'<div class="pull-left">';
+					echo'<div class="pull-left hidden-xs">';
 
 						echo'<a style="margin-left:6px;background: ' . $ltple->settings->mainColor . '99;border: 1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="' . $ltple->urls->media . 'user-images/" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
 							
@@ -90,21 +97,21 @@
 						
 						// insert button
 						
-						if( $this->layer->layerOutput == 'image' ){
+						if( $ltple->layer->layerOutput == 'image' ){
 
 							echo '<button style="margin-left:2px;margin-right:2px;border:1px solid #761b86;background:#9C27B0;" id="elementsBtn" class="btn btn-sm pull-left" href="#" data-toggle="dialog" data-target="#LiveImgEditorElements" data-height="450" data-width="75%" data-resizable="false">Insert</button>';
 					
 							echo '<div id="LiveImgEditorElements" title="Elements library" style="display:none;">'; 
 							echo '<div id="LiveImgEditorElementsPanel">';
 								
-								echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
+								echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $ltple->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
 								
-								echo'<iframe data-src="' . $this->urls->media . '?output=widget" style="border:0;width:100%;height:100%;position:absolute;top:0;bottom:0;right:0;left:0;"></iframe>';
+								echo'<iframe data-src="' . $ltple->urls->media . '?output=widget" style="border:0;width:100%;height:100%;position:absolute;top:0;bottom:0;right:0;left:0;"></iframe>';
 								
 							echo '</div>';
 							echo '</div>';										
 						}					
-						elseif( !empty($elemLibraries) && ( isset($_GET['edit']) || isset($_GET['quick']) || $ltple->layer->type == 'user-layer' || is_admin() ) ){
+						elseif( !empty($elemLibraries) ){
 							
 							echo'<style>'.PHP_EOL;
 
@@ -180,23 +187,30 @@
 												
 													$type = $elements['type'][$e];
 													
-													$item = '<li draggable="true" data-insert-html="' . str_replace( array('\\"','"',"\\'"), "'", $elements['content'][$e] ) . '">';
+													$content = str_replace( array('\\"','"',"\\'"), "'", $elements['content'][$e] );
 													
-														$item .= '<span>'.$name.'</span>';
+													$drop = ( !empty($elements['drop'][$e]) ? $elements['drop'][$e] : 'out' );
 													
-														if( !empty($elements['image'][$e]) ){
+													if( !empty($content) ){
 													
-															$item .= '<img title="'.$name.'" height="150" src="' . $elements['image'][$e] . '" />';
-														}
-														else{
-															
-															$item .= '<img title="'.$name.'" height="150" src="' . $this->server->url . '/c/p/live-template-editor-resources/assets/images/flow-charts/corporate/testimonials-slider.jpg" />';
-															
-															//$item .= '<div style="height: 115px;width: 150px;background: #afcfff;border: 4px solid #fff;"></div>';
-														}
-													$item .= '</li>';
-													
-													$list[$type][] = $item;
+														$item = '<li draggable="true" data-drop="' . $drop . '" data-insert-html="' . $content . '">';
+														
+															$item .= '<span>'.$name.'</span>';
+														
+															if( !empty($elements['image'][$e]) ){
+														
+																$item .= '<img title="'.$name.'" height="150" src="' . $elements['image'][$e] . '" />';
+															}
+															else{
+																
+																$item .= '<img title="'.$name.'" height="150" src="' . $ltple->server->url . '/c/p/live-template-editor-resources/assets/images/flow-charts/corporate/testimonials-slider.jpg" />';
+																
+																//$item .= '<div style="height: 115px;width: 150px;background: #afcfff;border: 4px solid #fff;"></div>';
+															}
+														$item .= '</li>';
+														
+														$list[$type][] = $item;
+													}
 												}
 											}
 										}
@@ -251,7 +265,7 @@
 								
 								// save button
 								
-								if( !empty($ltple->user->layer->post_title) ){
+								if( !empty($ltple->user->layer->post_title) && ( empty($_GET['action']) || $_GET['action'] != 'edit' ) ){
 
 									$post_title = $ltple->user->layer->post_title;
 									
@@ -268,7 +282,7 @@
 										
 										echo'<input type="hidden" name="submitted" id="submitted" value="true">';
 										
-										echo'<div id="navLoader" style="float:left;margin-right:10px;display:none;"><img src="' . $this->assets_url . 'loader.gif" style="height: 20px;"></div>';				
+										echo'<div id="navLoader" style="float:left;margin-right:10px;display:none;"><img src="' . $ltple->assets_url . 'loader.gif" style="height: 20px;"></div>';				
 										
 										echo'<button style="background-color:#5869ca;border: 1px solid #3F51B5;" class="btn btn-sm" type="button" id="saveBtn">Save</button>';
 										
@@ -290,7 +304,7 @@
 								
 								// delete button
 								
-								if( $ltple->layer->type == 'user-layer' ){
+								if( $ltple->layer->type != 'cb-default-layer' ){
 
 									echo '<a style="border: 1px solid #c70000;background: #f44336;" class="btn btn-sm" href="#removeCurrentTpl" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</a>';
 								
@@ -325,7 +339,7 @@
 								
 								echo'<input type="hidden" name="submitted" id="submitted" value="true">';
 								
-								echo'<div id="navLoader" style="margin-right:10px;display:none;"><img src="' . $this->assets_url . 'loader.gif" style="height: 20px;"></div>';				
+								echo'<div id="navLoader" style="margin-right:10px;display:none;"><img src="' . $ltple->assets_url . 'loader.gif" style="height: 20px;"></div>';				
 
 								if( isset($_GET['edit']) ){
 									
@@ -348,7 +362,7 @@
 							}
 						}
 
-						if( $ltple->layer->layerOutput == 'canvas' && ( $ltple->layer->type == 'user-layer' || isset($_REQUEST['edit']) || isset($_REQUEST['quick']) ) ){
+						if( $ltple->layer->layerOutput == 'canvas' && ( $ltple->layer->type != 'cb-default-layer' || isset($_REQUEST['edit']) || isset($_REQUEST['quick']) ) ){
 							
 							/*
 							echo '<div style="margin:0 2px;" class="btn-group">';
@@ -403,6 +417,8 @@
 											echo'<li style="position:relative;">';
 												
 												echo '<a href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
+												
+												/*
 												echo '<a href="#quickRemoveTpl' . ( $i + 1 ) . '" data-toggle="dialog" data-target="#quickRemoveTpl' . ( $i + 1 ) . '" class="btn-xs btn-danger" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
 
 												echo'<div style="display:none;" id="quickRemoveTpl' . ( $i + 1 ) . '" title="Remove Template ' . ( $i + 1 ) . '">';
@@ -414,6 +430,7 @@
 													//echo '<button style="margin:10px;" type="button" class="btn btn-xs btn-danger ui-button ui-widget" role="button" title="Close"><span class="ui-button-text">No</span></button>';
 
 												echo'</div>';
+												*/
 											
 											echo'</li>';						
 										}
@@ -426,74 +443,80 @@
 							
 							echo '<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"></span> Load <span class="caret"></span></button>';
 						}
-					}
 
-					if( ( $ltple->layer->type == 'cb-default-layer' && $ltple->user->is_editor ) || $ltple->layer->type == 'user-layer' ){
-					
-						echo'<div style="margin:0 2px;" class="btn-group">';
+						if( $ltple->layer->defaultId > 0 && ( $ltple->layer->type != 'cb-default-layer' || $ltple->user->is_editor ) ){
 						
-							echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size:14px;height:28px;background:#345774;border:1px solid #1b2e3e;color: #fff;"><span class="glyphicon glyphicon-cog icon-cog" aria-hidden="true"></span></button>';
-												
-							echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
-								
-								echo'<li style="position:relative;">';
-								
-									echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Template ' . ( $ltple->layer->type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
-
-									echo'<div id="duplicateLayer" title="Duplicate Template">';
-										
-										echo'<form class="" style="width:250px;display:inline-block;" target="_parent" action="' . $ltple->urls->current . '" id="duplicatePostForm" method="post">';
-											
-											echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;">';
-											echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
-											echo'<input type="hidden" name="postContent" value="">';
-											echo'<input type="hidden" name="postCss" value="">'; 
-											echo'<input type="hidden" name="postJs" value="">'; 									
-											echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
-											
-											wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
-											
-											echo'<input type="hidden" name="submitted" id="submitted" value="true">';
-											
-											echo'<div class="ui-helper-clearfix ui-dialog-buttonset">';
-
-												echo'<button class="btn btn-xs btn-primary pull-right" type="submit" id="duplicateBtn" style="border-radius:3px;">Duplicate</button>';
-										 
-											echo'</div>';
-											
-										echo'</form>';								
-										
-									echo'</div>';						
-									
-								echo'</li>';
-
-								if( $ltple->user->is_editor ){
+							echo'<div style="margin:0 2px;" class="btn-group">';
+							
+								echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size:14px;height:28px;background:#345774;border:1px solid #1b2e3e;color: #fff;"><span class="glyphicon glyphicon-cog icon-cog" aria-hidden="true"></span></button>';
+													
+								echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 									
 									echo'<li style="position:relative;">';
-										
-										echo '<a target="_blank" href="' . get_edit_post_link( $ltple->layer->id ) . '"> Edit Backend <span class="label label-warning pull-right">admin</span></a>';
+									
+										echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Template ' . ( $ltple->layer->type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
 
+										echo'<div id="duplicateLayer" title="Duplicate Template">';
+											
+											echo'<form class="" style="width:250px;display:inline-block;" target="_parent" action="' . $ltple->urls->current . '" id="duplicatePostForm" method="post">';
+												
+												echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;">';
+												echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
+												echo'<input type="hidden" name="postContent" value="">';
+												echo'<input type="hidden" name="postCss" value="">'; 
+												echo'<input type="hidden" name="postJs" value="">'; 									
+												echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
+												
+												wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
+												
+												echo'<input type="hidden" name="submitted" id="submitted" value="true">';
+												
+												echo'<div class="ui-helper-clearfix ui-dialog-buttonset">';
+
+													echo'<button class="btn btn-xs btn-primary pull-right" type="submit" id="duplicateBtn" style="border-radius:3px;">Duplicate</button>';
+											 
+												echo'</div>';
+												
+											echo'</form>';								
+											
+										echo'</div>';						
+										
 									echo'</li>';
 									
-									if( $ltple->layer->type == 'cb-default-layer' && empty($ltple->user->layer->post_title) ){
+									echo'<li style="position:relative;">';
 									
+										echo '<a href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&action=edit">Edit Settings</a>';
+									
+									echo'</li>';
+
+									if( $ltple->user->is_editor ){
+										
 										echo'<li style="position:relative;">';
 											
-											echo '<a target="_self" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
+											echo '<a target="_blank" href="' . get_edit_post_link( $ltple->layer->id ) . '"> Edit Backend <span class="label label-warning pull-right">admin</span></a>';
+
+										echo'</li>';
+										
+										if( $ltple->layer->type == 'cb-default-layer' && empty($ltple->user->layer->post_title) ){
+										
+											echo'<li style="position:relative;">';
+												
+												echo '<a target="_self" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
+
+											echo'</li>';
+										}
+										
+										echo'<li style="position:relative;">';
+											
+											echo '<a target="_blank" href="' . get_post_permalink( $ltple->layer->id ) . '?preview"> Preview Template <span class="label label-warning pull-right">admin</span></a>';
 
 										echo'</li>';
 									}
 									
-									echo'<li style="position:relative;">';
-										
-										echo '<a target="_blank" href="' . get_post_permalink( $ltple->layer->id ) . '?preview"> Preview Template <span class="label label-warning pull-right">admin</span></a>';
-
-									echo'</li>';
-								}
+								echo'</ul>';
 								
-							echo'</ul>';
-							
-						echo'</div>';
+							echo'</div>';
+						}						
 					}
 				}
 				else{
