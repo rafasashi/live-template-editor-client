@@ -16,7 +16,27 @@ class LTPLE_Client_Dashboard {
 		// add dashboard shortcodes
 		
 		add_shortcode('ltple-client-dashboard', array( $this , 'get_dashboard_shortcode' ) );		
+
+		// add dashboard style
+		
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );		
+	}
+	
+	public function enqueue_styles () {
+		
+		/*
+		if( strpos($this->parent->urls->current, $this->parent->urls->dashboard ) === 0 ){
+			
+			wp_register_style( $this->parent->_token . '-dashboard', false, array());
+			wp_enqueue_style( $this->parent->_token . '-dashboard' );
+		
+			wp_add_inline_style( $this->parent->_token . '-dashboard', '
+			
 				
+				
+			');
+		}
+		*/
 	}
 	
 	public function get_all_boxes(){
@@ -29,7 +49,7 @@ class LTPLE_Client_Dashboard {
 				
 					'title' 	=> 'New Templates',
 					'content' 	=> $this->get_recent_posts(array(
-
+						
 						'post_type' 	=> 'cb-default-layer',
 						'numberposts' 	=> 10,
 						'meta_query' 	=> array(
@@ -166,26 +186,26 @@ class LTPLE_Client_Dashboard {
 	public function get_sidebar( $currentTab = 'home', $output = '' ){
 			
 		$sidebar =  '<div id="sidebar">';
-			
-			$sidebar .= '<ul class="nav nav-tabs tabs-left">';
-
-				$sidebar .= '<li class="gallery_type_title gallery_head">Dashboard</li>';
 				
+			$sidebar .= '<div class="gallery_type_title gallery_head">Dashboard</div>';
+
+			$sidebar .= '<ul class="nav nav-tabs tabs-left" style="height:calc(100vh - 105px);overflow-x:hidden;overflow-y:auto;">';
+
 				$sidebar .= '<li class="gallery_type_title">Manage</li>';
 				
-				$sidebar .= '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '">Overview</a></li>';
+				$sidebar .= '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '"><span class="glyphicon glyphicon-dashboard"></span> Overview</a></li>';
 				
-				$sidebar .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->profile .'">Profile Settings</a></li>';
+				$sidebar .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->profile .'"><span class="glyphicon glyphicon-cog"></span> Profile Settings</a></li>';
 				
-				$sidebar .= '<li><a href="' . $this->parent->urls->media .'user-images/">Media Library</a></li>';
+				$sidebar .= '<li><a href="' . $this->parent->urls->media .'user-images/"><span class="glyphicon glyphicon-folder-close"></span> Media Library</a></li>';
 				
 				$sidebar = apply_filters('ltple_dashboard_manage_sidebar',$sidebar,$currentTab,$output);
 				
 				$sidebar .= '<li class="gallery_type_title">Design</li>';
 				
-				$sidebar .= '<li><a href="' . $this->parent->urls->editor . '?list=user-layer">Templates</a></li>';
+				$sidebar .= '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
 				
-				$sidebar .= '<li><a href="' . $this->parent->urls->editor . '?list=user-psd">Images</a></li>';
+				$sidebar .= '<li'.( ( $currentTab == 'user-psd' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Images</a></li>';
 				
 				//$sidebar .= '<li><a href="' . $this->parent->urls->editor . '?layer[output]=canvas">Memes & Collages</a></li>';
 				
@@ -195,9 +215,8 @@ class LTPLE_Client_Dashboard {
 
 					$sidebar .= '<li class="gallery_type_title">Publish</li>';
 							
-					$sidebar .= '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->editor . '?list=user-page">Hosted Pages</a></li>';
+					$sidebar .= '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->editor . '?list=user-page"><span class="glyphicon glyphicon-file"></span> Web Pages</a></li>';
 				
-
 				$sidebar = apply_filters('ltple_dashboard_publish_sidebar',$sidebar,$currentTab,$output);
 
 				$sidebar .= '<li class="gallery_type_title">Connect</li>';

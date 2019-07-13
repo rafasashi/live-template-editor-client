@@ -30,7 +30,7 @@
 				
 				echo'<hr>';
 				
-				echo'<a href="'.add_query_arg('quick','',$this->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without saving )</a>';				
+				echo'<a href="'.add_query_arg('quick','',$this->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
 			}
 			
 			echo'<hr>';
@@ -136,14 +136,14 @@
 			}
 			
 			//include quick edit
-			
-			if( $this->layer->layerOutput == 'canvas' && isset($_GET['quick']) ){
+			 
+			if( isset($_GET['quick']) ){
 				
 				echo ' var quickEdit = true;' .PHP_EOL;
 			}
-			elseif( !$this->user->plan["info"]["total_price_amount"] > 0 ){
+			elseif( !$this->user->plan['info']['total_price_amount'] > 0 ){
 				
-				echo ' var quickEdit = false;' .PHP_EOL;
+				echo ' var quickEdit = true;' .PHP_EOL;
 			}
 			else{
 				

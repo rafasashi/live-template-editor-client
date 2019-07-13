@@ -22,7 +22,7 @@
 	
 	//get layer image proxy
 	
-	$layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?'.time().'&url=';
+	$layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
 	
 	//get layer margin
 	

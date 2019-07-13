@@ -4,46 +4,9 @@
 	
 	$currentTab = $_REQUEST['list'];
 	
+	$output = ''; 
+	
 	// ------------- output panel --------------------
-	
-	echo'<style>
-		
-		table {
-		
-			font-size:15px;
-		}
-		
-		th {
-			
-			vertical-align: middle !important;
-		}
-		
-		th input, th select {
-			
-			width: 95% !important;
-			padding: 5px !important;
-			font-size: 11px !important;
-			margin: 0 auto 6px auto !important;
-			height: 25px !important;
-			background: #ffffff !important;
-			color: #888 !important;
-			border: none !important;
-		}
-	
-		.fixed-table-toolbar {
-			
-			margin-top: -48px;
-			margin-bottom: -6px;
-			display: inline-block;
-			float: right;
-		}
-		
-		.fixed-table-container {
-			
-			border:none !important;
-		}
-		
-	</style>';
 	
 	if(!empty($this->parent->message)){ 
 	
@@ -64,7 +27,7 @@
 
 		echo $this->dashboard->get_sidebar($currentTab);
 		
-		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
+		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;;min-height:700px;">';
 			
 			echo'<div class="tab-content">';
 
@@ -83,7 +46,7 @@
 							echo'<li role="presentation" class="active"><a href="' . $this->urls->current . '" role="tab">' . $post_type->label . '</a></li>';
 						}
 						
-						echo'<li role="presentation"><a href="' . $this->urls->editor . '?layer[default_storage]='.$currentTab.'" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ New</a></li>';
+						echo '<li role="presentation"><a href="' . apply_filters( 'ltple_list_'.$currentTab.'_new_url', $this->urls->editor . '?layer[default_storage]=' . $currentTab, $currentTab, $output ) . '" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ New</a></li>';
 						
 					echo'</ul>';
 
@@ -105,9 +68,18 @@
 								'sortable' 		=> 'true',
 								'content' 		=> 'Name',
 								'filter-control'=> 'input',
-							)									
+							),
+							array(
+
+								'field' 		=> 'type',
+								'sortable' 		=> 'true',
+								'content' 		=> 'Type',
+								'filter-control'=> 'select',
+							)								
 						);
 
+						$fields = apply_filters('ltple_table_fields',$fields,$post_type);
+						
 						if( $this->layer->is_hosted($post_type) ){
 							
 							$fields[] = array(
@@ -117,8 +89,8 @@
 								'content' 		=> 'Status',
 								'filter-control'=> 'select',
 							);
-						}						
-						
+						}
+
 						$fields[] = array(
 
 							'field' 	=> 'action',
@@ -131,7 +103,7 @@
 						$this->api->get_table(
 						
 							$this->urls->api . 'ltple-list/v1/'.$currentTab.'?' . http_build_query($_POST, '', '&amp;'), 
-							$fields, 
+							apply_filters('ltple_list_'.$currentTab.'_fields',$fields), 
 							$trash		= false,
 							$export		= false,
 							$search		= true,

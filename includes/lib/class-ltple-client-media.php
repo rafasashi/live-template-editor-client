@@ -32,6 +32,27 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		// add media shortcode
 		
 		add_shortcode('ltple-client-media', array( $this , 'get_media_shortcode' ) );
+
+		add_action( 'rest_api_init', function () {
+			
+			register_rest_route( 'ltple-media/v1', '/user-images', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_uploaded_images'),
+			) );
+			
+			register_rest_route( 'ltple-media/v1', '/external-images', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_external_images'),
+			) );
+			
+			register_rest_route( 'ltple-media/v1', '/image-library', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_default_images'),
+			) );
+		} );			
 	}
 	
 	public function init_media(){
@@ -86,7 +107,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 		if( !$this->type = get_query_var('media') ){
 			
-			$this->type = 'image-library';
+			$this->type = 'user-images';
 		}
 	}
 	
@@ -113,27 +134,9 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function get_app_list(){
+	public function get_external_providers(){
 						
-		$apps = [];
-
-		$item = new stdClass();
-		$item->name 	= 'Upload';
-		$item->slug 	= 'upload';
-		$item->types 	= ['images'];
-		$item->pro 		= true;
-	
-		/*
-		$apps[] = $item;
-
-		$item = new stdClass();
-		$item->name 	= 'Collages';
-		$item->slug 	= 'canvas';
-		$item->types 	= ['images'];
-		$item->pro 		= true;
-		*/
-		
-		$apps[] = $item;					
+		$apps = [];				
 
 		$item = new stdClass();
 		$item->name 	= 'Urls';
@@ -151,108 +154,46 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		return $apps;		
 	}
 	
-	public function get_default_images($tab){
+	public function get_default_images($rest = NULL){
 		
 		$default_images = [];
-
-		foreach( $this->parent->image->types as $term ){
-			
-			$default_images[$term->slug] = [];
-		}
-			
+		
+		$slug = 'image-library';
+		
 		$loop = new WP_Query( array( 
 		
 			'post_type' 		=> 'default-image',
-			'posts_per_page' 	=> -1,
-			'tax_query' 		=> array(
-			
-				array(
-				
-				  'taxonomy' 	=> 'image-type',
-				  'field' 		=> 'slug',
-				  'terms' 		=> $tab
-				)
-			)			
+			'posts_per_page' 	=> -1,		
 		));
 
 		while ( $loop->have_posts() ) : $loop->the_post(); 
 			
 			global $post;
-			$image = $post;
 
-			$media_url = $this->parent->urls->media . '?uri=' . $image->ID;
-
-			//get permalink
+			$image_type = wp_get_object_terms($post->ID,'image-type');
 			
-			$permalink = get_permalink($image);
+			$image_type = isset( $image_type[0]->slug ) ? $image_type[0]->slug : '';
 			
-			//get post_title
-			
-			$image_title = the_title('','',false);
-			
-			//get image_type
-			
-			$image_type = $tab;
-			
-			//get item
-			
-			$item='';
-			
-			$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
+			$item = array(
 				
-				$item.='<div class="panel panel-default">';
-					
-					/*
-					$item.='<div class="panel-heading">';
-
-						$item.='<b style="overflow:hidden;width:90%;display:block;">' . $image_title . '</b>';
-						
-					$item.='</div>';
-					*/
-
-					$item.='<div class="thumb_wrapper" style="">';
-					
-						$item.= '<img class="lazy" data-original="'.$image->post_content . '" />';
-					
-					$item.='</div>'; //thumb_wrapper
-
-					$item.='<div class="panel-body">';
-						
-						//$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
-						
-						$item.='<div class="text-right">';
-
-							if($this->parent->inWidget){
-								
-								$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image->post_content . '">Insert</a>';							
-							}
-							else{
-
-								$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image->post_content .'" />';
-							}
-							
-						$item.='</div>';
-						
-					$item.='</div>'; //panel-body
-
-				$item.='</div>';
+				'item' => $this->get_image_item($post,$slug),
+				'type' => $image_type,
+			);
 				
-			$item.='</div>';
-			
-			//merge item
-			
-			$default_images[$image_type][]=$item;
-			
+			$default_images[] = $item;
+
 		endwhile; wp_reset_query();	
 		
 		return $default_images;
 	}
 	
-	public function get_user_images($user_id,$tab){
+	public function get_uploaded_images($rest = NULL){
 		
 		//get user images
 		
 		$user_images = [];
+		
+		$user_id = $this->parent->user->ID;
 		
 		if( $user_id  > 0 ){
 			
@@ -269,33 +210,23 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			
 			$meta_key = $this->parent->_base . 'upload_source';
 			
-			if( $tab == 'upload' ){
-				
-				$args['meta_query'] = array(
-				
-					'relation' => 'OR',
-					array(
-						'key' 		=> $meta_key,
-						'value' 	=> $tab,
-						'compare' 	=> '='
-					),
-					array(
-						'key' 		=> $meta_key,
-						'compare' 	=> 'NOT EXISTS'
-					),
-				);					
-			}
-			else{
-				
-				$args['meta_query'] = array(
-				
-					array(
-						'key' 		=> $meta_key,
-						'value' 	=> $tab,
-						'compare' 	=> '='
-					),
-				);				
-			}
+			$slug = 'user-images';
+			
+			$source = 'upload';
+			
+			$args['meta_query'] = array(
+			
+				'relation' => 'OR',
+				array(
+					'key' 		=> $meta_key,
+					'value' 	=> $source,
+					'compare' 	=> '='
+				),
+				array(
+					'key' 		=> $meta_key,
+					'compare' 	=> 'NOT EXISTS'
+				),
+			);
 			
 			$query_images = new WP_Query( $args );
 
@@ -304,58 +235,26 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			foreach ( $query_images->posts as $image ){
 				
 				if( $image->post_mime_type != 'image/vnd.adobe.photoshop' ){
-				
-					$image_url = wp_get_attachment_url( $image->ID );
 					
-					$image_title = get_the_title( $image->ID );
-					
-					//get item
-					
-					$item='';
-					
-					$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
-						
-						$item.='<div class="panel panel-default">';
-							
-							if(!$this->parent->inWidget){
-							
-								$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-images/?att=' . $image->ID . '&imgAction=delete&tab='.$tab.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-							}						
-							
-							$item.='<div class="thumb_wrapper">';
-							
-								$item.= '<img class="lazy" data-original="' . $image_url . '" />';
-							
-							$item.='</div>'; //thumb_wrapper						
-
-							$item.='<div class="panel-body">';
-								
-								//$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
-
-								$item.='<div class="text-right">';
-
-									if($this->parent->inWidget){
-
-										$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
-									}
-									else{
-										
-										$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image_url . '" />';
-									}
-									
-								$item.='</div>';							
-								
-							$item.='</div>'; //panel-body
-
-						$item.='</div>';
-						
-					$item.='</div>';
-					
-					//merge item
-					
-					$user_images[$tab][]=$item;
+					$user_images[]['item']= $this->get_image_item($image,$slug);
 				}
-			}
+			}			
+		}
+
+		return $user_images;
+	}
+	
+	public function get_external_images($rest = NULL){
+		
+		//get user images
+		
+		$user_images = [];
+		
+		$user_id = $this->parent->user->ID;
+		
+		$slug = 'external-images';
+		
+		if( $user_id  > 0 ){
 			
 			//-------------------get images from apps------------------------
 			
@@ -365,115 +264,119 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'posts_per_page' 	=> -1, 
 				'author' 			=> $user_id,
 			);
-			
-			if( $tab == 'url' ){
-				
-				$args['tax_query'] = array(
-			
-					array(
-					
-						'taxonomy' 	=> 'app-type',
-						'operator' 	=> 'NOT EXISTS',
-					)
-				);
-			}
-			else{
-				
-				$args['tax_query'] = array(
-			
-					array(
-					
-					  'taxonomy' 	=> 'app-type',
-					  'field' 		=> 'slug',
-					  'terms' 		=> $tab
-					)
-				);
-			}
-			
+
 			$loop = new WP_Query($args);
 			
 			while ( $loop->have_posts() ) : $loop->the_post(); 
 				
 				global $post;
-				$image = $post;
 
-				$media_url = $this->parent->urls->media . '?uri=' . $image->ID;
-
-				//get permalink
-				
-				$permalink = get_permalink($image);
-				
-				//get post_title
-				
-				$image_title = the_title('','',false);
-				
-				//get terms
-				
-				$terms = wp_get_object_terms( $image->ID, 'app-type' );
-				
-				//get image_provider
-				
-				$image_provider = 'url';
-				
-				if( !isset($terms->errors) && isset($terms[0]->slug) ){
+				$item = array(
 					
-					$image_provider = $terms[0]->slug;
-				}
+					'item' => $this->get_image_item($post,$slug),
+				);
 				
-				//get item
-				
-				$item='';
-				
-				$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4 col-lg-3",$image->ID) ) . '" id="post-' . $image->ID . '">';
-					
-					$item.='<div class="panel panel-default">';
-						
-						$item.='<div class="panel-heading">';
-							
-							//$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
-							
-							if(!$this->parent->inWidget){
-							
-								$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-images/?uri=' . $image->ID . '&imgAction=delete&tab='.$tab.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-							}
-							
-						$item.='</div>';
-
-						$item.='<div class="panel-body">';
-							
-							$item.='<div class="thumb_wrapper">';
-							
-								$item.= '<img class="lazy" data-original="'.$image->post_content.'" />';
-									
-							$item.='</div>'; //thumb_wrapper
-
-							$item.='<div class="text-right">';
-
-								if($this->parent->inWidget){
-
-									$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="'.$image->post_content.'">Insert</a>';
-								}
-								else{
-									
-									$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $image->post_content .'" />';
-								}
-								
-							$item.='</div>';							
-							
-						$item.='</div>'; //panel-body
-
-					$item.='</div>';
-					
-				$item.='</div>';
-				
-				//merge item
-				
-				$user_images[$image_provider][]=$item;
+				$user_images[]= $item;
 				
 			endwhile; wp_reset_query();					
 		}
 
 		return $user_images;
+	}	
+	
+	public function get_image_item($image,$slug){
+		
+		if( $slug == 'user-images' ){
+		
+			$image_url = wp_get_attachment_url( $image->ID );
+		}
+		elseif( $slug == 'image-library' ){
+			
+			$image_url = $image->post_content;
+		}
+		else{
+			
+			$image_url = $image->post_content;
+		}
+		
+		//get item
+		
+		$item='';
+		
+		$item.='<div class="' . implode( ' ', get_post_class("",$image->ID) ) . '" id="post-' . $image->ID . '">';
+			
+			$item.='<div class="panel panel-default">';
+				
+				if(!$this->parent->inWidget ){
+					
+					if( $slug != 'image-library' ){
+					
+						$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . $slug . '/?'.( $slug == 'user-images' ? 'att' : 'uri' ).'=' . $image->ID . '&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 12px;right: 12px;font-weight: bold;">x</a>';
+					}
+				}						
+				
+				$item.='<div class="thumb_wrapper">';
+				
+					$item.= '<img class="lazy" data-original="' . $image_url . '" />';
+				
+				$item.='</div>'; //thumb_wrapper						
+
+				$item.='<div class="panel-body">';
+					
+					//$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
+
+					$item.='<div class="text-right">';
+
+						if($this->parent->inWidget){
+
+							$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
+						}
+						else{
+							
+							$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image_url . '" />';
+						}
+						
+					$item.='</div>';							
+					
+				$item.='</div>'; //panel-body
+
+			$item.='</div>';
+			
+			// get keywords
+			
+			$taxonomies = array();
+			
+			if( $slug == 'user-images' ){
+			
+				//$taxonomies[] = 'image-tag';
+			}
+			elseif( $slug == 'image-library' ){
+				
+				$taxonomies[] = 'image-type';
+			}
+			elseif( $slug == 'external-images' ){
+				
+				$taxonomies[] = 'app-type';
+			}
+			
+			if( !empty($taxonomies) ){
+				
+				$item.='<div class="item-keywords" style="display:hidden;">';
+								
+					if( $terms = wp_get_object_terms($image->ID,$taxonomies) ){
+						
+						foreach( $terms as $term ){
+							
+							$item.= '<span>' . $term->name . '</span> ';
+						}
+					}
+					
+				$item.='</div>';
+			}
+
+		$item.='</div>';
+		
+		return $item;	
 	}
 	
 	public function get_user_bookmarks($user_id){
@@ -553,5 +456,52 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		}		
 		
 		return $bookmarks;
+	}
+	
+	public function get_image_table($type){
+
+		//output Tab panes
+		  
+		echo'<div class="tab-content" style="margin-top:20px;">';
+			
+			echo'<div role="tabpanel" class="tab-pane active" id="' . $type . '">';
+				
+				// get table fields
+				
+				echo'<div class="row" style="margin:-20px -15px 0px -15px;">';
+					
+					$fields = array(
+						
+						array(
+
+							'field' 	=> 'item',
+							'sortable' 	=> 'false',
+							'content' 	=> '',
+						),					
+					);
+				
+					// get table of results
+
+					$this->parent->api->get_table(
+					
+						$this->parent->urls->api . 'ltple-media/v1/' . $type . '?' . http_build_query($_REQUEST, '', '&amp;'), 
+						apply_filters('ltple_media_' . $type . '_fields',$fields), 
+						$trash		= false,
+						$export		= false,
+						$search		= true,
+						$toggle		= false,
+						$columns	= false,
+						$header		= true,
+						$pagination	= true,
+						$form		= false,
+						$toolbar 	= 'toolbar',
+						$card		= true
+					);
+
+				echo'</div>';
+				
+			echo'</div>';
+					
+		echo'</div>';		
 	}
 }  

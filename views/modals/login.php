@@ -2,7 +2,7 @@
 
 	echo '<div class="modal fade" id="login_first" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 		
-		echo '<div class="modal-dialog modal-lg" role="document" style="width:500px !important;">'.PHP_EOL;
+		echo '<div class="modal-dialog modal-lg" role="document" style="max-width:500px !important;">'.PHP_EOL;
 			
 			echo '<div class="modal-content" style="height:270px !important;">'.PHP_EOL;
 				

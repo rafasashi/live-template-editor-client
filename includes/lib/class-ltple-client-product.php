@@ -141,11 +141,11 @@ class LTPLE_Client_Product {
 		echo '<meta property="og:image"         content="' . $this->image . '" />';
 	}
 	
-	public function get_product_title(){
+	public function get_product_title($title){
 		
-		$this->parent->title = $this->post_title;
+		$title = $this->post_title;
 		
-		return $this->parent->title;
+		return $title;
 	}
 	
 	public function get_product_url(){

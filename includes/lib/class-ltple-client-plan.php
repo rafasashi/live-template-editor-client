@@ -11,10 +11,18 @@ class LTPLE_Client_Plan {
 	var $options;
 	var $message;
 	var $fields;
+	
 	var $subscription_plans	= NULL;
-	var $layer_options		= array();
+	
+	var $license_holders	= array();
+	var $license_users		= array();
+	
 	var $user_plans			= array();
+	var $user_usage			= array();
+	
+	var $layer_options		= array();
 	var $layerOptions 		= NULL;
+	
 	var $buttons 			= array();
 	var $shortcode 			= '';
 	var $iframe_height		= 500;
@@ -332,7 +340,7 @@ class LTPLE_Client_Plan {
 		return $agreement_url;
 	}
 	
-	public function get_plan_table( $plan ){
+	public function get_plan_table( $plan, $usage = null ){
 		
 		// get layer types
 		
@@ -342,72 +350,92 @@ class LTPLE_Client_Plan {
 		
 		$sections = array();
 		
-		foreach( $plan['info']['total_storage'] as $storage_unit => $total_storage_amount){
+		if( !empty($plan['info']['total_storage']) ){
 			
-			if($total_storage_amount > 0 ){
+			foreach( $plan['info']['total_storage'] as $storage_unit => $total_storage_amount){
 				
-				foreach( $layer_types as $type ){
+				if($total_storage_amount > 0 ){
 					
-					if( $type->name == $storage_unit && !empty($type->ranges) ){
+					foreach( $layer_types as $type ){
 						
-						// get section
-						
-						$section = $type->gallery_section->name;
-						
-						// get header
-						
-						$row ='<tr>';
-						
-							$row .='<th>';
+						if( $type->name == $storage_unit && !empty($type->ranges) ){
 							
-								$row .= $storage_unit;
-
-							$row .='</th>';
+							// get section
 							
-							$row .='<th>';
+							$section = $type->gallery_section->name;
 							
-								$row .= '<span class="badge">+' . $total_storage_amount.'</span> saved projects';
-
-							$row .='</th>';
+							// get header
 							
-						$row .='</tr>';						
-						
-						// get ranges
-						
-						foreach( $type->ranges as $range ){
+							$row ='<tr>';
 							
-							if( empty($type->addon_range) || $type->addon_range->term_id != $range->term_id ){
+								$row .='<th>';
 								
-								$row .='<tr>';
-								
-									$row .='<td>';
-									
-										$row .= $range->name;
+									$row .= $storage_unit;
 
-									$row .='</td>';
+								$row .='</th>';
+								
+								$row .='<th>';
 									
-									$row .='<td style="text-align:center;">';
+									if( is_array($usage) ){
 										
-										if ( in_array( $range->slug, $plan['options'] ) ) {
+										$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
 										
-											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
-										}
-										else{
+										$row .= '<span class="badge">'. $storage_usage .' / ' . $total_storage_amount.'</span>';
+									}
+									else{
+										
+										$row .= '<span class="badge">+' . $total_storage_amount.'</span> saved projects';
+									}
+									
+								$row .='</th>';
+								
+							$row .='</tr>';						
+							
+							// get ranges
+							
+							foreach( $type->ranges as $range ){
+								
+								if( empty($type->addon_range) || $type->addon_range->term_id != $range->term_id ){
+									
+									$row .='<tr>';
+									
+										$row .='<td>';
+										
+											$row .= $range->name;
+
+										$row .='</td>';
+										
+										$row .='<td style="text-align:center;">';
 											
-											$row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
-										}
+											if( isset($plan['options'][0]) && in_array( $range->slug, $plan['options'] ) ){
+												
+												// plan view
+												
+												$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+											}
+											elseif( isset( $plan['taxonomies'][$range->taxonomy]['terms'][$range->slug]['has_term'] ) && $plan['taxonomies'][$range->taxonomy]['terms'][$range->slug]['has_term'] === true ){
+												
+												// billing info view
+												
+												$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+											}											
+											else{
+												
+												$row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
+											}
 
-									$row .='</td>';
-									
-								$row .='</tr>';
+										$row .='</td>';
+										
+									$row .='</tr>';
+								}
 							}
 						}
 					}
+					
+					$sections[$section][] = $row;
 				}
-				
-				$sections[$section][] = $row;
 			}
-		}		
+		}
 		
 		// get table
 		
@@ -512,7 +540,7 @@ class LTPLE_Client_Plan {
 				
 				// user has plan
 
-				$user_has_plan = $plan['user_has_plan'];
+				$user_has_plan = isset($plan['user_has_plan']) ? $plan['user_has_plan'] : false;
 				
 				// user plan upgrade
 
@@ -527,7 +555,11 @@ class LTPLE_Client_Plan {
 						$total_upgrade += $value;
 					}
 				}
+				
+				// get action
 
+				$action = isset($plan['action']) ? $plan['action'] : 'subscribe';				
+				
 				//get agreement url	
 
 				$agreement_url = $plan['agreement_url'];
@@ -615,7 +647,7 @@ class LTPLE_Client_Plan {
 							
 							$this->shortcode .='<span class="payment-errors"></span>'.PHP_EOL;
 
-							if( $plan['action'] == 'unlocked' ){
+							if( $action == 'unlocked' ){
 								
 								$this->shortcode .='<a class="btn btn-info btn-lg" href="' . $this->parent->urls->current . '">'.PHP_EOL;
 							
@@ -623,7 +655,7 @@ class LTPLE_Client_Plan {
 							
 								$this->shortcode .='</a>'.PHP_EOL;
 							}
-							else{
+							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
 								// get addon buttons
 								
@@ -637,11 +669,11 @@ class LTPLE_Client_Plan {
 								
 									$modal_id='modal_'.md5($agreement_url);
 									
-									if( $plan['action'] == 'renew' ){
+									if( $action == 'renew' ){
 										
 										$this->shortcode .='<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 										
-											$this->shortcode .= ucfirst($plan['action']).PHP_EOL;
+											$this->shortcode .= ucfirst($action).PHP_EOL;
 
 										$this->shortcode .='</button>'.PHP_EOL;									
 									}
@@ -661,7 +693,7 @@ class LTPLE_Client_Plan {
 												
 												$this->shortcode .='Order'.PHP_EOL;
 											}
-											elseif( $plan['action'] == 'upgrade' ){
+											elseif( $action == 'upgrade' ){
 												
 												$this->shortcode .='Upgrade'.PHP_EOL;
 											}
@@ -687,7 +719,7 @@ class LTPLE_Client_Plan {
 													
 														$this->shortcode .= $plan['title'];
 														
-														if( $total_price_amount > 0 && $plan['action'] != 'upgrade' ){
+														if( $total_price_amount > 0 && $action != 'upgrade' ){
 														
 															$this->shortcode .= ' (' . $total_price_amount . $total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
 														}
@@ -1529,17 +1561,24 @@ class LTPLE_Client_Plan {
 				// update current user custom taxonomy
 				
 				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, false, array(
+					
+					/*
 					array(
 						'taxonomy' 	=> $taxonomy,
 						'terms' 	=> $term_id,
 						'field' 	=> 'id',
 						'operator' 	=> 'NOT IN',
-					),				
+					),
+					*/ // not working....
+					
 				))){
-				
-					$response = wp_set_object_terms( $user_plan_id, array($term_id), $taxonomy, true );
-
-					clean_object_term_cache( $user_plan_id, $taxonomy );
+					
+					if( !is_object_in_term( $user_plan_id, $taxonomy, $term_id ) ){
+						
+						$response = wp_set_object_terms( $user_plan_id, array($term_id), $taxonomy, true );
+						
+						clean_object_term_cache( $user_plan_id, $taxonomy );
+					}
 				}
 			}
 		}
@@ -1827,7 +1866,52 @@ class LTPLE_Client_Plan {
 		return $this->layer_options[$item_id];	
 	}
 	
+	public function get_license_holder_id($user_id){
+		
+		if( !isset($this->license_holders[$user_id]) ){
+		
+			$this->license_holders[$user_id] = apply_filters('ltple_license_holder_id',$user_id); 
+		}
+		
+		return $this->license_holders[$user_id];
+	}
+	
+	public function get_license_holder_email($user){
+		
+		$license_holder_email = null;
+		
+		if( !empty($user->ID) ){
+			
+			$license_holder_id = $this->get_license_holder_id($user->ID);
+		
+			if( $license_holder_id == $user->ID ){
+				
+				$license_holder_email = $user->user_email;
+			}
+			elseif( $license_holder = get_userdata($license_holder_id) ){
+				
+				$license_holder_email = $license_holder->user_email;
+			}
+		}
+		
+		return $license_holder_email;
+	}
+	
+	public function get_license_users($holder_id){
+		
+		if( !isset($this->license_users[$holder_id]) ){
+
+			$this->license_users[$holder_id] = apply_filters('ltple_license_users',array($holder_id)); 
+		}
+		
+		return $this->license_users[$holder_id];
+	}
+
 	public function get_user_plan_info( $user_id ){	
+		
+		// get license holder id
+		
+		$user_id = $this->get_license_holder_id($user_id);
 		
 		if( !isset($this->user_plans[$user_id]) ){
 		
@@ -1837,6 +1921,8 @@ class LTPLE_Client_Plan {
 			$this->user_plans[$user_id] = [];
 			
 			$this->user_plans[$user_id]['id'] = $user_plan_id;
+			
+			$this->user_plans[$user_id]['holder'] = $user_id;
 			
 			$this->user_plans[$user_id]['options'] = array();
 			
@@ -1870,36 +1956,33 @@ class LTPLE_Client_Plan {
 						if($user_plan_id > 0 ){
 							
 							$has_term = $in_term = is_object_in_term( $user_plan_id, $taxonomy, $term->term_id );
-						}
 						
-						if($is_hierarchical === true && $term->parent > 0 && $has_term === false ){
-							
-							$parent_id = $term->parent;
-							
-							while( $parent_id > 0 ){
+							if($is_hierarchical === true && $term->parent > 0 && $has_term === false ){
 								
-								if($has_term === false){
+								$parent_id = $term->parent;
+								
+								while( $parent_id > 0 ){
 									
-									foreach($terms as $parent){
+									if($has_term === false){
 										
-										if( $parent->term_id == $parent_id ){
+										foreach($terms as $parent){
 											
-											if($user_plan_id > 0 ){
+											if( $parent->term_id == $parent_id ){
 												
 												$has_term = is_object_in_term( $user_plan_id, $taxonomy, $parent->term_id );
+
+												$parent_id = $parent->parent;
+												
+												break;
 											}
-											
-											$parent_id = $parent->parent;
-											
-											break;
-										}
-									}								
-								}
-								else{
-									
-									break;
-								}
-							}					
+										}								
+									}
+									else{
+										
+										break;
+									}
+								}					
+							}						
 						}
 						
 						// push terms
@@ -1958,6 +2041,49 @@ class LTPLE_Client_Plan {
 		return $this->user_plans[$user_id];	
 	}
 	
+	public function get_user_plan_usage( $user_id ){	
+		
+		$user_id = $this->get_license_holder_id($user_id);
+		
+		$users = $this->get_license_users($user_id);
+		
+		if( !isset($this->user_usage[$user_id]) ){
+			
+			$storage_types = $this->parent->layer->get_storage_types();
+
+			if( $projects = get_posts(array(
+				
+				'post_type' 	=> array_keys($storage_types),
+				'author__in' 	=> $users,
+				'numberposts'	=> -1,
+				//'fields'		=> 'ids',
+				'post_status'	=> array('publish','draft'),
+				
+			))){
+				
+				foreach( $projects as $project ){
+					
+					$project->type = $this->parent->layer->get_layer_type($project);
+					
+					if( !isset($this->user_usage[$user_id][$project->type->name]) ){
+						
+						$this->user_usage[$user_id][$project->type->name] = 1;
+					}
+					else{
+						
+						++$this->user_usage[$user_id][$project->type->name];
+					}
+				}
+			}
+			else{
+				
+				$this->user_usage[$user_id] = null;
+			}
+		}
+
+		return $this->user_usage[$user_id];
+	}
+	
 	public function remaining_storage_amount($defaultLayer){
 		
 		if( $this->parent->user->loggedin){
@@ -1965,7 +2091,7 @@ class LTPLE_Client_Plan {
 			$user_plan = $this->get_user_plan_info($this->parent->user->ID);
 			
 			if( !empty($user_plan['info']['total_storage']) ){
-				
+
 				if( is_numeric($defaultLayer) ){
 					
 					$defaultLayer = get_post($defaultLayer);
@@ -1979,46 +2105,16 @@ class LTPLE_Client_Plan {
 						
 						$total_storage = $user_plan['info']['total_storage'][$layer_type->name];
 						
-						if( $templates_ids = get_posts( array(
-						
-							'post_type'   	=> 'cb-default-layer',
-							'post_status' 	=> 'publish',
-							'numberposts' 	=> -1,
-							'fields' 		=> 'ids',
-							'tax_query' 	=> array(
+						$plan_usage = $this->get_user_plan_usage( $this->parent->user->ID );
+
+						if( isset($plan_usage[$layer_type->name]) ){
 							
-								array(
-									'taxonomy' 	=> 'layer-type',
-									'field' 	=> 'id',
-									'terms' 	=> $layer_type->term_id
-							))
-							
-						)) ){
-						
-							if( $projects = get_posts( array(
-								
-								'author'   		=> $this->parent->user->ID,
-								'post_type'   	=> $layer_type->storage,
-								'post_status' 	=> array('draft','publish'),
-								'numberposts' 	=> -1,
-								'fields' 		=> 'ids',						
-								'meta_query' 	=> array(
-								
-									array(
-									
-										'key' 		=> 'defaultLayerId',
-										'value' 	=> $templates_ids,
-										'compare' 	=> 'IN'
-								))						
-							))){
-								
-								return $total_storage - count($projects);
-							}
-							else{
-								
-								return $total_storage;
-							}				
+							return $total_storage - $plan_usage[$layer_type->name];
 						}
+						else{
+							
+							return $total_storage;
+						}				
 					}
 				}
 			}
@@ -2028,14 +2124,10 @@ class LTPLE_Client_Plan {
 	}
 	
 	public function user_has_layer( $item ){
-				
+		
 		$user_has_layer = false;
-
-		if( 1==2 && $this->parent->user->is_admin ){
-			
-			$user_has_layer = true;
-		}
-		elseif( $this->parent->user->loggedin ){
+		
+		if( $this->parent->user->loggedin ){
 			
 			$item_id = 0;
 			

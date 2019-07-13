@@ -42,7 +42,7 @@
 			
 			add_filter('bbp_user_edit_before', array( $this, 'redirect_bbpress_edit_profile' ));
 		}
-		
+
 		public function init_periods(){
 			
 			// update subscription periods
@@ -308,7 +308,7 @@
 			
 			if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
 				
-				$api_url = $this->parent->server->url . '/wp-json/ltple-subscription/v1/periods?_=' . time();
+				$api_url = $this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/periods?_=' . time();
 				
 				$response = wp_remote_get( $api_url );
 				
@@ -528,6 +528,8 @@
 			
 			// add layer type
 			
+			/*
+			
 			$taxonomy = 'layer-type';
 			
 			$name = $taxonomy.'1';
@@ -547,6 +549,7 @@
 				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
 			
 			echo '</span>';
+			*/
 			
 			// add layer range
 			
@@ -628,6 +631,8 @@
 		}
 		
 		public function get_user_remaining_days($user_id){
+			
+			$user_id = $this->parent->plan->get_license_holder_id($user_id);
 			
 			$days = 0;
 			
@@ -837,7 +842,7 @@
 				//$row .= $user_plan['id'].PHP_EOL;
 				
 				if( $user_plan['id'] > 0 ){
-					
+
 					foreach($user_plan['taxonomies'] as $taxonomy => $tax){
 						
 						foreach($tax['terms'] as $term){
@@ -1196,11 +1201,26 @@
 					
 					$this->bulk_schedule_email_model();
 					$this->bulk_add_plan();
-					$this->bulk_add_type();
+					//$this->bulk_add_type();
 					$this->bulk_add_range();
 					$this->bulk_add_option();
 					$this->bulk_add_stars();					
-				
+					
+					if( !empty($_GET['users']) ){
+
+						//redirect url
+						
+						$redirect_url = remove_query_arg( array(
+						
+							'users',
+							'_wp_http_referer',
+							
+						),$this->parent->urls->current);
+					
+						wp_redirect($redirect_url);
+						exit;					
+					}
+					
 				return;
 			}
 		 
@@ -1687,7 +1707,7 @@
 				
 					//reset time limit
 					
-					set_time_limit($max_execution_time);				
+					set_time_limit($max_execution_time);
 				}
 			}			
 		}
@@ -1944,7 +1964,7 @@
 				
 				//set marketing channel
 				
-				$this->parent->update_user_channel($user_id,'Friend Recommendation');
+				$this->parent->channels->update_user_channel($user_id,'Friend Recommendation');
 		
 				if( !empty($referent->ID) ){
 			

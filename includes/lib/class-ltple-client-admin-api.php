@@ -25,6 +25,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 			
 		}
+		
+		public function sanitize_id($id){
+			
+			$id = esc_attr( str_replace(array('[',']'),array('_',''),$id) );
+			
+			return $id;
+		}
 
 		/**
 		 * Generate HTML for displaying fields
@@ -97,7 +104,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 			// get field id
 			
-			$id = esc_attr( str_replace(array('[',']'),array('_',''),$field['id']) );
+			$id = $this->sanitize_id($field['id']);
 			
 			// get field style
 			
@@ -106,15 +113,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			if( !empty($field['style']) ){
 				
 				$style = ' style="'.$field['style'].'"';
-			}
-			
-			// get field class
-			
-			$class = '';
-			
-			if( !empty($field['class']) ){
-				
-				$class = ' class="'.$field['class'].'"';
 			}
 			
 			$disabled = ( ( isset($field['disabled']) && $field['disabled'] === true ) ? ' disabled="disabled"' : '' );
@@ -130,14 +128,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				case 'text':
 				case 'url':
 				case 'email':
-					$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+					
+					$html .= '<span class="form-group" style="margin:7px 0;">';
+						
+						$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+					
+					$html .= '</span>';
+					
 				break;
 				
 				case 'file':
 				
 					$html .= wp_nonce_field( $this->parent->file, $id . '_nonce',true,false);
 
-					$html .= '<input' . $style . $class . ' class="form-control" id="' . $id . '" type="file" accept="'. ( !empty( $field['accept'] ) ? $field['accept'] : '' ) .'" name="' . esc_attr( $option_name ) . '" value="" '.$required.$disabled.'/>' . "\n";
+					$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="file" accept="'. ( !empty( $field['accept'] ) ? $field['accept'] : '' ) .'" name="' . esc_attr( $option_name ) . '" value="" '.$required.$disabled.'/>' . "\n";
 				
 					if( !empty($field['script']) ){
 				
@@ -181,7 +185,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						$html .= '<div class="input-group">';
 					}
 					
-					$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
+					$html .= '<input class="form-control" id="' . $this->sanitize_id( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
 					
 					if ( isset( $field['show'] ) && $field['show'] === true ) {
 						
@@ -197,7 +201,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 				
 				case 'hidden':
-					$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="hidden" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
+					$html .= '<input class="form-control" id="' . $this->sanitize_id( $field['id'] ) . '" type="hidden" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
 				break;
 				
 				case 'number':
@@ -210,7 +214,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					if ( isset( $field['max'] ) ) {
 						$max = ' max="' . esc_attr( $field['max'] ) . '"';
 					}
-					$html .= '<input class="form-control" id="' . esc_attr( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
+					
+					$html .= '<span class="form-group" style="margin:7px 0;">';
+					
+						$html .= '<input class="form-control" id="' . $this->sanitize_id( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
+				
+					$html .= '</span>';
+					
 				break;
 				
 				case 'text_secret':
@@ -275,7 +285,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 								$checked = true;
 							}
 							
-							$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" class="form-check-label checkbox_multi"><input class="form-check-input" type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $k ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" '.$required.$disabled.'/> ' . $v . '</div> ';
+							$html .= '<div for="' . $this->sanitize_id( $field['id'] . '_' . $k ) . '" class="form-check-label checkbox_multi"><input class="form-check-input" type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $k ) . '" data-origine="'.($checked ? 'true' : 'false').'" id="' . $this->sanitize_id( $field['id'] . '_' . $k ) . '" '.$required.$disabled.'/> ' . $v . '</div> ';
 							//$html .= '<br>';
 						}
 					
@@ -334,7 +344,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					if( empty($data) || !is_numeric($data) ){
 						
-						$postTypes = $this->parent->layer->postTypes;
+						$postTypes = $this->parent->layer->get_local_post_types();
 						
 						if( !empty($item) && in_array($item->post_type,$postTypes) ){
 							
@@ -524,7 +534,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 												
 													$html .= '<span style="display:block;padding:1px 0;margin:0;">';
 														
-														$html .= '<div for="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" class="checkbox_multi"><input type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $term->slug ) . '" id="' . esc_attr( $field['id'] . '_' . $term->slug ) . '" /> ' . $term->name . '</div> ';
+														$html .= '<div for="' . $this->sanitize_id( $field['id'] . '_' . $term->slug ) . '" class="checkbox_multi"><input type="checkbox" ' . checked( $checked, true, false ) . ' name="' . esc_attr( $option_name ) . '[]" value="' . esc_attr( $term->slug ) . '" id="' . $this->sanitize_id( $field['id'] . '_' . $term->slug ) . '" /> ' . $term->name . '</div> ';
 													
 													$html .= '</span>';
 													
@@ -1260,7 +1270,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							$method = ( ( isset($field['method']) && $field['method'] == 'post' ) ? 'post' : 'get' );
 							
-							$html .= '<form action="'.$field['action'].'" method="'.$method.'">';
+							$html .= '<form id="formFilters" action="'.$field['action'].'" method="'.$method.'">';
 
 							foreach( $data['name'] as $e => $name) {
 								
@@ -1278,11 +1288,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									}
 									elseif($data['input'][$e] == 'submit'){
 										
-										$html .= '<div class="form-group" style="margin: 7px 0 0 0;">';
+										$html .= '<span class="form-group" style="margin: 7px 0 0 0;">';
 										
 											$html .= '<button style="width:100%;" type="'.$data['input'][$e].'" id="'.ucfirst($data['name'][$e]).'" class="control-input pull-right btn btn-sm btn-primary">'.ucfirst(ucfirst($data['value'][$e])).'</button>';
 										
-										$html .= '</div>';
+										$html .= '</span>';
 									}
 									elseif( $data['input'][$e] == 'domain' ){
 
@@ -1656,15 +1666,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'select':
 					
-					$html .= '<div class="form-group" style="margin:7px 0;">';
+					$html .= '<span class="form-group" style="margin:7px 0;">';
 					
 						if(isset($field['name'])){
 							
-							$html .= '<select'.$style.' class="form-control" name="' . $field['name'] . '" id="' . $id . '"'.$required.$disabled.'>';
+							$html .= '<select'.$style.' class="form-control" name="' . $field['name'] . '" data-origine="'.$data.'" id="' . $id . '"'.$required.$disabled.'>';
 						}
 						else{
 							
-							$html .= '<select'.$style.' class="form-control" name="' . esc_attr( $option_name ) . '" id="' . $id . '"'.$required.$disabled.'>';
+							$html .= '<select'.$style.' class="form-control" name="' . esc_attr( $option_name ) . '" data-origine="'.$data.'" id="' . $id . '"'.$required.$disabled.'>';
 						}
 
 						foreach ( $field['options'] as $k => $v ) {
@@ -1681,7 +1691,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						}
 						$html .= '</select> ';
 						
-					$html .= '</div>';
+					$html .= '</span>';
 					
 				break;
 
@@ -1952,7 +1962,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				if ( is_array( $fields ) && !empty($fields) ){
 
-					echo '<div class="custom-field-panel">' . "\n";
+					echo '<div class="custom-field-panel" style="display:inline-block;width:100%;margin-top:10px;">' . "\n";
 					
 						foreach ( $fields as $field ) {
 							
@@ -1985,7 +1995,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 			if( is_array($field) && !empty($field)){
 
-				$meta_box  = '<div class="form-field form-group">' . PHP_EOL;
+				$meta_box  = '<div class="form-field form-group' . ( !empty($field['class']) ? ' ' . $field['class'] : '' ) . '">' . PHP_EOL;
 				
 					if( !empty($field['label']) && !empty($field['id']) ){
 						

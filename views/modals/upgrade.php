@@ -2,13 +2,15 @@
 	
 	$ltple = LTPLE_Client::instance();
 	
+	$options = '';
+	
 	if( !empty($ltple->plan->options) ){
 		
 		$options = implode('|',$ltple->plan->options);
 	}
-	else{
+	elseif(!empty($layer_range)){
 		
-		$options = $layer_type . '|' . $layer_range;
+		$options = $layer_range;
 	}
 
 	$checkout_url = add_query_arg( array(

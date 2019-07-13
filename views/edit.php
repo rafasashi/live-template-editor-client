@@ -81,8 +81,8 @@
 																						
 											$status = array(
 												
-												'publish' 	=> 'Public',
 												'draft' 	=> 'Draft',
+												'publish' 	=> 'Public',
 											);
 											
 											$this->admin->display_field( array(
@@ -92,8 +92,8 @@
 												'name'				=> 'post_status',
 												'options' 			=> $status,
 												'description'		=> '',
-												
-											),$this->user->layer );	
+												'data'				=> $this->user->layer->post_status
+											) );	
 											
 										echo'</div>';
 									}

@@ -94,11 +94,12 @@
 			);			
 			
 			// plan subscription
-			
+			/*
 			$this->triggers['plan subscription']['ltple_free_plan_subscription'] = array(
 					
 				'description' => 'when you subscribe to a demo plan'
 			);
+			*/
 
 			$this->triggers['plan subscription']['ltple_paid_plan_subscription'] = array(
 				

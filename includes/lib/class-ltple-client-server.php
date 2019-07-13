@@ -36,6 +36,6 @@ class LTPLE_Client_Server {
 		
 		// set api url
 		
-		$this->api = $this->url . '/wp-json/';
+		$this->api = $this->url . '/' . rest_get_url_prefix() . '/';
 	}
 }

@@ -29,6 +29,16 @@ class LTPLE_Client_Gallery {
 			'rewrite' 				=> false,
 			'sort' 					=> '',
 		));
+		
+		add_action( 'rest_api_init', function () {
+			
+			register_rest_route( 'ltple-template/v1', '/list', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_gallery_items'),
+			) );
+			
+		} );
 	}
 	
 	public function get_meta_key($key){
@@ -267,15 +277,15 @@ class LTPLE_Client_Gallery {
 			);			
 		}
 		
-		$args = array( 
+		$query = new WP_Query( array( 
+			
 			'post_type' 		=> 'cb-default-layer', 
 			'posts_per_page'	=> -1,
 			'fields'		 	=> 'ids',
 			'tax_query' 		=> $tax_query,
 			'meta_query' 		=> $meta_query,
-		);		
-
-		$query = new WP_Query($args);
+		
+		));
 
 		if( !empty($query->posts) ){
 		
@@ -295,6 +305,8 @@ class LTPLE_Client_Gallery {
 							
 							++$ranges[$range->slug]['count'];
 						}
+						
+						$ranges[$range->slug]['ids'][] = $post_id;
 					}					
 				}
 			}
@@ -305,6 +317,15 @@ class LTPLE_Client_Gallery {
 			// get addon range
 
 			$tax_query = array('relation'=>'AND');
+
+			$tax_query[] = array(
+			
+				'taxonomy' 			=> 'layer-type',
+				'field' 			=> 'slug',
+				'terms' 			=> $layer_type,
+				'include_children' 	=> false,
+				'operator'			=> 'IN'
+			);
 			
 			$tax_query[] = array(
 			
@@ -315,15 +336,15 @@ class LTPLE_Client_Gallery {
 				'operator'			=> 'IN'
 			);
 			
-			$args = array( 
+			$query = new WP_Query( array( 
+				
 				'post_type' 		=> 'cb-default-layer', 
 				'posts_per_page'	=> -1,
 				'fields'		 	=> 'ids',
 				'tax_query' 		=> $tax_query,
 				'meta_query' 		=> $meta_query,
-			);		
-
-			$query = new WP_Query($args);
+			
+			));
 		
 			if( !empty($query->posts) ){
 
@@ -339,6 +360,8 @@ class LTPLE_Client_Gallery {
 						
 						++$ranges[$addon_range->slug]['count'];
 					}
+					
+					$ranges[$addon_range->slug]['ids'][] = $post_id;
 				}
 			}
 		}
@@ -362,19 +385,17 @@ class LTPLE_Client_Gallery {
 		return $ranges;
 	}
 	
-	public function get_range_items($layer_type,$layer_range,$addon_range=null){
+	public function get_range_items($layer_type,$layer_range,$addon_range=null,$paginated=true){
 		
 		$items =[];
 		
 		if( !empty($layer_range) ){
 			
-			$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
-				
 			$meta_query = $this->get_meta_query();
 			
 			$tax_query = array('relation'=>'AND');
 
-			$tax_query[] = array(
+			$tax_query[0] = array(
 			
 				'taxonomy' 			=> 'layer-type',
 				'field' 			=> 'slug',
@@ -383,9 +404,20 @@ class LTPLE_Client_Gallery {
 				'operator'			=> 'IN'
 			);
 			
+			$tax_query[1] = array('relation'=>'OR');
+			
+			$tax_query[1] = array(
+			
+				'taxonomy' 			=> 'layer-range',
+				'field' 			=> 'slug',
+				'terms' 			=> $layer_range,
+				'include_children' 	=> false,
+				'operator'			=> 'IN'
+			);			
+			
 			if( !empty($addon_range->slug) && $addon_range->slug == $layer_range ){
-				
-				$tax_query[] = array(
+
+				$tax_query[1] = array(
 			
 					'taxonomy' 			=> 'user-contact',
 					'field' 			=> 'slug',
@@ -394,32 +426,33 @@ class LTPLE_Client_Gallery {
 					'operator'			=> 'IN'
 				);					
 			}
-			else{
-				
-				$tax_query[] = array(
-				
-					'taxonomy' 			=> 'layer-range',
-					'field' 			=> 'slug',
-					'terms' 			=> $layer_range,
-					'include_children' 	=> false,
-					'operator'			=> 'IN'
-				);				
-			}
 			
-			if( $query = new WP_Query(array( 
+			$args = array( 
 			
 				'post_type' 	=> 'cb-default-layer', 
-				'posts_per_page'=> 15,
-				'paged' 		=> $paged,
 				'tax_query' 	=> $tax_query,
 				'meta_query' 	=> $meta_query,
 				
-			))){
+			);
+
+			if( $paginated ){
+				
+				$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
+				
+				$args['posts_per_page'] = 15;
+				$args['paged'] 			= $paged;
+			}
+			else{
+				
+				$args['posts_per_page'] = -1;
+			}
+
+			if( $query = new WP_Query($args)){
 				
 				$this->max_num_pages = $query->max_num_pages;
 				
 				$all_types = $this->get_all_types($addon_range);
-				
+			
 				foreach($all_types as $term){
 					
 					if( $term->slug == $layer_type ){
@@ -430,27 +463,13 @@ class LTPLE_Client_Gallery {
 													
 							if( $term->visibility == 'anyone' || $this->parent->user->is_editor ){
 								
-								//get layer_range
+								//get item
 								
-								$layer_range = null;
-								
-								$terms = wp_get_object_terms( $post->ID, 'layer-range' );
-								
-								if(!empty($terms[0]->slug)){
-									
-									$layer_range = $terms[0]->slug;
-								}				
-								
-								if( !empty($layer_range) ){
-								
-									//get item
-									
-									$item = $this->get_item($post);
+								$item = $this->get_item($post);
 
-									//merge item
-									
-									$items[$layer_range][]=$item;
-								}
+								//merge item
+								
+								$items[$layer_range][]=$item;
 							}
 							
 						endwhile; wp_reset_query();						
@@ -460,6 +479,135 @@ class LTPLE_Client_Gallery {
 		}
 
 		return $items;		
+	}
+	
+	function get_gallery_items( $rest = null ){
+		
+		//get user images
+		
+		$items = [];
+
+		if( $layer_type = $this->get_layer_type_info((!empty($_GET['gallery']) ? $_GET['gallery'] : false )) ){
+			
+			//get layer range
+			
+			$layer_range = ( !empty($_GET['range']) ? $_GET['range'] : key($layer_type->ranges) );
+			
+			//get layer range name
+			
+			$layer_range_name = ( !empty($layer_type->ranges[$layer_range]['name']) ? $layer_type->ranges[$layer_range]['name'] : '' );
+			
+			// get gallery items 
+			
+			$range_items = $this->get_range_items($layer_type->slug,$layer_range,$layer_type->addon,false);
+			
+			if( !empty($range_items[$layer_range]) ){
+				
+				$this->parent->plan->options = array($layer_range);
+								
+				$has_options = $this->parent->plan->user_has_options($this->parent->plan->options);
+				
+				$plans = $this->parent->plan->get_plans_by_options( $this->parent->plan->options );
+				
+				if( !$has_options && !empty($plans) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+
+					$item ='<div class="panel panel-default bs-callout bs-callout-primary" style="min-height:287px;margin:0px;padding:30px;border:none !important;">';
+						
+						$item .='<div style="padding-bottom:35px;">';
+						
+							$item .='<h4 style="margin-bottom:10px;">' . ucfirst($layer_type->name) .  ' > ' . ucfirst($layer_range_name) .  '</h4>';
+							
+							$item .='<p style="line-height:30px;">';
+							
+								if( $has_options === true ){
+									
+									$item .='Edit any template from ' . ucfirst($layer_range_name) .  ' gallery';
+								}
+								elseif( !empty($plans) ){
+									
+									$item .='You need the <span class="label label-success">'.$plans[0]['title'].'</span> plan'.( count($plans) > 1 ? ' or higher ' : ' ').'to <span class="label label-default">unlock all</span> the templates from this gallery';
+								}
+								else{
+								
+									$item .='No plan available to unlock this gallery';
+								}
+							
+							$item .='</p>';
+						
+						$item .='</div>';
+														
+						$item .='<div>';
+										
+							$item .='<button type="button" class="btn btn-sm" data-toggle="modal" data-target="'.( $this->parent->user->loggedin  === true ? '#upgrade_plan' : '#login_first').'" style="width:100%;font-size:17px;background:' . $this->parent->settings->mainColor . '99;color:#fff;padding: 15px 0;border:1px solid ' . $this->parent->settings->mainColor . ';">';
+							
+								$item .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> ' . ( $this->parent->user->plan['info']['total_price_amount'] > 0 ? 'upgrade' : 'start' );
+								
+								$item .= '<br>';
+								
+								$item .= '<span style="font-size:10px;">from '.$plans[0]['price_tag'].'</span>';
+								
+							$item .='</button>';
+
+						$item .='</div>';
+
+						
+					$item .='</div>';
+					
+					$items[] = array(
+						
+						'item' => $item,
+					);						
+				}
+			
+				foreach( $range_items[$layer_range] as $item ){
+					
+					$items[] = array(
+						
+						'item' => $item,
+					);
+				}
+			}
+		}
+
+		return $items;		
+	}
+	
+	public function get_layer_type_info( $slug = false ){
+		
+		$layer_type = null;
+		
+		if( $all_types = $this->get_all_types() ){
+		
+			if( !$slug ){
+				
+				foreach($all_types as $term){
+								
+					if( $term->visibility == 'anyone' || $this->parent->user->is_editor ){
+						
+						$layer_type = $term;
+						
+						break; 
+					}
+				}		
+			}
+			else{
+				
+				$layer_type = get_term_by('slug',$slug,'layer-type');
+			}
+		}
+		
+		if( !empty($layer_type) ){
+
+			//get addon range
+
+			$layer_type->addon = $this->parent->layer->get_type_addon_range($layer_type);
+
+			//get item ranges
+			
+			$layer_type->ranges = $this->get_type_ranges($layer_type->slug,$layer_type->addon);	
+		}
+
+		return 	$layer_type;	
 	}
 	
 	public function get_item($post){
@@ -480,7 +628,7 @@ class LTPLE_Client_Gallery {
 			
 			// get item
 
-			$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4",$post->ID) ) . '" id="post-' . $post->ID . '">';
+			$item.='<div class="' . implode( ' ', get_post_class('',$post->ID) ) . '" id="post-' . $post->ID . '">';
 				
 				$item.='<div class="panel panel-default">';
 
@@ -496,15 +644,15 @@ class LTPLE_Client_Gallery {
 						
 						if( $this->parent->inWidget === true ){
 							
-							if($this->parent->plan->user_has_layer( $post ) === true){
+							if( $this->parent->plan->user_has_layer( $post ) === true ){
 								
 								$item.='<a target="_blank" class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 							}
-							else{
+							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
 								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 							
-									$item.='<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
+									$item.='<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Start'.PHP_EOL;
 						
 								$item.='</button>'.PHP_EOL;
 							}												
@@ -556,7 +704,7 @@ class LTPLE_Client_Gallery {
 
 										$item.='<div class="modal-footer">'.PHP_EOL;
 										
-											if($this->parent->user->loggedin){
+											if( $this->parent->user->loggedin ){
 
 												$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 											}
@@ -564,7 +712,7 @@ class LTPLE_Client_Gallery {
 												
 												$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
 												
-													$item.='<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
+													$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
 											
 												$item.='</button>'.PHP_EOL;								
 											}
@@ -583,11 +731,11 @@ class LTPLE_Client_Gallery {
 									
 									$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 								}
-								else{
+								elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 									
 									$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 								
-										$item.='<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
+										$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
 							
 									$item.='</button>'.PHP_EOL;
 								}
@@ -596,7 +744,7 @@ class LTPLE_Client_Gallery {
 								
 								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
 								
-									$item.='<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
+									$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
 							
 								$item.='</button>'.PHP_EOL;								
 							}
@@ -610,6 +758,54 @@ class LTPLE_Client_Gallery {
 		}
 
 		return $item;
+	}
+	
+	public function get_gallery_table(){
+
+		//output Tab panes
+		  
+		echo'<div class="tab-content" style="margin-top:20px;">';
+			
+			echo'<div role="tabpanel" class="tab-pane active" id="gallery">';
+				
+				// get table fields
+				
+				echo'<div class="row" style="margin:-20px -15px 0px -15px;">';
+					
+					$fields = array(
+						
+						array(
+
+							'field' 	=> 'item',
+							'sortable' 	=> 'false',
+							'content' 	=> '',
+						),					
+					);
+				
+					// get table of results
+
+					$this->parent->api->get_table(
+					
+						$this->parent->urls->api . 'ltple-template/v1/list?' . http_build_query($_REQUEST, '', '&amp;'), 
+						$fields, 
+						$trash		= false,
+						$export		= false,
+						$search		= true,
+						$toggle		= false,
+						$columns	= false,
+						$header		= true,
+						$pagination	= true,
+						$form		= false,
+						$toolbar 	= 'toolbar',
+						$card		= true,
+						$itemHeight	= 300
+					);
+
+				echo'</div>';
+				
+			echo'</div>';
+					
+		echo'</div>';		
 	}
 	
 	/**

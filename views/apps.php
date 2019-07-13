@@ -35,17 +35,27 @@
 		$currentApp = $_SESSION['app'];
 	}
 	
-	$currentTab = ( !empty($_GET['tab']) ? $_GET['tab'] : 'apps' );
+	$currentTab = ( !empty($_GET['tab']) ? $_GET['tab'] : 'accounts' );
 	
 	// ------------- output panel --------------------
 	
 	echo'<div id="media_library" class="wrapper">';
 		
-		echo $this->dashboard->get_sidebar($currentTab,$output);
-
+		echo'<div id="sidebar">';
+			
+			echo'<div class="gallery_type_title gallery_head">Applications</div>';	
+				
+			echo'<ul class="nav nav-tabs tabs-left">';
+		
+				echo'<li '. ( $currentTab == 'accounts' ? 'class="active"' : '' ) . '><a href="' . $this->urls->current . '"><span class="glyphicon glyphicon-plus"></span> Accounts</a></li>';
+				
+			echo'</ul>';
+			
+		echo'</div>';
+			
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;min-height:700px;">';
 			
-			if( $currentTab == 'apps' ){
+			if( $currentTab == 'accounts' ){
 				
 				echo'<div class="tab-content">';
 			

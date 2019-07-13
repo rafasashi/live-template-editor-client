@@ -14,6 +14,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	public $url		= '';
 	public $dir		= '';
 	
+	public $banners	= array();
+	
 	public $isDownloadable = false;
 	
 	/**
@@ -135,11 +137,15 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			
 			add_action( 'rest_api_init', function () {
 				
-				register_rest_route( 'ltple-images/v1', '/list', array(
-					
-					'methods' 	=> 'GET',
-					'callback' 	=> array($this,'list_user_images'),
-				) );
+				if( $this->parent->user->is_admin ){
+				
+					register_rest_route( 'ltple-images/v1', '/list', array(
+						
+						'methods' 	=> 'GET',
+						'callback' 	=> array($this,'list_user_images'),
+					) );
+				}
+				
 			} );
 			
 			if( !empty($_GET['uri']) ){
@@ -174,31 +180,37 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		$users = [];
 		$posts = [];
 		 
-		foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->dir)) as $path => $iterator){
-			
-			list(,$path) = explode('/i/',$path);
-			
-			if( substr($path,-4) == '.png' ){
+		if( $this->parent->user->is_admin ){
+		 
+			foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->dir)) as $path => $iterator){
 				
-				list($user_id,$filename) = explode('/',$path);
-				list($post_id,$element)  = explode('_',$filename,2);
+				list(,$path) = explode('/i/',$path);
 				
-				if( is_numeric($user_id) ){
-				
-					if( !isset($users[$user_id]) ){
-						
-						$users[$user_id] = get_userdata($user_id);
-					}
+				if( substr($path,-4) == '.png' ){
 					
-					if( $user = $users[$user_id]->data ){
-						
-						if($user->user_email){
+					list($user_id,$filename) = explode('/',$path);
+					
+					list($post_id)  = explode('_',$filename,1);
+					
+					if( is_numeric($user_id) ){
+					
+						if( !isset($users[$user_id]) ){
 							
-							$folder = md5($user->user_email);
-						
-							$images['path'][$folder][] = $path;
+							$users[$user_id] = get_userdata($user_id);
+						}
+
+						if( isset($users[$user_id]->data) ){
 							
-							$posts[$post_id . '/' . $folder][] = $path;
+							$user = $users[$user_id]->data;
+							
+							if( !empty($user->user_email) ){
+								
+								$folder = md5($user->user_email);
+							
+								$images['path'][$folder][] = $path;
+								
+								$posts[$post_id . '/' . $folder][] = $path;
+							}
 						}
 					}
 				}
@@ -391,7 +403,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 										
 										$_SESSION['message'] ='<div class="alert alert-success">';
 												
-											$_SESSION['message'] .= 'Congratulations! Image succefully uploaded to your library.';
+											$_SESSION['message'] .= 'Image succefully uploaded to your library.';
 
 										$_SESSION['message'] .='</div>';												
 									}
@@ -424,20 +436,13 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					}   
 				}				
 			}
-			elseif( isset($_POST['imgAction']) &&  $_POST['imgAction']=='save' && isset($_POST['imgTitle']) && isset($_POST['imgUrl']) ){
+			elseif( isset($_POST['imgAction']) &&  $_POST['imgAction']=='save' && isset($_POST['imgUrl']) ){
 				
 				//-------- save image --------
 				
 				$img_id = $img_title = $img_name = $img_content = '';
 				
-				if($_POST['imgTitle']!=''){
-
-					$img_title = $img_name = wp_strip_all_tags( $_POST['imgTitle'] );
-				}
-				else{ 
-					
-					$img_title = $img_name = 'image_' . time();
-				}
+				$img_title = $img_name = 'image_' . time();
 
 				if($_POST['imgUrl']!=''){
 				
@@ -875,15 +880,20 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	public function get_banner_url($user_id){
 		
 		if( is_numeric($user_id) ){
-			
-			if( file_exists($this->get_banner_path($user_id)) ){
+		
+			if(!isset($this->banners[$user_id])){
 				
-				return $this->url . $user_id . '/banner.png';
+				if( file_exists($this->get_banner_path($user_id)) ){
+					
+					$this->banners[$user_id] = $this->url . $user_id . '/banner.png';
+				}
+				else{
+					 
+					$this->banners[$user_id] = $this->parent->settings->options->profile_header;
+				}
 			}
-			else{
-				 
-				return $this->parent->settings->options->profile_header;
-			}
+			
+			return $this->banners[$user_id];
 		}
 
 		return false;

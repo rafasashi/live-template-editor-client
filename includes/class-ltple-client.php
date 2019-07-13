@@ -84,7 +84,6 @@ class LTPLE_Client {
 	public $layer;
 	public $message;
 	public $dialog;
-	public $title;
 	public $canonical_url;
 	public $triggers;
 	public $inWidget;
@@ -134,9 +133,9 @@ class LTPLE_Client {
 		// Handle localisation
 		
 		$this->load_plugin_textdomain();
-
+	
 		add_action( 'init', array( $this, 'load_localisation' ), 0 );		
-		
+
 		add_action( 'init', array( $this, 'register_theme' ) );
 		
 		if(isset($_POST['imgData']) && isset($_POST["submitted"])&& isset($_POST["download_image_nonce_field"]) && $_POST["submitted"]=='true'){
@@ -457,18 +456,10 @@ class LTPLE_Client {
 			// get user referent
 			
 			$this->user->referredBy = get_user_meta( $this->user->ID, $this->_base . 'referredBy', false );
-			
-			// get period end
-			
-			$this->user->period_end = intval(get_user_meta( $this->user->ID, $this->_base . 'period_end', true ));
-			
-			// get remaining days
-			
-			$this->user->remaining_days = $this->user->period_end > 0 ? ceil( ($this->user->period_end - time()) / (60 * 60 * 24) ) : 0;		
-			
+
 			// get user rights
 			
-			$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
+			//$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
 
 			//get user layer
 			
@@ -477,7 +468,37 @@ class LTPLE_Client {
 				$this->user->layer = get_post($this->layer->id);
 			}
 			
+			// user programs
+			
 			$this->user->programs = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-programs',true) );
+		
+			// get user connected apps
+			
+			$this->user->apps = $this->apps->getUserApps($this->user->ID);		
+			
+			// get user marketing channel
+			
+			$terms = wp_get_object_terms( $this->user->ID, 'marketing-channel' );
+			$this->user->channel = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0]->slug : '');
+
+			// get user plan
+
+			$this->user->plan = $this->plan->get_user_plan_info( $this->user->ID );
+			
+			if( !empty($this->user->plan['holder']) ){
+				
+				// get user has layer
+				
+				$this->user->has_layer 	= $this->plan->user_has_layer( $this->layer->id );
+				
+				// get period end
+				
+				$this->user->period_end = intval(get_user_meta( $this->user->plan['holder'], $this->_base . 'period_end', true ));
+				
+				// get remaining days
+				
+				$this->user->remaining_days = $this->user->period_end > 0 ? ceil( ($this->user->period_end - time()) / (60 * 60 * 24) ) : 0;
+			}			
 		
 			do_action('ltple_user_loaded');
 			
@@ -729,9 +750,9 @@ class LTPLE_Client {
 
 	public function change_subscription_plan_menu_classes($classes, $item){
 		
-		global $post;
+		$post = get_post();
 		
-		if(get_post_type($post) == 'subscription-plan'){
+		if( get_post_type($post) == 'subscription-plan' ){
 			
 			$page = get_page_by_path('editor');
 
@@ -867,7 +888,7 @@ class LTPLE_Client {
 
 		if($column_name === 'image') {
 			
-			global $post;
+			$post = get_post($post_id);
 			
 			echo '<img src="' . $post->post_content . '" style="width:100px;" />';
 		}		
@@ -994,33 +1015,17 @@ class LTPLE_Client {
 		// get layer range
 				
 		$terms = wp_get_object_terms( $this->layer->id, 'layer-range' );
+		
 		$this->layer->range = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0] : '');
 		
 		// get layer price
 		
 		$this->layer->price = ( !empty($this->layer->range) ? intval( get_option('price_amount_' . $this->layer->range->slug) ) : 0 );
 		
-		// get user connected apps
-		
-		$this->user->apps = $this->apps->getUserApps($this->user->ID);
-		
 		// get triggers
  		
 		$this->triggers = new LTPLE_Client_Triggers( $this );
 		
-		//-------------- user attributes -----------------
-
-		// get user marketing channel
-		
-		$terms = wp_get_object_terms( $this->user->ID, 'marketing-channel' );
-		$this->user->channel = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0]->slug : '');
-
-		// get user plan
-
-		$this->user->plan 		= $this->plan->get_user_plan_info( $this->user->ID );
-		
-		$this->user->has_layer 	= $this->plan->user_has_layer( $this->layer->id );
-
 		// Custom default layer post
 		
 		if( $this->layer->defaultId > 0 ){
@@ -1037,7 +1042,7 @@ class LTPLE_Client {
 		
 			//update user channel
 			
-			$this->update_user_channel($this->user->ID);			
+			$this->channels->update_user_channel($this->user->ID);			
 			
 			//update user image
 			
@@ -1104,22 +1109,27 @@ class LTPLE_Client {
 
 	public function get_header(){
 		
-		global $post;
-
+		if( $this->profile->id > 0 ){
+		
+			$post = $this->profile->get_profile_post();
+		}
+		else{
+			
+			$post = get_post();
+		}
+		
 		if( !empty($post) ){
 		
 			$service_name = get_bloginfo( 'name' );
 		
 			// output default meta tags
 			
-			$this->title = ucfirst($post->post_title);
-			
-			do_action('ltple_header_title');
-			
-			echo '<title>' . $this->title .  ' | ' . $service_name . '</title>'.PHP_EOL;
-			echo '<meta name="subject" content="'.$this->title.'" />'.PHP_EOL;
-			echo '<meta property="og:title" content="'.$this->title.'" />'.PHP_EOL;
-			echo '<meta name="twitter:title" content="'.$this->title.'" />'.PHP_EOL;
+			$title = apply_filters('ltple_header_title',ucfirst($post->post_title));
+		
+			echo '<title>' . $title .  ' | ' . $service_name . '</title>'.PHP_EOL;
+			echo '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
+			echo '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
+			echo '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;
 			
 			$author_name = get_the_author_meta('display_name', $post->post_author );
 			$author_mail = get_the_author_meta('user_email', $post->post_author );
@@ -1210,288 +1220,7 @@ class LTPLE_Client {
 			echo '<meta name="twitter:card" content="summary" />' . PHP_EOL;
 			
 		}
-		
-		echo'<style>'.PHP_EOL;
-			
-			echo'#header_logo {';
-				
-				echo'max-width:90px;';
-				echo'width:100%;';
-				echo'height: 50px;';
-				echo'z-index: 9999;';
-				echo'position: absolute;';
-				echo'overflow: hidden;';
-				echo'display: inline-block;';
-				echo'background-position: center left;';				
-				echo'background-image:url(' . $this->assets_url . 'images/header_small.png);';
-			
-			echo'}';
-			
-			echo'#header_logo a {';
-			
-				echo'padding:8px 4px;';
-				echo'height:50px;';
-				echo'width:100%;';
-				echo'border:none;';
-				echo'display:inline-block;';
-				echo'text-align:center;';
-				
-			echo'}';
-			
-			echo'#header_logo a img {';
-				
-				echo'width: auto;';
-				echo'height: 35px;';
-				echo'margin-left: -10px;';
-				
-			echo'}';
-			
-			echo'#main-menu {';
-			
-				echo'padding-left:72px;';
-			
-			echo'}';	
-			
-			echo' .tabs-left, .tabs-right {';
-			
-				echo'padding-top:0 !important;';
-			
-			echo'}';
 
-			echo' .tabs-left>li, .tabs-right>li {';
-			
-				echo'margin-bottom:0 !important;';
-			
-			echo'}';
-
-			echo' .tabs-left>li {';
-				echo'margin-right: -1px;';
-				echo'border-top: 1px solid #fff;';
-				echo'border-bottom: 1px solid #eee;';
-			echo'}';		
-
-			echo ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
-				
-				echo 'border-radius:0;';
-				echo 'box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
-				
-			echo'}';
-
-			if( !empty($this->settings->navbarColor) ){
-				
-				echo' .navbar{';
-					
-					echo'background:'.$this->settings->navbarColor.' !important;';
-					
-				echo'}';
-			}
-			
-			if( !empty($this->settings->mainColor) ){
-			
-				echo' .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover{';	
-				
-					echo'background-color:'.$this->settings->mainColor.' !important;';
-					
-				echo'}';
-		
-				echo' .navbar-collapse .nav>li>a:hover, .navbar-nav>.active, #search a, .nav-next a:link, .nav-next a:visited, .nav-previous a:link, .nav-previous a:visited {';
-
-					echo'background-color:'.$this->settings->mainColor.' !important;';
-				
-				echo'}';
-				
-				echo'.nav-next a:hover, .nav-next a:hover, .nav-previous a:hover, .nav-previous a:hover{';
-					
-					echo'color:#fff !important;';
-					
-				echo'}';
-
-				echo'.single .entry-content {';
-				
-					echo'font-size: 16px;';
-					echo'line-height: 40px;';
-					
-				echo'}';			
-				
-				echo'.single .entry-content h1, .single .entry-content h2, .single .entry-content h3, .single .entry-content h4{';
-					
-					echo'color:' . $this->settings->mainColor . ' !important;';
-					echo'font-weight:bold !important;';
-				
-				echo'}';
-				
-				echo'.panel-header h1{';
-
-					echo'font-size: 24px;';
-				
-					if( $this->settings->titleBkg ){
-							
-						echo'font-weight: normal !important;';
-						echo'text-transform: uppercase !important;';
-						echo'padding: 45px 30px !important;';						
-							
-						echo'color:#fff !important;';
-						
-						echo'background-image: url(' . $this->settings->titleBkg . ') !important;';
-						echo'background-size: cover !important;';
-						echo'background-position: center center !important;';
-						echo'background-repeat: no-repeat !important;';
-						echo'background-repeat: no-repeat !important;';
-					}
-					else{
-						
-						echo'color:' . $this->settings->mainColor . ' !important;';
-					}
-					
-				echo'}';
-					
-				echo' span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {';
-					echo'background-color: '.$this->settings->mainColor.' !important;';
-					
-					if( !empty($this->settings->borderColor) ){
-						
-						echo'border: 0px solid '.$this->settings->borderColor.' !important;';
-					}
-					
-				echo'}';
-				
-				echo ' .bs-callout {';
-					
-					echo 'background-color:#fff !important;';
-					
-				echo'}';
-				
-				echo ' .bs-callout-primary{';
-				
-					echo'border-left: 5px solid '.$this->settings->mainColor . ' !important;';
-					
-				echo'}';				
-				
-				echo ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
-				
-					echo'border-left: 5px solid '.$this->settings->mainColor . ' !important;';
-					echo'background-color: #fbfbfb !important;';
-					echo'margin-top: -1px;';
-					echo'padding: 12px;';
-					
-				echo'}';
-				
-				echo ' .bs-callout-primary h4{';
-				
-					echo'color:'.$this->settings->linkColor . ';';
-				
-				echo'}';
-				
-				echo'footer#colophon h1, footer#colophon h2, footer#colophon h3{';
-				
-					echo'border-bottom: 1px solid '.$this->settings->mainColor . ' !important;';
-				
-				echo'}';
-				
-				echo' .gallery_type_title {';
-				
-					echo'color: #4276a0;';
-					echo'border: none !important;';
-					echo'background-color: #fff !important;';
-					echo'font-size:13px;';
-					echo'box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);';
-					echo'height:41px;';
-					echo'text-transform: uppercase;';
-						
-				echo'}';
-				
-				echo'.gallery_head {';
-					
-					echo'background-color:#4276a0 !important;';
-					echo'color:#fff !important;';
-				
-				echo'}';
-				
-				echo'#plan_table table {';
-					
-					echo'width: 100%;';
-					
-				echo'}';
-				
-				echo'#plan_table table th {';
-				
-					//echo'background-color: '.$this->settings->mainColor . ';';
-					echo'background-color: #4276a0;';
-					echo'color: #fff;';
-					echo'font-weight: bold;';
-					
-				echo'}';
-			
-				echo'#plan_table table .badge{';
-				
-					echo'font-size: 17px;';
-					echo'padding: 2px 8px;';
-					echo'border-radius: 5px;';
-					echo'line-height: 15px;';
-					echo'margin-top: -2px;';
-					
-				echo'}';
-			
-				echo'#plan_table table th .badge{';
-				
-					echo'background-color: #fff;';
-					//echo'color: '.$this->settings->mainColor . ';';
-					echo'color: #4276a0;';
-					
-				echo'}';
-				
-				echo'#plan_table table td .badge{';
-				
-					echo'background-color: #4276a0;';
-					echo'color: #fff;';
-					
-				echo'}';
-				
-				echo'#plan_table table td {';
-				
-					echo'font-size: 19px;';
-					echo'color: #4276a0;';
-					
-				echo'}';
-				
-				echo'#plan_table .plan_section {';
-					
-					echo'color: '.$this->settings->mainColor . ';';
-					echo'font-size: 22px;';
-					echo'font-weight: normal;';
-					echo'display: block;';
-					echo'cursor: pointer;';
-					echo'width: 100%;';
-					echo'text-align: left;';
-					echo'border: none;';
-					echo'background: #fff;';
-					echo'padding: 20px;';
-					echo'margin: 15px 0 15px 0;';
-					echo'box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);';
-				
-				echo'}';
-				
-				if( is_plugin_active('wpforo/wpforo.php') ){
-					
-					echo' #wpforo-wrap .wpfl-1 .wpforo-category, #wpforo-wrap .wpfl-2 .wpforo-category, #wpforo-wrap .wpfl-3 .wpforo-category {';
-					
-						echo'background-color: '.$this->settings->mainColor . ';';
-						 
-					echo'}';
-				} 
-			}
-			
-			if( !empty($this->settings->linkColor) ){
-				
-				echo' a, .colortext, code, .infoareaicon, .fontawesome-icon.circle-white, .wowmetaposts span a:hover, h1.widget-title, .testimonial-name, .mainthemetextcolor, .primarycolor, footer#colophon a:hover, .icon-box-top h1:hover, .icon-box-top.active a h1{';
-					
-					echo'color:'.$this->settings->linkColor . ';';
-					
-				echo'}';				
-			}	
-
-		echo'</style>'.PHP_EOL;
-		
 		?>
 		<!-- Facebook Pixel Code -->
 		<!--
@@ -1569,11 +1298,13 @@ class LTPLE_Client {
 							
 							echo'refresh_account_credits();' . PHP_EOL;
 							
+							/*
 							echo'setInterval(function(){' . PHP_EOL;
 							
 								echo'refresh_account_credits();' . PHP_EOL;
 
 							echo'}, 60000);' . PHP_EOL;  // every minute
+							*/
 							
 						echo'}' . PHP_EOL;
 						
@@ -1627,13 +1358,9 @@ class LTPLE_Client {
 
 				include($this->views . '/rewards.php');
 			}
-			elseif( isset($_GET['my-profile']) ){
-				
-				include($this->views . '/billing.php');
-			}			
 			elseif( $this->layer->id > 0 ){
 				
-				if( $this->user->has_layer || $this->user->is_admin ){
+				if( $this->user->has_layer ){
 					
 					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
 						
@@ -1646,7 +1373,9 @@ class LTPLE_Client {
 				}
 				else{
 					
-					include($this->views . '/upgrade.php');
+					//include($this->views . '/upgrade.php');
+					
+					include($this->views . '/restrected.php');
 					
 					include($this->views . '/gallery.php');
 				}
@@ -1684,9 +1413,12 @@ class LTPLE_Client {
 			echo'</div>';
 			
 			echo'<div class="col-xs-2 text-right">';
-			
-				echo'<a class="btn btn-success btn-lg" href="' . $this->urls->plans . '"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> Upgrade now</a>';
-			
+				
+				if( $this->user->plan['holder'] == $this->user->ID ){
+				
+					echo'<a class="btn btn-success btn-lg" href="' . $this->urls->plans . '"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> Upgrade now</a>';
+				}
+				
 			echo'</div>';
 			
 		echo'</div>';		
@@ -1823,22 +1555,10 @@ class LTPLE_Client {
 	}
 	
 	public function update_user_layer(){	
-		
+		 
 		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
 			
-			if( $this->layer->type == $this->layer->layerStorage && empty( $this->user->layer ) ){
-				
-				//--------cannot be found --------
-				
-				$this->message ='<div class="alert alert-danger">';
-
-					$this->message .= 'This layer cannot be found...';
-
-				$this->message .='</div>';
-				
-				include( $this->views . '/message.php' );					
-			}
-			elseif( $this->layer->type == $this->layer->layerStorage && $this->user->layer->post_author != $this->user->ID && !$this->user->is_admin ){
+			if( $this->layer->type == $this->layer->layerStorage && $this->user->layer->post_author != $this->user->ID && !$this->user->is_admin ){
 				
 				//--------permission denied--------
 				
@@ -2537,6 +2257,17 @@ class LTPLE_Client {
 							
 							if( $this->layer->type == 'cb-default-layer' ){
 								
+								// update layer type
+								
+								$terms = wp_get_post_terms($defaultLayerId,'layer-type');
+								
+								if( !empty($terms[0]) ){
+
+									wp_set_object_terms( $post_id, $terms[0]->term_id, 'layer-type', false ); 
+								}
+								
+								// copy static contents
+								
 								$this->layer->copy_static_contents($defaultLayerId,$post_id);
 							
 								//redirect to user layer
@@ -2560,7 +2291,7 @@ class LTPLE_Client {
 								exit;							
 							}
 							else{
-								
+
 								echo 'Template successfully saved!';
 								exit;
 							}
@@ -2604,57 +2335,6 @@ class LTPLE_Client {
 				}
 			}	
 		}
-	}
-
-	public function update_user_channel( $user_id, $name = '' ){	
-		
-		$taxonomy = 'marketing-channel';
-
-		// get term_id
-		
-		if( isset($_POST[$taxonomy]) &&  is_numeric($_POST[$taxonomy]) ){
-			
-			$term_id = intval($_POST[$taxonomy]);
-		}
-		elseif( !empty($name) ){
-			
-			$term = get_term_by('name', $name, $taxonomy);
-			
-			if( !empty($term->term_id) ){
-				
-				$term_id = intval($term->term_id);
-			}
-			elseif( strtolower($name) == 'friend recommendation' ){
-				
-				$term = wp_insert_term(
-				
-					ucfirst($name),
-					$taxonomy,
-					array(
-					
-						'description'	=> '',
-						'slug' 			=> str_replace(' ','-',$name),
-					)
-				);
-
-				$term_id = intval($term->term_id);
-			}
-		}
-		
-		if(!empty($term_id)){
-			
-			//-------- save channel --------
-			
-			$response = wp_set_object_terms( $user_id, $term_id, $taxonomy);
-			
-			clean_object_term_cache( $user_id, $taxonomy );	
-
-			if( empty($response) ){
-
-				echo 'Error saving user channel...';
-				exit;
-			}				
-		}			
 	}
 	
 	public function extract_css_urls( $text ){
@@ -2799,8 +2479,357 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-toggle-switch' );	
 		
-	} // End enqueue_styles ()
+		wp_register_style( $this->_token . '-client', false, array());
+		wp_enqueue_style( $this->_token . '-client' );
+		wp_add_inline_style( $this->_token . '-client', $this->get_inline_style() );
 
+	} // End enqueue_styles ()
+	
+	public function get_inline_style(){
+		
+		$style = '';
+		
+		$style .='#ltple-wrapper *::-webkit-scrollbar-track{';
+			
+			//$style .='-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);';
+			$style .='border-radius: 0px;';
+			$style .='background-color: transparent;';
+		$style .='}';
+
+		$style .='#ltple-wrapper *::-webkit-scrollbar{';
+			
+			$style .='width:6px;';
+			$style .='background-color: transparent;';
+		$style .='}';
+
+		$style .='#ltple-wrapper *::-webkit-scrollbar-thumb{';
+			
+			$style .='border-radius: 3px;';
+			//$style .='-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);';
+			$style .='background-color: rgb(229, 229, 229);';
+	
+		$style .='}';
+		
+		$style .='#header_logo {';
+			
+			$style .='max-width:90px;';
+			$style .='width:100%;';
+			$style .='height: 50px;';
+			$style .='z-index: 9999;';
+			$style .='position: absolute;';
+			$style .='overflow: hidden;';
+			$style .='display: inline-block;';
+			$style .='background-position: center left;';				
+			$style .='background-image:url(' . $this->assets_url . 'images/header_small.png);';
+		
+		$style .='}';
+		
+		$style .='#header_logo a {';
+		
+			$style .='padding:8px 4px;';
+			$style .='height:50px;';
+			$style .='width:100%;';
+			$style .='border:none;';
+			$style .='display:inline-block;';
+			$style .='text-align:center;';
+			
+		$style .='}';
+		
+		$style .='#header_logo a img {';
+			
+			$style .='width: auto;';
+			$style .='height: 35px;';
+			$style .='margin-left: -10px;';
+			
+		$style .='}';
+		
+		$style .='#main-menu {';
+		
+			$style .='padding-left:72px;';
+		
+		$style .='}';	
+		
+		$style .=' .tabs-left, .tabs-right {';
+		
+			$style .='padding-top:0 !important;';
+		
+		$style .='}';
+		
+		$style .=' .tabs-left {';
+		
+			$style .='padding: 0 6px !important;';
+		
+		$style .='}';
+
+		$style .=' .tabs-left>li, .tabs-right>li {';
+		
+			$style .='margin-bottom:0 !important;';
+		
+		$style .='}';
+
+		$style .=' .tabs-left>li {';
+			$style .='margin: 0 -12px 0 -6px !important;';
+			$style .='border-top: 1px solid #fff;';
+			$style .='border-bottom: 1px solid #eee;';
+		$style .='}';		
+
+		$style .= ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
+			
+			$style .= 'border-radius:0;';
+			$style .= 'box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
+			
+		$style .='}';
+
+		if( !empty($this->settings->navbarColor) ){
+			
+			$style .=' .navbar{';
+				
+				$style .='background:'.$this->settings->navbarColor.' !important;';
+				
+			$style .='}';
+		}
+		
+		if( !empty($this->settings->mainColor) ){
+		
+			$style .=' .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover{';	
+			
+				$style .='background-color:'.$this->settings->mainColor.' !important;';
+				
+			$style .='}';
+	
+			$style .=' .navbar-collapse .nav>li>a:hover, .navbar-nav>.active, #search a, .nav-next a:link, .nav-next a:visited, .nav-previous a:link, .nav-previous a:visited {';
+
+				$style .='background-color:'.$this->settings->mainColor.' !important;';
+			
+			$style .='}';
+			
+			$style .='.nav-next a:hover, .nav-next a:hover, .nav-previous a:hover, .nav-previous a:hover{';
+				
+				$style .='color:#fff !important;';
+				
+			$style .='}';
+
+			$style .='.single .entry-content {';
+			
+				$style .='font-size: 16px;';
+				$style .='line-height: 40px;';
+				
+			$style .='}';			
+			
+			$style .='.single .entry-content h1, .single .entry-content h2, .single .entry-content h3, .single .entry-content h4{';
+				
+				$style .='color:' . $this->settings->mainColor . ' !important;';
+				$style .='font-weight:bold !important;';
+			
+			$style .='}';
+			
+			$style .='.panel-header h1{';
+
+				$style .='font-size: 24px;';
+			
+				if( $this->settings->titleBkg ){
+						
+					$style .='font-weight: normal !important;';
+					$style .='text-transform: uppercase !important;';
+					$style .='padding: 45px 30px !important;';						
+						
+					$style .='color:#fff !important;';
+					
+					$style .='background-image: url(' . $this->settings->titleBkg . ') !important;';
+					$style .='background-size: cover !important;';
+					$style .='background-position: center center !important;';
+					$style .='background-repeat: no-repeat !important;';
+					$style .='background-repeat: no-repeat !important;';
+				}
+				else{
+					
+					$style .='color:' . $this->settings->mainColor . ' !important;';
+				}
+				
+			$style .='}';
+				
+			$style .=' span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {';
+				$style .='background-color: '.$this->settings->mainColor.' !important;';
+				
+				if( !empty($this->settings->borderColor) ){
+					
+					$style .='border: 0px solid '.$this->settings->borderColor.' !important;';
+				}
+				
+			$style .='}';
+			
+			$style .= ' .bs-callout {';
+				
+				$style .= 'background-color:#fff !important;';
+				
+			$style .='}';
+			
+			$style .= ' .bs-callout-primary{';
+			
+				$style .='border-left: 5px solid '.$this->settings->mainColor . ' !important;';
+				
+			$style .='}';				
+			
+			$style .= ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
+			
+				$style .='border-left: 5px solid '.$this->settings->mainColor . ' !important;';
+				$style .='background-color: #fbfbfb !important;';
+				$style .='margin-top: -1px;';
+				$style .='padding:15px 20px;';
+				
+			$style .='}';
+			
+			$style .= '#content .nav{';
+				
+				$style .='padding-right:0px !important;';
+				
+			$style .='}';
+
+			$style .= '@media (min-width: 768px) {';
+				
+				$style .= '#content .nav{';
+					
+					$style .='padding-right:250px !important;';
+					
+				$style .='}';
+				
+			$style .= '}';
+			
+			$style .= '@media (min-width: 992px) {';
+				
+				
+			$style .= '}';
+			
+			$style .= '@media (min-width: 1200px) {';
+				
+								
+			$style .= '}';			
+			
+			$style .= ' .nav>li>a{';
+				
+				$style .='padding:15px 24px;';
+				
+			$style .='}';
+			
+			$style .= ' .bs-callout-primary h4{';
+			
+				$style .='color:'.$this->settings->linkColor . ';';
+			
+			$style .='}';
+			
+			$style .='footer#colophon h1, footer#colophon h2, footer#colophon h3{';
+			
+				$style .='border-bottom: 1px solid '.$this->settings->mainColor . ' !important;';
+			
+			$style .='}';
+			
+			$style .=' .gallery_type_title {';
+			
+				$style .='color: #4276a0;';
+				$style .='border: none !important;';
+				$style .='background-color: #fdfdfd !important;';
+				$style .='font-size:13px;';
+				$style .='box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);';
+				$style .='height:41px;';
+				$style .='padding:7px 10px;';
+				$style .='text-transform: uppercase;';
+					
+			$style .='}';
+			
+			$style .='.gallery_head {';
+				
+				$style .='background-color:#4276a0 !important;';
+				$style .='color:#fff !important;';
+				$style .='margin-bottom:1px!important';
+			
+			$style .='}';
+			
+			$style .='#plan_table table {';
+				
+				$style .='width: 100%;';
+				
+			$style .='}';
+			
+			$style .='#plan_table table th {';
+			
+				//$style .='background-color: '.$this->settings->mainColor . ';';
+				$style .='background-color: #4276a0;';
+				$style .='color: #fff;';
+				$style .='font-weight: bold;';
+				
+			$style .='}';
+		
+			$style .='#plan_table table .badge{';
+			
+				$style .='font-size: 17px;';
+				$style .='padding: 2px 8px;';
+				$style .='border-radius: 5px;';
+				$style .='line-height: 15px;';
+				$style .='margin-top: -2px;';
+				
+			$style .='}';
+		
+			$style .='#plan_table table th .badge{';
+			
+				$style .='background-color: #fff;';
+				//$style .='color: '.$this->settings->mainColor . ';';
+				$style .='color: #4276a0;';
+				
+			$style .='}';
+			
+			$style .='#plan_table table td .badge{';
+			
+				$style .='background-color: #4276a0;';
+				$style .='color: #fff;';
+				
+			$style .='}';
+			
+			$style .='#plan_table table td {';
+			
+				$style .='font-size: 19px;';
+				$style .='color: #4276a0;';
+				
+			$style .='}';
+			
+			$style .='#plan_table .plan_section {';
+				
+				$style .='color: '.$this->settings->mainColor . ';';
+				$style .='font-size: 22px;';
+				$style .='font-weight: normal;';
+				$style .='display: block;';
+				$style .='cursor: pointer;';
+				$style .='width: 100%;';
+				$style .='text-align: left;';
+				$style .='border: none;';
+				$style .='background: #fff;';
+				$style .='padding: 20px;';
+				$style .='margin: 15px 0 15px 0;';
+				$style .='box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);';
+			
+			$style .='}';
+			
+			if( is_plugin_active('wpforo/wpforo.php') ){
+				
+				$style .=' #wpforo-wrap .wpfl-1 .wpforo-category, #wpforo-wrap .wpfl-2 .wpforo-category, #wpforo-wrap .wpfl-3 .wpforo-category {';
+				
+					$style .='background-color: '.$this->settings->mainColor . ';';
+					 
+				$style .='}';
+			} 
+		}
+		
+		if( !empty($this->settings->linkColor) ){
+			
+			$style .=' a, .colortext, code, .infoareaicon, .fontawesome-icon.circle-white, .wowmetaposts span a:hover, h1.widget-title, .testimonial-name, .mainthemetextcolor, .primarycolor, footer#colophon a:hover, .icon-box-top h1:hover, .icon-box-top.active a h1{';
+				
+				$style .='color:'.$this->settings->linkColor . ';';
+				
+			$style .='}';				
+		}	
+
+		return $style;
+	}
+	
 	/**
 	 * Load frontend Javascript.
 	 * @access  public
@@ -2814,7 +2843,7 @@ class LTPLE_Client {
 		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap-js' );			
 		
-		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery' ), $this->_version);
+		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery' ), time());
 		wp_enqueue_script( $this->_token . '-frontend' );
 		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
@@ -2877,7 +2906,7 @@ class LTPLE_Client {
 		
 		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-toggle-switch' );
-		
+
 	} // End admin_enqueue_scripts ()
 	
 	public function get_login_logo(){

@@ -5,17 +5,30 @@
     display: flex !important;
     align-items: stretch !important;
 	position: relative !important;
+	overflow: hidden !important;
 }
 
 #ltple-wrapper #sidebar {
-    min-width: 250px !important;
-    max-width: 250px !important;
+    min-width: 220px !important;
+    max-width: 220px !important;
     transition: all 0.3s !important;
 }
 
 #ltple-wrapper #sidebar.active {
-    margin-left: -250px !important;
+    margin-left: -220px !important;
 }
+
+#ltple-wrapper #sidebar .glyphicon  {
+    margin-right:10px;
+}
+/*
+#ltple-wrapper #sidebar .nav  {
+
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+*/
 
 #ltple-wrapper #sidebarCollapse, #ltple-wrapper .menuIconBtn {
     width: 32px;
@@ -36,10 +49,11 @@
 /* ---------------------------------------------------
     CONTENT STYLE
 ----------------------------------------------------- */
+ 
 #ltple-wrapper #content {
-    padding: 15px !important;
+    padding: 15px 15px 0 15px !important;
 	margin: 0px !important;
-    min-height: 100vh !important;
+    min-height: 80vh !important;
     transition: all 0.3s !important;
 	width: 100% !important;
 }
@@ -50,7 +64,7 @@
 @media (max-width: 768px) {
 	
     #ltple-wrapper #sidebar {
-        margin-left: -250px !important;
+        margin-left: -220px !important;
     }
     #ltple-wrapper #sidebar.active {
 		margin-left: 0 !important;
@@ -71,6 +85,41 @@
 /* ---------------------------------------------------
     BS TABLE
 ----------------------------------------------------- */
+
+table {
+
+	font-size:15px;
+}
+
+th {
+	
+	vertical-align: middle !important;
+}
+
+th input, th select {
+	
+	width: 95% !important;
+	padding: 5px !important;
+	font-size: 11px !important;
+	margin: 0 auto 6px auto !important;
+	height: 25px !important;
+	background: #ffffff !important;
+	color: #888 !important;
+	border: none !important;
+}
+
+.fixed-table-toolbar {
+	
+	margin-top: -48px;
+	margin-bottom: -6px;
+	display: inline-block;
+	float: right;
+}
+
+.fixed-table-container {
+	
+	border:none !important;
+}
 
 .fixed-table-toolbar {
     margin-top: -48px;

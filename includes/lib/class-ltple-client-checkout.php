@@ -34,56 +34,70 @@ class LTPLE_Client_Checkout {
 		
 		if( $this->parent->user->loggedin ){	
 			
-			if( !empty($_GET['template']) ){
+			if( !empty($_GET['template']) && is_numeric($_GET['template']) ){
 				
 				$layer_id = intval($_GET['template']);
-				
-				echo'<div class="col-sm-7">';
+			
+				if( $layer = get_post($layer_id) ){
+					
+					if( $layer->post_type == 'cb-default-layer' ){
+					
+						echo'<div class="col-sm-7">';
 
-					if( $plans = $this->parent->plan->get_plans_by_id( $layer_id ) ){
-						
-						echo '<h4 style="margin-top:15px;">This template is included in ' . count($plans) . ' plans</h4>';
-						
-						foreach( $plans as $plan ){
-							
-							echo'<hr>';
-							
-							echo'<div class="row">';
+							if( $plans = $this->parent->plan->get_plans_by_id( $layer->ID ) ){
+								
+								echo '<h4 style="margin-top:15px;">This template is included in ' . count($plans) . ' plans</h4>';
+								
+								foreach( $plans as $plan ){
+									
+									echo'<hr>';
+									
+									echo'<div class="row">';
 
-								echo'<div class="col-xs-8">';
-									
-									echo'<div>';
-									
-										echo '<b>' . $plan['title'] . '</b>';
-									
-									echo'</div>';
-									
-									echo'<div>';
+										echo'<div class="col-xs-8">';
+											
+											echo'<div>';
+											
+												echo '<b>' . $plan['title'] . '</b>';
+											
+											echo'</div>';
+											
+											echo'<div>';
+												
+												echo '<span class="label label-success">' . $plan['price_tag'] . '</span>';			
+												
+											echo'</div>';
+
+										echo'</div>';
 										
-										echo '<span class="label label-success">' . $plan['price_tag'] . '</span>';			
+										echo'<div class="col-xs-4 text-right">';
+											
+											echo'<a href="'.$plan['info_url'].'" target="_blank" class="btn btn-sm btn-info" style="margin-right: 5px;">Info</a>';
+											
+											echo'<a href="'.$plan['agreement_url'].'" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+										
+										echo'</div>';
 										
 									echo'</div>';
-
-								echo'</div>';
-								
-								echo'<div class="col-xs-4 text-right">';
-									
-									echo'<a href="'.$plan['info_url'].'" target="_blank" class="btn btn-sm btn-info" style="margin-right: 5px;">Info</a>';
-									
-									echo'<a href="'.$plan['agreement_url'].'" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
-								
-								echo'</div>';
-								
-							echo'</div>';
-						}				
+								}				
+							}
+						
+						echo'</div>';
 					}
-				
-				echo'</div>';
+					else{
+						
+						echo apply_filters('ltple_checkout_content','',$layer);
+					}
+				}
+				else{
+					
+					echo 'This template doesn\'t exist...';
+				}
 			}
 			elseif( !empty($_GET['options']) ){
 			
 				$options = explode('|',$_GET['options']);
-			
+				
 				if( $plans = $this->parent->plan->get_plans_by_options( $options ) ){
 					
 					echo'<div class="col-sm-7">';

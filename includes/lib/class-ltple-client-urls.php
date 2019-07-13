@@ -25,15 +25,15 @@ class LTPLE_Client_Urls {
 	 */
 	public function __construct ( $parent ) {
 
-		$this->parent = $parent;
+		$this->parent 		= $parent;
 		
-		$this->current 		= $this->parent->request->proto . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-		$this->home 		= ( is_ssl() ? home_url('','https') : home_url() );
-		
-		$this->api 			= $this->home . '/wp-json/';
+		$this->home 		= ( is_ssl() ? home_url('','https') : home_url() );	
+		$this->current 		= $this->home . $_SERVER['REQUEST_URI'];
+
+		$this->api 			= $this->home . '/' . rest_get_url_prefix() . '/';
 		$this->api_embedded	= $this->api . 'ltple-embedded/v1/info';
 		
-		$this->host = get_option( $this->parent->_base . 'host_url' );	
+		$this->host 		= get_option( $this->parent->_base . 'host_url' );	
 		
 		if( $this->editorSlug = get_option( $this->parent->_base . 'editorSlug' )){
 			
@@ -56,7 +56,17 @@ class LTPLE_Client_Urls {
 						
 		return $post_link;
 	}
+	
+	public function current_url_in($slug){
+
+		if( !empty($slug) && is_string($slug) && isset($this->{$slug}) && strpos($this->current, $this->{$slug}) !== false ){
+			
+			return true;		
+		}
 		
+		return false;
+	}
+	
 	public function init_urls(){
 		
 		// force permalink structure

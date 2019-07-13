@@ -1,125 +1,14 @@
 <?php
 	
-	$is_public = $this->is_public();
-
-	$self_profile = ( $this->parent->user->loggedin && $this->user->ID  == $this->parent->user->ID ? true : false );
-	
-	if( $is_public || $self_profile ){
-		
-		// is user pro 
-		
-		$is_pro = $this->parent->users->is_pro_user($this->user->ID);
-	
-		// get background
-	
-		$background_image = $this->parent->image->get_banner_url($this->user->ID) . '?' . time();
-		
-		// is profile editable
-		
-		$editable = ( $this->parent->user->loggedin && $this->parent->user->ID == $this->user->ID ? true : false );
+	if( $this->is_public || $this->self_profile ){
 		
 		// get name
 		
 		$name = get_user_meta( $this->user->ID , 'nickname', true );
 		
-		// get profile picture
+		// profile page
 		
-		$picture = $this->parent->image->get_avatar_url( $this->user->ID );
-		
-		// get tabs
-		
-		$tabs = $this->get_profile_tabs($this->user->ID);
-		
-		// get apps
-		
-		$apps = $this->parent->apps->getUserApps($this->user->ID);
-		
-		// profile style
-		
-		echo'<style>';
-		
-		echo'
-		
-			@import url("https://fonts.googleapis.com/css?family=Pacifico");
-		
-			.profile-heading {
-				
-				height:350px;
-				background-color: #333;
-				background-image: url("' . $background_image . '");
-				background-position: center center;
-				background-size: cover;
-				background-attachment: '. ( $this->tab == 'about-me' ? 'scroll' : 'scroll' ).';
-				background-repeat: no-repeat;
-				border-bottom:5px solid ' . $this->parent->settings->mainColor . ';
-				position:relative;
-				overflow:hidden;
-			}		
-		
-			.profile-overlay {
-				
-				width:100%;
-				height:350px;
-				position:absolute;
-				background-image: linear-gradient(to bottom right,#284d6b,' . $this->parent->settings->mainColor . ');
-				opacity:'. ( $this->tab == 'about-me' ? '.5' : '.7' ).';
-			}
-			
-			.profile-heading h2 {
-				
-				padding-top:'.( $editable ? '80px' : '125px').';
-				color: #fff;
-				font-weight: normal;
-				font-size: 53px;
-				font-family: "Pacifico", cursive;
-				position: relative;
-				text-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
-			}
-				
-			.profile-avatar img {
-
-				border: solid 7px #f9f9f9;
-				border-radius: 100px;
-				margin:0px;
-				position: relative;
-				background:#fff;
-				box-shadow:6px -10px 6px -7px rgba(0, 0, 0, 0.27), -7px -10px 6px -7px rgba(0, 0, 0, 0.27);
-			}
-					
-			.profile-menu {
-				
-				padding: 90px 15px 0 15px;
-			}
-
-			.profile-menu ul {
-				
-				font-size: 16px;
-			}			
-		
-			.profile-content {
-				
-				display: inline-block;
-				padding-top: 15px;
-				padding-bottom: 100px;
-				background-color: #fff;
-				width: 100%;
-				min-height: 500px;
-			}		
-			
-			#social_icons img {
-			
-				background:#fff;
-				border:1px solid #eee;
-				padding:1px;
-				height:30px;
-				width:30px;
-				border-radius:250px;
-			}
-		';
-		
-		echo'</style>';
-		
-		echo'<div id="profile_page">';
+		echo'<div id="profile_page" style="display:block;">';
 
 			if( $this->tab == 'about-me' ){
 				
@@ -129,22 +18,22 @@
 					
 					echo'<div class="profile-overlay"></div>';
 					
-					echo '<h2>' . $name . '</h2>';
+					echo '<h1>' . $name . '</h1>';
 					
 					// mobile avatar
 					
 					echo '<div class="profile-avatar text-center hidden-sm hidden-md hidden-lg" style="margin:10px;position:relative;">';
 					
-						echo'<img style="border:solid 5px #f9f9f9;" src="' . $picture . '" height="100" width="100" />';
+						echo'<img style="border:solid 5px #f9f9f9;" src="' . $this->picture . '" height="100" width="100" />';
 						
-						if( $is_pro ){
+						if( $this->is_pro ){
 							
 							echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';									
 						}
 						
 					echo '</div>';			
 					
-					if( $editable ){
+					if( $this->is_editable ){
 						
 						echo '<a class="hidden-xs" title="Edit profile" href="' . $this->parent->urls->profile . '">';
 						
@@ -180,9 +69,9 @@
 
 						echo '<div class="profile-avatar text-left hidden-sm hidden-md hidden-lg" style="padding:12px 8px;position:absolute;">';
 						
-							echo'<img style="border:solid 5px #f9f9f9;" src="' . $picture . '" height="70" width="70" />';
+							echo'<img style="border:solid 5px #f9f9f9;" src="' . $this->picture . '" height="70" width="70" />';
 							
-							if( $is_pro ){
+							if( $this->is_pro ){
 								
 								echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';									
 							}
@@ -200,7 +89,7 @@
 				echo'</div>';
 			}
 			
-			echo'<div id="panel" style="box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
+			echo'<div id="panel" style="display:inline-block !important;margin-bottom:-8px !important;box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
 			
 				echo'<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2  text-center'.( $this->tab != 'about-me' ? ' hidden-xs' : '' ).'" style="padding:30px;">';
 						
@@ -208,9 +97,9 @@
 						
 					echo '<div class="profile-avatar text-center hidden-xs" style="margin: -90px 10px 25px 10px;position:relative;">';
 					
-						echo'<img src="' . $picture . '" height="150" width="150" />';
+						echo'<img src="' . $this->picture . '" height="150" width="150" />';
 						
-						if( $is_pro ){
+						if( $this->is_pro ){
 							
 							echo'<span class="label label-primary" style="position:absolute;bottom:10%;right:16%;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';					
 						}						
@@ -233,9 +122,9 @@
 							
 						do_action('ltple_before_social_icons');
 						
-						if( !empty($apps) ){		
+						if( !empty($this->apps) ){		
 							
-							foreach( $apps as $app ){
+							foreach( $this->apps as $app ){
 								
 								if( !empty($app->user_profile) && !empty($app->social_icon) ){
 									
@@ -259,17 +148,17 @@
 				
 				echo '</div>';
 
-				echo'<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
+				echo'<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:0px;min-height:700px;">';
 				
 					echo'<ul class="nav nav-pills" role="tablist" style="box-shadow:inset 0px 2px 5px -4px rgba(0,0,0,0.75);overflow:visible;margin-top:0;">';
 						
-						foreach( $tabs as $tab){
+						foreach( $this->tabs as $tab){
 							
 							if( !empty($tab['name']) ){
 
 								$active = ( $tab['slug'] == $this->tab ? ' active' : '');
-
-								$url = $this->parent->urls->profile . $this->user->ID . '/';
+ 
+								$url = $this->parent->profile->url . '/';
 
 								if( $tab['slug'] != 'about-me' ){
 									
@@ -286,7 +175,7 @@
 						
 					echo'</ul>';
 					
-					if( !$is_public && $self_profile ){
+					if( !$this->is_public && $this->self_profile ){
 						
 						echo '<div class="alert alert-warning row" style="margin: 20px 0 !important;">';
 							
@@ -305,9 +194,9 @@
 						echo '</div>';			
 					}
 					
-					echo'<div class="profile-content">';
+					if( !empty($this->tabs) ){
 					
-						foreach( $tabs as $tab){
+						foreach( $this->tabs as $tab){
 							
 							if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
 
@@ -326,9 +215,8 @@
 								
 								break;
 							}							
-						}					
-						
-					echo '</div>';
+						}
+					}
 					
 				echo '</div>';
 				

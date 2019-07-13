@@ -27,6 +27,7 @@
 					
 				echo'</div>';
 				
+				/*
 				echo'<div class="pull-left">';
 				
 					echo'<a class="menuIconBtn" href="' . $ltple->urls->dashboard . '" style="width: 32px;height: 28px;border-top: 0;border-right: 1px solid #ddd;border-bottom: 0;border-left: 0;color: #777;text-align: left;font-size: 16px;display: block;background: transparent;padding: 3px 5px;margin: 0 10px 0 0;">';
@@ -36,29 +37,38 @@
 					echo'</a>';
 					
 				echo'</div>';
+				*/
 				
 				echo'<div class="pull-left hidden-xs">';
-
+					
+					/*
 					echo'<a style="background:' . $ltple->settings->mainColor . ';border:1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="'. $ltple->urls->editor .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Templates" data-content="The gallery is where you can find templates to start a project. New things are added every weeks.">';
 					
 						echo'Templates';
+					
+					echo'</a>';
+					*/
+					
+					echo'<a style="background:' . $ltple->settings->mainColor . ';border:1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="'. $ltple->urls->dashboard .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Dashboard" data-content="The dashboard is where you can manage all your projects and services. New things are added every weeks.">';
+					
+						echo'Dashboard';
+					
+					echo'</a>';	
+					
+				echo'</div>';
+
+				echo'<div class="pull-left hidden-xs">';
+
+					echo'<a style="margin-left:6px;background: ' . $ltple->settings->mainColor . '99;border: 1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="' . $ltple->urls->media . 'user-images/" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
+						
+						echo'Media';
 					
 					echo'</a>';
 				
 				echo'</div>';				
 				
 				if( $ltple->user->loggedin === true ){
-					
-					echo'<div class="pull-left hidden-xs">';
-
-						echo'<a style="margin-left:6px;background: ' . $ltple->settings->mainColor . '99;border: 1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="' . $ltple->urls->media . 'user-images/" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
-							
-							echo'Media';
-						
-						echo'</a>';
-					
-					echo'</div>';
-					
+										
 					do_action('ltple_left_navbar');
 					
 					if( $ltple->layer->id > 0 ){
@@ -287,6 +297,8 @@
 										echo'<button style="background-color:#5869ca;border: 1px solid #3F51B5;" class="btn btn-sm" type="button" id="saveBtn">Save</button>';
 										
 									echo'</form>';
+									
+									echo'<a href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&action=edit" style="background-color:#58cac5;border:1px solid #409a96;margin-left:2px;" class="btn btn-sm" type="button">Settings</a>';
 								}
 								
 								// view button 
@@ -403,7 +415,8 @@
 					if( $ltple->user->ID > 0  ){
 						
 						do_action('ltple_right_navbar');
-						 
+						
+						/*
 						if( !empty($ltple->user->layers) && !is_admin() ){ 
 
 							echo'<div style="margin:0 2px;" class="btn-group">';
@@ -418,20 +431,6 @@
 												
 												echo '<a href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '">' . ( $i + 1 ) . ' - ' . ucfirst($layer->post_title) . '</a>';
 												
-												/*
-												echo '<a href="#quickRemoveTpl' . ( $i + 1 ) . '" data-toggle="dialog" data-target="#quickRemoveTpl' . ( $i + 1 ) . '" class="btn-xs btn-danger" style="padding: 0px 5px;position: absolute;top: 11px;right: 11px;font-weight: bold;">x</a>';
-
-												echo'<div style="display:none;" id="quickRemoveTpl' . ( $i + 1 ) . '" title="Remove Template ' . ( $i + 1 ) . '">';
-													
-													echo '<h4>Are you sure you want to delete this template?</h4>';						
-
-													echo '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $ltple->urls->editor . '?uri=' . $layer->ID . '&postAction=delete&confirmed" target="'.( $ltple->layer->id == $layer->ID ? '_self' : '_self' ).'">Yes</a>';
-													
-													//echo '<button style="margin:10px;" type="button" class="btn btn-xs btn-danger ui-button ui-widget" role="button" title="Close"><span class="ui-button-text">No</span></button>';
-
-												echo'</div>';
-												*/
-											
 											echo'</li>';						
 										}
 										
@@ -443,6 +442,23 @@
 							
 							echo '<button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="Pro users only" data-content="You need a paid plan ' . PHP_EOL . 'to unlock this action"></span> Load <span class="caret"></span></button>';
 						}
+						*/
+						
+						echo'<div style="margin:0 2px;" class="btn-group">';
+						
+							echo'<button style="border: 1px solid #3d8840;" type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">New <span class="caret"></span></button>';
+							
+							echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
+								
+								echo'<li style="position:relative;">';
+											
+									echo '<a href="' . $ltple->urls->editor . '"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Project</a>';
+											
+								echo'</li>';						
+
+							echo'</ul>';
+							
+						echo'</div>';
 
 						if( $ltple->layer->defaultId > 0 && ( $ltple->layer->type != 'cb-default-layer' || $ltple->user->is_editor ) ){
 						

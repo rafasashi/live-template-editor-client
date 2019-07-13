@@ -21,7 +21,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		$this->taxonomy = 'app-type';
 		
-		$this->parent->register_post_type( 'user-app', __( 'User Apps', 'live-template-editor-client' ), __( 'User Apps', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-app', __( 'Accounts', 'live-template-editor-client' ), __( 'Account', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
@@ -85,23 +85,11 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 		});		
 		
-		// get current app
-
-		if(!empty($_REQUEST['app'])){
-			
-			$this->app = $_REQUEST['app'];
-		}
-		elseif(!empty($_SESSION['app']) && !empty($_SESSION['action']) && empty($_SESSION['file']) ){
-			
-			$this->app = $_SESSION['app'];
-		}
-		
 		add_filter( 'wp_loaded', array( $this, 'init_apps'));
 		
 		add_filter( 'user-app_custom_fields', array( $this, 'get_fields' ));
-		
+
 		add_filter( 'ltple_dashboard_connect_sidebar', array( $this, 'get_sidebar_content' ),1,3);
-	
 	}
 
 	// Add app data custom fields
@@ -137,20 +125,41 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 	
 	public function get_sidebar_content($sidebar,$currentTab,$output){
 		
-		$sidebar .= '<li'.( $currentTab == 'apps' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->apps . '?app&output='.$output.'">Applications</a></li>';
-
-		//$sidebar .= '<li'.( $currentTab == 'embedded' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->apps . '?app=embedded&output='.$output.'">Embedded Plugin</a></li>';
+		$sidebar .= '<li'.( $currentTab == 'user-app' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-app"><span class="glyphicon glyphicon-plus"></span> Applications</a></li>';
 
 		return $sidebar;
 	}
 	
 	public function init_apps(){
 		
+		// get current app
+
+		if(!empty($_REQUEST['app'])){
+			
+			if( $_REQUEST['app'] != 'autoDetect' ){
+			
+				$this->app = $_REQUEST['app'];
+			}
+			elseif( !empty($_REQUEST['id'])){
+				
+				$terms = wp_get_object_terms($_REQUEST['id'],'app-type');
+				
+				if( isset($terms[0]->slug) ){
+					
+					$this->app = $terms[0]->slug;
+				}
+			}	
+		}
+		elseif(!empty($_SESSION['app']) && !empty($_SESSION['action']) && empty($_SESSION['file']) ){
+			
+			$this->app = $_SESSION['app'];
+		}
+
 		// get all apps
 		
 		do_action('ltple_list_apps');
 		
-		if(is_admin()){
+		if( is_admin() ){
 			
 			add_filter( 'app-type_row_actions', array($this, 'remove_app_quick_edition'), 10, 2 );				
 			
@@ -166,6 +175,17 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			add_action('create_app-type', array( $this, 'save_app_fields' ) );
 			add_action('edit_app-type', array( $this, 'save_app_fields' ) );
+		}
+		else{
+			
+			add_filter('ltple_list_user-app_new_url', array( $this, 'get_list_new_url' ),10,3);
+			
+			add_filter('ltple_list_user-app_fields', array( $this, 'get_list_fields' ),10,1);
+
+			if( !empty($_GET['deleteApp']) && !empty($_GET['confirmed']) && $_GET['confirmed'] == md5($_GET['deleteApp']) ){
+				
+				$this->deleteApp($_GET['deleteApp']);
+			}
 		}
 
 		// get custom fields
@@ -217,6 +237,108 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				}
 			}
 		}
+		
+		//Add Custom API Endpoints
+		
+		add_action('rest_api_init', function(){
+			
+			register_rest_route( 'ltple-list/v1', '/user-app/', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_user_app_rows'),
+			));
+		});
+	}
+	
+	public function get_app_type($app_id){
+		
+		$app_type = null;
+		
+		$terms = wp_get_post_terms($app_id,$this->taxonomy);
+		
+		if( isset($terms[0])){
+			
+			$app_type = $terms[0];
+		}
+		
+		return $app_type;
+	}
+	
+	public function get_list_new_url($url,$currentTab,$output='') {
+		
+		$url = $this->parent->urls->apps . '?app&tab=accounts&output='.$output;
+		
+		return $url;
+	}
+	
+	public function get_list_fields( $fields = array() ) {
+		
+		$fields = array(
+			
+			array(
+
+				'field' 	=> 'preview',
+				'sortable' 	=> 'false',
+				'content' 	=> '',
+			),
+			array(
+
+				'field' 		=> 'app',
+				'sortable' 		=> 'true',
+				'content' 		=> 'App',
+				'filter-control'=> 'select',
+			),
+			array(
+
+				'field' 		=> 'user',
+				'sortable' 		=> 'true',
+				'content' 		=> 'User',
+				'filter-control'=> 'input',
+			),
+			array(
+
+				'field' 		=> 'action',
+				'sortable' 		=> 'false',
+				'Content' 		=> 'action',
+			)				
+		);		
+		
+		return $fields;
+	}
+	
+	public function get_user_app_rows($request) {
+		
+		$referer = $request->get_header( 'referer' );
+		
+		$app_rows = [];
+		
+		if( $apps = $this->getUserApps($this->parent->user->ID) ){
+			
+			foreach( $apps as $i => $app ){
+				
+				$thumb_url = get_option('thumbnail_' . $app->app_type->slug);
+				
+				$action = '<a href="#quickRemoveApp' . ( $i + 1 ) . '" data-toggle="dialog" data-target="#quickRemoveApp' . ( $i + 1 ) . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</a>';
+
+				$action .= '<div style="display:none;" id="quickRemoveApp' . ( $i + 1 ) . '" title="Remove App #' . $app->ID . '">';
+					
+					$action .=  '<h4>Are you sure you want to delete this app?</h4>';						
+
+					$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . add_query_arg( array( 'deleteApp' => $app->ID , 'confirmed' => md5($app->ID)),$referer) . '" target="_self">Yes</a>';
+					
+				$action .= '</div>';				
+
+				$row = [];
+				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $thumb_url . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:240px;display:inline-block;"></div>';
+				$row['user'] 		= ucfirst($app->user_name);
+				$row['app'] 		= $app->app_name;
+				$row['action'] 		= $action;
+				
+				$app_rows[] = $row;
+			}
+		}
+		
+		return $app_rows;
 	}
 	
 	public function includeApp( $appSlug ){
@@ -336,6 +458,26 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		do_action( 'ltple_new_app_connected' );
 	}
 	
+	public function deleteApp($app){
+		
+		if( is_numeric($app) ){
+			
+			$app = get_post($app);
+		}
+		
+		if( !empty($app->post_author) ){
+		
+			if( !empty($app->post_author) && intval($app->post_author) == $this->parent->user->ID ){
+			
+				//--------delete bookmark--------
+				
+				wp_delete_post( $app->ID, true );
+				
+				$_SESSION['message'] = '<div class="alert alert-success">App successfully deleted</div>';
+			}
+		}
+	}
+	
 	public function getAppUrl( $appSlug, $action='connect', $tab='image-library' ){
 		
 		$ref_url = urlencode( $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] );
@@ -395,9 +537,17 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 							}
 							*/
 							
+							// get app type
+							
+							$app->app_type = $this->get_app_type($app->ID);
+							
 							// get app data
 							
 							$app->app_data = $this->getAppData($app,$app->post_author,false);
+							
+							// get app parameters
+							
+							$app->app_parameters = get_option( 'parameters_' . $app->app_slug );
 							
 							// get app class name
 							

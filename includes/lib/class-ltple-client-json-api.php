@@ -34,47 +34,164 @@ class LTPLE_Client_Json_API {
 		return $url;
 	}
 	
-	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar', $card=false ){
+	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar', $card=false, $itemHeight=235 ){
 						
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );
 		
 		$responsive = ( $card ? false : true );
-		
-		if(!$show_toolbar){
+
+		echo'<style>';
 			
-			echo'<style>#'.$toolbar.'{display:none;}</style>';
-		}
-		
-		if( $card ){
+			if(!$show_toolbar){
+				
+				echo'#'.$toolbar.'{display:none;}';
+			}
 			
-			echo'<style>
+			echo'
 			
+			#table, .fixed-table-loading {
+				
+				background-color:#fbfbfb !important;
+				border:none !important;
+			}
+			
+			tbody {
+				
+				overflow-y: auto;
+				overflow-x: hidden;
+				display:block;
+			}
+
+			.fixed-table-pagination{
+				
+				padding: 0px 15px;
+				border-top: none;
+				border-bottom: none;
+				background: #fbfbfb;
+				min-height: 54px;
+			}
+			
+			.pagination-info {
+				
+				display:none;
+			}
+
+			.page-list .btn {
+				
+				padding: 5px 10px;
+			}
+			
+			';
+
+			if( $card ){
+					
+				echo'
+				
+				tbody {
+					
+					height:calc( 100vh - 100px);
+				}
+
 				tr {
 					
-					float:left;
-					margin:3px;
-					padding:5px;
-					border-radius: 3px;
-					border:none;
-					height:300px;
-					width:30%;
-					overflow:hidden;
-					background-color: #fff !important;
-					box-shadow:0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);					
+					float: left;
+					margin: 0;
+					padding: 0;
+					border-radius: 0;
+					border: none;
+					height: auto;
+					min-height: '.$itemHeight.'px;
+					width: 100%;
+					overflow: hidden;
+					background-color: transparent !important;
+					box-shadow: none;
+					position:relative;					
 				}
 				
+				@media (min-width: 768px) {
+					
+					tbody {
+						
+						height:calc( 100vh - ' . ( $this->parent->inWidget ?  100 : 190 ) . 'px);				
+					}					
+					
+					tr {
+						
+						width: 50%; /*sm-6*/
+					}
+				}
+				
+				@media (min-width: 992px) {
+					
+					tr {
+						
+						width: 33.33333333%; /*md-4*/
+					}
+				}
+				
+				@media (min-width: 1200px) {
+					
+					tr {
+						
+						width: 33.33333333%;; /*lg-4*/
+					}					
+				}
+
 				td {
 					
 					border:none !important;
+					left: 0;
+					right: 0;
+					top: 0;
+					bottom: 0;
+					position: absolute;
+					min-height: '.($itemHeight - 10 ).'px;
 				}
 			
 				.card-view .title {
 					
 					display:none !important;
 				}
+				
+				';
 			
-			</style>';
-		}
+			}
+			else{
+				
+				echo'
+				
+				thead, tbody tr {
+					display:table;
+					width:100%;
+					table-layout:fixed;/* even columns width , fix width of table too*/
+				}
+				
+				thead {
+					width: calc( 100% - 6px );
+				}
+					
+				tbody {
+					
+					height:calc( 100vh - 100px);
+				}
+				
+				@media (min-width: 768px) {
+					
+					tbody {
+						
+						height:calc( 100vh - 230px);				
+					}
+				}
+				
+				td {
+					
+					overflow: hidden;
+				}
+				
+				';
+			}
+			
+		echo'</style>';
 		
 		if($form){
 		
@@ -111,11 +228,17 @@ class LTPLE_Client_Json_API {
 			
 		echo '</div>';
 		
-		echo '<table id="table" class="table table-striped" ';
+		echo '<table id="table" class="table table-striped" style="border:none;background:transparent;" ';
 			echo 'data-toggle="table" ';
 			//echo 'data-height="400" ';
 			echo 'data-url="' . $api_url . '" ';
 			echo 'data-pagination="'.( $pagination ? 'true' : 'false' ).'" ';
+			/*
+			if( $pagination == 'true' ){
+				
+				echo 'data-pagination-v-align="both" ';
+			}
+			*/
 			//echo 'data-side-pagination="server" ';
 			echo 'data-page-size="20" ';
 			echo 'data-page-list="[20, 50, 100, 200, 500]" ';					

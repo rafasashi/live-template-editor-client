@@ -59,8 +59,8 @@
 		
 			$plans = $this->parent->plan->get_plans_by_options($this->parent->plan->options);
 		
-			$from_amount = $plans[0]['info']['total_price_amount'];
-			$from_currency 	= $plans[0]['info']['total_price_currency'];
+			$from_amount = isset($plans[0]['info']['total_price_amount']) ? $plans[0]['info']['total_price_amount'] : null;
+			$from_currency 	= isset($plans[0]['info']['total_price_currency']) ? $plans[0]['info']['total_price_currency'] : '$';
 		}
 		
 		echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> ' . $this->post_title . ' template</h1>';
@@ -163,30 +163,22 @@
 									
 								echo'</div>'.PHP_EOL;
 
-								if($this->parent->user->loggedin){
+								if( $this->parent->user->loggedin ){
 									
 									if( $has_layer === true){
 										
 										echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 									}
-									else{
+									elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 										
 										echo $this->get_checkout_button($this,$layer_type);
-										
-										/*
-										echo'<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
-									
-											echo'<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Get'.PHP_EOL;
-								
-										echo'</button>'.PHP_EOL;
-										*/
 									}
 								}
 								else{
 									
 									echo'<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
 									
-										echo'<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Edit'.PHP_EOL;
+										echo'<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
 								
 									echo'</button>'.PHP_EOL;								
 								}

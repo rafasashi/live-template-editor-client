@@ -18,7 +18,7 @@ class LTPLE_Client_Email {
 	 
 	public function __construct ( $parent ) {
 		
-		$this->parent 	= $parent;
+		$this->parent = $parent;
 		
 		$this->parent->register_post_type( 'email-model', __( 'Email models', 'live-template-editor-client' ), __( 'Email model', 'live-template-editor-client' ), '', array(
 
@@ -82,7 +82,7 @@ class LTPLE_Client_Email {
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));	
-		
+
 		add_action( 'add_meta_boxes', function(){
 		
 			$this->parent->admin->add_meta_box (
@@ -149,6 +149,8 @@ class LTPLE_Client_Email {
 		add_filter('ltple_loaded', array( $this, 'init_email' ));
 		
 		add_action( 'ltple_users_bulk_imported', array( $this, 'schedule_invitations' ));
+	
+		add_action( 'delete_user', array( $this, 'delete_user' ),1,1);
 	}
 	
 	public function is_email($email){
@@ -401,6 +403,13 @@ class LTPLE_Client_Email {
 
 		return false;
 	}
+
+	public function delete_user( $user_id ){
+		
+		$reassign = false;
+		
+		$result = wp_delete_user( $user_id, $reassign );
+	}
 	
 	public function bulk_import_users( $csv ){
 		
@@ -430,7 +439,7 @@ class LTPLE_Client_Email {
 						
 						if( $user = $this->insert_user($email, false) ){
 							
-							$this->parent->update_user_channel($user['id'],'User Invitation');
+							$this->parent->channels->update_user_channel($user['id'],'User Invitation');
 							
 							$this->imported['imported'][] = $user;
 						}

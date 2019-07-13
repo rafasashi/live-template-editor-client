@@ -15,32 +15,7 @@
 	$currentTab = ( !empty($_GET['tab']) ? $_GET['tab'] : 'home' );
 	
 	// ------------- output panel --------------------
-	
-	echo '<style>';
-	
-	echo '			
-	#dashboard .panel-body::-webkit-scrollbar-track{
-		
-		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-		border-radius: 10px;
-		background-color: #fff;
-	}
 
-	#dashboard .panel-body::-webkit-scrollbar{
-		
-		width: 10px;
-		background-color: #fff;
-	}
-
-	#dashboard .panel-body::-webkit-scrollbar-thumb{
-		
-		border-radius: 10px;
-		-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
-		background-color: '.$this->parent->settings->mainColor . '99;
-	}';
-	
-	echo '</style>';
-	
 	echo'<div id="media_library" class="wrapper">';
 
 		echo $this->parent->dashboard->get_sidebar($currentTab);

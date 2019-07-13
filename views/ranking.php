@@ -51,7 +51,7 @@
 
 							// pagination
 							
-							$page 	= ( !empty($_GET['t']) && is_numeric($_GET['t']) ) ? sanitize_key($_GET['t']) : 1;
+							$page 	= ( !empty($_GET['r']) && is_numeric($_GET['r']) ) ? sanitize_key($_GET['r']) : 1;
 							$limit 	= 100;
 							$offset = ( ( $page -1 ) * $limit );							
 							
@@ -82,8 +82,8 @@
 								
 								$pageLinks = paginate_links( array(
 								
-									'base' 		=> $this->parent->urls->ranking . '?' . remove_query_arg('t', $_SERVER['QUERY_STRING']) . '%_%',
-									'format' 	=> '&t=%#%', // this defines the query parameter that will be used, in this case "p"
+									'base' 		=> $this->parent->urls->ranking . '?' . remove_query_arg('r', $_SERVER['QUERY_STRING']) . '%_%',
+									'format' 	=> '&r=%#%', // this defines the query parameter that will be used, in this case "p"
 									'prev_text' => __('&laquo; Previous'), // text for previous page
 									'next_text' => __('Next &raquo;'), // text for next page
 									'total' 	=> ceil( $q->get_total() / $limit), // the total number of pages we have

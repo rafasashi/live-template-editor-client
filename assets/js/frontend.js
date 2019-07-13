@@ -34,7 +34,227 @@
 			$('.library-content .nav #overflow').css({
 				'left': offset
 			});
-		}		
+		}
+		
+		function set_modals(){
+			
+			//modal always on top 
+			
+			$('.modal').appendTo("body");
+					
+			//load modal iframes
+			
+			$('.modal').on('shown.bs.modal', function (e) {
+				
+				var $modal = $(this);
+				
+				var modalIframe = $modal.find('iframe');
+				
+				if(modalIframe.length > 0){
+					
+					var iframeSrc = modalIframe.attr("src");
+					
+					if(typeof iframeSrc == typeof undefined || iframeSrc == false){
+						
+						iframeSrc = modalIframe.attr("data-src");
+						
+						if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
+						
+							//console.log(iframeSrc);
+						
+							modalIframe.attr("src", iframeSrc).on('load',function(){
+								
+								// get input id
+										
+								var inputId = modalIframe.attr("data-input-id");
+								
+								if( typeof inputId !== typeof undefined ){
+								
+									// insert media
+									
+									modalIframe.contents().find(".insert_media").off();
+									
+									modalIframe.contents().find(".insert_media").on("click", function(e){
+
+										e.preventDefault();
+										e.stopPropagation();
+										
+										// get media src
+										
+										var src = $(this).attr("data-src");
+																			
+										// set input change
+										 
+										$(inputId).val( src );
+										
+										// trigger input change
+					
+										$(inputId).trigger("change");
+									
+										// close current modal
+
+										$modal.modal("toggle");
+									
+									});	
+									
+									modalIframe.contents().find('#table').bind('DOMSubtreeModified',function(event) {
+										
+										modalIframe.contents().find(".insert_media").off();
+									
+										modalIframe.contents().find(".insert_media").on("click", function(e){
+
+											e.preventDefault();
+											e.stopPropagation();
+											
+											// get media src
+											
+											var src = $(this).attr("data-src");
+																				
+											// set input change
+											 
+											$(inputId).val( src );
+											
+											// trigger input change
+						
+											$(inputId).trigger("change");
+										
+											// close current modal
+
+											$modal.modal("toggle");
+										
+										});										
+									});
+								}							
+							});
+						}
+					}				
+				}
+			});				
+		}
+		
+		function set_dialogs(){
+			
+			$('[data-toggle="dialog"]').each(function(e){
+				
+				var id 		= $(this).data('target');
+				var width 	= $(this).attr('data-width') || 'auto';
+				var height 	= $(this).attr('data-height') || 'auto';
+				var resizable = $(this).attr('data-resizable') || false;
+				
+				$(id).dialog({
+					
+					autoOpen 	: false,
+					width 		: width,
+					height 		: height,
+					resizable 	: resizable
+				});
+				
+				$(this).on('click',function(e){
+					
+					var $dialog = $(id);
+					
+					$dialog.dialog('open');
+					
+					var dialogIframe = $dialog.find('iframe');
+					
+					if(dialogIframe.length > 0){
+						
+						var iframeSrc = dialogIframe.attr("src");
+						
+						if(typeof iframeSrc == typeof undefined || iframeSrc == false){
+							
+							iframeSrc = dialogIframe.attr("data-src");
+							
+							if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
+							
+								//console.log(iframeSrc);
+
+								dialogIframe.attr("src", iframeSrc).on('load',function(){
+									
+									// get input id
+											
+									//var inputId = dialogIframe.attr("data-input-id");
+									
+									//if( typeof inputId !== typeof undefined ){
+									
+										// insert media
+										
+										dialogIframe.contents().find(".insert_media").off();
+										
+										dialogIframe.contents().find(".insert_media").on("click", function(e){
+
+											e.preventDefault();
+											e.stopPropagation();
+											
+											// get media src
+											
+											var mediaSrc = window.location.origin + '/image-proxy.php?url=' + encodeURIComponent( $(this).attr("data-src") );
+
+											// get editor iframe
+											
+											var editorIframe = document.getElementById("editorIframe").contentWindow;
+											
+											// insert media
+											
+											editorIframe.insertMedia(mediaSrc);
+											
+											// close current dialog
+
+											$dialog.dialog("close");
+										});
+
+										dialogIframe.contents().find('#table').bind('DOMSubtreeModified',function(event) {
+											
+											dialogIframe.contents().find(".insert_media").off();
+										
+											dialogIframe.contents().find(".insert_media").on("click", function(e){
+
+												e.preventDefault();
+												e.stopPropagation();
+												
+												// get media src
+												
+												var mediaSrc = window.location.origin + '/image-proxy.php?url=' + encodeURIComponent( $(this).attr("data-src") );
+
+												// get editor iframe
+												
+												var editorIframe = document.getElementById("editorIframe").contentWindow;
+												
+												// insert media
+												
+												editorIframe.insertMedia(mediaSrc);
+												
+												// close current dialog
+
+												$dialog.dialog("close");
+											});
+										});											
+
+									//}							
+								});
+							}
+						}				
+					}
+				});
+			});
+		}
+		
+		function set_table(){
+			
+			set_modals();
+			
+			set_dialogs();
+			
+			$("img.lazy").lazyload({
+				
+				container: $("tbody")
+			});
+			
+			$(".pagination .page-link").on('click',function(){
+				
+				$("tbody").animate({ scrollTop: 0 }, "fast");
+			});
+		}
 		
 		if( $(".library-content .nav").length ){
 		
@@ -53,77 +273,15 @@
 			
 			//$(window).trigger('resize'); //to be fixed
 		});
-					
-		//modal always on top 
 		
-		$('.modal').appendTo("body");
-		
-		//load modal iframes
-		
-		$('.modal').on('shown.bs.modal', function (e) {
-			
-			var $modal = $(this);
-			
-			var modalIframe = $modal.find('iframe');
-			
-			if(modalIframe.length > 0){
-				
-				var iframeSrc = modalIframe.attr("src");
-				
-				if(typeof iframeSrc == typeof undefined || iframeSrc == false){
-					
-					iframeSrc = modalIframe.attr("data-src");
-					
-					if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
-					
-						//console.log(iframeSrc);
-					
-						modalIframe.attr("src", iframeSrc).on('load',function(){
-							
-							// get input id
-									
-							var inputId = modalIframe.attr("data-input-id");
-							
-							if( typeof inputId !== typeof undefined ){
-							
-								// insert media
-								
-								modalIframe.contents().find(".insert_media").off();
-								
-								modalIframe.contents().find(".insert_media").on("click", function(e){
-
-									e.preventDefault();
-									e.stopPropagation();
-									
-									// get media src
-									
-									var src = $(this).attr("data-src");
-																		
-									// set input change
-									 
-									$(inputId).val( src );
-									
-									// trigger input change
-				
-									$(inputId).trigger("change");
-								
-									// close current modal
-
-									$modal.modal("toggle");
-								
-								});	
-
-							}							
-						});
-					}
-				}				
-			}
-		});
-		
+		set_modals();
+						
 		// lazyload images on scroll
+		
 		$("img.lazy").lazyload();
 	
 		// lazyload tab images 
+		
 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 			
 			var images = 0;
@@ -244,88 +402,8 @@
 			
 			localStorage.setItem('selectedTab', id);
 		});
-		
-		// set dialog
-		
-		function set_dialogs(){
-			
-			$('[data-toggle="dialog"]').each(function(e){
-				
-				var id 		= $(this).data('target');
-				var width 	= $(this).attr('data-width') || 'auto';
-				var height 	= $(this).attr('data-height') || 'auto';
-				var resizable = $(this).attr('data-resizable') || false;
-				
-				$(id).dialog({
-					
-					autoOpen 	: false,
-					width 		: width,
-					height 		: height,
-					resizable 	: resizable
-				});
-				
-				$(this).on('click',function(e){
-					
-					var $dialog = $(id);
-					
-					$dialog.dialog('open');
-					
-					var dialogIframe = $dialog.find('iframe');
-					
-					if(dialogIframe.length > 0){
-						
-						var iframeSrc = dialogIframe.attr("src");
-						
-						if(typeof iframeSrc == typeof undefined || iframeSrc == false){
-							
-							iframeSrc = dialogIframe.attr("data-src");
-							
-							if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
-							
-								//console.log(iframeSrc);
 
-								dialogIframe.attr("src", iframeSrc).on('load',function(){
-									
-									// get input id
-											
-									//var inputId = dialogIframe.attr("data-input-id");
-									
-									//if( typeof inputId !== typeof undefined ){
-									
-										// insert media
-										
-										dialogIframe.contents().find(".insert_media").off();
-										
-										dialogIframe.contents().find(".insert_media").on("click", function(e){
-
-											e.preventDefault();
-											e.stopPropagation();
-											
-											// get media src
-											
-											var mediaSrc = window.location.origin + '/image-proxy.php?url=' + encodeURIComponent( $(this).attr("data-src") );
-
-											// get editor iframe
-											
-											var editorIframe = document.getElementById("editorIframe").contentWindow;
-											
-											// insert media
-											
-											editorIframe.insertMedia(mediaSrc);
-											
-											// close current dialog
-
-											$dialog.dialog("close");
-										});	
-
-									//}							
-								});
-							}
-						}				
-					}
-				});
-			});
-		}
+		// dialog boxes
 		
 		set_dialogs();
 		
@@ -333,7 +411,55 @@
 		
 		$('#table').on('load-success.bs.table', function(e) {
 			
-			set_dialogs();
+			set_table();
+			
+			// table filters
+
+			if( $("#formFilters").length > 0 ){
+								
+				$("#formFilters").change(function () {
+
+					var formFilters = {};
+
+					$("#formFilters :input").filter(function(index, element) {
+						
+						var name = $(element).attr("name");
+						
+						var val = "";
+						
+						if( $(element).attr("type") == "checkbox" ){
+							
+							name = name.replace("[]", '[' + $(element).val() + ']');
+							
+							if($(element).is(':checked')){
+								
+								val = 'true';
+							}
+						}
+						else{
+							
+							val = $(element).val();									
+						}
+					
+						if( val != "" && val != 0 && val != $(element).attr("data-original") ){
+						
+							formFilters[name] = val;
+						}										
+					});
+					
+					console.log(formFilters);
+					
+					$("#table").bootstrapTable("filterBy",formFilters);
+
+				});
+			}
+		});
+		
+		//load modal iframes
+		
+		$('#table').on('page-change.bs.table', function(e) {
+			
+			set_table();
 		});
 	});
 	

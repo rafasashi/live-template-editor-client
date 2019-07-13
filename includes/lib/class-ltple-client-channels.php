@@ -63,10 +63,62 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 			'friend-recommendation' => 'Friend Recommendation',
 			'user-invitation' 		=> 'User Invitation',
 			'user-profile' 			=> 'User Profile',
+			//'manager' 			=> 'Manager',
 			'other' 				=> 'Other',
 			'search-engines' 		=> 'Search Engines',
 			'social-networks' 		=> 'Social Networks',
 		));
+	}
+	
+	public function update_user_channel( $user_id, $name = '' ){	
+		
+		$taxonomy = 'marketing-channel';
+
+		// get term_id
+		
+		if( isset($_POST[$taxonomy]) &&  is_numeric($_POST[$taxonomy]) ){
+			
+			$term_id = intval($_POST[$taxonomy]);
+		}
+		elseif( !empty($name) ){
+			
+			$term = get_term_by('name', $name, $taxonomy);
+			
+			if( !empty($term->term_id) ){
+				
+				$term_id = intval($term->term_id);
+			}
+			else{
+				
+				$term = wp_insert_term(
+				
+					ucfirst($name),
+					$taxonomy,
+					array(
+					
+						'description'	=> '',
+						'slug' 			=> str_replace(' ','-',$name),
+					)
+				);
+
+				$term_id = intval($term->term_id);
+			}
+		}
+		
+		if(!empty($term_id)){
+			
+			//-------- save channel --------
+			
+			$response = wp_set_object_terms( $user_id, $term_id, $taxonomy);
+			
+			clean_object_term_cache( $user_id, $taxonomy );	
+
+			if( empty($response) ){
+
+				echo 'Error saving user channel...';
+				exit;
+			}				
+		}			
 	}
 	
 	public function get_user_marketing_channel( $user ) {

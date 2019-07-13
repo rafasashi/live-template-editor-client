@@ -26,7 +26,7 @@ class LTPLE_Integrator_Bookmark {
 		
 		// get app parameters
 		
-		$this->parameters = get_option('parameters_'.$app_slug);
+		$this->parameters = $this->get_parameters($app_slug);
 
 		if( isset($this->parameters['key']) ){
 
@@ -60,9 +60,50 @@ class LTPLE_Integrator_Bookmark {
 		}
 	}
 	
+	public function get_parameters($app_slug){
+		
+		return get_option( 'parameters_' . $app_slug );
+	}	
+	
 	public function init_app(){
 		
 		return true;
+	}
+	
+	public static function get_url($app,$parameters,$request){
+		
+		// get bookmark url
+			
+		$bookmark_url = trim(urldecode($app['resource']));			
+	
+		$args 		= [];
+		$filename 	= '';
+
+		if( isset($parameters['key']) ){
+
+			foreach($parameters['key'] as $i => $key){
+				
+				if(isset($request[$key])){
+				
+					if( $parameters['input'][$i] == 'parameter' ){
+						
+						$args[$key] = trim(esc_html($request[$key]));
+					}
+					elseif($parameters['input'][$i] == 'folder'){
+						
+						$bookmark_url .= ( substr($bookmark_url, -1) != '/' ? '/' : '' ) . trim(esc_html($request[$key])) . '/';
+					}
+					elseif($parameters['input'][$i] == 'filename'){
+						
+						$filename = ( substr($bookmark_url, -1) != '/' ? '/' : '' ) . trim(esc_html($request[$key]));
+					}
+				}
+			}
+		}
+		
+		$bookmark_url = add_query_arg( $args, $bookmark_url.$filename );
+		
+		return $bookmark_url;
 	}
 	
 	public function appDeleteBookmark(){
@@ -94,35 +135,8 @@ class LTPLE_Integrator_Bookmark {
 							
 				// get bookmark url
 					
-				$bookmark_url = trim(urldecode($this->app['resource']));			
-			
-				$args 		= [];
-				$filename 	= '';
-
-				if( isset($this->parameters['key']) ){
-
-					foreach($this->parameters['key'] as $i => $key){
-						
-						if(isset($_REQUEST[$key])){
-						
-							if( $this->parameters['input'][$i] == 'parameter' ){
-								
-								$args[$key] = trim(esc_html($_REQUEST[$key]));
-							}
-							elseif($this->parameters['input'][$i] == 'folder'){
-								
-								$bookmark_url .= '/' . trim(esc_html($_REQUEST[$key])) . '/';
-							}
-							elseif($this->parameters['input'][$i] == 'filename'){
-								
-								$filename = '/' . trim(esc_html($_REQUEST[$key]));
-							}
-						}
-					}
-				}
+				$bookmark_url = $this::get_url($this->app,$this->parameters,$_REQUEST);
 				
-				$bookmark_url = add_query_arg( $args, $bookmark_url.$filename );
-			
 				// check bookmark exists
 
 				$ch = curl_init($bookmark_url);

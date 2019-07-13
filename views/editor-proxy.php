@@ -5,12 +5,16 @@
 	
 	$timeout = 30; // seconds
 	$latency = 0; // simulate latency; seconds
+	
+	// get license holder email
+	
+	$user_email = $this->plan->get_license_holder_email($this->user);
 
 	$ref = urlencode( $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] );
 	
-	$ref_key = md5( 'ref' . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] . $this->_time . $this->user->user_email );
+	$ref_key = md5( 'ref' . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] . $this->_time . $user_email );
 	
-	$iframe_key = md5( 'iframe' . $this->layer->key . $ref_key . $this->_time . $this->user->user_email );
+	$iframe_key = md5( 'iframe' . $this->layer->key . $ref_key . $this->_time . $user_email );
 	
 	// NB: query unvisible for the final user
 
@@ -57,8 +61,8 @@
 	$request_headers['X-forwarded-Server']	= $_SERVER['HTTP_HOST'];
 	$request_headers['X-forwarded-For']		= $this->request->ip;
 	$request_headers['X-forwarded-Key']		= md5('remote'.$this->request->ip);
-	$request_headers['X-forwarded-User']	= $this->ltple_encrypt_str( $this->user->user_email );
-	$request_headers['X-forwarded-Demo']	= ( ( $this->layer->type != 'cb-default-layer' || $this->layer->price > 0 ) ? $this->ltple_encrypt_str( md5( 'false' . $this->user->user_email ) ) : $this->ltple_encrypt_str( md5( 'true' . $this->user->user_email ) ));
+	$request_headers['X-forwarded-User']	= $this->ltple_encrypt_str( $user_email );
+	$request_headers['X-forwarded-Demo']	= ( ( $this->layer->type != 'cb-default-layer' || $this->layer->price > 0 ) ? $this->ltple_encrypt_str( md5( 'false' . $user_email ) ) : $this->ltple_encrypt_str( md5( 'true' . $user_email ) ));
 	//$request_headers['X-ref-Key']			= $this->server->ref_key;
 	//$request_headers['X-ref-Url']			= $this->server->ref_url;
 

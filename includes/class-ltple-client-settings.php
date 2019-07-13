@@ -47,24 +47,15 @@ class LTPLE_Client_Settings {
 		$this->options 				 	= new stdClass();
 		$this->options->emailSupport 	= str_replace('@gmail.com','+'.time().'@gmail.com',get_option( $this->parent->_base . 'email_support'));	
 		
-		if( !$this->options->logo_url = get_option( $this->parent->_base . 'homeLogo' )){
-			
-			$this->options->logo_url = $this->parent->assets_url . 'images/home.png';
-		}
+		$this->options->logo_url = $this->get_default_logo_url();
 		
-		if( !$this->options->profile_header = get_option( $this->parent->_base . 'profileHeader' )){
-			
-			$this->options->profile_header = plugins_url() . '/' . $this->plugin->slug . '/assets/images/profile_header.jpg';
-		}
+		$this->options->profile_header = $this->get_default_profile_header();
+
+		$this->options->social_icon = $this->get_default_social_icon();
 		
-		if( !$this->options->social_icon = get_option( $this->parent->_base . 'socialIcon' )){
-			
-			$this->options->social_icon = $this->parent->assets_url . 'images/social_icon.png';
-		}
+		$this->titleBkg = get_option( $this->parent->_base . 'titleBkg', '' );
 		
-		$this->titleBkg 	= get_option( $this->parent->_base . 'titleBkg', '' );
-		
-		$this->options->enable_ranking 		= get_option( $this->parent->_base . 'enable_ranking', 'off' );
+		$this->options->enable_ranking 	= get_option( $this->parent->_base . 'enable_ranking', 'off' );
 
 		// get custom style
 		
@@ -127,6 +118,45 @@ class LTPLE_Client_Settings {
 				'callback' 	=> array($this,'get_embedded_info'),
 			) );
 		} );
+	}
+	
+	public function get_default_logo_url() {
+		
+		if( empty($this->options->logo_url) ){
+		
+			if( !$this->options->logo_url = get_option( $this->parent->_base . 'homeLogo' )){
+				
+				$this->options->logo_url = $this->parent->assets_url . 'images/home.png';
+			}
+		}
+		
+		return $this->options->logo_url;
+	}
+	
+	public function get_default_profile_header() {
+		
+		if( empty($this->options->profile_header) ){
+		
+			if( !$this->options->profile_header = get_option( $this->parent->_base . 'profileHeader' )){
+				
+				$this->options->profile_header = plugins_url() . '/' . $this->plugin->slug . '/assets/images/profile_header.jpg';
+			}
+		}
+		
+		return $this->options->profile_header;
+	}
+	
+	public function get_default_social_icon() {
+		
+		if( empty($this->options->social_icon) ){
+		
+			if( !$this->options->social_icon = get_option( $this->parent->_base . 'socialIcon' )){
+				
+				$this->options->social_icon = $this->parent->assets_url . 'images/social_icon.png';
+			}
+		}
+		
+		return $this->options->social_icon;
 	}
 	
 	public function get_email_info( $rest = NULL ) {

@@ -25,16 +25,27 @@
 		// get current tab
 		
 		$tab = ( !empty($_REQUEST['tab']) ? $_REQUEST['tab'] : 'backgrounds' );
-
-		$default_images = $this->parent->media->get_default_images($tab);
 	}
 	elseif( $this->type == 'user-images' ){
 
 		// get current tab
 		
 		$tab = ( !empty($_REQUEST['tab']) ? $_REQUEST['tab'] : 'upload' );
+	}
+	elseif( $this->type == 'external-images' ){
+
+		// get current tab
 		
-		$image_providers = $this->parent->media->get_user_images($this->parent->user->ID,$tab);
+		$tab = 'url';
+		
+		if( !empty($_REQUEST['tab']) ){
+			
+			$tab = $_REQUEST['tab'];
+		}
+		elseif( !empty($_REQUEST['app']) ){
+			
+			$tab = $_REQUEST['app'];
+		}
 	}
 	elseif( $this->type == 'user-payment-urls' ){
 		
@@ -48,15 +59,17 @@
 	echo'<div id="media_library" class="wrapper">';
 
 		echo '<div id="sidebar">';
-		
+						
+			echo'<div class="gallery_type_title gallery_head">Media Library</div>';
+				
 			echo'<ul class="nav nav-tabs tabs-left">';
-				
-				echo'<li class="gallery_type_title gallery_head">Media Library</li>';
-				
+
 				echo'<li class="gallery_type_title">Images</li>';
 				
-				echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/?output='.$output.'">Image Library</a></li>';
-				echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-images/?output='.$output.'">My Images</a></li>';
+				echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-images/?output='.$output.'">Uploaded Images</a></li>';
+				echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'external-images/?output='.$output.'">External Images</a></li>';
+				echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/?output='.$output.'">Default Images</a></li>';
+				
 				//echo'<li'.( $this->type == 'edited-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'edited-images/?output='.$output.'" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Edited Images" data-content="All the images uploaded during the edition process (cropped, resized...). Hosted images will be removed upon template deletion or plan cancelation." data-original-title="" title="">Edited Images <span class="label label-info pull-right hidden-xs hidden-sm hidden-md">hosted</span></a></li>';
 				
 				echo'<li class="gallery_type_title">Bookmarks</li>';
@@ -68,76 +81,27 @@
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;padding-top:15px;min-height:700px;">';
 
 			echo'<div class="tab-content">';
-			
-				if( $this->type == 'image-library' ){
-			  
-					//output default images
-					
-					echo'<div id="image-library">';
-					
-						echo'<ul class="nav nav-pills" role="tablist">';
-						
-						$active=' class="active"';
-						
-						foreach( $default_images as $image_type => $items ){
-							
-							if( $image_type != '' ){
-								
-								if( $image_type == $tab ){
-									
-									$active = ' class="active"';
-								}
-								else{
-									
-									$active = '';
-								}							
-								
-								echo'<li role="presentation"'.$active.'><a href="'. add_query_arg('tab',$image_type,$this->parent->urls->current) . '">'.strtoupper(str_replace(array('-','_'),' ',$image_type)).'</a></li>';
-							}
-						}
-						
-						echo'</ul>';
 
-						//output Tab panes
-						  
-						echo'<div class="tab-content" style="margin-top:20px;">';
-							
-							if( !empty($default_images[$tab]) ){
-							
-								$items = $default_images[$tab];
-								
-								echo'<div role="tabpanel" class="tab-pane active" id="'.$tab.'">';
-									
-									foreach($items as $item){
-
-										echo $item;
-									}
-
-								echo'</div>';
-							}
-							
-						echo'</div>';
-						
-					echo'</div>';
-				}
-				elseif( $this->type == 'user-images' ){
+				if( $this->type == 'user-images' ){
 
 					//output user images	
 					
 					echo '<div id="user-images">';
 
-						if( !empty($_GET['app']) && !empty($this->parent->apps->{$_GET['app']}->message) ){
-							
-							echo $this->parent->apps->{$_GET['app']}->message;
-						}
-						else{	
-					
-							echo'<ul class="nav nav-pills" role="tablist">';
-							
+						echo'<ul class="nav nav-pills" role="tablist">';
+						
 							//get app list
 							
-							$apps = $this->parent->media->get_app_list();
+							$apps = [];
 
+							$item = new stdClass();
+							$item->name 	= 'My Images';
+							$item->slug 	= 'upload';
+							$item->types 	= ['images'];
+							$item->pro 		= true;
+							
+							$apps[] = $item;
+							
 							//output list
 							
 							foreach($apps as $app){
@@ -153,211 +117,247 @@
 										$active='';
 									}
 								
-									echo'<li role="presentation"'.$active.'><a href="' . add_query_arg('tab',$app->slug,$this->parent->urls->current) . '">' . ( $app->pro === true && $this->parent->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . strtoupper($app->name) . '</a></li>';
+									echo'<li role="presentation"'.$active.'><a href="' . add_query_arg('tab',$app->slug,$this->parent->urls->current) . '">' . ( $this->parent->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . strtoupper($app->name) . '</a></li>';
 								}
 							}
-							
-							echo'</ul>';
-
-							//output Tab panes
-							  
-							echo'<div class="tab-content" style="margin-top:20px;">';
-
-								foreach( $apps as $app ){
-									
-									if( in_array('images',$app->types) && $app->slug == $tab ){
-									
-										echo'<div role="tabpanel" class="tab-pane active" id="'.$app->slug.'">';
-
-											if( $app->slug == 'upload' ){
-
-												echo'<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">';
-												
-													echo'<div class="panel panel-default" style="background:#efefef;">';
-														
-														echo '<div class="panel-heading"><b>Upload image</b></div>';
-														
-														if( $app->pro === true && $this->parent->user->plan["info"]["total_price_amount"] == 0 ){
-															
-															echo '<div class="alert alert-warning">';
-															
-																echo 'You need a paid plan to <b>upload images</b>';
-																
-															echo '</div>';
-														}
-														else{
-															
-															$media_url = $this->parent->urls->media . 'user-images/';
-														
-															if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
-																		
-																$media_url .= '?output=widget';
-															}														
-									
-															echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
-																
-																echo '<label>Image File</label>';
-																
-																echo '<input style="font-size:15px;padding:5px;margin:10px 0;" type="file" name="imgFile" id="imgFile" class="form-control required" />';
-																
-																echo '<input type="hidden" name="imgAction" id="imgAction" value="upload" />';
-																
-																wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
-																
-																echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
-
-																echo '<button class="btn btn-primary" type="button">Upload</button>';
-
-															echo '</form>';
-														}
-														
-													echo'</div>';//add-image-wrapper												
-					
-													
-												echo '</div>';	
-												
-												if(isset($image_providers[$app->slug])){
-													
-													foreach($image_providers[$app->slug] as $item){
-
-														echo $item;
-													}								
-												}												
-											}
-											elseif( $app->slug == 'canvas' ){
-												
-												if( !$this->parent->inWidget ){
-													
-													echo'<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">';
-													
-														echo'<div class="panel panel-default" style="background:#efefef;">';
-															
-															echo '<div class="panel-heading"><b>Start a collage</b></div>';
-															
-															if( $app->pro === true && $this->parent->user->plan["info"]["total_price_amount"] == 0 ){
-																
-																echo '<div class="alert alert-warning">';
-																
-																	echo 'You need a paid plan to <b>start a canvas</b>';
-																	
-																echo '</div>';
-															}
-															else{
-																
-																$media_url = add_query_arg('layer[output]','canvas',$this->parent->urls->editor);
-																	
-																if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
-																	
-																	$media_url = add_query_arg('output','widget',$media_url);
-																}														
-																
-																echo '<a href="'.$media_url.'" style="width: 100%;display: inline-block;text-align: center;padding: 40px 20px;font-size: 40px;font-weight: bold;color: #888;">';
-																	
-																	echo '<div style="font-size: 80px;padding: 10px 0px;">+</div>';
-																	
-																	echo '<br>';
-																	
-																	echo '<div style="padding: 5px 0px;">New</div>';
-																	
-																echo '</a>';
-															}
-															
-														echo'</div>';//add-image-wrapper												
 						
-														
-													echo '</div>';
-												}
-												
-												if(isset($image_providers[$app->slug])){
-													
-													foreach($image_providers[$app->slug] as $item){
-
-														echo $item;
-													}								
-												}												
-											}
-											else{
-											
-												// add images based on provider
-												
-												echo'<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">';
-												echo'<div class="panel panel-default" style="background:#efefef;">';
-													
-													if( !empty($app->term_id) ){
-														
-														echo '<div class="panel-heading"><b>Import image urls</b></div>';
-														
-														foreach( $this->parent->user->apps as $user_app ){
-
-															if(strpos($user_app->post_name ,$app->slug. '-')===0){
-																
-																echo '<a href="'.$this->parent->apps->getAppUrl($app->slug,'importImg','user-images').'&output='.$output.'&id=' . $user_app->ID .'" style="width:100%;text-align:left;" class="btn btn-md btn-info"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> '.ucfirst($user_app->post_title).'</a>';
-															}
-														}
-														
-														echo '<a target="'.$target.'" href="'.$this->parent->apps->getAppUrl($app->slug,'connect','user-images').'" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
-													}
-													else{
-														
-														echo '<div class="panel-heading"><b>Import image url</b></div>';
-															
-														$save_url = '';
-									
-														echo '<form style="padding:10px;" target="_self" action="' . $save_url . '" id="saveImageForm" method="post">';
-															
-															echo '<div style="padding-bottom:10px;display:block;">';
-
-																echo'<label>Title</label>';
-																
-																echo '<input type="text" name="imgTitle" id="imgTitle" value="" class="form-control required" placeholder="my image" />';
-																									
-															echo '</div>';
-
-															echo '<div style="padding-bottom:10px;display:block;">';
-
-																echo'<label>Image url</label>';
-																
-																echo '<input type="text" name="imgUrl" id="imgUrl" value="" class="form-control required" placeholder="http://" />';
-																
-																echo '<input type="hidden" name="imgAction" id="imgAction" value="save" />';
-																
-																wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
-
-																echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
-															
-															echo '</div>';
-															
-															echo '<div style="display:block;">';
-									
-																echo '<button class="btn btn-primary" type="button">Import</button>';
-
-															echo '</div>';
-															
-														echo '</form>';
-													}
-													
-												echo'</div>';//add-image-wrapper
-												echo'</div>';//add-image
-											
-												if(isset($image_providers[$app->slug])){
-													
-													foreach($image_providers[$app->slug] as $item){
-
-														echo $item;
-													}								
-												}
-											}
-											
-										echo'</div>';
-										
-										break;
-									}
-								}
+							echo '<li role="presentation">';
 								
-							echo'</div>';
-						}
+								echo '<button data-toggle="dialog" data-target="#uploadImage" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ Upload</button>';
+								
+								echo '<div style="display:none;" id="uploadImage" title="Upload a new Image">';
+									
+									if( $this->parent->user->plan["info"]["total_price_amount"] == 0 ){
+										
+										echo '<div class="alert alert-warning">';
+										
+											echo 'You need a paid plan to <b>upload images</b>';
+											
+										echo '</div>';
+									}
+									else{
+										
+										$media_url = $this->parent->urls->media . 'user-images/';
+									
+										if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
+													
+											$media_url .= '?output=widget';
+										}														
+				
+										echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
+											
+											echo '<label>Image File</label>';
+											
+											echo '<input style="font-size:15px;padding:5px;margin:10px 0;" type="file" name="imgFile" id="imgFile" class="form-control required" />';
+											
+											echo '<input type="hidden" name="imgAction" id="imgAction" value="upload" />';
+											
+											wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
+											
+											echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
+
+											echo '<button class="btn btn-primary" type="button">Upload</button>';
+
+										echo '</form>';
+									}									
+									
+								echo '</div>';						
+							
+							echo '</li>';
+
+						echo'</ul>';
+						
+						//output Tab panes
+							 
+						$this->get_image_table($this->type);
 					
 					echo'</div>';//user-images
+				}			
+				elseif( $this->type == 'external-images' ){
+
+					//output user images	
+					
+					echo '<div id="external-images">';
+
+						if( !empty($_GET['app']) && !empty($this->parent->apps->{$_GET['app']}->message) ){
+							
+							echo $this->parent->apps->{$_GET['app']}->message;
+						}
+
+						echo'<ul class="nav nav-pills" role="tablist">';
+							
+							echo'<li role="presentation" class="active"><a href="' . $this->parent->urls->current . '">External URLs</a></li>';
+							
+							echo '<li role="presentation">';
+								
+								echo '<button data-toggle="dialog" data-target="#addImageUrl" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ Import</button>';
+								
+								echo '<div style="display:none;max-width:250px;" id="addImageUrl" title="Add Image URL">';
+									
+									if( $this->parent->user->plan["info"]["total_price_amount"] == 0 ){
+										
+										echo '<div class="alert alert-warning">';
+										
+											echo 'You need a paid plan to <b>add an image</b>';
+											
+										echo '</div>';
+									}
+									else{
+										
+										$save_url = '';
+							
+										echo '<form style="padding:10px;" target="_self" action="' . $save_url . '" id="saveImageForm" method="post">';
+											
+											echo '<div style="padding-bottom:10px;display:block;">';
+
+												echo'<label>Image url</label>';
+												
+												echo '<div class="input-group">';
+												
+													echo '<input type="text" name="imgUrl" id="imgUrl" value="" class="form-control required" placeholder="http://" />';
+													
+													echo '<div class="input-group-btn">';
+													
+														echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Import</button>';
+														
+														echo '<input type="hidden" name="imgAction" id="imgAction" value="save" />';
+														
+														wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
+
+														echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
+													
+													echo '</div>';
+													
+												echo '</div>';
+												
+											echo '</div>';
+
+										echo '</form>';
+			
+										//get app list
+									
+										$apps = $this->parent->media->get_external_providers();
+
+										//get options
+										
+										$options = array( -1 => 'none' );
+										
+										foreach($apps as $app){
+											
+											if( in_array('images',$app->types) ){
+											
+												foreach( $this->parent->user->apps as $user_app ){
+
+													if(strpos($user_app->post_name ,$app->slug . '-')===0){
+														
+														$options[$user_app->ID] = ucfirst($user_app->post_title);
+													}
+												}
+											}
+										}
+										
+										echo '<form style="padding:10px;" target="_self" action="' . $save_url . '" method="get">';
+											
+											echo '<div style="padding-bottom:10px;display:block;">';
+
+												echo'<label>Connected accounts</label>';
+												
+												echo '<div class="input-group">';
+													
+													echo $this->parent->admin->display_field( array(
+											
+														'type'				=> 'select',
+														'id'				=> 'id',
+														'options' 			=> $options,
+														'required' 			=> true,
+														'description'		=> '',
+														'style'				=> '',
+														
+													), false, false );
+													
+													echo '<div class="input-group-btn">';
+														
+														echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Import</button>';
+														
+														echo '<input type="hidden" name="app" value="autoDetect" />';
+														
+														echo '<input type="hidden" name="action" value="importImg" />';
+														
+														echo '<input type="hidden" name="ref" value="' . urlencode(str_replace($this->parent->request->proto,'',$this->parent->urls->current)) .'" />';
+														
+														echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
+													
+													echo '</div>';
+													
+												echo '</div>';
+												
+											echo '</div>';
+											
+											
+										echo '</form>';
+									}									
+									
+								echo '</div>';						
+							
+							echo '</li>';	
+
+						echo'</ul>';
+
+						//output Tab panes
+						 
+						$this->get_image_table($this->type); 
+						
+					echo'</div>'; //external-images
+				}
+				elseif( $this->type == 'image-library' ){
+					
+					//output default images
+					
+					echo'<div id="image-library">';
+					
+						echo'<ul class="nav nav-pills" role="tablist">';
+							
+							echo'<li role="presentation" class="active"><a href="' . $this->parent->urls->current . '">Default Images</a></li>';
+							
+							echo'<li style="padding:3px 6px;">';
+								
+								echo'<form id="formFilters">';
+								
+									$options = array( '' => 'All' );
+									
+									if( $image_types = get_terms(array(
+										
+										'taxonomy' 		=> 'image-type',
+										'hide_empty' 	=> true,				
+									))){
+									
+										foreach( $image_types as $image_type ){
+											
+											$options[$image_type->slug] = $image_type->name;
+										}
+									}
+									
+									echo $this->parent->admin->display_field( array(
+							
+										'type'				=> 'select',
+										'id'				=> 'type',
+										'options' 			=> $options,
+										'description'		=> '',
+										'style'				=> '',
+										
+									), false, false );
+									
+								echo'</form>';
+
+							echo'</li>';
+						
+						echo'</ul>';
+
+						//output Tab panes
+							 
+						$this->get_image_table($this->type);
+						
+					echo'</div>';
 				}
 				elseif( $this->type == 'user-payment-urls' ){
 				
@@ -418,7 +418,7 @@
 												
 												foreach( $this->parent->user->apps as $user_app ){
 
-													if(strpos($user_app->post_name ,$app->slug. '-')===0){
+													if(strpos($user_app->post_name ,$app->slug . '-')===0){
 
 														$options[$user_app->ID] = $user_app->post_title;
 													}
