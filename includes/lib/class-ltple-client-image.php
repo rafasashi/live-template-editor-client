@@ -401,11 +401,14 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				
 										// output message
 										
-										$_SESSION['message'] ='<div class="alert alert-success">';
-												
-											$_SESSION['message'] .= 'Image succefully uploaded to your library.';
+										if( !$this->parent->inWidget ){
+											
+											$_SESSION['message'] ='<div class="alert alert-success">';
+													
+												$_SESSION['message'] .= 'Image succefully uploaded to your library.';
 
-										$_SESSION['message'] .='</div>';												
+											$_SESSION['message'] .='</div>';	
+										}										
 									}
 									else{
 										
@@ -506,11 +509,14 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 							'post_status' 	=> 'publish'
 						))){
 							
-							$_SESSION['message'] ='<div class="alert alert-success">';
+							if( !$this->parent->inWidget ){
+							
+								$_SESSION['message'] ='<div class="alert alert-success">';
 									
-								$_SESSION['message'] .= 'Congratulations! Image url succefully added to your library.';
+									$_SESSION['message'] .= 'Congratulations! Image url succefully added to your library.';
 
-							$_SESSION['message'] .='</div>';						
+								$_SESSION['message'] .='</div>';	
+							}
 						}						
 					}
 					else{

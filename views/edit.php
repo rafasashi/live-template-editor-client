@@ -102,9 +102,9 @@
 									
 										echo'<div class="row" style="padding: 0 10px;">';
 									
-											echo '<input type="submit" value="Update" class="btn btn-md btn-primary pull-right" style="font-size:12px;" />';
+											echo '<input type="submit" value="Update" class="btn btn-md btn-success pull-right" style="font-size:12px;" />';
 										
-										echo'</div>';
+										echo'</div>'; 
 										
 									echo'</div>';
 									

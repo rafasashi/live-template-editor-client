@@ -28,7 +28,15 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		// add url parameters
 		
 		add_filter( 'template_redirect', array( $this, 'get_url_parameters'));		
-					
+		
+		// add style
+		
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
+		
+		// add scripts
+		
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );	
+		
 		// add media shortcode
 		
 		add_shortcode('ltple-client-media', array( $this , 'get_media_shortcode' ) );
@@ -111,15 +119,187 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function get_media_shortcode(){
+	public function get_style(){
 		
 		// vertical tab styling
-		
-		echo '<style>';
-			echo '.pgheadertitle{display:none;}.tabs-left,.tabs-right{border-bottom:none;padding-top:2px}.tabs-left{border-right:0px solid #ddd}.tabs-right{border-left:0px solid #ddd}.tabs-left>li,.tabs-right>li{float:none;margin-bottom:2px}.tabs-left>li{margin-right:-1px}.tabs-right>li{margin-left:-1px}.tabs-left>li.active>a,.tabs-left>li.active>a:focus,.tabs-left>li.active>a:hover{border-left: 5px solid #F86D18;border-top:0;border-right:0;border-bottom:0; }.tabs-right>li.active>a,.tabs-right>li.active>a:focus,.tabs-right>li.active>a:hover{border-bottom:0px solid #ddd;border-left-color:transparent}.tabs-left>li>a{border-radius:4px 0 0 4px;margin-right:0;display:block}.tabs-right>li>a{border-radius:0 4px 4px 0;margin-right:0}.sideways{margin-top:50px;border:none;position:relative}.sideways>li{height:20px;width:120px;margin-bottom:100px}.sideways>li>a{border-bottom:0px solid #ddd;border-right-color:transparent;text-align:center;border-radius:4px 4px 0 0}.sideways>li.active>a,.sideways>li.active>a:focus,.sideways>li.active>a:hover{border-bottom-color:transparent;border-right-color:#ddd;border-left-color:#ddd}.sideways.tabs-left{left:-50px}.sideways.tabs-right{right:-50px}.sideways.tabs-right>li{-webkit-transform:rotate(90deg);-moz-transform:rotate(90deg);-ms-transform:rotate(90deg);-o-transform:rotate(90deg);transform:rotate(90deg)}.sideways.tabs-left>li{-webkit-transform:rotate(-90deg);-moz-transform:rotate(-90deg);-ms-transform:rotate(-90deg);-o-transform:rotate(-90deg);transform:rotate(-90deg)}';
-			echo 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
-		echo '</style>';
 
+		$style = '.pgheadertitle{display:none;}.tabs-left,.tabs-right{border-bottom:none;padding-top:2px}.tabs-left{border-right:0px solid #ddd}.tabs-right{border-left:0px solid #ddd}.tabs-left>li,.tabs-right>li{float:none;margin-bottom:2px}.tabs-left>li{margin-right:-1px}.tabs-right>li{margin-left:-1px}.tabs-left>li.active>a,.tabs-left>li.active>a:focus,.tabs-left>li.active>a:hover{border-left: 5px solid #F86D18;border-top:0;border-right:0;border-bottom:0; }.tabs-right>li.active>a,.tabs-right>li.active>a:focus,.tabs-right>li.active>a:hover{border-bottom:0px solid #ddd;border-left-color:transparent}.tabs-left>li>a{border-radius:4px 0 0 4px;margin-right:0;display:block}.tabs-right>li>a{border-radius:0 4px 4px 0;margin-right:0}.sideways{margin-top:50px;border:none;position:relative}.sideways>li{height:20px;width:120px;margin-bottom:100px}.sideways>li>a{border-bottom:0px solid #ddd;border-right-color:transparent;text-align:center;border-radius:4px 4px 0 0}.sideways>li.active>a,.sideways>li.active>a:focus,.sideways>li.active>a:hover{border-bottom-color:transparent;border-right-color:#ddd;border-left-color:#ddd}.sideways.tabs-left{left:-50px}.sideways.tabs-right{right:-50px}.sideways.tabs-right>li{-webkit-transform:rotate(90deg);-moz-transform:rotate(90deg);-ms-transform:rotate(90deg);-o-transform:rotate(90deg);transform:rotate(90deg)}.sideways.tabs-left>li{-webkit-transform:rotate(-90deg);-moz-transform:rotate(-90deg);-ms-transform:rotate(-90deg);-o-transform:rotate(-90deg);transform:rotate(-90deg)}';
+		
+		$style .= 'span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {background-color: #F86D18;border: 1px solid #FF5722;}';
+	
+		$style .= '
+			
+			.fixed-table-body{
+				
+				background-color:#142635!important;
+			}			
+			
+			#table {
+				
+				width:60%;
+				float:left;
+			}
+			
+			#table td {
+			
+				padding: 4px!important;
+			}
+
+			#table .panel {
+			
+				cursor: pointer;
+			}
+			
+			#table .panel.selectedItem {
+				
+				outline: 1px solid rgb(86, 180, 239)!important;
+				box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05) inset, 0px 0px 7px rgba(82, 168, 236, 0.6)!important;
+			}
+			
+			#previewContainer {
+				
+				width:40%;
+				float:right;
+				text-align: center;
+			}
+			
+			#previewWrapper {
+				
+				padding:30px;
+			}
+			
+			#previewToolbar{
+				
+				position: absolute;
+				bottom: 0;
+				width: 100%;
+				color: #eee;
+				text-align: left;
+				padding: 10px;
+				background: #142635d9;
+			}
+			
+			#previewContainer img {
+				
+				width: auto;
+				max-height: calc(100vh - ' . ( $this->parent->inWidget ? 190 : 250 ) . 'px);
+			}
+		';
+		
+		return $style;
+	}
+	
+	public function get_script(){
+		
+		$script = '
+		
+			;(function($){
+
+				function set_image_preview($previewItem){
+					
+					if( typeof $previewItem == typeof undefined && $("#previewImg").length == 0 ){
+						
+						$previewItem = $("#table .panel:first");
+					}
+					
+					if( typeof $previewItem != typeof undefined ){
+					
+						var previewSrc = $previewItem.contents().find("img").attr("data-original");
+						
+						$(".selectedItem").removeClass("selectedItem");
+						
+						$previewItem.addClass("selectedItem");
+						
+						if( $("#previewImg").length == 0 ){
+
+							var html = "<div id=\"previewContainer\">";
+							
+								html += "<div id=\"previewWrapper\">";
+								
+									html += "<img id=\"previewImg\" />";
+								
+								html += "</div>";
+								
+								/*
+								html += "<div id=\"previewToolbar\">";
+								
+									html += "tool";
+								
+								html += "</div>";
+								*/
+								
+							html += "</div>";
+							
+							$(html).insertAfter("#table");
+						}
+						
+						$("#previewImg").attr("src",previewSrc).attr("data-selector",$previewItem.closest(".hentry").attr("id"));
+					}
+					else if( $("#previewImg").length > 0 ){
+						
+						var previewSelector = $("#previewImg").attr("data-selector");
+					
+						$(".selectedItem").removeClass("selectedItem");
+						
+						$("#" + previewSelector + " .panel").addClass("selectedItem");						
+					}
+				}			
+			
+				$(document).ready(function(){
+
+					$("#table").on("load-success.bs.table", function(e) {
+				
+						set_image_preview();
+						
+						$("#table .panel").on("click",function(){
+							
+							set_image_preview($(this));
+						});
+					});
+					
+					$("#table").on("page-change.bs.table", function(e) {
+				
+						set_image_preview();
+						
+						$("#table .panel").on("click",function(){
+							
+							set_image_preview($(this));
+						});
+					});
+				});
+					
+			})(jQuery);			
+		';
+		
+		
+		return $script;
+	}
+	
+	public function enqueue_styles () {
+		
+		if( strpos($this->parent->urls->current, $this->parent->urls->media ) === 0 ){
+			
+			wp_register_style( $this->parent->_token . '-media', false, array());
+			wp_enqueue_style( $this->parent->_token . '-media' );
+		
+			wp_add_inline_style( $this->parent->_token . '-media', $this->get_style());
+		}
+	}
+	
+	public function enqueue_scripts () {
+		
+		if( strpos($this->parent->urls->current, $this->parent->urls->media ) === 0 ){
+			
+			wp_register_script( $this->parent->_token . '-media', '', array( 'jquery', $this->parent->_token . '-bootstrap-table', $this->parent->_token . '-frontend' ) );
+			wp_enqueue_script( $this->parent->_token . '-media' );
+		
+			wp_add_inline_script( $this->parent->_token . '-media', $this->get_script());
+		}
+	}
+	
+	public function get_media_shortcode(){
+		
+		
 		include($this->parent->views . '/navbar.php');
 		
 		if($this->parent->user->loggedin){
@@ -320,25 +500,100 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					$item.= '<img class="lazy" data-original="' . $image_url . '" />';
 				
 				$item.='</div>'; //thumb_wrapper						
-
-				$item.='<div class="panel-body">';
+				
+				if($this->parent->inWidget){
 					
-					//$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $image_title . '</b>';
-
-					$item.='<div class="text-right">';
-
-						if($this->parent->inWidget){
+					$item.='<div class="panel-body">';
+						
+						$item.='<div class="text-right">';
 
 							$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
-						}
-						else{
-							
-							$item.='<input style="width:100%;padding: 2px;" type="text" value="' . $image_url . '" />';
-						}
+
+						$item.='</div>';							
 						
-					$item.='</div>';							
+					$item.='</div>'; //panel-body
+				}
+				else{
 					
-				$item.='</div>'; //panel-body
+					$item.='<div class="panel-body" style="padding:15px 0 15px 15px;">';
+						
+						$item.='<div class="pull-left" style="width: calc(100% - 40px) !important;">';
+
+							$item.='<input style="width:100%;padding:4px;background:#fbfbfb;" type="text" value="' . $image_url . '" disabled="disabled" />';
+
+						$item.='</div>';
+						
+						$item.='<div class="pull-right" style="padding:3px 0px;width:40px;text-align:center;">';
+							
+							$item.='<div class="dropup">';
+							
+								$item.='<button class="glyphicon glyphicon-option-vertical dropdown-toggle" style="border:none;background:transparent;padding:5px;border-radius:30px;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" aria-hidden="true"></button>';
+
+								//$item.='<div class="dropup">';
+								
+									$item.='<ul class="dropdown-menu dropdown-menu-right" style="background:#fff;">';
+										
+										// effects button
+										
+										$editor_url = $this->parent->server->url . '/c/p/live-effect-editor-dependencies/?url=' . urlencode($image_url);
+										
+										$modal_id='modal_'.md5($editor_url);
+										
+										$btnStyle='color:#182f42;border-bottom: 1px solid #eee;border-right: none;border-left: none;border-top: none;width: 100%;text-align: left;padding: 10px 20px;background: #fff;';
+										
+										$item.='<li style="position:relative;">';
+	
+											$item.='<button style="'.$btnStyle.'" type="button" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+												
+												$item.='<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> '.PHP_EOL;
+												
+												$item.='Effects'.PHP_EOL;
+											
+											$item.='</button>'.PHP_EOL;
+
+											$item.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+												
+												$item.='<div class="modal-dialog modal-lg" style="width:100% !important;margin:0;top:0;bottom:0;left:0;right:0;position:absolute;" role="document">'.PHP_EOL;
+													
+													$item.='<div class="modal-content">'.PHP_EOL;
+													
+														$item.='<div class="modal-header">'.PHP_EOL;
+															
+															$item.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+															
+															$item.='<h4 class="modal-title text-left" id="myModalLabel">Image Effects</h4>'.PHP_EOL;
+														
+														$item.='</div>'.PHP_EOL;
+
+														$item.= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
+
+														$item.= '<iframe data-src="'.$editor_url.'" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';
+
+													$item.='</div>'.PHP_EOL;
+													
+												$item.='</div>'.PHP_EOL;
+												
+											$item.='</div>'.PHP_EOL;
+
+										$item.='</li>';
+										
+										$item.='<li style="position:relative;">';
+										
+											$item.='<a href="' . $this->parent->urls->editor . '?uri=' . $image->ID . '&quick" style="color:#182f42;border-bottom:1px solid #eee;"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit <span class="label label-primary" style="top:8px;position:absolute;right:15px;">advanced</span></a>';
+										
+										$item.='</li>';
+										
+									$item.='</ul>';
+									
+								//$item.='</div>';
+								
+							$item.='</div>';
+							
+						$item.='</div>';	
+
+					$item.='</div>'; //panel-body					
+					
+				}
 
 			$item.='</div>';
 			

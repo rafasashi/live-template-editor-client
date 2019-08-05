@@ -7,7 +7,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $parent;
 	
 	public $localTypes 		= null;
-	public $storages		= null;
+	public $storageTypes	= null;
+	public $mediaTypes		= null;
+	
 	public $outputs			= null;
 	public $sections		= null;
 	public $types			= null; 
@@ -27,7 +29,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $embedded		= '';
 	
 	public $is_local		= false;
-	public $is_storage		= false;	
+	public $is_storage		= false;
+	public $is_media		= false;	
 	
 	public $accountOptions 	= array();
 	public $columns			= '';
@@ -235,7 +238,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$post = get_post();
 			
-			if( $post->post_type == 'cb-default-layer' || isset($this->storages[$post->post_type]) || $this->is_local ){
+			if( $post->post_type == 'cb-default-layer' || isset($this->storageTypes[$post->post_type]) || $this->is_local ){
 
 				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){
 					
@@ -271,10 +274,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							}
 						}
 					}
-					else{
-						
-						remove_meta_box( 'tagsdiv-layer-type', $post->post_type, 'side' );
-					}
+
+					remove_meta_box( 'tagsdiv-layer-type', $post->post_type, 'side' );
 
 					$this->parent->admin->add_meta_boxes($fields);
 				}
@@ -522,6 +523,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$layer_type = $this->get_layer_type($post);			
 			
+			/*
 			$this->defaultFields[]=array(
 			
 				'metabox' => array(
@@ -542,6 +544,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'callback' 		=> array($this,'get_layer_type_slug'),
 				'description'	=> ''
 			);
+			*/
 			
 			//get current layer range
 			
@@ -860,7 +863,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'metabox' => array(
 						
 							'name' 		=> 'layer-form',
-							'title' 	=> __( 'Template Form', 'live-template-editor-client' ), 
+							'title' 	=> __( 'Template Action', 'live-template-editor-client' ), 
 							'screen'	=> array('cb-default-layer'),
 							'context' 	=> 'side',
 							'frontend' 	=> false,
@@ -1161,20 +1164,35 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_storage_types(){
 		
-		if( empty($this->storages) ){
+		if( empty($this->storageTypes) ){
 		
-			$this->storages = array(
+			$this->storageTypes = apply_filters('ltple_layer_storages',array(
 					
-				'user-layer'	=>'Template',
-				'user-psd'		=>'Image',
-				'user-page'		=>'Page',
+				'user-layer'	=>'HTML Template',
+				'user-psd'		=>'Graphic Design',
+				'user-page'		=>'Web Page',
 				'user-menu'		=>'Menu',
-			);
-			
-			do_action('ltple_layer_storages');
+			));
 		}
 		
-		return $this->storages;
+		return $this->storageTypes;
+	}
+
+	public function get_media_types(){
+		
+		if( empty($this->mediaTypes) ){
+		
+			$this->mediaTypes = array(
+					
+				'attachment' 	=> 'Uploaded Image',
+				'user-image' 	=> 'External Image',
+				'default-image' => 'Default Image',
+			);
+			
+			do_action('ltple_layer_media');
+		}
+		
+		return $this->mediaTypes;
 	}	
 	
 	public function get_gallery_sections(){
@@ -1557,43 +1575,73 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		if( !empty($post->post_type) ){
 			
-			$terms = wp_get_post_terms($post->ID,'layer-type');
+			if( isset( $this->mediaTypes[$post->post_type] ) ){
+				
+				$term = new stdClass();
 			
-			if( empty($terms[0]) && $post->post_type != 'cb-default-layer' ){
-				
-				// get default layer id
-					
-				$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
-					
-				$default_post = get_post($default_id);
-
-				if( !is_null($default_post) && $default_post->post_type == 'cb-default-layer' ){
-					
-					$terms = wp_get_post_terms($default_post->ID,'layer-type');			
-				
-					if( !empty($terms[0]) ){
-						
-						// update user project type
-						
-						wp_set_object_terms( $post->ID, $terms[0]->term_id, 'layer-type', false ); 
-					}
-				}			
+				$term->output 	= 'image';
+				$term->storage 	= 'attachment';				
 			}
+			else{
+			
+				$terms = wp_get_post_terms($post->ID,'layer-type');
 				
-			if( !empty($terms[0]) ){
-				
-				$term = $terms[0];
+				if( empty($terms[0]) ){
+					
+					if( $post->post_type != 'cb-default-layer' ){
+					
+						// get default layer id
+						
+						$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+						
+						$default_post = get_post($default_id);
+					
+						if( !is_null($default_post) && $default_post->post_type == 'cb-default-layer' ){
+							
+							$terms = wp_get_post_terms($default_post->ID,'layer-type');			
+							
+							if( !empty($terms[0]) ){
+								
+								$term = $terms[0];
+							}
+						}					
+					}
+					elseif( is_admin() ){
+						
+						if( $default_range = $this->get_layer_range($post)){
+							
+							if( $type_id = get_term_meta($default_range->term_id,'range_type',true)){
+								
+								$term = get_term($type_id);
+							}
+						}
+					}
+					
+					if( !empty($term) ){
 
-				if( !$term->output = get_term_meta( $term->term_id, 'output', true ) ){
-					
-					$term->output = 'inline-css';
+						// update layer type
+								
+						wp_set_object_terms( $post->ID, $term->term_id, 'layer-type', false ); 					
+					}
 				}
-				
-				if( !$term->storage = get_term_meta( $term->term_id, 'default_storage', true ) ){
+				else{
 					
-					$term->storage = 'user-layer';
+					$term = $terms[0];
 				}
-			}	
+					
+				if( !empty($term) ){
+					
+					if( !$term->output = get_term_meta( $term->term_id, 'output', true ) ){
+						
+						$term->output = 'inline-css';
+					}
+					
+					if( !$term->storage = get_term_meta( $term->term_id, 'default_storage', true ) ){
+						
+						$term->storage = 'user-layer';
+					}
+				}
+			}
 		}
 		
 		if( !isset($term->output) ){
@@ -1650,9 +1698,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ));
 			
-		if( $this->storages = $this->get_storage_types() ){
+		if( $this->storageTypes = $this->get_storage_types() ){
 				
-			foreach( $this->storages as $storage => $name ){	
+			foreach( $this->storageTypes as $storage => $name ){	
 				
 				add_filter( $storage . '_custom_fields', array( $this, 'get_user_layer_fields' ));
 			}
@@ -1984,7 +2032,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !empty($layer) ){
 			
-			if( $layer->post_status == 'publish' || $layer->post_status == 'draft' ){
+			if( $layer->post_status == 'publish' || $layer->post_status == 'draft' || $layer->post_status == 'inherit' ){
 				
 				$this->layerEcho = $echo;
 				
@@ -1992,11 +2040,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				// get default storage
 				
-				$this->storages = $this->get_storage_types();
+				$this->storageTypes = $this->get_storage_types();
 				
-				$this->is_storage = ( isset( $this->storages[$layer->post_type] ) ? true : false );
+				$this->is_storage = ( isset( $this->storageTypes[$layer->post_type] ) ? true : false );
 
-				if( $layer->post_type == 'cb-default-layer' || $this->is_storage || $this->is_local ){
+				// get default storage
+				
+				$this->mediaTypes = $this->get_media_types();				
+				
+				$this->is_media = ( isset( $this->mediaTypes[$layer->post_type] ) ? true : false );
+				
+				if( $layer->post_type == 'cb-default-layer' || $this->is_storage || $this->is_local || $this->is_media ){
 					
 					$this->id 		= $layer->ID;
 					$this->type 	= $layer->post_type;
@@ -2037,12 +2091,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						// get layer image template
 						
 						$this->layerImageTpl = array();
-						
-						$attachments = $this->get_layer_attachments($this->id);
+
+						$attachments = $this->get_layer_attachments($this->id,$this->layerStorage);
 						
 						if( empty($attachments) && $this->id != $this->defaultId ){
 							
-							$attachments = $this->get_layer_attachments($this->defaultId);
+							$attachments = $this->get_layer_attachments($this->defaultId,$this->layerStorage);
 						}
 						
 						if( !empty($attachments) ){
@@ -3221,17 +3275,27 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->layerBodyContent = $body;
 	}
 	
-	public function get_layer_attachments($post_id){
-	
-		$attachments = get_posts( array(
-						
-			'post_parent' 		=> $post_id,
-			'post_type' 		=> 'attachment',
-			'post_mime_type' 	=> array('application/zip','image/vnd.adobe.photoshop'),
-			'orderby' 			=> 'date',
-			'order' 			=> 'DESC'
-		));
+	public function get_layer_attachments($post_id,$storage='user-psd'){
 		
+		if( $storage === 'attachment' ){
+			
+			$attachments = array(
+			
+				get_post($post_id)
+			);
+		}
+		else{
+		
+			$attachments = get_posts( array(
+							
+				'post_parent' 		=> $post_id,
+				'post_type' 		=> 'attachment',
+				'post_mime_type' 	=> array('application/zip','image/vnd.adobe.photoshop'),
+				'orderby' 			=> 'date',
+				'order' 			=> 'DESC'
+			));
+		}
+
 		return $attachments;
 	}
 		

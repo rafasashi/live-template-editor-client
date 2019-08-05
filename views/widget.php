@@ -29,45 +29,34 @@
 	<body id="ltple-wrapper" style="background-color:#fff !important;">
 	
 		<?php
-		
-			if( isset($_GET['app']) ){
-				
-				include( $this->views .'/apps.php' );
-			}
-			elseif( isset($_GET['rewards']) ){
-				
-				include( $this->views .'/rewards.php' );
-			}
-			else{
-				
-				if(!empty($_SESSION['message'])){
-					
-					echo $_SESSION['message'].PHP_EOL;
-					
-					$_SESSION['message'] = '';
-				}					
-				
-				global $post;
-				
-				if( isset($post->post_type) ){
 
-					if( $post->post_type ==  'subscription-plan' ){
+			if(!empty($_SESSION['message'])){
+				
+				echo $_SESSION['message'].PHP_EOL;
+				
+				$_SESSION['message'] = '';
+			}					
+			
+			global $post;
+			
+			if( isset($post->post_type) ){
+
+				if( $post->post_type ==  'subscription-plan' ){
+					
+					if( !empty($_GET['sc']) && shortcode_exists( $_GET['sc'] ) ){
 						
-						if( !empty($_GET['sc']) && shortcode_exists( $_GET['sc'] ) ){
-							
-							echo do_shortcode( '['.$_GET['sc'].' id="' . $post->ID . '" widget="true"]' );
-						}
-						else{
-							
-							echo do_shortcode( '[subscription-plan id="' . $post->ID . '" widget="true"]' );
-						}
+						echo do_shortcode( '['.$_GET['sc'].' id="' . $post->ID . '" widget="true"]' );
 					}
 					else{
 						
-						// addon widgets
-
-						echo apply_filters( 'the_content', $post->post_content );
+						echo do_shortcode( '[subscription-plan id="' . $post->ID . '" widget="true"]' );
 					}
+				}
+				else{
+					
+					// addon widgets
+
+					echo apply_filters( 'the_content', $post->post_content );
 				}
 			}
 			

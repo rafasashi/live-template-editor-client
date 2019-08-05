@@ -8,7 +8,7 @@
 		
 		$_SESSION['message'] = '';
 	}
-	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick']) && $this->layer->type == 'cb-default-layer' && $this->user->plan["info"]["total_price_amount"] > 0 ){
+	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $this->layer->type == 'cb-default-layer' || $this->layer->is_media ) && $this->user->plan["info"]["total_price_amount"] > 0 ){
 	
 		echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
 			
@@ -35,51 +35,54 @@
 			
 			echo'<hr>';
 			
-			if( $this->plan->remaining_storage_amount($this->layer->id) > 0 ){
+			if( !$this->layer->is_media ){
 				
-				// get editor url
-				
-				$editor_url = $this->urls->editor . '?uri=' . $this->layer->id . $output;			
-				
-				echo'<form class="col-xs-6" target="_parent" action="' . $editor_url . '" id="savePostForm" method="post">';
+				if( $this->plan->remaining_storage_amount($this->layer->id) > 0 ){
 					
-					echo'<div class="input-group">';					
-						
-						echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-lg required" placeholder="Project Title">';
-						echo'<input type="hidden" name="postContent" id="postContent" value="">';
-
-						/*
-						echo'<input type="hidden" name="postCss" id="postCss" value="">';
-						echo'<input type="hidden" name="postJs" id="postJs" value="">';
-						echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
-						*/
-						
-						wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
-
-						echo'<input type="hidden" name="submitted" id="submitted" value="true">';
-						
-						echo'<span class="input-group-btn">';
-
-							echo'<input type="hidden" name="postAction" id="postAction" value="save">';
-								
-							echo'<input class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="border-radius: 0 3px 3px 0;padding: 8px 15px;" value="Start" />';
-						
-						echo'</span>';
-						
-					echo'</div>';
+					// get editor url
 					
-				echo'</form>';
+					$editor_url = $this->urls->editor . '?uri=' . $this->layer->id . $output;			
+					
+					echo'<form class="col-xs-6" target="_parent" action="' . $editor_url . '" id="savePostForm" method="post">';
+						
+						echo'<div class="input-group">';					
+							
+							echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-lg required" placeholder="Project Title">';
+							echo'<input type="hidden" name="postContent" id="postContent" value="">';
+
+							/*
+							echo'<input type="hidden" name="postCss" id="postCss" value="">';
+							echo'<input type="hidden" name="postJs" id="postJs" value="">';
+							echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
+							*/
+							
+							wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
+
+							echo'<input type="hidden" name="submitted" id="submitted" value="true">';
+							
+							echo'<span class="input-group-btn">';
+
+								echo'<input type="hidden" name="postAction" id="postAction" value="save">';
+									
+								echo'<input class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="border-radius: 0 3px 3px 0;padding: 8px 15px;" value="Start" />';
+							
+							echo'</span>';
+							
+						echo'</div>';
+						
+					echo'</form>';
+				}
+				else{
+					
+					$layer_type = $this->layer->get_layer_type($this->layer->id);
+					
+					echo'<div class="alert alert-warning">';
+						
+						echo'You can\'t save more <b>' . $layer_type->name . '</b> projects with the current plan...';
+				
+					echo'</div>';				
+				}	
 			}
-			else{
-				
-				$layer_type = $this->layer->get_layer_type($this->layer->id);
-				
-				echo'<div class="alert alert-warning">';
-					
-					echo'You can\'t save more <b>' . $layer_type->name . '</b> projects with the current plan...';
-			
-				echo'</div>';				
-			}	
 
 		echo'</div>';
 	}

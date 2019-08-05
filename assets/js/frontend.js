@@ -447,8 +447,6 @@
 						}										
 					});
 					
-					console.log(formFilters);
-					
 					$("#table").bootstrapTable("filterBy",formFilters);
 
 				});

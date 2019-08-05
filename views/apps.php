@@ -18,8 +18,8 @@
 	if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
 		
 		$inWidget = true;
-		$output=$_GET['output'];
-		$target='_blank';
+		$output = $_GET['output'];
+		$target = '_blank';
 	}
 
 	// get current tab
@@ -43,11 +43,15 @@
 		
 		echo'<div id="sidebar">';
 			
-			echo'<div class="gallery_type_title gallery_head">Applications</div>';	
+			echo'<div class="gallery_type_title gallery_head">Apps & Services</div>';	
 				
 			echo'<ul class="nav nav-tabs tabs-left">';
-		
-				echo'<li '. ( $currentTab == 'accounts' ? 'class="active"' : '' ) . '><a href="' . $this->urls->current . '"><span class="glyphicon glyphicon-plus"></span> Accounts</a></li>';
+
+				echo'<li class="gallery_type_title">Accounts</li>';
+				
+				echo'<li '. ( $currentTab == 'accounts' ? 'class="active"' : '' ) . '><a href="' . $this->urls->apps . '?tab=accounts">Connected Accounts</a></li>';
+				
+				do_action('ltple_connected_accounts_sidebar',$currentTab);
 				
 			echo'</ul>';
 			
@@ -102,13 +106,16 @@
 											$a 	= 0;
 											$c	= '<p>';
 											
-											foreach( $this->user->apps as $user_app){
+											if( !empty($this->user->apps) ){
 												
-												if(strpos($user_app->post_name, $app->slug . '-')===0){
+												foreach( $this->user->apps as $user_app){
 													
-													$c .= str_replace($app->slug . ' - ','',$user_app->post_title) . '</br>'. PHP_EOL;
+													if(strpos($user_app->post_name, $app->slug . '-')===0){
+														
+														$c .= str_replace($app->slug . ' - ','',$user_app->post_title) . '</br>'. PHP_EOL;
 
-													$a++;
+														$a++;
+													}
 												}
 											}
 											
@@ -254,6 +261,10 @@
 					echo'</div>';
 					
 				echo'</div>';
+			}
+			else{
+				
+				do_action( 'ltple_apps_' . $currentTab );			
 			}
 
 		echo'</div>	';

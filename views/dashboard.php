@@ -35,6 +35,10 @@
 
 				echo'</div>';
 			}
+			else{
+				
+				do_action( 'ltple_dashboard_' . $currentTab );			
+			}
 
 		echo'</div>	';
 

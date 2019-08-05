@@ -13,15 +13,23 @@ class LTPLE_Client_Dashboard {
 
 		$this->parent 	= $parent;
 		
-		// add dashboard shortcodes
-		
-		add_shortcode('ltple-client-dashboard', array( $this , 'get_dashboard_shortcode' ) );		
-
 		// add dashboard style
 		
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );		
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );	
+
+		add_action( 'init', array( $this, 'init_dashboard' ), 0 );		
 	}
 	
+	public function init_dashboard () {
+		
+		if( !is_admin() ){
+			
+			// add dashboard shortcodes
+		
+			add_shortcode('ltple-client-dashboard', array( $this , 'get_dashboard_shortcode' ) );
+		}		
+	}
+			
 	public function enqueue_styles () {
 		
 		/*
@@ -201,11 +209,11 @@ class LTPLE_Client_Dashboard {
 				
 				$sidebar = apply_filters('ltple_dashboard_manage_sidebar',$sidebar,$currentTab,$output);
 				
-				$sidebar .= '<li class="gallery_type_title">Design</li>';
+				$sidebar .= '<li class="gallery_type_title">Edit</li>';
 				
 				$sidebar .= '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
 				
-				$sidebar .= '<li'.( ( $currentTab == 'user-psd' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Images</a></li>';
+				$sidebar .= '<li'.( ( $currentTab == 'user-psd' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Graphic Designs</a></li>';
 				
 				//$sidebar .= '<li><a href="' . $this->parent->urls->editor . '?layer[output]=canvas">Memes & Collages</a></li>';
 				
@@ -219,10 +227,6 @@ class LTPLE_Client_Dashboard {
 				
 				$sidebar = apply_filters('ltple_dashboard_publish_sidebar',$sidebar,$currentTab,$output);
 
-				$sidebar .= '<li class="gallery_type_title">Connect</li>';
-
-				$sidebar = apply_filters('ltple_dashboard_connect_sidebar',$sidebar,$currentTab,$output);
-				
 				$sidebar = apply_filters('ltple_dashboard_sidebar',$sidebar,$currentTab,$output);
 				
 			$sidebar .= '</ul>';

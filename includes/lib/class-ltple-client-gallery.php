@@ -511,7 +511,7 @@ class LTPLE_Client_Gallery {
 				
 				if( !$has_options && !empty($plans) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 
-					$item ='<div class="panel panel-default bs-callout bs-callout-primary" style="min-height:287px;margin:0px;padding:30px;border:none !important;">';
+					$item ='<div class="panel panel-default bs-callout bs-callout-primary" style="min-height:287px;margin:0px;padding:7%;border:none !important;">';
 						
 						$item .='<div style="padding-bottom:35px;">';
 						
@@ -646,13 +646,13 @@ class LTPLE_Client_Gallery {
 							
 							if( $this->parent->plan->user_has_layer( $post ) === true ){
 								
-								$item.='<a target="_blank" class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
+								$item.='<a target="_parent" class="btn btn-sm btn-success" href="'. $editor_url .'" title="Start editting this template">Start</a>';
 							}
 							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
 								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 							
-									$item.='<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Start'.PHP_EOL;
+									$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL; 
 						
 								$item.='</button>'.PHP_EOL;
 							}												
@@ -661,7 +661,7 @@ class LTPLE_Client_Gallery {
 							
 							// info button
 							
-							$item.='<a class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $this->parent->urls->product . $post->ID . '/" title="More info about '. $post_title .' template">Info</a>';
+							$item.='<a target="_parent" class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $this->parent->urls->product . $post->ID . '/" title="More info about '. $post_title .' template">Info</a>';
 						
 							// preview button
 							
@@ -729,7 +729,7 @@ class LTPLE_Client_Gallery {
 								
 								if($this->parent->plan->user_has_layer( $post ) === true){
 									
-									$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
+									$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_parent" title="Start editting this template">Start</a>';
 								}
 								elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 									

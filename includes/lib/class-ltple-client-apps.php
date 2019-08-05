@@ -21,7 +21,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		$this->taxonomy = 'app-type';
 		
-		$this->parent->register_post_type( 'user-app', __( 'Accounts', 'live-template-editor-client' ), __( 'Account', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-app', __( 'Applications', 'live-template-editor-client' ), __( 'Application', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
@@ -89,7 +89,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		add_filter( 'user-app_custom_fields', array( $this, 'get_fields' ));
 
-		add_filter( 'ltple_dashboard_connect_sidebar', array( $this, 'get_sidebar_content' ),1,3);
+		add_filter( 'ltple_dashboard_manage_sidebar', array( $this, 'get_sidebar_content' ),1,3);
 	}
 
 	// Add app data custom fields
@@ -216,10 +216,12 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 					$this->includeApp($this->app);
 					
 					$this->{$this->app}->init_app();
-					
+
 					break;
 				}
 			}
+			
+			$this->redirectApp();
 		}
 		elseif( is_admin() && isset($_REQUEST['post']) ){
 			
@@ -375,28 +377,42 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 	}
 	
 	public function redirectApp(){
-		
-		if( empty($_REQUEST['app']) && !empty($_SESSION['app'])){
 
-			// redirection session
+		$redirect_url = '';
+
+		if(!empty($_SESSION['ref'])){
 			
-			if(!empty($_SESSION['ref'])){
+			// redirection session
+
+			$redirect_url = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_SESSION['ref']));
+			
+			$_SESSION['ref'] = '';
+		}
+		elseif(!empty($_POST)){
+			
+			if(!empty($_REQUEST['ref'])){
 				
-				$redirect_url = $_SESSION['ref'];
+				// redirection form
+				
+				$redirect_url = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['ref']));
 			}
 			else{
 				
-				$redirect_url = add_query_arg( array(
+				$redirect_url = remove_query_arg( array(
 				
-					'app' 	=> $_SESSION['app'],
+					'app',
+					'action',
 					
 				), $this->parent->urls->current );
 			}
+		}
 
+		if( !empty($redirect_url) ){
+			
 			wp_redirect($redirect_url);
 			echo 'Redirecting app callback...';
-			exit;
-		}		
+			exit;	
+		}			
 	}
 	
 	public function parse_url_fields($url,$prefix='_'){

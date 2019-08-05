@@ -1,8 +1,21 @@
 <?php 
 	
 	if( !isset($_GET['preview']) ){
-		
-		if( $attachment_url = wp_get_attachment_url($this->layerImageTpl->ID ) ){
+
+		if( $this->layerImageTpl->post_type == 'attachment' ){
+			
+			$attachment_url = wp_get_attachment_url($this->layerImageTpl->ID );
+		}
+		else{
+			
+			global $post;
+			
+			$post = $this->layerImageTpl;
+			
+			$attachment_url = apply_filters('the_content',$this->layerImageTpl->post_content);		
+		}
+
+		if( !empty($attachment_url) ){
 			
 			// CORS Allow from any origin
 			

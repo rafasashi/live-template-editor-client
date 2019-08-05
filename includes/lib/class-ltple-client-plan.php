@@ -2186,6 +2186,10 @@ class LTPLE_Client_Plan {
 						$user_has_layer = true;
 					}
 				}
+				elseif( $item->post_type == 'default-image' ){
+					
+					$user_has_layer = true;
+				}
 				elseif( intval($item->post_author) == $this->parent->user->ID ){
 					
 					$user_has_layer = true;

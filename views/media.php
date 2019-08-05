@@ -78,7 +78,7 @@
 			echo'</ul>';
 		echo'</div>';
 
-		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;padding-top:15px;min-height:700px;">';
+		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;">';
 
 			echo'<div class="tab-content">';
 
@@ -190,7 +190,7 @@
 							
 							echo '<li role="presentation">';
 								
-								echo '<button data-toggle="dialog" data-target="#addImageUrl" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ Import</button>';
+								echo '<button data-toggle="dialog" data-target="#addImageUrl" class="btn btn-success btn-sm" style="margin:7px 0px 7px 7px;padding:5px 10px !important;">+ Import</button>';
 								
 								echo '<div style="display:none;max-width:250px;" id="addImageUrl" title="Add Image URL">';
 									
@@ -225,7 +225,9 @@
 														wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
 
 														echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
-													
+														
+														echo '<input type="hidden" name="output" value="'.$output.'" />';
+														
 													echo '</div>';
 													
 												echo '</div>';
@@ -286,7 +288,9 @@
 														echo '<input type="hidden" name="ref" value="' . urlencode(str_replace($this->parent->request->proto,'',$this->parent->urls->current)) .'" />';
 														
 														echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
-													
+														
+														echo '<input type="hidden" name="output" value="'.$output.'" />';
+														
 													echo '</div>';
 													
 												echo '</div>';
@@ -299,7 +303,73 @@
 									
 								echo '</div>';						
 							
-							echo '</li>';	
+							echo '</li>';
+							
+							if( !$this->parent->inWidget ){
+								
+								echo '<li role="presentation">';
+									
+									echo '<button data-toggle="dialog" data-target="#connectAccount" class="btn btn-default btn-sm" style="margin:7px 0px 7px 7px;padding:5px 10px !important;">+ Connect</button>';
+									
+									echo '<div style="display:none;max-width:250px;" id="connectAccount" title="Connect new account">';
+										
+										//get options
+										
+										$options = array();
+										
+										foreach( $this->parent->apps->list as $app ){
+											
+											if( in_array('images',$app->types) ){
+											
+												foreach( $this->parent->user->apps as $user_app ){
+
+													$options[$app->slug] = $app->name;
+												}
+											}
+										}
+										
+										echo '<form style="padding:10px;" target="_self" action="' . $this->parent->urls->apps . '" method="get">';
+											
+											echo '<div style="padding-bottom:10px;display:block;">';
+
+												echo'<label>Select a provider</label>';
+												
+												echo '<div class="input-group">';
+													
+													echo $this->parent->admin->display_field( array(
+											
+														'type'				=> 'select',
+														'id'				=> 'app',
+														'options' 			=> $options,
+														'required' 			=> true,
+														'description'		=> '',
+														'style'				=> '',
+														
+													), false, false );
+													
+													echo '<div class="input-group-btn">';
+														
+														echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Connect</button>';
+														
+														echo '<input type="hidden" name="action" value="connect" />';
+														
+														echo '<input type="hidden" name="ref" value="' . urlencode(str_replace($this->parent->request->proto,'',$this->parent->urls->current)) .'" />';
+														
+														echo '<input type="hidden" name="output" value="'.$output.'" />';
+														
+													echo '</div>';
+													
+												echo '</div>';
+												
+											echo '</div>';
+											
+											
+										echo '</form>';								
+										
+									echo '</div>';						
+								
+								echo '</li>';
+							}								
 
 						echo'</ul>';
 

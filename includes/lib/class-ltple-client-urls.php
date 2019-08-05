@@ -278,12 +278,12 @@ class LTPLE_Client_Urls {
 			
 			$this->ranking 	= $this->home . '/' . $ranking . '/';
 		}
-		
+
 		// get addon urls
 		
 		do_action('ltple_urls');
 	}
-	
+
 	/**
 	 * Main LTPLE_Client_Urls Instance
 	 *

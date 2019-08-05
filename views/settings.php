@@ -38,7 +38,9 @@
 				echo'<li><a href="' . wp_lostpassword_url() . '">Reset Password</a></li>';			
 				
 				echo'<li'.( $currentTab == 'billing-info' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=billing-info">Billing Info</a></li>';
-				 
+				
+				do_action('ltple_account_settings_sidebar',$currentTab);
+				
 			echo'</ul>';
 			
 		echo'</div>';

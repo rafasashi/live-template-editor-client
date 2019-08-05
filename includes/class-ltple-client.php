@@ -195,6 +195,9 @@ class LTPLE_Client {
 			$this->gallery 	= new LTPLE_Client_Gallery( $this );			
 			
 			$this->element 	= new LTPLE_Client_Element( $this );
+			
+			$this->script 	= new LTPLE_Client_Script( $this );
+			
 			$this->layer 	= new LTPLE_Client_Layer( $this );
 			$this->tutorials = new LTPLE_Client_Tutorials( $this );
 			
@@ -354,6 +357,8 @@ class LTPLE_Client {
 		// loaded hook
 		
 		do_action( 'ltple_loaded');
+		
+		
 	}
 	
 	public function set_current_user(){
