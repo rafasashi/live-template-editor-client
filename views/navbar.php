@@ -273,7 +273,50 @@
 						}
 
 						if( is_admin() || ( $ltple->layer->type != 'cb-default-layer' && $ltple->user->plan["info"]["total_price_amount"] > 0 ) ){
+							
+							if( empty($_GET['action']) || $_GET['action'] != 'edit' ){
+								
+								if( $ltple->layer->layerOutput == 'canvas' ){
+									
+									echo '<div style="margin:0 2px;" class="btn-group">';
+										
+										echo '<button id="downloadImgBtn" type="button" class="btn btn-sm dropdown-toggle" style="border:none;background: #4c94af;">';
+										
+											echo 'Download';
+										
+										echo '</button>';
+										
+									echo '</div>';
+								}
+								elseif( $ltple->layer->layerOutput == 'image' ){
 
+									echo '<div style="margin:0 2px;" class="btn-group">';
+										
+										echo '<button id="downloadImgBtn" type="button" class="btn btn-sm dropdown-toggle" style="border:none;background: #4c94af;">';
+										
+											echo 'Download';
+										
+										echo '</button>';
+										
+									echo '</div>';							
+								}
+							}
+							else{
+								
+								if( $ltple->layer->is_downloadable_output($ltple->layer->layerOutput) ){
+									
+									echo '<div style="margin:0 2px;" class="btn-group">';
+										
+										echo '<a href="' . apply_filters('ltple_downloadable_url','#download',$ltple->layer->id,$ltple->layer->layerOutput) . '" class="btn btn-sm" style="border:none;background: #4c94af;">';
+										
+											echo 'Download';
+										
+										echo '</a>';
+										
+									echo '</div>';								
+								}							
+							}							
+							
 							if( ( is_admin() || $ltple->user->has_layer ) && !$ltple->layer->is_media ){
 								
 								// save button
@@ -309,7 +352,7 @@
 								
 								// view button 
 								
-								if( $ltple->layer->layerOutput != 'image' ){
+								if( $ltple->layer->layerOutput != 'image' && !$ltple->layer->is_downloadable_output($ltple->layer->layerOutput) ){
 									
 									$preview = add_query_arg(array(
 									
@@ -322,7 +365,7 @@
 								
 								// delete button
 								
-								if( $ltple->layer->type != 'cb-default-layer' ){
+								if( !empty($_GET['action']) && $_GET['action'] == 'edit' && $ltple->layer->type != 'cb-default-layer' ){
 
 									echo '<a style="border:none;background: #f44336;" class="btn btn-sm" href="#removeCurrentTpl" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</a>';
 								
@@ -379,43 +422,6 @@
 								echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 							}
 						}
-
-						if( $ltple->layer->layerOutput == 'canvas' && ( $ltple->layer->type != 'cb-default-layer' || isset($_REQUEST['edit']) || isset($_REQUEST['quick']) ) ){
-							
-							/*
-							echo '<div style="margin:0 2px;" class="btn-group">';
-								
-								echo '<button id="uploadImgBtn" type="button" class="btn btn-sm dropdown-toggle" style="border:none;background: #a44caf;">';
-								
-									echo 'Upload';
-								
-								echo '</button>';
-								
-							echo '</div>';
-							*/
-							
-							echo '<div style="margin:0 2px;" class="btn-group">';
-								
-								echo '<button id="downloadImgBtn" type="button" class="btn btn-sm dropdown-toggle" style="border:none;background: #4c94af;">';
-								
-									echo 'Download';
-								
-								echo '</button>';
-								
-							echo '</div>';
-						}
-						elseif( $ltple->layer->layerOutput == 'image' ){
-
-							echo '<div style="margin:0 2px;" class="btn-group">';
-								
-								echo '<button id="downloadImgBtn" type="button" class="btn btn-sm dropdown-toggle" style="border:none;background: #4c94af;">';
-								
-									echo 'Download';
-								
-								echo '</button>';
-								
-							echo '</div>';							
-						}	
 					}
 					
 					if( $ltple->user->ID > 0  ){
@@ -513,7 +519,7 @@
 										
 									foreach( $storage_types as $slug => $name ){
 										
-										if( $slug != 'user-menu' ){
+										if( $slug != 'user-menu' && $slug != 'wp-installer' ){
 											
 											echo'<li style="position:relative;">';
 											

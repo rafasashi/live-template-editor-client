@@ -12,6 +12,8 @@ class LTPLE_Client {
 	 */
 	private static $_instance = null;
 	
+	public $filesystem = null;
+	
 	/**
 	 * Settings class object
 	 * @var     object
@@ -195,8 +197,6 @@ class LTPLE_Client {
 			$this->gallery 	= new LTPLE_Client_Gallery( $this );			
 			
 			$this->element 	= new LTPLE_Client_Element( $this );
-			
-			$this->script 	= new LTPLE_Client_Script( $this );
 			
 			$this->layer 	= new LTPLE_Client_Layer( $this );
 			$this->tutorials = new LTPLE_Client_Tutorials( $this );
@@ -498,11 +498,11 @@ class LTPLE_Client {
 				
 				// get period end
 				
-				$this->user->period_end = intval(get_user_meta( $this->user->plan['holder'], $this->_base . 'period_end', true ));
+				$this->user->period_end = $this->plan->get_license_period_end( $this->user->ID );
 				
 				// get remaining days
 				
-				$this->user->remaining_days = $this->user->period_end > 0 ? ceil( ($this->user->period_end - time()) / (60 * 60 * 24) ) : 0;
+				$this->user->remaining_days = $this->plan->get_license_remaining_days( $this->user->period_end );
 			}			
 		
 			do_action('ltple_user_loaded');
@@ -900,7 +900,7 @@ class LTPLE_Client {
 	}
 	
 	public function editor_templates( $path ){
-		
+		 
 		if( !empty($_REQUEST['t']) && is_numeric($_REQUEST['t']) ){
 			
 			$post_id = intval($_REQUEST['t']);
@@ -926,79 +926,82 @@ class LTPLE_Client {
 					exit;
 				}
 			}
-			elseif( $post->post_type == 'cb-default-layer' ){
+			elseif( !empty($post) ){
 				
-				$visibility = get_post_meta( $post->ID, 'layerVisibility', true );
-				
-				$post->layer_id = $post->ID;
-				
-				if( $visibility == 'anyone' ){
+				if( $post->post_type == 'cb-default-layer' ){
 					
-					$path = $this->views . '/layer.php';
-				}
-				elseif( $visibility == 'registered' && $this->user->loggedin ){
+					$visibility = get_post_meta( $post->ID, 'layerVisibility', true );
 					
-					$path = $this->views . '/layer.php';
-				}
-				elseif( $this->plan->user_has_layer( $post ) === true && $this->user->loggedin ){
+					$post->layer_id = $post->ID;
 					
-					$path = $this->views . '/layer.php';
-				}
-				else{
-					
-					$path = $this->views . '/preview.php';
-				}					
-			}
-			elseif( $post->post_type == 'user-layer' ){
-				
-				if(!isset($post->layer_id)){
-					
-					$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
-				}
-				
-				if( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
-					
-					$path = $this->views . '/layer.php';
-				}
-				elseif( isset($_REQUEST['t']) && isset($_REQUEST['tk']) ){
-					
-					if( $_REQUEST['t'] == $this->ltple_decrypt_str($_REQUEST['tk']) ){
-					
+					if( $visibility == 'anyone' ){
+						
+						$path = $this->views . '/layer.php';
+					}
+					elseif( $visibility == 'registered' && $this->user->loggedin ){
+						
+						$path = $this->views . '/layer.php';
+					}
+					elseif( $this->plan->user_has_layer( $post ) === true && $this->user->loggedin ){
+						
 						$path = $this->views . '/layer.php';
 					}
 					else{
 						
-						echo 'Wrong template token...';
+						$path = $this->views . '/preview.php';
+					}					
+				}
+				elseif( $post->post_type == 'user-layer' ){
+					
+					if(!isset($post->layer_id)){
+						
+						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+					}
+					
+					if( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
+						
+						$path = $this->views . '/layer.php';
+					}
+					elseif( isset($_REQUEST['t']) && isset($_REQUEST['tk']) ){
+						
+						if( $_REQUEST['t'] == $this->ltple_decrypt_str($_REQUEST['tk']) ){
+						
+							$path = $this->views . '/layer.php';
+						}
+						else{
+							
+							echo 'Wrong template token...';
+							exit;
+						}
+					}
+					else{
+						
+						echo 'You don\'t have access to this template...';
 						exit;
+					}				
+				}
+				elseif( !empty($_REQUEST['t']) ){
+					
+					$path = $this->views . '/layer.php';
+				}
+				elseif( $this->layer->is_local_page($post) ){
+					
+					if(!is_numeric($post->layer_id)){
+					
+						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
+					}
+					
+					if( $post->layer_id > 0 ){
+						
+						// custom page
+						
+						return $path;
 					}
 				}
-				else{
+				elseif( file_exists($this->views . '/'.$post->post_type . '.php') ){
 					
-					echo 'You don\'t have access to this template...';
-					exit;
-				}				
-			}
-			elseif( !empty($_REQUEST['t']) ){
-				
-				$path = $this->views . '/layer.php';
-			}
-			elseif( $this->layer->is_local_page($post) ){
-				
-				if(!is_numeric($post->layer_id)){
-				
-					$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
+					$path = $this->views .  '/' . $post->post_type . '.php';
 				}
-				
-				if( $post->layer_id > 0 ){
-					
-					// custom page
-					
-					return $path;
-				}
-			}
-			elseif( file_exists($this->views . '/'.$post->post_type . '.php') ){
-				
-				$path = $this->views .  '/' . $post->post_type . '.php';
 			}
 		}
 		
@@ -1380,7 +1383,7 @@ class LTPLE_Client {
 					
 					//include($this->views . '/upgrade.php');
 					
-					include($this->views . '/restrected.php');
+					include($this->views . '/restricted.php');
 					
 					include($this->views . '/gallery.php');
 				}
@@ -1563,19 +1566,7 @@ class LTPLE_Client {
 		 
 		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
 			
-			if( $this->layer->type == $this->layer->layerStorage && $this->user->layer->post_author != $this->user->ID && !$this->user->is_admin ){
-				
-				//--------permission denied--------
-				
-				$this->message ='<div class="alert alert-danger">';
-
-					$this->message .= 'You don\'t have the permission to edit this template...';
-
-				$this->message .='</div>';
-				
-				include( $this->views . '/message.php' );					
-			}
-			elseif( $this->layer->type == $this->layer->layerStorage && isset($_POST['postAction'])&& $_POST['postAction']=='edit' ){
+			if( $this->layer->type == $this->layer->layerStorage && isset($_POST['postAction'])&& $_POST['postAction']=='edit' ){
 						
 				if( !empty($_POST['id']) ){
 					
@@ -2578,13 +2569,6 @@ class LTPLE_Client {
 			$style .='border-bottom: 1px solid #eee;';
 		$style .='}';		
 
-		$style .= ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
-			
-			$style .= 'border-radius:0;';
-			$style .= 'box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
-			
-		$style .='}';
-
 		if( !empty($this->settings->navbarColor) ){
 			
 			$style .=' .navbar{';
@@ -2677,10 +2661,12 @@ class LTPLE_Client {
 			
 			$style .= ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
 			
+				$style .= 'border-radius:0;';
+				$style .= 'box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
 				$style .='border-left: 5px solid '.$this->settings->mainColor . ' !important;';
 				$style .='background-color: #fbfbfb !important;';
 				$style .='margin-top: -1px;';
-				$style .='padding:15px 20px;';
+				$style .='padding:15px 13px;';
 				
 			$style .='}';
 			
@@ -2712,7 +2698,7 @@ class LTPLE_Client {
 			
 			$style .= ' .nav>li>a{';
 				
-				$style .='padding:15px 24px;';
+				$style .='padding:13px 17px;';
 				
 			$style .='}';
 			

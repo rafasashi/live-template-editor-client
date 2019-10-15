@@ -127,13 +127,21 @@
 								
 								echo '<div style="display:none;" id="uploadImage" title="Upload a new Image">';
 									
-									if( $this->parent->user->plan["info"]["total_price_amount"] == 0 ){
+									if( !$this->parent->user->plan['info']['total_price_amount'] > 0 ){
 										
 										echo '<div class="alert alert-warning">';
 										
 											echo 'You need a paid plan to <b>upload images</b>';
 											
 										echo '</div>';
+									}
+									elseif( !$this->parent->user->remaining_days > 0 ){
+										
+										echo '<div class="alert alert-warning">';
+										
+											echo 'You need to renew your plan to <b>upload images</b>';
+											
+										echo '</div>';										
 									}
 									else{
 										
@@ -194,13 +202,21 @@
 								
 								echo '<div style="display:none;max-width:250px;" id="addImageUrl" title="Add Image URL">';
 									
-									if( $this->parent->user->plan["info"]["total_price_amount"] == 0 ){
+									if( !$this->parent->user->plan['info']['total_price_amount'] > 0 ){
 										
 										echo '<div class="alert alert-warning">';
 										
 											echo 'You need a paid plan to <b>add an image</b>';
 											
 										echo '</div>';
+									}
+									elseif( !$this->parent->user->remaining_days > 0 ){
+										
+										echo '<div class="alert alert-warning">';
+										
+											echo 'You need to renew your plan to <b>add an image</b>';
+											
+										echo '</div>';										
 									}
 									else{
 										
@@ -210,7 +226,7 @@
 											
 											echo '<div style="padding-bottom:10px;display:block;">';
 
-												echo'<label>Image url</label>';
+												echo'<label>From an image url</label>';
 												
 												echo '<div class="input-group">';
 												
@@ -262,7 +278,7 @@
 											
 											echo '<div style="padding-bottom:10px;display:block;">';
 
-												echo'<label>Connected accounts</label>';
+												echo'<label>From a connected accounts</label>';
 												
 												echo '<div class="input-group">';
 													
@@ -321,10 +337,7 @@
 											
 											if( in_array('images',$app->types) ){
 											
-												foreach( $this->parent->user->apps as $user_app ){
-
-													$options[$app->slug] = $app->name;
-												}
+												$options[$app->slug] = $app->name;
 											}
 										}
 										

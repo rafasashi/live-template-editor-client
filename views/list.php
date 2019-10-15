@@ -70,7 +70,7 @@
 
 								echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 									
-									echo'<div class="modal-dialog modal-lg" style="width:100% !important;margin:0;top:0;bottom:0;left:0;right:0;position:absolute;" role="document">'.PHP_EOL;
+									echo'<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 										
 										echo'<div class="modal-content">'.PHP_EOL;
 										
@@ -127,7 +127,7 @@
 
 						$fields = apply_filters('ltple_table_fields',$fields,$post_type);
 						
-						if( $this->layer->is_hosted($post_type) ){
+						if( $this->layer->is_public($post_type) && $this->layer->is_hosted($post_type) ){
 							
 							$fields[] = array(
 
@@ -160,7 +160,9 @@
 							$pagination	= true,
 							$form		= false,
 							$toolbar 	= 'toolbar',
-							$card		= false
+							$card		= false,
+							$itemHeight	= 235,
+							$fixedHeight= false
 						);
 
 					echo'</div>';

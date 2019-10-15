@@ -6,14 +6,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public $parent;
 	
+	public $layer_types 	= array();
+	
 	public $localTypes 		= null;
 	public $storageTypes	= null;
 	public $mediaTypes		= null;
 	
+	public $counts			= null;
 	public $outputs			= null;
 	public $sections		= null;
 	public $types			= null; 
 	public $ranges			= null;
+	
+	public $default_ids 	= array();
 	
 	public $defaultFields 	= array();
 	public $userFields 		= array();
@@ -242,6 +247,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){
 					
+					// remove metaboxes
+					
 					if( empty($_REQUEST['post']) ){
 						
 						// remove all metaboxes except submit button
@@ -262,21 +269,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$layer_type = $this->get_layer_type($post);	
 						
-						if( $layer_type->output != 'hosted-page' && $layer_type->output != 'downloadable' ){		
+						if( !$this->is_html_output($layer_type->output) ){
+							
+							remove_meta_box( 'element-librarydiv', 'cb-default-layer', 'side' );
+							
+							if( !$this->is_hosted_output($layer_type->output) ){		
 
-							remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
-							remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
-							remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );
-
-							if( $layer_type->output == 'image' ){
-								
-								remove_meta_box( 'element-librarydiv', 'cb-default-layer', 'side' );
+								remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
+								remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
+								remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );
 							}
 						}
+						
+						do_action('ltple_remove_layer_metaboxes',$post,$layer_type);
 					}
 
 					remove_meta_box( 'tagsdiv-layer-type', $post->post_type, 'side' );
-
+					
+					// add metaboxes
+					
 					$this->parent->admin->add_meta_boxes($fields);
 				}
 			}
@@ -337,6 +348,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 		add_action('create_layer-range', array( $this, 'save_layer_taxonomy_fields' ) );
 		add_action('edit_layer-range', array( $this, 'save_layer_taxonomy_fields' ) );			
+		
+		// layer tabs
+	
+		add_filter('ltple_inline-css_project_tabs', array($this,'get_editable_layer_tabs'),10,2);			
+		add_filter('ltple_external-css_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
+		add_filter('ltple_hosted-page_project_tabs', array($this,'get_hosted_layer_tabs'),10,2);
+		add_filter('ltple_canvas_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
+		add_filter('ltple_image_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
+		
+		add_filter('ltple_project_advance_tabs', array($this,'get_layer_advance_tabs'),10,3);
 		
 		// css library fields
 		
@@ -430,6 +451,38 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $is_local;
 	}
 	
+	public function is_public($post){
+		
+		$is_public = false;
+		
+		$post_type = '';
+		
+		if( is_object($post) ){
+			
+			if(!empty($post->post_type)){
+			
+				$post_type = $post->post_type;
+			}
+			elseif(!empty($post->name)){
+				
+				$post_type = $post->name;
+			}
+		}
+		else{
+			
+			$post_type = $post;
+		}
+		
+		$object = get_post_type_object( $post_type );
+		
+		if( $object->publicly_queryable === true ){
+			
+			$is_public = true;
+		}
+		
+		return $is_public;
+	}
+	
 	public function is_hosted($post){
 		
 		$is_hosted = false;
@@ -464,6 +517,72 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 		return $is_hosted;
 	}
+
+	public function count_layers_by( $count_by = 'storage' ){
+		
+		if( is_null($this->counts) ){
+			
+			$this->counts = array();
+			
+			if( $count_by == 'type' || $count_by == 'storage' || $count_by == 'output' ){
+				
+				if( $default_layers = get_posts( array(
+					
+					'post_type' 	=> 'cb-default-layer',
+					'status'		=> 'publish',
+					'numberposts'	=> -1,
+					
+				))){
+					
+					foreach( $default_layers as $layer ){
+						
+						if( $layer_type = $this->parent->layer->get_layer_type($layer)){
+							
+							// count type
+							
+							if( !isset($this->counts['type'][$layer_type->slug]) ){
+								
+								$this->counts['type'][$layer_type->slug] = 1;
+							}
+							else{
+								
+								++$this->counts['type'][$layer_type->slug];
+							}						
+							
+							// count storage
+							
+							if( !isset($this->counts['storage'][$layer_type->storage]) ){
+								
+								$this->counts['storage'][$layer_type->storage] = 1;
+							}
+							else{
+								
+								++$this->counts['storage'][$layer_type->storage];
+							}
+							
+							// count output
+							
+							if( !isset($this->counts['output'][$layer_type->output]) ){
+								
+								$this->counts['output'][$layer_type->output] = 1;
+							}
+							else{
+								
+								++$this->counts['output'][$layer_type->output];
+							}
+						}					
+					}
+				}
+			}
+		}
+		
+		if( isset($this->counts[$count_by]) ){
+			
+			return $this->counts[$count_by];
+		}
+		
+		return false;
+	}	
 	
 	public function can_customize_url($post){
 		
@@ -487,7 +606,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$post_type = $post;
 		}
 		
-		if( $this->is_hosted($post) && !in_array( $post_type, array(
+		if( $this->is_public($post) && $this->is_hosted($post) && !in_array( $post_type, array(
 		
 			'user-post',
 			'user-product',
@@ -670,8 +789,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						</table>'
 				);
 				*/
-				
-				if( $layer_type->output != 'image' ){
+
+				if( $this->is_html_output($layer_type->output) ){
 				
 					// get layer content
 					
@@ -738,7 +857,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						);
 					}
 					
-					if( $layer_type->output == 'hosted-page' || $layer_type->output == 'downloadable' ){		
+					if( $this->is_hosted_output($layer_type->output) ){		
 						
 						$this->defaultFields[]=array(
 						
@@ -833,7 +952,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'description'	=> '',
 					);
 				}
-				else{
+				elseif( $this->is_image_output($layer_type->output) ){
 					
 					$this->defaultFields[]=array(
 					
@@ -940,6 +1059,191 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->defaultFields;
 	}
 	
+	public function is_editable($output){
+		
+		$is_editable = false;
+		
+		if( $this->is_html_output($output) ){
+			
+			$is_editable = true;
+		}
+		elseif( $this->is_image_output($output) ){
+			
+			$is_editable = true;
+		}
+		else{
+			
+			$is_editable = apply_filters('ltple_editable_' . $output,$is_editable);
+		}
+		
+		return $is_editable;
+	}
+	
+	public function is_html_output($output){
+					
+		$html_output = array(
+		
+			'inline-css',
+			'external-css',
+			'hosted-page',
+			'canvas',
+		);
+		
+		if( in_array($output,$html_output) ){
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public function is_hosted_output($output){
+					
+		$hosted_output = array(
+		
+			'hosted-page',
+			'downloadable',
+		);
+		
+		if( in_array($output,$hosted_output) ){
+			
+			return true;
+		}
+		
+		return false;
+	}
+		
+	public function is_downloadable_output($output){
+		
+		$is_downloadable = false;
+		
+		if( $output == 'downloadable' ){
+			
+			$is_downloadable = true;
+		}
+		else{
+			
+			$is_downloadable = apply_filters('ltple_downloadable_' . $output,$is_downloadable);
+		}
+		
+		return $is_downloadable;
+	}
+	
+	public function is_image_output($output){
+					
+		$image_output = array(
+		
+			'image',
+		);
+		
+		if( in_array($output,$image_output) ){
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public function get_project_tabs($layer,$fields=array()){
+		
+		$tabs = array();
+		
+		if( $layer_type = $this->get_layer_type($layer) ){
+		
+			$tabs = apply_filters('ltple_' . $layer_type->output . '_project_tabs',$tabs,$layer);
+		
+			$tabs = apply_filters('ltple_project_advance_tabs',$tabs,$layer,$fields);
+		}
+		
+		return $tabs;
+	}
+	
+	public function get_hosted_layer_tabs($tabs,$layer){
+		
+		$tabs = $this->get_editable_layer_tabs($tabs,$layer);
+				
+		return $tabs;
+	}
+	
+	public function get_editable_layer_tabs($tabs,$layer){
+		
+		$content = '<div style="background:#fbfbfb;padding:152px 0;text-align:center;">'; 
+		
+			$content .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->editor . '?uri=' . $layer->ID . '">Edit Content</a>';
+
+		$content .= '</div>';	
+	
+		$tabs['edit'] = array(
+		
+			'name' 		=> 'Edit',
+			'slug'		=> 'edit',
+			'content'	=> $content,
+		
+		);
+
+		return $tabs;
+	}
+	
+	public function get_layer_advance_tabs($tabs,$layer,$fields){
+		
+		if( !empty($fields) ){
+			
+			foreach ( $fields as $field ) {
+				
+				if( !isset($field['metabox']['frontend']) || $field['metabox']['frontend'] === true ){
+				
+					if( !isset($field['metabox']['context']) || $field['metabox']['context'] == 'advanced' ){
+						
+						$slug = $field['metabox']['name'];
+						
+						if( !isset($tabs[$slug]) ){
+							
+							$tabs[$slug]  = array(
+							
+								'name' 		=> 	$field['metabox']['title'],
+								'slug'		=>	$slug,
+								'content'	=> 	$this->parent->admin->display_meta_box_field( $field, $layer, false),			
+							);
+						}
+						else{
+							
+							$tabs[$slug]['content'] .= $this->parent->admin->display_meta_box_field( $field, $layer, false);
+						}
+					}
+				}
+			}			
+		}
+		
+		return $tabs;		
+	}
+	
+	public function get_user_projects($user_id,$layer_type){
+		
+		$user_projects = array();
+		
+		if( $projects = get_posts(array(
+			
+			'post_type' 	=> $layer_type->storage,
+			'author' 		=> $user_id,
+			'post_status' 	=> array('publish','draft'),
+			'numberposts'	=> -1,
+			
+		))){
+			
+			foreach( $projects as $project ){
+				
+				$project->type = $this->get_layer_type($project);
+				
+				if( $project->type->slug == $layer_type->slug ){
+				
+					$user_projects[] = $project;
+				}
+			}
+		}
+
+		return $user_projects;
+	}
+
 	public function get_user_layer_fields($post=null){
 		 
 		if( empty($this->userFields) ){
@@ -1098,7 +1402,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'metabox' => array( 
 							
 								'name' 		=> 'page-layout',
-								'title' 	=> __( 'Page Layout', 'live-template-editor-client' ), 
+								'title' 	=> __( 'Layout', 'live-template-editor-client' ), 
 								'screen'	=> array($post->post_type),
 								'context' 	=> 'advanced',
 								'frontend'	=> true,
@@ -1145,18 +1449,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function get_layer_outputs(){
 		
 		if( empty($this->outputs) ){
-		
-			$this->outputs = array(
+
+			$this->outputs = apply_filters('ltple_layer_outputs',array(
 					
-				'inline-css'	=>'HTML',
-				'external-css'	=>'HTML + CSS',
-				'hosted-page'	=>'Hosted',
-				'downloadable'	=>'Downloadable',
-				'canvas'		=>'Collage',
-				'image'			=>'Image',
-			);
-			
-			do_action('ltple_layer_outputs');
+				'inline-css'		=>'HTML',
+				'external-css'		=>'HTML + CSS',
+				'hosted-page'		=>'Hosted',
+				//'downloadable'	=>'Downloadable',
+				'canvas'			=>'Collage',
+				'image'				=>'Image',
+			));
 		}
 		
 		return $this->outputs;
@@ -1289,6 +1591,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$this->types = $this->get_terms('layer-type');
 			
 			foreach( $this->types as $term ){
+				
+				$term->output = $this->get_type_output($term);
+
+				$term->storage = $this->get_type_storage($term);				
 				
 				$term->gallery_section = $this->get_type_gallery_section($term);
 				
@@ -1566,93 +1872,128 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 	public function get_layer_type($post){
 		
-		$term = null;
+		$post_id = 0;
 		
 		if( is_numeric($post) ){
 			
-			$post = get_post($post);
+			$post_id = $post;
 		}
+		elseif( is_object($post) ){
+			
+			$post_id = $post->ID;
+		}
+		
+		if(!empty($post_id)){
+			
+			if( !isset($this->layer_types[$post_id]) ){
+				
+				$term = null;
+				
+				if( !is_object($post) ){
+					
+					$post = get_post($post_id);
+				}
 
-		if( !empty($post->post_type) ){
-			
-			if( isset( $this->mediaTypes[$post->post_type] ) ){
-				
-				$term = new stdClass();
-			
-				$term->output 	= 'image';
-				$term->storage 	= 'attachment';				
-			}
-			else{
-			
-				$terms = wp_get_post_terms($post->ID,'layer-type');
-				
-				if( empty($terms[0]) ){
+				if( !empty($post->post_type) ){
 					
-					if( $post->post_type != 'cb-default-layer' ){
-					
-						// get default layer id
+					if( isset( $this->mediaTypes[$post->post_type] ) ){
 						
-						$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
-						
-						$default_post = get_post($default_id);
+						$term = new stdClass();
 					
-						if( !is_null($default_post) && $default_post->post_type == 'cb-default-layer' ){
-							
-							$terms = wp_get_post_terms($default_post->ID,'layer-type');			
-							
-							if( !empty($terms[0]) ){
-								
-								$term = $terms[0];
-							}
-						}					
+						$term->output 	= 'image';
+						$term->storage 	= 'attachment';				
 					}
-					elseif( is_admin() ){
+					else{
+					
+						$terms = wp_get_post_terms($post->ID,'layer-type');
 						
-						if( $default_range = $this->get_layer_range($post)){
+						if( empty($terms[0]) ){
 							
-							if( $type_id = get_term_meta($default_range->term_id,'range_type',true)){
+							if( $post->post_type != 'cb-default-layer' ){
+							
+								// get default layer id
 								
-								$term = get_term($type_id);
+								$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+								
+								$default_post = get_post($default_id);
+							
+								if( !is_null($default_post) && $default_post->post_type == 'cb-default-layer' ){
+									
+									$terms = wp_get_post_terms($default_post->ID,'layer-type');			
+									
+									if( !empty($terms[0]) ){
+										
+										$term = $terms[0];
+									}
+								}					
+							}
+							elseif( is_admin() ){
+								
+								if( $default_range = $this->get_layer_range($post)){
+									
+									if( $type_id = get_term_meta($default_range->term_id,'range_type',true)){
+										
+										$term = get_term($type_id);
+									}
+								}
+							}
+							
+							if( !empty($term) ){
+
+								// update layer type
+										
+								wp_set_object_terms( $post->ID, $term->term_id, 'layer-type', false ); 					
 							}
 						}
-					}
-					
-					if( !empty($term) ){
+						else{
+							
+							$term = $terms[0];
+						}
+							
+						if( !empty($term) ){
+							
+							$term->output = $this->get_type_output($term);
 
-						// update layer type
-								
-						wp_set_object_terms( $post->ID, $term->term_id, 'layer-type', false ); 					
+							$term->storage = $this->get_type_storage($term);
+						}
 					}
 				}
-				else{
+				
+				if( !isset($term->output) ){
 					
-					$term = $terms[0];
+					$term = new stdClass();
+					
+					$term->output 	= '';
+					$term->storage 	= '';
 				}
-					
-				if( !empty($term) ){
-					
-					if( !$term->output = get_term_meta( $term->term_id, 'output', true ) ){
-						
-						$term->output = 'inline-css';
-					}
-					
-					if( !$term->storage = get_term_meta( $term->term_id, 'default_storage', true ) ){
-						
-						$term->storage = 'user-layer';
-					}
-				}
+				
+				$this->layer_types[$post_id] = $term;
 			}
+			
+			return $this->layer_types[$post_id];
 		}
 		
-		if( !isset($term->output) ){
+		return false;
+	}
+	
+	public function get_type_output($term){
+		
+		if( !$output = get_term_meta( $term->term_id, 'output', true ) ){
 			
-			$term = new stdClass();
-			
-			$term->output 	= '';
-			$term->storage 	= '';
+			$output = 'inline-css';
 		}
 		
-		return $term;
+		return $output;
+	}
+	
+	public function get_type_storage($term){
+		
+		if( !$storage = get_term_meta( $term->term_id, 'default_storage', true ) ){
+			
+			$storage = 'user-layer';
+		}
+		
+		return $storage;
 	}
 	
 	public function get_thumbnail_url($post){
@@ -1819,6 +2160,35 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $layer_status;
 	}
 	
+	public function get_action_buttons($post,$layer_type){
+		
+		$edit_url = add_query_arg(array(
+			
+			'uri' 		=> $post->ID,
+			'action' 	=> 'edit',
+			
+		), $this->parent->urls->editor );		
+
+		$action  = '<a href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
+		
+		if( $this->is_html_output($layer_type->output) && $layer_type->output != 'canvas' && $layer_type->storage != 'user-menu' ){
+		
+			$action .= '<a href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
+		}
+		
+		$action .= '<a href="#quickRemoveTpl' . $post->ID . '" data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</a>';
+
+		$action .= '<div style="display:none;" id="quickRemoveTpl' . $post->ID . '" title="Remove Project #' . $post->ID . '">';
+			
+			$action .=  '<h4>Are you sure you want to delete this project?</h4>';						
+
+			$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->editor . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
+			
+		$action .= '</div>';
+
+		return $action;
+	}	
+	
 	public function get_user_layer_rows($request) {
 		
 		$layer_rows = [];
@@ -1834,34 +2204,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			foreach( $posts as $i => $post ){
 				
-				$layer_type = $this->get_layer_type($post);
-				
-				$edit_url = add_query_arg(array(
-					
-					'uri' 		=> $post->ID,
-					'action' 	=> 'edit',
-					
-				), $this->parent->urls->editor );
-				
-				$action  = '<a href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
-				$action .= '<a href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
-	
-				$action .= '<a href="#quickRemoveTpl' . ( $i + 1 ) . '" data-toggle="dialog" data-target="#quickRemoveTpl' . ( $i + 1 ) . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</a>';
-
-				$action .= '<div style="display:none;" id="quickRemoveTpl' . ( $i + 1 ) . '" title="Remove Template ' . ( $i + 1 ) . '">';
-					
-					$action .=  '<h4>Are you sure you want to delete this template?</h4>';						
-
-					$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->editor . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
-					
-				$action .= '</div>';				
+				$layer_type = $this->get_layer_type($post);			
 				
 				$row = [];
 				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				//$row['status'] 	= $this->parse_layer_status($post->post_status);
 				$row['type'] 		= $layer_type->name;
-				$row['action'] 		= $action;
+				$row['action'] 		= $this->get_action_buttons($post,$layer_type);
 				
 				$layer_rows[] = $row;
 			}
@@ -1886,33 +2236,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			foreach( $posts as $i => $post ){
 				
 				$layer_type = $this->get_layer_type($post);
-				
-				$edit_url = add_query_arg(array(
-					
-					'uri' 		=> $post->ID,
-					'action' 	=> 'edit',
-					
-				), $this->parent->urls->editor );
-				
-				$action  = '<a href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
-				//$action .= '<a href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
-				
-				$action .= '<a href="#quickRemoveTpl' . ( $i + 1 ) . '" data-toggle="dialog" data-target="#quickRemoveTpl' . ( $i + 1 ) . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</a>';
-
-				$action .= '<div style="display:none;" id="quickRemoveTpl' . ( $i + 1 ) . '" title="Remove Image ' . ( $i + 1 ) . '">';
-					
-					$action .=  '<h4>Are you sure you want to delete this image?</h4>';						
-
-					$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->editor . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
-					
-				$action .= '</div>';				
-				
+								
 				$row = [];
+				
 				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				//$row['status'] 	= $this->parse_layer_status($post->post_status);
 				$row['type'] 		= $layer_type->name;
-				$row['action'] 		= $action;
+				$row['action'] 		= $this->get_action_buttons($post,$layer_type);
 				
 				$psd_rows[] = $row;
 			}
@@ -1937,33 +2268,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			foreach( $posts as $i => $post ){
 				
 				$layer_type = $this->get_layer_type($post);
-				
-				$edit_url = add_query_arg(array(
-					
-					'uri' 		=> $post->ID,
-					'action' 	=> 'edit',
-					
-				), $this->parent->urls->editor );
-				
-				$action  = '<a href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
-				$action .= '<a href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
-				
-				$action .= '<a href="#quickRemoveTpl' . ( $i + 1 ) . '" data-toggle="dialog" data-target="#quickRemoveTpl' . ( $i + 1 ) . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</a>';
 
-				$action .= '<div style="display:none;" id="quickRemoveTpl' . ( $i + 1 ) . '" title="Remove Page ' . ( $i + 1 ) . '">';
-					
-					$action .=  '<h4>Are you sure you want to delete this page?</h4>';						
-
-					$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->editor . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
-					
-				$action .= '</div>';				
-				
 				$row = [];
+				
 				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				$row['type'] 		= $layer_type->name;
 				$row['status'] 		= $this->parse_layer_status($post->post_status);
-				$row['action'] 		= $action;
+				$row['action'] 		= $this->get_action_buttons($post,$layer_type);
 				
 				$page_rows[] = $row;
 			}
@@ -1988,39 +2300,30 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			foreach( $posts as $i => $post ){
 				
 				$layer_type = $this->get_layer_type($post);
-				
-				$edit_url = add_query_arg(array(
-					
-					'uri' 		=> $post->ID,
-					'action' 	=> 'edit',
-					
-				), $this->parent->urls->editor );
-				
-				$action  = '<a href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
-				$action .= '<a href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
-				
-				$action .= '<a href="#quickRemoveTpl' . ( $i + 1 ) . '" data-toggle="dialog" data-target="#quickRemoveTpl' . ( $i + 1 ) . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</a>';
 
-				$action .= '<div style="display:none;" id="quickRemoveTpl' . ( $i + 1 ) . '" title="Remove Menu ' . ( $i + 1 ) . '">';
-					
-					$action .=  '<h4>Are you sure you want to delete this menu?</h4>';						
-
-					$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->editor . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
-					
-				$action .= '</div>';				
-				
 				$row = [];
+				
 				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				$row['type'] 		= $layer_type->name;
 				$row['status'] 		= $this->parse_layer_status($post->post_status);
-				$row['action'] 		= $action;
+				$row['action'] 		= $this->get_action_buttons($post,$layer_type);
 				
 				$page_rows[] = $row;
 			}
 		}
 		
 		return $page_rows;
+	}
+	
+	public function get_default_id($id){
+		
+		if( !isset($this->default_ids[$id]) ){
+		
+			$this->default_ids[$id] = intval(get_post_meta( $id, 'defaultLayerId', true ));
+		}
+		
+		return $this->default_ids[$id];
 	}
 	
 	public function set_layer( $layer = NULL, $echo = true ){
@@ -2061,11 +2364,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( $this->is_storage ){
 					
-						$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
+						$this->defaultId = $this->get_default_id($this->id);
 					}
 					elseif( !empty($local_types) && in_array( $layer->post_type, $local_types ) ){
 						
-						$this->defaultId = intval(get_post_meta( $layer->ID, 'defaultLayerId', true));
+						$this->defaultId = $this->get_default_id($layer->ID);
 						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );							
 					}
 					else{
@@ -2080,11 +2383,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					//get layer output
 
-					$this->layerOutput = $this->defaultLayerType->output;
+					$this->layerOutput = !empty($this->defaultLayerType->output) ? $this->defaultLayerType->output : '';
 					
 					//get layer storage
 
-					$this->layerStorage = $this->defaultLayerType->storage;
+					$this->layerStorage = !empty($this->defaultLayerType->storage) ? $this->defaultLayerType->storage : '';
 					
 					if( $this->layerOutput == 'image' ){
 						
@@ -2305,7 +2608,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 								if( !empty($menu->post_status) && $menu->post_status == 'publish' ){
 									
-									$this->layerMenuDefaultId = intval(get_post_meta( $menu->ID, 'defaultLayerId', true));
+									$this->layerMenuDefaultId = $this->get_default_id($menu->ID);
 									
 									if( $this->layerMenuDefaultId > 0 ){
 											
@@ -3299,6 +3602,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $attachments;
 	}
 		
+	public function get_layer_description($layer_id,$strip=true){
+		
+		$description = get_post_meta($layer_id,'layerDescription',true);
+		
+		if( $strip === true ){
+		
+			$description = strip_tags($description);
+		}	
+
+		return $description;		
+	}
+		
 	public function get_options($taxonomy,$term,$price_currency='$'){
 		
 		if(is_array($term)){
@@ -3404,7 +3719,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 								if(!isset($this->defaultId)){
 									
-									$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
+									$this->defaultId = $this->get_default_id($this->id);
 								}
 
 								include($this->parent->views . '/layer.php');
@@ -3430,7 +3745,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						if(!isset($this->defaultId)){
 							
-							$this->defaultId = intval(get_post_meta( $this->id, 'defaultLayerId', true ));
+							$this->defaultId = $this->get_default_id($this->id);
 						}						
 
 						include($this->parent->views . '/layer.php');
@@ -4983,7 +5298,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$layer_type = $this->get_layer_type($post);
 				
-				if( $layer_type->output == 'hosted-page' || $layer_type->output == 'downloadable' ){
+				if( $this->is_hosted_output($layer_type->output) ){
 				
 					$dir = $this->dir . $post_id . '/';
 					
@@ -5057,7 +5372,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function output_layer(){
 		
 		if( !empty($this->layerOutput) ){
-		
+			
 			http_response_code(200);
 		
 			if( file_exists( $this->parent->views . '/layers/' . $this->layerOutput  . '.php' ) ){
@@ -5066,7 +5381,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			else{
 				
-				do_action( 'ltple_' . $this->layerOutput . '_layer' );
+				$layer = apply_filters( 'ltple_' . $this->layerOutput . '_layer', '' );
 			}
 			
 			do_action( 'ltple_layer_loaded', $layer );
@@ -5106,7 +5421,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		if( !empty($output) ){
 			
-			if( isset($_GET['filetree']) && ( $this->layerOutput == 'hosted-page' || $this->layerOutput == 'downloadable' ) ){
+			if( isset($_GET['filetree']) && $this->is_hosted_output($this->layerOutput) ){
 				
 				echo'<!DOCTYPE html>';
 

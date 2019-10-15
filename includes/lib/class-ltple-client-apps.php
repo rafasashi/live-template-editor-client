@@ -161,7 +161,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		if( is_admin() ){
 			
-			add_filter( 'app-type_row_actions', array($this, 'remove_app_quick_edition'), 10, 2 );				
+			add_filter( 'app-type_row_actions', array($this, 'remove_app_quick_edit'), 10, 2 );				
 			
 			// add taxonomy custom fields
 			
@@ -644,7 +644,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
         return $matches[0];
 	}
 	
-	public function remove_app_quick_edition( $actions, $term ){
+	public function remove_app_quick_edit( $actions, $term ){
 
 		//unset( $actions['edit'] );
 		unset( $actions['view'] );

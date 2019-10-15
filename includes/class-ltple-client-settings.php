@@ -165,7 +165,7 @@ class LTPLE_Client_Settings {
 		
 		$email_info['name']                 = get_bloginfo("name");
 		$email_info['description']          = get_bloginfo("description");
-		$email_info['url']                  = $this->parent->urls->editor . '?my-profile=billing-info';
+		$email_info['url']                  = $this->parent->urls->profile . '?tab=billing-info';
 		$email_info['email_sender']         = get_bloginfo("admin_email");
 		$email_info['charset']              = get_bloginfo("charset");
 		$email_info['version']              = get_bloginfo("version");
@@ -819,8 +819,8 @@ class LTPLE_Client_Settings {
 		);
 
 		$settings['stars'] = array(
-			'title'					=> __( 'Stars', $this->plugin->slug ),
-			'description'			=> __( 'Amount of stars rewarded', $this->plugin->slug ),
+			'title'					=> __( 'Ranking', $this->plugin->slug ),
+			'description'			=> __( 'Setting up the stars and ranking system', $this->plugin->slug ),
 			'fields'				=> array(
 				array(
 					'id' 			=> 'enable_ranking',
@@ -926,8 +926,7 @@ class LTPLE_Client_Settings {
 				'css-library' 		=> array( 'name' => 'CSS', 		'post-type' => 'cb-default-layer' ),
 				'js-library' 		=> array( 'name' => 'JS', 		'post-type' => 'cb-default-layer' ),
 				'font-library' 		=> array( 'name' => 'Fonts', 	'post-type' => 'cb-default-layer' ),
-				'element-library' 	=> array( 'name' => 'HTML',		'post-type' => 'cb-default-layer' ),
-				'php-library' 		=> array( 'name' => 'PHP',		'post-type' => 'cb-default-layer' ),
+				'element-library' 	=> array( 'name' => 'Elements',	'post-type' => 'cb-default-layer' ),
 			),
 			'services-apps' => array(
 			

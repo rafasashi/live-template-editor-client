@@ -26,11 +26,11 @@
 				
 				$boxes = $this->get_all_boxes();
 				
-				echo'<div id="dashboard" class="tab-content">';
+				echo'<div id="dashboard" class="tab-content row gutter-20">';
 					
 					foreach( $boxes as $box ){
 						
-						echo $this->get_widget_box($box['content'],$box['title']);
+						echo $this->get_widget_box($box);
 					}
 
 				echo'</div>';

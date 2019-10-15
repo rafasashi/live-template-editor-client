@@ -6,6 +6,8 @@
 	
 	$post_type = get_post_type_object( $this->user->layer->post_type );
 
+	$layer_type = $this->layer->get_layer_type($this->layer->id);
+	
 	// ------------- output panel --------------------
 	
 	echo'<div id="panel" class="wrapper">';
@@ -31,7 +33,7 @@
 							
 					echo '<form method="post" enctype="multipart/form-data">';
 						
-						echo'<div class="row">';
+						echo'<div class="row gutter-20">';
 							
 							echo'<div class="col-md-9">';
 								
@@ -69,7 +71,7 @@
 						
 								echo'<div class="panel panel-default">';
 									
-									if( $this->layer->is_hosted($this->user->layer) ){
+									if( $this->layer->is_public($this->user->layer) && $this->layer->is_hosted($this->user->layer) ){
 										
 										echo'<div class="panel-heading">';
 											
@@ -107,15 +109,14 @@
 										echo'</div>'; 
 										
 									echo'</div>';
-									
-								
+	
 								echo'</div>';
 							
 							echo'</div>';
 							
 						echo'</div>';
 						
-						echo'<div class="row">';
+						echo'<div class="row gutter-20">';
 							
 							echo'<div class="col-md-3 col-md-push-9">';
 							
@@ -200,33 +201,46 @@
 							
 							echo'<div class="col-md-9 col-md-pull-3">';
 								
-								// edit content
-								
-								echo'<div class="panel panel-default">';
-																		
-									echo'<div class="panel-body" style="text-align:center;">';
+								if( $tabs = $this->layer->get_project_tabs($this->user->layer,$fields) ){
+									
+									echo'<ul class="nav nav-tabs" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;height:50px;font-size:15px;font-weight:bold;">';
 										
-										/*
-										echo'<div style="background:#fbfbfb;margin-bottom:15px;padding:20px;">';
+										$class=' class="active"';
 										
-											echo'Menu';
-										
-										echo'</div>';
-										*/
-
-										echo'<div style="background:#fbfbfb;padding:140px 0;">';
-										
-											echo'<a class="btn btn-lg btn-primary" href="' . $this->urls->editor . '?uri=' . $this->user->layer->ID . '">Edit Content</a>';
-							
-										echo'</div>';
+										foreach( $tabs as $tab ){
 											
-									echo'</div>';							
+											echo'<li role="presentation"'.$class.'><a href="#'.$tab['slug'].'" aria-controls="'.$tab['slug'].'" role="tab" data-toggle="tab" aria-expanded="true">'.$tab['name'].'</a></li>';
+										
+											$class = '';
+										}
+										
+									echo'</ul>';
 
-								echo'</div>';	
+									echo'<div class="panel panel-default">';								
+									
+										echo'<div class="panel-body tab-content" style="min-height:380px;">';
+											
+											$class = ' class="tab-pane active"';
+											
+											foreach( $tabs as $tab ){
+												
+												echo '<div role="tabpanel"'.$class.' id="'.$tab['slug'].'">';
+												
+													echo $tab['content'];
+													
+												echo '</div>';
+												
+												$class = ' class="tab-pane"';
+											}
+											
+										echo'</div>';
+										
+									echo'</div>';
+								}
 								
 								// advanced metaboxes
 								
-								$this->admin->display_frontend_metaboxes($fields,$this->user->layer,'advanced');
+								//$this->admin->display_frontend_metaboxes($fields,$this->user->layer,'advanced');
 								
 							echo'</div>';
 							

@@ -69,10 +69,10 @@
 			
 			$is_pro = false;
 			
-			$period_end = intval(get_user_meta( $user_id, $this->parent->_base . 'period_end', true ));
+			$period_end = $this->parent->plan->get_license_period_end($user_id);
 			
-			$remaining_days = $period_end > 0 ? ceil( ($period_end - time()) / (60 * 60 * 24) ) : 0;		
-			
+			$remaining_days = $this->parent->plan->get_license_remaining_days($period_end);
+
 			if( $remaining_days > 0 ){
 				
 				$is_pro = true;
@@ -306,63 +306,51 @@
 		
 		public function update_periods(){
 			
-			if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
+			if( $periods = $this->parent->plan->remote_get_periods() ){
 				
-				$api_url = $this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/periods?_=' . time();
-				
-				$response = wp_remote_get( $api_url );
-				
-				if( is_array($response) && !empty($response['body']) ){
-					
-					$body = json_decode($response['body'],true);
-					
-					if( !empty($body['data']) ){
-						
-						$periods = $this->parent->ltple_decrypt_str($body['data']);
-						
-						if( !empty($periods) ){
-							
-							$periods = json_decode($periods,true);
-							
-							if( !empty($periods) && is_array($periods) ){
-								
-								// get users with subscription
+				// get users with subscription
 
-								if( $users = get_users(array(
-								
-									'meta_query'  => array(
-									
-										'relation' => 'AND',
-										
-										array(
-											'key'     	=> 'has_subscription',
-											'compare' 	=> '=',
-											'value'		=> 'true',
-										)
-									),
-									'fields' => array('id','user_email'),
-									
-								))){
-									
-									foreach( $users as $user ){
-
-										if( intval($user->id) > 1 && !empty($periods[$user->user_email]) ){
-											
-											$period_end = $periods[$user->user_email];
-											
-											update_user_meta($user->id, $this->parent->_base . 'period_end', $period_end);
-										}
-									}
-								}							
-							}
+				if( $users = get_users(array(
+				
+					'meta_query'  => array(
+					
+						'relation' => 'AND',
+						
+						array(
+							'key'     	=> 'has_subscription',
+							'compare' 	=> '=',
+							'value'		=> 'true',
+						)
+					),
+					'fields' => array('id','user_email'),
+					
+				))){
+					
+					foreach( $users as $user ){
+						
+						if( intval($user->id) > 1 && !empty($periods[$user->user_email]) ){
+							
+							$this->update_user_period($user->id,$periods[$user->user_email]);
 						}
 					}
-				}
-				else{
-					
-					dump($response);
-				}
+				}							
 			}
+		}
+		
+		public function update_user_period($user_id=0,$period_end=0){
+			
+			$user_id = intval($user_id);
+			
+			if( $user_id > 0 ){
+				
+				$period_end = intval($period_end);
+			
+				update_user_meta($user_id, $this->parent->_base . 'period_end', $period_end);
+			
+				return true;
+			}
+			
+			return false;
 		}
 		
 		public function display_user_tab() {
@@ -630,31 +618,6 @@
 			endswitch;
 		}
 		
-		public function get_user_remaining_days($user_id){
-			
-			$user_id = $this->parent->plan->get_license_holder_id($user_id);
-			
-			$days = 0;
-			
-			if( user_can( $user_id, 'administrator' ) ){
-				
-				$days = 100000000;
-			}
-			else{
-			
-				$period_end = intval(get_user_meta($user_id, $this->parent->_base . 'period_end', true ));
-				
-				if( !empty($period_end) ){
-					
-					$datediff = $period_end - time();
-					
-					$days = ceil( $datediff / (60 * 60 * 24) );					
-				}
-			}
-
-			return $days;			
-		}
-		
 		public function get_user_avatar($avatar, $user_id, $size, $alt, $args){
 
 			$avatar_url = $this->parent->image->get_avatar_url($user_id);
@@ -662,6 +625,15 @@
 			$avatar = '<img alt="" class="lazy" data-original="'.$avatar_url.'" disabled-srcset="'.$avatar_url.'" height="32" width="32" src="'.$avatar_url.'" style="border-radius:250px;">';
 
 			return $avatar;
+		}
+		
+		public function get_user_remaining_days($user_id){
+			
+			// to insure compatibility with children
+			
+			$period_end = $this->parent->plan->get_license_period_end($user_id);
+			
+			return $this->parent->plan->get_license_remaining_days($period_end);
 		}
 		
 		public function get_browser( $user_agent ) {

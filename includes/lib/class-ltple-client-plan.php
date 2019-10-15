@@ -1186,6 +1186,57 @@ class LTPLE_Client_Plan {
 		
 		return $user_plan_id;
 	}	
+	
+	public function remote_get_periods($user_email=''){
+		
+		if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
+			
+			$api_url = $this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/periods?_=' . time();
+			
+			if(!empty($user_email)){
+				
+				$api_url .= '&user=' . $this->parent->ltple_encrypt_uri($user_email);
+			}
+
+			$response = wp_remote_get( $api_url );
+			
+			if( is_array($response) && !empty($response['body']) ){
+				
+				$body = json_decode($response['body'],true);
+				
+				if( !empty($body['data']) ){
+					
+					$periods = $this->parent->ltple_decrypt_str($body['data']);
+					
+					if( !empty($periods) ){
+						
+						$periods = json_decode($periods,true);
+						
+						if( !empty($periods) && is_array($periods) ){
+							
+							return $periods;							
+						}
+					}
+				}
+			}
+			else{
+				
+				//dump($response);
+			}
+		}
+		
+		return false;
+	}
+	
+	public function remote_update_periods( $blocking = false ){
+		
+		wp_remote_request( $this->parent->urls->home . '/?ltple_update=periods', array(
+									
+			'method' 	=> 'GET',
+			'timeout' 	=> 100,
+			'blocking' 	=> $blocking
+		));		
+	}
 
 	public function update_user(){
 		
@@ -1198,6 +1249,13 @@ class LTPLE_Client_Plan {
 
 			$this->key 			= sanitize_text_field($_GET['pk']);
 			$this->subscribed 	= sanitize_text_field($_GET['pv']);
+			
+			if(session_status() == PHP_SESSION_NONE) {
+				
+				session_start();
+			}			
+			
+			$_SESSION['message'] = '';
 			
 			// subscribed plan data
 			
@@ -1219,100 +1277,105 @@ class LTPLE_Client_Plan {
 								
 								// update period end
 								
-								wp_remote_request( $this->parent->urls->home . '/?ltple_update=periods', array(
-									
-									'method' 	=> 'GET',
-									'timeout' 	=> 100,
-									'blocking' 	=> false
-								));
+								$this->remote_update_periods(false);
 								
 								// store message
 								
-								$this->message .= '<div class="alert alert-success">';
+								$_SESSION['message'] .= '<div class="alert alert-success">';
 									
-									$this->message .= 'Congratulations, you have successfully subscribed to '.$this->data['name'].'!';
+									$_SESSION['message'] .= 'Congratulations, you have successfully subscribed to <b>'.$this->data['name'].'</b>!';
 									
 									/*
-									$this->message .= '<div class="pull-right">';
+									$_SESSION['message'] .= '<div class="pull-right">';
 									
-										$this->message .= '<a class="btn-sm btn-success" href="' . $this->parent->urls->editor . '" target="_parent">Start editing</a>';
+										$_SESSION['message'] .= '<a class="btn-sm btn-success" href="' . $this->parent->urls->editor . '" target="_parent">Start editing</a>';
 								
-									$this->message .= '</div>';
+									$_SESSION['message'] .= '</div>';
 									*/
 									
-								$this->message .= '</div>';
+								$_SESSION['message'] .= '</div>';
 									
 								//Google adwords Code for subscription completed
 								
-								$this->message .='<script type="text/javascript">' . PHP_EOL;
-									$this->message .='/* <![CDATA[ */' . PHP_EOL;
-									$this->message .='var google_conversion_id = 866030496;' . PHP_EOL;
-									$this->message .='var google_conversion_language = "en";' . PHP_EOL;
-									$this->message .='var google_conversion_format = "3";' . PHP_EOL;
-									$this->message .='var google_conversion_color = "ffffff";' . PHP_EOL;
-									$this->message .='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
-									$this->message .='var google_conversion_value = '.$this->data['price'].'.00;' . PHP_EOL;
-									$this->message .='var google_conversion_currency = "USD";' . PHP_EOL;
-									$this->message .='var google_remarketing_only = false;' . PHP_EOL;
-									$this->message .='/* ]]> */' . PHP_EOL;
-								$this->message .='</script>' . PHP_EOL;
+								$_SESSION['message'] .='<script type="text/javascript">' . PHP_EOL;
+									$_SESSION['message'] .='/* <![CDATA[ */' . PHP_EOL;
+									$_SESSION['message'] .='var google_conversion_id = 866030496;' . PHP_EOL;
+									$_SESSION['message'] .='var google_conversion_language = "en";' . PHP_EOL;
+									$_SESSION['message'] .='var google_conversion_format = "3";' . PHP_EOL;
+									$_SESSION['message'] .='var google_conversion_color = "ffffff";' . PHP_EOL;
+									$_SESSION['message'] .='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
+									$_SESSION['message'] .='var google_conversion_value = '.$this->data['price'].'.00;' . PHP_EOL;
+									$_SESSION['message'] .='var google_conversion_currency = "USD";' . PHP_EOL;
+									$_SESSION['message'] .='var google_remarketing_only = false;' . PHP_EOL;
+									$_SESSION['message'] .='/* ]]> */' . PHP_EOL;
+								$_SESSION['message'] .='</script>' . PHP_EOL;
 								
-								$this->message .='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
-								$this->message .='</script>' . PHP_EOL;
+								$_SESSION['message'] .='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
+								$_SESSION['message'] .='</script>' . PHP_EOL;
 								
-								$this->message .='<noscript>' . PHP_EOL;
-									$this->message .='<div style="display:inline;">' . PHP_EOL;
-										$this->message .='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
-									$this->message .='</div>' . PHP_EOL;
-								$this->message .='</noscript>' . PHP_EOL;	
+								$_SESSION['message'] .='<noscript>' . PHP_EOL;
+									$_SESSION['message'] .='<div style="display:inline;">' . PHP_EOL;
+										$_SESSION['message'] .='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
+									$_SESSION['message'] .='</div>' . PHP_EOL;
+								$_SESSION['message'] .='</noscript>' . PHP_EOL;	
 
 								//Facebook Pixel Code for subscription completed
 								
-								$this->message .='<script>' . PHP_EOL;	
+								$_SESSION['message'] .='<script>' . PHP_EOL;	
 								
-									$this->message .='!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' . PHP_EOL;	
-									$this->message .='n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' . PHP_EOL;	
-									$this->message .='n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;' . PHP_EOL;	
-									$this->message .='t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,' . PHP_EOL;	
-									$this->message .='document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');' . PHP_EOL;	
-									$this->message .='fbq(\'init\', \'135366043652148\');' . PHP_EOL;	
-									//$this->message .='fbq(\'track\', \'PageView\');' . PHP_EOL;	
-									$this->message .='fbq(\'track\', \'Purchase\', {' . PHP_EOL;	
-										$this->message .='value: '.$this->data['price'].'.00,' . PHP_EOL;	
-										$this->message .='currency: \'USD\'' . PHP_EOL;
-									$this->message .='});' . PHP_EOL;
+									$_SESSION['message'] .='!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' . PHP_EOL;	
+									$_SESSION['message'] .='n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' . PHP_EOL;	
+									$_SESSION['message'] .='n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;' . PHP_EOL;	
+									$_SESSION['message'] .='t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,' . PHP_EOL;	
+									$_SESSION['message'] .='document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');' . PHP_EOL;	
+									$_SESSION['message'] .='fbq(\'init\', \'135366043652148\');' . PHP_EOL;	
+									//$_SESSION['message'] .='fbq(\'track\', \'PageView\');' . PHP_EOL;	
+									$_SESSION['message'] .='fbq(\'track\', \'Purchase\', {' . PHP_EOL;	
+										$_SESSION['message'] .='value: '.$this->data['price'].'.00,' . PHP_EOL;	
+										$_SESSION['message'] .='currency: \'USD\'' . PHP_EOL;
+									$_SESSION['message'] .='});' . PHP_EOL;
 									
-									$this->message .='<noscript><img height="1" width="1" style="display:none"' . PHP_EOL;	
-									$this->message .='src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"' . PHP_EOL;	
-									$this->message .='/></noscript>' . PHP_EOL;						
+									$_SESSION['message'] .='<noscript><img height="1" width="1" style="display:none"' . PHP_EOL;	
+									$_SESSION['message'] .='src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"' . PHP_EOL;	
+									$_SESSION['message'] .='/></noscript>' . PHP_EOL;						
 
-								$this->message .='</script>' . PHP_EOL;	
+								$_SESSION['message'] .='</script>' . PHP_EOL;	
 
 							}
 							else{
 								
-								$this->message .= '<div class="alert alert-success">';
+								$_SESSION['message'] .= '<div class="alert alert-success">';
 									
-									$this->message .= 'Thanks for purchasing the '.$this->data['name'].'!';
+									$_SESSION['message'] .= 'Thanks for purchasing the <b>'.$this->data['name'].'</b>!';
 
-								$this->message .= '</div>';						
+								$_SESSION['message'] .= '</div>';						
 							}
 						}
 					}
 					elseif( $this->data['fee'] > 0 ){
 						
+						$_SESSION['message'] .= '<div class="alert alert-success">';
+							
+							$_SESSION['message'] .= 'Thanks for your contribution to <b>'.$this->data['name'].'</b>!';
+
+						$_SESSION['message'] .= '</div>';								
+						
 						do_action('ltple_one_time_payment');			
 					}
-					
-					include( $this->parent->views . '/message.php' );
 				}
 			}
 			else{
 				
-				echo 'Wrong plan request...';
-				Exit;
+				$_SESSION['message'] .= '<div class="alert alert-warning">';
+									
+					$_SESSION['message'] .= 'Wrong plan request...';
+			
+				$_SESSION['message'] .= '</div>';
 			}
-		}	
+			
+			wp_redirect($this->parent->urls->editor);
+			exit;
+		}
 	}
 	
 	public function deliver_plan($plan, $user = null ){
@@ -1454,12 +1517,7 @@ class LTPLE_Client_Plan {
 				
 				// update period end
 				
-				wp_remote_request( $this->parent->urls->home . '/?ltple_update=periods', array(
-					
-					'method' 	=> 'GET',
-					'timeout' 	=> 100,
-					'blocking' 	=> false
-				));
+				$this->remote_update_periods(false);
 			}
 		}
 		
@@ -1479,7 +1537,7 @@ class LTPLE_Client_Plan {
 		
 			// send subscription summary email
 		
-			$this->parent->email->send_subscription_summary( $user, $plan['id'] );
+			//$this->parent->email->send_subscription_summary( $user, $plan['id'] );
 
 			// schedule email series
 		
@@ -1876,9 +1934,72 @@ class LTPLE_Client_Plan {
 		return $this->license_holders[$user_id];
 	}
 	
+	public function get_license_period_end($user_id){
+		
+		$period_end = 0;
+		
+		if( $user_id = $this->get_license_holder_id($user_id)){
+
+			$period_end = get_user_meta( $user_id, $this->parent->_base . 'period_end', true );
+			
+			if( !is_numeric($period_end) ){
+				
+				// remote get period end
+				
+				$user_email = $this->get_license_holder_email($user_id);
+				
+				$periods = $this->remote_get_periods($user_email);
+				
+				if( !empty($periods[$user_email]) ){
+					
+					$period_end = $periods[$user_email];
+					
+					$this->parent->users->update_user_period($user_id,$period_end);
+				
+					$user_has_subscription = 'false';
+					
+					$remaining_days = $this->get_license_remaining_days($period_end);
+					
+					if( $remaining_days > 0 ){
+						
+						$user_has_subscription = 'true';
+					}
+					
+					update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
+				}				
+			}
+			
+			$period_end = intval($period_end);
+		}
+		
+		return $period_end;
+	}
+	
+	public function get_license_key($user_email){
+		
+		return implode('-', str_split(strtoupper(md5($user_email)), 4));
+	}
+	
+	public function get_license_remaining_days($period_end){
+		
+		$remaining_days = 0;
+		
+		if( !empty($period_end) ){
+		
+			$remaining_days = $period_end > 0 ? ceil( ($period_end - time()) / (60 * 60 * 24) ) : 0;		
+		}
+		
+		return $remaining_days;
+	}
+	
 	public function get_license_holder_email($user){
 		
 		$license_holder_email = null;
+		
+		if( is_numeric($user) ){
+			
+			$user = get_user_by('id',$user);
+		}
 		
 		if( !empty($user->ID) ){
 			

@@ -292,7 +292,7 @@ class LTPLE_Client_Profile {
 				}
 				elseif( $this->parent->layer->is_hosted($this->post->post_type) ){
 				
-					$this->post->post_content = strip_tags(get_post_meta($this->post->ID,'layerDescription',true));
+					$this->post->post_content = $this->parent->layer->get_layer_description($this->post->ID);
 				}
 				
 				// get post excerpt

@@ -34,20 +34,20 @@ class LTPLE_Client_Json_API {
 		return $url;
 	}
 	
-	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar', $card=false, $itemHeight=235 ){
-						
+	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar', $card=false, $itemHeight=235, $fixedHeight=true, $echo=true ){
+		//$pagination = false;			
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );
 		
 		$responsive = ( $card ? false : true );
 
-		echo'<style>';
+		$table = '<style>';
 			
 			if(!$show_toolbar){
 				
-				echo'#'.$toolbar.'{display:none;}';
+				$table .= '#'.$toolbar.'{display:none;}';
 			}
 			
-			echo'
+			$table .= '
 			
 			#table, .fixed-table-loading {
 				
@@ -60,39 +60,52 @@ class LTPLE_Client_Json_API {
 				overflow-y: auto;
 				overflow-x: hidden;
 				display:block;
-			}
-
-			.fixed-table-pagination{
-				
-				padding: 0px 15px;
-				border-top: none;
-				border-bottom: none;
-				background: #fbfbfb;
-				min-height: 54px;
-			}
+			}';
 			
-			.pagination-info {
-				
-				display:none;
-			}
-
-			.page-list .btn {
-				
-				padding: 5px 10px;
-			}
+			if( $pagination === true ){
 			
-			';
-
-			if( $card ){
-					
-				echo'
+				$table .= '
 				
-				tbody {
+				.bootstrap-table{
 					
-					height:calc( 100vh - 100px);
+					position: relative;
+					height: calc( 100vh - 42px );					
+				}
+			
+				.fixed-table-pagination{
+					
+					padding: 0px 15px;
+					border-top: none;
+					border-bottom: none;
+					background: #fbfbfb;
+					min-height: 54px;
+					bottom: 0;
+					right: 0;
+					left: 0;
+					position: absolute;
+				}
+				
+				.pagination-info {
+					
+					display:none;
 				}
 
-				tr {
+				.page-list .btn {
+					
+					padding: 5px 10px;
+				}
+				
+				';
+			}
+
+			if( $card !== false ){
+					
+				$table .= 'tbody {
+					
+					height:calc( 100vh - 100px);
+				}';
+
+				$table .= 'tr {
 					
 					float: left;
 					margin: 0;
@@ -105,39 +118,78 @@ class LTPLE_Client_Json_API {
 					overflow: hidden;
 					background-color: transparent !important;
 					box-shadow: none;
-					position:relative;					
-				}
+					position:relative;		
+					display:inline-block !important;
+				}';
 				
-				@media (min-width: 768px) {
+				$table .= '@media (min-width: 768px) {';
 					
-					tbody {
+					$table .= 'tbody {
 						
 						height:calc( 100vh - ' . ( $this->parent->inWidget ?  100 : 190 ) . 'px);				
-					}					
+					}';				
 					
-					tr {
+					$table .= 'tr {';
+					
+						if( $card === true || $card == 2 || $card == 4 ){
+							
+							$table .= 'width: 50%; /*sm-6*/';
+						}
+						elseif( $card == 1 ){
+							
+							$table .= 'width: 100%; /*lg-12*/';
+						}
 						
-						width: 50%; /*sm-6*/
-					}
-				}
+					$table .= '}';
+					
+				$table .= '}';
 				
-				@media (min-width: 992px) {
+				$table .= '@media (min-width: 992px) {';
 					
-					tr {
+					$table .= 'tr {';
 						
-						width: 33.33333333%; /*md-4*/
-					}
-				}
+						if( $card === true || $card == 4 ){
+						
+							$table .= 'width: 33.33333333%; /*md-4*/';
+						
+						}
+						elseif( $card == 2 ){
+						
+							$table .= 'width: 50%; /*md-6*/';
+						
+						}
+						elseif( $card == 1 ){
+							
+							$table .= 'width: 100%; /*lg-12*/';
+						}
+						
+					$table .= '}';
+					
+				$table .= '}';
 				
-				@media (min-width: 1200px) {
+				$table .= '@media (min-width: 1200px) {';
 					
-					tr {
+					$table .= 'tr {';
 						
-						width: 33.33333333%;; /*lg-4*/
-					}					
-				}
+						if( $card === true || $card == 4 ){
+						
+							$table .= 'width: 33.33333333%; /*lg-4*/';
+						}
+						elseif( $card == 2 ){
+						
+							$table .= 'width: 50%; /*md-6*/';
+						
+						}
+						elseif( $card == 1 ){
+							
+							$table .= 'width: 100%; /*lg-12*/';
+						}
+						
+					$table .= '}';
+					
+				$table .= '}';
 
-				td {
+				$table .= 'td {
 					
 					border:none !important;
 					left: 0;
@@ -145,42 +197,26 @@ class LTPLE_Client_Json_API {
 					top: 0;
 					bottom: 0;
 					position: absolute;
-					min-height: '.($itemHeight - 10 ).'px;
-				}
+					min-height: ' . ( $itemHeight - 10 ) . 'px;
+					
+				}';
 			
-				.card-view .title {
+				$table .= '.card-view .title {
 					
 					display:none !important;
-				}
-				
-				';
+					
+				}';
 			
 			}
 			else{
 				
-				echo'
+				$table .= '
 				
 				thead, tbody tr {
+					
 					display:table;
 					width:100%;
 					table-layout:fixed;/* even columns width , fix width of table too*/
-				}
-				
-				thead {
-					width: calc( 100% - 6px );
-				}
-					
-				tbody {
-					
-					height:calc( 100vh - 100px);
-				}
-				
-				@media (min-width: 768px) {
-					
-					tbody {
-						
-						height:calc( 100vh - 230px);				
-					}
 				}
 				
 				td {
@@ -189,99 +225,130 @@ class LTPLE_Client_Json_API {
 				}
 				
 				';
+				
+				if( $fixedHeight === true ){
+					
+					$table .= '
+					
+					thead {
+						width: calc( 100% - 6px );
+					}					
+					
+					tbody {
+						
+						height:calc( 100vh - 100px);
+					}
+					
+					@media (min-width: 768px) {
+						
+						tbody {
+							
+							height:calc( 100vh - 230px);				
+						}
+					}';
+				}
 			}
 			
-		echo'</style>';
+		$table .= '</style>';
 		
 		if($form){
 		
-			echo '<form id="tableForm" action="' . $this->parent->urls->current . '" method="post">';
+			$table .=  '<form id="tableForm" action="' . $this->parent->urls->current . '" method="post">';
 		}
 	
-		echo '<div id="'.$toolbar.'" class="btn-group">';
+		$table .=  '<div id="'.$toolbar.'" class="btn-group">';
 			
 			/*
-			echo '<button id="add" type="button" class="btn btn-default">';
-				echo '<i class="glyphicon glyphicon-plus"></i>';
-			echo '</button>';
+			$table .=  '<button id="add" type="button" class="btn btn-default">';
+				$table .=  '<i class="glyphicon glyphicon-plus"></i>';
+			$table .=  '</button>';
 			
-			echo '<button id="like" type="button" class="btn btn-default">';
-				echo '<i class="glyphicon glyphicon-heart"></i>';
-			echo '</button>';
+			$table .=  '<button id="like" type="button" class="btn btn-default">';
+				$table .=  '<i class="glyphicon glyphicon-heart"></i>';
+			$table .=  '</button>';
 			*/
 			
 			if($trash){
 			
-				echo '<button id="trash" type="button" class="btn btn-default">';
-					echo '<i class="glyphicon glyphicon-trash"></i>';
-				echo '</button>';
+				$table .=  '<button id="trash" type="button" class="btn btn-default">';
+					$table .=  '<i class="glyphicon glyphicon-trash"></i>';
+				$table .=  '</button>';
 			}
 			
 			if($export){
 			
-				echo '<button id="export" class="btn btn-default">';
+				$table .=  '<button id="export" class="btn btn-default">';
 				
-					echo '<i class="glyphicon glyphicon-export"></i>';
+					$table .=  '<i class="glyphicon glyphicon-export"></i>';
 					
-				echo '</button>';
+				$table .=  '</button>';
 			}
 			
-		echo '</div>';
+		$table .=  '</div>';
 		
-		echo '<table id="table" class="table table-striped" style="border:none;background:transparent;" ';
-			echo 'data-toggle="table" ';
-			//echo 'data-height="400" ';
-			echo 'data-url="' . $api_url . '" ';
-			echo 'data-pagination="'.( $pagination ? 'true' : 'false' ).'" ';
+		$table .=  '<table id="table" class="table table-striped" style="border:none;background:transparent;" ';
+			$table .=  'data-toggle="table" ';
+			//$table .=  'data-height="400" ';
+			$table .=  'data-url="' . $api_url . '" ';
+			$table .=  'data-pagination="'.( $pagination ? 'true' : 'false' ).'" ';
 			/*
 			if( $pagination == 'true' ){
 				
-				echo 'data-pagination-v-align="both" ';
+				$table .=  'data-pagination-v-align="both" ';
 			}
 			*/
-			//echo 'data-side-pagination="server" ';
-			echo 'data-page-size="20" ';
-			echo 'data-page-list="[20, 50, 100, 200, 500]" ';					
-			echo 'data-search="'.( $search ? 'true' : 'false' ).'" ';
-			echo 'data-show-header="'.( $header ? 'true' : 'false' ).'" ';
-			echo 'data-show-toggle="'.( $toggle ? 'true' : 'false' ).'" ';
-			echo 'data-show-columns="'.( $columns ? 'true' : 'false' ).'" ';
-			echo 'data-show-export="'.( $export ? 'true' : 'false' ).'" ';
-			echo 'data-show-refresh="true" ';
-			echo 'data-buttons-class="primary" ';
-			echo 'data-card-view="'.( $card ? 'true' : 'false' ).'" ';
-			echo 'data-mobile-responsive="'.( $responsive ? 'true' : 'false' ).'" ';
-			echo 'data-filter-control="true" ';
-			//echo 'data-sort-order="desc" ';   
-			//echo 'data-sort-name="description" ';
-			echo ( $show_toolbar ? 'data-toolbar="#'.$toolbar.'" ' : '' );
-		echo '>';
-			echo '<thead>';
-			echo '<tr>';
+			//$table .=  'data-side-pagination="server" ';
+			$table .=  'data-page-size="20" ';
+			$table .=  'data-page-list="[20, 50, 100, 200, 500]" ';					
+			$table .=  'data-search="'.( $search ? 'true' : 'false' ).'" ';
+			$table .=  'data-show-header="'.( $header ? 'true' : 'false' ).'" ';
+			$table .=  'data-show-toggle="'.( $toggle ? 'true' : 'false' ).'" ';
+			$table .=  'data-show-columns="'.( $columns ? 'true' : 'false' ).'" ';
+			$table .=  'data-show-export="'.( $export ? 'true' : 'false' ).'" ';
+			$table .=  'data-show-refresh="true" ';
+			$table .=  'data-buttons-class="primary" ';
+			$table .=  'data-card-view="'.( $card ? 'true' : 'false' ).'" ';
+			$table .=  'data-mobile-responsive="'.( $responsive ? 'true' : 'false' ).'" ';
+			$table .=  'data-filter-control="true" ';
+			//$table .=  'data-sort-order="desc" ';   
+			//$table .=  'data-sort-name="description" ';
+			$table .=  ( $show_toolbar ? 'data-toolbar="#'.$toolbar.'" ' : '' );
+		$table .=  '>';
+			$table .=  '<thead>';
+			$table .=  '<tr>';
 			
 				foreach($fields as $field){
 					
-					echo '<th ';
+					$table .=  '<th ';
 					
 						foreach($field as $key => $value){
 							
 							if( $key!= 'content' ){
 								
-								echo 'data-'.$key.'="'.$value.'" ';
+								$table .=  'data-'.$key.'="'.$value.'" ';
 							}
 						}
 						
-					echo '>'.(!empty($field['content']) ? $field['content'] : '').'</th>';				
+					$table .=  '>'.(!empty($field['content']) ? $field['content'] : '').'</th>';				
 				}
 
-			echo '</tr>';
-			echo '</thead>';
+			$table .=  '</tr>';
+			$table .=  '</thead>';
 			
-		echo '</table>';
+		$table .=  '</table>';
 
 		if($form){	
 		
-			echo '</form>';
+			$table .=  '</form>';
+		}
+		
+		if($echo){
+			
+			echo $table;
+		}
+		else{
+			
+			return $table;
 		}
 	}
 	

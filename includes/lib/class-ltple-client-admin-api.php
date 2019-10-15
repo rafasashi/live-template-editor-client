@@ -1535,7 +1535,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</div>';
 
 				break;
-
+				/*
 				case 'license':
 					
 					if( !empty($data) ){
@@ -1563,7 +1563,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					echo '</p>';				
 						 
 				break;				
-				
+				*/
 				case 'radio':
 					
 					$i = 0;

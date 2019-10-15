@@ -56,7 +56,7 @@ class LTPLE_Client_Gallery {
 		return false;
 	}
 	
-	public function get_meta_query(){
+	public function get_meta_query($addon_range){
 		
 		$meta_query = [];
 		
@@ -64,7 +64,7 @@ class LTPLE_Client_Gallery {
 			
 			
 		}
-
+		
 		return $meta_query;
 	}
 	
@@ -246,7 +246,7 @@ class LTPLE_Client_Gallery {
 		
 		// get layer ranges
 		
-		$meta_query = $this->get_meta_query();
+		$meta_query = $this->get_meta_query($addon_range);
 		
 		$tax_query = array('relation'=>'AND');
 		
@@ -391,7 +391,7 @@ class LTPLE_Client_Gallery {
 		
 		if( !empty($layer_range) ){
 			
-			$meta_query = $this->get_meta_query();
+			$meta_query = $this->get_meta_query($addon_range);
 			
 			$tax_query = array('relation'=>'AND');
 
@@ -426,7 +426,7 @@ class LTPLE_Client_Gallery {
 					'operator'			=> 'IN'
 				);					
 			}
-			
+
 			$args = array( 
 			
 				'post_type' 	=> 'cb-default-layer', 
@@ -434,6 +434,8 @@ class LTPLE_Client_Gallery {
 				'meta_query' 	=> $meta_query,
 				
 			);
+			
+			//dump($args);
 
 			if( $paginated ){
 				
@@ -675,7 +677,7 @@ class LTPLE_Client_Gallery {
 
 							$item.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 								
-								$item.='<div class="modal-dialog modal-lg" style="width:95% !important;" role="document">'.PHP_EOL;
+								$item.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 									
 									$item.='<div class="modal-content">'.PHP_EOL;
 									

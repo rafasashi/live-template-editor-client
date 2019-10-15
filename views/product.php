@@ -123,7 +123,7 @@
 								
 								echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 									
-									echo'<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+									echo'<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 										
 										echo'<div class="modal-content">'.PHP_EOL;
 										

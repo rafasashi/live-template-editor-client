@@ -136,8 +136,12 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			
 			#table {
 				
-				width:60%;
 				float:left;
+			}
+			
+			#table, .fixed-table-pagination {
+				
+				width:60%;
 			}
 			
 			#table td {
@@ -529,64 +533,60 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 							
 								$item.='<button class="glyphicon glyphicon-option-vertical dropdown-toggle" style="border:none;background:transparent;padding:5px;border-radius:30px;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" aria-hidden="true"></button>';
 
-								//$item.='<div class="dropup">';
-								
-									$item.='<ul class="dropdown-menu dropdown-menu-right" style="background:#fff;">';
-										
-										// effects button
-										
-										$editor_url = $this->parent->server->url . '/c/p/live-effect-editor-dependencies/?url=' . urlencode($image_url);
-										
-										$modal_id='modal_'.md5($editor_url);
-										
-										$btnStyle='color:#182f42;border-bottom: 1px solid #eee;border-right: none;border-left: none;border-top: none;width: 100%;text-align: left;padding: 10px 20px;background: #fff;';
-										
-										$item.='<li style="position:relative;">';
-	
-											$item.='<button style="'.$btnStyle.'" type="button" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
-												
-												$item.='<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> '.PHP_EOL;
-												
-												$item.='Effects'.PHP_EOL;
+								$item.='<ul class="dropdown-menu dropdown-menu-right" style="background:#fff;">';
+									
+									// effects button
+									
+									$editor_url = $this->parent->server->url . '/c/p/live-effect-editor-dependencies/?url=' . urlencode($image_url);
+									
+									$modal_id='modal_'.md5($editor_url);
+									
+									$btnStyle='color:#182f42;border-bottom: 1px solid #eee;border-right: none;border-left: none;border-top: none;width: 100%;text-align: left;padding: 10px 20px;background: #fff;';
+									
+									$item.='<li style="position:relative;">';
+
+										$item.='<button style="'.$btnStyle.'" type="button" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 											
-											$item.='</button>'.PHP_EOL;
+											$item.='<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> '.PHP_EOL;
+											
+											$item.='Effects'.PHP_EOL;
+										
+										$item.='</button>'.PHP_EOL;
 
-											$item.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+										$item.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+											
+											$item.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 												
-												$item.='<div class="modal-dialog modal-lg" style="width:100% !important;margin:0;top:0;bottom:0;left:0;right:0;position:absolute;" role="document">'.PHP_EOL;
-													
-													$item.='<div class="modal-content">'.PHP_EOL;
-													
-														$item.='<div class="modal-header">'.PHP_EOL;
-															
-															$item.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-															
-															$item.='<h4 class="modal-title text-left" id="myModalLabel">Image Effects</h4>'.PHP_EOL;
+												$item.='<div class="modal-content">'.PHP_EOL;
+												
+													$item.='<div class="modal-header">'.PHP_EOL;
 														
-														$item.='</div>'.PHP_EOL;
-
-														$item.= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
-
-														$item.= '<iframe data-src="'.$editor_url.'" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';
-
-													$item.='</div>'.PHP_EOL;
+														$item.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+														
+														$item.='<h4 class="modal-title text-left" id="myModalLabel">Image Effects</h4>'.PHP_EOL;
 													
+													$item.='</div>'.PHP_EOL;
+
+													$item.= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
+
+													$item.= '<iframe data-src="'.$editor_url.'" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';
+
 												$item.='</div>'.PHP_EOL;
 												
 											$item.='</div>'.PHP_EOL;
+											
+										$item.='</div>'.PHP_EOL;
 
-										$item.='</li>';
-										
-										$item.='<li style="position:relative;">';
-										
-											$item.='<a href="' . $this->parent->urls->editor . '?uri=' . $image->ID . '&quick" style="color:#182f42;border-bottom:1px solid #eee;"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit <span class="label label-primary" style="top:8px;position:absolute;right:15px;">advanced</span></a>';
-										
-										$item.='</li>';
-										
-									$item.='</ul>';
+									$item.='</li>';
 									
-								//$item.='</div>';
-								
+									$item.='<li style="position:relative;">';
+									
+										$item.='<a href="' . $this->parent->urls->editor . '?uri=' . $image->ID . '&quick" style="color:#182f42;border-bottom:1px solid #eee;"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit <span class="label label-primary" style="top:8px;position:absolute;right:15px;">advanced</span></a>';
+									
+									$item.='</li>';
+									
+								$item.='</ul>';
+
 							$item.='</div>';
 							
 						$item.='</div>';	

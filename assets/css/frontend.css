@@ -18,7 +18,7 @@
     margin-left: -220px !important;
 }
 
-#ltple-wrapper #sidebar .glyphicon  {
+#ltple-wrapper #sidebar .glyphicon, #ltple-wrapper #sidebar .fa  {
 	color: #4276a0;
     margin-right:10px;
 }
@@ -192,6 +192,18 @@ th input, th select {
 	border-radius: 0 !important;	
 }
 
+.modal-full{
+
+	width:100% !important;
+	height: 100vh !important;
+	margin:0;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+	position:absolute;
+}
+
 @media (min-width: 992px){
 	
 	.modal-lg {
@@ -246,13 +258,25 @@ th input, th select {
     background: rgb(249, 249, 249);
 }
 
-.library-content .nav {
+.library-content .nav-pills {
 	
     margin: -15px -15px 0 -15px;
     background: rgb(242, 242, 242);
     padding: 0px;
     font-size: 12px;
     overflow: visible !important;
+    height: 41px;
+    border-bottom: 1px solid #ddd;
+	text-transform: uppercase;
+}
+
+.library-content .nav-tabs {
+	
+    margin: -15px -15px 0 -15px;
+    background: rgb(242, 242, 242);
+    padding: 0px;
+    font-size: 12px;
+    overflow: hidden !important;
     height: 41px;
     border-bottom: 1px solid #ddd;
 	text-transform: uppercase;

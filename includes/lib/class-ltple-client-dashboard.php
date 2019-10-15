@@ -51,25 +51,8 @@ class LTPLE_Client_Dashboard {
 		
 		if( is_null($this->all_boxes) ){
 		
-			$boxes = array(
+			$this->all_boxes = apply_filters('ltple_dashboard_boxes',array(
 			
-				'new_templates' => array(
-				
-					'title' 	=> 'New Templates',
-					'content' 	=> $this->get_recent_posts(array(
-						
-						'post_type' 	=> 'cb-default-layer',
-						'numberposts' 	=> 10,
-						'meta_query' 	=> array(
-						
-							array(
-								'key' 			=> 'layerVisibility',
-								'value' 		=> 'assigned',
-								'compare' 		=> '!=',
-							)
-						),
-					)),
-				),
 				'last_articles' => array(
 				
 					'title' 	=> 'Last Articles',
@@ -79,13 +62,18 @@ class LTPLE_Client_Dashboard {
 						'numberposts' 	=> 10,
 						
 					)),
-				),					
-			
-			);
-			
-			$boxes = apply_filters('ltple_dashboard_boxes',$boxes);
-			
-			$this->all_boxes = $boxes;
+				),
+				'new_templates' => array(
+				
+					'title' 	=> 'New in Gallery',
+					'content' 	=> $this->get_new_templates(10),
+				),
+				'saved_projects' => array(
+				
+					'title' 	=> 'Saved Projects',
+					'content' 	=> $this->get_saved_projects(20),
+				),
+			));
 		}
 		
 		return $this->all_boxes;
@@ -105,28 +93,32 @@ class LTPLE_Client_Dashboard {
 		}
 	}
 	
-	public function get_widget_box($content,$title='',$class='col-xs-12 col-sm-6 col-md-4'){
+	public function get_widget_box($box){
+		
+		$title 		= $box['title'];
+		$content 	= $box['content'];
+		$class		= !empty($box['class']) ? $box['class'] : 'col-xs-12 col-sm-12 col-md-4';
 		
 		$widget_box = '';
 		
-		if(!empty($content)){
-		
-			$widget_box .= '<div class="'.$class.'">';
-				
-				$widget_box .= '<h4 style="border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:10px;color:#888;">'.$title.'</h4>';				
-				
-				$widget_box .= '<div class="panel panel-default" style="padding:10px !important;">';
-				
-					$widget_box .= '<div class="panel-body" style="padding:0 !important;height:310px !important;overflow-x:hidden !important;overflow-y:auto !important;">';
-						
+		$widget_box .= '<div class="'.$class.'">';
+			
+			$widget_box .= '<h4 style="border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:10px;color:#888;">'.$title.'</h4>';				
+			
+			$widget_box .= '<div class="panel panel-default" style="padding:10px !important;">';
+			
+				$widget_box .= '<div class="panel-body" style="padding:0 !important;height:310px !important;overflow-x:hidden !important;overflow-y:auto !important;">';
+					
+					if(!empty($content)){
+					
 						$widget_box .= $content;
-						
-					$widget_box .= '</div>';
+					}
 					
 				$widget_box .= '</div>';
 				
 			$widget_box .= '</div>';
-		}
+			
+		$widget_box .= '</div>';
 		
 		return $widget_box;
 	}
@@ -153,14 +145,7 @@ class LTPLE_Client_Dashboard {
 		
 			foreach( $posts as $post ){
 				
-				if( $post->post_type == 'cb-default-layer' ){
-					
-					$permalink = $this->parent->urls->product . $post->ID . '/';
-				}
-				else{
-				
-					$permalink = get_permalink($post);
-				}
+				$permalink = get_permalink($post);
 				
 				$recent_posts .= '<div class="media">';
 				
@@ -169,8 +154,15 @@ class LTPLE_Client_Dashboard {
 						$recent_posts .= '<div class="media-object" style="width:50px;">';
 							
 							$recent_posts .= '<a href="'. $permalink . '/">';
-						
-								$recent_posts .= get_the_post_thumbnail($post->ID, array(150,150));
+								
+								$thumbnail_url = get_the_post_thumbnail($post->ID, array(50,50));
+								
+								if( empty($thumbnail_url) ){
+									
+									$thumbnail_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:top center;width: 50px;height: 50px;display:block;"></div>';
+								}
+								
+								$recent_posts .= $thumbnail_url;
 						
 							$recent_posts .='</a>';													
 							
@@ -191,42 +183,228 @@ class LTPLE_Client_Dashboard {
 		return $recent_posts;
 	}
 	
+	public function get_new_templates( $number = 10 ){
+		
+		$new_templates = '';
+		
+		if( $posts = get_posts(array(
+						
+			'post_type' 	=> 'cb-default-layer',
+			'post_status' 	=> array('publish'),
+			'numberposts' 	=> $number,
+			'orderby' 		=> 'post_date',
+			'order' 		=> 'DESC',
+			'meta_query' 	=> array(
+			
+				array(
+					'key' 			=> 'layerVisibility',
+					'value' 		=> 'assigned',
+					'compare' 		=> '!=',
+				)
+			),
+		))){
+		
+			foreach( $posts as $post ){
+				
+				// get edit url
+				
+				$permalink = $this->parent->urls->product . $post->ID . '/';
+
+				// get image url
+				
+				$image_url = get_the_post_thumbnail($post->ID, array(50,50));
+				
+				if( empty($image_url) ){
+					
+					$image_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:top center;width: 50px;height: 50px;display:block;"></div>';
+				}
+				
+				// get layer type
+				
+				$layer_type = $this->parent->layer->get_layer_type($post->ID);
+				
+				// get content
+				
+				$new_templates .= '<div class="media">';
+				
+					$new_templates .= '<div class="media-left">';
+						
+						$new_templates .= '<div class="media-object" style="width:50px;">';
+							
+							$new_templates .= '<a href="'. $permalink . '">';
+						
+								$new_templates .= $image_url;
+						
+							$new_templates .='</a>';													
+							
+						$new_templates .= '</div>';
+						
+					$new_templates .= '</div>';
+					
+					$new_templates .= '<div class="media-body">';
+				
+						$new_templates .= '<a href="'.$permalink.'">';
+						
+							$new_templates .= '' . $post->post_title . '';
+							
+							$new_templates .= '<br><span class="label" style="color:' . $this->parent->settings->mainColor . ';border:1px solid ' . $this->parent->settings->mainColor . ';font-size:10px;">' . $layer_type->name . '</span>';
+						
+						$new_templates .= '</a>';
+						
+					$new_templates .= '</div>';
+					
+				$new_templates .= '</div>';
+			}
+		}
+
+		return $new_templates;
+	}	
+	
+	public function get_saved_projects( $number = 10 ){
+		
+		$saved_projects = '';
+		
+		if( $posts = get_posts(array(
+			
+			'post_type' 	=> array_keys($this->parent->layer->get_storage_types()),
+			'author' 		=> $this->parent->user->ID,
+			'numberposts' 	=> $number,
+			'post_status' 	=> array('publish','draft'),
+			'orderby' 		=> 'post_date',
+			'order' 		=> 'DESC',
+		))){
+		
+			foreach( $posts as $post ){
+				
+				// get edit url
+				
+				$edit_url = $this->parent->urls->editor . '?uri=' . $post->ID . '&action=edit';
+				
+				// get default id
+				
+				$default_id = $this->parent->layer->get_default_id($post->ID);
+				
+				// get image url
+				
+				$image_url = get_the_post_thumbnail($post->ID, array(50,50));
+				
+				if( empty($image_url) ){
+					
+					$image_url = get_the_post_thumbnail($default_id, array(50,50));
+				
+					if( empty($image_url) ){
+						
+						$image_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:top center;width: 50px;height: 50px;display:block;"></div>';
+					}
+				}
+				
+				// get layer type
+				
+				$layer_type = $this->parent->layer->get_layer_type($default_id);
+				
+				// get content
+				
+				$saved_projects .= '<div class="media">';
+				
+					$saved_projects .= '<div class="media-left">';
+						
+						$saved_projects .= '<div class="media-object" style="width:50px;">';
+							
+							$saved_projects .= '<a href="'. $edit_url . '">';
+						
+								$saved_projects .= $image_url;
+						
+							$saved_projects .='</a>';													
+							
+						$saved_projects .= '</div>';
+						
+					$saved_projects .= '</div>';
+					
+					$saved_projects .= '<div class="media-body">';
+				
+						$saved_projects .= '<a href="'.$edit_url.'">';
+						
+							$saved_projects .= '' . $post->post_title . '';
+							
+							$saved_projects .= '<br><span class="label" style="color:' . $this->parent->settings->mainColor . ';border: 1px solid ' . $this->parent->settings->mainColor . ';font-size:10px;">' . $layer_type->name . '</span>';
+						
+						$saved_projects .= '</a>';
+						
+					$saved_projects .= '</div>';
+					
+				$saved_projects .= '</div>';
+			}
+		}
+
+		return $saved_projects;
+	}
+		
 	public function get_sidebar( $currentTab = 'home', $output = '' ){
 			
+		$storage_count = $this->parent->layer->count_layers_by('storage');
+		
 		$sidebar =  '<div id="sidebar">';
 				
 			$sidebar .= '<div class="gallery_type_title gallery_head">Dashboard</div>';
 
-			$sidebar .= '<ul class="nav nav-tabs tabs-left" style="height:calc(100vh - 105px);overflow-x:hidden;overflow-y:auto;">';
+			$sidebar .= '<ul class="nav nav-tabs tabs-left">';
+				
+				// manage section
+				
+				$manage_section = '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '"><span class="glyphicon glyphicon-dashboard"></span> Overview</a></li>';
+				
+				$manage_section .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->profile .'"><span class="glyphicon glyphicon-cog"></span> Profile Settings</a></li>';
+				
+				$manage_section .= '<li><a href="' . $this->parent->urls->media .'user-images/"><span class="glyphicon glyphicon-folder-close"></span> Media Library</a></li>';
+				
+				$manage_section = apply_filters('ltple_dashboard_manage_sidebar',$manage_section,$currentTab,$output);
+				
+				if( !empty($manage_section) ){
+					
+					$sidebar .= '<li class="gallery_type_title">Manage</li>';
+					
+					$sidebar .= $manage_section;
+				}
+				
+				// edit section 
+				
+				if( !empty($storage_count['user-layer']) ){
+				
+					$edit_section = '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
+				}
+				
+				if( !empty($storage_count['user-psd']) ){
+				
+					$edit_section .= '<li'.( ( $currentTab == 'user-psd' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Graphic Designs</a></li>';
+				}
+				
+				$edit_section = apply_filters('ltple_dashboard_design_sidebar',$edit_section,$currentTab,$output);
+				
+				if( !empty($edit_section) ){
+					
+					$sidebar .= '<li class="gallery_type_title">Edit</li>';
+					
+					$sidebar .= $edit_section;
+				}
+				
+				// publish section
+				
+				if( !empty($storage_count['user-page']) ){
+				
+					$publish_section = '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->editor . '?list=user-page"><span class="glyphicon glyphicon-file"></span> Web Pages</a></li>';
+				}
+				
+				$publish_section = apply_filters('ltple_dashboard_publish_sidebar',$publish_section,$currentTab,$output);
 
-				$sidebar .= '<li class="gallery_type_title">Manage</li>';
-				
-				$sidebar .= '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '"><span class="glyphicon glyphicon-dashboard"></span> Overview</a></li>';
-				
-				$sidebar .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->profile .'"><span class="glyphicon glyphicon-cog"></span> Profile Settings</a></li>';
-				
-				$sidebar .= '<li><a href="' . $this->parent->urls->media .'user-images/"><span class="glyphicon glyphicon-folder-close"></span> Media Library</a></li>';
-				
-				$sidebar = apply_filters('ltple_dashboard_manage_sidebar',$sidebar,$currentTab,$output);
-				
-				$sidebar .= '<li class="gallery_type_title">Edit</li>';
-				
-				$sidebar .= '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
-				
-				$sidebar .= '<li'.( ( $currentTab == 'user-psd' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Graphic Designs</a></li>';
-				
-				//$sidebar .= '<li><a href="' . $this->parent->urls->editor . '?layer[output]=canvas">Memes & Collages</a></li>';
-				
-				//$sidebar .= '<li><a href="' . $this->parent->urls->media . '">Media Library</a></li>';
-				
-				$sidebar = apply_filters('ltple_dashboard_design_sidebar',$sidebar,$currentTab,$output);
-
+				if( !empty($publish_section) ){
+	
 					$sidebar .= '<li class="gallery_type_title">Publish</li>';
-							
-					$sidebar .= '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->editor . '?list=user-page"><span class="glyphicon glyphicon-file"></span> Web Pages</a></li>';
+					
+					$sidebar .= $publish_section;
+				}
 				
-				$sidebar = apply_filters('ltple_dashboard_publish_sidebar',$sidebar,$currentTab,$output);
-
+				// addon sections
+				
 				$sidebar = apply_filters('ltple_dashboard_sidebar',$sidebar,$currentTab,$output);
 				
 			$sidebar .= '</ul>';

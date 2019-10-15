@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: Live Template Editor Client
- * Version: 1.1.1
+ * Version: 1.1.2
  * Plugin URI: https://github.com/rafasashi
  * Description: Live Template Editor allows you to edit and save HTML5 and CSS3 templates.
  * Author: Rafasashi
@@ -66,6 +66,11 @@
 			
 			$instance = LTPLE_Client::instance( __FILE__, $version );
 			
+			if ( is_null( $instance->filesystem ) ) {
+				
+				$instance->filesystem = LTPLE_Client_File_System::instance( $instance );
+			}			
+			
 			if ( is_null( $instance->settings ) ) {
 				
 				$instance->settings = LTPLE_Client_Settings::instance( $instance );
@@ -76,5 +81,5 @@
 		
 		// start plugin
 	
-		LTPLE_Client( '1.4.8.5' );
+		LTPLE_Client( '1.4.8.8' );
 	}

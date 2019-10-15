@@ -181,13 +181,13 @@
 							
 							echo'<div class="col-xs-9">';
 							
-								echo 'Your profile is restrected, only you can see this page.';
+								echo 'Your profile is restricted, only you can see this page.';
 							
 							echo '</div>';
 							
 							echo'<div class="col-xs-3 text-right">';
 							
-								echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-policy">Start</a>';
+								echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-settings">Start</a>';
 							
 							echo '</div>';
 							
