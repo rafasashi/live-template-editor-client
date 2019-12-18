@@ -40,26 +40,29 @@
 
 			echo '<div id="sidebar">';
 				
-				echo '<div class="gallery_type_title gallery_head">';
+				//if( !$this->inWidget ){
 				
-					echo 'Template Gallery';
+					echo '<div class="gallery_type_title gallery_head">';
 					
-					// filters
-					
-					/*
-					echo '<button class="btn btn-xs btn-info pull-right" style="';
-						echo 'padding: 3px 7px;';
-						echo 'margin: 5px;';
-						echo 'background: #fff;';
-						echo 'color: #4276a0;';
-						echo 'font-size: 9px;';
-						echo 'line-height: 16px;';
-					echo '">filter</button>';
-					*/
-					
-				echo '</div>';				
+						echo 'Template Gallery';
+						
+						// filters
+						
+						/*
+						echo '<button class="btn btn-xs btn-info pull-right" style="';
+							echo 'padding: 3px 7px;';
+							echo 'margin: 5px;';
+							echo 'background: #fff;';
+							echo 'color: #4276a0;';
+							echo 'font-size: 9px;';
+							echo 'line-height: 16px;';
+						echo '">filter</button>';
+						*/
+						
+					echo '</div>';	
+				//}
 				
-				echo '<ul class="nav nav-tabs tabs-left" style="height:calc(100vh - 105px);overflow-x:hidden;overflow-y:auto;">';
+				echo '<ul class="nav nav-tabs tabs-left" style="height:calc(100vh - '.( $this->inWidget ? 40 : 105 ).'px);overflow-x:hidden;overflow-y:auto;">';
 										
 					foreach( $all_sections as $section => $type_ids ){
 					
@@ -140,7 +143,7 @@
 				
 			echo'</div>';
 
-			echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;padding-top:15px;min-height:700px;">';
+			echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;padding-top:15px;min-height:calc( 100vh - ' . ( $this->inWidget ?  0 : 190 ) . 'px);">';
 				
 				echo'<div class="tab-content">';
 				

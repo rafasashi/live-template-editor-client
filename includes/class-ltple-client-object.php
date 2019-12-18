@@ -52,7 +52,7 @@ class LTPLE_Client_Object {
 							
 							foreach( $data['options'] as $option => $value){
 								
-								update_option( $option . ( !empty($data['separator']) ? $data['separator'] : '_' ) . $slug, $value);	
+								update_option( $option . ( !empty($data['separator']) ? $data['separator'] : '_' ) . $slug, $value, false);	
 							}
 						}
 				

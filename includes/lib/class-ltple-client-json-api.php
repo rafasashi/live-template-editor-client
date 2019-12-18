@@ -63,13 +63,13 @@ class LTPLE_Client_Json_API {
 			}';
 			
 			if( $pagination === true ){
-			
+
 				$table .= '
 				
 				.bootstrap-table{
 					
 					position: relative;
-					height: calc( 100vh - 42px );					
+					height: ' . ( $card === true ? 'calc( 100vh - 130px )' : 'auto' ).';					
 				}
 			
 				.fixed-table-pagination{
@@ -79,7 +79,6 @@ class LTPLE_Client_Json_API {
 					border-bottom: none;
 					background: #fbfbfb;
 					min-height: 54px;
-					bottom: 0;
 					right: 0;
 					left: 0;
 					position: absolute;
@@ -226,7 +225,7 @@ class LTPLE_Client_Json_API {
 				
 				';
 				
-				if( $fixedHeight === true ){
+				if( $header === false && $fixedHeight === true ){
 					
 					$table .= '
 					

@@ -272,7 +272,7 @@
 							}
 						}
 
-						if( is_admin() || ( $ltple->layer->type != 'cb-default-layer' && $ltple->user->plan["info"]["total_price_amount"] > 0 ) ){
+						if( is_admin() || ( $ltple->layer->type != 'cb-default-layer' ) ){
 							
 							if( empty($_GET['action']) || $_GET['action'] != 'edit' ){
 								

@@ -10,7 +10,7 @@
 		
 		$_SESSION['message'] = '';
 	}
-	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $this->layer->type == 'cb-default-layer' || $this->layer->is_media ) && $this->user->plan["info"]["total_price_amount"] > 0 ){
+	elseif( ( !$this->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $this->layer->type == 'cb-default-layer' || $this->layer->is_media ) ){
 		
 		$user_plan = $this->plan->get_user_plan_info($this->user->ID);
 		

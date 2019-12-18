@@ -67,45 +67,49 @@ class LTPLE_Client_Login {
 			$success = NULL;
 			
 			// check email
-		
-			if( !empty( $errors->errors['email_exists'] ) ){
-
-				if( $user = get_user_by( 'email', $user_email ) ){
+			
+			if( empty( $errors->errors['bad_email_domain'] ) ){
+				
 					
-					if( !empty($user->data) ){
-						
-						$user = $user->data;
-					
-						// check if email imported
+				if( !empty( $errors->errors['email_exists'] ) ){
 
-						$user->last_seen = intval( get_user_meta( $user->ID, $this->parent->_base . '_last_seen',true) );
+					if( $user = get_user_by( 'email', $user_email ) ){
 						
-						if( $user->last_seen === 0 ){
+						if( !empty($user->data) ){
+							
+							$user = $user->data;
+						
+							// check if email imported
 
-							// send new user notification
+							$user->last_seen = intval( get_user_meta( $user->ID, $this->parent->_base . '_last_seen',true) );
 							
-							wp_new_user_notification( $user->ID, NULL, 'user' );
-							
-							// output success message
-							
-							$success = 'A confirmation email has been sent to <b>'.$user_email.'</b>';
+							if( $user->last_seen === 0 ){
+
+								// send new user notification
+								
+								wp_new_user_notification( $user->ID, NULL, 'user' );
+								
+								// output success message
+								
+								$success = 'A confirmation email has been sent to <b>'.$user_email.'</b>';
+							}
 						}
 					}
 				}
-			}
-			elseif( !empty( $errors->errors['empty_username'] ) ){
-				
-				// add new user
-				
-				if( $user = $this->parent->email->insert_user($user_email) ){
+				elseif( !empty( $errors->errors['empty_username'] ) ){
 					
-					// send new user notification
-							
-					wp_new_user_notification( $user['id'], NULL, 'user' );					
+					// add new user
 					
-					// output success message
-					
-					$success = 'A confirmation email has been sent to <b>'.$user_email.'</b>';
+					if( $user = $this->parent->email->insert_user($user_email) ){
+						
+						// send new user notification
+								
+						wp_new_user_notification( $user['id'], NULL, 'user' );					
+						
+						// output success message
+						
+						$success = 'A confirmation email has been sent to <b>'.$user_email.'</b>';
+					}
 				}
 			}
 			

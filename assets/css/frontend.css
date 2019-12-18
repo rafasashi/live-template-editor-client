@@ -54,7 +54,6 @@
 #ltple-wrapper #content {
     padding: 15px 15px 0 15px !important;
 	margin: 0px !important;
-    min-height: 80vh !important;
     transition: all 0.3s !important;
 	width: 100% !important;
 }

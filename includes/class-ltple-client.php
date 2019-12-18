@@ -186,6 +186,7 @@ class LTPLE_Client {
 			$this->api 		= new LTPLE_Client_Json_API( $this );
 			$this->server 	= new LTPLE_Client_Server( $this );
 			
+			$this->tax 		= new LTPLE_Client_Tax( $this );
 			$this->checkout = new LTPLE_Client_Checkout( $this );
 			
 			$this->dashboard = new LTPLE_Client_Dashboard( $this );
@@ -946,10 +947,14 @@ class LTPLE_Client {
 						
 						$path = $this->views . '/layer.php';
 					}
+					elseif( !empty($_GET['preview']) && $this->user->is_editor ){
+						
+						$path = $this->views . '/layer.php';
+					}
 					else{
 						
 						$path = $this->views . '/preview.php';
-					}					
+					}
 				}
 				elseif( $post->post_type == 'user-layer' ){
 					
@@ -2272,13 +2277,9 @@ class LTPLE_Client {
 									
 									$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['t'].'&action=edit&ult='.urlencode($post_title).'&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id.$post_title);
 								}
-								elseif( $this->layer->layerOutput == 'hosted-page' ){
-									
-									$user_layer_url = $this->urls->editor . '?action=edit&uri=' . $post_id;
-								}
 								else{
 									
-									$user_layer_url = $this->urls->editor . '?uri=' . $post_id;
+									$user_layer_url = $this->urls->editor . '?action=edit&uri=' . $post_id;
 								}
 								
 								wp_redirect($user_layer_url);

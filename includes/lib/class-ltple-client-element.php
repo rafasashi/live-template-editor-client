@@ -261,7 +261,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			
 			if( is_array($_POST['elements_'.$term->slug]['name']) && is_array($_POST['elements_'.$term->slug]['type']) && is_array($_POST['elements_'.$term->slug]['image']) && is_array($_POST['elements_'.$term->slug]['content'])  ){
 
-				update_option('elements_'.$term->slug, $_POST['elements_'.$term->slug]);			
+				update_option('elements_'.$term->slug, $_POST['elements_'.$term->slug],false);			
 			}
 			else{
 					

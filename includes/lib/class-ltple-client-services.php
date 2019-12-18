@@ -187,7 +187,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 			
 			if(isset($_POST[$term->taxonomy .'-price-amount'])&&is_numeric($_POST[$term->taxonomy .'-price-amount'])){
 
-				update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));			
+				update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1),false);			
 			}
 			
 			if(isset($_POST[$term->taxonomy .'-price-period'])){
@@ -197,7 +197,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 				
 				if(isset($periods[$period])){
 					
-					update_option('price_period_' . $term->slug, $period);	
+					update_option('price_period_' . $term->slug, $period,false);	
 				}
 			}
 		}

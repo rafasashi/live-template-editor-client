@@ -135,8 +135,8 @@ class LTPLE_Client_Email {
 		
 		add_filter('wp_mail_from', function($old){
 			
-			$urlparts = parse_url(site_url());
-			$domain = $urlparts ['host'];
+			$urlparts 	= parse_url(site_url());
+			$domain 	= $urlparts ['host'];
 			
 			return 'please-reply@'.$domain;
 		});
@@ -149,8 +149,6 @@ class LTPLE_Client_Email {
 		add_filter('ltple_loaded', array( $this, 'init_email' ));
 		
 		add_action( 'ltple_users_bulk_imported', array( $this, 'schedule_invitations' ));
-	
-		add_action( 'delete_user', array( $this, 'delete_user' ),1,1);
 	}
 	
 	public function is_email($email){
@@ -402,13 +400,6 @@ class LTPLE_Client_Email {
 		}	
 
 		return false;
-	}
-
-	public function delete_user( $user_id ){
-		
-		$reassign = false;
-		
-		$result = wp_delete_user( $user_id, $reassign );
 	}
 	
 	public function bulk_import_users( $csv ){

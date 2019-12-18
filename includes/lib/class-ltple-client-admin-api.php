@@ -119,7 +119,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 			$required = ( ( isset($field['required']) && $field['required'] === true ) ? ' required="true"' : '' );
 			
-			$placeholder = ( isset($field['placeholder']) ? esc_attr($field['placeholder']) : '' );
+			$placeholder = ( isset($field['placeholder']) ? $field['placeholder'] : '' );
 			
 			$html = '';
 
@@ -217,7 +217,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$html .= '<span class="form-group" style="margin:7px 0;">';
 					
-						$html .= '<input class="form-control" id="' . $this->sanitize_id( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
+						$html .= '<input'.$style.' class="form-control" id="' . $this->sanitize_id( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
 				
 					$html .= '</span>';
 					
@@ -228,23 +228,27 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 
 				case 'textarea':
-				 
-					if( is_array($data) ){
-						
-						$data = json_encode($data, JSON_PRETTY_PRINT);
-					}				 
-				 
-					if( !isset($field['stripcslashes']) || $field['stripcslashes'] == true ){
-
-						$data = stripcslashes($data);
-					}
 					
-					if( !isset($field['htmlentities']) || $field['htmlentities'] == true ){
+					if( !empty($data) ){
 						
-						$data = htmlentities($data);
-					}				
+						if( is_array($data) ){
+							
+							$data = json_encode($data, JSON_PRETTY_PRINT);
+						}	
+
+						if( !isset($field['stripcslashes']) || $field['stripcslashes'] == true ){
+
+							$data = stripcslashes($data);
+						}
+						
+						if( !isset($field['htmlentities']) || $field['htmlentities'] == true ){
+							
+							$data = htmlentities($data);
+						}
+					}
 				
 					$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
+				
 				break;
 				
 				case 'switch':
@@ -329,11 +333,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 							if( !empty($data) && is_numeric($data) ){
 								
-								$html .= '<a href="' . add_query_arg( 'action', 'ltple', $this->parent->urls->current ) . '" target="_self" class="button button-primary button-large">';
-									
-									$html .= 'Edit with LTPLE';
-									
-								$html .= '</a>';
+								$layer_type = $this->parent->layer->get_layer_type($data);
+
+								if( $this->parent->layer->is_editable($layer_type->output) ){	
+								
+									$html .= '<a href="' . add_query_arg( 'action', 'ltple', $this->parent->urls->current ) . '" target="_self" class="button button-primary button-large">';
+										
+										$html .= 'Edit with LTPLE';
+										
+									$html .= '</a>';
+								}
 							}
 						
 						$html .= '</div>';
@@ -389,7 +398,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 											
 											$item.='<div class="panel panel-default">';
 												
-												$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($layer) . ');height:120px;background-size:cover;background-repeat:no-repeat;background-position:top center;"></div>'; //thumb_wrapper
+												$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($layer) . ');height:120px;background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper
 												
 												$item.='<div class="panel-body" style="height:50px;overflow:hidden;">';
 													
@@ -882,7 +891,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 					if( !empty($field['inputs']) && is_string($field['inputs']) ){
 						
-						$inputs = [$field['inputs']];
+						$inputs = $field['inputs'];
 					}
 					elseif(empty($field['inputs'])||!is_array($field['inputs'])) {
 						
@@ -913,40 +922,70 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 								$value = str_replace('\\\'','\'',$data['value'][$e]);
 										
 								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
-							
-									$html .= '<select name="'.$option_name.'[input][]" style="float:left;">';
+									
+									if( is_array($inputs) ){
+										
+										$html .= '<select name="'.$option_name.'[input][]" style="float:left;">';
 
-									foreach ( $inputs as $input ) {
+											foreach ( $inputs as $input ) {
+												
+												$selected = false;
+												if ( isset($data['input'][$e]) && $data['input'][$e] == $input ) {
+													
+													$selected = true;
+												}
+												
+												$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $input ) . '">' . $input . '</option>';
+											}
 										
-										$selected = false;
-										if ( isset($data['input'][$e]) && $data['input'][$e] == $input ) {
-											
-											$selected = true;
-										}
-										
-										$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $input ) . '">' . $input . '</option>';
+										$html .= '</select> ';
 									}
 									
-									$html .= '</select> ';
-							
 									$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['key']) ? $field['placeholder']['key'] : 'key' ).'" name="'.$option_name.'[key][]" style="width:30%;float:left;" value="'.$data['key'][$e].'">';
 									
 									$html .= '<span style="float:left;"> => </span>';
 									
-									if(isset($data['input'][$e])){
+									if( is_string($inputs) ){
 										
-										if($data['input'][$e] == 'number'){
+										$input = $inputs;
+									}
+									elseif(isset($data['input'][$e])){
+										
+										$input = $data['input'][$e];
+									}
+									
+									if(!empty($input)){
+										
+										if($input == 'number'){
 											
 											$html .= '<input type="number" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'number' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 										}
-										elseif($data['input'][$e] == 'password'){
+										elseif($input == 'password'){
 											
 											$html .= '<input type="password" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'password' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
 										}
-										elseif($data['input'][$e] == 'text'){
+										elseif($input == 'text'){
 											
 											$html .= '<textarea placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'text' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;height:200px;">' . $value . '</textarea>';
-										}										
+										}
+										elseif( $input == 'select' && !empty($field['options']) ){
+											
+											$html .= '<select name="'.$option_name.'[value][]" style="float:left;">';
+												
+												foreach ( $field['options'] as $option => $name ) {
+													
+													$selected = false;
+
+													if ( isset($data['value'][$e]) && $data['value'][$e] == $option ) {
+														
+														$selected = true;
+													}
+													
+													$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $option ) . '">' . $name . '</option>';
+												}
+											
+											$html .= '</select> ';								
+										}
 										else{
 											
 											$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'value' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
@@ -1535,35 +1574,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</div>';
 
 				break;
-				/*
-				case 'license':
-					
-					if( !empty($data) ){
-					
-						$is_valid = $this->parent->license->is_valid();
-					}
-					else{
-						
-						$is_valid = false;
-					}
 
-					echo '<input class="regular-text" type="text" id="' . esc_attr( $option_name ) . '" name="' . esc_attr( $option_name ) . '"  value="' . $data . '" ' . ( $is_valid ? 'disabled' : '') . '>';
-					echo '<p class="submit">';
-									
-						if( !$is_valid ){
-							
-							echo '<input type="submit" name="activate_license" value="Activate" class="button-primary" />';
-						}
-						else{
-							
-							echo '<input type="hidden" name="' . esc_attr( $option_name ) . '" value="'.$data.'" />';
-							echo '<input type="submit" name="deactivate_license" value="Deactivate" class="button" />';
-						}
-						
-					echo '</p>';				
-						 
-				break;				
-				*/
 				case 'radio':
 					
 					$i = 0;
@@ -2100,4 +2111,3 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			}
 		}
 	}
-

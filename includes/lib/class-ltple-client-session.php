@@ -470,9 +470,9 @@ class LTPLE_Client_Session {
 		include plugin_dir_path(__FILE__) . "views/demo_email.html";
 		$demo_email_content = ob_get_clean();
 		
-		update_option("ussync-email-header", $demo_email_content);
-		update_option("ussync_email_confemail", get_option("admin_email"));
-		update_option("ussync_email_conf_title", "Please Verify Your email Account");
+		update_option("ussync-email-header", $demo_email_content,false);
+		update_option("ussync_email_confemail", get_option("admin_email"),false);
+		update_option("ussync_email_conf_title", "Please Verify Your email Account",false);
 	}
 
 	public function view_email_setting() {

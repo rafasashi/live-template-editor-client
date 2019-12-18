@@ -331,7 +331,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				$action .= '</div>';				
 
 				$row = [];
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $thumb_url . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:240px;display:inline-block;"></div>';
+				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $thumb_url . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:240px;display:inline-block;"></div>';
 				$row['user'] 		= ucfirst($app->user_name);
 				$row['app'] 		= $app->app_name;
 				$row['action'] 		= $action;
@@ -857,24 +857,24 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		if(isset($_POST[$term->taxonomy . '-thumbnail'])){
 
-			update_option('thumbnail_'.$term->slug, sanitize_text_field($_POST[$term->taxonomy . '-thumbnail'],1));			
+			update_option('thumbnail_'.$term->slug, sanitize_text_field($_POST[$term->taxonomy . '-thumbnail'],1),false);			
 		}
 
 		if(isset($_POST[$term->taxonomy . '-types'])){
 
-			update_option('types_'.$term->slug, $_POST[$term->taxonomy . '-types']);			
+			update_option('types_'.$term->slug, $_POST[$term->taxonomy . '-types'],false);			
 		}
 		
 		if($this->parent->user->is_admin){
 		
 			if(isset($_POST['parameters_'.$term->slug])){
 
-				update_option('parameters_'.$term->slug, $_POST['parameters_'.$term->slug]);			
+				update_option('parameters_'.$term->slug, $_POST['parameters_'.$term->slug],false);			
 			}
 			
 			if(isset($_POST['api_client_'.$term->slug])){
 
-				update_option('api_client_'.$term->slug, $_POST['api_client_'.$term->slug]);			
+				update_option('api_client_'.$term->slug, $_POST['api_client_'.$term->slug],false);			
 			}
 		}
 	}

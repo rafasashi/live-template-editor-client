@@ -306,17 +306,18 @@ class LTPLE_Client_Settings {
 				
 				if( !empty($_GET['post']) ){
 				
-					$post = get_post($_GET['post']);
+					if( $post = get_post($_GET['post']) ){
 					
-					foreach($this->tabs as $t => $tabs){
-					
-						if( isset($tabs[$post->post_type]) ){
-							
-							$this->tabIndex = $t;
-							
-							add_filter( 'edit_form_top', array( $this, 'post_type_tabs') );						
-							
-							break;
+						foreach($this->tabs as $t => $tabs){
+						
+							if( isset($tabs[$post->post_type]) ){
+								
+								$this->tabIndex = $t;
+								
+								add_filter( 'edit_form_top', array( $this, 'post_type_tabs') );						
+								
+								break;
+							}
 						}
 					}
 				}
@@ -487,8 +488,8 @@ class LTPLE_Client_Settings {
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Default Contents', $this->plugin->slug ),
-			__( 'Default Contents', $this->plugin->slug ),
+			__( 'Default Templates', $this->plugin->slug ),
+			__( 'Default Templates', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=cb-default-layer'
 		);
@@ -500,6 +501,8 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit.php?post_type=user-layer'
 		);
+		
+		/*
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'User Network', $this->plugin->slug ),
@@ -507,6 +510,8 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit-tags.php?taxonomy=user-contact'
 		);
+		*/
+		
 		add_submenu_page(
 			$this->plugin->slug,
 			__( 'Services & Apps', $this->plugin->slug ),
@@ -860,6 +865,26 @@ class LTPLE_Client_Settings {
 		);
 		*/
 		
+		$settings['tax'] = array(
+			'title'					=> __( 'Tax', $this->plugin->slug ),
+			'description'			=> __( 'Setting up the tax system', $this->plugin->slug ),
+			'fields'				=> array(
+				array(
+					'id' 			=> 'enable_taxes',
+					'label'			=> __( 'Enable Taxes' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'switch',
+				),
+				array(
+					'id' 			=> 'vat_rate',
+					'label'			=> __( 'VAT %' , $this->plugin->slug ),
+					'description'	=> '',
+					'type'			=> 'number',
+					'style'			=> 'width:50px;'
+				),
+			),
+		);
+
 		$settings['addons'] = array(
 			'title'					=> __( 'Addons', $this->plugin->slug ),
 			'description'			=> '',

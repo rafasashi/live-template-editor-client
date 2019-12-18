@@ -159,7 +159,7 @@ class LTPLE_Client_Dashboard {
 								
 								if( empty($thumbnail_url) ){
 									
-									$thumbnail_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:top center;width: 50px;height: 50px;display:block;"></div>';
+									$thumbnail_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
 								}
 								
 								$recent_posts .= $thumbnail_url;
@@ -216,7 +216,7 @@ class LTPLE_Client_Dashboard {
 				
 				if( empty($image_url) ){
 					
-					$image_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:top center;width: 50px;height: 50px;display:block;"></div>';
+					$image_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
 				}
 				
 				// get layer type
@@ -294,7 +294,7 @@ class LTPLE_Client_Dashboard {
 				
 					if( empty($image_url) ){
 						
-						$image_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:top center;width: 50px;height: 50px;display:block;"></div>';
+						$image_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
 					}
 				}
 				
@@ -368,9 +368,11 @@ class LTPLE_Client_Dashboard {
 				
 				// edit section 
 				
+				$edit_section = '';
+				
 				if( !empty($storage_count['user-layer']) ){
 				
-					$edit_section = '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
+					$edit_section .= '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
 				}
 				
 				if( !empty($storage_count['user-psd']) ){
@@ -389,9 +391,11 @@ class LTPLE_Client_Dashboard {
 				
 				// publish section
 				
+				$publish_section = '';
+				
 				if( !empty($storage_count['user-page']) ){
 				
-					$publish_section = '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->editor . '?list=user-page"><span class="glyphicon glyphicon-file"></span> Web Pages</a></li>';
+					$publish_section .= '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->editor . '?list=user-page"><span class="glyphicon glyphicon-file"></span> Web Pages</a></li>';
 				}
 				
 				$publish_section = apply_filters('ltple_dashboard_publish_sidebar',$publish_section,$currentTab,$output);

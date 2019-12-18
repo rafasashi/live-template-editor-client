@@ -41,6 +41,11 @@
 			add_filter('bbp_template_before_user_favorites', array( $this, 'redirect_bbpress_profile' ));
 			
 			add_filter('bbp_user_edit_before', array( $this, 'redirect_bbpress_edit_profile' ));
+			
+			add_filter('admin_init', array( $this, 'delete_user_manually' ));
+			
+			add_action('delete_user', array( $this, 'delete_user' ),1,1);
+		
 		}
 
 		public function init_periods(){
@@ -166,17 +171,27 @@
 		
 		public function redirect_bbpress_profile(){
 			
-			$author_name = get_query_var('author_name');
+			if( !$author_name = get_query_var('author_name') ){
+				
+				$author_name = get_query_var('bbp_user');
+			}
 			
-			if( $author = get_user_by('slug',$author_name) ){
-				
-				$url = $this->parent->urls->profile . $author->ID . '/';
-				
-				wp_redirect($url);
+			if(!empty($author_name)){
+			
+				if( $author = get_user_by('slug',$author_name) ){
+					
+					$url = $this->parent->urls->profile . $author->ID . '/';
+					
+					wp_redirect($url);
+				}
+				else{
+					
+					echo 'This page doesn\'t exists...';
+				}
 			}
 			else{
 				
-				echo 'This page doesn\'t exists...';
+				echo 'This user doesn\'t exists...';
 			}
 			
 			exit;
@@ -304,7 +319,7 @@
 			}
 		}
 		
-		public function update_periods(){
+		public function update_periods(){ 
 			
 			if( $periods = $this->parent->plan->remote_get_periods() ){
 				
@@ -736,7 +751,7 @@
 				$this->list->{$user_id} = new stdClass();
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
 				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
-				$this->list->{$user_id}->period		= intval(get_user_meta($user_id, $this->parent->_base . 'period_end', true ));
+				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id);
 				$this->list->{$user_id}->last_seen 	= get_user_meta($user_id, $this->parent->_base . '_last_seen',true);
 				$this->list->{$user_id}->last_uagent= $this->get_browser(get_user_meta($user_id, $this->parent->_base . '_last_uagent',true));
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
@@ -1442,16 +1457,29 @@
 		}
 		*/
 		
-		public function get_all_selected_users( $field, $meta_query = array() ) {
+		public function get_all_selected_users( $field, $s = '', $meta_query = array() ) {
 			
 			$selected_users = array();
 			
-			if( $users = new WP_User_Query( array( 
+			$args = array( 
 				
 				'fields' 		=> array($field),
 				'meta_query' 	=> $meta_query,
+			);
+			
+			if( !empty($s) ){
 				
-			))){
+				$args['search'] = '*'.$s.'*';
+				
+				$args['search_columns'] = array(
+					
+					'user_login',
+					'user_nicename',
+					'user_email',
+				);
+			}
+			
+			if( $users = new WP_User_Query($args)){
 				
 				if( !empty($users->results) ){
 					
@@ -1465,6 +1493,38 @@
 			return $selected_users;
 		}
 		
+		public function delete_user_manually(){
+			
+			if( !empty($_REQUEST['action']) && !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
+				
+				if( $_REQUEST['action'] == 'delete' || ( $_REQUEST['action'] == 'dodelete' && $_REQUEST['delete_option'] == 'delete' ) ){
+					
+					if( current_user_can('delete_users') ){
+						
+						$ids = implode(',',$_REQUEST['users']);
+						
+						global $wpdb;
+						
+						$wpdb->get_results('DELETE FROM ' . $wpdb->prefix . 'users WHERE ID in('. $ids . ')');
+
+						$wpdb->get_results('DELETE FROM ' . $wpdb->prefix . 'usermeta WHERE user_id in('. $ids . ')');
+					}
+				}
+			}
+		}
+		
+		public function delete_user( $user_id ){
+			
+			if( current_user_can('delete_users') ){
+			
+				global $wpdb;
+						
+				$wpdb->get_results('DELETE FROM ' . $wpdb->prefix . 'users WHERE ID in('. $user_id . ')');
+
+				$wpdb->get_results('DELETE FROM ' . $wpdb->prefix . 'usermeta WHERE user_id in('. $user_id . ')');
+			}
+		}
+			
 		public function bulk_schedule_email_model() {
 			
 			$post_type 	= 'email-model';
@@ -1493,7 +1553,9 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = $this->get_all_selected_users('id');
+					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
+
+					$users = $this->get_all_selected_users('id',$s);
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
@@ -1556,7 +1618,9 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = $this->get_all_selected_users('id');
+					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
+					
+					$users = $this->get_all_selected_users('id',$s);
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
@@ -1605,7 +1669,9 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = $this->get_all_selected_users('id');
+					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
+					
+					$users = $this->get_all_selected_users('id',$s);
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
@@ -1654,7 +1720,9 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = $this->get_all_selected_users('id');;
+					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
+					
+					$users = $this->get_all_selected_users('id',$s);;
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
@@ -1703,7 +1771,9 @@
 
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = $this->get_all_selected_users('id');
+					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
+					
+					$users = $this->get_all_selected_users('id',$s);
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
@@ -1847,7 +1917,9 @@
 				
 				if( !empty($_REQUEST['selectAll']) ){
 					
-					$users = $this->get_all_selected_users('id');
+					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
+					
+					$users = $this->get_all_selected_users('id',$s);
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					

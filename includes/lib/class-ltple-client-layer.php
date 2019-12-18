@@ -789,7 +789,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						</table>'
 				);
 				*/
-
+				
 				if( $this->is_html_output($layer_type->output) ){
 				
 					// get layer content
@@ -809,7 +809,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'label'			=> "",
 						'type'			=> 'textarea',
 						'placeholder'	=> "HTML content",
-						'htmlentities'	=> false,
+						'htmlentities'	=> true,
 						//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>',
 					);
 
@@ -1143,6 +1143,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return false;
 	}
+	 
+	public function has_preview($output){
+		
+		if( $this->is_html_output($output) || $this->is_image_output($output) ){
+			
+			return true;
+		}
+		
+		return false;
+	}
 	
 	public function get_project_tabs($layer,$fields=array()){
 		
@@ -1255,9 +1265,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$post = get_post();
 			}
 			
-			if( !empty($post) ){
+			if( !empty($post->ID) ){
 				
-				$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+				$default_id = $this->get_default_id($post->ID);
 				
 				$this->userFields[]=array(
 				
@@ -1278,84 +1288,89 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'data'			=> $default_id
 				);
 
-				if( $default_id > 0 ){			
+				if( $default_id > 0 ){	
 					
-					$this->userFields[]=array(
+					$layer_type = $this->get_layer_type($post);
 					
-						'metabox' => array( 
+					if( $this->is_html_output($layer_type->output) ){
 						
-							'name' 		=> 'layer-content',
-							'title' 	=> __( 'Template HTML', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced',
-							'frontend'	=> false,
-						),
-						'type'			=> 'textarea',
-						'id'			=> 'layerContent',
-						'label'			=> '',
-						'placeholder'	=> "HTML content",
-						'htmlentities'	=> false,
-						'description'	=>''
-					);
-					
-					if( $this->is_hosted($post->post_type) ){
-					
 						$this->userFields[]=array(
 						
 							'metabox' => array( 
 							
-								'name' 		=> 'layer-description',
-								'title' 	=> __( 'Description', 'live-template-editor-client' ), 
+								'name' 		=> 'layer-content',
+								'title' 	=> __( 'Template HTML', 'live-template-editor-client' ), 
 								'screen'	=> array($post->post_type),
-								'context' 	=> 'side',
-								'frontend'	=> true,
+								'context' 	=> 'advanced',
+								'frontend'	=> false,
 							),
 							'type'			=> 'textarea',
-							'id'			=> 'layerDescription',
+							'id'			=> 'layerContent',
 							'label'			=> '',
-							'placeholder'	=> 'Short text description',
+							'placeholder'	=> "HTML content",
 							'htmlentities'	=> true,
-							'description'	=> '<span style="float:right;font-size:10px;">max 500 words</span>',
-							'style'			=> 'height:100px;',
+							'description'	=>''
+						);
+						
+						if( $this->is_hosted($post->post_type) ){
+						
+							$this->userFields[]=array(
+							
+								'metabox' => array( 
+								
+									'name' 		=> 'layer-description',
+									'title' 	=> __( 'Description', 'live-template-editor-client' ), 
+									'screen'	=> array($post->post_type),
+									'context' 	=> 'side',
+									'frontend'	=> true,
+								),
+								'type'			=> 'textarea',
+								'id'			=> 'layerDescription',
+								'label'			=> '',
+								'placeholder'	=> 'Short text description',
+								'htmlentities'	=> true,
+								'description'	=> '<span style="float:right;font-size:10px;">max 500 words</span>',
+								'style'			=> 'height:100px;',
+							);
+						}
+						
+						$this->userFields[]=array(
+						
+							'metabox' => array( 
+							
+								'name' 		=> 'layer-css',
+								'title' 	=> __( 'Template CSS', 'live-template-editor-client' ), 
+								'screen'	=> array($post->post_type),
+								'context' 	=> 'advanced',
+								'frontend'	=> false,
+							),
+							'type'			=> 'textarea',
+							'id'			=> 'layerCss',
+							'label'			=> '',
+							'placeholder'	=> "Internal CSS style sheet",
+							'stripcslashes'	=> false,
+							'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+						);
+						
+						$this->userFields[]=array(
+						
+							'metabox' => array( 
+							
+								'name' 		=> 'layer-js',
+								'title' 	=> __( 'Template JS', 'live-template-editor-client' ), 
+								'screen'	=> array($post->post_type),
+								'context' 	=> 'advanced',
+								'frontend'	=> false,
+							),
+							'type'			=> 'textarea',
+							'id'			=> 'layerJs',
+							'label'			=> '',
+							'placeholder'	=> "Additional Javascript",
+							'stripcslashes'	=> false,
+							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 						);
 					}
-					
-					$this->userFields[]=array(
-					
-						'metabox' => array( 
 						
-							'name' 		=> 'layer-css',
-							'title' 	=> __( 'Template CSS', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced',
-							'frontend'	=> false,
-						),
-						'type'			=> 'textarea',
-						'id'			=> 'layerCss',
-						'label'			=> '',
-						'placeholder'	=> "Internal CSS style sheet",
-						'stripcslashes'	=> false,
-						'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-					);
-					
-					$this->userFields[]=array(
-					
-						'metabox' => array( 
-						
-							'name' 		=> 'layer-js',
-							'title' 	=> __( 'Template JS', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced',
-							'frontend'	=> false,
-						),
-						'type'			=> 'textarea',
-						'id'			=> 'layerJs',
-						'label'			=> '',
-						'placeholder'	=> "Additional Javascript",
-						'stripcslashes'	=> false,
-						'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
-					);
-					
 					/*
 					$this->userFields[]=array(
 					
@@ -1872,105 +1887,108 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 	public function get_layer_type($post){
 		
-		$post_id = 0;
+		if( !empty($post) ){
 		
-		if( is_numeric($post) ){
+			$post_id = 0;
 			
-			$post_id = $post;
-		}
-		elseif( is_object($post) ){
-			
-			$post_id = $post->ID;
-		}
-		
-		if(!empty($post_id)){
-			
-			if( !isset($this->layer_types[$post_id]) ){
+			if( is_numeric($post) ){
 				
-				$term = null;
+				$post_id = $post;
+			}
+			elseif( is_object($post) ){
 				
-				if( !is_object($post) ){
-					
-					$post = get_post($post_id);
-				}
-
-				if( !empty($post->post_type) ){
-					
-					if( isset( $this->mediaTypes[$post->post_type] ) ){
-						
-						$term = new stdClass();
-					
-						$term->output 	= 'image';
-						$term->storage 	= 'attachment';				
-					}
-					else{
-					
-						$terms = wp_get_post_terms($post->ID,'layer-type');
-						
-						if( empty($terms[0]) ){
-							
-							if( $post->post_type != 'cb-default-layer' ){
-							
-								// get default layer id
-								
-								$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
-								
-								$default_post = get_post($default_id);
-							
-								if( !is_null($default_post) && $default_post->post_type == 'cb-default-layer' ){
-									
-									$terms = wp_get_post_terms($default_post->ID,'layer-type');			
-									
-									if( !empty($terms[0]) ){
-										
-										$term = $terms[0];
-									}
-								}					
-							}
-							elseif( is_admin() ){
-								
-								if( $default_range = $this->get_layer_range($post)){
-									
-									if( $type_id = get_term_meta($default_range->term_id,'range_type',true)){
-										
-										$term = get_term($type_id);
-									}
-								}
-							}
-							
-							if( !empty($term) ){
-
-								// update layer type
-										
-								wp_set_object_terms( $post->ID, $term->term_id, 'layer-type', false ); 					
-							}
-						}
-						else{
-							
-							$term = $terms[0];
-						}
-							
-						if( !empty($term) ){
-							
-							$term->output = $this->get_type_output($term);
-
-							$term->storage = $this->get_type_storage($term);
-						}
-					}
-				}
-				
-				if( !isset($term->output) ){
-					
-					$term = new stdClass();
-					
-					$term->output 	= '';
-					$term->storage 	= '';
-				}
-				
-				$this->layer_types[$post_id] = $term;
+				$post_id = $post->ID;
 			}
 			
-			return $this->layer_types[$post_id];
+			if(!empty($post_id)){
+				
+				if( !isset($this->layer_types[$post_id]) ){
+					
+					$term = null;
+					
+					if( !is_object($post) ){
+						
+						$post = get_post($post_id);
+					}
+
+					if( !empty($post->post_type) ){
+						
+						if( isset( $this->mediaTypes[$post->post_type] ) ){
+							
+							$term = new stdClass();
+						
+							$term->output 	= 'image';
+							$term->storage 	= 'attachment';				
+						}
+						else{
+						
+							$terms = wp_get_post_terms($post->ID,'layer-type');
+							
+							if( empty($terms[0]) ){
+								
+								if( $post->post_type != 'cb-default-layer' ){
+								
+									// get default layer id
+									
+									$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+									
+									$default_post = get_post($default_id);
+								
+									if( !is_null($default_post) && $default_post->post_type == 'cb-default-layer' ){
+										
+										$terms = wp_get_post_terms($default_post->ID,'layer-type');			
+										
+										if( !empty($terms[0]) ){
+											
+											$term = $terms[0];
+										}
+									}					
+								}
+								elseif( is_admin() ){
+									
+									if( $default_range = $this->get_layer_range($post)){
+										
+										if( $type_id = get_term_meta($default_range->term_id,'range_type',true)){
+											
+											$term = get_term($type_id);
+										}
+									}
+								}
+								
+								if( !empty($term) ){
+
+									// update layer type
+											
+									wp_set_object_terms( $post->ID, $term->term_id, 'layer-type', false ); 					
+								}
+							}
+							else{
+								
+								$term = $terms[0];
+							}
+								
+							if( !empty($term) ){
+								
+								$term->output = $this->get_type_output($term);
+
+								$term->storage = $this->get_type_storage($term);
+							}
+						}
+					}
+					
+					if( !isset($term->output) ){
+						
+						$term = new stdClass();
+						
+						$term->output 	= '';
+						$term->storage 	= '';
+					}
+					
+					$this->layer_types[$post_id] = $term;
+				}
+				
+				return $this->layer_types[$post_id];
+			}
 		}
 		
 		return false;
@@ -2098,7 +2116,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		// set layer
 		
 		$this->set_uri();
-
+		
 		if( $this->uri > 0 ){
 
 			//set layer data
@@ -2207,7 +2225,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$layer_type = $this->get_layer_type($post);			
 				
 				$row = [];
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:100%;display:inline-block;"></div>';
+				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				//$row['status'] 	= $this->parse_layer_status($post->post_status);
 				$row['type'] 		= $layer_type->name;
@@ -2239,7 +2257,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 				$row = [];
 				
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:100%;display:inline-block;"></div>';
+				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				//$row['status'] 	= $this->parse_layer_status($post->post_status);
 				$row['type'] 		= $layer_type->name;
@@ -2271,7 +2289,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 				$row = [];
 				
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:100%;display:inline-block;"></div>';
+				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				$row['type'] 		= $layer_type->name;
 				$row['status'] 		= $this->parse_layer_status($post->post_status);
@@ -2303,7 +2321,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 				$row = [];
 				
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:100%;display:inline-block;"></div>';
+				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				$row['type'] 		= $layer_type->name;
 				$row['status'] 		= $this->parse_layer_status($post->post_status);
@@ -2335,7 +2353,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !empty($layer) ){
 			
-			if( $layer->post_status == 'publish' || $layer->post_status == 'draft' || $layer->post_status == 'inherit' ){
+			if( $layer->post_status == 'publish' || $layer->post_status == 'draft' || $layer->post_status == 'inherit' || $layer->post_status == 'pending' ){
 				
 				$this->layerEcho = $echo;
 				
@@ -2359,6 +2377,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$this->type 	= $layer->post_type;
 					$this->slug 	= $layer->post_name;
 					$this->title 	= $layer->post_title;
+					$this->author 	= intval($layer->post_author);
 					
 					$local_types = $this->get_local_post_types();
 					
@@ -3151,7 +3170,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}			
 		
-
 		// output css files
 		
 		if( !empty($this->defaultStaticCssUrl) ){
@@ -3386,7 +3404,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				<?php					
 			}
 			*/	
-		}			
+		}
+		
+		if( $favicon = get_site_icon_url() ){
+
+			$head .= '<link rel="icon" href="'.$favicon.'" sizes="32x32"/>'.PHP_EOL;
+			$head .= '<link rel="icon" href="'.$favicon.'" sizes="192x192"/>'.PHP_EOL;
+			$head .= '<link rel="apple-touch-icon-precomposed" href="'.$favicon.'"/>'.PHP_EOL;
+			$head .= '<meta name="msapplication-TileImage" content="'.$favicon.'"/>'.PHP_EOL;						
+		}
 		
 		$this->layerHeadContent = $head;
 		
@@ -3805,8 +3831,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		//$str = str_replace(array('&quot;'),array(htmlentities('&quot;')),$str);
 		
 		$str = str_replace(array('cursor: pointer;','data-element_type="video.default"'),'',$str);
-		
-		$str = str_replace(array('<body','</body>','src=" ','href=" '),array('<div','</div>','src="','href="'),$str);
+
+		$str = str_replace(array('<body','</body>','src=" ','href=" ','#@'),array('<div','</div>','src="','href="','@'),$str);
 		
 		//$str = html_entity_decode(stripslashes($str));
 		
@@ -4333,7 +4359,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( is_numeric($attach_id) ){
 					
-						update_option('css_attachment_'.$term->slug,$attach_id);
+						update_option('css_attachment_'.$term->slug,$attach_id,false);
 					}
 					else{
 						
@@ -4343,7 +4369,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				//update md5
 				
-				update_option('css_md5_'.$term->slug,$md5);
+				update_option('css_md5_'.$term->slug,$md5,false);
 			}
 			
 			if( is_numeric($attach_id) ){
@@ -4773,7 +4799,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( isset($_POST[$term->taxonomy .'-price-amount']) && is_numeric($_POST[$term->taxonomy .'-price-amount']) ){
 
-					update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));			
+					update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1),false);			
 				}
 				
 				if( isset($_POST[$term->taxonomy .'-price-period']) ){
@@ -4783,13 +4809,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if(isset($periods[$period])){
 						
-						update_option('price_period_' . $term->slug, $period);	
+						update_option('price_period_' . $term->slug, $period,false);	
 					}
 				}
 				
 				if(isset($_POST[$term->taxonomy .'-storage-amount'])&&is_numeric($_POST[$term->taxonomy .'-storage-amount'])){
 
-					update_option('storage_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0));			
+					update_option('storage_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0),false);			
 				}
 
 				if(isset($_POST['output'])){
@@ -4804,7 +4830,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if(isset($_POST['visibility_'.$term->slug])){
 
-					update_option('visibility_'.$term->slug, $_POST['visibility_'.$term->slug]);			
+					update_option('visibility_'.$term->slug, $_POST['visibility_'.$term->slug],false);			
 				}
 				
 				if(isset($_POST['gallery_section'])){
@@ -4843,37 +4869,37 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			if(isset($_POST['css_url_'.$term->slug])){
 
-				update_option('css_url_'.$term->slug, $_POST['css_url_'.$term->slug]);			
+				update_option('css_url_'.$term->slug, $_POST['css_url_'.$term->slug],false);			
 			}
 			
 			if(isset($_POST['css_content_'.$term->slug])){
 
-				update_option('css_content_'.$term->slug, $_POST['css_content_'.$term->slug]);			
+				update_option('css_content_'.$term->slug, $_POST['css_content_'.$term->slug],false);			
 			}
 			
 			if(isset($_POST['css_parse_'.$term->slug])){
 
-				update_option('css_parse_'.$term->slug, $_POST['css_parse_'.$term->slug]);			
+				update_option('css_parse_'.$term->slug, $_POST['css_parse_'.$term->slug],false);			
 			}
 			
 			if(isset($_POST['js_url_'.$term->slug])){
 
-				update_option('js_url_'.$term->slug, $_POST['js_url_'.$term->slug]);			
+				update_option('js_url_'.$term->slug, $_POST['js_url_'.$term->slug],false);			
 			}
 			
 			if(isset($_POST['js_content_'.$term->slug])){
 
-				update_option('js_content_'.$term->slug, $_POST['js_content_'.$term->slug]);			
+				update_option('js_content_'.$term->slug, $_POST['js_content_'.$term->slug],false);			
 			}
 			
 			if(isset($_POST['js_skip_local_'.$term->slug])){
 
-				update_option('js_skip_local_'.$term->slug, $_POST['js_skip_local_'.$term->slug]);			
+				update_option('js_skip_local_'.$term->slug, $_POST['js_skip_local_'.$term->slug],false);			
 			}
 			
 			if(isset($_POST['font_url_'.$term->slug])){
 
-				update_option('font_url_'.$term->slug, $_POST['font_url_'.$term->slug]);			
+				update_option('font_url_'.$term->slug, $_POST['font_url_'.$term->slug],false);			
 			}
 		}
 	}

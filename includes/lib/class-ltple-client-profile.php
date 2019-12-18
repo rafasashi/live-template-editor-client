@@ -673,8 +673,6 @@ class LTPLE_Client_Profile {
 			
 			if( !empty($profile_html) ){
 
-				
-			
 				$this->profile_css = get_user_meta( $this->user->ID , $this->parent->_base . 'profile_css', true );
 				
 				if( !empty($this->profile_css) ){

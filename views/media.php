@@ -78,7 +78,7 @@
 			echo'</ul>';
 		echo'</div>';
 
-		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;">';
+		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;min-height:calc( 100vh - ' . ( $this->parent->inWidget ?  0 : 190 ) . 'px);">';
 
 			echo'<div class="tab-content">';
 
