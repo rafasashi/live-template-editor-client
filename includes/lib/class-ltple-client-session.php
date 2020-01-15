@@ -93,8 +93,7 @@ class LTPLE_Client_Session {
 			</script>
 		<?php
 	}
-	
-	
+
 	public function synchronize_session(){
 		
 		// set user information

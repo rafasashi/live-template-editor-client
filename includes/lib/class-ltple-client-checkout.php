@@ -50,7 +50,7 @@ class LTPLE_Client_Checkout {
 								
 								foreach( $plans as $plan ){
 									
-									echo'<hr>';
+									echo'<hr style="margin-top:15px;margin-bottom:15px;">';
 									
 									echo'<div class="row">';
 
@@ -106,7 +106,7 @@ class LTPLE_Client_Checkout {
 						
 						foreach( $plans as $plan ){
 							
-							echo'<hr>';
+							echo'<hr style="margin-top:15px;margin-bottom:15px;">';
 							
 							echo'<div class="row">';
 

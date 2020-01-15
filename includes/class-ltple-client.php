@@ -1033,7 +1033,7 @@ class LTPLE_Client {
 		
 		// get layer price
 		
-		$this->layer->price = ( !empty($this->layer->range) ? intval( get_option('price_amount_' . $this->layer->range->slug) ) : 0 );
+		$this->layer->price = ( !empty($this->layer->range) ? $this->layer->get_plan_amount($this->layer->range,'price') : 0 );
 		
 		// get triggers
  		
@@ -1688,7 +1688,7 @@ class LTPLE_Client {
 
 					$_SESSION['message'] = '<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
 						
-						$_SESSION['message'] .= '<h2>Are you sure you want to delete this template?</h2>';
+						$_SESSION['message'] .= '<h2>Are you sure you want to delete this  ' . $this->layer->get_storage_name($this->layer->layerStorage) . '?</h2>';
 					
 						if( !empty($images) ){
 							
@@ -2580,7 +2580,7 @@ class LTPLE_Client {
 		}
 		
 		if( !empty($this->settings->mainColor) ){
-		
+			
 			$style .=' .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover{';	
 			
 				$style .='background-color:'.$this->settings->mainColor.' !important;';
@@ -2835,7 +2835,7 @@ class LTPLE_Client {
 		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap-js' );			
 		
-		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery' ), time());
+		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-frontend' );
 		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);

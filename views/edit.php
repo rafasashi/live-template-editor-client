@@ -216,7 +216,7 @@
 									
 									if( $tabs = $this->layer->get_project_tabs($this->user->layer,$fields) ){
 										
-										echo'<ul class="nav nav-tabs" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;height:50px;font-size:15px;font-weight:bold;">';
+										echo'<ul class="nav nav-tabs" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;overflow:visible !important;height:50px;font-size:15px;font-weight:bold;">';
 											
 											$class=' class="active"';
 											
@@ -268,19 +268,3 @@
 
 		echo'</div>';
 	}
-	
-	?>
-	
-	<script>
-
-		;(function($){		
-			
-			$(document).ready(function(){
-
-			
-				
-			});
-			
-		})(jQuery);
-
-	</script>

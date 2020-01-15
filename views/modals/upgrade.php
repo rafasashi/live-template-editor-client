@@ -22,7 +22,7 @@
 	
 	echo '<div class="modal fade" id="upgrade_plan" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 		
-		echo '<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+		echo '<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 			
 			echo '<div class="modal-content">'.PHP_EOL;
 				
@@ -38,7 +38,7 @@
 					
 					echo '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $ltple->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
 
-					echo '<iframe data-src="' . $checkout_url . '" style="width: 100%;position:relative;bottom: 0;border:0;height: 450px;overflow: hidden;"></iframe>';						
+					echo '<iframe data-src="' . $checkout_url . '" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 90px);overflow: hidden;"></iframe>';						
 					
 				echo '</div>'.PHP_EOL;
 

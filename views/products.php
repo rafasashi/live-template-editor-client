@@ -4,8 +4,12 @@
 	
 		echo $this->message;
 	}
-
-	echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> Newly added Templates</h1>';
+	
+	echo'<div class="panel-header">';
+	
+		echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> Newly added Products</h1>';
+	
+	echo'</div>';
 	
 	echo'<div id="layer_detail" class="col-xs-12">';
 		

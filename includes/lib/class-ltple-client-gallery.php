@@ -95,7 +95,7 @@ class LTPLE_Client_Gallery {
 					);			
 				}
 			}
-				
+			
 			if( $all_types = get_terms( array(
 					
 				'taxonomy' 		=> 'layer-type',
@@ -111,9 +111,7 @@ class LTPLE_Client_Gallery {
 					
 					if( $term->visibility == 'anyone' || $this->parent->user->is_editor ){
 						
-						$tax_query = array('relation'=>'AND');
-						
-						$tax_query[0] = array('relation'=>'AND');
+						$tax_query = array('relation'=>'OR');
 						
 						$tax_query[0][] = array(
 					
@@ -121,15 +119,13 @@ class LTPLE_Client_Gallery {
 							'terms' 	=> $term,
 							'field' 	=> 'slug'
 						);
-
+						
 						$tax_query[0][] = array(
 					
 							'taxonomy' 			=> 'layer-range',
 							'operator'			=> 'EXISTS'
 						);
 						
-						$tax_query[1] = array('relation'=>'OR');
-
 						$tax_query[1][] = array(
 						
 							'taxonomy' 			=> 'user-contact',
@@ -152,6 +148,7 @@ class LTPLE_Client_Gallery {
 							'post_type' 		=> 'cb-default-layer',
 							'tax_query' 		=> $tax_query,
 						]);
+						
 						
 						if( $q->found_posts > 0 ){
 						
@@ -626,7 +623,7 @@ class LTPLE_Client_Gallery {
 		
 		if( !empty($post) ){
 			
-			$permalink = get_permalink($post) . '?preview';
+			$permalink 	= $this->parent->urls->home . '/preview/' . $post->post_name . '/';
 
 			//get editor_url
 

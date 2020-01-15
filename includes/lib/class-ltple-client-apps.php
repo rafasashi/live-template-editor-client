@@ -331,7 +331,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				$action .= '</div>';				
 
 				$row = [];
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $thumb_url . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:240px;display:inline-block;"></div>';
+				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $thumb_url . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:240px;display:inline-block;"></div>';
 				$row['user'] 		= ucfirst($app->user_name);
 				$row['app'] 		= $app->app_name;
 				$row['action'] 		= $action;

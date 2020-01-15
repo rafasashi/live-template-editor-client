@@ -211,7 +211,7 @@ class LTPLE_Client_Profile {
 						.profile-heading h1, .profile-heading h2 {
 							
 							padding-top:'.( $this->is_editable ? '80px' : '125px').';
-							color: #fff;
+							color: #fff !important;
 							font-weight: normal;
 							font-size: 53px;
 							font-family: "Pacifico", cursive;

@@ -116,8 +116,8 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 		//collect our saved term field information
 		
 		$price=[];
-		$price['price_amount'] = get_option('price_amount_' . $term->slug); 
-		$price['price_period'] = get_option('price_period_' . $term->slug);
+		$price['price_amount'] = $this->parent->layer->get_plan_amount($term,'price'); 
+		$price['price_period'] = $this->parent->layer->get_plan_amount($term,'price');
 		
 		//output our additional fields
 		
@@ -160,12 +160,12 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 
 		if($column_name === 'price') {
 			
-			if(!$price_amount = get_option('price_amount_' . $term->slug)){
+			if(!$price_amount = $this->parent->layer->get_plan_amount($term->term_id,'price')){
 				
 				$price_amount = 0;
 			} 
 			
-			if(!$price_period = get_option('price_period_' . $term->slug)){
+			if(!$price_period = $this->parent->layer->get_plan_period($term->term_id,'price')){
 				
 				$price_period = 'month';
 			} 	
@@ -187,7 +187,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 			
 			if(isset($_POST[$term->taxonomy .'-price-amount'])&&is_numeric($_POST[$term->taxonomy .'-price-amount'])){
 
-				update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1),false);			
+				$this->parent->layer->update_plan_amount($term->term_id,'price',round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));
 			}
 			
 			if(isset($_POST[$term->taxonomy .'-price-period'])){
@@ -197,7 +197,7 @@ class LTPLE_Client_Services extends LTPLE_Client_Object {
 				
 				if(isset($periods[$period])){
 					
-					update_option('price_period_' . $term->slug, $period,false);	
+					$this->parent->layer->update_plan_period($term->term_id,'price',$period);
 				}
 			}
 		}

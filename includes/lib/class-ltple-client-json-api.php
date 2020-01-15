@@ -39,7 +39,9 @@ class LTPLE_Client_Json_API {
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );
 		
 		$responsive = ( $card ? false : true );
-
+		
+		//$pagination = false;
+		
 		$table = '<style>';
 			
 			if(!$show_toolbar){
@@ -60,8 +62,21 @@ class LTPLE_Client_Json_API {
 				overflow-y: auto;
 				overflow-x: hidden;
 				display:block;
-			}';
+			}
 			
+			.bs-bars, .fixed-table-footer, .no-records-found {
+				
+				display:none;
+			}
+			
+			.float-right{
+			    float:right;
+			}
+			
+			.float-left{
+			    float:left;
+			}
+			';
 			if( $pagination === true ){
 
 				$table .= '
@@ -75,13 +90,19 @@ class LTPLE_Client_Json_API {
 				.fixed-table-pagination{
 					
 					padding: 0px 15px;
-					border-top: none;
+					border-top: 1px solid #ddd;
 					border-bottom: none;
 					background: #fbfbfb;
 					min-height: 54px;
 					right: 0;
 					left: 0;
 					position: absolute;
+				}
+				
+				.pagination-detail {
+					
+					position:absolute;
+					left: 10px;
 				}
 				
 				.pagination-info {
@@ -101,7 +122,7 @@ class LTPLE_Client_Json_API {
 					
 				$table .= 'tbody {
 					
-					height:calc( 100vh - 100px);
+					height:calc( 100vh - 240px);
 				}';
 
 				$table .= 'tr {
@@ -249,6 +270,51 @@ class LTPLE_Client_Json_API {
 			}
 			
 		$table .= '</style>';
+		/*
+		$table .=  '<div style="background:#fff;z-index: 999999;position: absolute;">';
+		
+		  $table .=  '<button id="append" class="btn btn-default">Append</button>';
+		  $table .=  'Total rows: <span id="total"></span>';
+		$table .=  '</div>';
+		*/
+		
+		$table .=  "
+		<script>
+		;(function($){
+			
+			$(document).ready(function(){
+		  var table = $('#table')
+		  var total = 0
+
+		  function getData(number, isAppend) {
+			if (!isAppend) {
+			  total = 0
+			}
+			var data = []
+			for (var i = total; i < total + number; i++) {
+			  data.push({
+				'item': '<div>test</div>'
+			  })
+			}
+			if (isAppend) {
+			  total += number
+			} else {
+			  total = number
+			}
+			$('#total').text(total)
+			return data
+		  }
+
+		  $(function() {
+			$('#append').click(function () {
+			  table.bootstrapTable('append', getData(10, true))
+			})
+		  })
+	});
+	
+})(jQuery);
+		</script>
+		";
 		
 		if($form){
 		
@@ -290,12 +356,9 @@ class LTPLE_Client_Json_API {
 			//$table .=  'data-height="400" ';
 			$table .=  'data-url="' . $api_url . '" ';
 			$table .=  'data-pagination="'.( $pagination ? 'true' : 'false' ).'" ';
-			/*
 			if( $pagination == 'true' ){
-				
-				$table .=  'data-pagination-v-align="both" ';
+				//$table .=  'data-pagination-v-align="both" ';
 			}
-			*/
 			//$table .=  'data-side-pagination="server" ';
 			$table .=  'data-page-size="20" ';
 			$table .=  'data-page-list="[20, 50, 100, 200, 500]" ';					

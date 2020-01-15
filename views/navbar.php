@@ -371,7 +371,7 @@
 								
 									echo'<div style="display:none;" id="removeCurrentTpl" title="Remove current template">';
 										
-										echo '<h4>Are you sure you want to delete this template?</h4>';						
+										echo '<h4>Are you sure you want to delete this ' . $ltple->layer->get_storage_name($ltple->layer->layerStorage) . '?</h4>';						
 
 										echo '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&postAction=delete&confirmed">Yes</a>';
 										
@@ -507,19 +507,19 @@
 								echo'</div>';
 							}
 						}
-						else{
-								
-							echo'<div style="margin:0 2px;" class="btn-group">';
+						elseif( $storage_count = $ltple->layer->count_layers_by('storage') ){
 							
+							$storage_types = $ltple->layer->get_storage_types();
+							
+							echo'<div style="margin:0 2px;" class="btn-group">';
+								
 								echo'<button style="border-radius:5px;background:#42bcf5;font-weight:bold;color:#fff;font-size:11px;padding: 4px 8px;text-align: center;" type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Project</button>';
 								
 								echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 									
-									$storage_types = $ltple->layer->get_storage_types();
-										
 									foreach( $storage_types as $slug => $name ){
 										
-										if( $slug != 'user-menu' && $slug != 'wp-installer' ){
+										if( $slug != 'user-menu' && !empty($storage_count[$slug]) ){
 											
 											echo'<li style="position:relative;">';
 											
@@ -530,7 +530,7 @@
 									}
 								
 								echo'</ul>';
-								
+
 							echo'</div>';
 						}
 					}

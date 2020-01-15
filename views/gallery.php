@@ -62,7 +62,7 @@
 					echo '</div>';	
 				//}
 				
-				echo '<ul class="nav nav-tabs tabs-left" style="height:calc(100vh - '.( $this->inWidget ? 40 : 105 ).'px);overflow-x:hidden;overflow-y:auto;">';
+				echo '<ul class="nav nav-tabs tabs-left" style="height:calc(100vh - '.( $this->inWidget ? 40 : 130 ).'px);overflow-x:hidden;overflow-y:auto;">';
 										
 					foreach( $all_sections as $section => $type_ids ){
 					

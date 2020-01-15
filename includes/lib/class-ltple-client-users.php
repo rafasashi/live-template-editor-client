@@ -45,7 +45,6 @@
 			add_filter('admin_init', array( $this, 'delete_user_manually' ));
 			
 			add_action('delete_user', array( $this, 'delete_user' ),1,1);
-		
 		}
 
 		public function init_periods(){
@@ -55,6 +54,9 @@
 			if( !empty($_REQUEST['ltple_update']) && $_REQUEST['ltple_update'] == 'periods' ){
 				
 				$this->update_periods();
+				
+				echo'Periods updated';
+				exit;
 			}
 			
 			if( is_admin() ){
@@ -65,7 +67,7 @@
 				
 				if( !wp_next_scheduled( $this->parent->_base . 'update_periods' )) {
 					
-					wp_schedule_event( time(), 'daily' , $this->parent->_base . 'update_periods' );
+					wp_schedule_event( time(), 'hourly' , $this->parent->_base . 'update_periods' );
 				}
 			}
 		}
@@ -261,7 +263,7 @@
 					}
 					else{
 						
-						add_filter('manage_users_custom_column', array($this, 'get_subscribers_table_row'), 100, 3);
+						add_filter('manage_users_custom_column', array($this, 'get_user_table_row'), 100, 3);
 					}
 					
 					// custom bulk actions
@@ -329,12 +331,18 @@
 				
 					'meta_query'  => array(
 					
-						'relation' => 'AND',
+						'relation' => 'OR',
 						
 						array(
+						
 							'key'     	=> 'has_subscription',
 							'compare' 	=> '=',
 							'value'		=> 'true',
+						),	
+						array(
+						
+							'key'     	=> $this->parent->_base . 'period_end',
+							'compare' 	=> 'EXISTS',
 						)
 					),
 					'fields' => array('id','user_email'),
@@ -349,6 +357,10 @@
 						}
 					}
 				}							
+			}
+			else{
+				
+				wp_mail($this->parent->settings->options->emailSupport, 'Error updating periods', print_r('',true));
 			}
 		}
 		
@@ -717,7 +729,7 @@
 			$column["channel"]		= 'Channel';
 			$column["stars"]		= 'Stars';
 			//$column["leads"]		= 'Leads';
-			$column["notify"]			= 'Notify';
+			$column["notify"]		= 'Notify';
 			$column["sent"]			= 'Last emails sent';
 			
 			return $column;
@@ -743,28 +755,48 @@
 				
 		    echo '</style>';
 		}
+		
+		public function get_all_user_meta($user_id){
+			
+			$meta = array();
+			
+			if( $data = get_user_meta($user_id)){
+				
+				foreach( $data as $key => $value ){
+					
+					if(isset($value[0])){
+						
+						$meta[$key] = maybe_unserialize($value[0]);
+					}
+				}
+			}
+		
+			return $meta;
+		}
 
-		public function get_subscribers_table_row($val, $column_name, $user_id) {
+		public function get_user_table_row($val, $column_name, $user_id) {
 			
 			if(!isset($this->list->{$user_id})){
-			
+				
+				$meta = $this->get_all_user_meta($user_id);
+				
 				$this->list->{$user_id} = new stdClass();
+				
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
 				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
 				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id);
-				$this->list->{$user_id}->last_seen 	= get_user_meta($user_id, $this->parent->_base . '_last_seen',true);
-				$this->list->{$user_id}->last_uagent= $this->get_browser(get_user_meta($user_id, $this->parent->_base . '_last_uagent',true));
+				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
+				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
-				$this->list->{$user_id}->can_spam 	= get_user_meta($user_id, $this->parent->_base . '_can_spam',true);
-				$this->list->{$user_id}->notify 	= get_user_meta($user_id, $this->parent->_base . 'notify',true);
-				$this->list->{$user_id}->sent 		= get_user_meta($user_id, $this->parent->_base . '_email_sent',true);
-				$this->list->{$user_id}->referredBy	= get_user_meta($user_id, $this->parent->_base . 'referredBy',true);
+				$this->list->{$user_id}->can_spam 	= isset($meta[$this->parent->_base . '_can_spam']) ? $meta[$this->parent->_base . '_can_spam'] : '';
+				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : '';
+				$this->list->{$user_id}->sent 		= isset($meta[$this->parent->_base . '_email_sent']) ? $meta[$this->parent->_base . '_email_sent'] : '';
+				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
 				
 				// user marketing channel
 				
-				$terms = wp_get_object_terms( $user_id, 'marketing-channel' );
-				$this->list->{$user_id}->channel 	 = ( ( !isset($terms->errors) && isset($terms[0]->name) ) ? $terms[0]->name : '');
-				
+				$terms = wp_get_object_terms( $user_id, 'marketing-channel' );		
+				$this->list->{$user_id}->channel = ( ( !isset($terms->errors) && isset($terms[0]->name) ) ? $terms[0]->name : '');
 			}
 			
 			$user_role 	= $this->list->{$user_id}->role;
@@ -800,10 +832,8 @@
 				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
 					
 					if( !empty($period_end) ){
-						
-						$datediff = $period_end - time();
-						
-						$days = ceil( $datediff / (60 * 60 * 24) );
+
+						$days = floor($this->parent->plan->get_license_remaining_days($period_end));
 			
 						$row .= $days . ' ' . ( ($days == 1 || $days == -1) ? 'day' : 'days' ) ;					
 					}
@@ -966,7 +996,7 @@
 		
 		public function get_unsubscribers_table_row($val, $column_name, $user_id) {
 			
-			return $this->get_subscribers_table_row($val, $column_name, $user_id);
+			return $this->get_user_table_row($val, $column_name, $user_id);
 		}		
 		
 		public function update_guests_table($column) {
@@ -981,7 +1011,7 @@
 		
 		public function get_guests_table_row($val, $column_name, $user_id) {
 			
-			return $this->get_subscribers_table_row($val, $column_name, $user_id);
+			return $this->get_user_table_row($val, $column_name, $user_id);
 		}	
 		
 		public function update_leads_table($column) {
@@ -996,7 +1026,7 @@
 		
 		public function get_leads_table_row($val, $column_name, $user_id) {
 			
-			return $this->get_subscribers_table_row($val, $column_name, $user_id);
+			return $this->get_user_table_row($val, $column_name, $user_id);
 		}
 		
 		public function update_conversions_table($column) {
@@ -1011,7 +1041,7 @@
 		
 		public function get_conversions_table_row($val, $column_name, $user_id) {
 			
-			return $this->get_subscribers_table_row($val, $column_name, $user_id);
+			return $this->get_user_table_row($val, $column_name, $user_id);
 		}
 		
 		public function get_user_notification_settings( $user_id ){
@@ -1215,7 +1245,7 @@
 			//wp_redirect($sendback);
 		 
 			exit();
-		}			
+		}
 		
 		public function get_filter_value($filter) {
 			

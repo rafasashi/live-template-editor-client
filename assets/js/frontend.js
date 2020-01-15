@@ -258,7 +258,7 @@
 		
 		if( $(".library-content .nav").length ){
 		
-			$(".library-content .nav").append('<li class="more dropdown" style="display:none;"><button style="padding:3px 8px;margin:8px 0px;background:#b1b1b1;" class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button><ul id="overflow" class="dropdown-menu dropdown-menu-right"></ul></li>').css('overflow','visible');
+			$(".library-content .nav").append('<li class="more dropdown" style="display:none;"><button style="padding:3px 8px;margin:8px 0px;background:#b1b1b1;" class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button><ul id="overflow" class="dropdown-menu dropdown-menu-right"></ul></li>').css('overflow','visible !important');
 			
 			window.onresize = navigationResize;
 			

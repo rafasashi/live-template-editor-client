@@ -24,6 +24,7 @@
 		'lk'	=> $this->layer->key,
 		'lo'	=> $this->layer->layerOutput,
 		'll'	=> ( $this->layer->is_local ? md5( 'true' . $this->layer->id ) : md5( 'false' . $this->layer->id )),
+		'ow'	=> $this->ltple_encrypt_str( $user_email ),
 		'pu'	=> urlencode($this->urls->plans),
 		'ref'	=> $ref, 
 		'rk'	=> $ref_key,

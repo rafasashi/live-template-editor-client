@@ -138,6 +138,13 @@ class LTPLE_Client_Plan {
 			add_filter('manage_subscription-plan_posts_columns', array( $this, 'set_subscription_plan_columns'));
 			add_action('manage_subscription-plan_posts_custom_column', array( $this, 'add_subscription_plan_column_content'), 10, 2);
 			add_filter('nav_menu_css_class', array( $this, 'change_subscription_plan_menu_classes'), 10,2 );
+			
+			/*
+			if( !empty($_REQUEST['ltple_update']) && $_REQUEST['ltple_update'] == 'ids' ){
+				
+				$this->remote_update_image_urls();
+			}
+			*/			
 		}
 	}
 	
@@ -354,86 +361,88 @@ class LTPLE_Client_Plan {
 			
 			foreach( $plan['info']['total_storage'] as $storage_unit => $total_storage_amount){
 				
-				if($total_storage_amount > 0 ){
+				foreach( $layer_types as $type ){
 					
-					foreach( $layer_types as $type ){
+					if( $type->name == $storage_unit && !empty($type->ranges) ){
 						
-						if( $type->name == $storage_unit && !empty($type->ranges) ){
+						// get section
+						
+						$section = $type->gallery_section->name;
+						
+						// get header
+						
+						$row ='<tr>';
+						
+							$row .='<th>';
 							
-							// get section
-							
-							$section = $type->gallery_section->name;
-							
-							// get header
-							
-							$row ='<tr>';
-							
-								$row .='<th>';
-								
-									$row .= $storage_unit;
+								$row .= $storage_unit;
 
-								$row .='</th>';
-								
-								$row .='<th>';
-									
-									if( is_array($usage) ){
-										
-										$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
-										
-										$row .= '<span class="badge">'. $storage_usage .' / ' . $total_storage_amount.'</span>';
-									}
-									else{
-										
-										$row .= '<span class="badge">+' . $total_storage_amount.'</span> saved projects';
-									}
-									
-								$row .='</th>';
-								
-							$row .='</tr>';						
+							$row .='</th>';
 							
-							// get ranges
-							
-							foreach( $type->ranges as $range ){
+							$row .='<th>';
 								
-								if( empty($type->addon_range) || $type->addon_range->term_id != $range->term_id ){
+								if( is_array($usage) ){
 									
-									$row .='<tr>';
+									$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
 									
-										$row .='<td>';
-										
-											$row .= $range->name;
-
-										$row .='</td>';
-										
-										$row .='<td style="text-align:center;">';
-											
-											if( isset($plan['options'][0]) && in_array( $range->slug, $plan['options'] ) ){
-												
-												// plan view
-												
-												$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
-											}
-											elseif( isset( $plan['taxonomies'][$range->taxonomy]['terms'][$range->slug]['has_term'] ) && $plan['taxonomies'][$range->taxonomy]['terms'][$range->slug]['has_term'] === true ){
-												
-												// billing info view
-												
-												$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
-											}											
-											else{
-												
-												$row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
-											}
-
-										$row .='</td>';
-										
-									$row .='</tr>';
+									$row .= '<span class="badge">'. $storage_usage .' / ' . $total_storage_amount.'</span>';
 								}
+								else{
+									
+									$row .= 'Unlimited access';
+									
+									if( $total_storage_amount > 0 ){
+										
+										$row .= ' <span class="badge">+' . $total_storage_amount . '</span> saved ' . $this->parent->layer->get_storage_name($type->storage) . ( $total_storage_amount == 1 ? '' : 's' );
+									}
+								}
+								
+							$row .='</th>';
+							
+						$row .='</tr>';						
+						
+						// get ranges
+						
+						foreach( $type->ranges as $range ){
+							
+							if( empty($type->addon_range) || $type->addon_range->term_id != $range->term_id ){
+								
+								$row .='<tr>';
+								
+									$row .='<td>';
+									
+										$row .= $range->name;
+
+									$row .='</td>';
+									
+									$row .='<td style="text-align:center;">';
+										
+										if( isset($plan['options'][0]) && in_array( $range->slug, $plan['options'] ) ){
+											
+											// plan view
+											
+											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+										}
+										elseif( isset( $plan['taxonomies'][$range->taxonomy]['terms'][$range->slug]['has_term'] ) && $plan['taxonomies'][$range->taxonomy]['terms'][$range->slug]['has_term'] === true ){
+											
+											// billing info view
+											
+											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+										}											
+										else{
+											
+											$row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
+										}
+
+									$row .='</td>';
+									
+								$row .='</tr>';
 							}
 						}
 					}
-					
-					$sections[$section][] = $row;
 				}
+				
+				$sections[$section][] = $row;
 			}
 		}
 		
@@ -1197,7 +1206,7 @@ class LTPLE_Client_Plan {
 				
 				$api_url .= '&user=' . $this->parent->ltple_encrypt_uri($user_email);
 			}
-
+			
 			$response = wp_remote_get( $api_url );
 			
 			if( is_array($response) && !empty($response['body']) ){
@@ -1228,6 +1237,54 @@ class LTPLE_Client_Plan {
 		return false;
 	}
 	
+	public function remote_update_image_urls(){
+		
+		if( $ids = $this->remote_get_ids() ){
+			
+			$updated = array();
+			
+			foreach( $ids as $email => $id ){
+				
+				//if( $email != 'abc' ) continue;
+				
+				if( $user = get_user_by('email',$email) ){
+					
+					if( $projects = get_posts(array(
+					
+						'author' 		=> $user->ID,
+						'post_type' 	=> 'user-layer',
+						/*
+						'meta_query' 	=> array(array(
+						   
+						   'key' 		=> 'layerContent',
+						   'value' 		=> 'd3gsv4xtxd08bd.cloudfront.net',
+						   'compare' 	=> 'LIKE',
+						)),
+						*/
+						
+					))){
+						
+						foreach( $projects as $project ){
+						
+							$content = get_post_meta($project->ID,'layerContent',true);
+							
+							$new_content = str_replace('d3gsv4xtxd08bd.cloudfront.net',$id.'.bucket.camgirl.cloud',$content);
+							
+							if( $content != $new_content ){
+								
+								update_post_meta($project->ID,'layerContent',$new_content);
+							
+								$updated[$project->ID]=$id.'.bucket.camgirl.cloud';
+							}
+						}
+					}
+				}
+			}
+		}
+		dump($updated);
+		exit;		
+	}
+	
 	public function remote_update_periods( $blocking = false ){
 		
 		wp_remote_request( $this->parent->urls->home . '/?ltple_update=periods', array(
@@ -1236,6 +1293,47 @@ class LTPLE_Client_Plan {
 			'timeout' 	=> 100,
 			'blocking' 	=> $blocking
 		));		
+	}
+	
+	public function remote_get_ids($user_email=''){
+		
+		if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
+			
+			$api_url = $this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/ids?_=' . time();
+			
+			if(!empty($user_email)){
+				
+				$api_url .= '&user=' . $this->parent->ltple_encrypt_uri($user_email);
+			}
+			
+			$response = wp_remote_get( $api_url );
+			
+			if( is_array($response) && !empty($response['body']) ){
+				
+				$body = json_decode($response['body'],true);
+				
+				if( !empty($body['data']) ){
+					
+					$ids = $this->parent->ltple_decrypt_str($body['data']);
+					
+					if( !empty($ids) ){
+						
+						$ids = json_decode($ids,true);
+						
+						if( !empty($ids) && is_array($ids) ){
+							
+							return $ids;							
+						}
+					}
+				}
+			}
+			else{
+				
+				//dump($response);
+			}
+		}
+		
+		return false;
 	}
 
 	public function update_user(){
@@ -1985,8 +2083,13 @@ class LTPLE_Client_Plan {
 		$remaining_days = 0;
 		
 		if( !empty($period_end) ){
-		
-			$remaining_days = $period_end > 0 ? ceil( ($period_end - time()) / (60 * 60 * 24) ) : 0;		
+			
+			$remaining_days = ceil( ($period_end - time()) / (60 * 60 * 24) );	
+			
+			if( $remaining_days == 0 || $remaining_days == -0 ){
+				
+				$remaining_days = 0.1; // one day margin for client side services
+			}
 		}
 		
 		return $remaining_days;

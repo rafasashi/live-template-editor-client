@@ -21,6 +21,7 @@ class LTPLE_Client_Object {
 			'taxonomy' 		=> $taxonomy, 
 			'order' 		=> $order, 
 			'hide_empty'	=> $hide_empty,
+			//'update_term_meta_cache' => false,
 		));
 
 		if( !empty($default) ){

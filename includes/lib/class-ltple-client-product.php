@@ -45,6 +45,10 @@ class LTPLE_Client_Product {
 		}, 1);
 		
 		add_filter('template_redirect', array( $this, 'get_url_parameters' ));
+	
+		add_action( 'ltple_product_info', array($this,'get_product_info'),10,1 );
+		
+		add_filter('post_type_link', array( $this, 'get_permalink'),1,2);
 	}
 
 	public function get_url_parameters(){
@@ -62,6 +66,8 @@ class LTPLE_Client_Product {
 			if( !empty($q->post_type) && $q->post_type == 'cb-default-layer' ){
 				
 				// set product info
+				
+				$GLOBALS['post'] = $q;
 				
 				foreach( $q as $key => $value){
 					
@@ -112,6 +118,16 @@ class LTPLE_Client_Product {
 		}
 	}
 	
+	public function get_permalink( $post_link, $post ){
+
+		if( $post->post_type == 'cb-default-layer' ){
+			
+			$post_link = $this->parent->urls->home . '/' . $this->slug . '/' . $post->ID . '/';
+		}
+					
+		return $post_link;
+	}
+	
 	public function get_title( $title ){
 		
 		$title['title'] = $this->post_title . ' template';
@@ -128,7 +144,7 @@ class LTPLE_Client_Product {
 
 		echo '<meta name="twitter:card" 		content="summary" />';
 		//echo '<meta name="twitter:site" 		content="@" />';
-		echo '<meta name="twitter:title" 		content="Awesome ' . $this->post_title . ' template!" />';
+		echo '<meta name="twitter:title" 		content="Awesome ' . $this->post_title . '!" />';
 		echo '<meta name="twitter:description" 	content="' . $this->post_excerpt . '" />';
 		echo '<meta name="twitter:image" 		content="' . $this->image . '" />';
 		
@@ -136,7 +152,7 @@ class LTPLE_Client_Product {
 		
 		echo '<meta property="og:url"           content="' . $this->parent->urls->product . $this->ID . '/" />';
 		echo '<meta property="og:type"          content="article" />';
-		echo '<meta property="og:title"         content="Awesome ' . $this->post_title . ' template!" />';
+		echo '<meta property="og:title"         content="Awesome ' . $this->post_title . '!" />';
 		echo '<meta property="og:description"   content="' . $this->post_excerpt . '" />';
 		echo '<meta property="og:image"         content="' . $this->image . '" />';
 	}
@@ -259,7 +275,7 @@ class LTPLE_Client_Product {
 				
 				$button.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 					
-					$button.='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+					$button.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 						
 						$button.='<div class="modal-content">'.PHP_EOL;
 						
@@ -286,7 +302,7 @@ class LTPLE_Client_Product {
 
 								$button.= '<div class="loadingIframe" style="position:absolute;height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
 
-								$button.= '<iframe data-src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->parent->plan->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';
+								$button.= '<iframe data-src="'.$agreement_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 60px);overflow: hidden;"></iframe>';
 							
 							$button.='</div>'.PHP_EOL;
 							
@@ -312,7 +328,7 @@ class LTPLE_Client_Product {
 				
 				$button.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 					
-					$button.='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+					$button.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 						
 						$button.='<div class="modal-content">'.PHP_EOL;
 						
@@ -332,7 +348,7 @@ class LTPLE_Client_Product {
 
 								$button.= '<div class="loadingIframe" style="position:absolute;height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
 
-								$button.= '<iframe data-src="'.$checkout_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->parent->plan->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';
+								$button.= '<iframe data-src="'.$checkout_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 60px);overflow: hidden;"></iframe>';
 							
 							$button.='</div>'.PHP_EOL;
 							
@@ -361,6 +377,83 @@ class LTPLE_Client_Product {
 		}
 
 		return $button;
+	}
+	
+	public function get_product_tabs($product){
+		
+		$tabs = array();
+		
+		if( !empty($product->post_content) ){
+			
+			$tabs[] = array(
+				
+				'slug'		=> 'description',
+				'name'		=> 'Description',
+				'content'	=> $this->get_product_description($product),
+			);
+		}
+		
+		return apply_filters('ltple_product_tabs',$tabs,$product);
+	}
+	
+	public function get_product_description($product){
+		
+		$description = '';
+		
+		if( !empty($product->post_content) ){
+			
+			$description .= '<div class="col-xs-12 col-sm-8 col-lg-9">';
+			
+				$description .= do_shortcode($product->post_content);
+			
+			$description .= '</div>';
+		}
+
+		return $description;
+	}
+	
+	public function get_product_info($product){
+		
+		echo'<div class="col-xs-12">';
+			
+			if( $tabs = $this->get_product_tabs($product) ){
+				
+				echo'<ul class="nav nav-tabs" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;overflow:visible !important;height:50px;font-size:15px;font-weight:bold;">';
+					
+					$class=' class="active"';
+					
+					foreach( $tabs as $tab ){
+						
+						echo'<li role="presentation"'.$class.'><a href="#'.$tab['slug'].'" aria-controls="'.$tab['slug'].'" role="tab" data-toggle="tab" aria-expanded="true">'.$tab['name'].'</a></li>';
+					
+						$class = '';
+					}
+					
+				echo'</ul>';
+
+				echo'<div class="panel panel-default">';								
+				
+					echo'<div class="panel-body tab-content" style="min-height:380px;">';
+						
+						$class = ' class="tab-pane active"';
+						
+						foreach( $tabs as $tab ){
+							
+							echo '<div role="tabpanel"'.$class.' id="'.$tab['slug'].'">';
+							
+								echo $tab['content'];
+								
+							echo '</div>';
+							
+							$class = ' class="tab-pane"';
+						}
+						
+					echo'</div>';
+					
+				echo'</div>';
+			}
+			
+		echo'</div>';		
 	}
 	
 	/**

@@ -60,13 +60,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export'			=> true,
-			'rewrite' 				=> array('slug'=>'default-layer'),
+			'rewrite' 				=> array('slug'=>'preview'),
 			'capability_type' 		=> 'post',
 			'has_archive' 			=> true,
 			'hierarchical' 			=> true,
 			'show_in_rest' 			=> false,
 			//'supports' 			=> array( 'title', 'editor', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array( 'title', 'excerpt', 'thumbnail', 'author' ),
+			'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail', 'author' ),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		)); 
@@ -669,7 +669,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$layer_range = $this->get_layer_range($post);	
 			
-			$this->defaultFields[]=array(
+			$this->defaultFields[] = array(
 			
 				'metabox' => array( 
 				
@@ -688,6 +688,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'taxonomy'	=> 'layer-range',
 				'callback' 	=> array($this,'get_layer_range_id'),
 				'description'=>''
+			);
+			
+			$this->defaultFields[] = array(
+			
+				'metabox' => array( 
+				
+					'name' 		=> 'layer-gallery',
+					'title' 	=> __( 'Gallery Images', 'live-template-editor-client' ), 
+					'screen'	=> array('cb-default-layer'),
+					'context' 	=> 'side',
+					'frontend'	=> false,
+				),
+				
+				'type'			=> 'gallery',
+				'id'			=> 'layer-gallery',
+				'label'			=> '',
+				'description'	=>''
 			);
 
 			if( !empty($layer_type->output) ){
@@ -1481,7 +1498,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_storage_types(){
 		
-		if( empty($this->storageTypes) ){
+		if( is_null($this->storageTypes) ){
 		
 			$this->storageTypes = apply_filters('ltple_layer_storages',array(
 					
@@ -2004,6 +2021,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $output;
 	}
 	
+	public function get_storage_name($storage_slug){
+		
+		$storage_types = $this->get_storage_types();
+		
+		if( isset($storage_types[$storage_slug]) ){
+			
+			return $storage_types[$storage_slug];
+		}
+		
+		return false;
+	}
+	
 	public function get_type_storage($term){
 		
 		if( !$storage = get_term_meta( $term->term_id, 'default_storage', true ) ){
@@ -2373,11 +2402,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( $layer->post_type == 'cb-default-layer' || $this->is_storage || $this->is_local || $this->is_media ){
 					
-					$this->id 		= $layer->ID;
-					$this->type 	= $layer->post_type;
-					$this->slug 	= $layer->post_name;
-					$this->title 	= $layer->post_title;
-					$this->author 	= intval($layer->post_author);
+					$this->id 			= $layer->ID;
+					$this->type 		= $layer->post_type;
+					$this->slug 		= $layer->post_name;
+					$this->title 		= $layer->post_title;
+					$this->author 		= intval($layer->post_author);
 					
 					$local_types = $this->get_local_post_types();
 					
@@ -3653,12 +3682,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$term_slug 	= $term->slug;
 		}
 	
-		if(!$price_amount = get_option('price_amount_' . $term_slug)){
+		if(!$price_amount = $this->get_plan_amount($term_id,'price')){
 			
 			$price_amount = 0;
 		} 
 		
-		if(!$price_period = get_option('price_period_' . $term_slug)){
+		if(!$price_period = $this->get_plan_period($term_id,'price')){
 			
 			$price_period = 'month';
 		}
@@ -3671,7 +3700,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( $type = get_term($type_id) ){
 					
-					$storage_amount = get_option('storage_amount_' . $term_slug,0);
+					$storage_amount = $this->get_plan_amount($term_id,'storage');
 
 					$storage[$type->name] = $storage_amount;
 				}
@@ -3711,7 +3740,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$this->options  = array();
 			
-			do_action('ltple_account_options',$term_slug);
+			do_action('ltple_account_options',$term_id);
 			
 			$options = array_merge($options,$this->options);
 		}
@@ -3719,6 +3748,78 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $options;
 	}
 	
+	public function get_plan_amount($term_id,$type){
+		
+		if( is_object($term_id) ){
+			
+			$term_id = $term_id->term_id;
+		}
+		
+		$amount = 0;
+		
+		if( !empty($term_id) ){
+			
+			$meta = get_term_meta($term_id,$type . '_amount',true);
+			
+			if( is_numeric($meta) ){
+				
+				$amount = $meta;
+			}
+			else{
+				
+				// data migration from option to meta
+				
+				$term = get_term($term_id);
+				
+				$amount = get_option( $type . '_amount_' . $term->slug,$amount);
+				
+				$this->update_plan_amount($term_id,$type,$amount);
+			}			
+		}
+		
+		return intval($amount);
+	}
+	
+	public function update_plan_amount($term_id,$type,$amount){
+		
+		update_term_meta($term_id,$type . '_amount',$amount);
+	}
+	
+	public function get_plan_period($term_id,$type){
+		
+		if( is_object($term_id) ){
+			
+			$term_id = $term_id->term_id;
+		}
+		
+		$period = 'month';
+		
+		if( !empty($term_id) ){
+			
+			if( $meta = get_term_meta($term_id,$type . '_period',true)){
+				
+				$period = $meta;
+			}
+			else{
+				
+				// data migration from option to meta
+				
+				$term = get_term($term_id);
+				
+				$period = get_option( $type . '_period_' . $term->slug,$period);
+				
+				$this->update_plan_period($term_id,$type,$period);
+			}			
+		}
+		
+		return $period;
+	}
+	
+	public function update_plan_period($term_id,$type,$period){
+		
+		return update_term_meta($term_id,$type . '_period',$period);
+	}
+
 	public function show_layer(){
 		
 		$data = [];
@@ -4076,8 +4177,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 					if( !empty($term->slug) ){
 					
-						$price['price_amount'] = get_option('price_amount_' . $term->slug); 
-						$price['price_period'] = get_option('price_period_' . $term->slug); 
+						$price['price_amount'] = $this->get_plan_amount($term->term_id,'price'); 
+						$price['price_period'] = $this->get_plan_period($term->term_id,'price'); 
 					}	
 					
 					echo'<div class="form-field" style="margin-bottom:15px;">';
@@ -4094,7 +4195,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						// layer storage amount
 						
-						$storage['storage_amount'] 	= get_option('storage_amount_' . $term->slug);
+						$storage['storage_amount'] 	= $this->get_plan_amount($term->term_id,'storage');
 						$storage['storage_unit'] 	= get_term_meta($term->term_id,'range_type',true);
 						
 						// layer range type
@@ -4127,7 +4228,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						//addon account fields
 						
-						do_action('ltple_account_plan_fields', $term->taxonomy, $term->slug);
+						do_action('ltple_account_plan_fields', $term->taxonomy, $term->term_id);
 					}
 					
 				echo'</td>';
@@ -4692,12 +4793,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			elseif($column_name === 'price') {
 				
-				if(!$price_amount = get_option('price_amount_' . $term->slug)){
+				if(!$price_amount = $this->get_plan_amount($term,'price')){
 					
 					$price_amount = 0;
 				} 
 				
-				if(!$price_period = get_option('price_period_' . $term->slug)){
+				if(!$price_period = $this->get_plan_period($term->term_id,'price')){
 					
 					$price_period = 'month';
 				} 	
@@ -4708,7 +4809,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				// get storage amount
 				
-				$storage_amount = get_option('storage_amount_' . $term->slug,0);			
+				$storage_amount = $this->get_plan_amount($term,'storage');			
 				
 				// get range type
 				
@@ -4799,7 +4900,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( isset($_POST[$term->taxonomy .'-price-amount']) && is_numeric($_POST[$term->taxonomy .'-price-amount']) ){
 
-					update_option('price_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1),false);			
+					$this->update_plan_amount($term->term_id,'price',round(intval(sanitize_text_field($_POST[$term->taxonomy . '-price-amount'])),1));
 				}
 				
 				if( isset($_POST[$term->taxonomy .'-price-period']) ){
@@ -4809,13 +4910,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if(isset($periods[$period])){
 						
-						update_option('price_period_' . $term->slug, $period,false);	
+						$this->update_plan_period($term->term_id,'price',$period);
 					}
 				}
 				
 				if(isset($_POST[$term->taxonomy .'-storage-amount'])&&is_numeric($_POST[$term->taxonomy .'-storage-amount'])){
 
-					update_option('storage_amount_' . $term->slug, round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0),false);			
+					$this->update_plan_amount($term->term_id,'storage',round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0));
 				}
 
 				if(isset($_POST['output'])){

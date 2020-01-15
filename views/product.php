@@ -15,7 +15,7 @@
 				
 		$outputs 		= $this->parent->layer->get_layer_outputs();
 
-		$permalink 		= get_permalink($this) . '?preview';
+		$permalink 		= $this->parent->urls->home . '/preview/' . $this->post_name . '/';
 		
 		$editor_url 	= $this->parent->urls->editor . '?uri=' . $this->ID;
 		
@@ -62,9 +62,13 @@
 			$from_currency 	= isset($plans[0]['info']['total_price_currency']) ? $plans[0]['info']['total_price_currency'] : '$';
 		}
 		
-		echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> ' . $this->post_title . '</h1>';
+		echo'<div class="panel-header">';
 		
-		echo'<div id="layer_detail" class="col-xs-12">';
+			echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> ' . $this->post_title . '</h1>';
+		
+		echo'</div>';
+		
+		echo'<div id="layer_detail" class="col-xs-12 library-content">';
 
 			echo'<div class="row">';
 				
@@ -220,13 +224,13 @@
 					
 					echo'<div id="share_product" style="margin:25px 0;font-size:40px;">';
 					
-						echo'<a href="https://twitter.com/intent/tweet?text=' . urlencode( 'Awesome ' . $this->post_title . ' template! ' . $product_url ) . '" target="_blank" title="share on twitter" style="margin:5px;">';
+						echo'<a href="https://twitter.com/intent/tweet?text=' . urlencode( 'Awesome ' . $this->post_title . '! ' . $product_url ) . '" target="_blank" title="share on twitter" style="margin:5px;">';
 						
 							echo'<i class="fa fa-twitter-square" aria-hidden="true"></i>';
 						
 						echo'</a>';
 						
-						echo'<a href="https://www.facebook.com/sharer/sharer.php?u='.urlencode( $product_url ).'&t='.urlencode( 'Awesome ' . $this->post_title . ' template!' ).'" target="_blank" title="share on facebook" style="margin:5px;">';
+						echo'<a href="https://www.facebook.com/sharer/sharer.php?u='.urlencode( $product_url ).'&t='.urlencode( 'Awesome ' . $this->post_title . '!' ).'" target="_blank" title="share on facebook" style="margin:5px;">';
 					
 							echo'<i class="fa fa-facebook-square" aria-hidden="true"></i>';
 						
@@ -240,7 +244,7 @@
 						echo'</a>';
 						*/
 						
-						echo'<a href="http://pinterest.com/pin/create/link/?url='.urlencode( $product_url ).'&description='.urlencode( 'Awesome ' . $this->post_title . ' template!' ).'" target="_blank" title="share on pinterest" style="margin:5px;">';
+						echo'<a href="http://pinterest.com/pin/create/link/?url='.urlencode( $product_url ).'&description='.urlencode( 'Awesome ' . $this->post_title . '!' ).'" target="_blank" title="share on pinterest" style="margin:5px;">';
 						
 							echo'<i class="fa fa-pinterest-square" aria-hidden="true"></i>';
 					
@@ -288,7 +292,11 @@
 			
 				//output more info
 				
+				do_action('ltple_product_info',$this);
+				
 				if( $is_html ){
+					
+					echo'<div class="clearfix"></div>';
 					
 					echo'<div id="about_tool" class="col-md-4">';
 

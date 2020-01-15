@@ -1826,7 +1826,144 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</div>';
 
 				break;
+				
+				case 'gallery':
+					
+					$html .='<table id="gallery-metabox">';
+					
+					  $html .='<tr><td>';
+					  
+						$html .='<ul id="gallery-metabox-list">';
+						
+							if ($data) : foreach($data as $key => $value) : $image = wp_get_attachment_image_src($value);
 
+							  $html .='<li>';
+								$html .='<input type="hidden" name="' . $option_name . '[' . $key . ']" value="' . $value . '">';
+								$html .='<img class="image-preview" src="' . $image[0] . '">';
+								$html .='<a class="remove-image" href="#">x</a>';
+							  $html .='</li>';
+
+							endforeach; endif;
+							
+						$html .='</ul>';
+						
+						$html .='<a href="#" class="gallery-add" data-uploader-title="Add gallery images" data-uploader-button-text="Add gallery images">Add gallery images</a>';
+
+					  $html .='</td></tr>';
+					  
+					$html .='</table>';
+					
+					$html .='<style>
+						#gallery-metabox-list {
+							margin-bottom:10px;
+							display:inline-block;
+						}
+						#gallery-metabox-list li {
+							width: 75px;
+							float: left;
+							cursor: move;
+							border: 1px solid #d5d5d5;
+							margin: 9px 9px 0 0;
+							background: #f7f7f7;
+							border-radius: 2px;
+							position: relative;
+							box-sizing: border-box;
+						}
+						#gallery-metabox-list img {
+							width: 100%;
+							height: auto;
+							display: block;						
+						}
+						#gallery-metabox-list .remove-image {
+							position: absolute;
+							top: 0;
+							text-align: center;
+							color: #fff;
+							border: 2px solid #fff;
+							background: #9E9E9E;
+							border-radius: 250px;
+							height: 20px;
+							width: 20px;
+							font-size: 12px;
+							font-weight: bold;
+							margin: -5px;
+							right: 0;
+						}
+						.gallery-add {
+							display:block;
+						}
+					</style>';
+					
+					$html .='<script>
+					
+						jQuery(function($) {
+					
+						  var file_frame;
+
+						  $(document).on(\'click\', \'#gallery-metabox a.gallery-add\', function(e) {
+
+							e.preventDefault();
+
+							if (file_frame) file_frame.close();
+
+							file_frame = wp.media.frames.file_frame = wp.media({
+							  title: $(this).data(\'uploader-title\'),
+							  button: {
+								text: $(this).data(\'uploader-button-text\'),
+							  },
+							  multiple: true
+							});
+
+							file_frame.on(\'select\', function() {
+							  var listIndex = $(\'#gallery-metabox-list li\').index($(\'#gallery-metabox-list li:last\')),
+								  selection = file_frame.state().get(\'selection\');
+
+							  selection.map(function(attachment, i) {
+								attachment = attachment.toJSON(),
+								index      = listIndex + (i + 1);
+
+								$(\'#gallery-metabox-list\').append(\'<li><input type="hidden" name="' . $option_name . '[\' + index + \']" value="\' + attachment.id + \'"><img class="image-preview" src="\' + attachment.sizes.thumbnail.url + \'"><a class="remove-image" href="#">x</a></li>\');
+							  });
+							});
+
+							makeSortable();
+							
+							file_frame.open();
+
+						  });
+
+						  function resetIndex() {
+							$(\'#gallery-metabox-list li\').each(function(i) {
+							  $(this).find(\'input:hidden\').attr(\'name\', \'' . $option_name . '[\' + i + \']\');
+							});
+						  }
+
+						  function makeSortable() {
+							$(\'#gallery-metabox-list\').sortable({
+							  opacity: 0.6,
+							  stop: function() {
+								resetIndex();
+							  }
+							});
+						  }
+
+						  $(document).on(\'click\', \'#gallery-metabox a.remove-image\', function(e) {
+							e.preventDefault();
+
+							$(this).parents(\'li\').animate({ opacity: 0 }, 200, function() {
+							  $(this).remove();
+							  resetIndex();
+							});
+						  });
+
+						  makeSortable();
+
+						});					
+					
+					</script>';			
+				
+				break;
+				
 				case 'image':
 					$image_thumb = '';
 					if ( $data ) {

@@ -76,32 +76,6 @@ class LTPLE_Client_Settings {
 		// Add settings link to plugins page
 		add_filter( 'plugin_action_links_' . plugin_basename( $this->parent->file ) , array( $this, 'add_settings_link' ) );
 		
-		// Custom default layer editor
-		
-		add_action('edit_form_after_title', function() {
-			
-			if( $screen = get_current_screen() ){
-				
-				$custom_post_types=[];
-				
-				$custom_post_types['cb-default-layer'] 	= '';
-				$custom_post_types['user-layer'] 		= '';
-				$custom_post_types['default-image'] 	= '';
-				$custom_post_types['user-image'] 		= '';
-				$custom_post_types['user-url'] 			= '';
-				
-				$custom_post_types['email-model'] 		= '';
-				$custom_post_types['email-campaign'] 	= '';
-			
-				if( isset( $custom_post_types[$screen->id] ) ){
-					
-					add_filter( 'wp_default_editor', array( $this, 'set_default_editor') );
-					add_filter( 'admin_footer', array( $this, 'set_admin_edit_page_js'), 99);
-					add_filter( 'tiny_mce_before_init', array( $this, 'schema_TinyMCE_init') );	
-				}
-			}
-		});
-		
 		//Add Custom API Endpoints
 		
 		add_action( 'rest_api_init', function () {
@@ -1243,55 +1217,7 @@ class LTPLE_Client_Settings {
 			echo '</div>';
 		}
 	}	
-	
-	public function set_default_editor() {
-		
-		$r = 'html';
-		return $r;
-	}
-	
-	public function set_admin_edit_page_js(){
-		
-		echo '  <style type="text/css">
-		
-					#content-tmce, #content-tmce:hover, #qt_content_fullscreen{
-						display:none;
-					}
-					
-				</style>';
-				
-		echo '	<script type="text/javascript">
-		
-				jQuery(document).ready(function(){
-					jQuery("#content-tmce").attr("onclick", null);
-				});
-				
-				</script>';
-	}
 
-	public function schema_TinyMCE_init($in){
-		
-		/**
-		 *   Edit extended_valid_elements as needed. For syntax, see
-		 *   http://www.tinymce.com/wiki.php/Configuration:valid_elements
-		 *
-		 *   NOTE: Adding an element to extended_valid_elements will cause TinyMCE to ignore
-		 *   default attributes for that element.
-		 *   Eg. a[title] would remove href unless included in new rule: a[title|href]
-		 */
-		
-		if(!isset($in['extended_valid_elements']))
-			$in['extended_valid_elements']= '';
-		
-		if(!empty($in['extended_valid_elements']))
-			$in['extended_valid_elements'] .= ',';
-
-		$in['extended_valid_elements'] .= '@[id|class|style|title|itemscope|itemtype|itemprop|datetime|rel],div,dl,ul,ol,dt,dd,li,span,a|rev|charset|href|lang|tabindex|accesskey|type|name|href|target|title|class|onfocus|onblur]';
-
-		return $in;
-	}
-
-	
 	/**
 	 * Main LTPLE_Client_Settings Instance
 	 *
