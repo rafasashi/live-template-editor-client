@@ -56,7 +56,7 @@ class LTPLE_Client_Settings {
 		$this->titleBkg = get_option( $this->parent->_base . 'titleBkg', '' );
 		
 		$this->options->enable_ranking 	= get_option( $this->parent->_base . 'enable_ranking', 'off' );
-
+		
 		// get custom style
 		
 		$this->navbarColor 	= get_option( $this->parent->_base . 'navbarColor', '#182f42' );

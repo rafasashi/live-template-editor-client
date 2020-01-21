@@ -531,7 +531,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'post_type' 	=> 'cb-default-layer',
 					'status'		=> 'publish',
 					'numberposts'	=> -1,
-					
+					'tax_query' => array(
+						/*
+						array(
+							'taxonomy' => 'layer-type',
+							'terms'    => get_terms( 'layer-type', [ 'fields' => 'ids'  ] ),
+							'operator' => 'IN'
+						),
+						*/
+						array(
+							'taxonomy' => 'layer-range',
+							'terms'    => get_terms( 'layer-range', [ 'fields' => 'ids'  ] ),
+							'operator' => 'IN'
+						)
+					)
 				))){
 					
 					foreach( $default_layers as $layer ){

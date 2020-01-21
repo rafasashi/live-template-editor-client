@@ -431,16 +431,15 @@ class LTPLE_Client_Gallery {
 				'post_type' 	=> 'cb-default-layer', 
 				'tax_query' 	=> $tax_query,
 				'meta_query' 	=> $meta_query,
-				
 			);
 			
 			//dump($args);
 
 			if( $paginated ){
 				
-				$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
+				$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['paged']) ? intval($_GET['paged']) : 1 );
 				
-				$args['posts_per_page'] = 15;
+				$args['posts_per_page'] = 20;
 				$args['paged'] 			= $paged;
 			}
 			else{
@@ -528,7 +527,7 @@ class LTPLE_Client_Gallery {
 								}
 								elseif( !empty($plans) ){
 									
-									$item .='You need the <span class="label label-success">'.$plans[0]['title'].'</span> plan'.( count($plans) > 1 ? ' or higher ' : ' ').'to <span class="label label-default">unlock all</span> the templates from this gallery';
+									$item .='You need the <span class="label label-success">'.$plans[0]['title'].'</span> plan'.( count($plans) > 1 ? ' or higher ' : ' ').'to <span class="label label-default">unlock all</span> the items from this gallery';
 								}
 								else{
 								

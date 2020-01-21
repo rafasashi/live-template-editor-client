@@ -202,6 +202,20 @@ class LTPLE_Client_Dashboard {
 					'compare' 		=> '!=',
 				)
 			),
+			'tax_query' => array(
+				/*
+				array(
+					'taxonomy' => 'layer-type',
+					'terms'    => get_terms( 'layer-type', [ 'fields' => 'ids'  ] ),
+					'operator' => 'IN'
+				),
+				*/
+				array(
+					'taxonomy' => 'layer-range',
+					'terms'    => get_terms( 'layer-range', [ 'fields' => 'ids'  ] ),
+					'operator' => 'IN'
+				)
+			)
 		))){
 		
 			foreach( $posts as $post ){

@@ -31,7 +31,7 @@ class LTPLE_Client_Login {
 		
 		add_filter( 'login_form_bottom', array($this, 'get_login_form_bottom'));
 
-		add_filter( 'registration_errors', array($this, 'handle_custom_registration'), 10, 3 );
+		add_filter( 'registration_errors', array($this, 'handle_custom_registration'), 9999, 3 );
 	
 		if( !is_admin() ){
 			
@@ -69,8 +69,7 @@ class LTPLE_Client_Login {
 			// check email
 			
 			if( empty( $errors->errors['bad_email_domain'] ) ){
-				
-					
+		
 				if( !empty( $errors->errors['email_exists'] ) ){
 
 					if( $user = get_user_by( 'email', $user_email ) ){

@@ -35,7 +35,7 @@ class LTPLE_Client_Json_API {
 	}
 	
 	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar', $card=false, $itemHeight=235, $fixedHeight=true, $echo=true ){
-		//$pagination = false;			
+		
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );
 		
 		$responsive = ( $card ? false : true );
@@ -96,7 +96,7 @@ class LTPLE_Client_Json_API {
 					min-height: 54px;
 					right: 0;
 					left: 0;
-					position: absolute;
+					position: ' . ( $card === true ? 'absolute' : 'relative' ).';
 				}
 				
 				.pagination-detail {
@@ -270,51 +270,65 @@ class LTPLE_Client_Json_API {
 			}
 			
 		$table .= '</style>';
+		
 		/*
-		$table .=  '<div style="background:#fff;z-index: 999999;position: absolute;">';
-		
-		  $table .=  '<button id="append" class="btn btn-default">Append</button>';
-		  $table .=  'Total rows: <span id="total"></span>';
-		$table .=  '</div>';
-		*/
-		
 		$table .=  "
 		<script>
 		;(function($){
 			
 			$(document).ready(function(){
-		  var table = $('#table')
-		  var total = 0
+				
+				var paged 	= 2;
+				var loading = false;
 
-		  function getData(number, isAppend) {
-			if (!isAppend) {
-			  total = 0
-			}
-			var data = []
-			for (var i = total; i < total + number; i++) {
-			  data.push({
-				'item': '<div>test</div>'
-			  })
-			}
-			if (isAppend) {
-			  total += number
-			} else {
-			  total = number
-			}
-			$('#total').text(total)
-			return data
-		  }
+				$('#table tbody').scroll(function() {
 
-		  $(function() {
-			$('#append').click(function () {
-			  table.bootstrapTable('append', getData(10, true))
-			})
-		  })
-	});
-	
-})(jQuery);
+					if ( loading == true) return;
+					
+					if( $('#table tbody').scrollTop() + $('#table tbody').innerHeight() >= $('#table tbody').prop('scrollHeight') ) {
+						
+						if( 1 == 1 ){
+							
+							data = $('#table').bootstrapTable('getData').slice( 0 , paged * 20 );
+							
+							$('#table').bootstrapTable('load',data);
+							
+							++paged;
+						}
+						else{
+							
+							loading = true;
+							
+							$.ajax({
+								
+								type 		: 'GET',
+								url  		: 'http://127.0.0.1:8888/api/ltple-template/v1/list?',
+								data		: {paged:paged},
+								beforeSend	: function() {
+
+									
+								},
+								success: function(data) {
+									
+									++paged;
+									
+									$('#table').bootstrapTable('append',data);
+								},
+								complete: function(){
+									
+									loading = false;
+								}
+							});
+						}
+					}
+				});
+			});
+			
+		})(jQuery);
+		
 		</script>
 		";
+		*/
 		
 		if($form){
 		

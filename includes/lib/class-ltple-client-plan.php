@@ -442,7 +442,10 @@ class LTPLE_Client_Plan {
 					}
 				}
 				
-				$sections[$section][] = $row;
+				if( !empty($section) ){
+				
+					$sections[$section][] = $row;
+				}
 			}
 		}
 		
@@ -538,7 +541,7 @@ class LTPLE_Client_Plan {
 				else{
 					 
 					$plan_content 	= $plan['content'];
-					$style 			= 'margin-bottom: 0;padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);color: rgb(138, 206, 236);box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
+					$style 			= 'margin-bottom: 0;padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
 				}
 
 				// get total_price_amount & total_storage
