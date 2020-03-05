@@ -1,5 +1,5 @@
 <?php
-	
+
 	$output = ( !empty($_GET['output']) ? '&output='. sanitize_text_field($_GET['output']) : '' );
 	
 	$layer_type = $this->layer->get_layer_type($this->layer->id);
@@ -14,8 +14,8 @@
 		
 		$user_plan = $this->plan->get_user_plan_info($this->user->ID);
 		
-		$total_storage = $user_plan['info']['total_storage'][$layer_type->name];
-				
+		$total_storage = isset($user_plan['info']['total_storage'][$layer_type->name]) ? $user_plan['info']['total_storage'][$layer_type->name] : 0;
+		
 		$plan_usage = $this->plan->get_user_plan_usage( $this->user->ID );
 		
 		$download_button = '';
@@ -41,7 +41,7 @@
 
 				echo'<hr>';
 				
-				if( !$this->layer->is_media ){
+				if( !$this->layer->is_media && $this->user->remaining_days > 0 ){
 					
 					if( $this->plan->remaining_storage_amount($this->layer->id) > 0 ){
 						
@@ -87,7 +87,7 @@
 						
 						echo'<div class="alert alert-warning">';
 							
-							echo'You can\'t save more <b>' . $layer_type->name . '</b> projects with the current plan. Delete an old project or upgrade to a bigger plan to increase your storage space.';
+							echo'You can\'t save more projects from the <b>' . $layer_type->name . '</b> gallery with the current plan. Delete an old project or upgrade to increase your storage space.';
 					
 						echo'</div>';				
 					}
@@ -155,6 +155,116 @@
 		echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
 		
 		echo'<iframe id="editorIframe" src="' . $iframe_url . '" style="margin-top: -65px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height: 1300px;overflow: hidden;"></iframe>';
+	
+		//editor settings
+			
+		echo'<script id="LiveTplEditorSettings">' .PHP_EOL;
+			
+			if( $this->layer->layerOutput == 'image' ){
+				
+				if( $this->layer->layerImageTpl->post_type == 'attachment' ){
+					
+					$attachment_url = wp_get_attachment_url($this->layer->layerImageTpl->ID );
+				}
+				else{
+					
+					$attachment_url = trim(strip_tags(apply_filters('the_content',$this->layer->layerImageTpl->post_content)));		
+				}
+				
+				echo ' var layerImageTpl = "' . $this->layer->layerImgProxy . urlencode($attachment_url) . '";' . PHP_EOL;
+			}
+			else{
+				
+				echo ' var layerContent = "' . base64_encode($this->layer->output_layer()) . '";' . PHP_EOL;
+		
+				if( $this->layer->layerOutput != '' ){
+					
+					echo ' var layerOutput = "' . $this->layer->layerOutput . '";' . PHP_EOL;
+				}
+				
+				echo ' var layerSettings = ' . json_encode($this->layer->layerSettings) . ';' .PHP_EOL;
+				
+				//include image proxy
+				
+				if( $this->layer->layerImgProxy != '' ){
+				
+					echo ' var imgProxy = " ' . $this->layer->layerImgProxy . '";' . PHP_EOL;				
+				}
+				
+				//include quick edit
+				 
+				if( isset($_GET['quick']) ){
+					
+					echo ' var quickEdit = true;' .PHP_EOL;
+				}
+				elseif( !$this->user->plan['info']['total_price_amount'] > 0 ){
+					
+					echo ' var quickEdit = true;' .PHP_EOL;
+				}
+				else{
+					
+					echo ' var quickEdit = false;' .PHP_EOL;
+				}
+				
+				//include page def
+				
+				if( $this->layer->pageDef != '' ){
+					
+					echo ' var pageDef = ' . $this->layer->pageDef . ';' .PHP_EOL;
+				}
+				else{
+					
+					echo ' var pageDef = {};' .PHP_EOL;
+				}
+				
+				//include line break setting
+
+				if( !is_array( $this->layer->layerOptions ) ){
+					
+					echo ' var disableReturn 	= true;' .PHP_EOL;
+					echo ' var autoWrapText 	= false;' .PHP_EOL;
+				}
+				else{
+					
+					if( !in_array('line-break',$this->layer->layerOptions) ){
+						
+						echo ' var disableReturn = true;' .PHP_EOL;
+					}
+					else{
+						
+						echo ' var disableReturn = false;' .PHP_EOL;
+					}
+					
+					if(in_array('wrap-text',$this->layer->layerOptions)){
+						
+						echo ' var autoWrapText = true;' .PHP_EOL;
+					}
+					else{ 
+						
+						echo ' var autoWrapText = false;' .PHP_EOL;
+					}
+				}
+				
+				//include icon settings
+				
+				$enableIcons = 'false';
+				
+				if( in_array_field( 'font-awesome-4-7-0', 'slug', $this->layer->layerCssLibraries ) ){
+					
+					$enableIcons = 'true';
+				}
+				
+				echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
+				
+				//include forms
+				
+				if( $this->layer->layerForm == 'importer' ){
+					
+					echo ' var layerForm = "' . $this->layer->layerForm . '";';
+				}
+			}
+			
+		echo'</script>' . PHP_EOL;		
 	}
 	else{
 		
@@ -164,102 +274,3 @@
 
 		echo'</div>';		
 	}
-	
-	//---------- editor settings ---------------
-		
-	echo'<script id="LiveTplEditorSettings">' .PHP_EOL;
-		
-		if( $this->layer->layerOutput == 'image' ){
-			
-			echo ' var layerImageTpl = "' . $this->urls->home . '?t=' . $this->layer->id . '&_=' . time() . '";' . PHP_EOL;
-		}
-		else{
-		
-			if( $this->layer->layerOutput != '' ){
-				
-				echo ' var layerOutput = "' . $this->layer->layerOutput . '";' . PHP_EOL;
-			}
-			
-			echo ' var layerSettings = ' . json_encode($this->layer->layerSettings) . ';' .PHP_EOL;
-			
-			//include image proxy
-			
-			if( $this->layer->layerImgProxy != '' ){
-			
-				echo ' var imgProxy = " ' . $this->layer->layerImgProxy . '";' . PHP_EOL;				
-			}
-			
-			//include quick edit
-			 
-			if( isset($_GET['quick']) ){
-				
-				echo ' var quickEdit = true;' .PHP_EOL;
-			}
-			elseif( !$this->user->plan['info']['total_price_amount'] > 0 ){
-				
-				echo ' var quickEdit = true;' .PHP_EOL;
-			}
-			else{
-				
-				echo ' var quickEdit = false;' .PHP_EOL;
-			}
-			
-			//include page def
-			
-			if( $this->layer->pageDef != '' ){
-				
-				echo ' var pageDef = ' . $this->layer->pageDef . ';' .PHP_EOL;
-			}
-			else{
-				
-				echo ' var pageDef = {};' .PHP_EOL;
-			}
-			
-			//include line break setting
-
-			if( !is_array( $this->layer->layerOptions ) ){
-				
-				echo ' var disableReturn 	= true;' .PHP_EOL;
-				echo ' var autoWrapText 	= false;' .PHP_EOL;
-			}
-			else{
-				
-				if( !in_array('line-break',$this->layer->layerOptions) ){
-					
-					echo ' var disableReturn = true;' .PHP_EOL;
-				}
-				else{
-					
-					echo ' var disableReturn = false;' .PHP_EOL;
-				}
-				
-				if(in_array('wrap-text',$this->layer->layerOptions)){
-					
-					echo ' var autoWrapText = true;' .PHP_EOL;
-				}
-				else{ 
-					
-					echo ' var autoWrapText = false;' .PHP_EOL;
-				}
-			}
-			
-			//include icon settings
-			
-			$enableIcons = 'false';
-			
-			if( in_array_field( 'font-awesome-4-7-0', 'slug', $this->layer->layerCssLibraries ) ){
-				
-				$enableIcons = 'true';
-			}
-			
-			echo ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
-			
-			//include forms
-			
-			if( $this->layer->layerForm == 'importer' ){
-				
-				echo ' var layerForm = "' . $this->layer->layerForm . '";';
-			}
-		}
-		
-	echo'</script>' . PHP_EOL;

@@ -4,10 +4,6 @@
 	
 	$pageDef =$this->pageDef;
 	
-	//get layer form
-	
-	$layerForm =$this->layerForm;
-	
 	//get css libraries
 
 	$layerCssLibraries =$this->layerCssLibraries;
@@ -251,90 +247,12 @@
 			}
 			
 		$layer .= '</style>'.PHP_EOL;		
-		
-		//include layer
-		
-		if( empty($_POST) && $layerForm == 'importer' && empty($this->parent->layer->layerContent) ){
-			
-			$layer .='<script>' .PHP_EOL;
 
-				$layer .= ' var layerFormActive = true;' .PHP_EOL;
-				
-			$layer .='</script>' .PHP_EOL;
-			
-			$layer .= '<div class="container">';
-			
-				$layer .= '<div class="panel panel-default" style="margin:50px;">';
-				
-				$layer .= '<div class="panel-heading">';
-				
-					if( !empty($layerForm) ){
+		$layer .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($layerMargin) ? 'margin:'.$layerMargin.';' : '' ) . '">';
 						
-						$layer .='<h4>'.ucfirst($this->parent->layer->title).'</h4>';
-					}
-					
-				$layer .= '</div>';
-				
-				$layer .= '<div class="panel-body">';
-				
-					$layer .= '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
-					
-						if( $layerForm == 'importer' ){
-					
-							$layer .= '<div class="col-xs-3">';
-							
-								$layer .='<label>HTML</label>';
-								
-							$layer .= '</div>';
-							
-							$layer .= '<div class="col-xs-9">';
-							
-								$layer .= '<div class="form-group">';
-								
-									$layer .= '<textarea class="form-control" name="importHtml" style="min-height:100px;"></textarea>';
-									
-								$layer .= '</div>';
-								
-							$layer .= '</div>';
-						
-							$layer .= '<div class="col-xs-3">';
-							
-								$layer .='<label>CSS</label>';
-								
-							$layer .= '</div>';
-							
-							$layer .= '<div class="col-xs-9">';
-							
-								$layer .= '<div class="form-group">';
-								
-									$layer .= '<textarea class="form-control" name="importCss" style="min-height:100px;"></textarea>';
-									
-								$layer .= '</div>';
-								
-							$layer .= '</div>';									
-							
-							$layer .= '<div class="col-xs-12 text-right">';
-								
-								$layer .= '<input class="btn btn-primary btn-md" type="submit" value="Import" />';
-								
-							$layer .= '</div>';
-						}							
-					
-					$layer .= '</form>';
-					
-				$layer .= '</div>';
-				$layer .= '</div>';
-			
-			$layer .= '</div>';
-		} 
-		else{
-
-			$layer .= '<layer class="editable" style="width:100%;' . ( !empty($layerMargin) ? 'margin:'.$layerMargin.';' : '' ) . '">';
-							
-				$layer .= $layerContent;
-			
-			$layer .= '</layer>' .PHP_EOL;
-		}	
+			$layer .= $layerContent;
+		
+		$layer .= '</ltple-layer>' .PHP_EOL;	
 
 		if( !empty($layerJsLibraries) ){
 			

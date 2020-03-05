@@ -120,7 +120,7 @@
 
 								'field' 		=> 'type',
 								'sortable' 		=> 'true',
-								'content' 		=> 'Type',
+								'content' 		=> 'Category',
 								'filter-control'=> 'select',
 							)								
 						);

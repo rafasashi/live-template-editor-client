@@ -24,7 +24,7 @@
 			
 			var clone = $(target).eq(0).clone().removeClass('ui-state-disabled');
 			
-			clone.append('<a class="remove-input-group" href="#">[ x ]</a>');
+			clone.append('<a class="remove-input-group" href="#">x</a>');
 			
 			$(this).next(".input-group").append(clone);
 			

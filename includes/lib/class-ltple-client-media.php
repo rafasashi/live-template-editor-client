@@ -139,7 +139,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				float:left;
 			}
 			
-			#table, .fixed-table-pagination {
+			#table {
 				
 				width:60%;
 			}

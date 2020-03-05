@@ -406,6 +406,7 @@ class LTPLE_Client_Settings {
 			'dashicons-layout'
 		);
 		
+		/*
 		add_users_page( 
 			'All Guests', 
 			'All Guests', 
@@ -433,6 +434,7 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'users.php?' . $this->parent->_base .'view=conversions'
 		);
+		*/
 		
 		if( $this->parent->user->is_admin ){
 		
@@ -881,7 +883,6 @@ class LTPLE_Client_Settings {
 	 * @return void
 	 */
 	public function register_settings () {
-		
 		
 		// get tabs
 		

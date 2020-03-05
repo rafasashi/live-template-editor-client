@@ -23,7 +23,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 				'show_in_nav_menus' 	=> false,
 				'show_tagcloud' 		=> false,
 				'meta_box_cb' 			=> null,
-				'show_admin_column' 	=> true,
+				'show_admin_column' 	=> false,
 				'update_count_callback' => '',
 				'show_in_rest'          => true,
 				'rewrite' 				=> false,

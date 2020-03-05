@@ -51,9 +51,19 @@ class LTPLE_Client_Urls {
 	}
 	
 	public function parse_permalink( $post_link, $post ){
-			
+		
 		$post_link = str_replace('%author%', $post->post_author, $post_link);
-						
+
+		if( $post->post_type == 'user-layer' ){
+
+			$post_link = add_query_arg(array( 
+			
+				'post_type' => $post->post_type,
+				'p' 		=> $post->ID,
+			
+			),$post_link);
+		}
+			
 		return $post_link;
 	}
 	

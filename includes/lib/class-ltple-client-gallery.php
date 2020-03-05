@@ -671,71 +671,69 @@ class LTPLE_Client_Gallery {
 							
 							$item.='<a target="_parent" class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $this->parent->urls->product . $post->ID . '/" title="More info about '. $post_title .' template">Info</a>';
 							
-							if( $this->parent->layer->has_preview($layer_type->output) ){
+							// preview button
+							
+							$modal_id='modal_'.md5($permalink);
+							
+							$item.='<button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 								
-								// preview button
+								$item.='Preview'.PHP_EOL;
+							
+							$item.='</button>'.PHP_EOL;
+
+							$item.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 								
-								$modal_id='modal_'.md5($permalink);
-								
-								$item.='<button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+								$item.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 									
-									$item.='Preview'.PHP_EOL;
-								
-								$item.='</button>'.PHP_EOL;
-
-								$item.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+									$item.='<div class="modal-content">'.PHP_EOL;
 									
-									$item.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
-										
-										$item.='<div class="modal-content">'.PHP_EOL;
-										
-											$item.='<div class="modal-header">'.PHP_EOL;
-												
-												$item.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-												
-												$item.='<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
+										$item.='<div class="modal-header">'.PHP_EOL;
 											
-											$item.='</div>'.PHP_EOL;
-										  
-											$item.='<div class="modal-body">'.PHP_EOL;
-												
-												if( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post ) === true ){
-													
-													$item.= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
-
-													$item.= '<iframe data-src="'.$permalink.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 145px);overflow: hidden;"></iframe>';											
-												}
-												else{
-													
-													$item.= get_the_post_thumbnail($post->ID, 'recentprojects-thumb');
-												}
-
-											$item.='</div>'.PHP_EOL;
-
-											$item.='<div class="modal-footer">'.PHP_EOL;
+											$item.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 											
-												if( $this->parent->user->loggedin ){
-
-													$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
-												}
-												else{
-													
-													$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
-													
-														$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
-												
-													$item.='</button>'.PHP_EOL;								
-												}
-												
-											$item.='</div>'.PHP_EOL;
-										  
+											$item.='<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
+										
 										$item.='</div>'.PHP_EOL;
+									  
+										$item.='<div class="modal-body">'.PHP_EOL;
+											
+											if( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post ) === true ){
+												
+												$item.= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
+
+												$item.= '<iframe data-src="'.$permalink.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 145px);overflow: hidden;"></iframe>';											
+											}
+											else{
+												
+												$item.= get_the_post_thumbnail($post->ID, 'recentprojects-thumb');
+											}
+
+										$item.='</div>'.PHP_EOL;
+
+										$item.='<div class="modal-footer">'.PHP_EOL;
 										
+											if( $this->parent->user->loggedin ){
+
+												$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
+											}
+											else{
+												
+												$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
+												
+													$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
+											
+												$item.='</button>'.PHP_EOL;								
+											}
+											
+										$item.='</div>'.PHP_EOL;
+									  
 									$item.='</div>'.PHP_EOL;
 									
-								$item.='</div>'.PHP_EOL;						
-							}
-							
+								$item.='</div>'.PHP_EOL;
+								
+							$item.='</div>'.PHP_EOL;
+
+						
 							if($this->parent->user->loggedin){
 								
 								if($this->parent->plan->user_has_layer( $post ) === true){

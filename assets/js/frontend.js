@@ -132,6 +132,21 @@
 			});				
 		}
 		
+		function set_collapsibles(){
+			
+			$('[data-toggle="collapse"]').collapse();
+			
+			$('[data-toggle="collapse"]').on('click', function(e) {
+				
+				e.preventDefault();
+			});
+		}
+		
+		function set_tooltips(){
+			
+			$('[data-toggle="tooltip"]').tooltip();
+		}
+		
 		function set_dialogs(){
 			
 			$('[data-toggle="dialog"]').each(function(e){
@@ -245,6 +260,8 @@
 			
 			set_dialogs();
 			
+			set_tooltips();
+			
 			$("img.lazy").lazyload({
 				
 				container: $("tbody")
@@ -273,6 +290,8 @@
 			
 			//$(window).trigger('resize'); //to be fixed
 		});
+		
+		set_collapsibles();
 		
 		set_modals();
 						

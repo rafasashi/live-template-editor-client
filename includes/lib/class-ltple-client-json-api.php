@@ -93,6 +93,10 @@ class LTPLE_Client_Json_API {
 					border-top: 1px solid #ddd;
 					border-bottom: none;
 					background: #fbfbfb;
+					background-image: -webkit-linear-gradient(#f2f2f2,#fbfbfb);
+					background-image: -o-linear-gradient(#f2f2f2,#fbfbfb);
+					background-image: -moz-linear-gradient(#f2f2f2,#fbfbfb);
+					background-image: linear-gradient(#f2f2f2,#fbfbfb);
 					min-height: 54px;
 					right: 0;
 					left: 0;

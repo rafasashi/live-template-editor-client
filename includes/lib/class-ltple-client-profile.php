@@ -109,6 +109,10 @@ class LTPLE_Client_Profile {
 			
 			$this->user = get_user_by( 'ID', $this->id );
 			
+			$this->user->period_end = $this->parent->plan->get_license_period_end( $this->user->ID);
+			
+			$this->user->remaining_days = $this->parent->plan->get_license_remaining_days( $this->user->period_end );
+			
 			// profile tab
 			
 			$this->tab 		= apply_filters('ltple_profile_tab',get_query_var('tab','about-me'));
@@ -669,9 +673,7 @@ class LTPLE_Client_Profile {
 			
 			$tabs['about-me']['content'] = '';
 			
-			$profile_html = get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true );
-			
-			if( !empty($profile_html) ){
+			if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true ) : '' ){
 
 				$this->profile_css = get_user_meta( $this->user->ID , $this->parent->_base . 'profile_css', true );
 				
@@ -764,7 +766,7 @@ class LTPLE_Client_Profile {
 				
 					foreach( $this->fields as $field ){
 						
-						if( !in_array($field['id'],array( $this->parent->_base . 'profile_html', $this->parent->_base . 'profile_css')) ){
+						if( !empty($field['id']) && !in_array($field['id'],array( $this->parent->_base . 'profile_html', $this->parent->_base . 'profile_css')) ){
 						
 							$tabs['about-me']['content'] .= '<tr>';
 							
@@ -780,7 +782,7 @@ class LTPLE_Client_Profile {
 										
 										$meta = get_user_meta( $this->user->ID , $field['id'] );
 									}
-									
+
 									if(!empty($meta)){
 									
 										if(	$field['id'] == 'user_url'){
@@ -809,7 +811,7 @@ class LTPLE_Client_Profile {
 				
 				$tabs['about-me']['content'] .= '</table>';
 			}
-
+			
 			// add addon tabs
 			
 			$tabs = apply_filters('ltple_profile_tabs',$tabs);
@@ -968,24 +970,55 @@ class LTPLE_Client_Profile {
 			'style'			=> 'height:80px;',
 		);
 		
-		$fields[$this->parent->_base . 'profile_html'] = array(
+		if( $this->parent->user->remaining_days > 0 ){
+			
+			$fields[$this->parent->_base . 'profile_html'] = array(
 
-			'id' 			=> $this->parent->_base . 'profile_html',
-			'label'			=> 'Home Page (HTML)',
-			'description'	=> 'Customize your profile home page with HTML',
-			'placeholder'	=> '',
-			'type'			=> 'textarea'
-		);
-		
-		$fields[$this->parent->_base . 'profile_css'] = array(
+				'id' 			=> $this->parent->_base . 'profile_html',
+				'label'			=> 'Home Page (HTML)',
+				'description'	=> 'Customize your profile home page with HTML',
+				'placeholder'	=> '',
+				'type'			=> 'textarea',
+				'disabled'		=> false,
+				
+			);
+			
+			$fields[$this->parent->_base . 'profile_css'] = array(
 
-			'id' 			=> $this->parent->_base . 'profile_css',
-			'label'			=> 'Home Page (CSS)',
-			'description'	=> 'Customize your profile home page with CSS',
-			'placeholder'	=> '',
-			'type'			=> 'textarea'
-		);
-		
+				'id' 			=> $this->parent->_base . 'profile_css',
+				'label'			=> 'Home Page (CSS)',
+				'description'	=> 'Customize your profile home page with CSS',
+				'placeholder'	=> '',
+				'type'			=> 'textarea',
+				'disabled'		=> false,
+			);			
+		}
+		else{
+			
+			$fields[$this->parent->_base . 'profile_html'] = array(
+
+				'id' 			=> '',
+				'label'			=> 'Home Page (HTML)',
+				'description'	=> 'Customize your profile home page with HTML',
+				'placeholder'	=> 'For paid license only',
+				'type'			=> 'textarea',
+				'disabled'		=> true,
+				'data'			=> '',
+				
+			);
+			
+			$fields[$this->parent->_base . 'profile_css'] = array(
+
+				'id' 			=> '',
+				'label'			=> 'Home Page (CSS)',
+				'description'	=> 'Customize your profile home page with CSS',
+				'placeholder'	=> 'For paid license only',
+				'type'			=> 'textarea',
+				'disabled'		=> true,
+				'data'			=> '',
+			);			
+		}
+
 		return $fields;
 	}
 	

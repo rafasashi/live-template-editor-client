@@ -251,6 +251,18 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				break;
 				
+				case 'text_editor':
+					
+					ob_start();
+
+					wp_editor($data,$option_name);
+
+					$html .= ob_get_clean();
+
+					$html .= '<br/>';					
+ 
+				break;
+				
 				case 'switch':
 					
 					$checked = '';
@@ -869,7 +881,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									
 									if( $e > 0 ){
 										
-										$html .= '<a class="remove-input-group" href="#">[ x ]</a> ';
+										$html .= '<a class="remove-input-group" href="#">x</a> ';
 									}
 									
 
@@ -998,7 +1010,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 									if( $e > 0 ){
 										
-										$html .= '<a class="remove-input-group" href="#">[ x ]</a> ';
+										$html .= '<a class="remove-input-group" href="#">x</a> ';
 									}
 
 								$html .= '</li>';						
@@ -1059,7 +1071,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 									if( $e > 0 ){
 										
-										$html .= '<a class="remove-input-group" href="#">[ x ]</a> ';
+										$html .= '<a class="remove-input-group" href="#">x</a> ';
 									}
 
 								$html .= '</li>';						
@@ -1155,7 +1167,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 									if( $e > 0 ){
 										
-										$html .= '<a class="remove-input-group" href="#">[ x ]</a> ';
+										$html .= '<a class="remove-input-group" href="#">x</a> ';
 									}
 
 								$html .= '</li>';						
@@ -1296,7 +1308,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 										if( $e > 0 ){
 											
-											$html .= '<a class="remove-input-group" style="padding-left:10px;" href="#">[ x ]</a> ';
+											$html .= '<a class="remove-input-group" href="#">x</a> ';
 										}
 
 									$html .= '</li>';						
@@ -1561,7 +1573,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 										
 										$html .= '<div class="col-sm-1" style="padding:0;">';
 										
-											$html .= '<a class="remove-input-group" style="padding-left:10px;" href="#">[ x ]</a> ';
+											$html .= '<a class="remove-input-group" href="#">x</a> ';
 										
 										$html .= '</div>';
 									}
@@ -1974,7 +1986,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '<input id="' . $option_name . '_delete" type="button" class="image_delete_button button" value="'. __( 'Remove image' , 'live-template-editor-client' ) . '" />' . "\n";
 					$html .= '<input id="' . $option_name . '" class="image_data_field" type="hidden" name="' . $option_name . '" value="' . $data . '"/><br/>' . "\n";
 				break;
-				
+
 				case 'color':
 					?><div class="color-picker" style="position:relative;">
 						<input type="text" name="<?php esc_attr_e( $option_name ); ?>" class="color form-control" value="<?php esc_attr_e( $data ); ?>" />

@@ -58,9 +58,22 @@
 	width: 100% !important;
 }
 
+#plan_form {
+	width: 100%;
+	margin: 0px auto 14px;
+	padding: 10px;
+	text-align: center;
+	font-size: 19px;
+}
+
 #plan_form .well ul{
 	
 	padding: 20px;
+}
+
+#plan_storage {
+	font-size: 19px;
+	color: #3b8faa;
 }
 
 /* ---------------------------------------------------
@@ -418,6 +431,7 @@ th input, th select {
 .form-file-upload .input-group {
   width: 100%;
 }
+
 
 /* ---------------------------------------------------
     NAVBAR

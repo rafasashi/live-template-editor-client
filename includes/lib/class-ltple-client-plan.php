@@ -623,7 +623,7 @@ class LTPLE_Client_Plan {
 
 							$this->shortcode .='<div id="plan_thumb" style="background-size:cover;background-repeat: no-repeat;background-position: center center;width:100%;height:200px;background-image:url(\''.$this->parent->assets_url . 'images/plan_background.jpg'.'\');"></div>';
 						}
-					}					
+					}		
 
 					$this->shortcode .='<div id="plan_form">';
 						
@@ -1271,13 +1271,13 @@ class LTPLE_Client_Plan {
 						
 							$content = get_post_meta($project->ID,'layerContent',true);
 							
-							$new_content = str_replace('d3gsv4xtxd08bd.cloudfront.net',$id.'.bucket.camgirl.cloud',$content);
+							$new_content = str_replace('d3gsv4xtxd08bd.cloudfront.net',$id.'.my.domain',$content);
 							
 							if( $content != $new_content ){
 								
 								update_post_meta($project->ID,'layerContent',$new_content);
 							
-								$updated[$project->ID]=$id.'.bucket.camgirl.cloud';
+								$updated[$project->ID]=$id.'.my.domain';
 							}
 						}
 					}

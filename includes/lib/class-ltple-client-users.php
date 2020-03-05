@@ -387,6 +387,7 @@
 			
 			echo '<a class="nav-tab ' . ( empty($this->view) ? 'nav-tab-active' : '' ) . '" href="users.php?s='.$s.'&marketing-channel1='.$mc.'">Users</a>';
 			
+			/*
 			echo '<a class="nav-tab ' . ( $this->view == 'guests' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=guests&s='.$s.'&marketing-channel1='.$mc.'">Guests</a>';
 											
 			echo '<a class="nav-tab ' . ( $this->view == 'subscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=subscribers&s='.$s.'&marketing-channel1='.$mc.'">Subscribers</a>';
@@ -396,7 +397,7 @@
 			echo '<a class="nav-tab ' . ( $this->view == 'leads' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=leads&s='.$s.'&marketing-channel1='.$mc.'">Leads</a>';
 		
 			echo '<a class="nav-tab ' . ( $this->view == 'conversions' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=conversions&s='.$s.'&marketing-channel1='.$mc.'">Conversions</a>';
-			
+			*/
 		}
 		
 		public function display_user_filter() {
@@ -430,6 +431,9 @@
 			
 			// add plan value filter
 			
+			// TODO replace by plan type, range, option filters
+			
+			/*
 			if( !$this->view == 'conversions' ){
 			
 				echo '<span>';
@@ -475,6 +479,7 @@
 				
 				echo '</span>';
 			}
+			*/
 		}
 		
 		
@@ -1363,7 +1368,8 @@
 		}
 		
 		public function filter_users_by_plan_value( $query ) {
-
+			
+			/*
 			if( $this->view == 'guests' || $this->view == 'conversions' ){
 
 				$query->set( 'role__not_in', 'Administrator' );
@@ -1387,6 +1393,11 @@
 				$planValueOperator	= $this->get_filter_value('planValueOperator');
 				$licenseStatus		= $this->get_filter_value('licenseStatus');
 			}
+			*/
+			
+			$userPlanValue		= $this->get_filter_value('userPlanValue');
+			$planValueOperator	= $this->get_filter_value('planValueOperator');
+			$licenseStatus		= $this->get_filter_value('licenseStatus');			
 			
 			$comparition = [];
 			

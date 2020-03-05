@@ -2,4 +2,4 @@
 
 	$ltple = LTPLE_Client::instance();
 	
-	$ltple->layer->output_layer();
+	echo $ltple->layer->output_layer();

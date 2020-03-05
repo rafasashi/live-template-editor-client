@@ -81,7 +81,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export' 			=> true,
-			'rewrite' 				=> array('slug'=>'user-layer'),
+			'rewrite' 				=> false,
 			'capability_type' 		=> 'post',
 			'has_archive' 			=> true,
 			'hierarchical' 			=> true,
@@ -204,7 +204,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
-			'show_admin_column' 	=> true,
+			'show_admin_column' 	=> false,
 			'update_count_callback' => '',
 			'show_in_rest'          => true,
 			'rewrite' 				=> true,
@@ -218,7 +218,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
-			'show_admin_column' 	=> true,
+			'show_admin_column' 	=> false,
 			'update_count_callback' => '',
 			'show_in_rest'          => true,
 			'rewrite' 				=> true,
@@ -232,7 +232,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
-			'show_admin_column' 	=> true,
+			'show_admin_column' 	=> false,
 			'update_count_callback' => '',
 			'show_in_rest'          => true,
 			'rewrite' 				=> true,
@@ -269,16 +269,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$layer_type = $this->get_layer_type($post);	
 						
-						if( !$this->is_html_output($layer_type->output) ){
-							
+						if( !$this->has_html_elements($layer_type->output) ){
+						
 							remove_meta_box( 'element-librarydiv', 'cb-default-layer', 'side' );
-							
-							if( !$this->is_hosted_output($layer_type->output) ){		
-
-								remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
-								remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
-								remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );
-							}
+						}
+						
+						if( !$this->is_html_output($layer_type->output) && !$this->is_hosted_output($layer_type->output) ){
+														
+							remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
+							remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
+							remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );
 						}
 						
 						do_action('ltple_remove_layer_metaboxes',$post,$layer_type);
@@ -359,6 +359,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('ltple_project_advance_tabs', array($this,'get_layer_advance_tabs'),10,3);
 		
+		add_filter('ltple_edit_layer_status', array($this,'add_edit_layer_status'),10,2);
+		add_filter('ltple_get_edit_layer_status', array($this,'get_edit_layer_status'),10,2);
+	
 		// css library fields
 		
 		add_action('css-library_edit_form_fields', array( $this, 'get_css_library_fields' ) );	
@@ -642,8 +645,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$post = get_post();
 			}
 			
-			//get layer types
+			//get layer type
 			
+			$layer_type = $this->get_layer_type($post);			
+			
+			/*
+			//get layer types
+
 			$layer_types=[];
 			
 			foreach($this->types as $term){
@@ -651,11 +659,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$layer_types[$term->slug]=$term->name;
 			}
 
-			//get current layer type
-			
-			$layer_type = $this->get_layer_type($post);			
-			
-			/*
 			$this->defaultFields[]=array(
 			
 				'metabox' => array(
@@ -679,8 +682,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			*/
 			
 			//get current layer range
-			
-			$layer_range = $this->get_layer_range($post);	
 			
 			$this->defaultFields[] = array(
 			
@@ -924,22 +925,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 						);
 						
-						$this->defaultFields[]=array(
+						if( $this->is_public_output($layer_type->output) ){
 						
-							'metabox' => array(
+							$this->defaultFields[]=array(
 							
-								'name' 		=> 'layer-meta',
-								'title' 	=> __( 'Template Meta Data', 'live-template-editor-client' ), 
-								'screen'	=> array('cb-default-layer'),
-								'context' 	=> 'advanced'
-							),
-							
-							'id'			=> "layerMeta",
-							'label'			=> "",
-							'type'			=> 'textarea',
-							'placeholder'	=> "JSON",
-							'description'	=> '<i>Additional Meta Data</i>'
-						);	
+								'metabox' => array(
+								
+									'name' 		=> 'layer-meta',
+									'title' 	=> __( 'Template Meta Data', 'live-template-editor-client' ), 
+									'screen'	=> array('cb-default-layer'),
+									'context' 	=> 'advanced'
+								),
+								
+								'id'			=> "layerMeta",
+								'label'			=> "",
+								'type'			=> 'textarea',
+								'placeholder'	=> "JSON",
+								'description'	=> '<i>Additional Meta Data</i>'
+							);	
+						}
 						
 						if( $layer_type->output == 'downloadable' ){
 							
@@ -952,7 +956,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									'screen'	=> array('cb-default-layer'),
 									'context' 	=> 'advanced'
 								),
-								
 								'id'			=> "layerStaticTpl",
 								'type'			=> 'file',
 								'label'			=> '<b>Upload Archive</b>',
@@ -965,22 +968,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						}
 					}
 					
-					$this->defaultFields[]=array(
-					
-						'metabox' => array(
+					if( $this->has_html_elements($layer_type->output) ){
 						
-							'name' 		=> 'layer-elements',
-							'title' 	=> __( 'Template Elements', 'live-template-editor-client' ), 
-							'screen'	=> array('cb-default-layer'),
-							'context' 	=> 'advanced',
-							'frontend' 	=> false,
-						),
+						$this->defaultFields[]=array(
 						
-						'id'			=> "layerElements",
-						'name'			=> "layerElements",
-						'type'			=> 'element',
-						'description'	=> '',
-					);
+							'metabox' => array(
+							
+								'name' 		=> 'layer-elements',
+								'title' 	=> __( 'Template Elements', 'live-template-editor-client' ), 
+								'screen'	=> array('cb-default-layer'),
+								'context' 	=> 'advanced',
+								'frontend' 	=> false,
+							),
+							
+							'id'			=> "layerElements",
+							'name'			=> "layerElements",
+							'type'			=> 'element',
+							'description'	=> '',
+						);
+					}
 				}
 				elseif( $this->is_image_output($layer_type->output) ){
 					
@@ -1083,7 +1089,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			);
 			*/
 			
-			do_action('ltple_default_layer_fields');
+			do_action('ltple_default_layer_fields',$layer_type);
 		}
 		
 		return $this->defaultFields;
@@ -1101,23 +1107,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$is_editable = true;
 		}
-		else{
-			
-			$is_editable = apply_filters('ltple_editable_' . $output,$is_editable);
-		}
+		
+		$is_editable = apply_filters('ltple_editable_' . $output,$is_editable);
 		
 		return $is_editable;
 	}
 	
 	public function is_html_output($output){
 					
-		$html_output = array(
+		$html_output = apply_filters('ltple_layer_html_output',array(
 		
 			'inline-css',
 			'external-css',
 			'hosted-page',
 			'canvas',
-		);
+		));
 		
 		if( in_array($output,$html_output) ){
 			
@@ -1127,15 +1131,49 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return false;
 	}
 	
+	public function has_html_elements($output){
+					
+		$html_elements = apply_filters('ltple_layer_html_elements',array(
+		
+			'inline-css',
+			'external-css',
+			'hosted-page',
+			'canvas',
+		));
+		
+		if( in_array($output,$html_elements) ){
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public function is_hosted_output($output){
 					
-		$hosted_output = array(
+		$hosted_output = apply_filters('ltple_layer_hosted_output',array(
 		
 			'hosted-page',
 			'downloadable',
-		);
+		));
 		
 		if( in_array($output,$hosted_output) ){
+			
+			return true;
+		}
+		
+		return false;
+	}
+
+	public function is_public_output($output){
+					
+		$public_output = apply_filters('ltple_layer_public_output',array(
+		
+			'hosted-page',
+			'downloadable',
+		));
+		
+		if( in_array($output,$public_output) ){
 			
 			return true;
 		}
@@ -1161,10 +1199,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function is_image_output($output){
 					
-		$image_output = array(
+		$image_output = apply_filters('ltple_layer_image_output',array(
 		
 			'image',
-		);
+		));
 		
 		if( in_array($output,$image_output) ){
 			
@@ -1176,12 +1214,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	 
 	public function has_preview($output){
 		
-		if( $this->is_html_output($output) || $this->is_image_output($output) ){
+		$has_preview = false;
+		
+		if( $this->is_html_output($output) || $this->is_image_output($output) || $this->is_public($output) ){
 			
-			return true;
+			$has_preview = true;
 		}
 		
-		return false;
+		return apply_filters('ltple-layer-has-preview',$has_preview,$output);
 	}
 	
 	public function get_project_tabs($layer,$fields=array()){
@@ -1193,10 +1233,80 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$tabs = apply_filters('ltple_' . $layer_type->output . '_project_tabs',$tabs,$layer);
 		
 			$tabs = apply_filters('ltple_project_advance_tabs',$tabs,$layer,$fields);
+		
+			if( $installation = $this->get_installation_info($layer) ){
+				
+				$tabs['install'] = array(
+				
+					'name' 		=> 'Install',
+					'slug'		=> 'install',
+					'content'	=> $installation,
+				
+				);				
+			}		
 		}
 		
 		return $tabs;
 	}
+	
+	public function get_installation_info($layer){
+		
+		// get steps
+
+		$steps = array();
+		
+		if( $layer_type = $this->get_layer_type($layer) ){
+
+			if( $install = get_term_meta($layer_type->term_id,'installation',true) ){
+				
+				$title =  $this->get_output_name($layer_type->output) . ' installation for ' . $layer_type->name;
+				
+				$steps[$title] = apply_filters('the_content',$install);
+			}
+			
+			$steps = apply_filters('ltple-layer-installation-steps',$steps,$layer);
+		}
+		
+		// get content
+				
+		$install 	= '';
+		$expanded 	= 'true';
+		
+		if( !empty($steps) ){
+			
+			$install .= '<div id="install_info">';
+
+				foreach( $steps as $title => $content ){
+					
+					$slug = sanitize_title($title);
+					
+					$install .= '<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" role="tab" id="heading_'.$slug.'">';
+						
+						$install .= '<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
+						  
+							$install .= '<i class="fa fa-cloud-download" aria-hidden="true"></i> ';
+						  
+							$install .= $title;
+						
+						$install .= '</button>';
+					
+					$install .= '</div>';
+					
+					$install .= '<div style="margin:10px;" id="collapse_'.$slug.'" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_'.$slug.'">';
+						
+						$install .= $content;
+						
+					$install .='</div>';
+				}
+				
+			$install .= '</div>';
+			
+			$expanded = 'false';
+		}
+		
+		return $install;
+	}
+		
 	
 	public function get_hosted_layer_tabs($tabs,$layer){
 		
@@ -1207,17 +1317,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_editable_layer_tabs($tabs,$layer){
 		
-		$content = '<div style="background:#fbfbfb;padding:152px 0;text-align:center;">'; 
+		$edit = '<div style="background:#fbfbfb;padding:152px 0;text-align:center;">'; 
 		
-			$content .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->editor . '?uri=' . $layer->ID . '">Edit Content</a>';
+			$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->editor . '?uri=' . $layer->ID . '">Edit Content</a>';
 
-		$content .= '</div>';	
+		$edit .= '</div>';	
 	
 		$tabs['edit'] = array(
 		
 			'name' 		=> 'Edit',
 			'slug'		=> 'edit',
-			'content'	=> $content,
+			'content'	=> $edit,
 		
 		);
 
@@ -1255,6 +1365,48 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $tabs;		
+	}
+	
+	public function add_edit_layer_status($layer,$post_type){
+		
+		if( $edit_layer = apply_filters('ltple_get_edit_layer_status','',$layer) ){
+			
+			echo'<div class="panel-heading">';
+				
+				echo $post_type->labels->singular_name . ' Status';
+													
+			echo'</div>';
+
+			echo'<div class="panel-body">';	
+			
+				echo $edit_layer;
+				
+			echo'</div>';
+		}		
+	}
+	
+	public function get_edit_layer_status($edit_layer,$layer){
+
+		if( $this->is_public($layer) && $this->is_hosted($layer) ){
+										
+			$status = array(
+				
+				'draft' 	=> 'Draft',
+				'publish' 	=> 'Public',
+			);
+			
+			$edit_layer .= $this->parent->admin->display_field( array(
+			
+				'type'				=> 'select',
+				'id'				=> 'post_status',
+				'name'				=> 'post_status',
+				'options' 			=> $status,
+				'description'		=> '',
+				'data'				=> $layer->post_status
+			),false,false );
+		}
+
+		return $edit_layer;	
 	}
 	
 	public function get_user_projects($user_id,$layer_type){
@@ -1342,7 +1494,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'description'	=>''
 						);
 						
-						if( $this->is_hosted($post->post_type) ){
+						if( $this->is_public_output($layer_type->output) ){
 						
 							$this->userFields[]=array(
 							
@@ -1507,6 +1659,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $this->outputs;
+	}
+	
+	public function get_output_name($output){
+	
+		$outputs = $this->get_layer_outputs();
+		
+		$output_name = $outputs[$output];
+		
+		if( $this->is_html_output($output) ){
+			
+			$output_name .= ' template';
+		}
+		
+		return $output_name;
 	}
 	
 	public function get_storage_types(){
@@ -2131,19 +2297,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$this->uri = intval($_GET['uri']);
 			}
-			elseif( isset($_REQUEST['t']) ){
-				
-				$this->uri = intval($_REQUEST['t']);
-			}			
 			elseif( strpos($this->parent->urls->current, $this->parent->urls->editor) === false && strpos($this->parent->urls->current, $this->parent->urls->dashboard) === false ){
 				
-				$this->uri = url_to_postid($this->parent->urls->current);
+				$this->uri = apply_filters('ltple_layer_set_uri',url_to_postid($this->parent->urls->current));
 			}
 		}
 	}
 	
 	public function init_layer(){
-
+		
 		$this->dirUrl = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/');
 
 		$this->dirPath = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');	
@@ -2450,6 +2612,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 					$this->layerStorage = !empty($this->defaultLayerType->storage) ? $this->defaultLayerType->storage : '';
 					
+					//get layer image proxy
+						
+					$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
+
 					if( $this->layerOutput == 'image' ){
 						
 						// get layer image template
@@ -2470,14 +2636,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					}
 					else{
 						
-						//get layer image proxy
-						
-						$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
-
 						// get layer Content
 						
 						$this->layerContent = get_post_meta( $this->id, 'layerContent', true );
-
+						
 						if( $this->layerContent == '' && $this->id != $this->defaultId ){
 							
 							$this->layerContent = get_post_meta( $this->defaultId, 'layerContent', true );
@@ -2501,15 +2663,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 						// get default js
 
-						$this->defaultJs = get_post_meta( $this->defaultId, 'layerJs', true );
-							
+						$this->defaultJs = $this->get_layer_js($this->defaultId);
+						
 						// get default json
 
 						$this->defaultJson = get_post_meta( $this->defaultId, 'layerJson', true );
 							
 						// get layer js
 						
-						$this->layerJs = get_post_meta( $this->id, 'layerJs', true );
+						$this->layerJs = $this->get_layer_js($this->id);
 						
 						if( $this->layerJs == '' && $this->id != $this->defaultId ){
 							
@@ -2657,7 +2819,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 						$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
 					
-						if( $this->layerOutput == 'hosted-page' ){
+						if( $this->is_hosted_output($this->layerOutput) ){
 							
 							// get layer menu
 							
@@ -2693,11 +2855,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 										
 										// get menu js	
 										
-										$this->layerMenuJs = get_post_meta( $menu->ID, 'layerJs', true );
+										$this->layerMenuJs = $this->get_layer_js($menu->ID);
 										
 										if( empty($this->layerMenuJs) ){
 											
-											$this->layerMenuJs = get_post_meta( $this->layerMenuDefaultId, 'layerJs', true );
+											$this->layerMenuJs = $this->get_layer_js($this->layerMenuDefaultId);
 										}
 										
 										//get menu css libraries
@@ -2882,6 +3044,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$content);
 		
 		return $content;
+	}
+	
+	public function get_layer_js($layer_id){
+		
+		if( $layer_js = get_post_meta( $layer_id, 'layerJs', true )){
+			
+			$layer_js = apply_filters('ltple_layer_js',$layer_js,$layer_id);
+		}
+		
+		return $layer_js;
 	}
 	
 	public function parse_hosted_content(){
@@ -3074,7 +3246,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$defaultJson = $this->defaultJson;
 			
 			$layerJs = $this->layerJs;
-
+			
 			$layerMeta = $this->layerMeta;
 		}
 		
@@ -3486,7 +3658,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$layer_template = get_page_template_slug( $this->id );
 		
-		if( empty($_REQUEST['t']) && $this->is_local_page($this->id) && $layer_template != 'templates/full-page.php' ){
+		if( $this->is_local_page($this->id) && $layer_template != 'templates/full-page.php' ){
 		
 			$body .='<div class="' . implode(' ',$this->layerStyleClasses) . '" style="width:100%;">' .PHP_EOL;
 		}
@@ -3563,14 +3735,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				// layer content
 							
-				$body .= '<layer class="editable" style="width:100%;' . ( !empty($this->layerMargin) ? 'margin:'.$this->layerMargin.';' : '' ) . '">';
+				$body .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($this->layerMargin) ? 'margin:'.$this->layerMargin.';' : '' ) . '">';
 								
 					$body .= $layerContent;
 				
-				$body .= '</layer>' .PHP_EOL;
+				$body .= '</ltple-layer>' .PHP_EOL;
 			}
 		
-		if( empty($_REQUEST['t']) && $this->is_local_page($this->id) && $layer_template != 'templates/full-page.php' ){
+		if( $this->is_local_page($this->id) && $layer_template != 'templates/full-page.php' ){
 		
 			$body .='</div>' .PHP_EOL;
 		}
@@ -3831,78 +4003,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function update_plan_period($term_id,$type,$period){
 		
 		return update_term_meta($term_id,$type . '_period',$period);
-	}
-
-	public function show_layer(){
-		
-		$data = [];
-		
-		if( !empty($_GET['url']) ){
-			
-			$url = parse_url(urldecode(urldecode($_GET['url'])));
-			
-			if(!empty($url['host'])){
-			
-				$domain = get_page_by_title($url['host'], OBJECT, 'user-domain');
-			
-				if(!empty($domain)){
-					
-					$urls = get_post_meta($domain->ID,'domainUrls',true);
-					
-					foreach($urls as $layerId => $domainPath ){
-						
-						if( $url['path'] == '/'.$domainPath ){
-							
-							$post = get_post($layerId);
-							
-							if( !empty($post) ){
-								
-								if(!isset($this->defaultId)){
-									
-									$this->defaultId = $this->get_default_id($this->id);
-								}
-
-								include($this->parent->views . '/layer.php');
-								
-								exit;
-							}							
-						}
-					}
-				}
-			}
-		}
-		elseif( !empty($_GET['uid']) ){
-			
-			$layerId = intval($_GET['uid']);
-			 
-			if( $layerId > 0 ){
-				
-				$post = get_post($layerId);
-				
-				if( !empty($post) && $post->post_type == 'user-layer' ){
-					
-					if( $post->post_status == 'publish' ){
-						
-						if(!isset($this->defaultId)){
-							
-							$this->defaultId = $this->get_default_id($this->id);
-						}						
-
-						include($this->parent->views . '/layer.php');
-					}
-					elseif( $post->post_status == 'draft' ){
-						
-						echo 'This page is in draft mode...';
-					}
-					else{
-						
-						echo 'This page has been removed...';
-					}
-					
-					exit;
-				}
-			}
-		}
 	}
 	
 	public static function is_absolute_path($file){
@@ -4165,6 +4265,31 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'description'	=> '',
 						
 					), $term );				
+					
+				echo'</td>';	
+				
+			echo'</tr>';
+			
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Installation</label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$this->parent->admin->display_field( array(			
+						
+						'name'			=> 'installation',
+						'id'			=> 'installation',
+						'label'			=> "",
+						'type'			=> 'text_editor',
+						'description'	=> 'Describe the installation process',
+						'placeholder'	=> '',
+						
+					), $term );
 					
 				echo'</td>';	
 				
@@ -4936,6 +5061,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 					update_term_meta( $term->term_id, 'output', $_POST['output']);			
 				}
+				
+				if(isset($_POST['installation'])){
+
+					update_term_meta( $term->term_id, 'installation', $_POST['installation']);			
+				}
 
 				if(isset($_POST['default_storage'])){
 
@@ -5511,9 +5641,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function output_layer(){
 		
+		$content = '';
+		
 		if( !empty($this->layerOutput) ){
 			
-			http_response_code(200);
+			ob_start();
+			
+			//http_response_code(200);
 		
 			if( file_exists( $this->parent->views . '/layers/' . $this->layerOutput  . '.php' ) ){
 				
@@ -5525,7 +5659,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			
 			do_action( 'ltple_layer_loaded', $layer );
+			
+			$content = ob_get_clean();
 		}
+
+		return $content;
 	}
 	
 	public function get_hosted_page_header(){

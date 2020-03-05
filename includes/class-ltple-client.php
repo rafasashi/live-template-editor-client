@@ -216,6 +216,8 @@ class LTPLE_Client {
 			$this->network 	= new LTPLE_Client_Network( $this );			
 			$this->profile 	= new LTPLE_Client_Profile( $this );
 			
+			$this->extension = new LTPLE_Client_Extension( $this );
+			
 			if( is_admin() ) {		
 				
 				add_action( 'init', array( $this, 'init_backend' ));
@@ -337,9 +339,9 @@ class LTPLE_Client {
 		
 		// Custom default layer template
 		
-		add_filter('template_include', array( $this, 'editor_templates'), 1 );
+		add_filter('template_include', array( $this, 'get_layer_template'), 1 );
 
-		add_action('template_redirect', array( $this, 'editor_output' ));				
+		add_action('template_redirect', array( $this, 'get_editor' ));				
 		
 		add_filter( 'pre_get_posts', function($query) {
 
@@ -645,7 +647,7 @@ class LTPLE_Client {
 				
 				// output editor
 				
-				$this->editor_output();
+				$this->get_editor();
 				
 				// add editor shortcodes
 				
@@ -900,84 +902,62 @@ class LTPLE_Client {
 		}		
 	}
 	
-	public function editor_templates( $path ){
-		 
-		if( !empty($_REQUEST['t']) && is_numeric($_REQUEST['t']) ){
+	public function get_layer_template( $path ){
+		
+		if( isset($_GET['preview_id']) ){
 			
-			$post_id = intval($_REQUEST['t']);
+			$post_id = $_GET['preview_id'];
 		}
 		else{
-			
+		
 			$post_id = url_to_postid( $this->urls->current );
 		}
 		
 		if( !empty($post_id) ){
-			
-			$post = get_post($post_id);
-			
-			if( isset( $_SERVER['HTTP_X_REF_KEY'] ) ){
-				
-				if( $_SERVER['HTTP_X_REF_KEY'] ){ //TODO improve ref rey validation via header
-					
-					$path = $this->views . '/layer.php';
-				}
-				else{
-					
-					echo 'Malformed layer headers...';
-					exit;
-				}
-			}
-			elseif( !empty($post) ){
+
+			if( $post = get_post($post_id) ){
 				
 				if( $post->post_type == 'cb-default-layer' ){
 					
-					$visibility = get_post_meta( $post->ID, 'layerVisibility', true );
+					$path = $this->views . '/preview.php';
 					
-					$post->layer_id = $post->ID;
-					
-					if( $visibility == 'anyone' ){
+					if( $layer_type = $this->layer->get_layer_type($post) ){
 						
-						$path = $this->views . '/layer.php';
-					}
-					elseif( $visibility == 'registered' && $this->user->loggedin ){
-						
-						$path = $this->views . '/layer.php';
-					}
-					elseif( $this->plan->user_has_layer( $post ) === true && $this->user->loggedin ){
-						
-						$path = $this->views . '/layer.php';
-					}
-					elseif( !empty($_GET['preview']) && $this->user->is_editor ){
-						
-						$path = $this->views . '/layer.php';
-					}
-					else{
-						
-						$path = $this->views . '/preview.php';
+						if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer_type->output) ){
+									
+							if( $this->layer->is_html_output($layer_type->output) ){
+							
+								$visibility = get_post_meta( $post->ID, 'layerVisibility', true );
+
+								if( $visibility == 'anyone' ){
+									
+									$path = $this->views . '/layer.php';
+								}
+								elseif( $visibility == 'registered' && $this->user->loggedin ){
+									
+									$path = $this->views . '/layer.php';
+								}
+								elseif( $this->plan->user_has_layer( $post ) === true && $this->user->loggedin ){
+									
+									$path = $this->views . '/layer.php';
+								}
+								elseif( !empty($_GET['preview']) && $this->user->is_editor ){
+									
+									$path = $this->views . '/layer.php';
+								}
+							}
+						}
 					}
 				}
-				elseif( $post->post_type == 'user-layer' ){
+				elseif( $default_id = $this->layer->get_default_id($post->ID) ){
 					
-					if(!isset($post->layer_id)){
+					if( $this->layer->is_local_page($post) ){
 						
-						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+						return $path;
 					}
-					
-					if( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
+					elseif( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
 						
 						$path = $this->views . '/layer.php';
-					}
-					elseif( isset($_REQUEST['t']) && isset($_REQUEST['tk']) ){
-						
-						if( $_REQUEST['t'] == $this->ltple_decrypt_str($_REQUEST['tk']) ){
-						
-							$path = $this->views . '/layer.php';
-						}
-						else{
-							
-							echo 'Wrong template token...';
-							exit;
-						}
 					}
 					else{
 						
@@ -985,30 +965,13 @@ class LTPLE_Client {
 						exit;
 					}				
 				}
-				elseif( !empty($_REQUEST['t']) ){
-					
-					$path = $this->views . '/layer.php';
-				}
-				elseif( $this->layer->is_local_page($post) ){
-					
-					if(!is_numeric($post->layer_id)){
-					
-						$post->layer_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true));
-					}
-					
-					if( $post->layer_id > 0 ){
-						
-						// custom page
-						
-						return $path;
-					}
-				}
 				elseif( file_exists($this->views . '/'.$post->post_type . '.php') ){
 					
 					$path = $this->views .  '/' . $post->post_type . '.php';
 				}
 			}
 		}
+
 		
 		return $path;
 	}
@@ -1018,7 +981,7 @@ class LTPLE_Client {
 		return false;
 	}
 	
-	public function editor_output() {
+	public function get_editor() {
 			
 		// get layer type
 				
@@ -1026,7 +989,7 @@ class LTPLE_Client {
 		//$this->layer->type = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0] : '');
 
 		// get layer range
-				
+		
 		$terms = wp_get_object_terms( $this->layer->id, 'layer-range' );
 		
 		$this->layer->range = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0] : '');
@@ -1042,10 +1005,10 @@ class LTPLE_Client {
 		// Custom default layer post
 		
 		if( $this->layer->defaultId > 0 ){
-				
+			
 			remove_all_filters('content_save_pre');
-			remove_filter( 'the_content', 'wpautop' );
-		}	
+			//remove_filter( 'the_content', 'wpautop' ); // remove line breaks from post_content
+		}
 		
 		if( $this->user->loggedin ){
 			
@@ -1067,42 +1030,43 @@ class LTPLE_Client {
 		}
 		
 		// get editor iframe
-
-		if( $this->user->loggedin === true && $this->layer->slug!='' && $this->layer->type!='' && $this->layer->key!='' && $this->server->url!==false ){
-
-			if( $this->layer->key == md5( 'layer' . $this->layer->id . $this->_time )){
+		
+		if( !empty($this->layer->key) ){
+			
+			if( $this->user->loggedin === true && $this->layer->type!='' && $this->server->url!==false ){
 				
-				if( !empty($_POST['base64']) && !empty($_POST['domId']) ){
+				if( $this->layer->key == md5( 'layer' . $this->layer->id . $this->_time )){
 					
-					// handle cropped image upload
-					
-					echo $this->image->upload_editor_image($this->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
-					
-					exit;
-				}
-				elseif( !empty($_FILES) && !empty($_POST['location']) && $_POST['location'] == 'media' ){
+					if( !empty($_POST['base64']) && !empty($_POST['domId']) ){
 						
-					// handle canvas image upload
-					
-					echo $this->image->upload_collage_image();
-					
-					exit;
+						// handle cropped image upload
+						
+						echo $this->image->upload_editor_image($this->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
+					}
+					elseif( !empty($_FILES) && !empty($_POST['location']) && $_POST['location'] == 'media' ){
+							
+						// handle canvas image upload
+						
+						echo $this->image->upload_collage_image();
+					}
+					else{
+						
+						include( $this->views . '/editor-proxy.php' );
+					}
 				}
 				else{
 					
-					include( $this->views . '/editor-proxy.php' );
+					echo 'Malformed iframe request...';				
 				}
 			}
 			else{
 				
-				echo 'Malformed iframe request...';
-				exit;					
+				echo 'Error starting editor...';
 			}
+			
+			exit; // avoid iframe loop
 		}
-		
-		// Custom outputs
-		
-		if( strpos($this->urls->current,$this->urls->admin) === 0 ){
+		elseif( strpos($this->urls->current,$this->urls->admin) === 0 ){
 			
 			include( $this->views . '/admin.php' );
 		}
@@ -1118,6 +1082,7 @@ class LTPLE_Client {
 
 			include($this->views . '/api.php');
 		}
+		
 	}
 
 	public function get_header(){
@@ -1367,11 +1332,7 @@ class LTPLE_Client {
 		
 		if($this->user->loggedin){
 			
-			if( isset($_GET['rewards']) ){
-
-				include($this->views . '/rewards.php');
-			}
-			elseif( $this->layer->id > 0 ){
+			if( $this->layer->id > 0 ){
 				
 				if( $this->user->has_layer ){
 					
@@ -1379,8 +1340,20 @@ class LTPLE_Client {
 						
 						include( $this->views . '/edit.php' );
 					}
+					elseif( !empty($this->layer->layerForm) && empty($_POST) ){
+						
+						if( file_exists( $this->views . '/forms/' . $this->layer->layerOutput  . '-' . $this->layer->layerForm . '.php' ) ){
+							
+							include( $this->views . '/forms/' . $this->layer->layerOutput  . '-' . $this->layer->layerForm . '.php' );
+						}
+						else{
+							
+							echo 'This form doesn\'t exist...';
+							
+						}
+					}
 					else{
-					
+						
 						include( $this->views . '/editor.php' );
 					}
 				}
@@ -1659,7 +1632,7 @@ class LTPLE_Client {
 								}
 							}
 							
-							do_action('ltple_edit_layer');
+							do_action('ltple_edit_layer',$post_id);
 						}
 					}
 					
@@ -2195,11 +2168,6 @@ class LTPLE_Client {
 								$post_title = $defaultLayer->post_title;
 							}
 							
-							if( empty($post_content) ){
-							
-								$post_content = $defaultLayer->post_content;
-							}
-							
 							$post_author = $this->user->ID;
 							
 							if( !$this->plan->remaining_storage_amount($defaultLayer) > 0 ){
@@ -2208,7 +2176,7 @@ class LTPLE_Client {
 
 								$this->message ='<div class="alert alert-danger">';
 								
-									$this->message .= 'You can\'t save more <b>' . $layer_type->name . '</b> projects with the current plan...';
+									$this->message .= 'You can\'t save more projects from the <b>' . $layer_type->name . '</b> gallery with the current plan...';
 
 								$this->message .='</div>';
 								

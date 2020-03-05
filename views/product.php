@@ -6,15 +6,9 @@
 	}
 	
 	$visibility = get_post_meta( $this->ID, 'layerVisibility', true );
-	
-	if( $visibility == 'assigned' ){
 		
-		echo '<div class="alert alert-warning">This template is not publicly accessible...</div>';
-	}
-	else{
+	if( $visibility != 'assigned' || $this->parent->user->is_admin || $this->parent->user->has_layer ){
 				
-		$outputs 		= $this->parent->layer->get_layer_outputs();
-
 		$permalink 		= $this->parent->urls->home . '/preview/' . $this->post_name . '/';
 		
 		$editor_url 	= $this->parent->urls->editor . '?uri=' . $this->ID;
@@ -29,12 +23,9 @@
 		
 		$is_html = $this->parent->layer->is_html_output($layer_type->output);
 		
-		$object = $outputs[$layer_type->output];
-		
-		if( $is_html ){
-			
-			$object .= ' template';
-		}
+		$is_editable = $this->parent->layer->is_editable($layer_type->output);
+				
+		$output_name = $this->parent->layer->get_output_name($layer_type->output);
 		
 		// get from value
 
@@ -49,8 +40,6 @@
 		}
 		
 		$has_layer 		= $this->parent->plan->user_has_layer( $this );
-		
-		$has_preview 	= $this->parent->layer->has_preview( $layer_type->output );
 		
 		$from_amount = null;
 		
@@ -67,6 +56,11 @@
 			echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> ' . $this->post_title . '</h1>';
 		
 		echo'</div>';
+		
+		if( $visibility == 'assigned' ){
+			
+			echo '<div class="alert alert-warning" style="margin-top:-10px;margin-bottom:10px !important;">This template is not publicly accessible...</div>';
+		}
 		
 		echo'<div id="layer_detail" class="col-xs-12 library-content">';
 
@@ -120,62 +114,59 @@
 						
 						echo'<div class="col-xs-8 text-right" style="padding:5px 0;">';
 							
-							if( $has_preview ){
+							echo'<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 								
-								echo'<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+								echo'Preview'.PHP_EOL;
+							
+							echo'</button>'.PHP_EOL;
+							
+							echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+								
+								echo'<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 									
-									echo'Preview'.PHP_EOL;
-								
-								echo'</button>'.PHP_EOL;
-								
-								echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+									echo'<div class="modal-content">'.PHP_EOL;
 									
-									echo'<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
-										
-										echo'<div class="modal-content">'.PHP_EOL;
-										
-											echo'<div class="modal-header">'.PHP_EOL;
-												
-												echo'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-												
-												echo'<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
+										echo'<div class="modal-header">'.PHP_EOL;
 											
-											echo'</div>'.PHP_EOL;
-										  
-											echo'<div class="modal-body">'.PHP_EOL;
-												
-												if( $this->parent->user->loggedin && $has_layer === true ){
-													
-													echo '<iframe data-src="'.$permalink.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow:hidden;"></iframe>';											
-												}
-												else{
-													
-													echo get_the_post_thumbnail($this->ID, 'recentprojects-thumb');
-												}
-
-											echo'</div>'.PHP_EOL;
-
-											echo'<div class="modal-footer">'.PHP_EOL;
+											echo'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 											
-												if( $this->parent->user->loggedin  && $has_layer === true ){
-
-													echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this '.$object.'">Start</a>';
-												}
-												
-											echo'</div>'.PHP_EOL;
-										  
+											echo'<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
+										
 										echo'</div>'.PHP_EOL;
+									  
+										echo'<div class="modal-body">'.PHP_EOL;
+											
+											if( $this->parent->user->loggedin && $has_layer === true ){
+												
+												echo '<iframe data-src="'.$permalink.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow:hidden;"></iframe>';											
+											}
+											else{
+												
+												echo get_the_post_thumbnail($this->ID, 'recentprojects-thumb');
+											}
+
+										echo'</div>'.PHP_EOL;
+
+										echo'<div class="modal-footer">'.PHP_EOL;
 										
+											if( $this->parent->user->loggedin  && $has_layer === true ){
+
+												echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this '.$output_name.'">Start</a>';
+											}
+											
+										echo'</div>'.PHP_EOL;
+									  
 									echo'</div>'.PHP_EOL;
 									
 								echo'</div>'.PHP_EOL;
-							}
-							
+								
+							echo'</div>'.PHP_EOL;
+						
 							if( $this->parent->user->loggedin ){
 								
 								if( $has_layer === true){
 									
-									echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this '.$object.'">Start</a>';
+									echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this '.$output_name.'">Start</a>';
 								}
 								elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 									
@@ -206,14 +197,14 @@
 						}
 						*/
 					
-						echo' '.$object.' ';
+						echo' '.$output_name.' ';
 						
 						if( !empty($layer_range) ){
 							
 							echo'from the <b>'.ucfirst($layer_range->name).' range</b> ';
 						}
 						
-						if( $is_html ){
+						if( $is_html && $is_editable ){
 						
 							echo'available via our live HTML editing tool. ';
 						}
@@ -280,7 +271,7 @@
 				
 					echo'<div class="well text-center">';
 					
-						echo'For more information about a tailored '.$object.' like <b>' . $this->post_title . '</b> please contact us directly.';
+						echo'For more information about a tailored '.$output_name.' like <b>' . $this->post_title . '</b> please contact us directly.';
 						
 					echo'</div>';
 					
@@ -294,15 +285,15 @@
 				
 				do_action('ltple_product_info',$this);
 				
-				if( $is_html ){
+				if( $is_html && $is_editable ){
 					
 					echo'<div class="clearfix"></div>';
 					
 					echo'<div id="about_tool" class="col-md-4">';
 
-						echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" class="panel-heading" role="tab" id="heading1">';
+						echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading1">';
 							
-							echo'<button style="background:none;text-align:left;font-size:18px;width:100%;padding:5px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">';
+							echo'<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">';
 							  
 								echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
 							  
@@ -314,7 +305,7 @@
 						
 						echo'<div id="collapse1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading1">';
 							
-							echo '<p style="margin: 0 5px;">';
+							echo '<p style="margin:10px;">';
 							
 								echo 'Edit <b>' . $this->post_title . '</b> code, duplicate or remove parts, save your custom version and export the result online directly from the editor.';
 							
@@ -322,9 +313,9 @@
 							
 						echo'</div>';
 					
-						echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" class="panel-heading" role="tab" id="heading2">';
+						echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading2">';
 							
-							echo'<button style="background:none;text-align:left;font-size:18px;width:100%;padding:5px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">';
+							echo'<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">';
 							  
 								echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
 							  
@@ -336,7 +327,7 @@
 						
 						echo'<div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">';
 							
-							echo '<p style="margin: 0 5px;">';
+							echo '<p style="margin:10px;">';
 							
 								echo 'Insert your contents into <b>' . $this->post_title . '</b> template directly from the editor, import images to your library, build custom payment links and add them to your list of bookmarks.';
 
@@ -344,9 +335,9 @@
 							
 						echo'</div>';
 
-						echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" class="panel-heading" role="tab" id="heading3">';
+						echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading3">';
 							
-							echo'<button style="background:none;text-align:left;font-size:18px;width:100%;padding:5px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">';
+							echo'<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">';
 							  
 								echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
 							  
@@ -358,7 +349,7 @@
 						
 						echo'<div id="collapse3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading3">';
 							
-							echo '<p style="margin: 0 5px;">';
+							echo '<p style="margin:10px;">';
 							
 								echo 'Connect third party apps to import or upload your communication material, take advantage of advance features and gain stars';
 							
@@ -367,9 +358,9 @@
 						echo'</div>';
 
 					
-						echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" class="panel-heading" role="tab" id="heading4">';
+						echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading4">';
 							
-							echo'<button style="background:none;text-align:left;font-size:18px;width:100%;padding:5px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">';
+							echo'<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">';
 							  
 								echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
 							  
@@ -381,7 +372,7 @@
 						
 						echo'<div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">';
 							
-							echo '<p style="margin: 0 5px;">';
+							echo '<p style="margin:10px;">';
 							
 								echo 'Add and manage dedicated domain names and assign custom urls to your saved templates.';
 							

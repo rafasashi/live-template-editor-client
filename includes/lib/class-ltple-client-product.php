@@ -393,6 +393,16 @@ class LTPLE_Client_Product {
 			);
 		}
 		
+		if( $installation = $this->parent->layer->get_installation_info($product)){
+			
+			$tabs[] = array(
+				
+				'slug'		=> 'installation',
+				'name'		=> 'Installation',
+				'content'	=> $installation,
+			);				
+		}
+
 		return apply_filters('ltple_product_tabs',$tabs,$product);
 	}
 	
@@ -404,7 +414,7 @@ class LTPLE_Client_Product {
 			
 			$description .= '<div class="col-xs-12 col-sm-8 col-lg-9">';
 			
-				$description .= do_shortcode($product->post_content);
+				$description .= apply_filters('the_content',$product->post_content);
 			
 			$description .= '</div>';
 		}

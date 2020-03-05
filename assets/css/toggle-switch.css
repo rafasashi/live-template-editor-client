@@ -6,6 +6,10 @@
     height: 20px;
 }
 
+.switch .slider {
+    width: 47px;
+}
+
 /* Hide default HTML checkbox */
 .switch input {display:none;}
 

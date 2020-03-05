@@ -352,7 +352,7 @@
 								
 								// view button 
 								
-								if( $ltple->layer->layerOutput != 'image' && !$ltple->layer->is_downloadable_output($ltple->layer->layerOutput) ){
+								if( $ltple->layer->has_preview($ltple->layer->type) ){
 									
 									$preview = add_query_arg(array(
 									
@@ -419,7 +419,7 @@
 							
 								// view button
 							
-								echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '?preview" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+								echo '<a target="_blank" class="btn btn-sm" href="' . get_post_permalink( $ltple->layer->id ) . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 							}
 						}
 					}
@@ -496,7 +496,7 @@
 											
 												echo'<li style="position:relative;">';
 													
-													echo '<a target="_blank" href="' . get_post_permalink( $ltple->layer->id ) . '?preview"> Preview Template <span class="label label-warning pull-right">admin</span></a>';
+													echo '<a target="_blank" href="' . get_post_permalink( $ltple->layer->id ) . '"> Preview Template <span class="label label-warning pull-right">admin</span></a>';
 
 												echo'</li>';
 											}
