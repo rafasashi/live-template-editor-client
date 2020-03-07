@@ -60,7 +60,7 @@
 		 * @return object LTPLE_Client
 		 */
 		 
-		function LTPLE_Client ( $version = '1.0.0', $mode = '' ) {
+		function LTPLE_Client( $version = '1.0.0', $mode = '' ) {
 			
 			register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );
 			

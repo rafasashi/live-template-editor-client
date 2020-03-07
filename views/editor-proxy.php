@@ -1,5 +1,6 @@
-<!DOCTYPE>
 <?php
+	
+	$ltple = LTPLE_Client::instance();
 	
 	/* Config */
 	
@@ -8,31 +9,31 @@
 	
 	// get license holder email
 	
-	$user_email = $this->plan->get_license_holder_email($this->user);
+	$user_email = $ltple->plan->get_license_holder_email($ltple->user);
 
 	$ref = urlencode( $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] );
 	
-	$ref_key = md5( 'ref' . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] . $this->_time . $user_email );
+	$ref_key = md5( 'ref' . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] . $ltple->_time . $user_email );
 	
-	$iframe_key = md5( 'iframe' . $this->layer->key . $ref_key . $this->_time . $user_email );
+	$iframe_key = md5( 'iframe' . $ltple->layer->key . $ref_key . $ltple->_time . $user_email );
 	
 	// NB: query unvisible for the final user
 
 	$request_url = add_query_arg(array(
 	
-		'uri' 	=> $this->layer->id,
-		'lk'	=> $this->layer->key,
-		'lo'	=> $this->layer->layerOutput,
-		'll'	=> (( $this->layer->is_local || $this->layer->type == 'cb-default-layer') ? md5( 'true' . $this->layer->id ) : md5( 'false' . $this->layer->id )),
-		'ld'	=> ( defined('REW_DEV_SERVER') && $_SERVER['HTTP_HOST'] == REW_DEV_SERVER ) ? md5( 'true' . $this->layer->id ) : md5( 'false' . $this->layer->id ),
-		'ow'	=> $this->ltple_encrypt_str( $user_email ),
-		'pu'	=> urlencode($this->urls->plans),
+		'uri' 	=> $ltple->layer->id,
+		'lk'	=> $ltple->layer->key,
+		'lo'	=> $ltple->layer->layerOutput,
+		'll'	=> (( $ltple->layer->is_local || $ltple->layer->type == 'cb-default-layer') ? md5( 'true' . $ltple->layer->id ) : md5( 'false' . $ltple->layer->id )),
+		'ld'	=> ( defined('REW_DEV_SERVER') && $_SERVER['HTTP_HOST'] == REW_DEV_SERVER ) ? md5( 'true' . $ltple->layer->id ) : md5( 'false' . $ltple->layer->id ),
+		'ow'	=> $ltple->ltple_encrypt_str( $user_email ),
+		'pu'	=> urlencode($ltple->urls->plans),
 		'ref'	=> $ref, 
 		'rk'	=> $ref_key,
 		'ik'	=> $iframe_key,
-		'_'		=> $this->_time,
+		'_'		=> $ltple->_time,
 	
-	),$this->server->url . '/server/');
+	),$ltple->server->url . '/server/');
 												
 	//dump($request_url);
 	
@@ -58,15 +59,15 @@
 	} 
 
 	$request_headers 						= getallheaders();
-	$request_headers['Host']				= parse_url($this->server->url, PHP_URL_HOST);
+	$request_headers['Host']				= parse_url($ltple->server->url, PHP_URL_HOST);
 	$request_headers['X-forwarded-Host']	= $_SERVER['HTTP_HOST'];
 	$request_headers['X-forwarded-Server']	= $_SERVER['HTTP_HOST'];
-	$request_headers['X-forwarded-For']		= $this->request->ip;
-	$request_headers['X-forwarded-Key']		= md5('remote'.$this->request->ip);
-	$request_headers['X-forwarded-User']	= $this->ltple_encrypt_str( $user_email );
-	$request_headers['X-forwarded-Demo']	= ( ( $this->layer->type != 'cb-default-layer' || $this->layer->price > 0 ) ? $this->ltple_encrypt_str( md5( 'false' . $user_email ) ) : $this->ltple_encrypt_str( md5( 'true' . $user_email ) ));
-	//$request_headers['X-ref-Key']			= $this->server->ref_key;
-	//$request_headers['X-ref-Url']			= $this->server->ref_url;
+	$request_headers['X-forwarded-For']		= $ltple->request->ip;
+	$request_headers['X-forwarded-Key']		= md5('remote'.$ltple->request->ip);
+	$request_headers['X-forwarded-User']	= $ltple->ltple_encrypt_str( $user_email );
+	$request_headers['X-forwarded-Demo']	= ( ( $ltple->layer->type != 'cb-default-layer' || $ltple->layer->price > 0 ) ? $ltple->ltple_encrypt_str( md5( 'false' . $user_email ) ) : $ltple->ltple_encrypt_str( md5( 'true' . $user_email ) ));
+	//$request_headers['X-ref-Key']			= $ltple->server->ref_key;
+	//$request_headers['X-ref-Url']			= $ltple->server->ref_url;
 
 	$request_body = file_get_contents('php://input');
 
@@ -98,6 +99,8 @@
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	
 	$response = curl_exec($ch);
+
+	echo'<!DOCTYPE>';
 
 	if($response === false) {
 		
@@ -155,8 +158,8 @@
 						</div>
 						
 						<div id="media_library_container"></div>
-						<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url('<?php echo $this->assets_url; ?>loader.gif');height:64px;"></div>
-						<iframe id="media_library_iframe" src=""  data-src="<?php echo $this->urls->media; ?>?output=widget" style="margin-top: -64px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height:450px;"></iframe>
+						<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url('<?php echo $ltple->assets_url; ?>loader.gif');height:64px;"></div>
+						<iframe id="media_library_iframe" src=""  data-src="<?php echo $ltple->urls->media; ?>?output=widget" style="margin-top: -64px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height:450px;"></iframe>
 					
 					</div>
 				</div>
@@ -173,8 +176,8 @@
 						
 						<div id="media_library_container"></div>
 						
-						<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url('<?php echo $this->assets_url; ?>loader.gif');height:64px;"></div>
-						<iframe id="bookmarks_iframe" src=""  data-src="<?php echo $this->urls->media; ?>user-payment-urls/?output=widget" style="margin-top: -64px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height:450px;"></iframe>
+						<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url('<?php echo $ltple->assets_url; ?>loader.gif');height:64px;"></div>
+						<iframe id="bookmarks_iframe" src=""  data-src="<?php echo $ltple->urls->media; ?>user-payment-urls/?output=widget" style="margin-top: -64px;position: relative;width: 100%;top: 0;bottom: 0;border:0;height:450px;"></iframe>
 					</div>
 				</div>
 			</div>

@@ -22,6 +22,8 @@
 			
 			add_filter('init', array( $this, 'init_periods' ));
 			
+			add_filter('ltple_user_loaded', array( $this, 'init_user' ));
+						
 			add_filter('ltple_loaded', array( $this, 'init_users' ));
 			
 			add_filter('author_link', array($this, 'get_author_url'),9999,2);
@@ -206,6 +208,28 @@
 			wp_redirect($url);
 			
 			exit;
+		}
+		
+		public function init_user(){
+			
+			if( $this->parent->user->loggedin ){	
+					
+				// update user layer
+				
+				$this->parent->update_user_layer();	
+			
+				//update user channel
+				
+				$this->parent->channels->update_user_channel($this->parent->user->ID);			
+				
+				//update user image
+				
+				$this->parent->image->update_user_image();
+				
+				//get user plan
+				
+				$this->parent->plan->update_user();
+			}
 		}
 		
 		public function init_users(){

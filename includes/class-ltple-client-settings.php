@@ -86,11 +86,6 @@ class LTPLE_Client_Settings {
 				'callback' 	=> array($this,'get_email_info'),
 			) );			
 			
-			register_rest_route( 'ltple-embedded/v1', '/info', array(
-				
-				'methods' 	=> 'GET',
-				'callback' 	=> array($this,'get_embedded_info'),
-			) );
 		} );
 	}
 	
@@ -165,31 +160,6 @@ class LTPLE_Client_Settings {
 		//$email_info['home']                 = home_url();
 		
 		return $email_info;
-	}
-	
-	public function get_embedded_info( $rest = NULL ) {
-		
-		$embedded_info 	= array();
-		
-		// default values
-		
-		$embedded_info['prefix'] 		= $this->parent->_base;
-		$embedded_info['short_title'] 	= $this->plugin->short;
-		$embedded_info['long_title'] 	= $this->plugin->title;
-		$embedded_info['description'] 	= 'Setup your '.ucfirst($this->plugin->short).' customer key to start importing and editing any template directly from your wordpress installation.';
-					
-		if( !is_null($rest) ){
-			
-			// values from settings
-
-			$embedded_info['prefix'] 		= get_option($this->parent->_base . 'embedded_prefix', 		$embedded_info['prefix']);
-			$embedded_info['short_title'] 	= get_option($this->parent->_base . 'embedded_short', 		$embedded_info['short_title']);
-			$embedded_info['long_title'] 	= get_option($this->parent->_base . 'embedded_title', 		$embedded_info['long_title']);
-			$embedded_info['description'] 	= get_option($this->parent->_base . 'embedded_description', $embedded_info['description']);
-			$embedded_info['editor_url'] 	= $this->parent->urls->editor;
-		}
-		
-		return $embedded_info;
 	}
 	
 	public function post_type_tabs($views) {

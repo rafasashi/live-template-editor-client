@@ -7,9 +7,9 @@ class LTPLE_Client_Theme {
 	var $templates = array( 
 	
 		//'templates/saas.php' 		=> 'LTPLE SaaS',
-		'templates/full-page.php' 	=> 'LTPLE Full Page',
+		//'templates/full-page.php' => 'LTPLE Full Page',
 	); 
-		
+	
 	/**
 	 * Initializes the plugin by setting filters and administration functions.
 	 */

@@ -88,7 +88,7 @@ class LTPLE_Client_Profile {
 			
 			echo'<li style="position:relative;background:#182f42;">';
 				
-				echo '<a href="'. $this->parent->urls->editor .'?list=user-app"><span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Connected Apps</a>';
+				echo '<a href="'. $this->parent->urls->dashboard .'?list=user-app"><span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Connected Apps</a>';
 
 			echo'</li>';
 			
@@ -704,7 +704,7 @@ class LTPLE_Client_Profile {
 
 						#about-me {
 
-							margin:0px -15px !important;
+							margin:0px !important;
 							display:block !important;
 							width:auto !important;
 						}
@@ -762,7 +762,7 @@ class LTPLE_Client_Profile {
 			
 				$this->fields = $this->get_general_fields();
 
-				$tabs['about-me']['content'] .= '<table class="form-table">';
+				$tabs['about-me']['content'] .= '<table class="form-table" style="margin:0 15px;display:inline-block;">';
 				
 					foreach( $this->fields as $field ){
 						

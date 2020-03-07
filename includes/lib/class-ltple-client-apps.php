@@ -26,7 +26,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_menu' 			=> 'user-app',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -35,7 +35,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			'capability_type' 		=> 'post',
 			'has_archive' 			=> false,
 			'hierarchical' 			=> false,
-			'show_in_rest' 			=> true,
+			'show_in_rest' 			=> false,
 			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
 			'supports' 				=> array( 'title', 'author'),
 			'menu_position' 		=> 5,
@@ -46,13 +46,13 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
 			'show_admin_column' 	=> true,
 			'update_count_callback' => '',
-			'show_in_rest'          => true,
+			'show_in_rest'          => false,
 			'rewrite' 				=> true,
 			'sort'					=> '',
 		));
@@ -125,7 +125,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 	
 	public function get_sidebar_content($sidebar,$currentTab,$output){
 		
-		$sidebar .= '<li'.( $currentTab == 'user-app' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-app"><span class="glyphicon glyphicon-plus"></span> Applications</a></li>';
+		$sidebar .= '<li'.( $currentTab == 'user-app' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-app"><span class="glyphicon glyphicon-plus"></span> Applications</a></li>';
 
 		return $sidebar;
 	}

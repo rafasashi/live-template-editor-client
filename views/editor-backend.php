@@ -1,4 +1,7 @@
 <?php
+
+$ltple = LTPLE_Client::instance();
+
 echo '<!DOCTYPE>';
 echo '<html>';
 
@@ -17,7 +20,7 @@ echo '<html>';
 		echo '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
 		echo '<link rel="dns-prefetch" href="//s.w.org">';
 
-		echo '<title>Live Editor</title>';
+		echo '<title>Live Template Editor</title>';
 
 		wp_head();
 
@@ -26,12 +29,15 @@ echo '<html>';
 	echo '<body style="margin:0px;padding:0px;overflow:hidden;">';
 		
 		echo '<div id="ltple-wrapper" class="boxedcontent" style="position:absolute;z-index:auto;border:none;">';
-		
-			echo do_shortcode( '[ltple-client-editor]' );
+			
+			include( $ltple->views . '/navbar.php' );
+			
+			include( $ltple->views . '/editor-iframe.php' );
 		
 		echo '</div>';
 		
 		wp_footer();
 		
 	echo '</body>';
+	
 echo '</html>';

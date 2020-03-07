@@ -39,7 +39,7 @@ class LTPLE_Client_Plan {
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_menu'		 	=> 'subscription-plan',
 			'show_in_nav_menus' 	=> true,
 			'query_var' 			=> true,
@@ -48,7 +48,7 @@ class LTPLE_Client_Plan {
 			'capability_type' 		=> 'post',
 			'has_archive' 			=> false,
 			'hierarchical' 			=> false,
-			'show_in_rest' 			=> true,
+			'show_in_rest' 			=> false,
 			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail','page-attributes' ),
 			'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail'),
 			'menu_position' 		=> 5,
@@ -60,7 +60,7 @@ class LTPLE_Client_Plan {
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_menu' 			=> 'user-plan',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -69,7 +69,7 @@ class LTPLE_Client_Plan {
 			'capability_type' 		=> 'post',
 			'has_archive' 			=> false,
 			'hierarchical' 			=> false,
-			'show_in_rest' 			=> true,
+			'show_in_rest' 			=> false,
 			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
 			'supports' 				=> array( 'title'),
 			'menu_position' 		=> 5,
@@ -1389,7 +1389,7 @@ class LTPLE_Client_Plan {
 									/*
 									$_SESSION['message'] .= '<div class="pull-right">';
 									
-										$_SESSION['message'] .= '<a class="btn-sm btn-success" href="' . $this->parent->urls->editor . '" target="_parent">Start editing</a>';
+										$_SESSION['message'] .= '<a class="btn-sm btn-success" href="' . $this->parent->urls->gallery . '" target="_parent">Start editing</a>';
 								
 									$_SESSION['message'] .= '</div>';
 									*/
@@ -1474,7 +1474,7 @@ class LTPLE_Client_Plan {
 				$_SESSION['message'] .= '</div>';
 			}
 			
-			wp_redirect($this->parent->urls->editor);
+			wp_redirect($this->parent->urls->gallery);
 			exit;
 		}
 	}

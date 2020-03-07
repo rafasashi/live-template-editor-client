@@ -1,13 +1,4 @@
 <?php 
-
-	if(isset($_SESSION['message'])){ 
-	
-		echo $_SESSION['message'];
-		
-		//reset message
-		
-		$_SESSION['message'] ='';
-	}	
 	
 	// get current tab
 	

@@ -67,7 +67,7 @@ class LTPLE_Client_Email {
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_menu'		 	=> 'email-invitation',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -76,7 +76,7 @@ class LTPLE_Client_Email {
 			'capability_type' 		=> 'post',
 			'has_archive' 			=> false,
 			'hierarchical' 			=> false,
-			'show_in_rest' 			=> true,
+			'show_in_rest' 			=> false,
 			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail','page-attributes' ),
 			'supports' 				=> array( 'title', 'editor', 'author' ),
 			'menu_position' 		=> 5,
@@ -511,7 +511,7 @@ class LTPLE_Client_Email {
 	
 	public function get_footer($user,$channel='series'){
 		
-		$unsubscribe_url = $this->parent->urls->editor . '?unsubscribe=' . $this->parent->ltple_encrypt_uri($user->ID) . '&channel=' . $this->parent->ltple_encrypt_uri($channel);
+		$unsubscribe_url = $this->parent->urls->gallery . '?unsubscribe=' . $this->parent->ltple_encrypt_uri($user->ID) . '&channel=' . $this->parent->ltple_encrypt_uri($channel);
 		
 		$footer = '<div style="text-align:center;"><a style="font-size: 11px;" href="' . $unsubscribe_url . '">Unsubscribe from this Newsletter</a></div>';
 		
@@ -673,7 +673,7 @@ class LTPLE_Client_Email {
 
 			// get email message
 			
-			$editor_url = $this->parent->urls->editor; 
+			$editor_url = $this->parent->urls->gallery; 
 			
 			$message = '<table style="width: 100%; max-width: 100%; min-width: 320px; background-color: #f1f1f1;margin:0;padding:40px 0 45px 0;margin:0 auto;text-align:center;border:0;">';
 						
@@ -953,7 +953,7 @@ class LTPLE_Client_Email {
 			
 				'ri' =>	$this->parent->user->refId,
 				
-			), $this->parent->urls->editor ) . PHP_EOL . PHP_EOL;
+			), $this->parent->urls->gallery ) . PHP_EOL . PHP_EOL;
 			
 			$this->invitationMessage .= 'Yours,' . PHP_EOL;
 			$this->invitationMessage .= ucfirst( $this->parent->user->nickname ) . PHP_EOL;
@@ -1103,7 +1103,7 @@ class LTPLE_Client_Email {
 						
 						'ri' 	=> $this->parent->user->refId,
 						
-					), $this->parent->urls->editor ); 
+					), $this->parent->urls->gallery ); 
 					
 					$can_spam = get_user_meta( $user['id'], $this->parent->_base . '_can_spam',true);
 

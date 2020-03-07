@@ -35,9 +35,13 @@ class LTPLE_Client_Urls {
 		
 		$this->host 		= get_option( $this->parent->_base . 'host_url' );	
 		
+		$this->edit 		= $this->home . '/edit/';
+		
 		if( $this->editorSlug = get_option( $this->parent->_base . 'editorSlug' )){
 			
-			$this->editor = $this->home . '/' . $this->editorSlug . '/';
+			$this->editor 	= $this->home . '/' . $this->editorSlug . '/';
+		
+			$this->gallery 	= $this->editor;
 		}
 		
 		if( $this->appsSlug = get_option( $this->parent->_base . 'appsSlug' )){

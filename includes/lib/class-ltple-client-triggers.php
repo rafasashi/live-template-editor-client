@@ -29,8 +29,13 @@ class LTPLE_Client_Triggers {
 		
 		add_action('user_register', array( $this, 'trigger_after_user_register'), 10, 1);
 		
+		add_action('ltple_user_loaded', array( $this, 'trigger_after_user_login'), 10, 1);
+	}
+	
+	public function trigger_after_user_login(){
+		
 		if( $this->parent->user->loggedin ){
-			
+						
 			if( $this->parent->user->last_seen == 0 ){
 				
 				// schedule user registration emails

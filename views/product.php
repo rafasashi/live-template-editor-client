@@ -11,7 +11,7 @@
 				
 		$permalink 		= $this->parent->urls->home . '/preview/' . $this->post_name . '/';
 		
-		$editor_url 	= $this->parent->urls->editor . '?uri=' . $this->ID;
+		$editor_url 	= $this->parent->urls->edit . '?uri=' . $this->ID;
 		
 		$product_url 	= $this->parent->urls->product . $this->ID . '/';
 

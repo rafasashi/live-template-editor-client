@@ -136,10 +136,10 @@ class LTPLE_Client {
 		
 		$this->load_plugin_textdomain();
 	
-		add_action( 'init', array( $this, 'load_localisation' ), 0 );		
+		add_action('init', array( $this, 'load_localisation' ), 0 );		
 
-		add_action( 'init', array( $this, 'register_theme' ) );
-		
+		add_action('init', array( $this, 'register_theme' ) );
+
 		if(isset($_POST['imgData']) && isset($_POST["submitted"])&& isset($_POST["download_image_nonce_field"]) && $_POST["submitted"]=='true'){
 			
 			// dowload meme image
@@ -170,6 +170,8 @@ class LTPLE_Client {
 			$this->request 		= new LTPLE_Client_Request( $this );
 			$this->email 		= new LTPLE_Client_Email( $this );
 			$this->session 		= new LTPLE_Client_Session( $this );
+			$this->triggers		= new LTPLE_Client_Triggers( $this );
+									
 			$this->urls 		= new LTPLE_Client_Urls( $this );
 
 			$this->stars 		= new LTPLE_Client_Stars( $this );
@@ -190,11 +192,13 @@ class LTPLE_Client {
 			$this->checkout = new LTPLE_Client_Checkout( $this );
 			
 			$this->dashboard = new LTPLE_Client_Dashboard( $this );
+
+			$this->editor 	= new LTPLE_Client_Editor( $this );
 			
 			$this->media 	= new LTPLE_Client_Media( $this );
 			 
 			$this->apps 	= new LTPLE_Client_Apps( $this );
-
+			
 			$this->gallery 	= new LTPLE_Client_Gallery( $this );			
 			
 			$this->element 	= new LTPLE_Client_Element( $this );
@@ -231,6 +235,11 @@ class LTPLE_Client {
 		}
 
 	} // End __construct ()
+	
+	public function register_theme() {
+		
+		$this->theme = new LTPLE_Client_Theme($this);
+	}
 	
 	private function ltple_get_secret_iv(){
 		
@@ -327,7 +336,7 @@ class LTPLE_Client {
 
 		// add editor shortcodes
 		
-		add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
+		add_shortcode('ltple-client-editor', array( $this , 'get_gallery_shortcode' ) );
 		
 		// add apps shortcodes
 		
@@ -340,18 +349,6 @@ class LTPLE_Client {
 		// Custom default layer template
 		
 		add_filter('template_include', array( $this, 'get_layer_template'), 1 );
-
-		add_action('template_redirect', array( $this, 'get_editor' ));				
-		
-		add_filter( 'pre_get_posts', function($query) {
-
-			if ($query->is_search ) {
-				
-				//$query->set('post_type',array('post','page'));
-			}
-
-			return $query;
-		});	
 	
 		// get current user
 
@@ -360,10 +357,8 @@ class LTPLE_Client {
 		// loaded hook
 		
 		do_action( 'ltple_loaded');
-		
-		
 	}
-	
+
 	public function set_current_user(){
 
 		if( !empty($_GET['key']) && !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
@@ -644,15 +639,7 @@ class LTPLE_Client {
 				// set current user
 				
 				$this->set_current_user();				
-				
-				// output editor
-				
-				$this->get_editor();
-				
-				// add editor shortcodes
-				
-				add_shortcode('ltple-client-editor', array( $this , 'get_editor_shortcode' ) );
-				
+								
 				// output backend editor
 				
 				include( $this->views . '/editor-backend.php' );
@@ -953,7 +940,9 @@ class LTPLE_Client {
 					
 					if( $this->layer->is_local_page($post) ){
 						
-						return $path;
+						//theme template
+						
+						return $path; 
 					}
 					elseif( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
 						
@@ -979,110 +968,6 @@ class LTPLE_Client {
 	public function disable_theme() {
 		
 		return false;
-	}
-	
-	public function get_editor() {
-			
-		// get layer type
-				
-		//$terms = wp_get_object_terms( $this->layer->id, 'layer-type' );
-		//$this->layer->type = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0] : '');
-
-		// get layer range
-		
-		$terms = wp_get_object_terms( $this->layer->id, 'layer-range' );
-		
-		$this->layer->range = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0] : '');
-		
-		// get layer price
-		
-		$this->layer->price = ( !empty($this->layer->range) ? $this->layer->get_plan_amount($this->layer->range,'price') : 0 );
-		
-		// get triggers
- 		
-		$this->triggers = new LTPLE_Client_Triggers( $this );
-		
-		// Custom default layer post
-		
-		if( $this->layer->defaultId > 0 ){
-			
-			remove_all_filters('content_save_pre');
-			//remove_filter( 'the_content', 'wpautop' ); // remove line breaks from post_content
-		}
-		
-		if( $this->user->loggedin ){
-			
-			// update user layer
-			
-			$this->update_user_layer();	
-		
-			//update user channel
-			
-			$this->channels->update_user_channel($this->user->ID);			
-			
-			//update user image
-			
-			$this->image->update_user_image();
-			
-			//get user plan
-			
-			$this->plan->update_user();
-		}
-		
-		// get editor iframe
-		
-		if( !empty($this->layer->key) ){
-			
-			if( $this->user->loggedin === true && $this->layer->type!='' && $this->server->url!==false ){
-				
-				if( $this->layer->key == md5( 'layer' . $this->layer->id . $this->_time )){
-					
-					if( !empty($_POST['base64']) && !empty($_POST['domId']) ){
-						
-						// handle cropped image upload
-						
-						echo $this->image->upload_editor_image($this->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
-					}
-					elseif( !empty($_FILES) && !empty($_POST['location']) && $_POST['location'] == 'media' ){
-							
-						// handle canvas image upload
-						
-						echo $this->image->upload_collage_image();
-					}
-					else{
-						
-						include( $this->views . '/editor-proxy.php' );
-					}
-				}
-				else{
-					
-					echo 'Malformed iframe request...';				
-				}
-			}
-			else{
-				
-				echo 'Error starting editor...';
-			}
-			
-			exit; // avoid iframe loop
-		}
-		elseif( strpos($this->urls->current,$this->urls->admin) === 0 ){
-			
-			include( $this->views . '/admin.php' );
-		}
-		elseif( isset( $_GET['output']) && $_GET['output'] == 'widget' ){
-			
-			include( $this->views . '/widget.php' );
-		}
-		elseif( isset( $_GET['output']) && $_GET['output'] == 'embedded' ){		
-			
-			include( $this->views . '/editor-embedded.php' );
-		}
-		elseif( isset($_GET['api']) ){
-
-			include($this->views . '/api.php');
-		}
-		
 	}
 
 	public function get_header(){
@@ -1326,59 +1211,11 @@ class LTPLE_Client {
 		}
 	}
 	
-	public function get_editor_shortcode(){
-		
+	public function get_gallery_shortcode(){
+
 		include($this->views . '/navbar.php');
-		
-		if($this->user->loggedin){
 			
-			if( $this->layer->id > 0 ){
-				
-				if( $this->user->has_layer ){
-					
-					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
-						
-						include( $this->views . '/edit.php' );
-					}
-					elseif( !empty($this->layer->layerForm) && empty($_POST) ){
-						
-						if( file_exists( $this->views . '/forms/' . $this->layer->layerOutput  . '-' . $this->layer->layerForm . '.php' ) ){
-							
-							include( $this->views . '/forms/' . $this->layer->layerOutput  . '-' . $this->layer->layerForm . '.php' );
-						}
-						else{
-							
-							echo 'This form doesn\'t exist...';
-							
-						}
-					}
-					else{
-						
-						include( $this->views . '/editor.php' );
-					}
-				}
-				else{
-					
-					//include($this->views . '/upgrade.php');
-					
-					include($this->views . '/restricted.php');
-					
-					include($this->views . '/gallery.php');
-				}
-			}
-			elseif( !empty($_REQUEST['list']) ){
-				
-				include( $this->views . '/list.php' );
-			}
-			else{
-				
-				include($this->views . '/gallery.php');
-			}
-		}
-		else{
-			
-			include($this->views . '/gallery.php'); 
-		}
+		include($this->views . '/gallery.php');
 	}
 
 	public function get_demo_message(){
@@ -1702,7 +1539,7 @@ class LTPLE_Client {
 							
 							$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-success" href="' . $this->urls->current . '&confirmed">Yes</a>';
 							
-							$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->editor . '?uri=' . $this->user->layer->ID . '">No</a>';
+							$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->edit . '?uri=' . $this->user->layer->ID . '">No</a>';
 
 						$_SESSION['message'] .= '</div>';
 					
@@ -1747,7 +1584,7 @@ class LTPLE_Client {
 
 					//redirect page
 					
-					$parsed = parse_url($this->urls->editor .'?'. $_SERVER['QUERY_STRING']);
+					$parsed = parse_url($this->urls->dashboard .'?'. $_SERVER['QUERY_STRING']);
 
 					parse_str($parsed['query'], $params);
 
@@ -1758,7 +1595,7 @@ class LTPLE_Client {
 						$params['list'] = $layer_type->storage;
 					}
 					
-					$url = $this->urls->editor;
+					$url = $this->urls->dashboard;
 					
 					$query = http_build_query($params);
 					
@@ -1903,7 +1740,7 @@ class LTPLE_Client {
 								
 								//redirect to user layer
 
-								$layer_url = $this->urls->editor . '?uri=' . $post_id . '&edit';
+								$layer_url = $this->urls->edit . '?uri=' . $post_id . '&edit';
 								
 								//var_dump( $layer_url );exit;
 								
@@ -2104,7 +1941,7 @@ class LTPLE_Client {
 
 									// get layer url
 										
-									$layer_url = $this->urls->editor . '?uri=' . $post_id;
+									$layer_url = $this->urls->edit . '?uri=' . $post_id;
 									
 									//redirect to user layer
 
@@ -2196,19 +2033,36 @@ class LTPLE_Client {
 					
 					if( $post_title!='' && is_int($defaultLayerId) && $defaultLayerId > 0 ){
 						
-						$time = current_time('mysql');
+						$time 	= current_time('mysql');
+						$gmt 	= get_gmt_from_date($time);
 						
-						$post_id = wp_update_post(array(
+						if( $post_id > 0 ){
+						
+							$post_id = wp_update_post(array(
+								
+								'ID' 			=> $post_id,
+								'post_author' 	=> $post_author,
+								'post_title' 	=> $post_title,
+								'post_name' 	=> $post_name,
+								'post_type' 	=> $post_type,
+								'post_status' 	=> $post_status,
+								'post_date' 	=> $time,
+								'post_date_gmt' => $gmt,
+							));
+						}
+						else{
 							
-							'ID' 			=> $post_id,
-							'post_author' 	=> $post_author,
-							'post_title' 	=> $post_title,
-							'post_name' 	=> $post_name,
-							'post_type' 	=> $post_type,
-							'post_status' 	=> $post_status,
-							'post_date' 	=> $time,
-							'post_date_gmt' => get_gmt_from_date($time),
-						));
+							$post_id = wp_insert_post(array(
+								
+								'post_author' 	=> $post_author,
+								'post_title' 	=> $post_title,
+								'post_name' 	=> $post_name,
+								'post_type' 	=> $post_type,
+								'post_status' 	=> $post_status,
+								'post_date' 	=> $time,
+								'post_date_gmt' => $gmt,
+							));							
+						}
 						
 						if( is_numeric($post_id) ){
 							
@@ -2247,7 +2101,7 @@ class LTPLE_Client {
 								}
 								else{
 									
-									$user_layer_url = $this->urls->editor . '?action=edit&uri=' . $post_id;
+									$user_layer_url = $this->urls->edit . '?action=edit&uri=' . $post_id;
 								}
 								
 								wp_redirect($user_layer_url);
@@ -2398,11 +2252,6 @@ class LTPLE_Client {
 		return $post_type;
 	}
 	
-	public function register_theme() {
-		
-		$this->theme = new LTPLE_Client_Theme($this);
-	}
-
 	/**
 	 * Wrapper function to register a new taxonomy
 	 * @param  string $taxonomy   Taxonomy name

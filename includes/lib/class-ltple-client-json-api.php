@@ -14,26 +14,6 @@ class LTPLE_Client_Json_API {
 		$this->parent 	= $parent;
 	}
 
-	public function get_url( $action, $user_id = 0, $args=[] ){
-		
-		$url = $this->parent->urls->editor . '?api='.$action;
-		
-		if( is_numeric($user_id) && $user_id !== 0 ){
-			
-			$url .= '/' . $user_id;
-		}
-		
-		if(!empty($args)){
-			
-			foreach($args as $key => $value){
-				
-				$url .= '&' . $key . '=' . $value;
-			}
-		}
-		
-		return $url;
-	}
-	
 	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar', $card=false, $itemHeight=235, $fixedHeight=true, $echo=true ){
 		
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );

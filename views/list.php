@@ -4,28 +4,13 @@
 	
 	$currentTab = $_REQUEST['list'];
 	
-	$output = ( $this->inWidget ? 'widget' : '' ); 
+	$output = ( $this->parent->inWidget ? 'widget' : '' ); 
 	
 	// ------------- output panel --------------------
 	
-	if(!empty($this->message)){ 
-	
-		//output message
-	
-		echo $this->message;
-	}
-	
-	
-	if(!empty($_SESSION['message'])){
-		
-		echo $_SESSION['message'].PHP_EOL;
-		
-		$_SESSION['message'] = '';
-	}
-	
 	echo'<div id="panel" class="wrapper">';
 
-		echo $this->dashboard->get_sidebar($currentTab);
+		echo $this->parent->dashboard->get_sidebar($currentTab);
 		
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;;min-height:700px;">';
 			
@@ -37,18 +22,18 @@
 						
 						if( $currentTab == 'user-page' || $currentTab == 'user-menu' ){
 							
-							echo'<li role="presentation"'.( $currentTab == 'user-page' ? ' class="active"' : '' ).'><a href="' . $this->urls->editor . '?list=user-page" role="tab">Pages</a></li>';
+							echo'<li role="presentation"'.( $currentTab == 'user-page' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-page" role="tab">Pages</a></li>';
 						
-							echo'<li role="presentation"'.( $currentTab == 'user-menu' ? ' class="active"' : '' ).'><a href="' . $this->urls->editor . '?list=user-menu" role="tab">Menus</a></li>';							
+							echo'<li role="presentation"'.( $currentTab == 'user-menu' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-menu" role="tab">Menus</a></li>';							
 						}
 						else{ 
 							
-							echo'<li role="presentation" class="active"><a href="' . $this->urls->current . '" role="tab">' . $post_type->label . '</a></li>';
+							echo'<li role="presentation" class="active"><a href="' . $this->parent->urls->current . '" role="tab">' . $post_type->label . '</a></li>';
 						}
 						
 						if( $currentTab == 'user-app' ){
 							
-							echo '<li role="presentation"><a href="' . apply_filters( 'ltple_list_'.$currentTab.'_new_url', $this->urls->editor . '?layer[default_storage]=' . $currentTab, $currentTab, $output ) . '" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ New</a></li>';						
+							echo '<li role="presentation"><a href="' . apply_filters( 'ltple_list_'.$currentTab.'_new_url', $this->parent->urls->gallery . '?layer[default_storage]=' . $currentTab, $currentTab, $output ) . '" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ New</a></li>';						
 						}
 						else{
 							
@@ -58,7 +43,7 @@
 								
 									'output' 	=> 'widget',
 									
-								),$this->urls->editor . '?layer[default_storage]=' . $currentTab);
+								),$this->parent->urls->gallery . '?layer[default_storage]=' . $currentTab);
 								
 								$modal_id='modal_'.md5($gallery_url);
 								
@@ -82,7 +67,7 @@
 											
 											echo'</div>'.PHP_EOL;
 										  
-											echo '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
+											echo '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
 
 											echo '<iframe data-src="'.$gallery_url.'" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';
 										  
@@ -127,7 +112,7 @@
 
 						$fields = apply_filters('ltple_table_fields',$fields,$post_type);
 						
-						if( $this->layer->is_public($post_type) && $this->layer->is_hosted($post_type) ){
+						if( $this->parent->layer->is_public($post_type) && $this->parent->layer->is_hosted($post_type) ){
 							
 							$fields[] = array(
 
@@ -147,9 +132,9 @@
 					
 						// get table of results
 
-						$this->api->get_table(
+						$this->parent->api->get_table(
 						
-							$this->urls->api . 'ltple-list/v1/'.$currentTab.'?' . http_build_query($_POST, '', '&amp;'), 
+							$this->parent->urls->api . 'ltple-list/v1/'.$currentTab.'?' . http_build_query($_POST, '', '&amp;'), 
 							apply_filters('ltple_list_'.$currentTab.'_fields',$fields), 
 							$trash		= false,
 							$export		= false,

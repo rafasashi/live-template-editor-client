@@ -89,7 +89,7 @@
 							
 							if( count($q) == 3 ){
 						
-								echo'<a class="btn btn-xs btn-primary" style="margin:5px;" href="' . $this->parent->urls->editor . '?gallery=' . $term->slug . '">see more</a>';
+								echo'<a class="btn btn-xs btn-primary" style="margin:5px;" href="' . $this->parent->urls->gallery . '?gallery=' . $term->slug . '">see more</a>';
 							}
 							
 						echo'</div>';

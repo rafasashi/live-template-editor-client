@@ -19,13 +19,13 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			array(
 				'hierarchical' 			=> true,
 				'public' 				=> false,
-				'show_ui' 				=> true,
+				'show_ui' 				=> false,
 				'show_in_nav_menus' 	=> false,
 				'show_tagcloud' 		=> false,
 				'meta_box_cb' 			=> null,
 				'show_admin_column' 	=> false,
 				'update_count_callback' => '',
-				'show_in_rest'          => true,
+				'show_in_rest'          => false,
 				'rewrite' 				=> false,
 				'sort' 					=> '',
 			)

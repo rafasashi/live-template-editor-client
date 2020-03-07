@@ -55,7 +55,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_menu' 			=> 'cb-default-layer',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -76,7 +76,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_menu' 			=> 'user-layer',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -97,7 +97,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_menu' 			=> false,
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -118,7 +118,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_menu' 			=> false,
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -139,7 +139,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_menu' 			=> false,
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -158,7 +158,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'layer-type', __( 'Template Type', 'live-template-editor-client' ), __( 'Template Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd','user-page','user-menu'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -172,7 +172,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -186,7 +186,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'account-option', __( 'Template Options', 'live-template-editor-client' ), __( 'Template Option', 'live-template-editor-client' ),  array('user-plan'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -200,7 +200,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'css-library', __( 'CSS Libraries', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -214,7 +214,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'js-library', __( 'JS Libraries', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -228,7 +228,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'font-library', __( 'Font Libraries', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> true,
+			'show_ui' 				=> false,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -1319,7 +1319,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$edit = '<div style="background:#fbfbfb;padding:152px 0;text-align:center;">'; 
 		
-			$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->editor . '?uri=' . $layer->ID . '">Edit Content</a>';
+			$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->edit . '?uri=' . $layer->ID . '">Edit Content</a>';
 
 		$edit .= '</div>';	
 	
@@ -2297,7 +2297,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$this->uri = intval($_GET['uri']);
 			}
-			elseif( strpos($this->parent->urls->current, $this->parent->urls->editor) === false && strpos($this->parent->urls->current, $this->parent->urls->dashboard) === false ){
+			elseif( strpos($this->parent->urls->current, $this->parent->urls->edit) === false && strpos($this->parent->urls->current, $this->parent->urls->gallery) === false && strpos($this->parent->urls->current, $this->parent->urls->dashboard) === false ){
 				
 				$this->uri = apply_filters('ltple_layer_set_uri',url_to_postid($this->parent->urls->current));
 			}
@@ -2389,7 +2389,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'uri' 		=> $post->ID,
 			'action' 	=> 'edit',
 			
-		), $this->parent->urls->editor );		
+		), $this->parent->urls->edit );		
 
 		$action  = '<a href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
 		
@@ -2404,7 +2404,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$action .=  '<h4>Are you sure you want to delete this project?</h4>';						
 
-			$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->editor . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
+			$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->edit . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
 			
 		$action .= '</div>';
 
@@ -3658,91 +3658,31 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$layer_template = get_page_template_slug( $this->id );
 		
-		if( $this->is_local_page($this->id) && $layer_template != 'templates/full-page.php' ){
+		if( $this->is_local_page($this->id) ){
 		
 			$body .='<div class="' . implode(' ',$this->layerStyleClasses) . '" style="width:100%;">' .PHP_EOL;
 		}
 
-			if( empty($_POST) && $this->layerForm == 'importer' && empty($this->parent->layer->layerContent) ){
+			// layer menu
+			
+			if( !empty($this->layerMenuContent) ){
 				
-				$body .='<script>' .PHP_EOL;
-
-					$body .= ' var layerFormActive = true;' .PHP_EOL;
-					
-				$body .='</script>' .PHP_EOL;
-				
-				$body .= '<div class="container">';
-				
-					$body .= '<div class="panel panel-default" style="margin:50px;">';
-					
-					$body .= '<div class="panel-heading">';
-					
-						if( !empty($this->layerForm) ){
-							
-							$body .='<h4>'.ucfirst($this->parent->layer->title).'</h4>';
-						}
+				$body .= '<div class="menu-' . $this->layerMenuId . '">';
 						
-					$body .= '</div>';
+					$body .= $this->layerMenuContent;
 					
-					$body .= '<div class="panel-body">';
-					
-						$body .= '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
-						
-							if( $this->layerForm == 'importer' ){
-						
-								$body .= '<div class="col-xs-3">';
-								
-									$body .='<label>HTML</label>';
-									
-								$body .= '</div>';
-								
-								$body .= '<div class="col-xs-9">';
-								
-									$body .= '<div class="form-group">';
-									
-										$body .= '<textarea class="form-control" name="importHtml" style="min-height:100px;"></textarea>';
-										
-									$body .= '</div>';
-									
-								$body .= '</div>';
-
-								$body .= '<div class="col-xs-12 text-right">';
-									
-									$body .= '<input class="btn btn-primary btn-md" type="submit" value="Import" />';
-									
-								$body .= '</div>';
-							}							
-						
-						$body .= '</form>';
-						
-					$body .= '</div>';
-					$body .= '</div>';
-				
 				$body .= '</div>';
-			} 
-			else{
-
-				// layer menu
-				
-				if( !empty($this->layerMenuContent) ){
-					
-					$body .= '<div class="menu-' . $this->layerMenuId . '">';
-							
-						$body .= $this->layerMenuContent;
-						
-					$body .= '</div>';
-				}
-				
-				// layer content
-							
-				$body .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($this->layerMargin) ? 'margin:'.$this->layerMargin.';' : '' ) . '">';
-								
-					$body .= $layerContent;
-				
-				$body .= '</ltple-layer>' .PHP_EOL;
 			}
-		
-		if( $this->is_local_page($this->id) && $layer_template != 'templates/full-page.php' ){
+			
+			// layer content
+						
+			$body .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($this->layerMargin) ? 'margin:'.$this->layerMargin.';' : '' ) . '">';
+							
+				$body .= $layerContent;
+			
+			$body .= '</ltple-layer>' .PHP_EOL;
+
+		if( $this->is_local_page($this->id) ){
 		
 			$body .='</div>' .PHP_EOL;
 		}
@@ -5647,8 +5587,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			ob_start();
 			
-			//http_response_code(200);
-		
 			if( file_exists( $this->parent->views . '/layers/' . $this->layerOutput  . '.php' ) ){
 				
 				include_once( $this->parent->views . '/layers/' . $this->layerOutput  . '.php' );

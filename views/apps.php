@@ -1,15 +1,4 @@
 <?php 
-
-	if(isset($_SESSION['message'])){ 
-	
-		//output message
-	
-		echo $_SESSION['message'];
-		
-		//reset message
-		
-		$_SESSION['message'] ='';
-	}
 	
 	$inWidget = false;
 	$output='default';

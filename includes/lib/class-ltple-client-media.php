@@ -303,7 +303,6 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	
 	public function get_media_shortcode(){
 		
-		
 		include($this->parent->views . '/navbar.php');
 		
 		if($this->parent->user->loggedin){
@@ -581,7 +580,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 									
 									$item.='<li style="position:relative;">';
 									
-										$item.='<a href="' . $this->parent->urls->editor . '?uri=' . $image->ID . '&quick" style="color:#182f42;border-bottom:1px solid #eee;"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit <span class="label label-primary" style="top:8px;position:absolute;right:15px;">advanced</span></a>';
+										$item.='<a href="' . $this->parent->urls->edit . '?uri=' . $image->ID . '&quick" style="color:#182f42;border-bottom:1px solid #eee;"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit <span class="label label-primary" style="top:8px;position:absolute;right:15px;">advanced</span></a>';
 									
 									$item.='</li>';
 									

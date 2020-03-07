@@ -84,8 +84,15 @@ class LTPLE_Client_Dashboard {
 		include($this->parent->views . '/navbar.php');
 		
 		if($this->parent->user->loggedin){
-
-			include($this->parent->views . '/dashboard.php');
+			
+			if( !empty($_REQUEST['list']) ){
+				
+				include( $this->parent->views . '/list.php' );
+			}
+			else{
+				
+				include($this->parent->views . '/dashboard.php');
+			}
 		}
 		else{
 			
@@ -292,7 +299,7 @@ class LTPLE_Client_Dashboard {
 				
 				// get edit url
 				
-				$edit_url = $this->parent->urls->editor . '?uri=' . $post->ID . '&action=edit';
+				$edit_url = $this->parent->urls->edit . '?uri=' . $post->ID . '&action=edit';
 				
 				// get default id
 				
@@ -386,12 +393,12 @@ class LTPLE_Client_Dashboard {
 				
 				if( !empty($storage_count['user-layer']) ){
 				
-					$edit_section .= '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
+					$edit_section .= '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
 				}
 				
 				if( !empty($storage_count['user-psd']) ){
 				
-					$edit_section .= '<li'.( ( $currentTab == 'user-psd' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->editor . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Graphic Designs</a></li>';
+					$edit_section .= '<li'.( ( $currentTab == 'user-psd' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Graphic Designs</a></li>';
 				}
 				
 				$edit_section = apply_filters('ltple_dashboard_design_sidebar',$edit_section,$currentTab,$output);
@@ -409,7 +416,7 @@ class LTPLE_Client_Dashboard {
 				
 				if( !empty($storage_count['user-page']) ){
 				
-					$publish_section .= '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->editor . '?list=user-page"><span class="glyphicon glyphicon-file"></span> Web Pages</a></li>';
+					$publish_section .= '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->dashboard . '?list=user-page"><span class="glyphicon glyphicon-file"></span> Web Pages</a></li>';
 				}
 				
 				$publish_section = apply_filters('ltple_dashboard_publish_sidebar',$publish_section,$currentTab,$output);

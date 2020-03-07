@@ -151,9 +151,9 @@
 				
 				echo '</div>';
 
-				echo'<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:0px;min-height:700px;">';
+				echo'<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="padding:0;border-left:1px solid #ddd;background:#fff;padding-bottom:0px;min-height:100vh;">';
 				
-					echo'<ul class="nav nav-pills" role="tablist" style="box-shadow:inset 0px 2px 5px -4px rgba(0,0,0,0.75);overflow:visible;margin-top:0;">';
+					echo'<ul class="nav nav-pills" role="tablist" style="box-shadow:inset 0px 2px 5px -4px rgba(0,0,0,0.75);overflow:visible;margin:0;">';
 						
 						foreach( $this->tabs as $tab){
 							

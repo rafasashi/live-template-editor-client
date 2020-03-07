@@ -1,14 +1,5 @@
 <?php 
 
-	if(isset($_SESSION['message'])){ 
-	
-		echo $_SESSION['message'];
-		
-		//reset message
-		
-		$_SESSION['message'] ='';
-	}
-
 	$tab = ( !empty($_GET['tab']) ? $_GET['tab'] : 'world-ranking' );
 	
 	echo'<div id="media_library" class="wrapper">';
@@ -256,7 +247,7 @@
 								
 										echo'<h3>My ref link to the main page</h3>';
 									
-										echo'<input class="form-control" type="text" value="' . $this->parent->urls->editor . '?ri=' . $this->parent->user->refId . '" />';
+										echo'<input class="form-control" type="text" value="' . $this->parent->urls->gallery . '?ri=' . $this->parent->user->refId . '" />';
 									
 									echo'</div>';
 									

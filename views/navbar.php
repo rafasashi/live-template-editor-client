@@ -42,7 +42,7 @@
 				echo'<div class="pull-left hidden-xs">';
 					
 					/*
-					echo'<a style="background:' . $ltple->settings->mainColor . ';border:1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="'. $ltple->urls->editor .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Templates" data-content="The gallery is where you can find templates to start a project. New things are added every weeks.">';
+					echo'<a style="background:' . $ltple->settings->mainColor . ';border:1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="'. $ltple->urls->gallery .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Templates" data-content="The gallery is where you can find templates to start a project. New things are added every weeks.">';
 					
 						echo'Templates';
 					
@@ -325,7 +325,7 @@
 
 									$post_title = $ltple->user->layer->post_title;
 									
-									echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '" id="savePostForm" method="post">';
+									echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '" id="savePostForm" method="post">';
 										
 										echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Template Title">';
 										echo'<input type="hidden" name="postContent" id="postContent" value="">';
@@ -346,7 +346,7 @@
 									
 									if( !$ltple->layer->is_media ){
 									
-										echo'<a href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&action=edit" style="background-color:#58cac5;border:none;margin-left:2px;" class="btn btn-sm" type="button">Settings</a>';
+										echo'<a href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&action=edit" style="background-color:#58cac5;border:none;margin-left:2px;" class="btn btn-sm" type="button">Settings</a>';
 									}
 								}
 								
@@ -373,7 +373,7 @@
 										
 										echo '<h4>Are you sure you want to delete this ' . $ltple->layer->get_storage_name($ltple->layer->layerStorage) . '?</h4>';						
 
-										echo '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&postAction=delete&confirmed">Yes</a>';
+										echo '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&postAction=delete&confirmed">Yes</a>';
 										
 										//echo '<button style="margin:10px;" type="button" class="btn btn-xs btn-danger ui-button ui-widget" role="button" title="Close"><span class="ui-button-text">No</span></button>';
 
@@ -388,7 +388,7 @@
 							
 							$post_title = $ltple->layer->title;
 							
-							echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '" id="savePostForm" method="post">';
+							echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '" id="savePostForm" method="post">';
 								
 								echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Template Title">';
 								echo'<input type="hidden" name="postContent" id="postContent" value="">';
@@ -471,7 +471,7 @@
 										
 										echo'<li style="position:relative;">';
 										
-											echo '<a href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&action=edit">Edit Settings</a>';
+											echo '<a href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&action=edit">Edit Settings</a>';
 										
 										echo'</li>';
 
@@ -487,7 +487,7 @@
 											
 												echo'<li style="position:relative;">';
 													
-													echo '<a target="_self" href="' . $ltple->urls->editor . '?uri=' . $ltple->layer->id . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
+													echo '<a target="_self" href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
 
 												echo'</li>';
 											}
@@ -523,7 +523,7 @@
 											
 											echo'<li style="position:relative;">';
 											
-												echo '<a href="' . $ltple->urls->editor . '?layer[default_storage]='.$slug.'">' . $name . '</a>';
+												echo '<a href="' . $ltple->urls->gallery . '?layer[default_storage]='.$slug.'">' . $name . '</a>';
 										
 											echo'</li>';
 										}
@@ -540,12 +540,30 @@
 
 					echo'<a style="margin:0 2px;" class="btn btn-sm btn-success" href="'. wp_login_url( $ltple->request->proto . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'">Login</a>';
 					
-					echo'<a style="margin:0 2px;" class="btn btn-sm btn-info" href="'. wp_login_url( $ltple->urls->editor ) .'&action=register">Register</a>';
+					echo'<a style="margin:0 2px;" class="btn btn-sm btn-info" href="'. wp_login_url( $ltple->urls->current ) .'&action=register">Register</a>';
 										
 				}
 
 			echo'</div>';
 			
 		echo'</div>';
+	}
+	
+	if(!empty($ltple->message)){ 
+	
+		//output message
+	
+		echo $ltple->message;
+	}
+	
+	if(!empty($_SESSION['message'])){ 
+	
+		//output message
+	
+		echo $_SESSION['message'];
+		
+		//reset message
+		
+		$_SESSION['message'] ='';
 	}
 	

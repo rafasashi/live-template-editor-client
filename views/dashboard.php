@@ -1,15 +1,5 @@
 <?php 
 
-	if(isset($_SESSION['message'])){ 
-	
-		//output message
-	
-		echo $_SESSION['message'];
-		
-		//reset message
-		
-		$_SESSION['message'] ='';
-	}
 	// get current tab
 	
 	$currentTab = ( !empty($_GET['tab']) ? $_GET['tab'] : 'home' );

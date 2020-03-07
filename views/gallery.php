@@ -1,16 +1,4 @@
 <?php 
-
-	if(!empty($this->message)){ 
-	
-		echo $this->message;
-	}
-	
-	if(!empty($_SESSION['message'])){ 
-	
-		echo $_SESSION['message'];
-		
-		$_SESSION['message'] = '';
-	}
 	
 	// get gallery sections
 	
@@ -78,7 +66,7 @@
 								
 								$term = $all_types[$id];
 							
-								$gallery_url = add_query_arg($_GET,$this->urls->editor);
+								$gallery_url = add_query_arg($_GET,$this->urls->gallery);
 								 
 								$gallery_url = add_query_arg('gallery',$term->slug,$gallery_url);
 								
@@ -157,7 +145,7 @@
 								
 								foreach( $layer_type->ranges as $range ){
 									
-									$range_url = add_query_arg($_GET,$this->urls->editor);
+									$range_url = add_query_arg($_GET,$this->urls->gallery);
 									
 									$range_url = remove_query_arg(array('uri'),$range_url);
 									
