@@ -39,7 +39,7 @@ class LTPLE_Client_Plan {
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu'		 	=> 'subscription-plan',
 			'show_in_nav_menus' 	=> true,
 			'query_var' 			=> true,

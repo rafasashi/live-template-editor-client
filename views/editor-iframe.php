@@ -31,8 +31,25 @@
 		}
 		else{
 			
-			echo ' var layerContent = "' . base64_encode($ltple->layer->output_layer()) . '";' . PHP_EOL;
-	
+			if( !empty($_POST) || !$ltple->layer->is_local_page($ltple->layer->id) ){
+				
+				// content based preview
+				
+				echo ' var layerContent = "' . base64_encode($ltple->layer->output_layer()) . '";' . PHP_EOL;
+			}
+			else{
+				
+				// url based preview
+				
+				$preview = add_query_arg(array(
+					
+					'preview' => 'ltple',
+					
+				),get_preview_post_link($ltple->layer->id));
+				
+				echo ' var layerUrl	= "' . $preview . '";' . PHP_EOL;
+			}
+			
 			if( $ltple->layer->layerOutput != '' ){
 				
 				echo ' var layerOutput = "' . $ltple->layer->layerOutput . '";' . PHP_EOL;

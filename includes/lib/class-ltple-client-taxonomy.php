@@ -97,7 +97,7 @@ class LTPLE_Client_Taxonomy {
         	'labels' 				=> apply_filters( $this->taxonomy . '_labels', $labels ),
         	'hierarchical' 			=> true,
             'public' 				=> true,
-            'show_ui' 				=> false,
+            'show_ui' 				=> true,
             'show_in_nav_menus' 	=> true,
             'show_tagcloud' 		=> true,
             'meta_box_cb' 			=> null,

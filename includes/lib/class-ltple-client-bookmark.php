@@ -19,7 +19,7 @@ class LTPLE_Client_Bookmark {
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'user-bookmark',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,

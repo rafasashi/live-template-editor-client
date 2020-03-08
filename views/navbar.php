@@ -354,13 +354,7 @@
 								
 								if( $ltple->layer->has_preview($ltple->layer->type) ){
 									
-									$preview = add_query_arg(array(
-									
-										'preview' => '',
-									
-									), get_post_permalink( $ltple->layer->id ));
-									
-									echo '<a target="_blank" class="btn btn-sm" href="' . $preview . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+									echo '<a target="_blank" class="btn btn-sm" href="' . get_preview_post_link($ltple->layer->id) . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 								}
 								
 								// delete button

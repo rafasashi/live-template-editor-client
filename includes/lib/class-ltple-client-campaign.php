@@ -21,7 +21,7 @@ class LTPLE_Client_Campaign extends LTPLE_Client_Object {
 			
 			'hierarchical' 			=> false,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,

@@ -19,7 +19,7 @@ class LTPLE_Client_Gallery {
 		$this->parent->register_taxonomy( 'gallery-section', __( 'Gallery Sections', 'live-template-editor-client' ), __( 'Gallery Section', 'live-template-editor-client' ),  array(), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,

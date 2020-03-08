@@ -92,7 +92,7 @@ class LTPLE_Client_Post_Type {
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu' 			=> false,
 			'show_in_nav_menus' 	=> true,
 			'query_var' 			=> true,

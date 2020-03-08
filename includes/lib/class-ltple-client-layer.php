@@ -55,7 +55,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'cb-default-layer',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -76,7 +76,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'user-layer',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -97,7 +97,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu' 			=> false,
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -118,7 +118,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu' 			=> false,
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -139,7 +139,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu' 			=> false,
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -158,7 +158,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'layer-type', __( 'Template Type', 'live-template-editor-client' ), __( 'Template Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd','user-page','user-menu'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -172,7 +172,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -186,7 +186,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'account-option', __( 'Template Options', 'live-template-editor-client' ), __( 'Template Option', 'live-template-editor-client' ),  array('user-plan'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -200,7 +200,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'css-library', __( 'CSS Libraries', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -214,7 +214,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'js-library', __( 'JS Libraries', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -228,7 +228,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->parent->register_taxonomy( 'font-library', __( 'Font Libraries', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
@@ -1116,7 +1116,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function is_html_output($output){
 					
 		$html_output = apply_filters('ltple_layer_html_output',array(
-		
+			'post',
+			'page',
 			'inline-css',
 			'external-css',
 			'hosted-page',

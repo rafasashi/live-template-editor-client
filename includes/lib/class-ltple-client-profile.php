@@ -660,7 +660,7 @@ class LTPLE_Client_Profile {
 	}
 	
 	public function get_profile_tabs(){
-
+		
 		if( is_null($this->tabs) ){
 		
 			$tabs = [];

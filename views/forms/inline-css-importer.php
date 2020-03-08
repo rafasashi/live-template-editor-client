@@ -1,12 +1,14 @@
 <?php 
 
+	$ltple = LTPLE_Client::instance();
+
 	$layer = '<div class="container">';
 	
 		$layer .= '<div class="panel panel-default" style="margin:50px;">';
 		
 		$layer .= '<div class="panel-heading">';
 
-			$layer .='<h4>'.ucfirst($this->layer->title).'</h4>';
+			$layer .='<h4>'.ucfirst($ltple->layer->title).'</h4>';
 			
 		$layer .= '</div>';
 		

@@ -26,7 +26,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'user-app',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
@@ -46,7 +46,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,

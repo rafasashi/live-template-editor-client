@@ -111,6 +111,10 @@ class LTPLE_Client_Editor {
 					include( $this->parent->views . '/editor-starter.php' );
 				}
 			}
+			else{
+				
+				include( $this->parent->views . '/restricted.php' );
+			}
 			
 			exit;
 		}

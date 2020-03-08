@@ -17,7 +17,7 @@ class LTPLE_Client_Tutorials {
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_menu' 			=> 'tutorial',
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
