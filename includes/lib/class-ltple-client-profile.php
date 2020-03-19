@@ -620,6 +620,7 @@ class LTPLE_Client_Profile {
 		
 		// get connected twitter pictures
 		
+		/*
 		if( !empty($userApps) ){
 		
 			foreach( $userApps as $i => $userApp ){
@@ -633,6 +634,7 @@ class LTPLE_Client_Profile {
 				}
 			}
 		}
+		*/
 
 		// get local picture
 
@@ -642,7 +644,7 @@ class LTPLE_Client_Profile {
 
 			'id' 			=> $this->parent->_base . 'profile_picture',
 			'label'			=> 'Avatar',
-			'description'	=> 'Upload or select an avatar from <a class="label label-default" target="_blank" href="https://en.gravatar.com/">Gravatar</a> <a class="label label-info" href="'.$this->parent->apps->getAppUrl('twitter','connect').'">Twitter</a>',
+			'description'	=> '',
 			'type'			=> 'avatar',
 			'options'		=> $pictures,
 		);

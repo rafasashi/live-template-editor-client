@@ -82,6 +82,7 @@ class LTPLE_Client {
 	public $script_suffix;
 
 	public $server;
+	public $theme;
 	public $user;
 	public $layer;
 	public $message;
@@ -137,8 +138,6 @@ class LTPLE_Client {
 		$this->load_plugin_textdomain();
 	
 		add_action('init', array( $this, 'load_localisation' ), 0 );		
-
-		add_action('init', array( $this, 'register_theme' ) );
 
 		if(isset($_POST['imgData']) && isset($_POST["submitted"])&& isset($_POST["download_image_nonce_field"]) && $_POST["submitted"]=='true'){
 			
@@ -223,10 +222,8 @@ class LTPLE_Client {
 			$this->extension = new LTPLE_Client_Extension( $this );
 			
 			if( is_admin() ) {		
-				
+			
 				add_action( 'init', array( $this, 'init_backend' ));
-				
-				//add_action( 'edit_form_after_title', array( $this, '' ) );				
 			}
 			else{
 				
@@ -235,11 +232,6 @@ class LTPLE_Client {
 		}
 
 	} // End __construct ()
-	
-	public function register_theme() {
-		
-		$this->theme = new LTPLE_Client_Theme($this);
-	}
 	
 	private function ltple_get_secret_iv(){
 		
@@ -323,6 +315,27 @@ class LTPLE_Client {
 		return base64_decode(strtr($inputStr, '-_,', '+/='));
 	}
 	
+	public function output_message(){
+	
+		if(!empty($this->message)){ 
+
+			//output message
+
+			echo $this->message;
+		}
+
+		if(!empty($_SESSION['message'])){ 
+
+			//output message
+
+			echo $_SESSION['message'];
+			
+			//reset message
+			
+			$_SESSION['message'] ='';
+		}
+	}
+	
 	public function init_frontend(){	
 
 		// Load frontend JS & CSS
@@ -342,9 +355,11 @@ class LTPLE_Client {
 		
 		add_shortcode('ltple-client-apps', array( $this , 'get_apps_shortcode' ) );		
 		
+		add_action('ltple_message', array( $this, 'output_message') );	
+		
 		// add footer
 		
-		add_action( 'wp_footer', array( $this, 'get_footer') );	
+		add_action('wp_footer', array( $this, 'get_footer') );	
 		
 		// Custom default layer template
 		
@@ -358,159 +373,169 @@ class LTPLE_Client {
 		
 		do_action( 'ltple_loaded');
 	}
+	
+	public function get_current_user(){
+		
+		return  $this->set_current_user();
+	}
 
 	public function set_current_user(){
-
-		if( !empty($_GET['key']) && !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
-			
-			$this->user = get_user_by( 'email', $this->ltple_decrypt_str($_GET['key']));
-
-			if( !empty($this->user->ID) ){
-				
-				wp_set_current_user($this->user->ID);
-				
-				wp_set_auth_cookie($this->user->ID, true);
-			}
-			else{
-				
-				echo 'Wrong embedded request...';
-				exit;				
-			}
-		}
-		elseif( $this->request->is_remote ){
-
-			$this->user = get_user_by( 'id', $this->ltple_decrypt_str($_SERVER['HTTP_X_FORWARDED_USER']));
 		
-			if( !empty($this->user->ID) ){
-				
-				wp_set_current_user($this->user->ID);
-			}
-			else{
-				
-				echo 'Wrong remote request...';
-				exit;				
-			}			
-		}
-		else{
+		if( !isset($this->user->plan) ){
 			
-			$this->user = wp_get_current_user();
-		}
-		
-		$this->user->loggedin = is_user_logged_in();		
+			if( !empty($_GET['key']) && !empty($_GET['output']) && $_GET['output'] == 'embedded' ){
+				
+				$this->user = get_user_by( 'email', $this->ltple_decrypt_str($_GET['key']));
 
-		if( $this->user->loggedin ){
-
-			// get is admin
-			
-			$this->user->is_admin = current_user_can( 'administrator', $this->user->ID );
-			
-			// get is editor
-			
-			if( $this->user->is_admin ){	
-			
-				$this->user->is_editor = true;	
-			}
-			else{
-			
-				$this->user->is_editor = current_user_can( 'editor', $this->user->ID );			
-			}
-			
-			// get user notification settings
-			
-			$this->user->notify 		= $this->users->get_user_notification_settings( $this->user->ID );
-			$this->user->can_spam 		= $this->user->notify['series'];
-			$this->user->can_spam_set 	= ( !empty(get_user_meta($this->user->ID, $this->_base . '_can_spam',true)) ? true : false );
-			
-			// get user last seen
-			
-			$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
-			
-			// get user last user agent
-			
-			$this->user->last_uagent = get_user_meta( $this->user->ID, $this->_base . '_last_uagent',true);
-						
-			// get user layers
-			
-			if( $this->user->layers = get_posts(array(
-			
-				'author'      => $this->user->ID,
-				'post_type'   => 'user-layer',
-				'post_status' => 'publish',
-				'numberposts' => -1
-				
-			))){
-				
-				// get user layer type
-				
-				foreach( $this->user->layers as $layer ){
+				if( !empty($this->user->ID) ){
 					
-					$layer->type = $this->layer->get_layer_type($layer);
+					wp_set_current_user($this->user->ID);
+					
+					wp_set_auth_cookie($this->user->ID, true);
+				}
+				else{
+					
+					echo 'Wrong embedded request...';
+					exit;				
 				}
 			}
+			elseif( $this->request->is_remote ){
+
+				$this->user = get_user_by( 'id', $this->ltple_decrypt_str($_SERVER['HTTP_X_FORWARDED_USER']));
 			
-			// get user stars
-			
-			$this->user->stars = $this->stars->get_count($this->user->ID);
+				if( !empty($this->user->ID) ){
 					
-			// get user ref id
-			
-			$this->user->refId = $this->ltple_encrypt_uri( 'RI-' . $this->user->ID );	
-			
-			// get user referent
-			
-			$this->user->referredBy = get_user_meta( $this->user->ID, $this->_base . 'referredBy', false );
-
-			// get user rights
-			
-			//$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
-
-			//get user layer
-			
-			if( $this->layer->type != 'cb-default-layer' ){
+					wp_set_current_user($this->user->ID);
+				}
+				else{
+					
+					echo 'Wrong remote request...';
+					exit;				
+				}			
+			}
+			else{
 				
-				$this->user->layer = get_post($this->layer->id);
+				$this->user = wp_get_current_user();
 			}
 			
-			// user programs
-			
-			$this->user->programs = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-programs',true) );
-		
-			// get user connected apps
-			
-			$this->user->apps = $this->apps->getUserApps($this->user->ID);		
-			
-			// get user marketing channel
-			
-			$terms = wp_get_object_terms( $this->user->ID, 'marketing-channel' );
-			$this->user->channel = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0]->slug : '');
+			$this->user->loggedin = is_user_logged_in();		
 
-			// get user plan
+			if( $this->user->loggedin ){
 
-			$this->user->plan = $this->plan->get_user_plan_info( $this->user->ID );
+				// get is admin
+				
+				$this->user->is_admin = current_user_can( 'administrator', $this->user->ID );
+				
+				// get is editor
+				
+				if( $this->user->is_admin ){	
+				
+					$this->user->is_editor = true;	
+				}
+				else{
+				
+					$this->user->is_editor = current_user_can( 'editor', $this->user->ID );			
+				}
+				
+				// get user notification settings
+				
+				$this->user->notify 		= $this->users->get_user_notification_settings( $this->user->ID );
+				$this->user->can_spam 		= $this->user->notify['series'];
+				$this->user->can_spam_set 	= ( !empty(get_user_meta($this->user->ID, $this->_base . '_can_spam',true)) ? true : false );
+				
+				// get user last seen
+				
+				$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
+				
+				// get user last user agent
+				
+				$this->user->last_uagent = get_user_meta( $this->user->ID, $this->_base . '_last_uagent',true);
+							
+				// get user layers
+				
+				if( $this->user->layers = get_posts(array(
+				
+					'author'      => $this->user->ID,
+					'post_type'   => 'user-layer',
+					'post_status' => 'publish',
+					'numberposts' => -1
+					
+				))){
+					
+					// get user layer type
+					
+					foreach( $this->user->layers as $layer ){
+						
+						$layer->type = $this->layer->get_layer_type($layer);
+					}
+				}
+				
+				// get user stars
+				
+				$this->user->stars = $this->stars->get_count($this->user->ID);
+						
+				// get user ref id
+				
+				$this->user->refId = $this->ltple_encrypt_uri( 'RI-' . $this->user->ID );	
+				
+				// get user referent
+				
+				$this->user->referredBy = get_user_meta( $this->user->ID, $this->_base . 'referredBy', false );
+
+				// get user rights
+				
+				//$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
+
+				//get user layer
+				
+				if( $this->layer->type != 'cb-default-layer' ){
+					
+					$this->user->layer = get_post($this->layer->id);
+				}
+				
+				// user programs
+				
+				$this->user->programs = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-programs',true) );
 			
-			if( !empty($this->user->plan['holder']) ){
+				// get user connected apps
 				
-				// get user has layer
+				$this->user->apps = $this->apps->getUserApps($this->user->ID);		
 				
-				$this->user->has_layer 	= $this->plan->user_has_layer( $this->layer->id );
+				// get user marketing channel
 				
-				// get period end
+				$terms = wp_get_object_terms( $this->user->ID, 'marketing-channel' );
+				$this->user->channel = ( ( !isset($terms->errors) && isset($terms[0]->slug) ) ? $terms[0]->slug : '');
+
+				// get user plan
+
+				$this->user->plan = $this->plan->get_user_plan_info( $this->user->ID );
 				
-				$this->user->period_end = $this->plan->get_license_period_end( $this->user->ID );
-				
-				// get remaining days
-				
-				$this->user->remaining_days = $this->plan->get_license_remaining_days( $this->user->period_end );
-			}			
-		
-			do_action('ltple_user_loaded');
+				if( !empty($this->user->plan['holder']) ){
+					
+					// get user has layer
+					
+					$this->user->has_layer 	= $this->plan->user_has_layer( $this->layer->id );
+					
+					// get period end
+					
+					$this->user->period_end = $this->plan->get_license_period_end( $this->user->ID );
+					
+					// get remaining days
+					
+					$this->user->remaining_days = $this->plan->get_license_remaining_days( $this->user->period_end );
+				}			
 			
-			$this->update = new LTPLE_Client_Update( $this );
+				do_action('ltple_user_loaded');
+				
+				$this->update = new LTPLE_Client_Update( $this );
+			}
+			else{
+
+				add_action('after_password_reset', array($this,'redirect_password_reset'));
+			}
 		}
-		else{
-
-			add_action('after_password_reset', array($this,'redirect_password_reset'));
-		}
+		
+		return $this->user;
 	}	
 	
 	public function redirect_password_reset($user){
@@ -627,31 +652,6 @@ class LTPLE_Client {
 		
 		$this->user->stars = $this->stars->get_count($this->user->ID);		
 
-		// edit post from admin dashboard
-		
-		add_action( 'load-post.php', function(){
-			
-			if( !empty($_REQUEST['action']) && $_REQUEST['action'] == 'ltple' ){
-				
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
-				
-				// set current user
-				
-				$this->set_current_user();				
-								
-				// output backend editor
-				
-				include( $this->views . '/editor-backend.php' );
-				
-				exit;
-			}
-		});
-		
-		// removes admin color scheme options
-		
-		remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );		
-		
 		//Removes the leftover 'Visual Editor', 'Keyboard Shortcuts' and 'Toolbar' options.
 
 		add_action( 'admin_head', function () {
@@ -2277,29 +2277,12 @@ class LTPLE_Client {
 	 */
 	public function enqueue_styles() {
 		
-		wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-jquery-ui' );		
-	
-		wp_register_style( $this->_token . '-bootstrap-css', esc_url( $this->assets_url ) . 'css/bootstrap.min.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-bootstrap-css' );		
-
-		wp_register_style( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'css/frontend.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-frontend' );		
-		
-		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-bootstrap-table' );
-
-		
-		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-toggle-switch' );	
-		
-		wp_register_style( $this->_token . '-client', false, array());
+		wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css'));
 		wp_enqueue_style( $this->_token . '-client' );
-		wp_add_inline_style( $this->_token . '-client', $this->get_inline_style() );
-
-	} // End enqueue_styles ()
+		wp_add_inline_style( $this->_token . '-client', $this->get_client_style() );
+	}
 	
-	public function get_inline_style(){
+	public function get_client_style(){
 		
 		$style = '';
 		
@@ -2479,13 +2462,19 @@ class LTPLE_Client {
 			
 			$style .= ' .tabs-left>li.active>a, .tabs-left>li.active>a:focus, .tabs-left>li.active>a:hover{';
 			
-				$style .= 'border-radius:0;';
-				$style .= 'box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
+				$style .='border-radius:0;';
+				$style .='box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
 				$style .='border-left: 5px solid '.$this->settings->mainColor . ' !important;';
 				$style .='background-color: #fbfbfb !important;';
-				$style .='margin-top: -1px;';
-				$style .='padding:15px 13px;';
+				$style .='margin-top: -1px !important;';
+				$style .='padding:15px 13px !important;';
 				
+			$style .='}';
+			
+			$style .= '#content.library-content a:hover{';
+				
+				$style .='text-decoration:none !important;';
+			
 			$style .='}';
 			
 			$style .= '#content .nav{';
@@ -2514,15 +2503,20 @@ class LTPLE_Client {
 								
 			$style .= '}';			
 			
-			$style .= ' .nav>li>a{';
+			$style .= '.nav>li>a{';
 				
 				$style .='padding:13px 17px;';
+				
+				if( !empty($this->settings->linkColor) ){
+
+					$style .='color:'.$this->settings->linkColor . ';';			
+				}
 				
 			$style .='}';
 			
 			$style .= ' .bs-callout-primary h4{';
 			
-				$style .='color:'.$this->settings->linkColor . ';';
+				$style .='color:'.$this->settings->linkColor . ' !important;';
 			
 			$style .='}';
 			
@@ -2534,13 +2528,13 @@ class LTPLE_Client {
 			
 			$style .=' .gallery_type_title {';
 			
-				$style .='color: #4276a0;';
+				$style .='color: #4276a0 !important;';
 				$style .='border: none !important;';
 				$style .='background-color: #fdfdfd !important;';
-				$style .='font-size:13px;';
+				$style .='font-size:13px !important;';
 				$style .='box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);';
-				$style .='height:41px;';
-				$style .='padding:7px 10px;';
+				$style .='height:41px !important;';
+				$style .='padding:7px 10px !important;';
 				$style .='text-transform: uppercase;';
 					
 			$style .='}';
@@ -2621,7 +2615,7 @@ class LTPLE_Client {
 				
 				$style .=' #wpforo-wrap .wpfl-1 .wpforo-category, #wpforo-wrap .wpfl-2 .wpforo-category, #wpforo-wrap .wpfl-3 .wpforo-category {';
 				
-					$style .='background-color: '.$this->settings->mainColor . ';';
+					$style .='background-color: '.$this->settings->mainColor . ' !important;';
 					 
 				$style .='}';
 			} 
@@ -2647,35 +2641,7 @@ class LTPLE_Client {
 	 */
 	public function enqueue_scripts () {
 		
-		wp_enqueue_script('jquery-ui-dialog');
-		
-		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-bootstrap-js' );			
-		
-		wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend.js', array( 'jquery',$this->_token . '-bootstrap-js' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-frontend' );
-		
-		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-lazyload' );	
 
-		//wp_register_script($this->_token . '-sprintf', esc_url( $this->assets_url ) . 'js/sprintf.js', array( 'jquery' ), $this->_version);
-		//wp_enqueue_script( $this->_token . '-sprintf' );	
-		
-		wp_register_script($this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'js/bootstrap-table.min.js', array( 'jquery',$this->_token . '-bootstrap-js' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-bootstrap-table' );
-
-		//wp_register_script($this->_token . '-bootstrap-table-export', esc_url( $this->assets_url ) . 'js/bootstrap-table-export.js', array( 'jquery',$this->_token . '-bootstrap-js', $this->_token . 'sprintf' ), $this->_version);
-		//wp_enqueue_script( $this->_token . '-bootstrap-table-export' );
-		
-		//wp_register_script($this->_token . '-table-export', esc_url( $this->assets_url ) . 'js/tableExport.js', array( 'jquery' ), $this->_version);
-		//wp_enqueue_script( $this->_token . '-table-export' ); 
-		
-		wp_register_script($this->_token . '-bootstrap-table-mobile', esc_url( $this->assets_url ) . 'js/bootstrap-table-mobile.min.js', array( 'jquery',$this->_token . '-bootstrap-js' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-bootstrap-table-mobile' ); 		
-
-		wp_register_script($this->_token . '-bootstrap-table-filter-control', esc_url( $this->assets_url ) . 'js/bootstrap-table-filter-control.min.js', array( 'jquery',$this->_token . '-bootstrap-js' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-bootstrap-table-filter-control' ); 		
-		
 	} // End enqueue_scripts ()
 
 	/**
@@ -2690,9 +2656,8 @@ class LTPLE_Client {
 		wp_enqueue_style( $this->_token . '-server-admin' );
 		
 		wp_register_style( $this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'css/bootstrap.min.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-bootstrap' );	
-		
-	} // End admin_enqueue_styles ()
+		wp_enqueue_style( $this->_token . '-bootstrap' );
+	}
 
 	/**
 	 * Load admin Javascript.

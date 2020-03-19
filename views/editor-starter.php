@@ -2,15 +2,13 @@
 
 $ltple = LTPLE_Client::instance();
 
-get_header();
-
-include( $ltple->views . '/navbar.php' );
-
 $output = ( !empty($_GET['output']) ? '&output='. sanitize_text_field($_GET['output']) : '' );
 
 $layer_type = $ltple->layer->get_layer_type($ltple->layer->id);
 
-if( ( !$ltple->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $ltple->layer->type == 'cb-default-layer' || $ltple->layer->is_media ) ){
+get_header();
+	
+	include( $ltple->views . '/navbar.php' );
 	
 	$user_plan = $ltple->plan->get_user_plan_info($ltple->user->ID);
 	
@@ -127,34 +125,6 @@ if( ( !$ltple->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick
 			echo'</div>';	
 		}
 		
-	echo'</div>';	
-}
-elseif( $ltple->layer->type == 'user-layer' && !$ltple->user->plan["info"]["total_price_amount"] > 0 ){
-	
-	echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-		
-		echo '<div class="alert alert-warning">You need a paid plan to edit this template...</div>';
-
 	echo'</div>';
-}
-elseif( $ltple->layer->is_editable($layer_type->output) ){
-
-	if( !empty($ltple->layer->layerForm) && $ltple->layer->layerForm != 'none' && empty($ltple->layer->layerContent) && empty($_POST) ){
-		
-		include( $ltple->views . '/editor-form.php' );
-	}
-	else{
-		
-		include( $ltple->views . '/editor-iframe.php' );		
-	}
-}
-else{
-	
-	echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-		
-		echo '<div class="alert alert-warning">This template is not editable...</div>';
-
-	echo'</div>';		
-}					
 
 get_footer();

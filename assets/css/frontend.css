@@ -9,13 +9,13 @@
 }
 
 #ltple-wrapper #sidebar {
-    min-width: 220px !important;
-    max-width: 220px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
     transition: all 0.3s !important;
 }
 
 #ltple-wrapper #sidebar.active {
-    margin-left: -220px !important;
+    margin-left: -200px !important;
 }
 
 #ltple-wrapper #sidebar .glyphicon, #ltple-wrapper #sidebar .fa  {
@@ -82,7 +82,7 @@
 @media (max-width: 768px) {
 	
     #ltple-wrapper #sidebar {
-        margin-left: -220px !important;
+        margin-left: -200px !important;
     }
     #ltple-wrapper #sidebar.active {
 		margin-left: 0 !important;

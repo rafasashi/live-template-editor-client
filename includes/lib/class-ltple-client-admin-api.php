@@ -342,21 +342,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						$html .= '</div>';
 						
 						$html .= '<div class="col-xs-6 text-center">';
-						
-							if( !empty($data) && is_numeric($data) ){
-								
-								$layer_type = $this->parent->layer->get_layer_type($data);
-
-								if( $this->parent->layer->is_editable($layer_type->output) ){	
-								
-									$html .= '<a href="' . add_query_arg( 'action', 'ltple', $this->parent->urls->current ) . '" target="_self" class="button button-primary button-large">';
-										
-										$html .= 'Edit with LTPLE';
-										
-									$html .= '</a>';
-								}
-							}
-						
+												
 						$html .= '</div>';
 						
 					$html .= '</div>';

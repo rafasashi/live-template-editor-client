@@ -608,7 +608,7 @@
 	$layer .= '<html>';
 	$layer .= $head;
 
-	$layer .= '<body style="background-color:#fff;padding:0;margin:0;display:flex !important;width:100%;font-family:sans-serif;overflow-x:hidden;">';
+	$layer .= '<body style="padding:0;margin:0;display:flex !important;width:100%;font-family:sans-serif;overflow-x:hidden;">';
 		
 		//include style-sheets
 		

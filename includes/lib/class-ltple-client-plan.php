@@ -2522,43 +2522,40 @@ class LTPLE_Client_Plan {
 							
 							$new_term_options = $this->parent->layer->get_options( $taxonomy, $new_term );
 							
-							if( $new_term_options['price_amount'] > 0 && $new_term_options['price_period'] == 'month' ){
+							if( $new_term_options['price_period'] == 'month' ){
 								
-								// get  term value
+								$new_term_value = $new_term_options['price_amount'];
 								
-								foreach($this->parent->user->plan['taxonomies'][$taxonomy]['terms'] as $curr_term){
+								if( $new_term_options['price_amount'] > 0 ){
 									
-									if( $curr_term["has_term"] === true ){
+									// get  term value
+									
+									foreach($this->parent->user->plan['taxonomies'][$taxonomy]['terms'] as $curr_term){
 										
-										if(term_is_ancestor_of( $new_term['term_id'], $curr_term['term_id'], $taxonomy)){
+										if( $curr_term["has_term"] === true ){
 											
-											$is_ancestor_upgrade = true;
+											if(term_is_ancestor_of( $new_term['term_id'], $curr_term['term_id'], $taxonomy)){
+												
+												$is_ancestor_upgrade = true;
+												
+												break;
+											}
+										}
+									}
+
+									if( $is_ancestor_upgrade ){
+									
+										$new_term_value = $new_term_options['price_amount'] - $this->parent->user->plan['info']['total_price_amount'];
+										
+										if( $new_term_value == 0 ){
 											
-											break;
+											$new_term_value = $new_term_options['price_amount'];
 										}
 									}
 								}
-
-								if( $is_ancestor_upgrade ){
-								
-									$new_term_value = $new_term_options['price_amount'] - $this->parent->user->plan['info']['total_price_amount'];
-									
-									if( $new_term_value == 0 ){
-										
-										$new_term_value = $new_term_options['price_amount'];
-									}
-								}
-								else{
-									
-									$new_term_value = $new_term_options['price_amount'];
-								}
-								
-								$total_price_amount += $new_term_value;
 							}
-							elseif( $new_term_options['price_amount'] < 0 ){
-								
-								$new_term_value = $new_term_options['price_amount'];
-							}
+							
+							$total_price_amount += $new_term_value;
 		
 							$plan_upgrade['now'][$new_term['slug']] = $new_term_value;
 							$plan_upgrade['total'] = $total_price_amount;
