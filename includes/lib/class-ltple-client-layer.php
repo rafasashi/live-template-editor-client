@@ -155,7 +155,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 
-		$this->parent->register_taxonomy( 'layer-type', __( 'Template Type', 'live-template-editor-client' ), __( 'Template Type', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd','user-page','user-menu'), array(
+		$this->parent->register_taxonomy( 'layer-type', __( 'Editors', 'live-template-editor-client' ), __( 'Editor', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd','user-page','user-menu'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -243,7 +243,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$post = get_post();
 			
-			if( $post->post_type == 'cb-default-layer' || isset($this->storageTypes[$post->post_type]) || $this->is_local ){
+			if( isset($this->storageTypes[$post->post_type]) || $this->is_local ){
 
 				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){
 					
@@ -361,7 +361,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('ltple_edit_layer_status', array($this,'add_edit_layer_status'),10,2);
 		add_filter('ltple_get_edit_layer_status', array($this,'get_edit_layer_status'),10,2);
-	
+
 		// css library fields
 		
 		add_action('css-library_edit_form_fields', array( $this, 'get_css_library_fields' ) );	
@@ -405,29 +405,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_filter( 'the_content', array($this,'get_hosted_page_content'),99999 );
 	
 		add_filter( 'preview_post_link', array($this,'get_preview_layer_link'),99999 );
+		
+		// layer parameters
+		
+		add_filter('ltple_layer_id', array($this,'get_layer_id'),10,1);
+		add_filter('ltple_layer_output', array($this,'get_layer_output'),10,2);
+		add_filter('ltple_layer_is_editable', array($this,'is_editable'),10,2 );
 	}
 	
-	public function get_local_post_types(){
+	public function get_local_types(){
 		
 		if( is_null($this->localTypes) ){
 		
-			$localTypes = array(
+			$this->localTypes = apply_filters('ltple_local_post_types',array(
 			
+				'cb-default-layer',
 				'email-model',
-			);		
-		
-			if( $types = get_option( $this->parent->_base . 'post_types', array() ) ){
-				
-				foreach( $types as $type ){
-					
-					if( !in_array($type,$localTypes) ){
-						
-						$localTypes[] = $type;
-					}
-				}
-			}
-			
-			$this->localTypes = apply_filters('ltple_local_post_types',$localTypes);
+			));
 		}
 
 		return $this->localTypes;		
@@ -435,25 +429,30 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function is_local_page($post){
 		
-		$is_local = false;
-		
-		if( is_numeric($post) ){
+		if( !isset($post->is_local) ){
 			
-			$post = get_post($post);
-		}
-		
-		if( !empty($post) ){
+			$is_local = false;
 			
-			if( $local_types = $this->get_local_post_types() ){
-			
-				if( in_array( $post->post_type, $local_types ) ){
+			if( is_numeric($post) ){
 				
-					$is_local = true;
+				$post = get_post($post);
+			}
+			
+			if( !empty($post) ){
+				
+				if( $local_types = $this->get_local_types() ){
+				
+					if( in_array( $post->post_type, $local_types ) ){
+					
+						$is_local = true;
+					}
 				}
 			}
+			
+			return $is_local;
 		}
 		
-		return $is_local;
+		return $post->is_local;
 	}
 	
 	public function is_public($post){
@@ -1065,41 +1064,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'description'	=> ''
 			);
 			
-			/*
-			$this->defaultFields[]=array(
-			
-				'metabox' => array(
-				
-					'name' 		=> 'layer-options',
-					'title' 	=> __( 'Template Options', 'live-template-editor-client' ), 
-					'screen'	=> array('cb-default-layer'),
-					'context' 	=> 'side',
-					'add_new'	=> false,
-				),
-				
-				'id'		=> "layerOptions",
-				'label'		=> "",
-				'type'		=> 'checkbox_multi',
-				'options'	=> array(
-				
-					'line-break'	=> 'Line break (Enter)',
-					'wrap-text'		=> 'Auto wrap text',
-				
-				),
-				'checked'		=> array('margin-top'),
-				'description'	=> ''
-			);
-			*/
-			
 			do_action('ltple_default_layer_fields',$layer_type);
 		}
 		
 		return $this->defaultFields;
 	}
 	
-	public function is_editable($output){
+	public function is_editable($output,$is_editable = false){
 		
-		$is_editable = false;
+		if( is_numeric($output) ){
+			
+			if( $layer_type = $this->get_layer_type($output) ){
+		
+				$output = $layer_type->output;
+			}
+		}
 		
 		if( $this->is_html_output($output) ){
 			
@@ -1370,6 +1349,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $tabs;		
 	}
 	
+	public function get_layer_id($id){
+		
+		return isset($_GET['uri']) ? $_GET['uri'] : get_the_ID();
+	}
+	
 	public function add_edit_layer_status($layer,$post_type){
 		
 		if( $edit_layer = apply_filters('ltple_get_edit_layer_status','',$layer) ){
@@ -1557,26 +1541,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 						);
 					}
-						
-					/*
-					$this->userFields[]=array(
-					
-						'metabox' => array( 
-						
-							'name' 		=> 'layer-settings',
-							'title' 	=> __( 'Template JS', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced',
-							'frontend'	=> false,
-						),
-						'type'			=> 'textarea',
-						'id'			=> 'layerSettings',
-						'label'			=> '',
-						'placeholder'	=> "JSON content",
-						'stripcslashes'	=> false,
-						'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-					);	
-					*/
 					
 					if( $post->post_type == 'user-page' ){
 						
@@ -1695,23 +1659,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return $this->storageTypes;
 	}
-
-	public function get_media_types(){
-		
-		if( empty($this->mediaTypes) ){
-		
-			$this->mediaTypes = array(
-					
-				'attachment' 	=> 'Uploaded Image',
-				'user-image' 	=> 'External Image',
-				'default-image' => 'Default Image',
-			);
-			
-			do_action('ltple_layer_media');
-		}
-		
-		return $this->mediaTypes;
-	}	
 	
 	public function get_gallery_sections(){
 		
@@ -2085,6 +2032,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return $layer_type_slug;
 	}
+	
+	public function get_layer_output($output,$layer){
+		
+		$layer_type = $this->get_layer_type($layer);
+		
+		if( !empty($layer_type->output) ){
+			
+			
+			$output = $layer_type->output;
+		}
+		
+		return $output;
+	}
 
 	public function get_layer_type($post){
 		
@@ -2278,7 +2238,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}
 		
-		if( $local_types = $this->get_local_post_types() ){
+		if( $local_types = $this->get_local_types() ){
 		
 			foreach( $local_types as $post_type ){
 				
@@ -2315,13 +2275,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$this->dirPath = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');	
 
-		// get layer key
-	
-		if(isset($_GET['lk'])){
-			
-			$this->key = sanitize_text_field($_GET['lk']);
-		}		
-		
 		// set layer
 		
 		$this->set_uri();
@@ -2330,15 +2283,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			//set layer data
 			
-			$this->set_layer($this->uri);
-			
-			// remove local page support
-			
-			if( is_admin() && $this->is_local && $this->defaultId > 0 ){
-				
-				remove_post_type_support($this->type,'editor');
-				remove_post_type_support($this->type,'revisions');
-			}			
+			$this->set_layer($this->uri);			
 		}
 		
 		//Add Custom API Endpoints
@@ -2576,7 +2521,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 				// get default storage
 				
-				$this->mediaTypes = $this->get_media_types();				
+				$this->mediaTypes = LTPLE_Editor::get_media_types();				
 				
 				$this->is_media = ( isset( $this->mediaTypes[$layer->post_type] ) ? true : false );
 				
@@ -2588,7 +2533,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$this->title 		= $layer->post_title;
 					$this->author 		= intval($layer->post_author);
 					
-					$local_types = $this->get_local_post_types();
+					$local_types = $this->get_local_types();
 					
 					if( $this->is_storage ){
 					
@@ -2617,10 +2562,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 					$this->layerStorage = !empty($this->defaultLayerType->storage) ? $this->defaultLayerType->storage : '';
 					
-					//get layer image proxy
-						
-					$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
-
 					if( $this->layerOutput == 'image' ){
 						
 						// get layer image template
@@ -2782,24 +2723,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						//get layer static dir
 						
 						$this->layerStaticDir = $this->get_static_dir($this->id);
-									
-						//get layer options
-						
-						$this->layerOptions = get_post_meta( $this->defaultId, 'layerOptions', true );
-						
-						//get layer settings
-						
-						$this->layerSettings = get_post_meta( $this->id, 'layerSettings', true );
-
-						if( is_string($this->layerSettings) ){
-							
-							$this->layerSettings = json_decode($this->layerSettings,true);
-						}
-						
-						//get layer embedded
-						
-						$this->layerEmbedded = get_post_meta( $this->id, 'layerEmbedded', true );	
-						
+	
 						//get layer form
 						
 						$this->layerForm = get_post_meta( $this->defaultId, 'layerForm', true );
@@ -2820,10 +2744,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->layerHtmlLibraries = wp_get_post_terms( $this->defaultId, 'element-library', array( 'orderby' => 'term_id' ) );								
 						
-						//get layer image proxy
-
-						$this->layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
-					
 						if( $this->is_hosted_output($this->layerOutput) ){
 							
 							// get layer menu
@@ -3187,7 +3107,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$layerContent = $this->layerContent;
 			
-			$layerContent = $this->sanitize_content($layerContent);
+			$layerContent = LTPLE_Editor::sanitize_content($layerContent);
 		}
 
 		// parse content elements
@@ -3418,91 +3338,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		// add meta
 		
 		if(!$this->is_local_page($this->id)){ 
-			
-			// output custom meta tags
-			
-			if( !empty($this->layerSettings) ){
 
-				foreach( $this->layerSettings as $key => $content ){
-					
-					if( !empty($content) ){
-					
-						if( $key == 'meta_title' ){
-							
-							$title = ucfirst($content);
-							
-							$head .= '<title>'.$title.'</title>'.PHP_EOL;
-							$head .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
-							$head .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
-							$head .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;		
-						}
-						elseif( $key == 'meta_keywords' ){
+			// output default title
+			
+			$title = ucfirst($this->parent->layer->title);
+			
+			$head .= '<title>'.$title.'</title>'.PHP_EOL;
+			$head .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
+			$head .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
+			$head .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;					
 
-							$content = implode(',',explode(PHP_EOL,$content));
-						
-							$head .= '<meta name="keywords" content="'.$content.'" />'.PHP_EOL;
-							
-						}
-						elseif( $key == 'meta_description' ){
-							
-							$head .= '<meta name="description" content="'.$content.'" />'.PHP_EOL;
-							$head .= '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
-							$head .= '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
-							$head .= '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
-							$head .= '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
-						}
-						elseif( $key == 'link_author' ){
-							
-							$head .= '<link rel="author" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
-							$head .= '<link rel="publisher" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
-						}
-						elseif( $key == 'meta_image' ){
-							
-							$head .= '<meta property="og:image" content="'.$content.'" />'.PHP_EOL;
-							$head .= '<meta name="twitter:image" content="'.$content.'" />'.PHP_EOL;
-							
-						}
-						elseif( $key == 'meta_favicon' ){
-							
-							$head .= '<link rel="icon" href="'.$content.'" sizes="32x32"/>'.PHP_EOL;
-							$head .= '<link rel="icon" href="'.$content.'" sizes="192x192"/>'.PHP_EOL;
-							$head .= '<link rel="apple-touch-icon-precomposed" href="'.$content.'"/>'.PHP_EOL;
-							$head .= '<meta name="msapplication-TileImage" content="'.$content.'"/>'.PHP_EOL;				
-						}
-						elseif( $key == 'meta_facebook-id' ){
-							
-							$head .= '<meta property="fb:admins" content="'.$content.'"/>'.PHP_EOL;
-							
-						}				
-						else{
-							
-							list($markup,$name) = explode('_',$key);
-							
-							if( $markup == 'meta' ){
-								
-								$head .= '<meta name="'.$name.'" content="'.$content.'" />'.PHP_EOL;
-							}
-							elseif( $markup == 'link' ){
-								
-								$head .= '<link rel="'.$name.'" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
-							}
-						}
-					}
-				}
-			}
-			
-			if( empty($this->layerSettings['meta_title']) ){
-				
-				// output default title
-				
-				$title = ucfirst($this->parent->layer->title);
-				
-				$head .= '<title>'.$title.'</title>'.PHP_EOL;
-				$head .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
-				$head .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
-				$head .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;					
-			}			
-			
 			// output default meta tags
 			
 			$ggl_webmaster_id = get_option( $this->parent->_base . 'embedded_ggl_webmaster_id' );
@@ -3568,18 +3413,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$head .= '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
 			$head .= '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
-			
-			if( !empty($this->layerEmbedded) ){
-			
-				$url =$this->sanitize_url( $this->layerEmbedded );
-				
-				$head .= '<meta name="url" content="'.$url.'" />' . PHP_EOL;
-				//$head .= '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
-				$head .= '<meta name="original-source" content="'.$url.'" />' . PHP_EOL;
-				$head .= '<link rel="original-source" href="'.$url.'" />' . PHP_EOL;
-				$head .= '<meta property="og:url" content="'.$url.'" />' . PHP_EOL;
-				$head .= '<meta name="twitter:url" content="'.$url.'" />' . PHP_EOL;
-			}
 			
 			$head .= '<meta name=viewport content="width=device-width, initial-scale=1">' . PHP_EOL;
 			
@@ -3981,114 +3814,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $url;
-	}
-	
-	public static function sanitize_content($str,$is_hosted=false){
-        
-		$str = stripslashes($str);
-		
-		$str = wp_kses_decode_entities($str);
-		
-		$str = wp_kses_no_null($str);
-		
-		$str = wp_kses_normalize_entities($str);
-
-		$str = self::sanitize_ms_word($str);
-		
-		$str = str_replace(array('cursor: pointer;','data-element_type="video.default"'),'',$str);
-
-		$str = str_replace(array('<body','</body>','src=" ','href=" ','#@'),array('<div','</div>','src="','href="','@'),$str);
-		
-		//$str = html_entity_decode(stripslashes($str));
-		
-		//$str = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $str);
-		
-		$str = preg_replace( array(
-		
-				//'/<iframe(.*?)<\/iframe>/is',
-				'/<title(.*?)<\/title>/is',
-				'/<!doctype(.*?)>/is',
-				'/<link(.*?)>/is',
-				//'/<body(.*?)>/is',
-				//'/<\/body>/is',
-				//'/<head(.*?)>/is',
-				//'/<\/head>/is',				
-				'/<html(.*?)>/is',
-				'/<\/html>/is'
-			), 
-			'', $str
-		);		
-		
-		if( !$is_hosted ){
-		
-			$str = preg_replace( array(
-			
-					'/<pre(.*?)<\/pre>/is',
-					'/<frame(.*?)<\/frame>/is',
-					'/<frameset(.*?)<\/frameset>/is',
-					'/<object(.*?)<\/object>/is',
-					'/<script(.*?)<\/script>/is',
-					'/<style(.*?)<\/style>/is',
-					'/<embed(.*?)<\/embed>/is',
-					'/<applet(.*?)<\/applet>/is',
-					'/<meta(.*?)>/is',
-					'/onload="(.*?)"/is',
-					'/onunload="(.*?)"/is',
-				), 
-				'', $str
-			);
-		}
-		
-		return $str;
-	}
-	
-	public static function sanitize_ms_word( $string ){
-		
-		// Convert microsoft special characters
-		
-        $map = array(
-		
-            '33' => '!', '34' => '"', '35' => '#', '36' => '$', '37' => '%', '38' => '&', '39' => "'", '40' => '(', '41' => ')', '42' => '*',
-            '43' => '+', '44' => ',', '45' => '-', '46' => '.', '47' => '/', '48' => '0', '49' => '1', '50' => '2', '51' => '3', '52' => '4',
-            '53' => '5', '54' => '6', '55' => '7', '56' => '8', '57' => '9', '58' => ':', '59' => ';', '60' => '<', '61' => '=', '62' => '>',
-            '63' => '?', '64' => '@', '65' => 'A', '66' => 'B', '67' => 'C', '68' => 'D', '69' => 'E', '70' => 'F', '71' => 'G', '72' => 'H',
-            '73' => 'I', '74' => 'J', '75' => 'K', '76' => 'L', '77' => 'M', '78' => 'N', '79' => 'O', '80' => 'P', '81' => 'Q', '82' => 'R',
-            '83' => 'S', '84' => 'T', '85' => 'U', '86' => 'V', '87' => 'W', '88' => 'X', '89' => 'Y', '90' => 'Z', '91' => '[', '92' => '\\',
-            '93' => ']', '94' => '^', '95' => '_', '96' => '`', '97' => 'a', '98' => 'b', '99' => 'c', '100'=> 'd', '101'=> 'e', '102'=> 'f',
-            '103'=> 'g', '104'=> 'h', '105'=> 'i', '106'=> 'j', '107'=> 'k', '108'=> 'l', '109'=> 'm', '110'=> 'n', '111'=> 'o', '112'=> 'p',
-            '113'=> 'q', '114'=> 'r', '115'=> 's', '116'=> 't', '117'=> 'u', '118'=> 'v', '119'=> 'w', '120'=> 'x', '121'=> 'y', '122'=> 'z',
-            '123'=> '{', '124'=> '|', '125'=> '}', '126'=> '~', '127'=> ' ', '128'=> '&#8364;', '129'=> ' ', '130'=> ',', '131'=> ' ', '132'=> '"',
-            '133'=> '.', '134'=> ' ', '135'=> ' ', '136'=> '^', '137'=> ' ', '138'=> ' ', '139'=> '<', '140'=> ' ', '141'=> ' ', '142'=> ' ',
-            '143'=> ' ', '144'=> ' ', '145'=> "'", '146'=> "'", '147'=> '"', '148'=> '"', '149'=> '.', '150'=> '-', '151'=> '-', '152'=> '~',
-            '153'=> ' ', '154'=> ' ', '155'=> '>', '156'=> ' ', '157'=> ' ', '158'=> ' ', '159'=> ' ', '160'=> ' ', '161'=> '¡', '162'=> '¢',
-            '163'=> '£', '164'=> '¤', '165'=> '¥', '166'=> '¦', '167'=> '§', '168'=> '¨', '169'=> '©', '170'=> 'ª', '171'=> '«', '172'=> '¬',
-            '173'=> '­', '174'=> '®', '175'=> '¯', '176'=> '°', '177'=> '±', '178'=> '²', '179'=> '³', '180'=> '´', '181'=> 'µ', '182'=> '¶',
-            '183'=> '·', '184'=> '¸', '185'=> '¹', '186'=> 'º', '187'=> '»', '188'=> '¼', '189'=> '½', '190'=> '¾', '191'=> '¿', '192'=> 'À',
-            '193'=> 'Á', '194'=> 'Â', '195'=> 'Ã', '196'=> 'Ä', '197'=> 'Å', '198'=> 'Æ', '199'=> 'Ç', '200'=> 'È', '201'=> 'É', '202'=> 'Ê',
-            '203'=> 'Ë', '204'=> 'Ì', '205'=> 'Í', '206'=> 'Î', '207'=> 'Ï', '208'=> 'Ð', '209'=> 'Ñ', '210'=> 'Ò', '211'=> 'Ó', '212'=> 'Ô',
-            '213'=> 'Õ', '214'=> 'Ö', '215'=> '×', '216'=> 'Ø', '217'=> 'Ù', '218'=> 'Ú', '219'=> 'Û', '220'=> 'Ü', '221'=> 'Ý', '222'=> 'Þ',
-            '223'=> 'ß', '224'=> 'à', '225'=> 'á', '226'=> 'â', '227'=> 'ã', '228'=> 'ä', '229'=> 'å', '230'=> 'æ', '231'=> 'ç', '232'=> 'è',
-            '233'=> 'é', '234'=> 'ê', '235'=> 'ë', '236'=> 'ì', '237'=> 'í', '238'=> 'î', '239'=> 'ï', '240'=> 'ð', '241'=> 'ñ', '242'=> 'ò',
-            '243'=> 'ó', '244'=> 'ô', '245'=> 'õ', '246'=> 'ö', '247'=> '÷', '248'=> 'ø', '249'=> 'ù', '250'=> 'ú', '251'=> 'û', '252'=> 'ü',
-            '253'=> 'ý', '254'=> 'þ', '255'=> 'ÿ'
-        );
-
-        $search = array();
-        $replace = array();
-
-        foreach ($map as $s => $r) {
-			
-            $search[] = chr((int)$s);
-            $replace[] = $r;
-        }
-
-		$string = str_replace($search, $replace, $string);
-
-		// Remove any non-ascii character
-		
-		$string = preg_replace('/[^\x20-\x7E]*/','', $string);
-		
-		return $string;
 	}
 
 	public function add_edit_layer_fields($term){
@@ -4801,7 +4526,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$this->columns['cb'] 			= '<input type="checkbox" />';
 		$this->columns['name'] 			= 'Name';
-		$this->columns['output'] 		= 'Output';
+		$this->columns['editor'] 		= 'Editor';
 		$this->columns['section'] 		= 'Section';
 		$this->columns['visibility'] 	= 'Visibility';
 		$this->columns['ranges'] 		= 'Ranges';
@@ -4863,7 +4588,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $term = get_term($term_id) ){
 			
-			if($column_name === 'output') {
+			if($column_name === 'editor') {
 				
 				$outputs = $this->get_layer_outputs();
 				
@@ -5630,14 +5355,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return true;
 	} 
-	
-	public function copy_static_contents($defaultLayerId,$post_id){
-		
-		$src = $this->get_static_dir($defaultLayerId);
-		$dst = $this->get_static_dir($post_id,true);
-
-		return $this->copy_dir($src,$dst);
-	}
 	
 	public function output_layer(){
 		

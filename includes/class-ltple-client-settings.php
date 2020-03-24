@@ -564,7 +564,8 @@ class LTPLE_Client_Settings {
 			'default'		=> '',
 			'placeholder'	=> __( 'support@example.com', $this->plugin->slug )
 		);
-
+		
+		/*
 		$fields[] = array(
 		
 			'id' 			=> 'post_types',
@@ -577,6 +578,7 @@ class LTPLE_Client_Settings {
 				'page' 			=> 'Page',
 			),
 		);
+		*/
 		
 		$settings['settings'] = array(
 			'title'					=> __( 'General settings', $this->plugin->slug ),
@@ -886,7 +888,7 @@ class LTPLE_Client_Settings {
 			'gallery-settings' => array(
 				
 				'gallery-section' 	=> array( 'name' => 'Sections' ),
-				'layer-type' 		=> array( 'name' => 'Types', 	'post-type' => 'cb-default-layer' ),
+				'layer-type' 		=> array( 'name' => 'Editors', 	'post-type' => 'cb-default-layer' ),
 				'layer-range' 		=> array( 'name' => 'Ranges', 	'post-type' => 'cb-default-layer' ),
 				'account-option' 	=> array( 'name' => 'Options', 	'post-type' => 'cb-default-layer' ),
 				'image-type' 		=> array( 'name' => 'Images', 	'post-type' => 'default-image' ),

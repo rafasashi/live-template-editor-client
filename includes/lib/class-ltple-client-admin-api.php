@@ -350,10 +350,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					//$html .= '<hr/>';
 					
 					if( empty($data) || !is_numeric($data) ){
-						
-						$postTypes = $this->parent->layer->get_local_post_types();
-						
-						if( !empty($item) && in_array($item->post_type,$postTypes) ){
+
+						if( !empty($item) && $item->is_local ){
 							
 							// get valid output
 							

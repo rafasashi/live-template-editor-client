@@ -27,19 +27,7 @@
 	//get default static path
 	
 	$defaultStaticPath =$this->defaultStaticPath;
-	
-	//get layer options
-	
-	$layerOptions =$this->layerOptions;
-	
-	//get layer settings
-	
-	$layerSettings =$this->layerSettings;
 
-	//get layer embedded
-	
-	$layerEmbedded =$this->layerEmbedded;
-	
 	//get css libraries
 
 	$layerCssLibraries =$this->layerCssLibraries;
@@ -51,10 +39,6 @@
 	//get font libraries
 	
 	$layerFontLibraries =$this->layerFontLibraries;	
-	
-	//get layer image proxy
-	
-	$layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
 	
 	//get layer margin
 	
@@ -188,7 +172,7 @@
 		
 		$layerContent =$this->layerContent;
 		
-		$layerContent =$this->sanitize_content($layerContent);
+		$layerContent =LTPLE_Editor::sanitize_content($layerContent);
 	}
 	}
 	
@@ -394,90 +378,15 @@
 				$headLinks[] = $layerStaticCssUrl;
 			}
 		}
+	
+		// output default title
 		
-		// output custom meta tags
+		$title = ucfirst($this->parent->layer->title);
 		
-		if( !empty($layerSettings) ){
-			
-			foreach( $layerSettings as $key => $content ){
-				
-				if( !empty($content) ){
-				
-					if( $key == 'meta_title' ){
-						
-						$title = ucfirst($content);
-						
-						$head .= '<title>'.$title.'</title>'.PHP_EOL;
-						$head .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
-						$head .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
-						$head .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;		
-					}
-					elseif( $key == 'meta_keywords' ){
-
-						$content = implode(',',explode(PHP_EOL,$content));
-					
-						$head .= '<meta name="keywords" content="'.$content.'" />'.PHP_EOL;
-						
-					}
-					elseif( $key == 'meta_description' ){
-						
-						$head .= '<meta name="description" content="'.$content.'" />'.PHP_EOL;
-						$head .= '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
-						$head .= '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
-						$head .= '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
-						$head .= '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
-					}
-					elseif( $key == 'link_author' ){
-						
-						$head .= '<link rel="author" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
-						$head .= '<link rel="publisher" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
-					}
-					elseif( $key == 'meta_image' ){
-						
-						$head .= '<meta property="og:image" content="'.$content.'" />'.PHP_EOL;
-						$head .= '<meta name="twitter:image" content="'.$content.'" />'.PHP_EOL;
-						
-					}
-					elseif( $key == 'meta_favicon' ){
-						
-						$head .= '<link rel="icon" href="'.$content.'" sizes="32x32"/>'.PHP_EOL;
-						$head .= '<link rel="icon" href="'.$content.'" sizes="192x192"/>'.PHP_EOL;
-						$head .= '<link rel="apple-touch-icon-precomposed" href="'.$content.'"/>'.PHP_EOL;
-						$head .= '<meta name="msapplication-TileImage" content="'.$content.'"/>'.PHP_EOL;				
-					}
-					elseif( $key == 'meta_facebook-id' ){
-						
-						$head .= '<meta property="fb:admins" content="'.$content.'"/>'.PHP_EOL;
-						
-					}				
-					else{
-						
-						list($markup,$name) = explode('_',$key);
-						
-						if( $markup == 'meta' ){
-							
-							$head .= '<meta name="'.$name.'" content="'.$content.'" />'.PHP_EOL;
-						}
-						elseif( $markup == 'link' ){
-							
-							$head .= '<link rel="'.$name.'" href="' .$this->sanitize_url( $content ) . '" />'.PHP_EOL;
-						}
-					}
-				}
-			}
-		}
-		
-		if( empty($layerSettings['meta_title']) ){
-			
-			// output default title
-			
-			$title = ucfirst($this->parent->layer->title);
-			
-			$head .= '<title>'.$title.'</title>'.PHP_EOL;
-			$head .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
-			$head .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
-			$head .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;					
-		}			
+		$head .= '<title>'.$title.'</title>'.PHP_EOL;
+		$head .= '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
+		$head .= '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
+		$head .= '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;							
 		
 		// output default meta tags
 		
@@ -544,18 +453,6 @@
 		
 		$head .= '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
 		$head .= '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
-		
-		if( !empty($layerEmbedded) ){
-		
-			$url =$this->sanitize_url( $layerEmbedded );
-			
-			$head .= '<meta name="url" content="'.$url.'" />' . PHP_EOL;
-			//$head .= '<meta name="canonical" content="'.$url.'" />' . PHP_EOL;
-			$head .= '<meta name="original-source" content="'.$url.'" />' . PHP_EOL;
-			$head .= '<link rel="original-source" href="'.$url.'" />' . PHP_EOL;
-			$head .= '<meta property="og:url" content="'.$url.'" />' . PHP_EOL;
-			$head .= '<meta name="twitter:url" content="'.$url.'" />' . PHP_EOL;
-		}
 		
 		$head .= '<meta name=viewport content="width=device-width, initial-scale=1">' . PHP_EOL;
 		

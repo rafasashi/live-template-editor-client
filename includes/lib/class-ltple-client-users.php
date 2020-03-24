@@ -213,11 +213,7 @@
 		public function init_user(){
 			
 			if( $this->parent->user->loggedin ){	
-					
-				// update user layer
-				
-				$this->parent->update_user_layer();	
-			
+
 				//update user channel
 				
 				$this->parent->channels->update_user_channel($this->parent->user->ID);			

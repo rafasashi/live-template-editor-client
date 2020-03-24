@@ -229,6 +229,8 @@ class LTPLE_Client {
 				
 				add_action( 'init', array( $this, 'init_frontend' ));
 			}
+			
+			add_action( 'ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
 		}
 
 	} // End __construct ()
@@ -451,25 +453,6 @@ class LTPLE_Client {
 				
 				$this->user->last_uagent = get_user_meta( $this->user->ID, $this->_base . '_last_uagent',true);
 							
-				// get user layers
-				
-				if( $this->user->layers = get_posts(array(
-				
-					'author'      => $this->user->ID,
-					'post_type'   => 'user-layer',
-					'post_status' => 'publish',
-					'numberposts' => -1
-					
-				))){
-					
-					// get user layer type
-					
-					foreach( $this->user->layers as $layer ){
-						
-						$layer->type = $this->layer->get_layer_type($layer);
-					}
-				}
-				
 				// get user stars
 				
 				$this->user->stars = $this->stars->get_count($this->user->ID);
@@ -1377,8 +1360,8 @@ class LTPLE_Client {
 		}
 	}
 	
-	public function update_user_layer(){	
-		 
+	public function do_editor_action(){	
+
 		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
 			
 			if( $this->layer->type == $this->layer->layerStorage && isset($_POST['postAction'])&& $_POST['postAction']=='edit' ){
@@ -1618,19 +1601,14 @@ class LTPLE_Client {
 				
 				$is_static 		= ( ( $this->layer->layerOutput == 'hosted-page' || $this->layer->layerOutput == 'downloadable' ) ? true : false );
 
-				$post_content 	= base64_decode($_POST['postContent']);
-				
-				$post_content 	= urldecode($post_content);
-				
-				$post_content 	= $this->layer->sanitize_content( $post_content, $is_static );
+				$post_content 	= urldecode(base64_decode($_POST['postContent']));
+				$post_content 	= LTPLE_Editor::sanitize_content( $post_content, $is_static );
 				
 				$post_css 		= ( !empty($_POST['postCss']) 		? stripcslashes( $_POST['postCss'] ) 		 : '' );
 				$post_js 		= ( !empty($_POST['postJs']) 		? stripcslashes( $_POST['postJs'] ) 		 : '' );
+
 				$post_title 	= ( !empty($_POST['postTitle']) 	? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
-				$post_embedded 	= ( !empty($_POST['postEmbedded']) 	? sanitize_text_field($_POST['postEmbedded']): '' );
-				$post_settings 	= ( !empty($_POST['postSettings']) 	? json_decode(stripcslashes($_POST['postSettings']),true): '' );
-				
-				$post_name 	= $post_title;			
+				$post_name 		= $post_title;			
 				
 				if( $_POST['postAction'] == 'update' ){
 					
@@ -2074,10 +2052,6 @@ class LTPLE_Client {
 							
 							update_post_meta($post_id, 'layerJs', $post_js);
 							
-							update_post_meta($post_id, 'layerEmbedded', $post_embedded);
-							
-							update_post_meta($post_id, 'layerSettings', $post_settings);
-							
 							if( $this->layer->type == 'cb-default-layer' ){
 								
 								// update layer type
@@ -2089,20 +2063,9 @@ class LTPLE_Client {
 									wp_set_object_terms( $post_id, $terms[0]->term_id, 'layer-type', false ); 
 								}
 								
-								// copy static contents
-								
-								$this->layer->copy_static_contents($defaultLayerId,$post_id);
-							
 								//redirect to user layer
 
-								if( !empty($post_embedded) ){
-									
-									$user_layer_url = $this->layer->embedded['scheme'].'://'.$this->layer->embedded['host'].$this->layer->embedded['path'].'wp-admin/post.php?post='.$this->layer->embedded['t'].'&action=edit&ult='.urlencode($post_title).'&uli='.$post_id.'&ulk='.md5('userLayerId'.$post_id.$post_title);
-								}
-								else{
-									
-									$user_layer_url = $this->urls->edit . '?action=edit&uri=' . $post_id;
-								}
+								$user_layer_url = $this->urls->edit . '?action=edit&uri=' . $post_id;
 								
 								wp_redirect($user_layer_url);
 								
@@ -2110,19 +2073,18 @@ class LTPLE_Client {
 								exit;							
 							}
 							else{
-
+								
+								http_response_code(200);
 								echo 'Template successfully saved!';
 								exit;
 							}
 						}
 					}				
-					else{
-					
-						http_response_code(404);
+		
+					http_response_code(404);
 						
-						echo 'Error saving user layer...';
-						exit;
-					}
+					echo 'Error saving user layer...';
+					exit;
 				}
 				else{
 					

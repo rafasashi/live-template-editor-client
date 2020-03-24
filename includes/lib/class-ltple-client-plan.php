@@ -1950,73 +1950,75 @@ class LTPLE_Client_Plan {
 		
 		if( !isset($this->layer_options[$item_id]) ){
 			
-			$plan_taxonomies = $this->get_plan_taxonomies();
-
-			$this->layer_options[$item_id] = [];
+			$this->layer_options[$item_id] = array(
 			
-			$this->layer_options[$item_id]['id'] = $item_id;
+				'id' => $item_id,
+			);
 			
-			foreach($plan_taxonomies as $i => $t){
+			if( $plan_taxonomies = $this->get_plan_taxonomies() ){
 				
-				$taxonomy 		 = $t['taxonomy'];
-				$taxonomy_name 	 = $t['name'];
-				$is_hierarchical = $t['hierarchical'];
-				
-				$this->layer_options[$item_id]['taxonomies'][$taxonomy]['taxonomy']			= $taxonomy;
-				$this->layer_options[$item_id]['taxonomies'][$taxonomy]['name']				= $taxonomy_name;
-				$this->layer_options[$item_id]['taxonomies'][$taxonomy]['is_hierarchical']	= $is_hierarchical;
-				$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms']			= [];
-				
-				$terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
-				
-				if ( !empty($terms) ) {
+				foreach($plan_taxonomies as $i => $t){
 					
-					foreach ( $terms as $term ) {						
-
-						$term_slug = $term->slug;
+					$taxonomy 		 = $t['taxonomy'];
+					$taxonomy_name 	 = $t['name'];
+					$is_hierarchical = $t['hierarchical'];
+					
+					$this->layer_options[$item_id]['taxonomies'][$taxonomy]['taxonomy']			= $taxonomy;
+					$this->layer_options[$item_id]['taxonomies'][$taxonomy]['name']				= $taxonomy_name;
+					$this->layer_options[$item_id]['taxonomies'][$taxonomy]['is_hierarchical']	= $is_hierarchical;
+					$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms']			= [];
+					
+					$terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
+					
+					if ( !empty($terms) ) {
 						
-						$has_term = $in_term = is_object_in_term( $item_id, $taxonomy, $term->term_id );
+						foreach ( $terms as $term ) {						
 
-						if($is_hierarchical === true && $term->parent > 0 && $has_term === false ){
+							$term_slug = $term->slug;
 							
-							$parent_id = $term->parent;
-							
-							while( $parent_id > 0 ){
+							$has_term = $in_term = is_object_in_term( $item_id, $taxonomy, $term->term_id );
+
+							if($is_hierarchical === true && $term->parent > 0 && $has_term === false ){
 								
-								if($has_term === false){
+								$parent_id = $term->parent;
+								
+								while( $parent_id > 0 ){
 									
-									foreach($terms as $parent){
+									if($has_term === false){
 										
-										if( $parent->term_id == $parent_id ){
+										foreach($terms as $parent){
 											
-											$has_term = is_object_in_term( $item_id, $taxonomy, $parent->term_id );
-											
-											$parent_id = $parent->parent;
-											
-											break;
-										}
-									}								
-								}
-								else{
-									
-									break;
-								}
-							}					
-						}
+											if( $parent->term_id == $parent_id ){
+												
+												$has_term = is_object_in_term( $item_id, $taxonomy, $parent->term_id );
+												
+												$parent_id = $parent->parent;
+												
+												break;
+											}
+										}								
+									}
+									else{
+										
+										break;
+									}
+								}					
+							}
+							
+							// push terms
 						
-						// push terms
-					
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]			= $term_slug;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]			= $term->term_id;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_group"]		= $term->term_group;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"]= $term->term_taxonomy_id;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		= $term->taxonomy;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	 	= $term->description;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["parent"]			= $term->parent;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			= $term->count;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["filter"]			= $term->filter;
-						$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]		= $has_term;					
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["slug"]			= $term_slug;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["name"]			= $term->name;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_id"]			= $term->term_id;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_group"]		= $term->term_group;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["term_taxonomy_id"]= $term->term_taxonomy_id;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["taxonomy"]		= $term->taxonomy;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["description"]	 	= $term->description;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["parent"]			= $term->parent;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["count"]			= $term->count;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["filter"]			= $term->filter;
+							$this->layer_options[$item_id]['taxonomies'][$taxonomy]['terms'][$term_slug]["has_term"]		= $has_term;					
+						}
 					}
 				}
 			}

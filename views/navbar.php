@@ -165,7 +165,16 @@
 									echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size: 15px;height:28px;background: none;border: none;color: #a5a5a5;box-shadow: none;"><span class="glyphicon glyphicon-cog icon-cog" aria-hidden="true"></span></button>';
 														
 									echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
+											
+										if( $ltple->layer->layerOutput != 'image' ){
 										
+											echo'<li style="position:relative;">';
+												
+												echo '<a target="_blank" href="' . get_post_permalink( $ltple->layer->id ) . '"> Preview Template</a>';
+
+											echo'</li>';
+										}
+											
 										echo'<li style="position:relative;">';
 										
 											echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Template ' . ( $ltple->layer->type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
@@ -196,12 +205,6 @@
 											echo'</div>';						
 											
 										echo'</li>';
-										
-										echo'<li style="position:relative;">';
-										
-											echo '<a href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&action=edit">Edit Settings</a>';
-										
-										echo'</li>';
 
 										if( $ltple->user->is_editor ){
 											
@@ -216,15 +219,6 @@
 												echo'<li style="position:relative;">';
 													
 													echo '<a target="_self" href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
-
-												echo'</li>';
-											}
-											
-											if( $ltple->layer->layerOutput != 'image' ){
-											
-												echo'<li style="position:relative;">';
-													
-													echo '<a target="_blank" href="' . get_post_permalink( $ltple->layer->id ) . '"> Preview Template <span class="label label-warning pull-right">admin</span></a>';
 
 												echo'</li>';
 											}

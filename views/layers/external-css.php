@@ -16,10 +16,6 @@
 	
 	$layerFontLibraries =$this->layerFontLibraries;	
 	
-	//get layer image proxy
-	
-	$layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
-	
 	//get layer margin
 	
 	$layerMargin =$this->layerMargin;
@@ -47,7 +43,7 @@
 		$layerContent =$this->layerContent;
 	}
 	
-	$layerContent =$this->sanitize_content($layerContent);
+	$layerContent =LTPLE_Editor::sanitize_content($layerContent);
 
 	
 	// parse content elements

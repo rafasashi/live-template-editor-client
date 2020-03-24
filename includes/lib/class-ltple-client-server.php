@@ -34,8 +34,15 @@ class LTPLE_Client_Server {
 			header('Access-Control-Allow-Credentials: true', false);			
 		}		
 		
-		// set api url
-		
-		$this->api = $this->url . '/' . rest_get_url_prefix() . '/';
+		add_filter('ltple_remote_script_url', array( $this, 'get_script_url' ));
 	}
+	
+	public function get_script_url($url){
+	
+		$url = $this->url . '/server/';
+		
+		return $url;
+	}
+	
+	
 }

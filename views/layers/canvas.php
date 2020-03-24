@@ -18,7 +18,7 @@
 	
 	//get layer image proxy
 	
-	$layerImgProxy = $this->parent->request->proto . $_SERVER['HTTP_HOST'].'/image-proxy.php?url=';
+	$layerImgProxy = LTPLE_Editor::get_image_proxy_url();
 	
 	//get layer margin
 	
@@ -47,7 +47,7 @@
 		$layerContent =$this->layerContent;
 	}
 	
-	$layerContent =$this->sanitize_content($layerContent);
+	$layerContent =LTPLE_Editor::sanitize_content($layerContent);
 	
 	// parse content elements
 	
