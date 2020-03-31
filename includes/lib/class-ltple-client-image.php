@@ -700,7 +700,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function upload_editor_image($name,$base64){
+	public function upload_base64_image($name,$base64){
 		
 		if( !empty($this->parent->user->ID) ){
 		

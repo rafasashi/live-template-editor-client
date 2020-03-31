@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Editor { 
 	
 	public $parent;
-
+	
 	/**
 	 * Constructor function
 	 */ 
@@ -13,7 +13,7 @@ class LTPLE_Client_Editor {
 	public function __construct( $parent ) {
 		
 		$this->parent = $parent;
-	
+		
 		add_filter('ltple_loaded', array( $this, 'init_editor' ));
 		
 		add_filter('query_vars', function( $query_vars ){
@@ -21,6 +21,11 @@ class LTPLE_Client_Editor {
 			if(!in_array('editor',$query_vars)){
 				
 				$query_vars[] = 'editor';
+			}
+			
+			if(!in_array('edit',$query_vars)){
+				
+				$query_vars[] = 'edit';
 			}
 			
 			return $query_vars;
@@ -63,72 +68,82 @@ class LTPLE_Client_Editor {
 	public function get_editor($layer){
 		
 		if( $slug = get_query_var('edit') ){
-
-			if( !empty($_GET['lk']) ){
-				
-				if( !empty($_POST['base64']) && !empty($_POST['domId']) ){
-					
-					// handle cropped image upload
-					
-					echo $this->parent->image->upload_editor_image($this->parent->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
-				}
-				elseif( !empty($_FILES) && !empty($_POST['location']) && $_POST['location'] == 'media' ){
-						
-					// handle canvas image upload
-					
-					echo $this->parent->image->upload_collage_image();
-				}
-				else{
-		
-					LTPLE_Editor::get_remote_script($layer,array(
-						
-						'key'		=> $_GET['lk'],
-						'user'		=> $this->parent->ltple_encrypt_str($this->parent->plan->get_license_holder_email($this->parent->user)),
-						'is_local' 	=> $this->parent->layer->is_local ? true : false,				
-						'plan_url'	=> $this->parent->urls->plans,
-					
-					));
-					
-					echo'Malformed request...';
-				}
-			}
-			elseif( $this->parent->user->has_layer ){
-				
-				if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
-					
-					include( $this->parent->views . '/editor-panel.php' );
-				}
-				elseif( ( !$this->parent->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $this->parent->layer->type == 'cb-default-layer' || $this->parent->layer->is_media ) ){
-
-					include( $this->parent->views . '/editor-starter.php' );
-				}
-				elseif( $this->parent->layer->type == 'user-layer' && !$this->parent->user->plan["info"]["total_price_amount"] > 0 ){
-					
-					echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-						
-						echo '<div class="alert alert-warning">You need a paid plan to edit this template...</div>';
-
-					echo'</div>';
-				}
-				elseif( $this->parent->layer->is_editable($layer->output) ){
-					 
-					include( get_template_directory() . '/ltple/editor.php' );
-				}
-				else{
-					
-					echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-						
-						echo '<div class="alert alert-warning">This template is not editable...</div>';
-
-					echo'</div>';		
-				}
-			}
-			else{
-				
-				include( $this->parent->views . '/restricted.php' );
-			}
 			
-			exit;
+			if( !empty($_GET['uri']) ){
+				
+				if( !empty($_GET['lk']) ){
+					
+					if( !empty($_POST['base64']) && !empty($_POST['domId']) ){
+						
+						// handle cropped image upload
+						
+						echo $this->parent->image->upload_base64_image($this->parent->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
+					}
+					elseif( !empty($_FILES) && !empty($_POST['location']) && $_POST['location'] == 'media' ){
+							
+						// handle canvas image upload
+						
+						echo $this->parent->image->upload_collage_image();
+					}
+					else{
+			
+						LTPLE_Editor::get_remote_script($layer,array(
+							
+							'key'		=> $_GET['lk'],
+							'user'		=> $this->parent->ltple_encrypt_str($this->parent->plan->get_license_holder_email($this->parent->user)),
+							'is_local' 	=> $this->parent->layer->is_local ? true : false,				
+							'plan_url'	=> $this->parent->urls->plans,
+						
+						));
+						
+						echo'Malformed request...';
+					}
+				}
+				elseif( $this->parent->user->has_layer ){
+					
+					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
+						
+						include( $this->parent->views . '/editor-panel.php' );
+					}
+					elseif( ( !$this->parent->user->is_editor || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $this->parent->layer->type == 'cb-default-layer' || $this->parent->layer->is_media ) ){
+
+						include( $this->parent->views . '/editor-starter.php' );
+					}
+					elseif( $this->parent->layer->type == 'user-layer' && !$this->parent->user->plan["info"]["total_price_amount"] > 0 ){
+						
+						echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+							
+							echo '<div class="alert alert-warning">You need a paid plan to edit this template...</div>';
+
+						echo'</div>';
+					}
+					elseif( $this->parent->layer->is_editable_output($layer->output) ){
+						
+						if( empty($_POST) && !empty($this->parent->layer->layerForm) && $this->parent->layer->layerForm != 'none' && empty($this->parent->layer->layerContent) ){
+							
+							include( $this->parent->views . '/editor-form.php' );
+						}
+						else{
+							
+							do_action('ltple_include_editor');
+						}
+					}
+					else{
+						
+						echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+							
+							echo '<div class="alert alert-warning">This template is not editable...</div>';
+
+						echo'</div>';		
+					}
+				}
+				else{
+					
+					include( $this->parent->views . '/restricted.php' );
+				}
+				
+				exit;
+			}
 		}
 	}
 
@@ -276,12 +291,16 @@ class LTPLE_Client_Editor {
 	}
 	
 	public function filter_js_settings($js,$layer){
-
+		
 		if( $layer->output == 'image' ){
 			
 			if( $layer->post_type == 'attachment' ){
 				
 				$attachment_url = wp_get_attachment_url($layer->ID );
+			}
+			elseif( $this->parent->layer->layerImageTpl->post_type == 'attachment' ){
+				
+				$attachment_url = wp_get_attachment_url($this->parent->layer->layerImageTpl->ID);
 			}
 			else{
 				
@@ -292,7 +311,7 @@ class LTPLE_Client_Editor {
 		}
 		else{
 			
-			if( !empty($_POST) || !$this->parent->layer->is_local_page($layer->ID) ){
+			if( !empty($_POST) || !$this->parent->layer->is_local($layer->ID) ){
 				
 				// content based preview
 				
@@ -321,14 +340,8 @@ class LTPLE_Client_Editor {
 			else{
 				
 				// url based preview
-				
-				$preview = add_query_arg(array(
-					
-					'preview' => 'ltple',
-					
-				),get_preview_post_link($layer->ID));
-				
-				$js .= ' var layerUrl	= "' . $preview . '";' . PHP_EOL;
+
+				$js .= ' var layerUrl	= "' . $layer->urls['preview'] . '";' . PHP_EOL;
 			}
 
 			//include quick edit
@@ -384,7 +397,7 @@ class LTPLE_Client_Editor {
 	
 	public function filter_editor_script($editor){
 		
-		if( !is_admiin() ){
+		if( !is_admin() ){
 			
 			$modal_css = 'position:absolute;top:0;left:0;right:0;width:100%!important;margin:0;bottom:0;';
 					

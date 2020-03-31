@@ -56,7 +56,7 @@
 					
 						echo '<li class="gallery_type_title">'.$section.'</li>';
 
-						$outputs = $this->layer->get_layer_outputs();
+						$editors = $this->layer->get_layer_editors();
 											
 						$class='';
 						
@@ -111,7 +111,7 @@
 											
 											$label_style = 'margin-right:8px;padding:2px 4px;font-size:10px;';
 											
-											echo '<span class="label label-primary pull-left hidden-xs" style="' . $label_style . '">'.$outputs[$output].'</span> ';											
+											echo '<span class="label label-primary pull-left hidden-xs" style="' . $label_style . '">'.$editors[$output].'</span> ';											
 																		
 											if( $term->visibility == 'admin' ){
 												

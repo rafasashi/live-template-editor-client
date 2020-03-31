@@ -13,7 +13,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $mediaTypes		= null;
 	
 	public $counts			= null;
-	public $outputs			= null;
+	public $editors			= null;
 	public $sections		= null;
 	public $types			= null; 
 	public $ranges			= null;
@@ -69,7 +69,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail', 'author' ),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
-		)); 
+		));
+		
+		add_filter('ltple_cb-default-layer_layer_area',function(){ 
+			
+			return 'backend';
+		});
 
 		$this->parent->register_post_type( 'user-layer', __( 'Templates', 'live-template-editor-client' ), __( 'Template', 'live-template-editor-client' ), '', array(
 
@@ -92,6 +97,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
+		add_filter('ltple_user-layer_layer_area',function(){ 
+			
+			return 'frontend';
+		});	
+
 		$this->parent->register_post_type( 'user-psd', __( 'Images', 'live-template-editor-client' ), __( 'Image', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
@@ -112,6 +122,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
+		
+		add_filter('ltple_user-psd_layer_area',function(){ 
+			
+			return 'frontend';
+		});	
 		
 		$this->parent->register_post_type( 'user-page', __( 'Pages', 'live-template-editor-client' ), __( 'Page', 'live-template-editor-client' ), '', array(
 
@@ -134,6 +149,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
+		add_filter('ltple_user-page_layer_area',function(){ 
+			
+			return 'frontend';
+		});
+		
 		$this->parent->register_post_type( 'user-menu', __( 'Menus', 'live-template-editor-client' ), __( 'Menu', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
@@ -154,6 +174,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
+		
+		add_filter('ltple_user-menu_layer_area',function(){ 
+			
+			return 'frontend';
+		});
 
 		$this->parent->register_taxonomy( 'layer-type', __( 'Editors', 'live-template-editor-client' ), __( 'Editor', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd','user-page','user-menu'), array(
 			'hierarchical' 			=> false,
@@ -244,7 +269,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$post = get_post();
 			
 			if( isset($this->storageTypes[$post->post_type]) || $this->is_local ){
-
+				
 				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){
 					
 					// remove metaboxes
@@ -400,17 +425,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 		add_action( 'ltple_layer_loaded', array($this,'output_static_layer') );
 		
+		add_action( 'ltple_backend_layer_content', array($this,'filter_backend_layer_content') );
+		
+		add_action( 'ltple_backend_layer_scripts', array($this,'add_backend_layer_scripts') );
+		
 		add_action( 'wp_head', array( $this, 'get_hosted_page_header'),99999 );
 		
 		add_filter( 'the_content', array($this,'get_hosted_page_content'),99999 );
 	
-		add_filter( 'preview_post_link', array($this,'get_preview_layer_link'),99999 );
+		add_filter( 'preview_post_link', array($this,'filter_preview_layer_link'),99999,2 );
 		
 		// layer parameters
 		
 		add_filter('ltple_layer_id', array($this,'get_layer_id'),10,1);
-		add_filter('ltple_layer_output', array($this,'get_layer_output'),10,2);
-		add_filter('ltple_layer_is_editable', array($this,'is_editable'),10,2 );
+		add_filter('ltple_layer_output', array($this,'get_layer_editor'),10,2);
+		add_filter('ltple_layer_is_editable', array($this,'is_editable_output'),10,2 );
 	}
 	
 	public function get_local_types(){
@@ -418,7 +447,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( is_null($this->localTypes) ){
 		
 			$this->localTypes = apply_filters('ltple_local_post_types',array(
-			
+				
+				'page',
+				'post',
 				'cb-default-layer',
 				'email-model',
 			));
@@ -427,7 +458,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->localTypes;		
 	}
 	
-	public function is_local_page($post){
+	public function is_local($post){
 		
 		if( !isset($post->is_local) ){
 			
@@ -1070,7 +1101,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->defaultFields;
 	}
 	
-	public function is_editable($output,$is_editable = false){
+	public function is_editable_output($output,$is_editable = false){
 		
 		if( is_numeric($output) ){
 			
@@ -1299,11 +1330,24 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_editable_layer_tabs($tabs,$layer){
 		
-		$edit = '<div style="background:#fbfbfb;padding:152px 0;text-align:center;">'; 
-		
-			$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->edit . '?uri=' . $layer->ID . '">Edit Content</a>';
+		if( empty($_POST) && !empty($this->layerForm) && empty($this->layerContent) ){
+			
+			// TODO form widget modal
 
-		$edit .= '</div>';	
+			$edit = '<div style="background:#fbfbfb;padding:152px 0;text-align:center;">'; 
+		
+				$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->edit . '?uri=' . $layer->ID . '">Edit Content</a>';
+
+			$edit .= '</div>';		
+		}
+		else{
+		
+			$edit = '<div style="background:#fbfbfb;padding:152px 0;text-align:center;">'; 
+		
+				$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->edit . '?uri=' . $layer->ID . '">Edit Content</a>';
+
+			$edit .= '</div>';
+		}
 	
 		$tabs['edit'] = array(
 		
@@ -1347,6 +1391,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $tabs;		
+	}
+	
+	public function filter_preview_layer_link($url,$post){
+		
+		if( $post->post_type == 'cb-default-layer' ){
+			
+			$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
+		}
+		
+		return $url;
 	}
 	
 	public function get_layer_id($id){
@@ -1612,11 +1666,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->userFields;
 	}
 	
-	public function get_layer_outputs(){
+	public function get_layer_editors(){
 		
-		if( empty($this->outputs) ){
+		if( empty($this->editors) ){
 
-			$this->outputs = apply_filters('ltple_layer_outputs',array(
+			$this->editors = apply_filters('ltple_layer_editors',array(
 					
 				'inline-css'		=>'HTML',
 				'external-css'		=>'HTML + CSS',
@@ -1627,21 +1681,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			));
 		}
 		
-		return $this->outputs;
+		return $this->editors;
 	}
 	
-	public function get_output_name($output){
+	public function get_output_name($slug){
 	
-		$outputs = $this->get_layer_outputs();
+		$editors = $this->get_layer_editors();
 		
-		$output_name = $outputs[$output];
+		$editor_name = $editors[$slug];
 		
-		if( $this->is_html_output($output) ){
+		if( $this->is_html_output($slug) ){
 			
-			$output_name .= ' template';
+			$editor_name .= ' template';
 		}
 		
-		return $output_name;
+		return $editor_name;
 	}
 	
 	public function get_storage_types(){
@@ -2033,17 +2087,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $layer_type_slug;
 	}
 	
-	public function get_layer_output($output,$layer){
+	public function get_layer_editor($editor,$layer){
 		
 		$layer_type = $this->get_layer_type($layer);
 		
 		if( !empty($layer_type->output) ){
 			
 			
-			$output = $layer_type->output;
+			$editor = $layer_type->output;
 		}
 		
-		return $output;
+		return $editor;
 	}
 
 	public function get_layer_type($post){
@@ -2228,7 +2282,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function init_layer_backend(){
 		
-		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ));
+		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ),9999);
 			
 		if( $this->storageTypes = $this->get_storage_types() ){
 				
@@ -2511,7 +2565,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$this->layerEcho = $echo;
 				
-				$this->is_local = $this->is_local_page($layer);
+				$this->is_local = $this->is_local($layer);
 				
 				// get default storage
 				
@@ -2535,7 +2589,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$local_types = $this->get_local_types();
 					
-					if( $this->is_storage ){
+					if( $layer->post_type == 'cb-default-layer' ){
+						
+						$this->defaultId = $this->id;
+						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );						
+					}
+					elseif( $this->is_storage ){
 					
 						$this->defaultId = $this->get_default_id($this->id);
 					}
@@ -2553,7 +2612,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					// get default layer type
 					
 					$this->defaultLayerType = $this->get_layer_type($this->defaultId);
-				
+					
 					//get layer output
 
 					$this->layerOutput = !empty($this->defaultLayerType->output) ? $this->defaultLayerType->output : '';
@@ -3337,7 +3396,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		// add meta
 		
-		if(!$this->is_local_page($this->id)){ 
+		if(!$this->is_local($this->id)){ 
 
 			// output default title
 			
@@ -3496,7 +3555,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$layer_template = get_page_template_slug( $this->id );
 		
-		if( $this->is_local_page($this->id) ){
+		if( $this->is_local($this->id) ){
 		
 			$body .='<div class="' . implode(' ',$this->layerStyleClasses) . '" style="width:100%;">' .PHP_EOL;
 		}
@@ -3520,7 +3579,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$body .= '</ltple-layer>' .PHP_EOL;
 
-		if( $this->is_local_page($this->id) ){
+		if( $this->is_local($this->id) ){
 		
 			$body .='</div>' .PHP_EOL;
 		}
@@ -3838,7 +3897,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'id'			=> 'output',
 						'label'			=> "",
 						'type'			=> 'select',
-						'options'		=> $this->get_layer_outputs(),
+						'options'		=> $this->get_layer_editors(),
 						'inline'		=> false,
 						'default'		=> 'inline-css',
 						'description'	=> 'The Inputs and Type of Editor dependends on the selected Output',
@@ -4504,9 +4563,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !empty($layer_type->name) ){
 
-				$outputs = $this->get_layer_outputs();
+				$editors = $this->get_layer_editors();
 			
-				echo '<span class="label label-primary" style="margin-right:5px;">' . $outputs[$layer_type->output] . '</span>';
+				echo '<span class="label label-primary" style="margin-right:5px;">' . $editors[$layer_type->output] . '</span>';
 			}
 			else{
 				
@@ -4590,14 +4649,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if($column_name === 'editor') {
 				
-				$outputs = $this->get_layer_outputs();
+				$editors = $this->get_layer_editors();
 				
 				if(!$output = get_term_meta($term->term_id,'output',true)){
 					
 					$output = 'inline-css';
 				}
 
-				$this->column .='<span class="label label-primary">'.$outputs[$output].'</span>';
+				$this->column .='<span class="label label-primary">'.$editors[$output].'</span>';
 			}
 			elseif($column_name === 'section') {
 
@@ -5392,7 +5451,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$post = get_post();
 		}
 
-		if( !isset($_REQUEST['uri']) && $this->is_local_page($post) && !empty($this->layerOutput) && $this->layerOutput == 'hosted-page' ){
+		if( !isset($_REQUEST['uri']) && $this->is_local($post) && !empty($this->layerOutput) && $this->layerOutput == 'hosted-page' ){
 			
 			echo $this->layerHeadContent;
 		}
@@ -5402,7 +5461,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$post = get_post();
 		
-		if( !isset($_REQUEST['uri']) && $this->is_local_page($post) && !empty($this->layerOutput) && $this->layerEcho === true && $this->layerOutput == 'hosted-page' ){
+		if( !isset($_REQUEST['uri']) && $this->is_local($post) && !empty($this->layerOutput) && $this->layerEcho === true && $this->layerOutput == 'hosted-page' ){
 			
 			$content = $this->layerBodyContent;
 		}
@@ -5424,12 +5483,86 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}
 		
-		if( $post->post_type == 'cb-default-layer' ){
+		if( !empty($post) && $post->post_type == 'cb-default-layer' ){
 		
 			$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
 		}
 		
 		return $url;
+	}
+	
+	public function add_backend_layer_scripts( $layer ){
+
+		if( !empty($this->layerCssLibraries) ){
+			
+			foreach($this->layerCssLibraries as $term){
+				
+				$class = 'style-' . $term->term_id;
+				
+				$this->layerStyleClasses[] = $class;
+				
+				$css_url = $this->get_css_parsed_url($term);
+				
+				if( !empty($css_url) ){
+					
+					$css_url = $this->sanitize_url($css_url);
+					
+					if( !empty($css_url) ){
+
+						wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
+						wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
+					}					
+				}
+				else{
+				
+					$css_url = $this->sanitize_url(get_option( 'css_url_' . $term->slug));
+					
+					if( !empty($css_url) ){
+
+						wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
+						wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
+					}
+					
+					$css_content = get_option( 'css_content_' . $term->slug);
+					
+					if( !empty($css_content) ){
+						
+						wp_register_style( $this->parent->_token . '-layer-inline-' . $class, false, array());
+						wp_enqueue_style( $this->parent->_token . '-layer-inline-' . $class );
+		
+						wp_add_inline_style( $this->parent->_token . '-layer-inline-' . $class, stripcslashes($css_content));
+					}
+				}
+			}
+		}
+		
+		if( !empty($this->defaultCss) ){
+			
+			$defaultCss = $this->parse_css_content($this->defaultCss, '.layer-' . $this->defaultId);
+			
+			wp_register_style( $this->parent->_token . '-layer-default-css', false, array());
+			wp_enqueue_style( $this->parent->_token . '-layer-default-css' );
+		
+			wp_add_inline_style( $this->parent->_token . '-layer-default-css',$defaultCss);
+		}
+		
+		if( !empty($this->layerCss) ){
+						
+			wp_register_style( $this->parent->_token . '-layer-custom-css', false, array());
+			wp_enqueue_style( $this->parent->_token . '-layer-custom-css' );
+		
+			wp_add_inline_style( $this->parent->_token . '-layer-custom-css',$this->layerCss);
+		}
+	}
+	
+	public function filter_backend_layer_content( $content ){
+
+		if( !empty($this->layerStyleClasses) ){
+			
+			$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . $content . '</div>';
+		}
+		
+		return $content;
 	}
 	
 	public function output_static_layer( $output ){

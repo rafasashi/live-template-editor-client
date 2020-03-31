@@ -23,7 +23,7 @@
 		
 		$is_html = $this->parent->layer->is_html_output($layer_type->output);
 		
-		$is_editable = $this->parent->layer->is_editable($layer_type->output);
+		$is_editable = $this->parent->layer->is_editable_output($layer_type->output);
 				
 		$output_name = $this->parent->layer->get_output_name($layer_type->output);
 		

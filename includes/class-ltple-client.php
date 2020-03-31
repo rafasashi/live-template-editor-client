@@ -342,6 +342,11 @@ class LTPLE_Client {
 
 		// Load frontend JS & CSS
 		
+		// TODO move css and js from ltple to client
+		
+		add_action( 'wp_enqueue_scripts', array( LTPLE_Editor(), 'enqueue_editor_styles' ), 99999 );
+		add_action( 'wp_enqueue_scripts', array( LTPLE_Editor(), 'enqueue_editor_scripts' ), 99999 );
+				
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 		
@@ -365,7 +370,7 @@ class LTPLE_Client {
 		
 		// Custom default layer template
 		
-		add_filter('template_include', array( $this, 'get_layer_template'), 1 );
+		add_filter('ltple_layer_template', array( $this, 'filter_template_path'),1,2 );
 	
 		// get current user
 
@@ -872,78 +877,62 @@ class LTPLE_Client {
 		}		
 	}
 	
-	public function get_layer_template( $path ){
+	public function filter_template_path( $path, $layer ){
 		
-		if( isset($_GET['preview_id']) ){
+		if( $layer->post_type == 'cb-default-layer' && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
 			
-			$post_id = $_GET['preview_id'];
-		}
-		else{
-		
-			$post_id = url_to_postid( $this->urls->current );
-		}
-		
-		if( !empty($post_id) ){
+			$path = $this->views . '/preview.php';
 			
-			if( $post = get_post($post_id) ){
+			if( $layer_type = $this->layer->get_layer_type($layer) ){
 				
-				if( $post->post_type == 'cb-default-layer' ){
-					
-					$path = $this->views . '/preview.php';
-					
-					if( $layer_type = $this->layer->get_layer_type($post) ){
-						
-						if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer_type->output) ){
-									
-							if( $this->layer->is_html_output($layer_type->output) ){
+				if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer_type->output) ){
 							
-								$visibility = get_post_meta( $post->ID, 'layerVisibility', true );
+					if( $this->layer->is_html_output($layer_type->output) ){
+					
+						$visibility = get_post_meta( $layer->ID, 'layerVisibility', true );
 
-								if( $visibility == 'anyone' ){
-									
-									$path = $this->views . '/layer.php';
-								}
-								elseif( $visibility == 'registered' && $this->user->loggedin ){
-									
-									$path = $this->views . '/layer.php';
-								}
-								elseif( $this->plan->user_has_layer( $post ) === true && $this->user->loggedin ){
-									
-									$path = $this->views . '/layer.php';
-								}
-								elseif( !empty($_GET['preview']) && $this->user->is_editor ){
-									
-									$path = $this->views . '/layer.php';
-								}
-							}
+						if( $visibility == 'anyone' ){
+							
+							$path = $this->views . '/layer.php';
+						}
+						elseif( $visibility == 'registered' && $this->user->loggedin ){
+							
+							$path = $this->views . '/layer.php';
+						}
+						elseif( $this->plan->user_has_layer( $layer ) === true && $this->user->loggedin ){
+							
+							$path = $this->views . '/layer.php';
+						}
+						elseif( !empty($_GET['preview']) && $this->user->is_editor ){
+							
+							$path = $this->views . '/layer.php';
 						}
 					}
 				}
-				elseif( $default_id = $this->layer->get_default_id($post->ID) ){
-					
-					if( $this->layer->is_local_page($post) ){
-						
-						//theme template
-						
-						return $path; 
-					}
-					elseif( $this->user->loggedin && ( $this->user->is_admin || intval($post->post_author ) == $this->user->ID )){
-						
-						$path = $this->views . '/layer.php';
-					}
-					else{
-						
-						echo 'You don\'t have access to this template...';
-						exit;
-					}				
-				}
-				elseif( file_exists($this->views . '/'.$post->post_type . '.php') ){
-					
-					$path = $this->views .  '/' . $post->post_type . '.php';
-				}
 			}
 		}
-
+		elseif( $default_id = $this->layer->get_default_id($layer->ID) ){
+			
+			if( $this->layer->is_local($layer) ){
+				
+				//theme template
+				
+				return $path; 
+			}
+			elseif( $this->user->loggedin && ( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID )){
+				
+				$path = $this->views . '/layer.php';
+			}
+			else{
+				
+				echo 'You don\'t have access to this template...';
+				exit;
+			}				
+		}
+		elseif( file_exists($this->views . '/'.$layer->post_type . '.php') ){
+			
+			$path = $this->views .  '/' . $layer->post_type . '.php';
+		}
 		
 		return $path;
 	}
@@ -1361,6 +1350,12 @@ class LTPLE_Client {
 	}
 	
 	public function do_editor_action(){	
+
+		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-bootstrap-table' );
+		
+		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-toggle-switch' );
 
 		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
 			
@@ -1963,7 +1958,7 @@ class LTPLE_Client {
 					}
 					else{
 						
-						$post_type		= $this->layer->layerStorage;
+						$post_type = $this->layer->layerStorage;
 						
 						if( $post_type == 'user-menu' ){
 							
@@ -2241,6 +2236,13 @@ class LTPLE_Client {
 		
 		wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css'));
 		wp_enqueue_style( $this->_token . '-client' );
+		
+		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-bootstrap-table' );
+
+		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-toggle-switch' );		
+		
 		wp_add_inline_style( $this->_token . '-client', $this->get_client_style() );
 	}
 	
@@ -2603,7 +2605,32 @@ class LTPLE_Client {
 	 */
 	public function enqueue_scripts () {
 		
+		wp_enqueue_script('jquery-ui-dialog');
+		
+		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-js' );
+		
+		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-lazyload' );	
 
+		//wp_register_script($this->_token . '-sprintf', esc_url( $this->assets_url ) . 'js/sprintf.js', array( 'jquery' ), $this->_version);
+		//wp_enqueue_script( $this->_token . '-sprintf' );	
+		
+		wp_register_script($this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'js/bootstrap-table.min.js', array( 'jquery',$this->_token . '-bootstrap-js' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-table' );
+
+		//wp_register_script($this->_token . '-bootstrap-table-export', esc_url( $this->assets_url ) . 'js/bootstrap-table-export.js', array( 'jquery',$this->_token . '-bootstrap-js', $this->_token . 'sprintf' ), $this->_version);
+		//wp_enqueue_script( $this->_token . '-bootstrap-table-export' );
+		
+		//wp_register_script($this->_token . '-table-export', esc_url( $this->assets_url ) . 'js/tableExport.js', array( 'jquery' ), $this->_version);
+		//wp_enqueue_script( $this->_token . '-table-export' ); 
+		
+		wp_register_script($this->_token . '-bootstrap-table-mobile', esc_url( $this->assets_url ) . 'js/bootstrap-table-mobile.min.js', array( 'jquery',$this->_token . '-bootstrap-js' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-table-mobile' ); 		
+
+		wp_register_script($this->_token . '-bootstrap-table-filter-control', esc_url( $this->assets_url ) . 'js/bootstrap-table-filter-control.min.js', array( 'jquery',$this->_token . '-bootstrap-js' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-bootstrap-table-filter-control' ); 
+		
 	} // End enqueue_scripts ()
 
 	/**
