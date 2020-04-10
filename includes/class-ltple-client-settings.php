@@ -426,27 +426,27 @@ class LTPLE_Client_Settings {
 
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Web Resources', $this->plugin->slug ),
-			__( 'Web Resources', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=cb-default-layer&taxonomy=css-library'
-		);		
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Default Templates', $this->plugin->slug ),
-			__( 'Default Templates', $this->plugin->slug ),
+			__( 'Default Items', $this->plugin->slug ),
+			__( 'Default Items', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=cb-default-layer'
 		);
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'User Contents', $this->plugin->slug ),
-			__( 'User Contents', $this->plugin->slug ),
+			__( 'User Projects', $this->plugin->slug ),
+			__( 'User Projects', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=user-layer'
 		);
+
+		add_submenu_page(
+			$this->plugin->slug,
+			__( 'Web Resources', $this->plugin->slug ),
+			__( 'Web Resources', $this->plugin->slug ),
+			'edit_pages',
+			'edit-tags.php?post_type=cb-default-layer&taxonomy=css-library'
+		);		
 		
 		/*
 		add_submenu_page(
@@ -799,20 +799,6 @@ class LTPLE_Client_Settings {
 			}
 		}
 		
-		/*
-		$settings['ux'] = array(
-			'title'					=> __( 'UX', $this->plugin->slug ),
-			'description'			=> __( 'Flowchart Elements', $this->plugin->slug ),
-			'fields'				=> array(
-				array(
-					'id' 			=> 'uxFlowchart',
-					'description'	=> '',
-					'type'			=> 'ux_flow_charts',
-				),			
-			)
-		);
-		*/
-		
 		$settings['tax'] = array(
 			'title'					=> __( 'Tax', $this->plugin->slug ),
 			'description'			=> __( 'Setting up the tax system', $this->plugin->slug ),
@@ -862,11 +848,11 @@ class LTPLE_Client_Settings {
 		
 			'default-contents' => array(
 			
-				'cb-default-layer' 	=> array( 'name' => 'Templates'),
+				'cb-default-layer' 	=> array( 'name' => 'Items'),
 				'default-image' 	=> array( 'name' => 'Images'),
 			),
 			'user-contents' => array(
-			
+			  
 				'user-layer' 	=> array( 'name' => 'Templates'),
 				'user-page' 	=> array( 'name' => 'Pages'),
 				'user-menu' 	=> array( 'name' => 'Menus'),

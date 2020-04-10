@@ -879,7 +879,9 @@ class LTPLE_Client {
 	
 	public function filter_template_path( $path, $layer ){
 		
-		if( $layer->post_type == 'cb-default-layer' && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
+		global $post;
+		
+		if( $layer->post_type == 'cb-default-layer' && empty($_GET['action']) && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
 			
 			$path = $this->views . '/preview.php';
 			
@@ -1356,7 +1358,7 @@ class LTPLE_Client {
 		
 		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-toggle-switch' );
-
+		
 		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
 			
 			if( $this->layer->type == $this->layer->layerStorage && isset($_POST['postAction'])&& $_POST['postAction']=='edit' ){
@@ -1409,7 +1411,7 @@ class LTPLE_Client {
 							}
 							else{
 								
-								$fields = $this->layer->get_user_layer_fields($post);
+								$fields = $this->layer->get_user_layer_fields(array(),$post);
 							}
 							
 							if( !empty($fields) ){
@@ -1439,7 +1441,7 @@ class LTPLE_Client {
 										}
 									}
 									elseif( isset($_POST[$field['id']]) ){
-											
+										
 										//update meta
 											
 										update_post_meta($post_id,$field['id'],$_POST[$field['id']]);

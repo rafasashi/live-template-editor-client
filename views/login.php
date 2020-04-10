@@ -1,5 +1,7 @@
 <?php 
-
+	
+	$ltple = LTPLE_Client::instance();
+	
 	// get pre filled user email
 
 	$user_email = ( !empty($_GET['loe']) ? $this->parent->ltple_decrypt_uri($_GET['loe'])  : '' );
@@ -72,16 +74,6 @@
 						
 						echo'<form name="registerform" id="loginform" action="' . wp_registration_url() . '" method="post" novalidate="novalidate">';
 							
-							/*
-							echo'<p>';
-								
-								echo'<label for="user_login">Username<br>';
-								
-								echo'<input type="text" name="user_login" id="user_login" class="input" value="" size="20"></label>';
-							
-							echo'</p>';
-							*/
-							
 							echo'<p>';
 								
 								echo'<label for="user_email">Email<br>';
@@ -96,10 +88,14 @@
 										
 										echo'<input type="hidden" name="user_email" id="user_email" value="'.$user_email.'">';
 									}
+									
+									do_action('register_form');
 								
 								echo'</label>';
 							
 							echo'</p>';
+							
+							do_action('login_footer');
 								
 							echo'<p id="reg_passmail">Registration confirmation will be emailed to you.</p>';
 							

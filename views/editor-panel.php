@@ -34,8 +34,8 @@ echo'<div id="panel" class="wrapper">';
 			if( !empty($ltple->user->layer) ){
 				
 				echo '<h2 style="margin-top:5px;">Edit ' . $post_type->labels->singular_name . '</h2>';
-						
-				$fields = $ltple->layer->get_user_layer_fields($ltple->user->layer);
+					
+				$fields = $ltple->layer->get_user_layer_fields(array(),$ltple->user->layer);
 						
 				echo '<form method="post" enctype="multipart/form-data">';
 					

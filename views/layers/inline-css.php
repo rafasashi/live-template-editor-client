@@ -93,9 +93,6 @@
 		$layerMeta =$this->layerMeta;
 	}
 	
-	$defaultCss = sanitize_text_field($defaultCss);
-	$layerCss 	= sanitize_text_field($layerCss);
-	
 	$layerContent = str_replace('<?xml encoding="UTF-8">','',$layerContent);
 
 	// get google fonts

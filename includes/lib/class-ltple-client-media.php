@@ -294,7 +294,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		if( strpos($this->parent->urls->current, $this->parent->urls->media ) === 0 ){
 			
-			wp_register_script( $this->parent->_token . '-media', '', array( 'jquery', $this->parent->_token . '-bootstrap-table', $this->parent->_token . '-frontend' ) );
+			wp_register_script( $this->parent->_token . '-media', '', array( 'jquery', $this->parent->_token . '-bootstrap-table' ) );
 			wp_enqueue_script( $this->parent->_token . '-media' );
 		
 			wp_add_inline_script( $this->parent->_token . '-media', $this->get_script());

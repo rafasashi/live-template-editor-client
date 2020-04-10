@@ -31,8 +31,19 @@
 				//if( !$this->inWidget ){
 				
 					echo '<div class="gallery_type_title gallery_head">';
-					
-						echo 'Template Gallery';
+						
+						if( empty($_GET['layer']) ){
+							
+							echo 'All Categories';
+						}
+						elseif( !empty($_GET['layer']['default_storage']) ){
+							
+							echo $this->layer->get_storage_name($_GET['layer']['default_storage']);
+						}
+						else{
+							
+							echo 'Gallery';
+						}
 						
 						// filters
 						

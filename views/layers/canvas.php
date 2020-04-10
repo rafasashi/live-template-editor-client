@@ -97,9 +97,6 @@
 		$layerMeta =$this->layerMeta;
 	}
 	
-	$defaultCss = sanitize_text_field($defaultCss);
-	$layerCss 	= sanitize_text_field($layerCss);
-	
 	// normalize canvas content
 	
 	$layerContent = str_replace(array($layerImgProxy),array(''),$layerContent);		

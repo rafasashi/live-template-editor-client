@@ -50,7 +50,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 		
-		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Templates', 'live-template-editor-client' ), __( 'Default Template', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Items', 'live-template-editor-client' ), __( 'Default Item', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
@@ -425,14 +425,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 		add_action( 'ltple_layer_loaded', array($this,'output_static_layer') );
 		
-		add_action( 'ltple_backend_layer_content', array($this,'filter_backend_layer_content') );
+		add_filter( 'ltple_local_layer_content', array($this,'filter_local_layer_content'),99999,2 );
+			
+		add_action( 'ltple_local_layer_scripts', array($this,'add_local_layer_scripts') );
 		
-		add_action( 'ltple_backend_layer_scripts', array($this,'add_backend_layer_scripts') );
+		add_action( 'ltple_local_layer_head', array( $this, 'filter_local_layer_head'),99999,1 );
 		
-		add_action( 'wp_head', array( $this, 'get_hosted_page_header'),99999 );
-		
-		add_filter( 'the_content', array($this,'get_hosted_page_content'),99999 );
-	
 		add_filter( 'preview_post_link', array($this,'filter_preview_layer_link'),99999,2 );
 		
 		// layer parameters
@@ -666,7 +664,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $can_customize_url;
 	}
 	
-	public function get_default_layer_fields($post=null){
+	public function get_default_layer_fields($fields,$post=null){
 		
 		if( empty($this->defaultFields) ){
 		
@@ -680,7 +678,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			//get layer type
 			
 			$layer_type = $this->get_layer_type($post);			
-			
+		
 			/*
 			//get layer types
 
@@ -752,7 +750,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'label'			=> '',
 				'description'	=>''
 			);
-
+			
 			if( !empty($layer_type->output) ){
 				
 				// json object
@@ -1477,8 +1475,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $user_projects;
 	}
 
-	public function get_user_layer_fields($post=null){
-		 
+	public function get_user_layer_fields($fields,$post=null){
+		
 		if( empty($this->userFields) ){
 			
 			//get post
@@ -1492,174 +1490,129 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$default_id = $this->get_default_id($post->ID);
 				
-				/*
+				$metabox = array( 
+					
+					'name' 		=> 'ltple_settings',
+					'title' 	=> __( 'LTPLE Settings', 'live-template-editor-client' ), 
+					'screen'	=> array($post->post_type),
+					'context' 	=> 'advanced',
+					'frontend'	=> false,
+				);
+
 				$this->userFields[]=array(
 				
-					'metabox' => array( 
-					
-						'name' 		=> 'default_layer_id',
-						'title' 	=> __( 'Default Template', 'live-template-editor-client' ), 
-						'screen'	=> array($post->post_type),
-						'context' 	=> 'advanced',
-						'frontend'	=> false,
-					),
-					'type'			=> 'edit_layer',
+					'metabox' 		=> $metabox,
+					'type'			=> $default_id > 0 ? 'text' : 'hidden',
 					'id'			=> 'defaultLayerId',
-					'label'			=> 'Default Template ID',
+					'label'			=> $default_id > 0 ? 'Default ID' : '',
 					'placeholder'	=> '',
 					'description'	=> '',
 					'disabled'		=> true,
 					'data'			=> $default_id
 				);
-				*/
-
-				if( $default_id > 0 ){	
 					
-					$layer_type = $this->get_layer_type($post);
+				$layer_type = $this->get_layer_type($post);
+				
+				if( $this->is_html_output($layer_type->output) ){
 					
-					if( $this->is_html_output($layer_type->output) ){
+					$this->userFields[] = array(
+					
+						'metabox' 		=> $metabox,
+						'type'			=> 'textarea',
+						'id'			=> 'layerContent',
+						'label'			=> 'HTML',
+						'placeholder'	=> "HTML content",
+						'htmlentities'	=> true,
+						'description'	=>''
+					);
+											
+					$this->userFields[] = array(
+					
+						'metabox' 		=> $metabox,
+						'type'			=> 'textarea',
+						'id'			=> 'layerCss',
+						'label'			=> 'CSS',
+						'placeholder'	=> "Internal CSS style sheet",
+						'stripcslashes'	=> false,
+						'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+					);
+					
+					$this->userFields[] = array(
+					
+						'metabox' 		=> $metabox,
+						'type'			=> 'textarea',
+						'id'			=> 'layerJs',
+						'label'			=> 'Javascript',
+						'placeholder'	=> "Additional Javascript",
+						'stripcslashes'	=> false,
+						'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+					);
+					
+					if( $this->is_public_output($layer_type->output) ){
+					
+						$this->userFields[] = array(
 						
-						$this->userFields[]=array(
-						
-							'metabox' => array( 
-							
-								'name' 		=> 'layer-content',
-								'title' 	=> __( 'Template HTML', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend'	=> false,
-							),
+							'metabox' 		=> $metabox,
 							'type'			=> 'textarea',
-							'id'			=> 'layerContent',
-							'label'			=> '',
-							'placeholder'	=> "HTML content",
+							'id'			=> 'layerDescription',
+							'label'			=> 'Short Description',
+							'placeholder'	=> 'Short text description',
 							'htmlentities'	=> true,
-							'description'	=>''
-						);
-						
-						if( $this->is_public_output($layer_type->output) ){
-						
-							$this->userFields[]=array(
-							
-								'metabox' => array( 
-								
-									'name' 		=> 'layer-description',
-									'title' 	=> __( 'Description', 'live-template-editor-client' ), 
-									'screen'	=> array($post->post_type),
-									'context' 	=> 'side',
-									'frontend'	=> true,
-								),
-								'type'			=> 'textarea',
-								'id'			=> 'layerDescription',
-								'label'			=> '',
-								'placeholder'	=> 'Short text description',
-								'htmlentities'	=> true,
-								'description'	=> '<span style="float:right;font-size:10px;">max 500 words</span>',
-								'style'			=> 'height:100px;',
-							);
-						}
-						
-						$this->userFields[]=array(
-						
-							'metabox' => array( 
-							
-								'name' 		=> 'layer-css',
-								'title' 	=> __( 'Template CSS', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend'	=> false,
-							),
-							'type'			=> 'textarea',
-							'id'			=> 'layerCss',
-							'label'			=> '',
-							'placeholder'	=> "Internal CSS style sheet",
-							'stripcslashes'	=> false,
-							'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-						);
-						
-						$this->userFields[]=array(
-						
-							'metabox' => array( 
-							
-								'name' 		=> 'layer-js',
-								'title' 	=> __( 'Template JS', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend'	=> false,
-							),
-							'type'			=> 'textarea',
-							'id'			=> 'layerJs',
-							'label'			=> '',
-							'placeholder'	=> "Additional Javascript",
-							'stripcslashes'	=> false,
-							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+							'description'	=> '<span style="float:right;font-size:10px;">max 500 words</span>',
+							'style'			=> 'height:100px;',
 						);
 					}
-					
-					if( $post->post_type == 'user-page' ){
-						
-						$options = array(
-							
-							'-1' => 'None'
-						);						
-						
-						if( $menus = get_posts( array(
-							
-							'post_type' 	=> 'user-menu',
-							'post_status' 	=> 'publish',
-							'author' 		=> $post->post_author,
-							
-						))){
-
-							foreach( $menus as $menu ){
-								
-								$options[$menu->ID] = ucfirst($menu->post_title);
-							}
-						}
-							
-						$this->userFields[]=array(
-						
-							'metabox' => array( 
-							
-								'name' 		=> 'page-layout',
-								'title' 	=> __( 'Layout', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend'	=> true,
-							),
-							'type'			=> 'select',
-							'id'			=> 'layerMenuId',
-							'label'			=> 'Menu',
-							'description'	=> '',
-							'options'		=> $options,
-							'class'			=> 'col-xs-6',
-						);
-						
-						/*
-						$this->userFields[]=array(
-						
-							'metabox' => array( 
-							
-								'name' 		=> 'layer-layout',
-								'title' 	=> __( 'Template Layout', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'side',
-								'frontend'	=> true,
-							),
-							'type'			=> 'select',
-							'id'			=> 'layerFooter',
-							'label'			=> 'Footer',
-							'description'	=> '',
-							'options'		=> array(
-							
-								'-1' => 'None'
-							),
-						);
-						*/
-					}
-					
-					do_action('ltple_user_layer_fields',$post);
 				}
+				
+				if( $post->post_type == 'user-page' ){
+					
+					$options = array(
+						
+						'-1' => 'None'
+					);						
+					
+					if( $menus = get_posts( array(
+						
+						'post_type' 	=> 'user-menu',
+						'post_status' 	=> 'publish',
+						'author' 		=> $post->post_author,
+						
+					))){
+
+						foreach( $menus as $menu ){
+							
+							$options[$menu->ID] = ucfirst($menu->post_title);
+						}
+					}
+						
+					$this->userFields[]=array(
+					
+						'metabox' 		=> $metabox,
+						'type'			=> 'select',
+						'id'			=> 'layerMenuId',
+						'label'			=> 'Menu',
+						'description'	=> '',
+						'options'		=> $options,
+						'class'			=> 'col-xs-6',
+					);
+					
+					/*
+					$this->userFields[]=array(
+					
+						'metabox' 		=> $metabox,,
+						'type'			=> 'select',
+						'id'			=> 'layerFooter',
+						'label'			=> 'Footer',
+						'description'	=> '',
+						'options'		=> array(
+						
+							'-1' => 'None'
+						),
+					);
+					*/
+				}
+				
+				do_action('ltple_user_layer_fields',$post,$metabox);
 			}
 		}
 		
@@ -2656,8 +2609,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						// get layer css
 
-						$this->layerCss = get_post_meta( $this->id, 'layerCss', true );
-						
+						$this->layerCss = $this->parse_css_content(get_post_meta( $this->id, 'layerCss', true ),'');
+
 						if( $this->layerCss == '' && $this->id != $this->defaultId ){
 							
 							if( $this->layerOutput != 'hosted-page' ){
@@ -3011,7 +2964,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		// restore unicode numbers
 		
 		$content = str_replace('\\\\','\\',$content);
-		
+
 		// correct minor bugs
 		
 		$content = str_replace(
@@ -3027,6 +2980,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 		$content);
 		
+		// normalize white spaces
+
+		$content = preg_replace('/[\t\r\n]+/S', '', $content);
+
 		return $content;
 	}
 	
@@ -5440,7 +5397,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $content;
 	}
 	
-	public function get_hosted_page_header(){
+	public function filter_local_layer_head(){
 		
 		if( $this->parent->profile->id > 0 ){
 			
@@ -5450,20 +5407,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$post = get_post();
 		}
-
+		
 		if( !isset($_REQUEST['uri']) && $this->is_local($post) && !empty($this->layerOutput) && $this->layerOutput == 'hosted-page' ){
 			
 			echo $this->layerHeadContent;
 		}
 	}
 	
-	public function get_hosted_page_content($content){
+	public function filter_local_layer_content($content,$layer){
 		
-		$post = get_post();
+		if( $layer->output == 'hosted-page' ){
 		
-		if( !isset($_REQUEST['uri']) && $this->is_local($post) && !empty($this->layerOutput) && $this->layerEcho === true && $this->layerOutput == 'hosted-page' ){
-			
-			$content = $this->layerBodyContent;
+			if( $layer->area == 'frontend' && $this->layerEcho === true ){
+				
+				$content = $this->layerBodyContent;
+			}
+			elseif( $layer->area == 'backend' && !empty($this->layerStyleClasses) ){
+				
+				$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . $content . '</div>';
+			}
 		}
 		
 		return $content;
@@ -5491,78 +5453,71 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $url;
 	}
 	
-	public function add_backend_layer_scripts( $layer ){
-
-		if( !empty($this->layerCssLibraries) ){
-			
-			foreach($this->layerCssLibraries as $term){
-				
-				$class = 'style-' . $term->term_id;
-				
-				$this->layerStyleClasses[] = $class;
-				
-				$css_url = $this->get_css_parsed_url($term);
-				
-				if( !empty($css_url) ){
-					
-					$css_url = $this->sanitize_url($css_url);
-					
-					if( !empty($css_url) ){
-
-						wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
-						wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
-					}					
-				}
-				else{
-				
-					$css_url = $this->sanitize_url(get_option( 'css_url_' . $term->slug));
-					
-					if( !empty($css_url) ){
-
-						wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
-						wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
-					}
-					
-					$css_content = get_option( 'css_content_' . $term->slug);
-					
-					if( !empty($css_content) ){
-						
-						wp_register_style( $this->parent->_token . '-layer-inline-' . $class, false, array());
-						wp_enqueue_style( $this->parent->_token . '-layer-inline-' . $class );
+	public function add_local_layer_scripts( $layer ){
 		
-						wp_add_inline_style( $this->parent->_token . '-layer-inline-' . $class, stripcslashes($css_content));
+		if(!isset($_GET['uri'])){
+			
+			if( !empty($this->layerCssLibraries) ){
+				
+				foreach($this->layerCssLibraries as $term){
+					
+					$class = 'style-' . $term->term_id;
+					
+					$this->layerStyleClasses[] = $class;
+					
+					$css_url = $this->get_css_parsed_url($term);
+					
+					if( !empty($css_url) ){
+						
+						$css_url = $this->sanitize_url($css_url);
+						
+						if( !empty($css_url) ){
+
+							wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
+							wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
+						}					
+					}
+					else{
+					
+						$css_url = $this->sanitize_url(get_option( 'css_url_' . $term->slug));
+						
+						if( !empty($css_url) ){
+
+							wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
+							wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
+						}
+						
+						$css_content = get_option( 'css_content_' . $term->slug);
+						
+						if( !empty($css_content) ){
+							
+							wp_register_style( $this->parent->_token . '-layer-inline-' . $class, false, array());
+							wp_enqueue_style( $this->parent->_token . '-layer-inline-' . $class );
+			
+							wp_add_inline_style( $this->parent->_token . '-layer-inline-' . $class, stripcslashes($css_content));
+						}
 					}
 				}
 			}
-		}
-		
-		if( !empty($this->defaultCss) ){
 			
-			$defaultCss = $this->parse_css_content($this->defaultCss, '.layer-' . $this->defaultId);
+			if( !empty($this->defaultCss) ){
+				
+				$defaultCss = $this->parse_css_content($this->defaultCss, '.layer-' . $this->defaultId);
+				
+				wp_register_style( $this->parent->_token . '-layer-default-css', false, array());
+				wp_enqueue_style( $this->parent->_token . '-layer-default-css' );
 			
-			wp_register_style( $this->parent->_token . '-layer-default-css', false, array());
-			wp_enqueue_style( $this->parent->_token . '-layer-default-css' );
-		
-			wp_add_inline_style( $this->parent->_token . '-layer-default-css',$defaultCss);
-		}
-		
-		if( !empty($this->layerCss) ){
-						
-			wp_register_style( $this->parent->_token . '-layer-custom-css', false, array());
-			wp_enqueue_style( $this->parent->_token . '-layer-custom-css' );
-		
-			wp_add_inline_style( $this->parent->_token . '-layer-custom-css',$this->layerCss);
-		}
-	}
-	
-	public function filter_backend_layer_content( $content ){
-
-		if( !empty($this->layerStyleClasses) ){
+				wp_add_inline_style( $this->parent->_token . '-layer-default-css',$defaultCss);
+			}
 			
-			$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . $content . '</div>';
+			if( !empty($this->layerCss) ){
+							
+				wp_register_style( $this->parent->_token . '-layer-custom-css', false, array());
+				wp_enqueue_style( $this->parent->_token . '-layer-custom-css' );
+			
+				wp_add_inline_style( $this->parent->_token . '-layer-custom-css',$this->layerCss);
+			}
 		}
-		
-		return $content;
 	}
 	
 	public function output_static_layer( $output ){

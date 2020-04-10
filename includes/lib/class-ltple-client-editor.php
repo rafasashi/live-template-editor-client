@@ -193,6 +193,20 @@ class LTPLE_Client_Editor {
 			} 
 		}
 		
+		if( !empty($elemLibraries) ){
+			
+			foreach( $elemLibraries as $e => $elements ){
+				
+				foreach( $elements['image'] as $i => $image ){
+				
+					if( empty($image) ){
+				
+						$elemLibraries[$e]['image'][$i] = $this->parent->assets_url . 'images/default-element.jpg';
+					}
+				}
+			}
+		}
+		
 		return $elemLibraries;
 	}
 	
@@ -311,7 +325,7 @@ class LTPLE_Client_Editor {
 		}
 		else{
 			
-			if( !empty($_POST) || !$this->parent->layer->is_local($layer->ID) ){
+			if( !empty($_POST) || $layer->output == 'canvas' ){
 				
 				// content based preview
 				

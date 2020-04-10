@@ -129,11 +129,23 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				case 'url':
 				case 'email':
 					
-					$html .= '<span class="form-group" style="margin:7px 0;">';
+					if( !empty($disabled) ){
 						
-						$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+						$html .= '<span class="form-group" style="margin:7px 0;">';
+							
+							$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="disabled_' . esc_attr( $option_name ) . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '" '.$disabled.'/>' . "\n";
+							$html .= '<input type="hidden" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '" '.$required.'/>' . "\n";
+						 
+						$html .= '</span>';						
+					}
+					else{
 					
-					$html .= '</span>';
+						$html .= '<span class="form-group" style="margin:7px 0;">';
+							
+							$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '" '.$required.$disabled.'/>' . "\n";
+						
+						$html .= '</span>';
+					}
 					
 				break;
 				
@@ -1903,11 +1915,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							if (file_frame) file_frame.close();
 
 							file_frame = wp.media.frames.file_frame = wp.media({
-							  title: $(this).data(\'uploader-title\'),
-							  button: {
-								text: $(this).data(\'uploader-button-text\'),
-							  },
-							  multiple: true
+								
+								title	: $(this).data(\'uploader-title\'),
+								frame	: \'select\',
+								library	: { type: \'image\'},
+								button	: {
+									
+									text: $(this).data(\'uploader-button-text\'),
+								},
+								multiple: true
 							});
 
 							file_frame.on(\'select\', function() {

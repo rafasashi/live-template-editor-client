@@ -56,6 +56,16 @@
 					echo'</a>';	
 					
 				echo'</div>';
+				
+				echo'<div class="pull-left hidden-xs">';
+
+					echo'<a style="color:' . $ltple->settings->mainColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->gallery . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Item Gallery" data-content="The item gallery is where you can start, edit and deploy a new project. Check the plans to unlock more ranges.">';
+						
+						echo'Gallery';
+					
+					echo'</a>';
+				
+				echo'</div>';
 
 				echo'<div class="pull-left hidden-xs">';
 
