@@ -1038,7 +1038,7 @@ class LTPLE_Client_Profile {
 
 							'id' 			=> $this->parent->_base . 'app_profile_' . $app->ID,
 							'label'			=> ucfirst($app->user_name),
-							'description'	=> 'Add <a target="_blank" href="' . $app->user_profile . '">' . ucfirst($app->user_name) . ' <span class="fa fa-external-link" style="font-weight:bold;font-size:10px;"></span></a> social icon in My Profile',
+							'description'	=> 'Add <a target="_blank" href="' . $app->user_profile . '">' . ucfirst($app->user_name) . ' <span class="fa fa-external-link-alt" style="font-weight:bold;font-size:10px;"></span></a> social icon in My Profile',
 							'type'			=> 'switch',
 							'default'		=> 'on',
 						);						

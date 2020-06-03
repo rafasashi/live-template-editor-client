@@ -15,17 +15,21 @@ class LTPLE_Client_Network extends LTPLE_Client_Object {
 		
 		$this->parent 	= $parent;
 		
-		$post_types = array('user','cb-default-layer');
+		$post_types = array(
+		
+			'user',
+			'cb-default-layer'
+		);
 
 		$this->parent->register_taxonomy( 'user-contact', __( 'Users', 'live-template-editor-client' ), __( 'User', 'live-template-editor-client' ), $post_types, array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> false,
-			'show_ui' 				=> false,
+			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
-			'show_admin_column' 	=> true,
+			'show_admin_column' 	=> false,
 			'update_count_callback' => '',
 			'show_in_rest'          => false,
 			'rewrite' 				=> true,

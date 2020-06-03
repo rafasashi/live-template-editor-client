@@ -26,6 +26,15 @@ class LTPLE_Client_Server {
 		
 		if( !empty($this->url) ){
 			
+			if( defined('REW_DEV_PATH') && REW_DEV_PATH === true ){
+				
+				// set dev url
+				
+				$this->url .= '.d1.recuweb.com';
+				
+				$this->url = str_replace('https://','http://',$this->url); 
+			}
+			
 			// set access control
 			
 			$url = parse_url($this->url);
@@ -43,6 +52,4 @@ class LTPLE_Client_Server {
 		
 		return $url;
 	}
-	
-	
 }

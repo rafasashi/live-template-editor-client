@@ -74,7 +74,9 @@ class LTPLE_Client_Product {
 					$this->{$key} = $value;
 				}
 				
-				$this->image = get_the_post_thumbnail_url($q->ID);
+				$image = get_the_post_thumbnail_url($q->ID);
+				
+				$this->image = !empty($image) ? $image : $this->parent->assets_url . 'images/default_item.png';
 				
 				$layer_plan = $this->parent->plan->get_layer_options($q->ID);
 

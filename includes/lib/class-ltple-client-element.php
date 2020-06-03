@@ -31,31 +31,6 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			)
 		);
 		
-		add_action( 'add_meta_boxes', function(){
-
-			global $post;
-			
-			if( $post->post_type == 'user-element' ){
-				
-				$this->parent->admin->add_meta_box (
-					
-					'element-content',
-					__( 'HTML content', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
-				
-				$this->parent->admin->add_meta_box (
-					
-					'element-image',
-					__( 'Image URL', 'live-template-editor-client' ), 
-					array($post->post_type),
-					'advanced'
-				);
-			}
-
-		});		
-
 		add_filter('init', array( $this, 'init_element' ));
 		
 		add_filter('admin_init', array( $this, 'init_element_backend' ));

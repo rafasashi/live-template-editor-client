@@ -494,9 +494,6 @@ class LTPLE_Client_Plan {
 		
 			'id'		 	=> NULL,
 			'widget' 		=> 'false',
-			'title' 		=> NULL,
-			'thumb' 		=> false,
-			'content' 		=> NULL,
 			'button' 		=> NULL,
 			'attributes' 	=> true
 			
@@ -519,30 +516,6 @@ class LTPLE_Client_Plan {
 				//get plan options
 				
 				$plan_options = $plan['options'];
-				
-				//get plan title
-				
-				if(is_string($atts['title'])){
-					
-					$plan_title = $atts['title'];
-				}
-				else{
-					
-					$plan_title = $plan['title'];
-				}
-				
-				//get plan content
-				
-				if(is_string($atts['content'])){
-					
-					$plan_content 	= $atts['content'];
-					$style			= 'font-weight: bold;color:' . $this->parent->settings->mainColor . ';';
-				}
-				else{
-					 
-					$plan_content 	= $plan['content'];
-					$style 			= 'margin-bottom: 0;padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);';
-				}
 
 				// get total_price_amount & total_storage
 				
@@ -580,6 +553,21 @@ class LTPLE_Client_Plan {
 
 				$this->shortcode = '';
 				
+				if(!empty($_SESSION['message'])){ 
+				
+					//output message
+				
+					$this->shortcode .= $_SESSION['message'];
+					
+					$_SESSION['message'] = '';
+				}						
+				elseif(!empty($this->message)){ 
+				
+					//output message
+				
+					$this->shortcode .= $this->message;
+				}	
+
 				if( !is_null($atts['widget']) && $atts['widget']==='true' ){
 					
 					$this->shortcode .= '<div class="modal-body" style="padding:0px;">'.PHP_EOL;
@@ -590,51 +578,9 @@ class LTPLE_Client_Plan {
 				
 					$this->shortcode .= '</div>';
 				}
-				else{
-										
-					$this->shortcode .='<h2 id="plan_title" style="'.$style.'">' . $plan_title . '</h2>';
-					
-					if(!empty($_SESSION['message'])){ 
-					
-						//output message
-					
-						$this->shortcode .= $_SESSION['message'];
-						
-						$_SESSION['message'] = '';
-					}						
-					elseif(!empty($this->message)){ 
-					
-						//output message
-					
-						$this->shortcode .= $this->message;
-					}				
-					
-					if( $atts['thumb'] ){
-					
-						if( $plan_thumb = get_the_post_thumbnail_url($plan_id) ){
-							
-							$this->shortcode .='<div id="plan_thumb">';
-								
-								$this->shortcode .= '<img src="'.$plan_thumb.'" style="width:100%;">';
-							
-							$this->shortcode .='</div>';
-						}
-						else{
-
-							$this->shortcode .='<div id="plan_thumb" style="background-size:cover;background-repeat: no-repeat;background-position: center center;width:100%;height:200px;background-image:url(\''.$this->parent->assets_url . 'images/plan_background.jpg'.'\');"></div>';
-						}
-					}		
+				else{		
 
 					$this->shortcode .='<div id="plan_form">';
-						
-						if( !empty($plan_content) ){
-						
-							$this->shortcode .='<div class="well text-left">';
-							
-								$this->shortcode .= $plan_content;
-							
-							$this->shortcode .='</div>';
-						}
 						
 						// Output iframe
 						
@@ -2255,15 +2201,15 @@ class LTPLE_Client_Plan {
 			
 			// get stored user plan value
 			
-			$user_plan_value = get_post_meta( $user_plan_id, 'userPlanValue',true );
+			$user_plan_value = intval( get_post_meta( $user_plan_id, 'userPlanValue',true ) );
 			
 			// compare it with current value
 			
-			if( $user_plan_value=='' || $this->user_plans[$user_id]['info']['total_price_amount'] != intval($user_plan_value) ){
+			if( empty($user_plan_value) || $this->user_plans[$user_id]['info']['total_price_amount'] != $user_plan_value ){
 
 				update_post_meta( $user_plan_id, 'userPlanValue', $this->user_plans[$user_id]['info']['total_price_amount'] );
 			}
-
+			
 			do_action('ltple_user_plan_info',$user_id);
 		}
 

@@ -18,7 +18,9 @@ class LTPLE_Client_Rights {
 		
 			'view-backend'=>'View Backend'
 		);
-	
+		
+		add_action( 'init', array( $this, 'init' ));
+		
 		/*
 		
 		// add rights taxonomy custom fields
@@ -32,6 +34,21 @@ class LTPLE_Client_Rights {
 		add_action( 'edit_user_profile_update', array( $this, 'save_user_rights' ) );
 		
 		*/
+	}
+	
+	public function init(){
+		
+		// set administrator capabilities 
+		
+		$role = get_role('administrator');
+		
+		empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;	
+		
+		// set subscriber capabilities 
+		
+		$role = get_role('subscriber');
+		
+		empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;
 	}
 	
 	public function get_user_rights( $user ) {
@@ -57,7 +74,7 @@ class LTPLE_Client_Rights {
 				}
 					
 			echo'</div>';
-		}	
+		}
 	}
 	
 	public function save_user_rights( $user_id ) {

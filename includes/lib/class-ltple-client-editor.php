@@ -325,7 +325,7 @@ class LTPLE_Client_Editor {
 		}
 		else{
 			
-			if( !empty($_POST) || $layer->output == 'canvas' ){
+			if( !empty($_POST) || empty($layer->urls['preview']) ){
 				
 				// content based preview
 				
@@ -415,7 +415,7 @@ class LTPLE_Client_Editor {
 			
 			$modal_css = 'position:absolute;top:0;left:0;right:0;width:100%!important;margin:0;bottom:0;';
 					
-			$iframe_css = 'margin-top:-64px;position:relative;width:100%;top:0;bottom:0;border:0;height:40vh;'; 
+			$iframe_css = 'margin-top:-64px;position:relative;width:100%;top:0;bottom:0;border:0;height:calc( 100vh - 55px);'; 
 			
 			$editor .= '<div class="modal fade" id="media_library_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">';
 				$editor .= '<div class="modal-dialog modal-lg" role="document" style="' . $modal_css . '">';

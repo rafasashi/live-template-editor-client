@@ -104,7 +104,7 @@
 	// replace image sources
 	
 	$layerContent = str_replace(array('src =','src= "'),array('src=','src="'),$layerContent);
-	$layerContent = str_replace(array($layerImgProxy,'src="'),array('','src="'.$layerImgProxy),$layerContent);			
+	//$layerContent = str_replace(array($layerImgProxy,'src="'),array('','src="'.$layerImgProxy),$layerContent);			
 	
 	// replace background images
 

@@ -50,7 +50,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 		
-		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Items', 'live-template-editor-client' ), __( 'Default Item', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Templates', 'live-template-editor-client' ), __( 'Default Template', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
@@ -139,7 +139,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'query_var' 			=> true,
 			'can_export' 			=> true,
 			'rewrite' 				=> false,
-			'capability_type' 		=> 'post',
+			'capability_type' 		=> 'user-page', 
 			'has_archive' 			=> true,
 			'hierarchical' 			=> false,
 			'show_in_rest' 			=> false,
@@ -165,7 +165,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'query_var' 			=> true,
 			'can_export' 			=> true,
 			'rewrite' 				=> false,
-			'capability_type' 		=> 'post',
+			'capability_type' 		=> 'user-page',
 			'has_archive' 			=> false,
 			'hierarchical' 			=> false,
 			'show_in_rest' 			=> false,
@@ -180,7 +180,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			return 'frontend';
 		});
 
-		$this->parent->register_taxonomy( 'layer-type', __( 'Editors', 'live-template-editor-client' ), __( 'Editor', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd','user-page','user-menu'), array(
+		$this->parent->register_taxonomy( 'layer-type', __( 'Template Gallery', 'live-template-editor-client' ), __( 'Template Gallery', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd','user-page','user-menu'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -506,11 +506,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$post_type = $post;
 		}
 		
-		$object = get_post_type_object( $post_type );
-		
-		if( $object->publicly_queryable === true ){
+		if( $object = get_post_type_object( $post_type ) ){
 			
-			$is_public = true;
+			if( $object->publicly_queryable === true ){
+				
+				$is_public = true;
+			}
 		}
 		
 		return $is_public;
@@ -582,7 +583,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					foreach( $default_layers as $layer ){
 						
-						if( $layer_type = $this->parent->layer->get_layer_type($layer)){
+						$layer_type = $this->parent->layer->get_layer_type($layer);
+						
+						if( !empty($layer_type->slug) ){
 							
 							// count type
 							
@@ -1125,7 +1128,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function is_html_output($output){
 					
-		$html_output = apply_filters('ltple_layer_html_output',array(
+		$outputs = apply_filters('ltple_layer_html_output',array(
 			'post',
 			'page',
 			'inline-css',
@@ -1134,7 +1137,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'canvas',
 		));
 		
-		if( in_array($output,$html_output) ){
+		if( in_array($output,$outputs) ){
 			
 			return true;
 		}
@@ -1144,7 +1147,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function has_html_elements($output){
 					
-		$html_elements = apply_filters('ltple_layer_html_elements',array(
+		$outputs = apply_filters('ltple_layer_html_elements',array(
 		
 			'inline-css',
 			'external-css',
@@ -1152,7 +1155,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'canvas',
 		));
 		
-		if( in_array($output,$html_elements) ){
+		if( in_array($output,$outputs) ){
 			
 			return true;
 		}
@@ -1267,7 +1270,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$steps = array();
 		
 		if( $layer_type = $this->get_layer_type($layer) ){
-
+			
 			if( $install = get_term_meta($layer_type->term_id,'installation',true) ){
 				
 				$title =  $this->get_output_name($layer_type->output) . ' installation for ' . $layer_type->name;
@@ -1295,7 +1298,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$install .= '<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
 						  
-							$install .= '<i class="fa fa-cloud-download" aria-hidden="true"></i> ';
+							$install .= '<i class="fa fa-cloud-download-alt" aria-hidden="true"></i> ';
 						  
 							$install .= $title;
 						
@@ -1638,14 +1641,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function get_output_name($slug){
-	
-		$editors = $this->get_layer_editors();
 		
-		$editor_name = $editors[$slug];
+		$editor_name = 'Template';
 		
-		if( $this->is_html_output($slug) ){
+		if( !empty($slug) ){
 			
-			$editor_name .= ' template';
+			$editors = $this->get_layer_editors();
+			
+			if( !empty($editors[$slug]) ){
+				
+				$editor_name = $editors[$slug];
+				
+				if( $this->is_html_output($slug) ){
+					
+					$editor_name .= ' template';
+				}
+			}
 		}
 		
 		return $editor_name;
@@ -2498,7 +2509,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function get_default_id($id){
 		
 		if( !isset($this->default_ids[$id]) ){
-		
+			
 			$this->default_ids[$id] = intval(get_post_meta( $id, 'defaultLayerId', true ));
 		}
 		

@@ -183,7 +183,16 @@ class LTPLE_Client_Settings {
 			
 				foreach( $this->tabs[$this->tabIndex] as $tab => $data ){
 					
-					echo '<a class="nav-tab '.( $tab == $post_type ? 'nav-tab-active' : '' ).'" href="edit.php?post_type='.$tab.'">'.$data['name'].'</a>';
+					if( !empty($data['type']) && $data['type'] == 'taxonomy' ){
+						
+						$url = 'edit-tags.php?taxonomy='.$tab . ( !empty($data['post-type']) ? '&post_type='.$data['post-type'] : '' );
+					}
+					else{
+						
+						$url = 'edit.php?post_type='.$tab;
+					}
+					
+					echo '<a class="nav-tab '.( $tab == $post_type ? 'nav-tab-active' : '' ).'" href="'.$url.'">'.$data['name'].'</a>';
 				}
 				
 			echo '</h2>';
@@ -207,7 +216,16 @@ class LTPLE_Client_Settings {
 		
 			foreach( $this->tabs[$this->tabIndex] as $tab => $data ){
 				
-				echo '<a class="nav-tab '.( $tab == $taxonomy ? 'nav-tab-active' : '' ).'" href="edit-tags.php?taxonomy='.$tab . ( !empty($data['post-type']) ? '&post_type='.$data['post-type'] : '' ) . '">'.$data['name'].'</a>';
+				if( !empty($data['type']) && $data['type'] == 'taxonomy' ){
+					
+					$url = 'edit-tags.php?taxonomy='.$tab . ( !empty($data['post-type']) ? '&post_type='.$data['post-type'] : '' );
+				}
+				else{
+					
+					$url = 'edit.php?post_type='.$tab;
+				}
+					
+				echo '<a class="nav-tab '.( $tab == $taxonomy ? 'nav-tab-active' : '' ).'" href="'.$url.'">'.$data['name'].'</a>';
 			}
 			
 		echo '</h2>';
@@ -415,38 +433,22 @@ class LTPLE_Client_Settings {
 				'admin.php?page=' . $this->plugin->slug . '&tab=addons'
 			);
 		}
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Gallery Settings', $this->plugin->slug ),
-			__( 'Gallery Settings', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=cb-default-layer&taxonomy=layer-type'
-		);
 
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Default Items', $this->plugin->slug ),
-			__( 'Default Items', $this->plugin->slug ),
+			__( 'Default Contents', $this->plugin->slug ),
+			__( 'Default Contents', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=cb-default-layer'
 		);
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'User Projects', $this->plugin->slug ),
-			__( 'User Projects', $this->plugin->slug ),
+			__( 'User Contents', $this->plugin->slug ),
+			__( 'User Contents', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=user-layer'
 		);
-
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Web Resources', $this->plugin->slug ),
-			__( 'Web Resources', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=cb-default-layer&taxonomy=css-library'
-		);		
 		
 		/*
 		add_submenu_page(
@@ -460,15 +462,8 @@ class LTPLE_Client_Settings {
 		
 		add_submenu_page(
 			$this->plugin->slug,
-			__( 'Services & Apps', $this->plugin->slug ),
-			__( 'Services & Apps', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?post_type=subscription-plan&taxonomy=addon-service'
-		);
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Subscription Plans', $this->plugin->slug ),
-			__( 'Subscription Plans', $this->plugin->slug ),
+			__( 'Plan Settings', $this->plugin->slug ),
+			__( 'Plan Settings', $this->plugin->slug ),
 			'edit_pages',
 			'edit.php?post_type=subscription-plan'
 		);
@@ -848,8 +843,12 @@ class LTPLE_Client_Settings {
 		
 			'default-contents' => array(
 			
-				'cb-default-layer' 	=> array( 'name' => 'Items'),
+				'cb-default-layer' 	=> array( 'name' => 'Templates'),
 				'default-image' 	=> array( 'name' => 'Images'),
+				'css-library' 		=> array( 'name' => 'CSS', 		'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'js-library' 		=> array( 'name' => 'JS', 		'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'font-library' 		=> array( 'name' => 'Fonts', 	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'element-library' 	=> array( 'name' => 'Elements',	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),			
 			),
 			'user-contents' => array(
 			  
@@ -863,37 +862,28 @@ class LTPLE_Client_Settings {
 			),
 			'user-network' => array(
 			
-				'user-contact' 	=> array( 'name' => 'Emails', 'post-type' => '' ),
+				'user-contact' 	=> array( 'name' => 'Emails', 'type' => 'taxonomy', 'post-type' => '' ),
+			),
+			'plan-settings' => array(
+				
+				'subscription-plan' => array( 'name' => 'Plans' ),
+				'gallery-section' 	=> array( 'name' => 'Sections', 'type' => 'taxonomy' ),
+				'layer-type' 		=> array( 'name' => 'Galleries', 	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'layer-range' 		=> array( 'name' => 'Ranges', 	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'account-option' 	=> array( 'name' => 'Options', 	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'image-type' 		=> array( 'name' => 'Images', 	'type' => 'taxonomy', 'post-type' => 'default-image' ),
+				'addon-service' 	=> array( 'name' => 'Services', 'type' => 'taxonomy', 'post-type' => 'subscription-plan' ),
+				'app-type' 			=> array( 'name' => 'Apps', 	'type' => 'taxonomy', 'post-type' => 'user-app' ),			
+			),
+			'marketing-settings' => array(
+			
+				'marketing-channel' => array( 'name' => 'Channels', 'type' => 'taxonomy', 'post-type' => 'post' ),
 			),
 			'email-campaigns' => array(
 			
 				'email-model' 		=> array( 'name' => 'Models'),
 				'email-campaign' 	=> array( 'name' => 'Campaigns'),
 				'email-invitation' 	=> array( 'name' => 'Invitations'),
-			),
-			'gallery-settings' => array(
-				
-				'gallery-section' 	=> array( 'name' => 'Sections' ),
-				'layer-type' 		=> array( 'name' => 'Editors', 	'post-type' => 'cb-default-layer' ),
-				'layer-range' 		=> array( 'name' => 'Ranges', 	'post-type' => 'cb-default-layer' ),
-				'account-option' 	=> array( 'name' => 'Options', 	'post-type' => 'cb-default-layer' ),
-				'image-type' 		=> array( 'name' => 'Images', 	'post-type' => 'default-image' ),
-			),
-			'web-resources' => array(
-			
-				'css-library' 		=> array( 'name' => 'CSS', 		'post-type' => 'cb-default-layer' ),
-				'js-library' 		=> array( 'name' => 'JS', 		'post-type' => 'cb-default-layer' ),
-				'font-library' 		=> array( 'name' => 'Fonts', 	'post-type' => 'cb-default-layer' ),
-				'element-library' 	=> array( 'name' => 'Elements',	'post-type' => 'cb-default-layer' ),
-			),
-			'services-apps' => array(
-			
-				'addon-service' 	=> array( 'name' => 'Services', 'post-type' => 'subscription-plan' ),
-				'app-type' 			=> array( 'name' => 'Apps', 	'post-type' => 'user-app' ),
-			),
-			'marketing-settings' => array(
-			
-				'marketing-channel' => array( 'name' => 'Channels', 'post-type' => 'post' ),
 			),
 		);
 		

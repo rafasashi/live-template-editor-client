@@ -37,16 +37,16 @@
 						
 						echo '<a class="hidden-xs" title="Edit profile" href="' . $this->parent->urls->profile . '">';
 						
-							echo '<span class="fa fa-pencil" style="
+							echo '<span class="fas fa-pencil-alt" style="
 								color: #fff;
-								font-size: 28px;
+								font-size: 22px;
 								position: relative;
 								border: 4px solid #fff;
 								border-radius: 250px;
 								height: 45px;
 								width: 45px;
 								text-align: center;
-								padding: 5px;
+								padding: 7px;
 								box-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
 							"></span>';
 							

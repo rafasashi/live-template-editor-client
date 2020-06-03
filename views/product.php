@@ -189,13 +189,6 @@
 					echo'<p style="margin:5px;height:70px;overflow:hidden;">';
 
 						echo '<b>' . $this->post_title . '</b> is a ';
-						
-						/*
-						if( !empty($layer_type->name) ){
-							
-							echo '<b>'.$layer_type->name.'</b> ';
-						}
-						*/
 					
 						echo' '.$output_name.' ';
 						
@@ -217,39 +210,31 @@
 					
 						echo'<a href="https://twitter.com/intent/tweet?text=' . urlencode( 'Awesome ' . $this->post_title . '! ' . $product_url ) . '" target="_blank" title="share on twitter" style="margin:5px;">';
 						
-							echo'<i class="fa fa-twitter-square" aria-hidden="true"></i>';
+							echo'<i class="fab fa-twitter-square" aria-hidden="true"></i>';
 						
 						echo'</a>';
 						
 						echo'<a href="https://www.facebook.com/sharer/sharer.php?u='.urlencode( $product_url ).'&t='.urlencode( 'Awesome ' . $this->post_title . '!' ).'" target="_blank" title="share on facebook" style="margin:5px;">';
 					
-							echo'<i class="fa fa-facebook-square" aria-hidden="true"></i>';
+							echo'<i class="fab fa-facebook-square" aria-hidden="true"></i>';
 						
 						echo'</a>';
-						
-						/*
-						echo'<a href="https://plus.google.com/share?url='.urlencode( $product_url ).'" target="_blank" title="share on google plus" style="margin:5px;">';
-						
-							echo'<i class="fa fa-google-plus-square" aria-hidden="true"></i>';
-					
-						echo'</a>';
-						*/
 						
 						echo'<a href="http://pinterest.com/pin/create/link/?url='.urlencode( $product_url ).'&description='.urlencode( 'Awesome ' . $this->post_title . '!' ).'" target="_blank" title="share on pinterest" style="margin:5px;">';
 						
-							echo'<i class="fa fa-pinterest-square" aria-hidden="true"></i>';
+							echo'<i class="fab fa-pinterest-square" aria-hidden="true"></i>';
 					
 						echo'</a>';
 						
 						echo'<a href="https://www.linkedin.com/cws/share?url='.urlencode( $product_url ).'&title='.urlencode( $this->post_title ).'&summary='.urlencode( $this->post_excerpt ).'" target="_blank" title="share on linkedin" style="margin:5px;">';
 						
-							echo'<i class="fa fa-linkedin-square" aria-hidden="true"></i>';
+							echo'<i class="fab fa-linkedin" aria-hidden="true"></i>';
 					
 						echo'</a>';
 						
 						echo'<a href="https://www.reddit.com/submit?url='.urlencode( $product_url ).'&title='.urlencode( $this->post_title ) .'" target="_blank" title="share on reddit" style="margin:5px;">';
 						
-							echo'<i class="fa fa-reddit-square" aria-hidden="true"></i>';
+							echo'<i class="fab fa-reddit-square" aria-hidden="true"></i>';
 					
 						echo'</a>';
 					
@@ -266,8 +251,6 @@
 			echo'<div class="row">';
 			
 				echo'<div class="col-lg-12">';
-				
-					//echo do_shortcode('[ltple-client-checkout]');
 				
 					echo'<div class="well text-center">';
 					
