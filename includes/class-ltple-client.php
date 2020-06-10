@@ -1108,6 +1108,7 @@ class LTPLE_Client {
 			
 			// credit account credits from server
 			
+			/*
 			$credits_url = $this->server->url . '/agreement/?overview=' . $this->ltple_encrypt_uri($this->user->user_email) . '&credit';
 			
 			echo'<script>' . PHP_EOL;	
@@ -1135,21 +1136,14 @@ class LTPLE_Client {
 							
 							echo'refresh_account_credits();' . PHP_EOL;
 							
-							/*
-							echo'setInterval(function(){' . PHP_EOL;
-							
-								echo'refresh_account_credits();' . PHP_EOL;
-
-							echo'}, 60000);' . PHP_EOL;  // every minute
-							*/
-							
 						echo'}' . PHP_EOL;
 						
 					echo'});' . PHP_EOL;			
 
 				echo'})(jQuery);' . PHP_EOL;			
 			
-			echo'</script>';			
+			echo'</script>';
+			*/			
 			
 			// collect usr information
 

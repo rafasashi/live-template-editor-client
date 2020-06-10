@@ -99,27 +99,9 @@
 	
 	// normalize canvas content
 	
-	$layerContent = str_replace(array($layerImgProxy),array(''),$layerContent);		
+	$layerContent = str_replace($layerImgProxy,'',$layerContent);		
 	
-	// replace image sources
-	
-	$layerContent = str_replace(array('src =','src= "'),array('src=','src="'),$layerContent);
-	//$layerContent = str_replace(array($layerImgProxy,'src="'),array('','src="'.$layerImgProxy),$layerContent);			
-	
-	// replace background images
-
-	$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
-	$layerContent = preg_replace($regex, "$1$layerImgProxy$3$4", $layerContent);					
-
-	if(!empty($layerCss)){
-
-		$layerCss = str_replace(array($layerImgProxy),array(''),$layerCss);
-	
-		// replace background images
-
-		$regex = '`(background(?:-image)?: ?url\((["|\']?))([^"|\'\)]+)(["|\']?\))`';
-		$layerCss = preg_replace($regex, "$1$layerImgProxy$3$4", $layerCss);		
-	}	
+	$layerCss = str_replace($layerImgProxy,'',$layerCss);
 	
 	$layerContent = str_replace('<?xml encoding="UTF-8">','',$layerContent);
 	

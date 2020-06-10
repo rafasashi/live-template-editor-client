@@ -18,11 +18,7 @@ get_header();
 	
 	$download_button = '';
 	
-	if( $ltple->layer->layerOutput == 'canvas' ){
-		
-		$download_button = '<a href="'.add_query_arg('quick','',$ltple->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Start a quick collage</a>';
-	}
-	elseif( $ltple->layer->layerOutput == 'image' ){
+	if( $ltple->layer->layerOutput == 'image' ){
 		
 		$download_button = '<a href="'.add_query_arg('quick','',$ltple->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit image ( without saving )</a>';
 	}

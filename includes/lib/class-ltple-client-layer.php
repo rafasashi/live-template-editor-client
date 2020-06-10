@@ -322,34 +322,34 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		// default layer
 		
 		add_filter('manage_cb-default-layer_posts_columns', array( $this, 'set_default_layer_columns'));
-		add_action('manage_cb-default-layer_posts_custom_column', array( $this, 'add_default_layer_column_content'), 10, 2);
+		add_action('manage_cb-default-layer_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);
 		
 		// user layer
 		
 		add_filter('manage_user-layer_posts_columns', array( $this, 'set_user_layer_columns'));
-		add_action('manage_user-layer_posts_custom_column', array( $this, 'add_user_layer_column_content'), 10, 2);
+		add_action('manage_user-layer_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);
 		
 		// user page
 		
 		add_filter('manage_user-page_posts_columns', array( $this, 'set_user_layer_columns'));
-		add_action('manage_user-page_posts_custom_column', array( $this, 'add_user_layer_column_content'), 10, 2);		
+		add_action('manage_user-page_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);		
 		
 		// user menu
 		
 		add_filter('manage_user-menu_posts_columns', array( $this, 'set_user_layer_columns'));
-		add_action('manage_user-menu_posts_custom_column', array( $this, 'add_user_layer_column_content'), 10, 2);		
+		add_action('manage_user-menu_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);		
 		
 		// user psd
 		
 		add_filter('manage_user-psd_posts_columns', array( $this, 'set_user_layer_columns'));
-		add_action('manage_user-psd_posts_custom_column', array( $this, 'add_user_layer_column_content'), 10, 2);
+		add_action('manage_user-psd_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);
 				
 		// account option fields
 		
 		add_action('account-option_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );	
 	
 		add_filter('manage_edit-account-option_columns', array( $this, 'set_account_option_columns' ) );
-		add_filter('manage_account-option_custom_column', array( $this, 'add_layer_column_content' ),10,3);			
+		add_filter('manage_account-option_custom_column', array( $this, 'add_layer_tax_column_content' ),10,3);			
 	
 		add_action('create_account-option', array( $this, 'save_layer_taxonomy_fields' ) );
 		add_action('edit_account-option', array( $this, 'save_layer_taxonomy_fields' ) );	
@@ -359,7 +359,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('layer-type_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );
 	
 		add_filter('manage_edit-layer-type_columns', array( $this, 'set_layer_type_columns' ) );
-		add_filter('manage_layer-type_custom_column', array( $this, 'add_layer_column_content' ),10,3);		
+		add_filter('manage_layer-type_custom_column', array( $this, 'add_layer_tax_column_content' ),10,3);		
 		
 		add_action('create_layer-type', array( $this, 'save_layer_taxonomy_fields' ) );
 		add_action('edit_layer-type', array( $this, 'save_layer_taxonomy_fields' ) );	
@@ -369,7 +369,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('layer-range_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );
 	
 		add_filter('manage_edit-layer-range_columns', array( $this, 'set_layer_range_columns' ) );
-		add_filter('manage_layer-range_custom_column', array( $this, 'add_layer_column_content' ),10,3);
+		add_filter('manage_layer-range_custom_column', array( $this, 'add_layer_tax_column_content' ),10,3);
 	
 		add_action('create_layer-range', array( $this, 'save_layer_taxonomy_fields' ) );
 		add_action('edit_layer-range', array( $this, 'save_layer_taxonomy_fields' ) );			
@@ -1632,10 +1632,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'external-css'		=>'HTML + CSS',
 				'hosted-page'		=>'Hosted',
 				//'downloadable'	=>'Downloadable',
-				'canvas'			=>'Collage',
+				'canvas'			=>'HTML to PNG',
 				'image'				=>'Image',
 			));
-		}
+		} 
 		
 		return $this->editors;
 	}
@@ -4485,35 +4485,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function set_default_layer_columns($columns){
 		
 		$columns = 	array_slice($columns, 0, 3, true) +
-					array("elements" => "Elements") +
+					array("output" => "Output") +
 					array_slice($columns, 3, count($columns)-3, true);
 		
 		return $columns;
-	}
-	
-	public function add_default_layer_column_content($column_name, $post_id){
-		
-		if($column_name == 'elements') {
-			
-			$count = 0;
-			
-			$elements = get_post_meta( $post_id, 'layerElements', true );
-			
-			if( isset($elements['content']) && !empty($elements['content']) ){
-				
-				foreach( $elements['content'] as $content ){
-					
-					if( !empty($content) ){
-						
-						++$count;
-					}
-				}
-			}
-			
-			echo '<span>'.$count.'</span>';
-		}
-	}
-	
+	} 
+
 	public function set_user_layer_columns($columns){
 		
 		$columns = 	array_slice($columns, 0, 4, true) +
@@ -4523,7 +4500,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $columns;
 	}
 	
-	public function add_user_layer_column_content($column_name, $post_id){
+	public function add_layer_type_column_content($column_name, $post_id){
 		
 		if($column_name == 'output') {
 			
@@ -4553,7 +4530,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$this->columns['cb'] 			= '<input type="checkbox" />';
 		$this->columns['name'] 			= 'Name';
-		$this->columns['editor'] 		= 'Editor';
+		$this->columns['output'] 		= 'Output';
 		$this->columns['section'] 		= 'Section';
 		$this->columns['visibility'] 	= 'Visibility';
 		$this->columns['ranges'] 		= 'Ranges';
@@ -4608,14 +4585,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		return $this->columns;
 	}
-		
-	public function add_layer_column_content($content, $column_name, $term_id){
+	
+	public function add_layer_tax_column_content($content, $column_name, $term_id){
 		
 		$this->column = $content;
 		
 		if( $term = get_term($term_id) ){
 			
-			if($column_name === 'editor') {
+			if($column_name === 'output') {
 				
 				$editors = $this->get_layer_editors();
 				

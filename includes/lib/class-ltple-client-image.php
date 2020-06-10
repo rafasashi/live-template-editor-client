@@ -671,7 +671,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 							
 								// output message
 								
-								echo 'Collage uploaded';
+								echo 'Image uploaded';
 							}
 							else{
 								

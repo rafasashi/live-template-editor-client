@@ -26,7 +26,7 @@ class LTPLE_Client_Server {
 		
 		if( !empty($this->url) ){
 			
-			if( defined('REW_DEV_PATH') && REW_DEV_PATH === true ){
+			if( defined('REW_DEV_ENV') && REW_DEV_ENV === true ){
 				
 				// set dev url
 				
