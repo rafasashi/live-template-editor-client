@@ -437,11 +437,11 @@ class LTPLE_Client {
 				
 				if( $this->user->is_admin ){	
 				
-					$this->user->is_editor = true;	
+					$this->user->can_edit = true;	
 				}
 				else{
 				
-					$this->user->is_editor = current_user_can( 'editor', $this->user->ID );			
+					$this->user->can_edit = current_user_can( 'editor', $this->user->ID );			
 				}
 				
 				// get user notification settings
@@ -595,14 +595,14 @@ class LTPLE_Client {
 			
 		if( $this->user->is_admin ){	
 			
-			$this->user->is_editor = true;	
+			$this->user->can_edit = true;	
 		}
 		else{
 			
-			$this->user->is_editor = current_user_can( 'editor', $this->user->ID );
+			$this->user->can_edit = current_user_can( 'editor', $this->user->ID );
 		}
 		
-		if( !$this->user->is_admin || !$this->user->is_editor ){
+		if( !$this->user->is_admin || !$this->user->can_edit ){
 			
 			if(!WP_DEBUG){
 			
@@ -619,7 +619,7 @@ class LTPLE_Client {
 		
 		// set user role
 		
-		if( $this->user->is_editor && !current_user_can( 'list_users', $this->user->ID ) ){
+		if( $this->user->can_edit && !current_user_can( 'list_users', $this->user->ID ) ){
 		
 			// get user role
 
@@ -905,7 +905,7 @@ class LTPLE_Client {
 							
 							$path = $this->views . '/layer.php';
 						}
-						elseif( !empty($_GET['preview']) && $this->user->is_editor ){
+						elseif( !empty($_GET['preview']) && $this->user->can_edit ){
 							
 							$path = $this->views . '/layer.php';
 						}
@@ -1605,7 +1605,7 @@ class LTPLE_Client {
 					
 					//update layer
 					
-					if( $this->user->is_editor ){
+					if( $this->user->can_edit ){
 					
 						if( $this->layer->type == $this->layer->layerStorage ){
 							
@@ -2230,9 +2230,6 @@ class LTPLE_Client {
 	 */
 	public function enqueue_styles() {
 		
-		wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css'));
-		wp_enqueue_style( $this->_token . '-client' );
-		
 		wp_register_style( $this->_token . '-bootstrap-table', esc_url( $this->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-bootstrap-table' );
 
@@ -2241,6 +2238,9 @@ class LTPLE_Client {
 		
 		wp_register_style( 'fontawesome-5', '//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css', array(), $this->_version );
 		wp_enqueue_style( 'fontawesome-5' );			
+		
+		wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css'));
+		wp_enqueue_style( $this->_token . '-client' );
 		
 		wp_add_inline_style( $this->_token . '-client', $this->get_client_style() );
 	}
@@ -2643,8 +2643,8 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-server-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-server-admin' );
 		
-		wp_register_style( $this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'css/bootstrap.min.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-bootstrap' );
+		//wp_register_style( $this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'css/bootstrap.min.css', array(), $this->_version );
+		//wp_enqueue_style( $this->_token . '-bootstrap' );
 	}
 
 	/**
@@ -2660,8 +2660,8 @@ class LTPLE_Client {
 		wp_register_script( $this->_token . '-client-admin', esc_url( $this->assets_url ) . 'js/admin.js', array( 'jquery' ), $this->_version );
 		wp_enqueue_script( $this->_token . '-client-admin' );
 
-		wp_register_script($this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
-		wp_enqueue_script( $this->_token . '-bootstrap' );		
+		//wp_register_script($this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
+		//wp_enqueue_script( $this->_token . '-bootstrap' );		
 		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-lazyload' );

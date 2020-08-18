@@ -268,25 +268,35 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$post = get_post();
 			
-			if( isset($this->storageTypes[$post->post_type]) || $this->is_local ){
+			if( empty($_REQUEST['post']) && !empty($_REQUEST['post_type']) && $_REQUEST['post_type'] == 'cb-default-layer' ){
+				
+				// remove all metaboxes except submit button
+				
+				global $wp_meta_boxes;
+				
+				$submitbox 	= $wp_meta_boxes[$post->post_type]['side']['core']['submitdiv'];
+
+				$wp_meta_boxes[$post->post_type]['side']['core'] = array( 
+					
+					'submitdiv' => $submitbox
+				);
+				
+				$wp_meta_boxes[$post->post_type]['side']['low'] 	= array();
+				$wp_meta_boxes[$post->post_type]['normal'] 			= array();
+				$wp_meta_boxes[$post->post_type]['advanced'] 		= array();
 				
 				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){
+			
+					// add metaboxes
+					
+					$this->parent->admin->add_meta_boxes($fields);
+				}
+			}
+			elseif( isset($this->storageTypes[$post->post_type]) || $this->is_local ){
+
+				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){			
 					
 					// remove metaboxes
-					
-					if( empty($_REQUEST['post']) ){
-						
-						// remove all metaboxes except submit button
-						
-						global $wp_meta_boxes;
-						
-						$submitbox = $wp_meta_boxes[$post->post_type]['side']['core']['submitdiv'];
-
-						$wp_meta_boxes[$post->post_type]['side']['core'] 	= array( 'submitdiv' => $submitbox );
-						$wp_meta_boxes[$post->post_type]['side']['low'] 	= array();
-						$wp_meta_boxes[$post->post_type]['normal'] 			= array();
-						$wp_meta_boxes[$post->post_type]['advanced'] 		= array();
-					}					
 					
 					if( $post->post_type == 'cb-default-layer' ){
 						
@@ -550,7 +560,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	
 		return $is_hosted;
-	}
+	}	
 
 	public function count_layers_by( $count_by = 'storage' ){
 		
@@ -669,50 +679,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_default_layer_fields($fields,$post=null){
 		
-		if( empty($this->defaultFields) ){
-		
-			//get post
-			
-			if( empty($post) ){
-				
-				$post = get_post();
-			}
-			
-			//get layer type
-			
-			$layer_type = $this->get_layer_type($post);			
-		
-			/*
-			//get layer types
-
-			$layer_types=[];
-			
-			foreach($this->types as $term){
-				
-				$layer_types[$term->slug]=$term->name;
-			}
-
-			$this->defaultFields[]=array(
-			
-				'metabox' => array(
-				
-					'name' 		=> 'tagsdiv-layer-type',
-					'title' 	=> __( 'Template Type', 'live-template-editor-client' ), 
-					'screen'	=> array('cb-default-layer'),
-					'context' 	=> ( !empty($layer_type->output) ? 'side' : 'advanced' ),
-					'taxonomy'	=> 'layer-type',
-					'frontend'	=> false,
-				),
-				
-				'id'			=> "new-tag-layer-type",
-				'name'			=> 'tax_input[layer-type]',
-				'label'			=> "",
-				'type'			=> 'select',
-				'options'		=> $layer_types,
-				'callback' 		=> array($this,'get_layer_type_slug'),
-				'description'	=> ''
-			);
-			*/
+		if( empty($this->defaultFields) ){		
 			
 			//get current layer range
 			
@@ -753,6 +720,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'label'			=> '',
 				'description'	=>''
 			);
+			
+			//get post
+			
+			if( empty($post) ){
+				
+				$post = get_post();
+			}
+			
+			//get layer type
+			
+			$layer_type = $this->get_layer_type($post);	
 			
 			if( !empty($layer_type->output) ){
 				
@@ -1235,7 +1213,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$has_preview = true;
 		}
 		
-		return apply_filters('ltple-layer-has-preview',$has_preview,$output);
+		return apply_filters('ltple_layer_has_preview',$has_preview,$output);
 	}
 	
 	public function get_project_tabs($layer,$fields=array()){
@@ -1247,6 +1225,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$tabs = apply_filters('ltple_' . $layer_type->output . '_project_tabs',$tabs,$layer);
 		
 			$tabs = apply_filters('ltple_project_advance_tabs',$tabs,$layer,$fields);
+		
+			if( $image = $this->get_image_tab($layer) ){
+				
+				$tabs['image'] = array(
+				
+					'name' 		=> 'Image',
+					'slug'		=> 'image',
+					'content'	=> $image,
+				
+				);				
+			}
 		
 			if( $installation = $this->get_installation_info($layer) ){
 				
@@ -1261,6 +1250,79 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $tabs;
+	}
+	
+	public function get_image_tab($layer){
+		
+		$tab = '';
+		
+		if( $this->is_public_output($this->layerOutput) ){
+			
+			// image preview
+			
+			$media_url = add_query_arg( array(
+			
+				'output' => 'widget',
+				
+			), $this->parent->urls->media . 'user-images/' );
+			
+			$md5 = md5($media_url);
+			
+			$modal_id 	= 'modal_' . $md5;
+			$preview_id = 'preview_' . $md5;
+			$input_id 	= 'input_' . $md5;
+			
+			$tab .= '<button style="position:absolute;margin:5px;z-index:9999;" type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#'.$modal_id.'">Edit</button>';
+				
+			//$tab .= '<div id="'.$preview_id.'" class="thumb_wrapper" style="background-image:url(' . $this->get_thumbnail_url($layer) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;height:280px;display:block;"></div>';
+			
+			$tab .= '<img id="'.$preview_id.'" src="'.$this->get_thumbnail_url($layer).'" style="width:auto;"/>';
+			
+			$tab .= '<input type="hidden" id="'.$input_id.'" name="image_url" value="" />';
+
+			$tab .= '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+				
+				$tab .= '<div class="modal-dialog modal-lg" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
+					
+					$tab .= '<div class="modal-content">'.PHP_EOL;
+						
+						$tab .= '<div class="modal-header">'.PHP_EOL;
+							
+							$tab .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+							
+							$tab .= '<h4 class="modal-title text-left" id="myModalLabel">Media Library</h4>'.PHP_EOL;
+						
+						$tab .= '</div>'.PHP_EOL;
+
+						$tab .= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
+
+						$tab .= '<iframe id="iframe_'.$modal_id.'" data-src="' . $media_url . '" data-input-id="#' . $input_id . '" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';						
+						
+						$tab .= '<script>';
+
+							$tab .= ';(function($){';
+
+								$tab .= '$(document).ready(function(){
+									
+									$("#'.$input_id.'").on("change", function(e){
+										
+										$("#'.$preview_id.'").attr("src",$(this).val());
+									});
+								
+								});';
+							
+							$tab .= '})(jQuery);';
+							
+						$tab .= '</script>';
+						
+					$tab .= '</div>'.PHP_EOL;
+					
+				$tab .= '</div>'.PHP_EOL;
+				
+			$tab .= '</div>'.PHP_EOL;
+		}
+		
+		return $tab;
 	}
 	
 	public function get_installation_info($layer){
@@ -2361,7 +2423,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$action  = '<a href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
 		
-		if( $this->is_html_output($layer_type->output) && $layer_type->output != 'canvas' && $layer_type->storage != 'user-menu' ){
+		if( $this->is_html_output($layer_type->output) && $layer_type->storage != 'user-menu' ){
 		
 			$action .= '<a href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
 		}
@@ -2517,7 +2579,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function set_layer( $layer = NULL, $echo = true ){
-
+		
 		if( is_numeric($layer) ){
 			
 			$layer = get_post($layer);
@@ -4833,7 +4895,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function save_library_fields($term_id){
 
-		if( $this->parent->user->is_editor ){
+		if( $this->parent->user->can_edit ){
 			
 			//collect all term related data for this new taxonomy
 			$term = get_term($term_id);

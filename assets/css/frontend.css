@@ -9,6 +9,7 @@
 }
 
 #ltple-wrapper #sidebar {
+	min-height: calc(100vh - 145px);
     min-width: 200px !important;
     max-width: 200px !important;
     transition: all 0.3s !important;

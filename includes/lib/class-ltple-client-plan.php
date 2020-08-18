@@ -2321,7 +2321,7 @@ class LTPLE_Client_Plan {
 				
 				if( $item->post_type == 'cb-default-layer' ){
 					
-					if( 1==1 || !$this->parent->user->is_editor ){
+					if( 1==1 || !$this->parent->user->can_edit ){
 						
 						if( has_term( $this->parent->user->user_email, 'user-contact', $item_id ) ){
 								

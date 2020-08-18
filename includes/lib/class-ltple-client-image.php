@@ -379,15 +379,13 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 																		
 								//check if image exists
 								
-								$q = new WP_Query(array(
+								if( !get_posts(array(
 									
-									'name' 			=> $md5,
-									'post_author' 	=> $this->parent->user->ID,
+									's' 			=> $md5,
+									'author' 		=> $this->parent->user->ID,
 									'post_type' 	=> 'attachment',
 									'posts_per_page'=> -1,
-								));
-
-								if( $q->post_count == 0 ){
+								)) ){
 									
 									//require the needed files
 									

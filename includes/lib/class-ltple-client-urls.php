@@ -57,8 +57,8 @@ class LTPLE_Client_Urls {
 	public function parse_permalink( $post_link, $post ){
 		
 		$post_link = str_replace('%author%', $post->post_author, $post_link);
-
-		if( $post->post_type == 'user-layer' ){
+		
+		if( !$this->parent->layer->is_hosted( $post->post_type ) ){
 
 			$post_link = add_query_arg(array( 
 			

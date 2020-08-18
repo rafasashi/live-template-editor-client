@@ -59,9 +59,9 @@
 				
 				echo'<div class="pull-left hidden-xs">';
 
-					echo'<a style="color:' . $ltple->settings->mainColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->gallery . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Item Gallery" data-content="The item gallery is where you can start, edit and deploy a new project. Check the plans to unlock more ranges.">';
+					echo'<a style="color:' . $ltple->settings->mainColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->gallery . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Editor Gallery" data-content="The editor gallery is where you can start, edit and deploy a new project. Check the plans to unlock more ranges.">';
 						
-						echo'Gallery';
+						echo'Editor';
 					
 					echo'</a>';
 				
@@ -120,7 +120,7 @@
 							}
 						}
 				
-						if( $ltple->layer->type == 'cb-default-layer' && $ltple->user->is_editor ){
+						if( $ltple->layer->type == 'cb-default-layer' && $ltple->user->can_edit ){
 							
 							// load button
 							
@@ -168,7 +168,7 @@
 
 						if( $ltple->layer->defaultId > 0 ){
 							
-							if( !$ltple->layer->is_media && ( $ltple->layer->type != 'cb-default-layer' || $ltple->user->is_editor ) ){
+							if( !$ltple->layer->is_media && ( $ltple->layer->type != 'cb-default-layer' || $ltple->user->can_edit ) ){
 								
 								echo'<div style="margin:0 2px;" class="btn-group">';
 								
@@ -216,7 +216,7 @@
 											
 										echo'</li>';
 
-										if( $ltple->user->is_editor ){
+										if( $ltple->user->can_edit ){
 											
 											echo'<li style="position:relative;">';
 												

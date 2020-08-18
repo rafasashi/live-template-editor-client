@@ -27,14 +27,14 @@ get_header();
 		$download_button = '<a href="'.add_query_arg('quick','',$ltple->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
 	}		
 	
-	echo '<div style="min-height:500px;">';
+	echo '<div style="min-height:500px;overflow:hidden;">';
 		
 		echo'<div class="col-xs-12 col-sm-12 col-lg-6" style="padding:20px;">';
 			
 			echo '<h2>Start a new project <a href="' . $ltple->urls->profile . '?tab=billing-info"><span class="pull-right label label-default" style="font-size:18px;"> ' . ( !empty($plan_usage[$layer_type->name]) ? $plan_usage[$layer_type->name] : 0 ) . ' / ' . $total_storage . ' </span></a></h2>';
 
 			echo'<hr>';
-			
+
 			if( !$ltple->layer->is_media && $ltple->user->remaining_days > 0 ){
 				
 				if( $ltple->plan->remaining_storage_amount($ltple->layer->id) > 0 ){
@@ -99,24 +99,28 @@ get_header();
 				
 				echo'<hr>';
 				
-				foreach( $projects as $project ){
-					
-					echo'<div style="margin: 5px 0;display: inline-block;width: 100%;">';
-					
-						echo'<div class="col-xs-6">';
-							
-							echo $project->post_title;
-					
-						echo'</div>';
-					
-						echo'<div class="col-xs-6 text-right">';
+				echo'<div style="height:calc( 100vh - 50px );overflow:auto;">';
+				
+					foreach( $projects as $project ){
 						
-							echo $ltple->layer->get_action_buttons($project,$layer_type);
+						echo'<div style="margin: 5px 0;display: inline-block;width: 100%;">';
+						
+							echo'<div class="col-xs-6">';
+								
+								echo $project->post_title;
+						
+							echo'</div>';
+						
+							echo'<div class="col-xs-6 text-right">';
+							
+								echo $ltple->layer->get_action_buttons($project,$layer_type);
+								
+							echo'</div>';
 							
 						echo'</div>';
-						
-					echo'</div>';
-				}
+					}
+				
+				echo'</div>';
 					
 			echo'</div>';	
 		}

@@ -62,7 +62,7 @@ class LTPLE_Client_Gallery {
 		
 		$meta_query = [];
 		
-		if( !$this->parent->user->is_editor ){
+		if( !$this->parent->user->can_edit ){
 			
 			
 		}
@@ -109,7 +109,7 @@ class LTPLE_Client_Gallery {
 				
 					$term->visibility = get_option('visibility_'.$term->slug,'anyone');
 					
-					if( $term->visibility == 'anyone' || $this->parent->user->is_editor ){
+					if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
 						
 						$tax_query = array('relation'=>'OR');
 						
@@ -461,7 +461,7 @@ class LTPLE_Client_Gallery {
 							
 							global $post;
 													
-							if( $term->visibility == 'anyone' || $this->parent->user->is_editor ){
+							if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
 								
 								//get item
 								
@@ -584,7 +584,7 @@ class LTPLE_Client_Gallery {
 				
 				foreach($all_types as $term){
 								
-					if( $term->visibility == 'anyone' || $this->parent->user->is_editor ){
+					if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
 						
 						$layer_type = $term;
 						

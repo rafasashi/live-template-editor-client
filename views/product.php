@@ -114,53 +114,56 @@
 						
 						echo'<div class="col-xs-8 text-right" style="padding:5px 0;">';
 							
-							echo'<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+							if( !empty($permalink) ){
 								
-								echo'Preview'.PHP_EOL;
-							
-							echo'</button>'.PHP_EOL;
-							
-							echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+								echo'<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+									
+									echo'Preview'.PHP_EOL;
 								
-								echo'<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
+								echo'</button>'.PHP_EOL;
+								
+								echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 									
-									echo'<div class="modal-content">'.PHP_EOL;
-									
-										echo'<div class="modal-header">'.PHP_EOL;
-											
-											echo'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-											
-											echo'<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
+									echo'<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 										
-										echo'</div>'.PHP_EOL;
-									  
-										echo'<div class="modal-body">'.PHP_EOL;
-											
-											if( $this->parent->user->loggedin && $has_layer === true ){
-												
-												echo '<iframe data-src="'.$permalink.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow:hidden;"></iframe>';											
-											}
-											else{
-												
-												echo get_the_post_thumbnail($this->ID, 'recentprojects-thumb');
-											}
-
-										echo'</div>'.PHP_EOL;
-
-										echo'<div class="modal-footer">'.PHP_EOL;
+										echo'<div class="modal-content">'.PHP_EOL;
 										
-											if( $this->parent->user->loggedin  && $has_layer === true ){
-
-												echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this '.$output_name.'">Start</a>';
-											}
+											echo'<div class="modal-header">'.PHP_EOL;
+												
+												echo'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+												
+												echo'<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
 											
+											echo'</div>'.PHP_EOL;
+										  
+											echo'<div class="modal-body">'.PHP_EOL;
+												
+												if( $this->parent->user->loggedin && $has_layer === true ){
+													
+													echo '<iframe data-src="'.$permalink.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow:hidden;"></iframe>';											
+												}
+												else{
+													
+													echo get_the_post_thumbnail($this->ID, 'recentprojects-thumb');
+												}
+
+											echo'</div>'.PHP_EOL;
+
+											echo'<div class="modal-footer">'.PHP_EOL;
+											
+												if( $this->parent->user->loggedin  && $has_layer === true ){
+
+													echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this '.$output_name.'">Start</a>';
+												}
+												
+											echo'</div>'.PHP_EOL;
+										  
 										echo'</div>'.PHP_EOL;
-									  
+										
 									echo'</div>'.PHP_EOL;
 									
 								echo'</div>'.PHP_EOL;
-								
-							echo'</div>'.PHP_EOL;
+							}
 						
 							if( $this->parent->user->loggedin ){
 								
