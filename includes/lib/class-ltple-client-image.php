@@ -714,7 +714,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					
 					if(!file_exists($this->dir)) {
 						
-						mkdir($this->dir, 0755, true);
+						$this->parent->filesystem->create_folder_recursively($this->dir);
 						
 						//file_put_contents( $this->dir . 'index.html', '');
 					}
@@ -734,7 +734,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				
 					if( !file_exists($path) ) {
 						
-						mkdir($path, 0755, true);
+						$this->parent->filesystem->create_folder_recursively($path);
 						
 						//file_put_contents($path . 'index.html', '');
 					}

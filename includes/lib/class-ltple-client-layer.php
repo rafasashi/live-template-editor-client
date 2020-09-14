@@ -4991,13 +4991,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !is_dir($static_dir) ){
 			
-			mkdir($static_dir,0755,true);
+			$this->parent->filesystem->create_folder_recursively($static_dir);
 		}
 		elseif( $empty === true ){
 			
 			$this->delete_static_contents( $postId );
 			
-			mkdir($static_dir,0755,true);
+			$this->parent->filesystem->create_folder_recursively($static_dir);
 		}
 	
 		return $static_dir;
@@ -5009,7 +5009,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !is_dir($static_dir) ){
 			
-			mkdir($static_dir,0755,true);
+			$this->parent->filesystem->create_folder_recursively($static_dir);
 		}		
 		
 		return $static_dir;
@@ -5425,36 +5425,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return true;
 	}
-	
-	public function copy_dir($src,$dst) { 
-	
-		if( !is_dir($dst) ){
-	
-			$mkdir = mkdir($dst,0755,true);
-		}
-		
-		$dir = opendir($src);
-		
-		while(false !== ( $file = readdir($dir)) ) { 
-		
-			if (( $file != '.' ) && ( $file != '..' )) { 
-			
-				if ( is_dir($src . '/' . $file) ) { 
-				
-					$this->copy_dir($src . '/' . $file,$dst . '/' . $file); 
-				} 
-				else{
-					
-					copy($src . '/' . $file,$dst . '/' . $file); 
-				} 
-			} 
-		} 
-		
-		closedir($dir); 
-		
-		return true;
-	} 
-	
+
 	public function output_layer(){
 		
 		$content = '';
