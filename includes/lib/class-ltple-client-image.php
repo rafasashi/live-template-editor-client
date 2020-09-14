@@ -132,7 +132,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			$this->url = ( defined('LTPLE_IMAGE_URL') ? LTPLE_IMAGE_URL : str_replace( 'https://', 'http://', $this->parent->urls->home ) . '/i/');
 			$this->dir = ( defined('LTPLE_IMAGE_DIR') ? LTPLE_IMAGE_DIR : ABSPATH . 'i/');
 		}
-
+		
 		if( !is_admin() ) {
 			
 			add_action( 'rest_api_init', function () {
@@ -783,7 +783,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			
 			return $this->dir . $user_id . '/avatar'.$md5.'.png';
 		}
-
+		
 		return false;
 	}
 	
@@ -806,7 +806,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		if( is_numeric($user_id) ){
 			
 			$url = get_user_meta( $user_id , $this->parent->_base . 'profile_picture', true );
-
+			
 			if( empty($url) ){
 				
 				$url = $this->get_local_avatar_url($user_id);

@@ -123,7 +123,7 @@ class LTPLE_Client {
 		$this->views   		= trailingslashit( $this->dir ) . 'views';
 		$this->vendor  		= trailingslashit( $this->dir ) . 'vendor';
 		$this->assets_dir 	= trailingslashit( $this->dir ) . 'assets';
-		$this->assets_url 	= esc_url( trailingslashit( plugins_url( '/assets/', $this->file ) ) );
+		$this->assets_url 	= home_url( trailingslashit( str_replace( ABSPATH, '', $this->dir ))  . 'assets/' );
 		
 		$this->inWidget = ( ( isset($_GET['output']) && $_GET['output'] == 'widget' ) ? true : false );
 		
