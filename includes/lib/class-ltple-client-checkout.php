@@ -98,15 +98,18 @@ class LTPLE_Client_Checkout {
 			
 				$options = explode('|',$_GET['options']);
 				
-				if( $plans = $this->parent->plan->get_plans_by_options( $options ) ){
+				echo'<div class="col-sm-7">';
 					
-					echo'<div class="col-sm-7">';
+					if( $plans = $this->parent->plan->get_plans_by_options( $options ) ){
 						
-						echo '<h4 style="margin-top:15px;">Upgrade to one of the following plans</h4>';
+						//echo '<h4 style="margin-top:15px;">Upgrade to one of the following plans</h4>';
 						
-						foreach( $plans as $plan ){
+						foreach( $plans as $i => $plan ){
 							
-							echo'<hr style="margin-top:15px;margin-bottom:15px;">';
+							if( $i > 0 ){
+								
+								echo'<hr style="margin-top:15px;margin-bottom:15px;">';
+							}
 							
 							echo'<div class="row">';
 
@@ -136,9 +139,13 @@ class LTPLE_Client_Checkout {
 								
 							echo'</div>';
 						}
-					
-					echo'</div>';
-				}
+					}
+					else{
+						
+						echo '<div class="alert alert-warning">No plan available for this item, please contact the sales department</div>';
+					}
+				
+				echo'</div>';
 			}
 		}
 	}

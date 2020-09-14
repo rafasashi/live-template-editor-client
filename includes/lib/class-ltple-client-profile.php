@@ -59,10 +59,12 @@ class LTPLE_Client_Profile {
 			return $query_vars;
 		}, 1);
 		
+		add_filter('rew_cache_bail_page', array( $this , 'bail_profile_cache' ) );
+				
 		add_filter('template_redirect', array( $this, 'get_profile_parameters' ),1);
 		
 		add_shortcode('ltple-client-profile', array( $this , 'get_profile_shortcode' ) );
-		
+
 		add_action( 'ltple_view_my_profile_settings', function(){
 			
 			echo'<li style="position:relative;background:#182f42;">';
@@ -272,6 +274,16 @@ class LTPLE_Client_Profile {
 				
 			$this->pictures	= $this->get_profile_picture_fields();
 		}
+	}
+	
+	public function bail_profile_cache($bail){
+		
+		if( !$bail && $this->id > 0 ){
+			
+			return array('ltple','profile');
+		}
+		
+		return $bail;
 	}
 	
 	public function get_profile_post(){

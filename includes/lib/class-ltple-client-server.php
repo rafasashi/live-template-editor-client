@@ -30,9 +30,9 @@ class LTPLE_Client_Server {
 				
 				// set dev url
 				
-				$this->url .= '.d1.recuweb.com';
+				$this->url = str_replace('.','--',$this->url);
 				
-				$this->url = str_replace('https://','http://',$this->url); 
+				$this->url .= '.' . REW_SERVER;				 
 			}
 			
 			// set access control

@@ -26,11 +26,11 @@
 			
 			echo '<div class="modal-content">'.PHP_EOL;
 				
-				echo '<div class="modal-header">'.PHP_EOL;
+				echo '<div class="modal-header" style="background:#fff !important;">'.PHP_EOL;
 					
-					echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+					echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="color:#345774;">&times;</span></button>'.PHP_EOL;
 					
-					echo '<h4 class="modal-title text-left" id="myModalLabel">Upgrade</h4>'.PHP_EOL;
+					echo '<h4 class="modal-title text-left" id="myModalLabel" style="color:#345774;">Upgrade your plan</h4>'.PHP_EOL;
 				
 				echo '</div>'.PHP_EOL;
 			  

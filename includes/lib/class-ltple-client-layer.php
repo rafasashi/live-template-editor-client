@@ -429,6 +429,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('wp_loaded', array($this,'get_font_libraries'));
 		//add_action('wp_loaded', array($this,'get_default_layers'));
 		
+		add_action( 'set_object_terms', array($this,'set_default_layer_type'), 10, 4 );
+		
 		add_action( 'save_post', array($this,'upload_static_contents'), 10, 3 );
 		
 		add_action( 'before_delete_post', array($this,'delete_static_contents'), 10, 3 );
@@ -2189,10 +2191,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									
 									if( $default_range = $this->get_layer_range($post)){
 										
-										if( $type_id = get_term_meta($default_range->term_id,'range_type',true)){
-											
-											$term = get_term($type_id);
-										}
+										$term = $this->get_range_type($default_range->term_id);
 									}
 								}
 								
@@ -2233,6 +2232,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return false;
+	}
+	
+	public function get_range_type($range_id){
+		
+		$type_term = null;
+										
+		if( $type_id = get_term_meta($range_id,'range_type',true)){
+			
+			$type_term = get_term($type_id);
+		}
+		
+		return $type_term;
 	}
 	
 	public function get_type_output($term){
@@ -4818,7 +4829,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function save_layer_taxonomy_fields($term_id){
-
+			
 		if( $this->parent->user->is_admin ){
 			
 			//collect all term related data for this new taxonomy
@@ -4881,6 +4892,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				if(isset($_POST['range_type'])){
 
 					update_term_meta( $term->term_id, 'range_type', $_POST['range_type']);			
+					
+					
 				}
 				
 				if(isset($_POST['account_storages'])){
@@ -5104,6 +5117,26 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return false;
+	}
+	
+	public function set_default_layer_type($object_id, $terms, $tt_ids, $taxonomy){
+		
+		if( $taxonomy == 'layer-range' ){
+			
+			foreach( $terms as $range_id ){
+				
+				if( $range_type = $this->get_range_type($range_id) ){
+				
+					// update range type
+					
+					wp_set_object_terms( $object_id, $range_type->term_id, 'layer-type', false );
+					
+					break;
+				}
+			}
+		}
+		
+		return $object_id;
 	}
 	
 	public function upload_static_contents($post_id){

@@ -733,7 +733,6 @@ class LTPLE_Client_Gallery {
 								
 							$item.='</div>'.PHP_EOL;
 
-						
 							if($this->parent->user->loggedin){
 								
 								if($this->parent->plan->user_has_layer( $post ) === true){

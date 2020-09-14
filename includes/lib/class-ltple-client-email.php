@@ -109,8 +109,8 @@ class LTPLE_Client_Email {
 		add_action( $this->parent->_base . 'bulk_send_email_event', array( $this, 'bulk_send_model'),1,2);
 
 		// setup phpmailer
-
-		add_action( 'phpmailer_init', 	function( PHPMailer $phpmailer ) {
+		
+		add_action( 'phpmailer_init', 	function( \PHPMailer\PHPMailer\PHPMailer $phpmailer ) {
 			
 			$key_name = "key1";
 			$urlparts = parse_url(site_url());		

@@ -47,15 +47,17 @@ html>body #email_series .ui-sortable li { height: 1.5em; line-height: 1.2em; }
 #wpbody .form-table textarea{max-width:600px;}
 #wpbody .form-table .description{max-width:600px;}
 .remove-input-group{
-	width: 20px;
+    width: 15px;
+    display: inline-block;
     text-align: center;
-    height: 20px;
-    line-height: 20px;
-    padding: 0;
+    height: 15px;
+    text-decoration: none;
+    line-height: 12px;
+    padding: 0px;
     border-radius: 250px;
-    margin: 0 0 0 10px;	
+    margin: 8px 0 0 10px;
     background: #f73e3e;
     color: #fff;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 14px;
 }

@@ -951,8 +951,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									
 									$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['key']) ? $field['placeholder']['key'] : 'key' ).'" name="'.$option_name.'[key][]" style="width:30%;float:left;" value="'.$data['key'][$e].'">';
 									
-									$html .= '<span style="float:left;"> => </span>';
-									
 									if( is_string($inputs) ){
 										
 										$input = $inputs;
