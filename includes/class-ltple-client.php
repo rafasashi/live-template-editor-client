@@ -1655,7 +1655,7 @@ class LTPLE_Client {
 				elseif( $_POST['postAction'] == 'duplicate' ){
 					
 					//duplicate layer
-
+					
 					$layer = '';
 					
 					if( $this->layer->type == $this->layer->layerStorage ){
@@ -1666,13 +1666,13 @@ class LTPLE_Client {
 						
 						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 					}
-
+					
 					if( !empty($layer) ){
 					
 						$layerId = intval( $layer->ID );
 
 						if( is_int($layerId) && $layerId !== -1 ){
-						
+							
 							$post_id = wp_insert_post( array(
 								
 								'post_author' 	=> $this->user->ID,
@@ -1686,33 +1686,36 @@ class LTPLE_Client {
 								
 								// duplicate all post meta
 								
-								$layerMeta = get_post_meta($layerId);
+								if( $layerMeta = get_post_meta($layerId) ){
 						
-								foreach($layerMeta as $name => $value){
-									
-									if( isset($value[0]) ){
+									foreach($layerMeta as $name => $value){
 										
-										update_post_meta( $post_id, $name, $value[0] );
+										if( isset($value[0]) ){
+											
+											update_post_meta( $post_id, $name, maybe_unserialize($value[0]) );
+										}
 									}
 								}
 								
 								// duplicate all taxonomies
 								
-								$taxonomies = get_object_taxonomies($layer->post_type);
+								if( $taxonomies = get_object_taxonomies($layer->post_type) ){
 								
-								foreach ($taxonomies as $taxonomy) {
-									
-									$layerTerms = wp_get_object_terms($layerId, $taxonomy, array('fields' => 'slugs'));
-									
-									wp_set_object_terms($post_id, $layerTerms, $taxonomy, false);
-								}					
+									foreach ($taxonomies as $taxonomy) {
+										
+										if( !apply_filters('ltple_duplicate_' . $layer->post_type . '_bail_tax_' . $taxonomy, false) ){
+										
+											$layerTerms = wp_get_object_terms($layerId, $taxonomy, array('fields' => 'slugs'));
+										
+											wp_set_object_terms($post_id, $layerTerms, $taxonomy, false);
+										}
+									}
+								}
 								
 								//redirect to user layer
 
-								$layer_url = $this->urls->edit . '?uri=' . $post_id . '&edit';
-								
-								//var_dump( $layer_url );exit;
-								
+								$layer_url = $this->urls->edit . '?uri=' . $post_id . '&action=edit';
+
 								wp_redirect($layer_url);
 								echo 'Redirecting editor...';
 								exit;

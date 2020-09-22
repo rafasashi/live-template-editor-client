@@ -296,8 +296,11 @@ class LTPLE_Client_Gallery {
 						
 						if( !isset($ranges[$range->slug]) ){
 							
+							$meta = get_term_meta($range->term_id);
+							
 							$ranges[$range->slug]['name'] 	= $range->name;
 							$ranges[$range->slug]['slug'] 	= $range->slug;
+							$ranges[$range->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $range->name;
 							$ranges[$range->slug]['count'] 	= 1;
 						}
 						else{
@@ -351,8 +354,11 @@ class LTPLE_Client_Gallery {
 					
 					if( !isset($ranges[$addon_range->slug]) ){
 						
+						$meta = get_term_meta($addon_range->term_id);
+						
 						$ranges[$addon_range->slug]['name'] 	= $addon_range->name;
 						$ranges[$addon_range->slug]['slug'] 	= $addon_range->slug;
+						$ranges[$addon_range->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $addon_range->name;
 						$ranges[$addon_range->slug]['count'] 	= 1;
 					}
 					else{

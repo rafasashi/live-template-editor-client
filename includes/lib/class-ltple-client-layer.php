@@ -4122,6 +4122,37 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		else{
 			
+			if( $term->taxonomy == 'layer-range' ){
+				
+				// short name
+				
+				echo'<tr class="form-field">';
+				
+					echo'<th valign="top" scope="row">';
+						
+						echo'<label for="category-text">Shortname</label>';
+					
+					echo'</th>';
+					
+					echo'<td>';
+						
+						$this->parent->admin->display_field( array(			
+							
+							'name'			=> 'shortname',
+							'id'			=> 'shortname',
+							'label'			=> '',
+							'type'			=> 'text',
+							'default'		=> $term->name,
+							'description'	=> '',
+							'placeholder'	=> '',
+							
+						), $term );
+						
+					echo'</td>';	
+					
+				echo'</tr>';
+			}
+			
 			// layer plan
 			
 			echo'<tr class="form-field">';
@@ -4153,15 +4184,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					echo'</div>';
 
 					if( $term->taxonomy == 'layer-range' ){
+
+						// range storage amount
 						
-						$storage = [];
+						$storage = array(
+							
+							'storage_amount'	=> $this->get_plan_amount($term->term_id,'storage'),
+							'storage_unit'		=> get_term_meta($term->term_id,'range_type',true),
+						);
 						
-						// layer storage amount
-						
-						$storage['storage_amount'] 	= $this->get_plan_amount($term->term_id,'storage');
-						$storage['storage_unit'] 	= get_term_meta($term->term_id,'range_type',true);
-						
-						// layer range type
+						// range type
 						
 						echo'<div class="form-field" style="margin-bottom:15px;">';
 							
@@ -4867,6 +4899,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				if(isset($_POST['installation'])){
 
 					update_term_meta( $term->term_id, 'installation', $_POST['installation']);			
+				}
+				
+				if(isset($_POST['shortname'])){
+
+					update_term_meta( $term->term_id, 'shortname', $_POST['shortname']);			
 				}
 
 				if(isset($_POST['default_storage'])){

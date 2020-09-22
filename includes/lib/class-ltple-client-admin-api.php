@@ -56,8 +56,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			if ( !empty( $field['data'] ) ) {
 				
 				$data = $field['data'];
-				
-				
 			}
 			elseif( !empty($field['callback']) ){
 				

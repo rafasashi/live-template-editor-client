@@ -391,7 +391,8 @@ class LTPLE_Client_Settings {
 			'edit_pages', 
 			$this->plugin->slug, 
 			array($this, 'settings_page'),
-			'dashicons-layout'
+			'dashicons-layout',
+			2
 		);
 		
 		/*
