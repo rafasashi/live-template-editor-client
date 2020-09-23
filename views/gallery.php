@@ -6,7 +6,7 @@
 	
 	// get gallery types
 	
-	$all_types = $this->gallery->get_all_types();
+	$current_types = $this->gallery->get_current_types();
 	
 	// get layer type
 
@@ -73,9 +73,9 @@
 						
 						foreach( $type_ids as $id ){
 							
-							if( isset($all_types[$id]) ){
+							if( isset($current_types[$id]) ){
 								
-								$term = $all_types[$id];
+								$term = $current_types[$id];
 							
 								$gallery_url = add_query_arg($_GET,$this->urls->gallery);
 								 

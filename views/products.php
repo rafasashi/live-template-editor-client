@@ -15,9 +15,9 @@
 		
 		echo'<div class="row">';	
 			
-			$all_types = $this->parent->gallery->get_all_types();
+			$current_types = $this->parent->gallery->get_current_types();
 			
-			foreach( $all_types as $term ){
+			foreach( $current_types as $term ){
 				
 				if($term->visibility == 'anyone'){
 					

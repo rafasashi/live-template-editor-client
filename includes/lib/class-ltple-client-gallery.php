@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Gallery {
 	
 	var $all_sections 	= null;
-	var $all_types 		= null;
+	var $current_types 		= null;
 	var $all_ranges 	= null;
 	var $max_num_pages;
 	
@@ -70,9 +70,9 @@ class LTPLE_Client_Gallery {
 		return $meta_query;
 	}
 	
-	public function get_all_types(){
+	public function get_current_types(){
 		
-		if( is_null($this->all_types) ){
+		if( is_null($this->current_types) ){
 			
 			// get all layer types
 			
@@ -96,19 +96,27 @@ class LTPLE_Client_Gallery {
 				}
 			}
 			
-			if( $all_types = get_terms( array(
+			$current_types = array();
+			
+			if( $ids = get_terms( array(
 					
 				'taxonomy' 		=> 'layer-type',
 				'orderby' 		=> 'count',
 				'order' 		=> 'DESC',
 				'hide_empty' 	=> true,
 				'meta_query' 	=> $meta_query,
+				'fields'		=> 'ids'
 			))){
 				
-				foreach( $all_types as $key => $term ){
+				$layer_types = $this->parent->layer->get_layer_types();
 				
-					$term->visibility = get_option('visibility_'.$term->slug,'anyone');
+				foreach( $ids as $id ){
 					
+					if( !isset($layer_types[$id]) )
+						continue;
+					
+					$term = $layer_types[$id];
+
 					if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
 						
 						$tax_query = array('relation'=>'OR');
@@ -116,7 +124,7 @@ class LTPLE_Client_Gallery {
 						$tax_query[0][] = array(
 					
 							'taxonomy' 	=> $term->taxonomy,
-							'terms' 	=> $term,
+							'terms' 	=> $term->slug,
 							'field' 	=> 'slug'
 						);
 						
@@ -149,44 +157,37 @@ class LTPLE_Client_Gallery {
 							'tax_query' 		=> $tax_query,
 						]);
 						
-						
 						if( $q->found_posts > 0 ){
 						
 							$term->count = $q->found_posts; // replace term count by real post type count
-						}
-						else{
-							
-							unset($all_types[$key]);
-						}
-					}
-					else{
 						
-						unset($all_types[$key]);
+							$current_types[] = $term;
+						}
 					}
 				}
 			}
 			
-			if( !empty($all_types) ){
+			if( !empty($current_types) ){
 			
 				// order by count
 				
 				$counts = array();
 				
-				foreach( $all_types as $key => $type ){
+				foreach( $current_types as $key => $type ){
 					
 					$counts[$key] = $type->count;
 				}
 				
-				array_multisort($counts, SORT_DESC, $all_types);
+				array_multisort($counts, SORT_DESC, $current_types);
 				
-				foreach( $all_types as $type ){
+				foreach( $current_types as $type ){
 					
-					$this->all_types[$type->term_id] = $type;
+					$this->current_types[$type->term_id] = $type;
 				}
 			}
 		}
 		
-		return $this->all_types;
+		return $this->current_types;
 	}
 	
 	public function get_all_sections(){
@@ -195,9 +196,9 @@ class LTPLE_Client_Gallery {
 			
 			$this->all_sections = array();
 			
-			if( $all_types = $this->get_all_types() ){
+			if( $current_types = $this->get_current_types() ){
 			
-				foreach( $all_types as $term ){
+				foreach( $current_types as $term ){
 					
 					// get section name
 					
@@ -457,9 +458,9 @@ class LTPLE_Client_Gallery {
 				
 				$this->max_num_pages = $query->max_num_pages;
 				
-				$all_types = $this->get_all_types($addon_range);
+				$current_types = $this->get_current_types($addon_range);
 			
-				foreach($all_types as $term){
+				foreach($current_types as $term){
 					
 					if( $term->slug == $layer_type->slug ){
 						
@@ -584,11 +585,11 @@ class LTPLE_Client_Gallery {
 		
 		$layer_type = null;
 		
-		if( $all_types = $this->get_all_types() ){
+		if( $current_types = $this->get_current_types() ){
 		
 			if( !$slug ){
 				
-				foreach($all_types as $term){
+				foreach($current_types as $term){
 								
 					if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
 						

@@ -1833,34 +1833,65 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( is_null($this->types) ){
 			
-			$this->types = $this->get_terms('layer-type');
+			$current_types	= array();
 			
-			foreach( $this->types as $term ){
-				
-				$term->output = $this->get_type_output($term);
-
-				$term->storage = $this->get_type_storage($term);				
-				
-				$term->gallery_section = $this->get_type_gallery_section($term);
-				
-				if( $ranges = get_terms(array(
-				
-					'taxonomy' 		=> 'layer-range',
-					'meta_query' 	=> array(
+			if( $types = $this->get_terms('layer-type') ){
+			
+				foreach( $types as $term ){
 					
-						array(
+					if( $term->storage = $this->get_type_storage($term) ){
+											
+						// todo move visibility to term meta
+							
+						$term->visibility 	= get_option('visibility_'.$term->slug,'anyone');
+
+						$term->output 		= $this->get_type_output($term);
+
+						$term->gallery_section = $this->get_type_gallery_section($term);
 						
-							'key'       => 'range_type',
-							'value'     => $term->term_id,
-							'compare'   => '=',
-						),				
-					),
-				))){
-					
-					$term->ranges = $ranges;
-				}
+						if( $ranges = get_terms(array(
+						
+							'taxonomy' 		=> 'layer-range',
+							'meta_query' 	=> array(
+							
+								array(
+								
+									'key'       => 'range_type',
+									'value'     => $term->term_id,
+									'compare'   => '=',
+								),				
+							),
+						))){
+							
+							$term->ranges = $ranges;
+						}
 
-				$term->addon_range = $this->get_type_addon_range($term);
+						$term->addon_range = $this->get_type_addon_range($term);
+					
+						$current_types[] = $term;
+					}
+				}
+			}
+			
+			$this->types = array();
+			
+			if( !empty($current_types) ){
+			
+				// order by count
+				
+				$counts = array();
+				
+				foreach( $current_types as $key => $type ){
+					
+					$counts[$key] = $type->count;
+				}
+				
+				array_multisort($counts, SORT_DESC, $current_types);
+				
+				foreach( $current_types as $type ){
+					
+					$this->types[$type->term_id] = $type;
+				}
 			}
 		}
 		
@@ -2273,6 +2304,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( !$storage = get_term_meta( $term->term_id, 'default_storage', true ) ){
 			
 			$storage = 'user-layer';
+		}
+		elseif( !post_type_exists($storage) ){
+			
+			return false;
 		}
 		
 		return $storage;
