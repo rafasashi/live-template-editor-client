@@ -444,10 +444,8 @@ class LTPLE_Client_Gallery {
 
 			if( $paginated ){
 				
-				$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['paged']) ? intval($_GET['paged']) : 1 );
-				
-				$args['posts_per_page'] = 20;
-				$args['paged'] 			= $paged;
+				$args['posts_per_page'] = 100;
+				$args['paged'] 			= ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 );
 			}
 			else{
 				
@@ -476,7 +474,7 @@ class LTPLE_Client_Gallery {
 
 								//merge item
 								
-								$items[$layer_range][]=$item;
+								$items[]=$item;
 							}
 							
 						endwhile; wp_reset_query();						
@@ -507,10 +505,8 @@ class LTPLE_Client_Gallery {
 			$layer_range_name = ( !empty($layer_type->ranges[$layer_range]['name']) ? $layer_type->ranges[$layer_range]['name'] : '' );
 			
 			// get gallery items 
-			
-			$range_items = $this->get_range_items($layer_type,$layer_range,$layer_type->addon,false,$referer);
-			
-			if( !empty($range_items[$layer_range]) ){
+
+			if( $range_items = $this->get_range_items($layer_type,$layer_range,$layer_type->addon,true,$referer) ){
 				
 				$this->parent->plan->options = array($layer_range);
 								
@@ -568,7 +564,7 @@ class LTPLE_Client_Gallery {
 					);						
 				}
 			
-				foreach( $range_items[$layer_range] as $item ){
+				foreach( $range_items as $item ){
 					
 					$items[] = array(
 						
@@ -805,15 +801,18 @@ class LTPLE_Client_Gallery {
 						$fields, 
 						$trash		= false,
 						$export		= false,
-						$search		= true,
+						$search		= false,
 						$toggle		= false,
 						$columns	= false,
 						$header		= true,
-						$pagination	= true,
+						$pagination	= 'scroll',
 						$form		= false,
 						$toolbar 	= 'toolbar',
 						$card		= true,
-						$itemHeight	= 300
+						$itemHeight	= 300, 
+						$fixedHeight= true, 
+						$echo		= true
+						
 					);
 
 				echo'</div>';

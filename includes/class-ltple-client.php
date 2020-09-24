@@ -1486,7 +1486,6 @@ class LTPLE_Client {
 									
 									$_SESSION['message'] .= '<div class="row">';
 									
-					
 										$_SESSION['message'] .='<div class="col-xs-3 col-sm-3 col-lg-2">';
 
 											$_SESSION['message'] .='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
@@ -2449,26 +2448,6 @@ class LTPLE_Client {
 				
 			$style .='}';
 
-			$style .= '@media (min-width: 768px) {';
-				
-				$style .= '#content .nav{';
-					
-					$style .='padding-right:250px !important;';
-					
-				$style .='}';
-				
-			$style .= '}';
-			
-			$style .= '@media (min-width: 992px) {';
-				
-				
-			$style .= '}';
-			
-			$style .= '@media (min-width: 1200px) {';
-				
-								
-			$style .= '}';			
-			
 			$style .= '.nav>li>a{';
 				
 				$style .='padding:13px 17px;';

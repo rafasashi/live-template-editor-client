@@ -346,7 +346,8 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		$loop = new WP_Query( array( 
 		
 			'post_type' 		=> 'default-image',
-			'posts_per_page' 	=> -1,		
+			'posts_per_page' 	=> 100,
+			'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),		
 		));
 
 		while ( $loop->have_posts() ) : $loop->the_post(); 
@@ -387,7 +388,8 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'post_type'      	=> 'attachment',
 				'post_mime_type' 	=> 'image',
 				'post_status'    	=> 'inherit',
-				'posts_per_page' 	=> -1,
+				'posts_per_page' 	=> 100,
+				'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 				'author' 			=> $user_id,
 			);
 			
@@ -410,7 +412,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					'compare' 	=> 'NOT EXISTS'
 				),
 			);
-			
+
 			$query_images = new WP_Query( $args );
 
 			$images = array();
@@ -444,7 +446,8 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			$args =  array(
 			
 				'post_type' 		=> 'user-image', 
-				'posts_per_page' 	=> -1, 
+				'posts_per_page' 	=> 100,
+				'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 				'author' 			=> $user_id,
 			);
 
@@ -644,7 +647,8 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			$loop = new WP_Query( array( 
 				
 				'post_type' 		=> 'user-bookmark', 
-				'posts_per_page' 	=> -1, 
+				'posts_per_page' 	=> 100,
+				'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ), 
 				'author' 			=> $user_id 
 			));
 			
@@ -742,11 +746,11 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						apply_filters('ltple_media_' . $type . '_fields',$fields), 
 						$trash		= false,
 						$export		= false,
-						$search		= true,
+						$search		= false,
 						$toggle		= false,
 						$columns	= false,
 						$header		= true,
-						$pagination	= true,
+						$pagination	= 'scroll',
 						$form		= false,
 						$toolbar 	= 'toolbar',
 						$card		= true

@@ -51,8 +51,7 @@
 		// lazyload images on scroll
 		
 		$("img.lazy").lazyload();
-		
-	
+
 		// activate tabs 
 		 
 		$('a[data-toggle="tab"]').on('click', function (e) {

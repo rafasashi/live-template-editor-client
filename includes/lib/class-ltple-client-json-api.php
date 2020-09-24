@@ -57,7 +57,20 @@ class LTPLE_Client_Json_API {
 			    float:left;
 			}
 			';
-			if( $pagination === true ){
+			
+			if( $pagination === 'scroll' ){
+				
+				$table .= '
+				
+				.bootstrap-table{
+					
+					position: relative;
+					height:auto;					
+				}
+				
+				';
+			}
+			elseif( $pagination === true ){
 
 				$table .= '
 				
@@ -103,11 +116,21 @@ class LTPLE_Client_Json_API {
 			}
 
 			if( $card !== false ){
-					
-				$table .= 'tbody {
-					
-					height:calc( 100vh - 240px);
-				}';
+				
+				if( $pagination === 'scroll' ){
+				
+					$table .= 'tbody {
+						
+						height:calc( 100vh - 140px);
+					}';
+				}
+				else{
+						
+					$table .= 'tbody {
+						
+						height:calc( 100vh - 240px);
+					}';					
+				}
 
 				$table .= 'tr {
 					
@@ -127,11 +150,27 @@ class LTPLE_Client_Json_API {
 				}';
 				
 				$table .= '@media (min-width: 768px) {';
+
+					if( $pagination === 'scroll' ){
 					
-					$table .= 'tbody {
+						$table .= 'tbody {
+							
+							height:calc( 100vh - ' . ( $this->parent->inWidget ?  45 : 140 ) . 'px);
+						}';
+					}
+					else{
 						
-						height:calc( 100vh - ' . ( $this->parent->inWidget ?  100 : 190 ) . 'px);				
-					}';				
+						$table .= '#content .nav{';
+							
+							$table .='padding-right:250px !important;';
+							
+						$table .='}';
+							
+						$table .= 'tbody {
+							
+							height:calc( 100vh - ' . ( $this->parent->inWidget ?  100 : 190 ) . 'px);				
+						}';					
+					}
 					
 					$table .= 'tr {';
 					
@@ -255,64 +294,91 @@ class LTPLE_Client_Json_API {
 			
 		$table .= '</style>';
 		
-		/*
-		$table .=  "
-		<script>
-		;(function($){
+		if( $pagination === 'scroll' ){
 			
-			$(document).ready(function(){
+			// infinit scrolling
+			
+			$url = parse_url($api_url);
+			
+			$args = array();
+			
+			if( !empty($url['query']) ){
 				
-				var paged 	= 2;
-				var loading = false;
+				parse_str(html_entity_decode($url['query']),$args);
+			}
+			
+			$args['page'] = '[JS_PAGE_VAR]';
+			
+			$json = json_encode($args);
+			
+			$json = str_replace('"[JS_PAGE_VAR]"','page',$json);
+			
+			$table .=  "
+			<script>
+			;(function($){
+				
+				$(document).ready(function(){
 
-				$('#table tbody').scroll(function() {
+					var page 	= 2;
+					var loading = false;
+					var margin	= 300;
 
-					if ( loading == true) return;
-					
-					if( $('#table tbody').scrollTop() + $('#table tbody').innerHeight() >= $('#table tbody').prop('scrollHeight') ) {
+					$('#table tbody').scroll(function() {
+
+						if ( $('#table tbody tr').length < 100 || loading == true || loading == 'stopped' ) return;
 						
-						if( 1 == 1 ){
-							
-							data = $('#table').bootstrapTable('getData').slice( 0 , paged * 20 );
-							
-							$('#table').bootstrapTable('load',data);
-							
-							++paged;
-						}
-						else{
+						if( $('#table tbody').scrollTop() + $('#table tbody').innerHeight() + margin >= $('#table tbody').prop('scrollHeight') ) {
 							
 							loading = true;
 							
 							$.ajax({
 								
 								type 		: 'GET',
-								url  		: 'http://127.0.0.1:8888/api/ltple-template/v1/list?',
-								data		: {paged:paged},
+								url  		: '" . $url['scheme'] . "://" . $url['host'] . $url['path'] . "',
+								data		: ".$json.",
 								beforeSend	: function() {
 
-									
+									$('#table tbody').append('<tr id=\"tableLoader\"><td style=\"background-repeat:no-repeat;background-position:center center;background-image:url(" . $this->parent->server->url . "/c/p/live-template-editor-server/assets/loader.gif);\"></td></tr>');
 								},
 								success: function(data) {
 									
-									++paged;
+									++page;
 									
-									$('#table').bootstrapTable('append',data);
+									$('#tableLoader').remove();
+									
+									if( data.length > 0 ){
+									
+										$.each(data, function(i,item) {
+											
+											$('#table tbody').append('<tr><td>' + item.item + '</td></tr>');
+										});
+										
+										$('#table').trigger('page-change.bs.table');
+									}
+									
+									if( data.length < 100 ){
+										
+										loading = 'stopped';
+									}
+									else{
+										
+										loading = false;
+									}
 								},
-								complete: function(){
+								complete: function(data){
 									
-									loading = false;
+									
 								}
 							});
 						}
-					}
+					});
 				});
-			});
+				
+			})(jQuery);
 			
-		})(jQuery);
-		
-		</script>
-		";
-		*/
+			</script>
+			";
+		}
 		
 		if($form){
 		
@@ -350,30 +416,45 @@ class LTPLE_Client_Json_API {
 		$table .=  '</div>';
 		
 		$table .=  '<table id="table" class="table table-striped" style="border:none;background:transparent;" ';
+			
 			$table .=  'data-toggle="table" ';
 			//$table .=  'data-height="400" ';
 			$table .=  'data-url="' . $api_url . '" ';
-			$table .=  'data-pagination="'.( $pagination ? 'true' : 'false' ).'" ';
-			if( $pagination == 'true' ){
-				//$table .=  'data-pagination-v-align="both" ';
+			
+			if( $pagination === 'scroll' ){
+				
+				$table 	.=  'data-pagination="false" ';
+				$table	.=  'data-side-pagination="server" ';
+				$table 	.=  'data-page-size="100" ';
+				$table 	.=  'data-show-refresh="false" ';
+				$table 	.=  'data-filter-control="false" ';
+				$table 	.=  'data-sortable="false" ';  
 			}
-			//$table .=  'data-side-pagination="server" ';
-			$table .=  'data-page-size="20" ';
-			$table .=  'data-page-list="[20, 50, 100, 200, 500]" ';					
+			else{
+				
+				$table 	.=  'data-pagination="'.( $pagination ? 'true' : 'false' ).'" ';
+				//$table .=  'data-pagination-v-align="both" ';
+				$table 	.=  'data-page-size="20" ';
+				$table 	.=  'data-page-list="[20, 50, 100, 200, 500]" ';	
+				$table 	.=  'data-show-refresh="true" ';
+				$table 	.=  'data-filter-control="true" ';
+				$table 	.=  'data-sortable="true" ';  
+			}
+			
 			$table .=  'data-search="'.( $search ? 'true' : 'false' ).'" ';
 			$table .=  'data-show-header="'.( $header ? 'true' : 'false' ).'" ';
 			$table .=  'data-show-toggle="'.( $toggle ? 'true' : 'false' ).'" ';
 			$table .=  'data-show-columns="'.( $columns ? 'true' : 'false' ).'" ';
 			$table .=  'data-show-export="'.( $export ? 'true' : 'false' ).'" ';
-			$table .=  'data-show-refresh="true" ';
 			$table .=  'data-buttons-class="primary" ';
 			$table .=  'data-card-view="'.( $card ? 'true' : 'false' ).'" ';
 			$table .=  'data-mobile-responsive="'.( $responsive ? 'true' : 'false' ).'" ';
-			$table .=  'data-filter-control="true" ';
 			//$table .=  'data-sort-order="desc" ';   
 			//$table .=  'data-sort-name="description" ';
 			$table .=  ( $show_toolbar ? 'data-toolbar="#'.$toolbar.'" ' : '' );
+		
 		$table .=  '>';
+		
 			$table .=  '<thead>';
 			$table .=  '<tr>';
 			
