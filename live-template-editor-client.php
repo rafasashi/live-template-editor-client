@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Plugin Name: Live Template Editor Client
  * Version: 1.1.4
  * Plugin URI: https://github.com/rafasashi
