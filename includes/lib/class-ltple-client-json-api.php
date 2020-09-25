@@ -62,10 +62,32 @@ class LTPLE_Client_Json_API {
 				
 				$table .= '
 				
+				html, #ltple-wrapper{
+					
+					overflow:hidden;
+				}
+				
+				#ltple-wrapper #layer_gallery{
+					
+					height:calc( 100vh - ' . ( $this->parent->inWidget ?  0 : 145 ) . 'px);
+				}
+				
+				#ltple-wrapper #gallery_sidebar{
+				
+					height:calc(100vh - '.( $this->parent->inWidget ? 42 : 186 ).'px);
+					overflow-x:hidden;
+					overflow-y:auto;
+				}
+				
 				.bootstrap-table{
 					
 					position: relative;
 					height:auto;					
+				}
+				
+				.fixed-table-toolbar, .wraptotop, .footer{
+					
+					display:none;
 				}
 				
 				';
@@ -121,7 +143,7 @@ class LTPLE_Client_Json_API {
 				
 					$table .= 'tbody {
 						
-						height:calc( 100vh - 140px);
+						height:calc( 100vh - ' . ( $this->parent->inWidget ?  40 : 186 ) . 'px);
 					}';
 				}
 				else{
@@ -155,7 +177,7 @@ class LTPLE_Client_Json_API {
 					
 						$table .= 'tbody {
 							
-							height:calc( 100vh - ' . ( $this->parent->inWidget ?  45 : 140 ) . 'px);
+							height:calc( 100vh - ' . ( $this->parent->inWidget ?  41 : 186 ) . 'px);
 						}';
 					}
 					else{
@@ -372,6 +394,53 @@ class LTPLE_Client_Json_API {
 							});
 						}
 					});
+					
+					// table filters
+
+					if( $('#formFilters').length > 0 ){
+										
+						$('#formFilters').change(function () {
+
+							var new_url = $('#table').attr('data-url');
+
+							$('#formFilters :input').filter(function(index, element) {
+								
+								var name = $(element).attr('name');
+								
+								var val = '';
+								
+								if( $(element).attr('type') == 'checkbox' ){
+									
+									name = name.replace('[]', '[' + $(element).val() + ']');
+									
+									if($(element).is(':checked')){
+										
+										val = 'true';
+									}
+								}
+								else{
+									
+									val = $(element).val();									
+								}
+							
+								if( val != '' && val != 0 && val != $(element).attr('data-original') ){
+									
+									if( new_url.indexOf('?') == -1 ){
+										
+										new_url += '?';
+									}
+									else{
+										
+										new_url += '&';
+									}
+									
+									new_url += 'filter[' + name + ']=' + val;
+								}										
+							});
+							
+							$('#table').bootstrapTable('refresh', {url: new_url});
+						});
+					}
 				});
 				
 			})(jQuery);

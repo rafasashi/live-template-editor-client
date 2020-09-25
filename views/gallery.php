@@ -61,7 +61,7 @@
 					echo '</div>';	
 				//}
 				
-				echo '<ul class="nav nav-tabs tabs-left" style="height:calc(100vh - '.( $this->inWidget ? 42 : 130 ).'px);overflow-x:hidden;overflow-y:auto;">';
+				echo '<ul id="gallery_sidebar" class="nav nav-tabs tabs-left">';
 										
 					foreach( $all_sections as $section => $type_ids ){
 					

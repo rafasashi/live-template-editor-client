@@ -51,7 +51,7 @@
 						
 			echo'<div class="gallery_type_title gallery_head">Media Library</div>';
 				
-			echo'<ul class="nav nav-tabs tabs-left">';
+			echo'<ul id="gallery_sidebar" class="nav nav-tabs tabs-left">';
 
 				echo'<li class="gallery_type_title">Images</li>';
 				
@@ -412,7 +412,7 @@
 									echo $this->parent->admin->display_field( array(
 							
 										'type'				=> 'select',
-										'id'				=> 'type',
+										'id'				=> 'image-type',
 										'options' 			=> $options,
 										'description'		=> '',
 										'style'				=> '',

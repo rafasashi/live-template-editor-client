@@ -343,14 +343,34 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		$slug = 'image-library';
 		
-		$loop = new WP_Query( array( 
+		$args =  array( 
 		
 			'post_type' 		=> 'default-image',
 			'posts_per_page' 	=> 100,
 			'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),		
-		));
+		);
+		
+		if( !empty($_GET['filter']) ){
+			
+			$args['tax_query'] = array(
+				
+				'relation' => 'AND',
+			);
+			
+			foreach( $_GET['filter'] as $taxonomy => $terms ){
+				
+				$args['tax_query'][] = array(
+				
+					'taxonomy' 	=> $taxonomy,
+					'field' 	=> 'slug',
+					'terms' 	=> $terms,
+				);
+			}
+		}
+		
+		$q = new WP_Query($args);
 
-		while ( $loop->have_posts() ) : $loop->the_post(); 
+		while ( $q->have_posts() ) : $q->the_post(); 
 			
 			global $post;
 
@@ -451,9 +471,9 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'author' 			=> $user_id,
 			);
 
-			$loop = new WP_Query($args);
+			$q = new WP_Query($args);
 			
-			while ( $loop->have_posts() ) : $loop->the_post(); 
+			while ( $q->have_posts() ) : $q->the_post(); 
 				
 				global $post;
 
@@ -644,7 +664,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			
 			//get user apps
 			
-			$loop = new WP_Query( array( 
+			$q = new WP_Query( array( 
 				
 				'post_type' 		=> 'user-bookmark', 
 				'posts_per_page' 	=> 100,
@@ -652,7 +672,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'author' 			=> $user_id 
 			));
 			
-			while ( $loop->have_posts() ) : $loop->the_post(); 
+			while ( $q->have_posts() ) : $q->the_post(); 
 				
 				global $post;
 				$bookmark = $post;
