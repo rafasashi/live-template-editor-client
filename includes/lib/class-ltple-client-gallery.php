@@ -57,19 +57,7 @@ class LTPLE_Client_Gallery {
 		
 		return false;
 	}
-	
-	public function get_meta_query($addon_range){
-		
-		$meta_query = [];
-		
-		if( !$this->parent->user->can_edit ){
-			
-			
-		}
-		
-		return $meta_query;
-	}
-	
+
 	public function get_current_types(){
 		
 		if( is_null($this->current_types) ){
@@ -116,45 +104,43 @@ class LTPLE_Client_Gallery {
 						continue;
 					
 					$term = $layer_types[$id];
-
+					
 					if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
 						
-						$tax_query = array('relation'=>'OR');
+						$tax_query = array('relation'=>'AND');
 						
-						$tax_query[0][] = array(
+						$tax_query[] = array(
 					
 							'taxonomy' 	=> $term->taxonomy,
 							'terms' 	=> $term->slug,
 							'field' 	=> 'slug'
 						);
 						
-						$tax_query[0][] = array(
+						$tax_query[] = array(
 					
 							'taxonomy' 			=> 'layer-range',
 							'operator'			=> 'EXISTS'
 						);
 						
-						$tax_query[1][] = array(
-						
-							'taxonomy' 			=> 'user-contact',
-							'field' 			=> 'slug',
-							'terms' 			=> $this->parent->user->user_email,
-							'include_children' 	=> false,
-							'operator'			=> 'IN'
-						);
-						
-						$tax_query[1][] = array(
-						
-							'taxonomy' 			=> 'user-contact',
-							'operator'			=> 'NOT EXISTS'
-						);
+						if( !empty($term->addon_range) ){
+			
+							$tax_query[] = array(
+							
+								'taxonomy' 			=> 'layer-range',
+								'field' 			=> 'slug',
+								'terms' 			=> $term->addon_range->slug,
+								'include_children' 	=> false,
+								'operator'			=> 'NOT IN'
+							);			
+						}
 						
 						// count posts in term
 						
 						$q = new WP_Query([
-							'posts_per_page' 	=> 0,
+							'posts_per_page' 	=> 1,
 							'post_type' 		=> 'cb-default-layer',
 							'tax_query' 		=> $tax_query,
+							'no_found_rows'		=> false,
 						]);
 						
 						if( $q->found_posts > 0 ){
@@ -239,166 +225,35 @@ class LTPLE_Client_Gallery {
 		
 		return $this->all_ranges;
 	}
-	
-	public function get_type_ranges($layer_type,$addon_range=null){
+	 
+	public function get_badge_count($count){
 		
-		$ranges = [];
+		//return $count;
 		
-		// get layer ranges
-		
-		$meta_query = $this->get_meta_query($addon_range);
-		
-		$tax_query = array('relation'=>'AND');
-		
-		$tax_query[] = array(
-		
-			'taxonomy' 			=> 'layer-type',
-			'field' 			=> 'slug',
-			'terms' 			=> $layer_type,
-			'include_children' 	=> false,
-			'operator'			=> 'IN'
-		);
-		
-		$tax_query[] = array(
-		
-			'taxonomy' 			=> 'layer-range',
-			'operator'			=> 'EXISTS'
-		);
-		
-		if( !empty($addon_range) ){
+		if( $round_count = round($count,-1,PHP_ROUND_HALF_DOWN) ){
 			
-			$tax_query[] = array(
-			
-				'taxonomy' 			=> 'layer-range',
-				'field' 			=> 'slug',
-				'terms' 			=> $addon_range->slug,
-				'include_children' 	=> false,
-				'operator'			=> 'NOT IN'
-			);			
-		}
-		
-		$query = new WP_Query( array( 
-			
-			'post_type' 		=> 'cb-default-layer', 
-			'posts_per_page'	=> -1,
-			'fields'		 	=> 'ids',
-			'tax_query' 		=> $tax_query,
-			'meta_query' 		=> $meta_query,
-		
-		));
-
-		if( !empty($query->posts) ){
-		
-			foreach( $query->posts as $post_id ){
+			if( $round_count > $count ){
 				
-				if( $layer_range = wp_get_post_terms( $post_id, 'layer-range' ) ){
-					
-					foreach( $layer_range as $range ){
-						
-						if( !isset($ranges[$range->slug]) ){
-							
-							$meta = get_term_meta($range->term_id);
-							
-							$ranges[$range->slug]['name'] 	= $range->name;
-							$ranges[$range->slug]['slug'] 	= $range->slug;
-							$ranges[$range->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $range->name;
-							$ranges[$range->slug]['count'] 	= 1;
-						}
-						else{
-							
-							++$ranges[$range->slug]['count'];
-						}
-						
-						$ranges[$range->slug]['ids'][] = $post_id;
-					}					
-				}
+				$round_count -= 5;
 			}
 		}
-
-		if( !empty($addon_range) ){
-			
-			// get addon range
-
-			$tax_query = array('relation'=>'AND');
-
-			$tax_query[] = array(
-			
-				'taxonomy' 			=> 'layer-type',
-				'field' 			=> 'slug',
-				'terms' 			=> $layer_type,
-				'include_children' 	=> false,
-				'operator'			=> 'IN'
-			);
-			
-			$tax_query[] = array(
-			
-				'taxonomy' 			=> 'user-contact',
-				'field' 			=> 'slug',
-				'terms' 			=> $this->parent->user->user_email,
-				'include_children' 	=> false,
-				'operator'			=> 'IN'
-			);
-			
-			$query = new WP_Query( array( 
-				
-				'post_type' 		=> 'cb-default-layer', 
-				'posts_per_page'	=> -1,
-				'fields'		 	=> 'ids',
-				'tax_query' 		=> $tax_query,
-				'meta_query' 		=> $meta_query,
-			
-			));
 		
-			if( !empty($query->posts) ){
-
-				foreach( $query->posts as $post_id ){
-					
-					if( !isset($ranges[$addon_range->slug]) ){
-						
-						$meta = get_term_meta($addon_range->term_id);
-						
-						$ranges[$addon_range->slug]['name'] 	= $addon_range->name;
-						$ranges[$addon_range->slug]['slug'] 	= $addon_range->slug;
-						$ranges[$addon_range->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $addon_range->name;
-						$ranges[$addon_range->slug]['count'] 	= 1;
-					}
-					else{
-						
-						++$ranges[$addon_range->slug]['count'];
-					}
-					
-					$ranges[$addon_range->slug]['ids'][] = $post_id;
-				}
-			}
-		}
-
-		// sort ranges
-		
-		if( !empty($ranges) ){
-		
-			// order by count
+		if( $round_count > 0 ){
 			
-			$counts = array();
-			
-			foreach( $ranges as $key => $range ){
-				
-				$counts[$key] = $range['count'];
-			}
-			
-			array_multisort($counts, SORT_DESC, $ranges);
+			$count = $round_count . '+';
 		}
 		
-		return $ranges;
+		return $count;
 	}
 	
-	public function get_range_items($layer_type,$layer_range,$addon_range=null,$paginated=true,$referer){
+	public function get_range_items($layer_type,$layer_range,$referer){
 		
 		$items =[];
 		
 		if( !empty($layer_range) ){
 			
-			$meta_query = $this->get_meta_query($addon_range);
-			
+			$addon_range = !empty($layer_type->addon) ? $layer_type->addon : null; 
+
 			$tax_query = array('relation'=>'AND');
 
 			$tax_query[0] = array(
@@ -437,20 +292,9 @@ class LTPLE_Client_Gallery {
 			
 				'post_type' 	=> 'cb-default-layer', 
 				'tax_query' 	=> $tax_query,
-				'meta_query' 	=> $meta_query,
+				'posts_per_page'=> 100,
+				'paged'			=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 			);
-			
-			//dump($args);
-
-			if( $paginated ){
-				
-				$args['posts_per_page'] = 100;
-				$args['paged'] 			= ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 );
-			}
-			else{
-				
-				$args['posts_per_page'] = -1;
-			}
 
 			if( $query = new WP_Query($args)){
 				
@@ -493,8 +337,10 @@ class LTPLE_Client_Gallery {
 		$items = [];
 		
 		$referer = $rest->get_header( 'referer' );
-
-		if( $layer_type = $this->get_layer_type_info((!empty($_GET['gallery']) ? $_GET['gallery'] : false )) ){
+		
+		$gallery = (!empty($_GET['gallery']) ? $_GET['gallery'] : false );
+		
+		if( $layer_type = $this->get_layer_type_info($gallery) ){
 			
 			//get layer range
 			
@@ -506,7 +352,7 @@ class LTPLE_Client_Gallery {
 			
 			// get gallery items 
 
-			if( $range_items = $this->get_range_items($layer_type,$layer_range,$layer_type->addon,true,$referer) ){
+			if( $range_items = $this->get_range_items($layer_type,$layer_range,$referer) ){
 				
 				$this->parent->plan->options = array($layer_range);
 								
@@ -609,7 +455,7 @@ class LTPLE_Client_Gallery {
 
 			//get item ranges
 			
-			$layer_type->ranges = $this->get_type_ranges($layer_type->slug,$layer_type->addon);	
+			$layer_type->ranges = $this->parent->layer->get_type_ranges($layer_type);	
 			
 			//get item output
 			

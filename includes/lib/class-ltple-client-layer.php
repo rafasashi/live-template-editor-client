@@ -202,7 +202,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
 			'show_admin_column' 	=> true,
-			'update_count_callback' => '',
+			'update_count_callback' => array($this,'count_layer_range'),
 			'show_in_rest'          => true,
 			'rewrite' 				=> true,
 			'sort' 					=> '',
@@ -421,6 +421,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('admin_init', array( $this, 'init_layer_backend' ));
 		
+		/*
 		add_action('wp_loaded', array($this,'get_layer_types'));
 		add_action('wp_loaded', array($this,'get_layer_ranges'));
 		add_action('wp_loaded', array($this,'get_account_options'));
@@ -428,6 +429,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('wp_loaded', array($this,'get_css_libraries'));
 		add_action('wp_loaded', array($this,'get_font_libraries'));
 		//add_action('wp_loaded', array($this,'get_default_layers'));
+		*/
 		
 		add_action( 'set_object_terms', array($this,'set_default_layer_type'), 10, 4 );
 		
@@ -450,6 +452,36 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_filter('ltple_layer_id', array($this,'get_layer_id'),10,1);
 		add_filter('ltple_layer_output', array($this,'get_layer_editor'),10,2);
 		add_filter('ltple_layer_is_editable', array($this,'is_editable_output'),10,2 );
+	}
+	
+	public function count_layer_range($terms,$taxonomy){
+		
+		if( !empty($terms) ){
+			
+			foreach( $terms as $term_id ){
+				
+				// count default layers
+				
+				$query = new WP_Query(array(
+				
+					'posts_per_page' 	=> 1,
+					'post_type' 		=> 'cb-default-layer',
+					'tax_query' 		=> array(
+						
+						array(
+							'taxonomy' 			=> $taxonomy->name,
+							'terms' 			=> $term_id,
+							'field' 			=> 'id',
+							'include_children'	=> false,
+						)
+					)
+				));
+				
+				update_term_meta($term_id,'default_layer_count',$query->found_posts);
+			}
+		}
+		
+		return true;
 	}
 	
 	public function get_local_types(){
@@ -1896,6 +1928,109 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $this->types;
+	}
+	
+	public function get_type_ranges($layer_type){
+		
+		$ranges = [];
+
+		// get layer ranges
+		
+		$addon_range = !empty( $layer_type->addon )  ? $layer_type->addon : null;
+		
+		$exclude = !empty($addon_range->term_id) ? $addon_range->term_id : '';
+		
+		if( $terms = get_terms( array(
+		
+			'taxonomy'		=> 'layer-range',
+			'hide_empty' 	=> true,
+			'exclude'		=> $exclude,
+			'meta_query'	=> array( 
+				
+				array(
+			
+					'key' 	 	=> 'range_type',
+					'value' 	=> $layer_type->term_id,
+					'compare'   => '=',
+				)
+			)
+		)) ){
+			
+			foreach( $terms as $range ){
+
+				$meta = get_term_meta($range->term_id);
+				
+				$ranges[$range->slug]['name'] 	= $range->name;
+				$ranges[$range->slug]['slug'] 	= $range->slug;
+				$ranges[$range->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $range->name;
+				$ranges[$range->slug]['count'] 	= !empty($meta['default_layer_count'][0]) ? $meta['default_layer_count'][0] : 0;
+			}
+		}
+
+		if( !empty($this->parent->user->user_email) &&  !empty($addon_range) ){
+			
+			// get addon range
+
+			$tax_query = array('relation'=>'AND');
+
+			$tax_query[] = array(
+			
+				'taxonomy' 			=> 'layer-type',
+				'field' 			=> 'slug',
+				'terms' 			=> $layer_type->slug,
+				'include_children' 	=> false,
+				'operator'			=> 'IN'
+			);
+			
+			$tax_query[] = array(
+			
+				'taxonomy' 			=> 'user-contact',
+				'field' 			=> 'slug',
+				'terms' 			=> $this->parent->user->user_email,
+				'include_children' 	=> false,
+				'operator'			=> 'IN'
+			);
+			
+			$query = new WP_Query( array( 
+				
+				'post_type' 		=> 'cb-default-layer', 
+				'posts_per_page'	=> 1,
+				'fields'		 	=> 'ids',
+				'tax_query' 		=> $tax_query,
+				'no_found_rows'		=> false,
+			));
+		
+			if( !empty($query->posts) ){
+
+				foreach( $query->posts as $post_id ){
+					
+					$meta = get_term_meta($addon_range->term_id);
+						
+					$ranges[$addon_range->slug]['name'] 	= $addon_range->name;
+					$ranges[$addon_range->slug]['slug'] 	= $addon_range->slug;
+					$ranges[$addon_range->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $addon_range->name;
+					$ranges[$addon_range->slug]['count'] 	= $query->found_posts;
+				}
+			}
+		}
+
+		// sort ranges
+		
+		if( !empty($ranges) ){
+		
+			// order by count
+			
+			$counts = array();
+			
+			foreach( $ranges as $key => $range ){
+				
+				$counts[$key] = $range['count'];
+			}
+			
+			array_multisort($counts, SORT_DESC, $ranges);
+		}
+		
+		return $ranges;
 	}
 	
 	public function get_layer_range_id($post){
@@ -5061,6 +5196,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$static_dir = $this->dirPath . $postId;
 		
+		/*
 		if( !is_dir($static_dir) ){
 			
 			$this->parent->filesystem->create_folder_recursively($static_dir);
@@ -5071,6 +5207,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$this->parent->filesystem->create_folder_recursively($static_dir);
 		}
+		*/
 	
 		return $static_dir;
 	}
@@ -5079,10 +5216,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$static_dir = $this->dirPath . $postId . '/assets/' . $type;
 		
+		/*
 		if( !is_dir($static_dir) ){
 			
 			$this->parent->filesystem->create_folder_recursively($static_dir);
-		}		
+		}
+		*/		
 		
 		return $static_dir;
 	}	

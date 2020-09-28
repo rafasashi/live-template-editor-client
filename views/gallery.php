@@ -89,7 +89,7 @@
 									
 									$layer_count = 0;
 									
-									foreach($layer_type->ranges as $range){
+									foreach( $layer_type->ranges as $range ){
 										
 										$layer_count += $range['count'];
 									}
@@ -100,7 +100,10 @@
 									
 									$layer_count = $term->count;
 								}
-
+								
+								if( $layer_count < 1 )
+									continue;
+								
 								echo '<li'.$class.'>';
 								
 									echo '<a style="display:inline-block;width:100%;" href="' . $gallery_url . '">';
@@ -108,9 +111,9 @@
 										echo '<div>';
 										
 											echo $term->name;
-										
-											echo ' <span class="badge pull-right hidden-xs" style="margin-top:13px;padding:1px 5px;font-size:12px;">' . $layer_count . '</span>';
-										
+											
+											echo ' <span class="badge pull-right hidden-xs" style="margin-top:13px;padding:1px 5px;font-size:10px;">' . $this->gallery->get_badge_count($layer_count) . '</span>';
+											
 										echo '</div>';
 										
 										echo '<div>';
@@ -156,6 +159,9 @@
 								
 								foreach( $layer_type->ranges as $range ){
 									
+									if( $range['count'] < 1 )
+										continue;
+									
 									$range_url = add_query_arg($_GET,$this->urls->gallery);
 									
 									$range_url = remove_query_arg(array('uri'),$range_url);
@@ -167,7 +173,7 @@
 										
 									), $range_url );
 									
-									echo'<li role="presentation"' . ( $range['slug'] == $layer_range ? ' class="active"' : '' ) . '><a href="' . $range_url . '" aria-controls="' . $range['slug'] . '" role="tab" title="'.ucfirst($range['name']).'">'.strtoupper($range['short']).' <span class="badge">'.$range['count'].'</span></a></li>';
+									echo'<li role="presentation"' . ( $range['slug'] == $layer_range ? ' class="active"' : '' ) . '><a href="' . $range_url . '" aria-controls="' . $range['slug'] . '" role="tab" title="'.ucfirst($range['name']).'">'.strtoupper($range['short']).' <span class="badge" style="font-size:10px !important;">'.$this->gallery->get_badge_count($range['count']).'</span></a></li>';
 								}							
 							}
 							
