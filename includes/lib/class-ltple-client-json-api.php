@@ -333,66 +333,89 @@ class LTPLE_Client_Json_API {
 			
 			$json = json_encode($args);
 			
-			$json = str_replace('"[JS_PAGE_VAR]"','page',$json);
+			$json = str_replace('"[JS_PAGE_VAR]"','1',$json);
 			
 			$table .=  "
 			<script>
 			;(function($){
+
+				var tableLoading 	= false;
+				var tableMargin		= 300;
+				var tableUrl 		= '" . $url['scheme'] . "://" . $url['host'] . $url['path'] . "';
+				var tableData		= " . $json . ";
+				
+				function tableRequest(){
+					
+					tableLoading = true;
+					
+					$.ajax({
+						
+						type 		: 'GET',
+						url  		: tableUrl,
+						data		: tableData,
+						beforeSend	: function() {
+
+							$('#table tbody').append('<tr id=\"tableLoader\"><td style=\"background-repeat:no-repeat;background-position:center center;background-image:url(" . $this->parent->server->url . "/c/p/live-template-editor-server/assets/loader.gif);\"></td></tr>');
+						},
+						success: function(data) {
+							
+							++tableData.page;
+							
+							$('.fixed-table-loading').hide();
+							
+							$('#tableLoader').remove();
+							
+							if( data.length > 0 ){
+								
+								$('.no-records-found').remove();
+							
+								$.each(data, function(i,item) {
+									
+									$('#table tbody').append('<tr><td>' + item.item + '</td></tr>');
+								});
+								
+								$('#table').trigger('page-change.bs.table');
+							}
+							
+							if( data.length < 100 ){
+								
+								tableLoading = 'stopped';
+							}
+							else{
+								
+								tableLoading = false;
+							}
+						},
+						complete: function(data){
+							
+							
+						}
+					});
+					
+				}
+				
+				tableRequest();
 				
 				$(document).ready(function(){
 
-					var page 	= 2;
-					var loading = false;
-					var margin	= 300;
-
 					$('#table tbody').scroll(function() {
 
-						if ( $('#table tbody tr').length < 100 || loading == true || loading == 'stopped' ) return;
+						if ( $('#table tbody tr').length < 100 || tableLoading == true || tableLoading == 'stopped' ) return;
 						
-						if( $('#table tbody').scrollTop() + $('#table tbody').innerHeight() + margin >= $('#table tbody').prop('scrollHeight') ) {
+						if( $('#table tbody').scrollTop() + $('#table tbody').innerHeight() + tableMargin >= $('#table tbody').prop('scrollHeight') ) {
 							
-							loading = true;
-							
-							$.ajax({
-								
-								type 		: 'GET',
-								url  		: '" . $url['scheme'] . "://" . $url['host'] . $url['path'] . "',
-								data		: ".$json.",
-								beforeSend	: function() {
-
-									$('#table tbody').append('<tr id=\"tableLoader\"><td style=\"background-repeat:no-repeat;background-position:center center;background-image:url(" . $this->parent->server->url . "/c/p/live-template-editor-server/assets/loader.gif);\"></td></tr>');
-								},
-								success: function(data) {
-									
-									++page;
-									
-									$('#tableLoader').remove();
-									
-									if( data.length > 0 ){
-									
-										$.each(data, function(i,item) {
-											
-											$('#table tbody').append('<tr><td>' + item.item + '</td></tr>');
-										});
-										
-										$('#table').trigger('page-change.bs.table');
-									}
-									
-									if( data.length < 100 ){
-										
-										loading = 'stopped';
-									}
-									else{
-										
-										loading = false;
-									}
-								},
-								complete: function(data){
-									
-									
-								}
-							});
+							tableRequest();
 						}
+					});
+					
+					$('#table').on('refresh.bs.table',function(e){
+						
+						$('#table tbody').empty();
+						
+						tableData.page 	= 1;
+						tableLoading 	= false;
+
+						tableRequest();								
 					});
 					
 					// table filters
@@ -400,8 +423,6 @@ class LTPLE_Client_Json_API {
 					if( $('#formFilters').length > 0 ){
 										
 						$('#formFilters').change(function () {
-
-							var new_url = $('#table').attr('data-url');
 
 							$('#formFilters :input').filter(function(index, element) {
 								
@@ -422,23 +443,21 @@ class LTPLE_Client_Json_API {
 									
 									val = $(element).val();									
 								}
-							
-								if( val != '' && val != 0 && val != $(element).attr('data-original') ){
+								
+								if( val.length > 0 ){
 									
-									if( new_url.indexOf('?') == -1 ){
-										
-										new_url += '?';
-									}
-									else{
-										
-										new_url += '&';
-									}
+									tableData['filter'] = {};
 									
-									new_url += 'filter[' + name + ']=' + val;
-								}										
+									tableData.filter[name]= val;
+								}
+								else{
+									
+									tableData['filter'] = null;
+								}
 							});
-							
-							$('#table').bootstrapTable('refresh', {url: new_url});
+
+							$('#table').bootstrapTable('refresh');
+
 						});
 					}
 				});
@@ -488,7 +507,6 @@ class LTPLE_Client_Json_API {
 			
 			$table .=  'data-toggle="table" ';
 			//$table .=  'data-height="400" ';
-			$table .=  'data-url="' . $api_url . '" ';
 			
 			if( $pagination === 'scroll' ){
 				
@@ -497,7 +515,8 @@ class LTPLE_Client_Json_API {
 				$table 	.=  'data-page-size="100" ';
 				$table 	.=  'data-show-refresh="false" ';
 				$table 	.=  'data-filter-control="false" ';
-				$table 	.=  'data-sortable="false" ';  
+				$table 	.=  'data-sortable="false" ';
+				$table 	.=  'data-ajax="tableRequest" ';
 			}
 			else{
 				
@@ -507,7 +526,8 @@ class LTPLE_Client_Json_API {
 				$table 	.=  'data-page-list="[20, 50, 100, 200, 500]" ';	
 				$table 	.=  'data-show-refresh="true" ';
 				$table 	.=  'data-filter-control="true" ';
-				$table 	.=  'data-sortable="true" ';  
+				$table 	.=  'data-sortable="true" '; 
+				$table 	.=  'data-url="' . $api_url . '" ';
 			}
 			
 			$table .=  'data-search="'.( $search ? 'true' : 'false' ).'" ';

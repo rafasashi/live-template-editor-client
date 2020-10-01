@@ -293,7 +293,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 			}
 			elseif( isset($this->storageTypes[$post->post_type]) || $this->is_local ){
-
+				
 				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){			
 					
 					// remove metaboxes
@@ -456,10 +456,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function count_layer_range($terms,$taxonomy){
 		
+		//$terms = $this->get_layer_ranges(); // bulk count
+		
 		if( !empty($terms) ){
 			
-			foreach( $terms as $term_id ){
+			foreach( $terms as $term ){
 				
+				$term_id = is_object($term) ? $term->term_id : $term;
+
 				// count default layers
 				
 				$query = new WP_Query(array(

@@ -640,10 +640,17 @@ class LTPLE_Client_Gallery {
 					);
 				
 					// get table of results
-
+					
+					$api_url = $this->parent->urls->api . 'ltple-template/v1/list/';
+					
+					if( !empty($_REQUEST) ){
+						
+						$api_url .= '?' . http_build_query($_REQUEST, '', '&amp;');
+					}
+					
 					$this->parent->api->get_table(
 					
-						$this->parent->urls->api . 'ltple-template/v1/list?' . http_build_query($_REQUEST, '', '&amp;'), 
+						$api_url, 
 						$fields, 
 						$trash		= false,
 						$export		= false,
