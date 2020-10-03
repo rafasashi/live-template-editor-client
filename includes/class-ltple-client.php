@@ -1594,8 +1594,8 @@ class LTPLE_Client {
 				$post_content 	= urldecode(base64_decode($_POST['postContent']));
 				$post_content 	= LTPLE_Editor::sanitize_content( $post_content, $is_static );
 				
-				$post_css 		= ( !empty($_POST['postCss']) 		? stripcslashes( $_POST['postCss'] ) 		 : '' );
-				$post_js 		= ( !empty($_POST['postJs']) 		? stripcslashes( $_POST['postJs'] ) 		 : '' );
+				$post_css 		= ( !empty($_POST['postCss']) ? sanitize_meta('layerCss',$_POST['postCss'],'post') : '' ); // unslash breaks unicode char
+				$post_js 		= ( !empty($_POST['postJs'])  ? sanitize_meta('layerJs',stripcslashes( $_POST['postJs'] ),'post') : '' );
 
 				$post_title 	= ( !empty($_POST['postTitle']) 	? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
 				$post_name 		= $post_title;			
