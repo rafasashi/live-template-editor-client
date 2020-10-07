@@ -507,7 +507,7 @@ class LTPLE_Client_Gallery {
 								
 								$action =  '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 							
-									$action .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL; 
+									$action .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
 						
 								$action .= '</button>'.PHP_EOL;
 							}
@@ -569,7 +569,7 @@ class LTPLE_Client_Gallery {
 												
 												$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
 												
-													$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
+													$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 											
 												$item.='</button>'.PHP_EOL;								
 											}
@@ -592,7 +592,7 @@ class LTPLE_Client_Gallery {
 									
 									$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 								
-										$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
+										$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 							
 									$item.='</button>'.PHP_EOL;
 								}
@@ -601,7 +601,7 @@ class LTPLE_Client_Gallery {
 								
 								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
 								
-									$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
+									$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 							
 								$item.='</button>'.PHP_EOL;								
 							}

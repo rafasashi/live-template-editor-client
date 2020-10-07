@@ -271,7 +271,7 @@ class LTPLE_Client_Product {
 				
 				$button.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 			
-					$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
+					$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 		
 				$button.='</button>'.PHP_EOL;
 				
@@ -324,7 +324,7 @@ class LTPLE_Client_Product {
 				
 				$button.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 			
-					$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
+					$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 		
 				$button.='</button>'.PHP_EOL;
 				
@@ -340,7 +340,7 @@ class LTPLE_Client_Product {
 								
 								$button.= '<h4 class="modal-title" id="myModalLabel">';
 								
-									$button.= 'Buy ' . $post->post_title;
+									$button.= 'Unlock ' . $post->post_title;
 								
 								$button.= '</h4>'.PHP_EOL;
 							
@@ -364,7 +364,7 @@ class LTPLE_Client_Product {
 				
 				$button.='<button type="button" class="btn btn-sm btn-success" disabled="disabled">'.PHP_EOL;
 			
-					$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
+					$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 		
 				$button.='</button>'.PHP_EOL;
 			}
@@ -373,7 +373,7 @@ class LTPLE_Client_Product {
 			
 			$button.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
 			
-				$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Buy'.PHP_EOL;
+				$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 		
 			$button.='</button>'.PHP_EOL;								
 		}
