@@ -261,60 +261,7 @@ class LTPLE_Client_Product {
 								
 				$button.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
 			}
-			elseif( $this->parent->plan->user_has_options( array($layer_type) ) ){
-				
-				//get agreement url	
-				
-				$agreement_url = $this->get_agreement_url($post,$layer_type,$price);
-				
-				$modal_id='modal_'.md5($agreement_url);
-				
-				$button.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
-			
-					$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
-		
-				$button.='</button>'.PHP_EOL;
-				
-				$button.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
-					
-					$button.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
-						
-						$button.='<div class="modal-content">'.PHP_EOL;
-						
-							$button.='<div class="modal-header">'.PHP_EOL;
-								
-								$button.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-								
-								$button.= '<h4 class="modal-title" id="myModalLabel">';
-								
-									$button.= 'Add ' . $post->post_title;
-									
-									/*
-									if( $total_price_amount > 0 && $plan_status != 'upgrade' ){
-									
-										$button.= ' (' . $total_price_amount . $total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
-									}
-									*/
-								
-								$button.= '</h4>'.PHP_EOL;
-							
-							$button.='</div>'.PHP_EOL;
-							
-							$button.='<div class="modal-body" style="padding:0px;">'.PHP_EOL;
-
-								$button.= '<div class="loadingIframe" style="position:absolute;height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
-
-								$button.= '<iframe data-src="'.$agreement_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 60px);overflow: hidden;"></iframe>';
-							
-							$button.='</div>'.PHP_EOL;
-							
-						$button.='</div>'.PHP_EOL;
-						
-					$button.='</div>'.PHP_EOL;
-					
-				$button.='</div>'.PHP_EOL;									
-			}
-			elseif( 1 == 1 ){
+			else{
 				
 				//get checkout button
 				
@@ -359,14 +306,6 @@ class LTPLE_Client_Product {
 					$button.='</div>'.PHP_EOL;
 					
 				$button.='</div>'.PHP_EOL;									
-			}
-			else{
-				
-				$button.='<button type="button" class="btn btn-sm btn-success" disabled="disabled">'.PHP_EOL;
-			
-					$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
-		
-				$button.='</button>'.PHP_EOL;
 			}
 		}
 		else{

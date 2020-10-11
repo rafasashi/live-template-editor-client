@@ -30,9 +30,7 @@ class LTPLE_Client_Server {
 				
 				// set dev url
 				
-				$this->url = str_replace('.','--',$this->url);
-				
-				$this->url .= '.' . REW_SERVER;				 
+				$this->url = str_replace('.','--',untrailingslashit($this->url)) . '.' . REW_SERVER;				 
 			}
 			
 			// set access control

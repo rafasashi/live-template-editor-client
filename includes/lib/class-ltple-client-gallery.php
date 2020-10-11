@@ -355,12 +355,14 @@ class LTPLE_Client_Gallery {
 			if( $range_items = $this->get_range_items($layer_type,$layer_range,$referer) ){
 				
 				$this->parent->plan->options = array($layer_range);
-								
+				
+				$is_addon = !empty($layer_type->addon->slug) && $layer_type->addon->slug == $layer_range ? true : false;
+				
 				$has_options = $this->parent->plan->user_has_options($this->parent->plan->options);
 				
 				$plans = $this->parent->plan->get_plans_by_options( $this->parent->plan->options );
 				
-				if( !$has_options && !empty($plans) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+				if( !$is_addon && !$has_options && !empty($plans) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 
 					$item ='<div class="panel panel-default bs-callout bs-callout-primary" style="min-height:287px;margin:0px;padding:7%;border:none !important;">';
 						

@@ -12,7 +12,7 @@ class LTPLE_Client_Plan {
 	var $message;
 	var $fields;
 	
-	var $subscription_plans	= NULL;
+	var $subscription_plans	= array();
 	
 	var $license_holders	= array();
 	var $license_users		= array();
@@ -567,7 +567,7 @@ class LTPLE_Client_Plan {
 				
 					$this->shortcode .= $this->message;
 				}	
-
+				
 				if( !is_null($atts['widget']) && $atts['widget']==='true' ){
 					
 					$this->shortcode .= '<div class="modal-body" style="padding:0px;">'.PHP_EOL;
@@ -1314,11 +1314,18 @@ class LTPLE_Client_Plan {
 					
 				if(!empty($this->data['name'])){
 					
-					do_action('ltple_update_user_plan');
+					// TODO deliver to sponsored
 					
-					if( !empty($this->data['options'])  && !empty($this->data['subscriber']) ){
-							
-						if( $this->deliver_plan($this->data,$this->parent->user) ){
+					if( !empty($this->data['subscriber']) ){
+						
+						$user = get_user_by('email',$this->data['subscriber']);
+					}
+					
+					if( !empty($user) ){
+						
+						do_action('ltple_update_user_plan',$user);
+					
+						if( $this->deliver_plan($this->data,$user) ){
 														
 							if( $this->data['price'] > 0 ){
 								
@@ -1438,6 +1445,8 @@ class LTPLE_Client_Plan {
 				
 				$user_id = $user->ID;
 				
+				// add plan options
+				
 				if( !empty($plan['options']) ){
 					
 					$taxonomies 			= $this->get_layer_taxonomies_options();
@@ -1489,17 +1498,19 @@ class LTPLE_Client_Plan {
 						
 						update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
 					}
-					
-					if( !empty($plan['items']) ){
-					
-						foreach( $plan['items'] as $item_id ){
-							
-							wp_set_object_terms( $item_id, $plan['subscriber'], 'user-contact', true );
-						
-							clean_object_term_cache( $item_id, 'user-contact' );
-						}
-					}
 				}
+				
+				// add plan items
+				
+				if( !empty($plan['items']) ){
+				
+					foreach( $plan['items'] as $item_id ){
+						
+						wp_set_object_terms( $item_id, $plan['subscriber'], 'user-contact', true );
+					
+						clean_object_term_cache( $item_id, 'user-contact' );
+					}
+				}				
 				
 				// hook triggers
 				
@@ -1709,57 +1720,42 @@ class LTPLE_Client_Plan {
 		}
 	}
 	
-	public function get_plan_info($plan_id){
-		
-		$plans = $this->get_subscription_plans( $plan_id );
-		
-		if( !empty($plans[$plan_id]) ){
-				
-			return $plans[$plan_id];
-		}
-		
-		return false;
-	}
-	
-	public function get_subscription_plans(){	
-		
-		if( is_null($this->subscription_plans) ){
-			
-			$this->subscription_plans = array();
+	public function get_plan_info($post){
 
-			if( $posts = get_posts( array(
+		$plan_id = is_numeric($post) ? $post : $post->ID;
+		
+		if( !isset($this->subscription_plans[$plan_id]) ){
 			
-				'post_type' 	=> 'subscription-plan',
-				'post_status' 	=> 'publish',
-				'numberposts' 	=> -1,
-			)) ){
-
-				$taxonomies = $this->get_layer_taxonomies_options();
+			$plan = false;
+			
+			if( is_numeric($post) )
 				
-				foreach( $posts as $post ){
-					
-					$plan = array();
-					
-					$plan_id 		= $post->ID;
-					$plan_title		= $post->post_title;
-					$plan_content	= $post->post_content;
-					$options 		= get_post_meta( $plan_id, 'plan_options', true );
-					
-					$plan['id'] 		= $plan_id;
-					$plan['title'] 		= $plan_title;
-					$plan['content']	= $plan_content;
-					$plan['options'] 	= $options;
-					
-					// plan info
-					
-					$plan['info']['total_price_amount'] 	= 0;
-					$plan['info']['total_fee_amount'] 		= 0;
-					$plan['info']['total_price_period'] 	= 'month';
-					$plan['info']['total_fee_period'] 		= 'once';
-					$plan['info']['total_price_currency']	= '$';
-					
-					$plan['upgrade'] = array();
-					
+				$post = get_post($post);
+				
+			if( $post->post_type == 'subscription-plan' && $post->post_status == 'publish' ){
+				
+				$plan = array();
+						
+				$plan_id 		= $post->ID;
+				$plan_title		= $post->post_title;
+				$plan_content	= $post->post_content;
+				$options 		= get_post_meta( $plan_id, 'plan_options', true );
+				
+				$plan['id'] 		= $plan_id;
+				$plan['title'] 		= $plan_title;
+				$plan['content']	= $plan_content;
+				$plan['options'] 	= $options;
+				
+				// plan info
+				
+				$plan['info']['total_price_amount'] 	= 0;
+				$plan['info']['total_fee_amount'] 		= 0;
+				$plan['info']['total_price_period'] 	= 'month';
+				$plan['info']['total_fee_period'] 		= 'once';
+				$plan['info']['total_price_currency']	= '$';
+
+				if( $taxonomies = $this->get_layer_taxonomies_options() ){
+						
 					foreach( $taxonomies as $taxonomy => $terms ){
 						
 						foreach( $terms as $term ){
@@ -1773,7 +1769,7 @@ class LTPLE_Client_Plan {
 								$plan['info']['total_storage'] 		= $this->sum_total_storage( $plan['info']['total_storage'], $term->options);
 								
 								$plan = apply_filters('ltple_subscription_plan_info',$plan,$term->options);								
-		
+
 								// add children terms
 								
 								if( $children = get_term_children( $term->term_id, $term->taxonomy) ){
@@ -1797,77 +1793,98 @@ class LTPLE_Client_Plan {
 							}
 						}
 					}
+				}
+
+				$plan['upgrade'] = array();
+
+				//if( $plan['info']['total_price_amount'] > 0 || $plan['info']['total_fee_amount'] > 0 ){				
+				
+				if( $this->parent->user->loggedin ){
 					
-					if( $plan['info']['total_price_amount'] > 0 || $plan['info']['total_fee_amount'] > 0){				
+					// user has plan
+					
+					$plan['user_has_plan'] = $this->user_has_plan( $plan_id );
+					
+					// plan upgrade
+
+
+					$total_upgrade = 0;
+					
+					if( $plan_upgrade = $this->user_plan_upgrade( $plan_id ) ){
 						
-						if( $this->parent->user->loggedin ){
+						foreach($plan_upgrade['now'] as $option => $value){
 							
-							// user has plan
-							
-							$plan['user_has_plan'] = $this->user_has_plan( $plan_id );
-							
-							// plan upgrade
-
-
-							$total_upgrade = 0;
-							
-							if( $plan_upgrade = $this->user_plan_upgrade( $plan_id ) ){
-								
-								foreach($plan_upgrade['now'] as $option => $value){
-									
-									$total_upgrade += $value;
-								}
-							}
-							
-							if( $total_upgrade > 0 ){
-							
-								$plan['upgrade'] = $plan_upgrade;
-							}
-
-							// plan action
-							
-							$plan['action'] = 'subscribe';
-							
-							if( $plan['info']['total_price_amount'] == 0 && $plan['info']['total_fee_amount'] == 0 && $plan['user_has_plan'] === true ){
-								
-								$plan['action'] = 'unlocked';
-							}
-							elseif( $plan['info']['total_price_amount'] > 0 ){
-							
-								if( $plan['user_has_plan'] === true ){
-									
-									$plan['action'] = 'renew';
-								}
-								elseif( $total_upgrade > 0 ){
-									
-									$plan['action'] = 'upgrade';
-								}
-							}
-							elseif( $plan['info']['total_fee_amount'] > 0 ){
-								
-								$plan['action'] = 'order';
-							}
+							$total_upgrade += $value;
 						}
-						
-						//price tag
-						
-						$plan['price_tag'] = $this->get_price_tag($plan);
-						
-						// plan urls
-						
-						$plan['back_url'] 	 	= $this->parent->urls->current;
-						
-						$plan['info_url'] 	 	= get_post_permalink($plan_id);
-						
-						$plan['agreement_url'] 	= $this->parse_agreement_url($plan);
+					}
+					
+					if( $total_upgrade > 0 ){
+					
+						$plan['upgrade'] = $plan_upgrade;
+					}
 
-						$this->subscription_plans[$plan_id] = $plan;
+					// plan action
+					
+					$plan['action'] = 'subscribe';
+					
+					if( $plan['info']['total_price_amount'] == 0 && $plan['info']['total_fee_amount'] == 0 && $plan['user_has_plan'] === true ){
+						
+						$plan['action'] = 'unlocked';
+					}
+					elseif( $plan['info']['total_price_amount'] > 0 ){
+					
+						if( $plan['user_has_plan'] === true ){
+							
+							$plan['action'] = 'renew';
+						}
+						elseif( $total_upgrade > 0 ){
+							
+							$plan['action'] = 'upgrade';
+						}
+					}
+					elseif( $plan['info']['total_fee_amount'] > 0 ){
+						
+						$plan['action'] = 'order';
 					}
 				}
+				
+				//price tag
+				
+				$plan['price_tag'] = $this->get_price_tag($plan);
+				
+				// plan urls
+				
+				$plan['back_url'] 	 	= $this->parent->urls->current;
+				
+				$plan['info_url'] 	 	= get_post_permalink($plan_id);
+				
+				$plan['agreement_url'] 	= $this->parse_agreement_url($plan);
+			
+				//}
+			}
+			
+			$this->subscription_plans[$plan_id] = $plan;
+		}
+		
+		return $this->subscription_plans[$plan_id];
+	}
+	
+	public function get_subscription_plans(){	
+
+		if( $posts = get_posts( array(
+		
+			'post_type' 	=> 'subscription-plan',
+			'post_status' 	=> 'publish',
+			'numberposts' 	=> -1,
+		)) ){
+
+			foreach( $posts as $post ){
+				
+				$subscription_plans[$post->ID] = $this->get_plan_info($post);
 			}
 		}
 		
-		return $this->subscription_plans;
+		return $subscription_plans;
 	}
 	
 	public function get_price_tag($plan){
