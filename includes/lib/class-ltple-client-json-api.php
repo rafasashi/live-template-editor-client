@@ -467,6 +467,61 @@ class LTPLE_Client_Json_API {
 			</script>
 			";
 		}
+		else{
+			
+			$table .=  "
+			<script>
+			;(function($){
+				
+				$(document).ready(function(){
+					
+					// table filters
+
+					if( $('#formFilters').length > 0 ){
+
+						$('#formFilters').change(function () {
+
+							var formFilters = {};
+
+							$('#formFilters :input').filter(function(index, element) {
+
+								var name = $(element).attr('name');
+
+								var val = '';
+
+								if( $(element).attr('type') == 'checkbox' ){
+
+									name = name.replace('[]', '[' + $(element).val() + ']');
+
+									if($(element).is(':checked')){
+
+										val = 'true';
+									}
+								}
+								else{
+
+									val = $(element).val();									
+								}
+
+								if( val != '' && val != 0 && val != $(element).attr('data-original') ){
+
+									formFilters[name] = val;
+								}										
+							});
+
+							$('#table').bootstrapTable('filterBy',formFilters);
+
+						});
+					}
+					
+					
+				});
+				
+			})(jQuery);
+			
+			</script>
+			";
+		}
 		
 		if($form){
 		
