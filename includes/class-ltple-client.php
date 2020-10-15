@@ -338,6 +338,32 @@ class LTPLE_Client {
 		}
 	}
 	
+	public function exit_alert($message,$code=200){
+		
+		$class = $code < 400 ? 'success' : 'alert';
+		
+		http_response_code($code);
+		
+		$this->message = '<div class="alert alert-' . $class . '">';
+			
+			$this->message .= $message;
+		
+		$this->message .= '</div>';
+		
+		include( $this->views . '/message.php' );
+		
+		exit;
+	}
+	
+	public function exit_message($message,$code=200){
+		
+		http_response_code($code);
+
+		echo $message;
+		
+		exit;
+	}
+	
 	public function init_frontend(){	
 
 		// Load frontend JS & CSS
@@ -402,8 +428,7 @@ class LTPLE_Client {
 				}
 				else{
 					
-					echo 'Wrong embedded request...';
-					exit;				
+					$this->exit_message('Wrong embedded request...',404);					
 				}
 			}
 			elseif( $this->request->is_remote ){
@@ -416,8 +441,7 @@ class LTPLE_Client {
 				}
 				else{
 					
-					echo 'Wrong remote request...';
-					exit;				
+					$this->exit_message('Wrong remote request...',404);				
 				}			
 			}
 			else{
@@ -927,8 +951,7 @@ class LTPLE_Client {
 			}
 			else{
 				
-				echo 'You don\'t have access to this template...';
-				exit;
+				$this->exit_message('You don\'t have access to this template...',404);
 			}				
 		}
 		elseif( file_exists($this->views . '/'.$layer->post_type . '.php') ){
@@ -1553,8 +1576,6 @@ class LTPLE_Client {
 
 					$_SESSION['message'] .='</div>';
 					
-					//include( $this->views . '/message.php' );
-
 					//redirect page
 					
 					$parsed = parse_url($this->urls->dashboard .'?'. $_SERVER['QUERY_STRING']);
@@ -1631,24 +1652,17 @@ class LTPLE_Client {
 								
 								update_post_meta($layerId, 'layerJs', $post_js);
 								
-								echo 'Template successfully updated!';
-								exit;
+								$this->exit_message('Template successfully updated!',200);
 							}
 						}
 						else{
 						
-							http_response_code(404);
-							
-							echo 'Error getting default layer ID...';
-							exit;
+							$this->exit_message('Error getting default layer ID...',404);
 						}
 					}
 					else{
 						
-						http_response_code(404);
-						
-						echo 'Update permission denided...';
-						exit;
+						$this->exit_message('Update permission denided...',404);
 					}
 				}
 				elseif( $_POST['postAction'] == 'duplicate' ){
@@ -1925,15 +1939,7 @@ class LTPLE_Client {
 					}
 					else{
 						
-						http_response_code(404);
-						
-						$this->message ='<div class="alert alert-danger">';
-								
-							$this->message .= 'You don\'t have enough right to perform this action...';
-
-						$this->message .='</div>';
-						
-						include( $this->views . '/message.php' );							
+						$this->exit_alert('You don\'t have enough right to perform this action...',404);
 					}
 				}
 				elseif( $_POST['postAction'] == 'save' ){				
@@ -1943,7 +1949,11 @@ class LTPLE_Client {
 					$post_id = '';
 					$defaultLayerId = -1;
 					
-					if( $this->layer->type != 'cb-default-layer' ){
+					if( empty($this->layer->layerStorage) ){
+						
+						$this->exit_alert('Wrong template storage...',404);
+					}
+					elseif( $this->layer->type != 'cb-default-layer' ){
 						
 						$post_id		= $this->user->layer->ID;
 						$post_author	= $this->user->layer->post_author;
@@ -1981,24 +1991,15 @@ class LTPLE_Client {
 							if( !$this->plan->remaining_storage_amount($defaultLayer) > 0 ){
 								
 								$layer_type = $this->layer->get_layer_type($defaultLayer);
-
-								$this->message ='<div class="alert alert-danger">';
 								
-									$this->message .= 'You can\'t save more projects from the <b>' . $layer_type->name . '</b> gallery with the current plan...';
-
-								$this->message .='</div>';
-								
-								include( $this->views . '/message.php' );
+								$this->exit_alert('You can\'t save more projects from the <b>' . $layer_type->name . '</b> gallery with the current plan...',404);
 							}
 
 							$defaultLayerId	= intval( $defaultLayer->ID );
 						}
 						else{
 							
-							http_response_code(404);
-							
-							echo 'This default layer doesn\'t exists...';
-							exit;							
+							$this->exit_alert('This default layer doesn\'t exists...',404);						
 						}
 					}
 					
@@ -2061,35 +2062,21 @@ class LTPLE_Client {
 								$user_layer_url = $this->urls->edit . '?action=edit&uri=' . $post_id;
 								
 								wp_redirect($user_layer_url);
-								
 								echo 'Redirecting editor...';
-								exit;							
+								exit;					
 							}
 							else{
 								
-								http_response_code(200);
-								echo 'Template successfully saved!';
-								exit;
+								$this->exit_message('Template successfully saved!',200);
 							}
 						}
-					}				
-		
-					http_response_code(404);
-						
-					echo 'Error saving user layer...';
-					exit;
+					}
+
+					$this->exit_message('Error saving user layer...',404);
 				}
 				else{
 					
-					http_response_code(404);
-					
-					$this->message ='<div class="alert alert-danger">';
-							
-						$this->message .= 'This action doesn\'t exists...';
-
-					$this->message .='</div>';
-					
-					include( $this->views . '/message.php' );					
+					$this->exit_alert('This action doesn\'t exists...',404);					
 				}
 			}
 			elseif( $_SERVER['REQUEST_METHOD'] === 'POST' ){
@@ -2098,19 +2085,17 @@ class LTPLE_Client {
 				
 					if( $this->layer->upload_image_template() ){
 						
-						echo 'Template successfully saved!';
-						exit;					
+						$this->exit_message('Template successfully saved!',200);						
 					}
 					else{
 						
-						echo 'Error Saving Template....';
-						exit;					
+						$this->exit_message('Error Saving Template...',404);
 					}
 				}
 			}	
 		}
 	}
-	
+
 	public function extract_css_urls( $text ){
 		
 		$urls = array( );

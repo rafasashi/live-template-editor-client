@@ -76,67 +76,71 @@
 							if( isset($current_types[$id]) ){
 								
 								$term = $current_types[$id];
-							
-								$gallery_url = add_query_arg($_GET,$this->urls->gallery);
-								 
-								$gallery_url = add_query_arg('gallery',$term->slug,$gallery_url);
+
+								if(!$output = get_term_meta($term->term_id,'output',true)){
+									
+									$output = 'inline-css';
+								}
+
+								if( isset($editors[$output]) ){
 								
-								$gallery_url = remove_query_arg(array('range','uri'),$gallery_url);
-								
-								if( $term->slug == $layer_type->slug ){
+									$gallery_url = add_query_arg($_GET,$this->urls->gallery);
+									 
+									$gallery_url = add_query_arg('gallery',$term->slug,$gallery_url);
 									
-									$class=' class="active" style="border-top: none;"';
+									$gallery_url = remove_query_arg(array('range','uri'),$gallery_url);
 									
-									$layer_count = 0;
-									
-									foreach( $layer_type->ranges as $range ){
+									if( $term->slug == $layer_type->slug ){
 										
-										$layer_count += $range['count'];
+										$class=' class="active" style="border-top: none;"';
+										
+										$layer_count = 0;
+										
+										foreach( $layer_type->ranges as $range ){
+											
+											$layer_count += $range['count'];
+										}
 									}
-								}
-								else{
+									else{
+										
+										$class='';
+										
+										$layer_count = $term->count;
+									}
 									
-									$class='';
+									if( $layer_count < 1 )
+										continue;
 									
-									$layer_count = $term->count;
-								}
-								
-								if( $layer_count < 1 )
-									continue;
-								
-								echo '<li'.$class.'>';
-								
-									echo '<a style="display:inline-block;width:100%;" href="' . $gallery_url . '">';
-										
-										echo '<div>';
-										
-											echo $term->name;
+									echo '<li'.$class.'>';
+									
+										echo '<a style="display:inline-block;width:100%;" href="' . $gallery_url . '">';
 											
-											echo ' <span class="badge pull-right hidden-xs" style="margin-top:13px;padding:1px 5px;font-size:10px;">' . $this->gallery->get_badge_count($layer_count) . '</span>';
+											echo '<div>';
 											
-										echo '</div>';
-										
-										echo '<div>';
-											
-											if(!$output = get_term_meta($term->term_id,'output',true)){
+												echo $term->name;
 												
-												$output = 'inline-css';
-											}
-											
-											$label_style = 'margin-right:8px;padding:2px 4px;font-size:10px;';
-											
-											echo '<span class="label label-primary pull-left hidden-xs" style="' . $label_style . '">'.$editors[$output].'</span> ';											
-																		
-											if( $term->visibility == 'admin' ){
+												echo ' <span class="badge pull-right hidden-xs" style="margin-top:13px;padding:1px 5px;font-size:10px;">' . $this->gallery->get_badge_count($layer_count) . '</span>';
 												
-												echo '<span class="label label-warning pull-left hidden-xs" style="'.$label_style.'"> admin </span> ';
-											}
+											echo '</div>';
+											
+											echo '<div>';
+
+												
+												$label_style = 'margin-right:8px;padding:2px 4px;font-size:10px;';
+												
+												echo '<span class="label label-primary pull-left hidden-xs" style="' . $label_style . '">'.$editors[$output].'</span> ';											
+																			
+												if( $term->visibility == 'admin' ){
+													
+													echo '<span class="label label-warning pull-left hidden-xs" style="'.$label_style.'"> admin </span> ';
+												}
+											
+											echo '</div>';
+											
+										echo '</a>';
 										
-										echo '</div>';
-										
-									echo '</a>';
-									
-								echo '</li>';
+									echo '</li>';
+								}
 							}
 						}
 					}

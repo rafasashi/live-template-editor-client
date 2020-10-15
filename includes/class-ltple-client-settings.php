@@ -869,11 +869,11 @@ class LTPLE_Client_Settings {
 				
 				'subscription-plan' => array( 'name' => 'Plans' ),
 				'gallery-section' 	=> array( 'name' => 'Sections', 'type' => 'taxonomy' ),
-				'layer-type' 		=> array( 'name' => 'Galleries', 	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'layer-type' 		=> array( 'name' => 'Galleries','type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
 				'layer-range' 		=> array( 'name' => 'Ranges', 	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
 				'account-option' 	=> array( 'name' => 'Options', 	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
-				'image-type' 		=> array( 'name' => 'Images', 	'type' => 'taxonomy', 'post-type' => 'default-image' ),
 				'addon-service' 	=> array( 'name' => 'Services', 'type' => 'taxonomy', 'post-type' => 'subscription-plan' ),
+				'image-type' 		=> array( 'name' => 'Images', 	'type' => 'taxonomy', 'post-type' => 'default-image' ),
 				'app-type' 			=> array( 'name' => 'Apps', 	'type' => 'taxonomy', 'post-type' => 'user-app' ),			
 			),
 			'marketing-settings' => array(

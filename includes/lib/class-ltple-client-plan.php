@@ -1891,22 +1891,58 @@ class LTPLE_Client_Plan {
 		
 		$price_tag = '';
 		
-		if( $plan['info']['total_price_amount'] > 0 ){
+		if( $plan['info']['total_price_amount'] == 0 && $plan['info']['total_fee_amount'] == 0 ){
 			
-			$price_tag .= $plan['info']['total_price_currency'] . $plan['info']['total_price_amount'] . ' / ' . $plan['info']['total_price_period'];
-		
+			$price_tag .= $plan['info']['total_price_currency'] . '0' . ' / ' . $plan['info']['total_price_period'];
+		}
+		else{
+			
+			if( $plan['info']['total_price_amount'] > 0 ){
+				
+				$price_tag .= $plan['info']['total_price_currency'] . $plan['info']['total_price_amount'] . ' / ' . $plan['info']['total_price_period'];
+			
+				if( $plan['info']['total_fee_amount'] > 0 ){
+					
+					$price_tag .= ' + ';
+				}
+			}
+			
 			if( $plan['info']['total_fee_amount'] > 0 ){
 				
-				$price_tag .= ' + ';
+				$price_tag .= $plan['info']['total_price_currency'] . $plan['info']['total_fee_amount'] . ' ' . $plan['info']['total_fee_period'];
 			}
-		}
-		
-		if( $plan['info']['total_fee_amount'] > 0 ){
-			
-			$price_tag .= $plan['info']['total_price_currency'] . $plan['info']['total_fee_amount'] . ' ' . $plan['info']['total_fee_period'];
 		}
 
 		return $price_tag;
+	}
+	
+	public function get_layer_plan( $item_id, $select = 'min' ){
+		
+		$amount = array(
+		
+			'amount'	=> null,
+			'currency'	=> null,
+		);
+		
+		if( $layer_range = $this->parent->layer->get_layer_range($item_id) ){
+			
+			if( $plans = $this->get_plans_by_options( array(
+				
+				$layer_range->slug
+				
+			))){
+			
+				$i = $select == 'max' ? array_key_last($plans) : 0;
+				
+				if( isset($plans[$i]['info']['total_price_amount']) ){
+					
+					$amount['amount'] 	= $plans[$i]['info']['total_price_amount'];
+					$amount['currency'] = $plans[$i]['info']['total_price_currency'];	
+				}
+			}
+		}
+
+		return $amount;
 	}
 	
 	public function get_layer_options( $item_id ){	
@@ -2242,7 +2278,7 @@ class LTPLE_Client_Plan {
 		if( !isset($this->user_usage[$user_id]) ){
 			
 			$storage_types = $this->parent->layer->get_storage_types();
-
+			
 			if( $projects = get_posts(array(
 				
 				'post_type' 	=> array_keys($storage_types),
@@ -2298,7 +2334,7 @@ class LTPLE_Client_Plan {
 						$total_storage = $user_plan['info']['total_storage'][$layer_type->name];
 						
 						$plan_usage = $this->get_user_plan_usage( $this->parent->user->ID );
-
+						
 						if( isset($plan_usage[$layer_type->name]) ){
 							
 							return $total_storage - $plan_usage[$layer_type->name];
@@ -2400,7 +2436,7 @@ class LTPLE_Client_Plan {
 		
 		$user_has_options = false;
 		
-		if( !empty($options) && $this->parent->user->plan['info']['total_price_amount'] > 0 ){
+		if( !empty($options) ){
 		
 			if( !empty($this->parent->user->plan['taxonomies']) && !empty($options) ){
 

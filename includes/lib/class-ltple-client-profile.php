@@ -88,11 +88,14 @@ class LTPLE_Client_Profile {
 
 			echo'</li>';
 			
-			echo'<li style="position:relative;background:#182f42;">';
-				
-				echo '<a href="'. $this->parent->urls->dashboard .'?list=user-app"><span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Connected Apps</a>';
+			if( !empty( $this->parent->apps->list ) ){
+			
+				echo'<li style="position:relative;background:#182f42;">';
+					
+					echo '<a href="'. $this->parent->urls->dashboard .'?list=user-app"><span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Connected Apps</a>';
 
-			echo'</li>';
+				echo'</li>';
+			}
 			
 		},1);
 	}

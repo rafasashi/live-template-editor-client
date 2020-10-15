@@ -85,7 +85,8 @@ class LTPLE_Client_Json_API {
 					height:auto;					
 				}
 				
-				.fixed-table-toolbar, .wraptotop, .footer{
+				
+				.wraptotop, .footer{
 					
 					display:none;
 				}
@@ -172,7 +173,13 @@ class LTPLE_Client_Json_API {
 				}';
 				
 				$table .= '@media (min-width: 768px) {';
-
+					
+					$table .= '#content .nav{';
+						
+						$table .='padding-right:250px !important;';
+						
+					$table .='}';
+					
 					if( $pagination === 'scroll' ){
 					
 						$table .= 'tbody {
@@ -182,12 +189,6 @@ class LTPLE_Client_Json_API {
 					}
 					else{
 						
-						$table .= '#content .nav{';
-							
-							$table .='padding-right:250px !important;';
-							
-						$table .='}';
-							
 						$table .= 'tbody {
 							
 							height:calc( 100vh - ' . ( $this->parent->inWidget ?  100 : 190 ) . 'px);				
@@ -568,7 +569,6 @@ class LTPLE_Client_Json_API {
 				$table 	.=  'data-pagination="false" ';
 				$table	.=  'data-side-pagination="server" ';
 				$table 	.=  'data-page-size="100" ';
-				$table 	.=  'data-show-refresh="false" ';
 				$table 	.=  'data-filter-control="false" ';
 				$table 	.=  'data-sortable="false" ';
 				$table 	.=  'data-ajax="tableRequest" ';
@@ -578,14 +578,15 @@ class LTPLE_Client_Json_API {
 				$table 	.=  'data-pagination="'.( $pagination ? 'true' : 'false' ).'" ';
 				//$table .=  'data-pagination-v-align="both" ';
 				$table 	.=  'data-page-size="20" ';
-				$table 	.=  'data-page-list="[20, 50, 100, 200, 500]" ';	
-				$table 	.=  'data-show-refresh="true" ';
+				$table 	.=  'data-page-list="[20, 50, 100, 200, 500]" ';
 				$table 	.=  'data-filter-control="true" ';
 				$table 	.=  'data-sortable="true" '; 
 				$table 	.=  'data-url="' . $api_url . '" ';
 			}
 			
+			$table 	.=  'data-show-refresh="true" ';
 			$table .=  'data-search="'.( $search ? 'true' : 'false' ).'" ';
+
 			$table .=  'data-show-header="'.( $header ? 'true' : 'false' ).'" ';
 			$table .=  'data-show-toggle="'.( $toggle ? 'true' : 'false' ).'" ';
 			$table .=  'data-show-columns="'.( $columns ? 'true' : 'false' ).'" ';

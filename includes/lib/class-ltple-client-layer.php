@@ -2376,7 +2376,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 								$term = $terms[0];
 							}
-								
+							
 							if( !empty($term) ){
 								
 								$term->output = $this->get_type_output($term);
@@ -2444,10 +2444,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$storage = 'user-layer';
 		}
+		/*
 		elseif( !post_type_exists($storage) ){
 			
-			return false;
+			return false; // some child plugins are still not registered
 		}
+		*/
 		
 		return $storage;
 	}
@@ -2829,7 +2831,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$this->layerOutput = !empty($this->defaultLayerType->output) ? $this->defaultLayerType->output : '';
 					
 					//get layer storage
-
+					
 					$this->layerStorage = !empty($this->defaultLayerType->storage) ? $this->defaultLayerType->storage : '';
 					
 					if( $this->layerOutput == 'image' ){

@@ -10,11 +10,15 @@ get_header();
 	
 	include( $ltple->views . '/navbar.php' );
 	
-	$user_plan = $ltple->plan->get_user_plan_info($ltple->user->ID);
+	$user_plan 	= $ltple->plan->get_user_plan_info($ltple->user->ID);
 	
-	$total_storage = isset($user_plan['info']['total_storage'][$layer_type->name]) ? $user_plan['info']['total_storage'][$layer_type->name] : 0;
+	$total_storage 	= isset($user_plan['info']['total_storage'][$layer_type->name]) ? $user_plan['info']['total_storage'][$layer_type->name] : 0;
 	
 	$plan_usage = $ltple->plan->get_user_plan_usage( $ltple->user->ID );
+	
+	$layer_plan = $ltple->plan->get_layer_plan( $ltple->layer->id, 'min' );
+	
+	// get download button
 	
 	$download_button = '';
 	
@@ -27,15 +31,15 @@ get_header();
 		$download_button = '<a href="'.add_query_arg('quick','',$ltple->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
 	}		
 	
-	echo '<div style="min-height:500px;overflow:hidden;">';
+	echo '<div style="min-height:calc( 100vh - ' . ( $ltple->inWidget ? 0 : 145 ) . 'px );overflow:hidden;">';
 		
 		echo'<div class="col-xs-12 col-sm-12 col-lg-6" style="padding:20px;">';
 			
 			echo '<h2>Start a new project <a href="' . $ltple->urls->profile . '?tab=billing-info"><span class="pull-right label label-default" style="font-size:18px;"> ' . ( !empty($plan_usage[$layer_type->name]) ? $plan_usage[$layer_type->name] : 0 ) . ' / ' . $total_storage . ' </span></a></h2>';
 
 			echo'<hr>';
-
-			if( !$ltple->layer->is_media && $ltple->user->remaining_days > 0 ){
+			
+			if( !$ltple->layer->is_media && ( $layer_plan['amount'] === floatval(0) || $ltple->user->remaining_days > 0 ) ){
 				
 				if( $ltple->plan->remaining_storage_amount($ltple->layer->id) > 0 ){
 					
@@ -99,7 +103,7 @@ get_header();
 				
 				echo'<hr>';
 				
-				echo'<div style="height:calc( 100vh - 50px );overflow:auto;">';
+				echo'<div style="height:calc( 100vh - ' . ( $ltple->inWidget ? 115 : 260 ) . 'px );overflow:auto;">';
 				
 					foreach( $projects as $project ){
 						
