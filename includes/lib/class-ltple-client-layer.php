@@ -2599,7 +2599,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $layer_status;
 	}
 	
-	public function get_action_buttons($post,$layer_type){
+	public function get_action_buttons($post,$layer_type,$target='_self'){
 		
 		$edit_url = add_query_arg(array(
 			
@@ -2608,11 +2608,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 		), $this->parent->urls->edit );		
 
-		$action  = '<a href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
+		$action  = '<a target="'.$target.'" href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
 		
 		if( $this->is_html_output($layer_type->output) && $layer_type->storage != 'user-menu' ){
 		
-			$action .= '<a href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
+			$action .= '<a target="_blank" href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
 		}
 		
 		$action .= '<a href="#quickRemoveTpl' . $post->ID . '" data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</a>';
@@ -2621,7 +2621,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$action .=  '<h4>Are you sure you want to delete this project?</h4>';						
 
-			$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->edit . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
+			$action .=  '<a target="'.$target.'" style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->edit . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
 			
 		$action .= '</div>';
 

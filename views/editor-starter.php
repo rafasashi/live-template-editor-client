@@ -156,7 +156,7 @@ else{
 							
 								echo'<div class="col-xs-6 text-right">';
 								
-									echo $ltple->layer->get_action_buttons($project,$layer_type);
+									echo $ltple->layer->get_action_buttons($project,$layer_type,'_parent');
 									
 								echo'</div>';
 								
