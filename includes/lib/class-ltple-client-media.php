@@ -134,27 +134,27 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				background-color:#142635!important;
 			}			
 			
-			#table {
+			.table {
 				
-				float:left;
+				float:left!important;
 			}
 			
-			#table {
+			.table {
 				
-				width:60%;
+				width:60%!important;
 			}
 			
-			#table td {
+			.table td {
 			
 				padding: 4px!important;
 			}
 
-			#table .panel {
+			.table .panel {
 			
-				cursor: pointer;
+				cursor: pointer!important;
 			}
 			
-			#table .panel.selectedItem {
+			.table .panel.selectedItem {
 				
 				outline: 1px solid rgb(86, 180, 239)!important;
 				box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05) inset, 0px 0px 7px rgba(82, 168, 236, 0.6)!important;
@@ -201,9 +201,9 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 				function set_image_preview($previewItem){
 					
-					if( typeof $previewItem == typeof undefined && $("#previewImg").length == 0 ){
+					if( typeof $previewItem == typeof undefined ){
 						
-						$previewItem = $("#table .panel:first");
+						$previewItem = $(".table .panel:first");
 					}
 					
 					if( typeof $previewItem != typeof undefined ){
@@ -234,7 +234,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 								
 							html += "</div>";
 							
-							$(html).insertAfter("#table");
+							$(html).insertAfter(".table");
 						}
 						
 						$("#previewImg").attr("src",previewSrc).attr("data-selector",$previewItem.closest(".hentry").attr("id"));
@@ -247,25 +247,35 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						
 						$("#" + previewSelector + " .panel").addClass("selectedItem");						
 					}
-				}			
+				}
 			
 				$(document).ready(function(){
 
-					$("#table").on("load-success.bs.table", function(e) {
-				
+					$(".table").on("load-success.bs.table", function(e) {
+						console.log("test1");
 						set_image_preview();
 						
-						$("#table .panel").on("click",function(){
+						$(".table .panel").on("click",function(){
 							
 							set_image_preview($(this));
 						});
 					});
 					
-					$("#table").on("page-change.bs.table", function(e) {
-				
+					$(".table").on("page-change.bs.table", function(e) {
+						console.log("test2");
 						set_image_preview();
 						
-						$("#table .panel").on("click",function(){
+						$(".table .panel").on("click",function(){
+							
+							set_image_preview($(this));
+						});
+					});
+					
+					$(".table").on("refresh.bs.table", function(e) {
+						console.log("test3");
+						set_image_preview();
+						
+						$(".table .panel").on("click",function(){
 							
 							set_image_preview($(this));
 						});
@@ -517,7 +527,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					
 					if( $slug != 'image-library' ){
 					
-						$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . $slug . '/?'.( $slug == 'user-images' ? 'att' : 'uri' ).'=' . $image->ID . '&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 12px;right: 12px;font-weight: bold;">x</a>';
+						$item.='<a data-toggle="action" data-refresh="self" class="btn-xs btn-danger" href="' . $this->parent->urls->media . $slug . '/?'.( $slug == 'user-images' ? 'att' : 'uri' ).'=' . $image->ID . '&imgAction=delete" style="padding: 0px 5px;position: absolute;top: 12px;right: 12px;font-weight: bold;">x</a>';
 					}
 				}						
 				

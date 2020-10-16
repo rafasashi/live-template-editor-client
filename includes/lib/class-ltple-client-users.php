@@ -341,15 +341,24 @@
 			}
 		}
 		
-		public function update_periods(){ 
+		public function update_periods($user_id=null){ 
 			
 			if( $periods = $this->parent->plan->remote_get_periods() ){
 				
-				// get users with subscription
-
-				if( $users = get_users(array(
+				$args = array( 
+					
+					'fields' => array('id','user_email'),
+				);
 				
-					'meta_query'  => array(
+				if( !is_null($user_id) ){
+					
+					$args['include'] = is_numeric($user_id) ? array($user_id) : $user_id;
+				}
+				else{
+					
+					// get users with subscription
+					
+					$args['meta_query'] = array(
 					
 						'relation' => 'OR',
 						
@@ -363,11 +372,11 @@
 						
 							'key'     	=> $this->parent->_base . 'period_end',
 							'compare' 	=> 'EXISTS',
-						)
-					),
-					'fields' => array('id','user_email'),
-					
-				))){
+						),
+					);				
+				}
+				
+				if( $users = get_users($args) ){
 					
 					foreach( $users as $user ){
 						

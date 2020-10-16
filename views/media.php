@@ -310,7 +310,7 @@
 							
 							echo '</li>';
 							
-							if( !$this->parent->inWidget ){
+							if( !$this->parent->inWidget && !empty($this->parent->apps->list) ){
 								
 								echo '<li role="presentation">';
 									

@@ -285,20 +285,12 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 							}
 							else{
 								
-								$_SESSION['message'] ='<div class="alert alert-warning">';
-
-									$_SESSION['message'] .= 'This image is attached the post id: ' . $image->post_parent;
-
-								$_SESSION['message'] .='</div>';							
+								$this->parent->exit_message('Image attached to project id: ' . $image->post_parent,404);
 							}
 						}
 						else{
 						
-							$_SESSION['message'] ='<div class="alert alert-danger">';
-
-								$_SESSION['message'] .= 'You don\'t have access to this image';
-
-							$_SESSION['message'] .='</div>';					
+							$this->parent->exit_message('You don\'t have access to this image',404);
 						}
 					}
 				}				
@@ -311,11 +303,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					
 					$this->att = -1;
 					
-					$_SESSION['message'] ='<div class="alert alert-success">';
-
-						$_SESSION['message'] .= 'Image successfully deleted!';
-
-					$_SESSION['message'] .='</div>';					
+					$this->parent->exit_message('Image successfully deleted!',200);
 				}
 				elseif( $this->id > 0 ){
 						
@@ -325,11 +313,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					
 					$this->id = -1;
 					
-					$_SESSION['message'] ='<div class="alert alert-success">';
-
-						$_SESSION['message'] .= 'Image url successfully deleted!';
-
-					$_SESSION['message'] .='</div>';
+					$this->parent->exit_message('Image url successfully deleted!',200);
 				}
 			}
 			elseif( isset($_POST['imgAction']) &&  $_POST['imgAction']=='upload' ){
