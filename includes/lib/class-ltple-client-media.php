@@ -252,7 +252,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				$(document).ready(function(){
 
 					$(".table").on("load-success.bs.table", function(e) {
-						console.log("test1");
+						
 						set_image_preview();
 						
 						$(".table .panel").on("click",function(){
@@ -262,7 +262,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					});
 					
 					$(".table").on("page-change.bs.table", function(e) {
-						console.log("test2");
+						
 						set_image_preview();
 						
 						$(".table .panel").on("click",function(){
@@ -272,7 +272,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					});
 					
 					$(".table").on("refresh.bs.table", function(e) {
-						console.log("test3");
+						
 						set_image_preview();
 						
 						$(".table .panel").on("click",function(){

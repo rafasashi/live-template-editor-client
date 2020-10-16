@@ -109,32 +109,67 @@ class LTPLE_Client_Editor {
 
 						include( $this->parent->views . '/editor-starter.php' );
 					}
-					elseif( $this->parent->layer->type == 'user-layer' && !$this->parent->user->plan["info"]["total_price_amount"] > 0 ){
+					else{
 						
-						echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+						$layer_plan = $this->parent->plan->get_layer_plan( $this->parent->layer->defaultId, 'min' );
+						
+						if( $this->parent->layer->type != 'cb-default-layer' && $layer_plan['amount'] > 0 && !$this->parent->user->plan["info"]["total_price_amount"] > 0 ){
 							
-							echo '<div class="alert alert-warning">You need a paid plan to edit this template...</div>';
+							echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+								
+								echo '<div class="alert alert-warning">You need a paid plan to edit this template...</div>';
 
-						echo'</div>';
-					}
-					elseif( $this->parent->layer->is_editable_output($layer->output) ){
-						
-						if( empty($_POST) && !empty($this->parent->layer->layerForm) && $this->parent->layer->layerForm != 'none' && empty($this->parent->layer->layerContent) ){
+							echo'</div>';
+						}
+						elseif( $this->parent->layer->is_editable_output($layer->output) ){
 							
-							include( $this->parent->views . '/editor-form.php' );
+							if( $layer_plan['amount'] > 0 && $this->parent->user->remaining_days < 0 ){
+								
+								//check license
+								
+								if( !isset($_GET['period_refreshed']) ){
+									
+									// refresh user period
+									
+									$this->parent->users->update_periods($this->parent->user->ID);
+									
+									// redirect url
+									
+									$url = add_query_arg( array(
+										
+										'period_refreshed' => '',
+										
+									),$this->parent->urls->current);
+									
+									wp_redirect($url);
+									exit;
+								}
+								else{
+									
+									echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+										
+										echo '<div class="alert alert-warning">Your license is expired, please renew it via the plan page or contact us...</div>';
+
+									echo'</div>';
+								}
+							}
+							elseif( empty($_POST) && !empty($this->parent->layer->layerForm) && $this->parent->layer->layerForm != 'none' && empty($this->parent->layer->layerContent) ){
+								
+								include( $this->parent->views . '/editor-form.php' );
+							}
+							else{
+								
+								do_action('ltple_include_editor');
+							}
 						}
 						else{
 							
-							do_action('ltple_include_editor');
-						}
-					}
-					else{
-						
-						echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-							
-							echo '<div class="alert alert-warning">This template is not editable...</div>';
+							echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+								
+								echo '<div class="alert alert-warning">This template is not editable...</div>';
 
-						echo'</div>';		
+							echo'</div>';		
+						}
 					}
 				}
 				else{
