@@ -29,7 +29,7 @@
 						echo'<div id="plan_thumb" style="background-size:cover;background-repeat: no-repeat;background-position: center center;width:100%;height:200px;background-image:url(\''.$ltple->assets_url . 'images/plan_background.jpg'.'\');"></div>';
 					}
 
-					echo'<div id="plan_decription">';
+					echo'<div id="plan_description">';
 					
 						echo apply_filters( 'the_content', '<div class="text-left" style="background-color:#f5f5f5;border:1px solid #e3e3e3;border-radius:4px;padding:20px;margin:10px 10px 0 10px;font-size:19px;">' . $post->post_content . '</div>' );
 					

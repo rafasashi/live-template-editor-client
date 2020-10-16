@@ -123,7 +123,7 @@ class LTPLE_Client_Editor {
 						}
 						elseif( $this->parent->layer->is_editable_output($layer->output) ){
 							
-							if( $layer_plan['amount'] > 0 && $this->parent->user->remaining_days < 0 ){
+							if( $layer_plan['amount'] > 0 && $this->parent->user->remaining_days < 0 && $this->parent->user->plan["info"]["total_price_amount"] > 0 ){
 								
 								//check license
 								
