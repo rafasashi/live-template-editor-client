@@ -13,7 +13,7 @@
 		
 		$editor_url 	= $this->parent->urls->edit . '?uri=' . $this->ID;
 		
-		$product_url 	= $this->parent->urls->product . $this->ID . '/';
+		$product_url 	= get_permalink($this->ID);
 
 		$layer_type 	= $this->parent->layer->get_layer_type($this->ID);
 
@@ -426,7 +426,7 @@
 											
 											echo '<div class="col-xs-3">';
 											
-												echo '<a class="thumbnail" href="'. $this->parent->urls->product . $post->ID . '/">';
+												echo '<a class="thumbnail" href="' . get_permalink($post) . '">';
 											
 													echo get_the_post_thumbnail($post->ID, array(150,150));
 											
@@ -436,7 +436,7 @@
 											
 											echo '<div class="col-xs-9">';
 											
-												echo '<a href="'. $this->parent->urls->product . $post->ID . '/" style="font-weight:bold;">';
+												echo '<a href="' . get_permalink($post) . '" style="font-weight:bold;">';
 												
 													echo $post->post_title;
 												

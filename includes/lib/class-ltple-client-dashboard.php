@@ -229,7 +229,7 @@ class LTPLE_Client_Dashboard {
 				
 				// get edit url
 				
-				$permalink = $this->parent->urls->product . $post->ID . '/';
+				$permalink = get_permalink($post);
 
 				// get image url
 				

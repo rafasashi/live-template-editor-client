@@ -38,6 +38,11 @@ class LTPLE_Client_Product {
 			if(!in_array('id',$query_vars)){
 				
 				$query_vars[] = 'id';
+			}			
+			
+			if(!in_array('slug',$query_vars)){
+				
+				$query_vars[] = 'slug';
 			}
 			
 			return $query_vars;
@@ -53,32 +58,47 @@ class LTPLE_Client_Product {
 
 	public function get_url_parameters(){
 
-		// get tab name
+		if( $id = get_query_var('id')){
+			
+			// redirect old url
 
-		$id = get_query_var('id');
+			if( $post = get_post($id) ){
+				
+				$permalink = get_permalink($post);
+				
+				if( strpos($permalink,$this->parent->urls->current) !== 0 ){
+					
+					if( !empty($_GET) ){
+					
+						$permalink = add_query_arg($_GET, $permalink );
+					}
+					
+					wp_redirect($permalink);
+					exit;
+				}
+			}
+		}
 		
-		if( is_numeric($id) ){
+		if( $slug = get_query_var('slug') ){
 			
-			$this->id = intval($id);
-			
-			$q = get_post($this->id);
-			
-			if( !empty($q->post_type) && $q->post_type == 'cb-default-layer' ){
+			if( $post = get_page_by_path($slug,OBJECT,'cb-default-layer') ){
 				
 				// set product info
 				
-				$GLOBALS['post'] = $q;
+				$this->id = $post->ID;
 				
-				foreach( $q as $key => $value){
+				$GLOBALS['post'] = $post;
+				
+				foreach( $post as $key => $value){
 					
 					$this->{$key} = $value;
 				}
 				
-				$image = get_the_post_thumbnail_url($q->ID);
+				$image = get_the_post_thumbnail_url($post->ID);
 				
 				$this->image = !empty($image) ? $image : $this->parent->assets_url . 'images/default_item.png';
 				
-				$layer_plan = $this->parent->plan->get_layer_options($q->ID);
+				$layer_plan = $this->parent->plan->get_layer_options($post->ID);
 
 				$this->taxonomies 	= $layer_plan['taxonomies'];
 				
@@ -112,6 +132,13 @@ class LTPLE_Client_Product {
 			$this->slug . '/([0-9]+)/?$',
 			'index.php?pagename=' . $this->slug . '&id=$matches[1]',
 			'top'
+		);
+
+		add_rewrite_rule(
+		
+			$this->slug . '/([^/]+)/?$',
+			'index.php?pagename=' . $this->slug . '&slug=$matches[1]',
+			'top'
 		);		
 		
 		if( !is_admin() ){
@@ -124,7 +151,7 @@ class LTPLE_Client_Product {
 
 		if( $post->post_type == 'cb-default-layer' ){
 			
-			$post_link = $this->parent->urls->home . '/' . $this->slug . '/' . $post->ID . '/';
+			$post_link = $this->parent->urls->home . '/' . $this->slug . '/' . $post->post_name . '/';
 		}
 					
 		return $post_link;
@@ -152,7 +179,7 @@ class LTPLE_Client_Product {
 		
 		// facebook opengraph
 		
-		echo '<meta property="og:url"           content="' . $this->parent->urls->product . $this->ID . '/" />';
+		echo '<meta property="og:url"           content="' . get_permalink($this->ID) . '" />';
 		echo '<meta property="og:type"          content="article" />';
 		echo '<meta property="og:title"         content="Awesome ' . $this->post_title . '!" />';
 		echo '<meta property="og:description"   content="' . $this->post_excerpt . '" />';
@@ -168,7 +195,7 @@ class LTPLE_Client_Product {
 	
 	public function get_product_url(){
 		
-		$this->parent->canonical_url = $this->parent->urls->product . $this->id . '/';
+		$this->parent->canonical_url = get_permalink($this->id);
 	
 		return $this->parent->canonical_url;
 	}	

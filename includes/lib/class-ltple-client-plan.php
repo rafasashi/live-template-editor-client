@@ -1077,7 +1077,7 @@ class LTPLE_Client_Plan {
 					
 					$plan['back_url'] = $this->parent->urls->current;
 					
-					$plan['info_url'] = $this->parent->urls->product . $layer_id . '/';
+					$plan['info_url'] = get_permalink($layer_id);
 					
 					$plan['agreement_url'] = $this->parse_agreement_url($plan);
 					
