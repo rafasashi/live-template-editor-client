@@ -1,6 +1,6 @@
 <?php
 	
-	if( $this->is_public || $this->self_profile ){
+	if( $this->is_public()|| $this->is_self() ){
 		
 		// get name
 		
@@ -11,7 +11,7 @@
 		echo'<div id="profile_page" style="display:block;">';
 
 			if( $this->tab == 'about-me' ){
-				
+
 				// full header
 				
 				echo'<div class="profile-heading text-center">';
@@ -178,9 +178,9 @@
 						
 					echo'</ul>';
 					
-					if( !$this->is_public && $this->self_profile ){
+					if( !$this->is_public() && $this->is_self() ){
 						
-						echo '<div class="alert alert-warning row" style="margin: 20px 0 !important;">';
+						echo '<div class="alert alert-warning row" style="margin:0px 0 20px 0 !important;">';
 							
 							echo'<div class="col-xs-9">';
 							
@@ -195,6 +195,24 @@
 							echo '</div>';
 							
 						echo '</div>';			
+					}
+					elseif( $this->is_unclaimed() ){
+						
+						echo '<div class="alert alert-info row" style="margin:0px 0 20px 0 !important;">';
+							
+							echo'<div class="col-xs-9">';
+								
+								echo 'This profile was auto generated';
+							
+							echo '</div>';
+							
+							echo'<div class="col-xs-3 text-right">';
+							
+								echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->home . '/contact-us/">Claim it</a>';
+							
+							echo '</div>';
+							
+						echo '</div>';
 					}
 					
 					if( !empty($this->tabs) ){
@@ -234,7 +252,7 @@
 			include( $this->parent->views  . '/modals/login.php');
 		}
 	}
-	else{ 
+	else{
 		
 		echo '<div class="alert alert-warning" style="padding-top:50px;">';
 		

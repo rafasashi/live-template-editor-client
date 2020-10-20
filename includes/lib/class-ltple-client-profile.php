@@ -14,15 +14,18 @@ class LTPLE_Client_Profile {
 	var $tabs 		= null;
 	var $user 		= null;
 	
-	var $privacySettings = null;
-	var $socialAccounts = null;
-	var $notificationSettings = null;
+	var $privacySettings 		= null;
+	var $socialAccounts 		= null;
+	var $notificationSettings 	= null;
 	var $pictures;
 	
 	var $profile_css 		= null;
 	var $background_image 	= '';
-	var $is_public			= false;
-	var $self_profile		= false;
+	
+	var $is_public		= null;
+	var $is_unclaimed	= null;
+	var $is_self		= null;
+	
 	var $is_pro				= false;
 	var $is_editable 		= false;
 	
@@ -145,11 +148,7 @@ class LTPLE_Client_Profile {
 				remove_action( 'wp_head', array(the_seo_framework(),'html_output'), 1 );
 			}
 			
-			$this->is_public = $this->is_public();
-
-			$this->self_profile = ( $this->parent->user->loggedin && !empty($this->user) && $this->user->ID  == $this->parent->user->ID ? true : false );
-			
-			if( $this->is_public || $this->self_profile ){			
+			if( $this->is_public() || $this->is_self() ){			
 				
 				// set response code
 				
@@ -479,26 +478,73 @@ class LTPLE_Client_Profile {
 		return $this->completeness[$user_id];
 	}
 	
-	public function is_public(){
+	public function is_unclaimed(){
 		
-		$is_public = false;
+		if( is_null($this->is_unclaimed) ){
 		
-		if( $this->user ){
+			$is_unclaimed = false;
 			
-			$last_seen = intval( get_user_meta( $this->user->ID, $this->parent->_base . '_last_seen',true) );
+			if( $this->user ){
 			
-			if( $last_seen > 0 ){
+				$claimed = get_user_meta( $this->user->ID, $this->parent->_base . 'profile_claimed',true);
 				
-				$aboutMe = get_user_meta( $this->user->ID, $this->parent->_base . 'policy_about-me',true );
-
-				if( $aboutMe != 'off' ){
+				if( $claimed === 'false' ){
 					
-					$is_public = true;
+					$is_unclaimed = true;
 				}
 			}
+			
+			$this->is_unclaimed = $is_unclaimed;
 		}
 		
-		return $is_public;
+		return $this->is_unclaimed;
+	}
+	
+	public function is_public(){
+		
+		if( is_null($this->is_public) ){
+			
+			$is_public = false;
+			
+			if( $this->user ){
+				
+				$skip_unclaimed = false;
+				
+				if( !$last_seen = intval( get_user_meta( $this->user->ID, $this->parent->_base . '_last_seen',true) ) ){
+					
+					if( $this->is_unclaimed() ){
+						
+						// profile auto added
+						
+						$skip_unclaimed = true;
+					}
+				}
+				
+				if( $last_seen > 0 || $skip_unclaimed === true ){
+					
+					$aboutMe = get_user_meta( $this->user->ID, $this->parent->_base . 'policy_about-me',true );
+
+					if( $aboutMe != 'off' ){
+						
+						$is_public = true;
+					}
+				}
+			}
+			
+			$this->is_public = $is_public;
+		}
+		
+		return $this->is_public;
+	}
+	
+	public function is_self(){
+		
+		if( is_null($this->is_self) ){
+			
+			$this->is_self = ( $this->parent->user->loggedin && !empty($this->user) && $this->user->ID  == $this->parent->user->ID ? true : false );
+		}
+		
+		return $this->is_self;
 	}
 	
 	public function handle_update_profile(){
