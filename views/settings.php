@@ -18,7 +18,10 @@
 				
 				echo'<li'.( $currentTab == 'privacy-settings' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=privacy-settings">Privacy Settings</a></li>';
 				
-				echo'<li'.( $currentTab == 'social-accounts' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=social-accounts">Social Accounts</a></li>';
+				if( !empty($this->parent->apps->list) ){
+				
+					echo'<li'.( $currentTab == 'social-accounts' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=social-accounts">Social Accounts</a></li>';
+				}
 				
 				do_action('ltple_profile_settings_sidebar',$currentTab);
 								

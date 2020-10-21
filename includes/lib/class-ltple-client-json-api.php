@@ -58,6 +58,12 @@ class LTPLE_Client_Json_API {
 			.float-left{
 			    float:left;
 			}
+			
+			#content .nav{
+					
+				padding-right:230px !important;
+				
+			}
 			';
 			
 			if( $pagination === 'scroll' ){
@@ -175,13 +181,7 @@ class LTPLE_Client_Json_API {
 				}';
 				
 				$table .= '@media (min-width: 768px) {';
-					
-					$table .= '#content .nav{';
-						
-						$table .='padding-right:250px !important;';
-						
-					$table .='}';
-					
+
 					if( $pagination === 'scroll' ){
 					
 						$table .= 'tbody {
@@ -290,9 +290,7 @@ class LTPLE_Client_Json_API {
 				td {
 					
 					overflow: hidden;
-				}
-				
-				';
+				}';
 				
 				if( $header === false && $fixedHeight === true ){
 					
@@ -308,7 +306,7 @@ class LTPLE_Client_Json_API {
 					}
 					
 					@media (min-width: 768px) {
-						
+
 						tbody {
 							
 							height:calc( 100vh - 230px);				

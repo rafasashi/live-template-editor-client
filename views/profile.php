@@ -91,7 +91,7 @@
 			
 			echo'<div id="panel" style="display:inline-block !important;margin-bottom:-8px !important;box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
 			
-				echo'<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2  text-center'.( $this->tab != 'about-me' ? ' hidden-xs' : '' ).'" style="padding:30px;">';
+				echo'<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2 hidden-xs text-center'.( $this->tab != 'about-me' ? ' hidden-xs' : '' ).'" style="padding:30px;">';
 						
 					// desktop avatar	
 						

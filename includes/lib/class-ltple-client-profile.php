@@ -824,8 +824,10 @@ class LTPLE_Client_Profile {
 				},10 );			
 			
 				$this->fields = $this->get_general_fields();
-
-				$tabs['about-me']['content'] .= '<table class="form-table" style="margin:0 15px;display:inline-block;">';
+				
+				$tabs['about-me']['content'] .= '<div class="form-table-wrapper" style="margin:0 15px;">';
+				$tabs['about-me']['content'] .= '<table class="form-table">';
+				$tabs['about-me']['content'] .= '<tbody>';
 				
 					foreach( $this->fields as $field ){
 						
@@ -833,7 +835,7 @@ class LTPLE_Client_Profile {
 						
 							$tabs['about-me']['content'] .= '<tr>';
 							
-								$tabs['about-me']['content'] .= '<th style="width:200px;><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+								$tabs['about-me']['content'] .= '<th style="max-width:200px;"><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
 								
 								$tabs['about-me']['content'] .= '<td>';
 									
@@ -872,7 +874,9 @@ class LTPLE_Client_Profile {
 						}
 					}
 				
+				$tabs['about-me']['content'] .= '</tbody>';
 				$tabs['about-me']['content'] .= '</table>';
+				$tabs['about-me']['content'] .= '</div>';
 			}
 			
 			// add addon tabs
