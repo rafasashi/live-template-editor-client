@@ -693,40 +693,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 				break;
 				
-				case 'ux_flow_charts':
-				
-					$html .= '<div id="the-list">';
-					
-						$folders = glob( $this->parent->assets_dir . '/images/flow-charts/*', GLOB_ONLYDIR  );
-
-						foreach( $folders as $folder ){
-							
-							$images = glob( $folder . '/*.{jpg,png,gif}', GLOB_BRACE  );
-							
-							$html .= '<h4 style="background:rgb(241, 241, 241);padding:10px;">' . ucfirst(basename($folder)) . '</h4>';
-							
-							$html .= '<div class="row">';
-
-								foreach($images as $image){
-									
-									$url = $this->parent->assets_url . 'images/flow-charts/' . basename($folder) . '/' . basename($image);
-
-									$html .= '<div class="col-xs-2">';
-										
-										$html .= '<img style="width:100%;" src="' . $url . '" />';
-										
-										$html .= '<input style="width:100%;margin-bottom:15px;" type="text" value="'.$url.'" />';
-										
-									$html .= '</div>';
-								} 
-								
-							$html .= '</div>';
-						}
-					
-					$html .= '</div>';
-				
-				break;
-				
 				case 'addon_plugins':
 					
 					$html .= '<div id="the-list">';
@@ -1072,104 +1038,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						$html .= '</ul>';					
 						
 					$html .= '</div>';				
-					
-					
-					/*
-					if( !isset($data['key']) || !isset($data['value']) ){
-
-						$data = ['key' => [ 0 => '' ], 'value' => [ 0 => '' ]];
-					}
-
-					if( !empty($field['inputs']) && is_string($field['inputs']) ){
-						
-						$inputs = [$field['inputs']];
-					}
-					elseif(empty($field['inputs'])||!is_array($field['inputs'])) {
-						
-						$inputs = ['string','text','number','password','url','parameter','xpath','attribute','folder','filename'];
-					}				
-					else{
-					
-						$inputs = $field['inputs'];
-					}
-
-					$html .= '<div id="'.$field['id'].'" class="sortable">';
-						
-						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
-					
-						$html .= '<ul class="input-group ui-sortable">';
-							
-							foreach( $data['key'] as $e => $key) {
-
-								if($e > 0){
-									
-									$class='input-group-row ui-state-default ui-sortable-handle';
-								}
-								else{
-									
-									$class='input-group-row ui-state-default ui-state-disabled';
-								}
-							
-								$value = str_replace('\\\'','\'',$data['value'][$e]);
-										
-								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
-							
-									$html .= '<select name="'.$option_name.'[input][]" style="float:left;">';
-
-									foreach ( $inputs as $input ) {
-										
-										$selected = false;
-										if ( isset($data['input'][$e]) && $data['input'][$e] == $input ) {
-											
-											$selected = true;
-										}
-										
-										$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $input ) . '">' . $input . '</option>';
-									}
-									
-									$html .= '</select> ';
-							
-									$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['key']) ? $field['placeholder']['key'] : 'key' ).'" name="'.$option_name.'[key][]" style="width:30%;float:left;" value="'.$data['key'][$e].'">';
-									
-									$html .= '<span style="float:left;"> => </span>';
-									
-									if(isset($data['input'][$e])){
-										
-										if($data['input'][$e] == 'number'){
-											
-											$html .= '<input type="number" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'number' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
-										}
-										elseif($data['input'][$e] == 'password'){
-											
-											$html .= '<input type="password" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'password' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
-										}
-										elseif($data['input'][$e] == 'text'){
-											
-											$html .= '<textarea placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'text' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;height:200px;">' . $value . '</textarea>';
-										}										
-										else{
-											
-											$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'value' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
-										}
-									}
-									else{
-										
-										$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']['value']) ? $field['placeholder']['value'] : 'value' ).'" name="'.$option_name.'[value][]" style="width:30%;float:left;" value="'.$value.'">';
-									}
-
-									if( $e > 0 ){
-										
-										$html .= '<a class="remove-input-group" href="#">x</a> ';
-									}
-
-								$html .= '</li>';						
-							}
-						
-						$html .= '</ul>';					
-						
-					$html .= '</div>';
-					*/
-
+				
 				break;
 
 				case 'form':
@@ -1831,6 +1700,48 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 				break;
 				
+				case 'importer':
+					
+					// add importer style
+					
+					wp_register_style($this->parent->_token . '-importer', false,array());
+					wp_enqueue_style($this->parent->_token . '-importer');
+					wp_add_inline_style($this->parent->_token . '-importer', $this->get_importer_style() );
+					
+					// add importer script
+					
+					wp_register_script( $this->parent->_token . '-importer', '', array( 'jquery', 'jquery-ui-dialog' ) );
+					wp_enqueue_script( $this->parent->_token . '-importer' );
+					wp_add_inline_script( $this->parent->_token . '-importer', $this->get_importer_script() );
+					
+					$source = $field['source'];
+					
+					$id = hash('crc32',$source);
+					
+					$html = '<div id="importer-buttons-'.$id.'" class="importer-buttons">';
+
+						$html .= '<button data-id="'.$id.'" data-source="'.$source.'" data-toggle="dialog" data-target="#importerConsole" class="importer-button button button-default button-small">';
+							
+							$html .= $field['name'];
+							
+						$html .= '</button>';
+
+					$html .= '</div>';
+					
+					$html .= '<div id="importer-meter-'.$id.'" class="importer-meter" style="display:none;">';
+						
+						$html .= '<span class="progress" style="width:0%;"></span>';
+						
+					$html .= '</div>';
+					
+					$html .= '<div id="importer-message-'.$id.'" class="importer-message">';
+					
+						$html .= '<span class="completed" style="display:none;">Completed!</span>';
+				
+					$html .= '</div>';
+					
+				break;
+				
 				case 'gallery':
 					
 					$html .='<table id="gallery-metabox">';
@@ -2034,6 +1945,333 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 			echo $html;
 
+		}
+		
+		public function get_importer_script(){
+
+			$script = '
+				
+				;(function($){
+					
+					// define a new console
+					
+					var console = (function(oldCons){
+						
+						return {
+						
+							log: function(text){
+								
+								oldCons.log(text);
+								
+								$("#importerLogs").append("<p style=\"margin-top:0px;color:green;\">" + text + "</p>");
+							},
+							info: function (text) {
+								
+								oldCons.info(text);
+								
+								$("#importerLogs").append("<p style=\"margin-top:0px;font-weight:bold;\">" + text + "</p>");
+							},
+							warn: function (text) {
+								
+								oldCons.warn(text);
+								
+								$("#importerLogs").append("<p style=\"margin-top:0px;color:orange;\">" + text + "</p>");
+							},
+							error: function (text) {
+								
+								oldCons.error(text);
+								
+								$("#importerLogs").append("<p style=\"margin-top:0px;color:red;\">" + text + "</p>");
+							}
+						};
+						
+					}(window.console));
+
+					//Then redefine the old console
+					
+					window.console = console;
+
+					$(document).ready(function(){
+						
+						// add importer console
+						
+						$("body").append("<div id=\'importerConsole\' style=\'display:none;\' title=\'Importer Console\'><div id=\'importerLogs\' style=\'height:50vh;width:50vw;\'></div></div>");
+				
+						$("#importerConsole").dialog({
+							
+							autoOpen 	: false,
+							width 		: "auto",
+							height 		: "auto",
+							resizable 	: false
+						});
+						
+						// requests handler
+						
+						var ajaxQueue = $({});
+
+						$.ajaxQueue = function( ajaxOpts ) {
+							
+							var jqXHR,
+								dfd = $.Deferred(),
+								promise = dfd.promise();
+
+							// queue our ajax request
+							ajaxQueue.queue( doRequest );
+
+							// add the abort method
+							promise.abort = function( statusText ) {
+
+								// proxy abort to the jqXHR if it is active
+								if ( jqXHR ) {
+									return jqXHR.abort( statusText );
+								}
+
+								// if there wasnt already a jqXHR we need to remove from queue
+								var queue = ajaxQueue.queue(),
+									index = $.inArray( doRequest, queue );
+
+								if ( index > -1 ) {
+									queue.splice( index, 1 );
+								}
+
+								// and then reject the deferred
+								dfd.rejectWith( ajaxOpts.context || ajaxOpts,
+									[ promise, statusText, "" ] );
+
+								return promise;
+							};
+
+							// run the actual query
+							function doRequest( next ) {
+								jqXHR = $.ajax( ajaxOpts )
+									.done( dfd.resolve )
+									.fail( dfd.reject )
+									.then( next, next );
+							}
+
+							return promise;
+						};
+						
+						// bind buttons
+						
+						$(".importer-button").each(function(i){
+							
+							$(this).on("click",function(){
+								
+								var id = $(this).attr("data-id");
+			
+								var $btns 		= $("#importer-buttons-" + id);
+								var $meter 		= $("#importer-meter-" + id);
+								var $progress 	= $("#importer-meter-" + id + " .progress");
+								var $completed 	= $("#importer-message-" + id + " .completed");
+								
+								$btns.find("button").prop("disabled",true);
+								$meter.show();
+								$completed.hide();
+								
+								var source = $(this).attr("data-source");
+								
+								$.ajaxQueue({
+									
+									type 		: "GET",
+									url  		: source,
+									cache		: false,
+									beforeSend	: function(){
+										
+										
+									},
+									error: function() {
+									
+										console.error(source + " error");
+																										
+										$meter.hide();
+										$btns.find("button").prop("disabled",false);
+									},
+									success: function(sources) {
+									
+										var proto = window.location.href.split("/")[0];
+
+										// get total requests
+										
+										var total = sources.length;
+										
+										if( total > 0 ){
+											
+											$progress.css("width", ( 100 / total / 10 ) + "%");
+											
+											var r = 0;
+											
+											$.each(sources,function(i,source){
+
+												$.ajaxQueue({
+													
+													type 		: "GET",
+													url  		: source,
+													cache		: false,
+													beforeSend	: function(){
+														
+														if( i === 0 ){
+															
+															console.info("Importing data...");
+														}
+													},
+													error: function() {
+													
+														console.error(source + " error");
+													},
+													success: function(response) {
+														
+														console.log(JSON.stringify(response) );
+													},
+													complete: function(){
+														
+														++r;
+														
+														var progress = r * ( 100 / total );
+														
+														$progress.css("width", progress + "%");
+														
+														if( progress > 99 ){
+															
+															$progress.bind("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function(){
+
+																$meter.hide();
+																$progress.css("width", "0%");
+																$btns.find("button").prop("disabled",false);
+																$completed.show();
+															});
+															
+														}
+													}
+												});
+											});
+										}
+										else{
+											
+											console.warn("Nothing to import");
+														
+											$meter.hide();
+											$progress.css("width", "0%");
+											$btns.find("button").prop("disabled",false);
+											$completed.show();
+										}
+									},
+									complete: function(){
+										
+										
+									}
+								});
+							});
+						});
+					});
+					
+				})(jQuery);
+			';	
+
+			return $script;
+		}
+		
+		
+		public static function get_importer_style(){
+			
+			$style = '
+								
+				.importer-buttons {
+					margin-bottom:10px;
+				}
+				
+				.importer-buttons button {
+					margin-right:5px !important;
+				}
+				
+				.importer-message {
+					padding:0 !important;
+				}
+						
+				.importer-meter { 
+					height: 10px;
+					padding: 5px;
+					position: relative;
+					background: #555;
+					-moz-border-radius: 25px;
+					-webkit-border-radius: 25px;
+					border-radius: 25px;
+					box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+				}
+				.importer-meter > span {
+				  display: block;
+				  height: 100%;
+				  border-top-right-radius: 8px;
+				  border-bottom-right-radius: 8px;
+				  border-top-left-radius: 20px;
+				  border-bottom-left-radius: 20px;
+				  background-color: rgb(43,194,83);
+				  background-image: linear-gradient(
+					center bottom,
+					rgb(43,194,83) 37%,
+					rgb(84,240,84) 69%
+				  );
+				  box-shadow: 
+					inset 0 2px 9px  rgba(255,255,255,0.3),
+					inset 0 -2px 6px rgba(0,0,0,0.4);
+				  position: relative;
+				  overflow: hidden;
+				  transition: width 5s;
+				}
+
+				.importer-meter > span:after {
+					content: "";
+					position: absolute;
+					top: 0; left: 0; bottom: 0; right: 0;
+					background-image: 
+					   -webkit-gradient(linear, 0 0, 100% 100%, 
+						  color-stop(.25, rgba(255, 255, 255, .2)), 
+						  color-stop(.25, transparent), color-stop(.5, transparent), 
+						  color-stop(.5, rgba(255, 255, 255, .2)), 
+						  color-stop(.75, rgba(255, 255, 255, .2)), 
+						  color-stop(.75, transparent), to(transparent)
+					   );
+					background-image: 
+						-moz-linear-gradient(
+						  -45deg, 
+						  rgba(255, 255, 255, .2) 25%, 
+						  transparent 25%, 
+						  transparent 50%, 
+						  rgba(255, 255, 255, .2) 50%, 
+						  rgba(255, 255, 255, .2) 75%, 
+						  transparent 75%, 
+						  transparent
+					   );
+					z-index: 1;
+					-webkit-background-size: 50px 50px;
+					-moz-background-size: 50px 50px;
+					-webkit-animation: move 2s linear infinite;
+					   -webkit-border-top-right-radius: 8px;
+					-webkit-border-bottom-right-radius: 8px;
+						   -moz-border-radius-topright: 8px;
+						-moz-border-radius-bottomright: 8px;
+							   border-top-right-radius: 8px;
+							border-bottom-right-radius: 8px;
+						-webkit-border-top-left-radius: 20px;
+					 -webkit-border-bottom-left-radius: 20px;
+							-moz-border-radius-topleft: 20px;
+						 -moz-border-radius-bottomleft: 20px;
+								border-top-left-radius: 20px;
+							 border-bottom-left-radius: 20px;
+					overflow: hidden;
+				}
+				
+				@-webkit-keyframes move {
+					0% {
+					   background-position: 0 0;
+					}
+					100% {
+					   background-position: 50px 50px;
+					}
+				}				
+			';
+			
+			return $style;
 		}
 
 		/**

@@ -240,7 +240,25 @@ class LTPLE_Client_Gallery {
 		
 		if( $round_count > 0 ){
 			
-			$count = $round_count . '+';
+			if( $round_count > 1000 ) {
+
+				$x = round($round_count);
+				$x_number_format = number_format($x);
+				$x_array = explode(',', $x_number_format);
+				$x_parts = array('k', 'm', 'b', 't');
+				$x_count_parts = count($x_array) - 1;
+				
+				$round_count = $x;
+				$round_count = $x_array[0] . ((int) $x_array[1][0] !== 0 ? '.' . $x_array[1][0] : '');
+				$round_count .= $x_parts[$x_count_parts - 1];
+			}
+			
+			$count = $round_count;
+		
+			if( is_numeric($round_count) ){
+				
+				$count .= '+';
+			}
 		}
 		
 		return $count;
@@ -295,7 +313,12 @@ class LTPLE_Client_Gallery {
 				'posts_per_page'=> 100,
 				'paged'			=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 			);
-
+			
+			if( !empty($_GET['s']) ){
+				
+				$args['s'] = $_GET['s'];
+			}
+			
 			if( $query = new WP_Query($args)){
 				
 				$this->max_num_pages = $query->max_num_pages;
@@ -665,7 +688,7 @@ class LTPLE_Client_Gallery {
 						$fields, 
 						$trash		= false,
 						$export		= false,
-						$search		= false,
+						$search		= true,
 						$toggle		= false,
 						$columns	= false,
 						$header		= true,
@@ -696,7 +719,7 @@ class LTPLE_Client_Gallery {
 			
 		$item_title.='</a>';
 		
-		$item_title.='<div style="margin-top:10px;">';
+		$item_title.='<div class="gallery-item" style="margin-top:10px;line-height:25px;height:30px;overflow:hidden;font-size:15px;font-weight:bold;">';
 		
 			$item_title.= $content;
 		

@@ -419,6 +419,18 @@ class LTPLE_Client_Json_API {
 						tableRequest();								
 					});
 					
+					// table search
+					
+					$('#".$tableId."').on('search.bs.table',function(e,text){
+						
+						e.preventDefault();
+						
+						tableData.page 	= 1;
+						tableData.s 	= text;
+
+						$('#".$tableId."').bootstrapTable('refresh');
+					}); 
+					
 					// table filters
 
 					if( $('#formFilters').length > 0 ){

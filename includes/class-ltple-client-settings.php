@@ -322,7 +322,9 @@ class LTPLE_Client_Settings {
 	public function schedule_actions(){
 		
 		foreach($this->settings as $settings){
-
+			
+			if( empty($settings['fields']) ) continue;
+			
 			foreach($settings['fields'] as $fields){
 			
 				if( $fields['type'] == 'action_schedule'){
@@ -579,13 +581,13 @@ class LTPLE_Client_Settings {
 		$settings['settings'] = array(
 			'title'					=> __( 'General settings', $this->plugin->slug ),
 			'description'			=> '',
-			'fields'				=> $fields
+			'fields'				=> apply_filters('ltple_general_settings',$fields)
 		);
 	
 		$settings['urls'] = array(
 			'title'					=> __( 'URLs', $this->plugin->slug ),
 			'description'			=> __( '', $this->plugin->slug ),
-			'fields'				=> array(
+			'fields'				=> apply_filters('ltple_urls_settings',array(
 
 				array(
 					'id' 			=> 'editorSlug',
@@ -629,13 +631,13 @@ class LTPLE_Client_Settings {
 					'type'			=> 'slug',
 					'placeholder'	=> __( 'product', $this->plugin->slug )
 				)
-			)
+			))
 		);
 		
 		$settings['style'] = array(
 			'title'					=> __( 'Style', $this->plugin->slug ),
 			'description'			=> '',
-			'fields'				=> array(
+			'fields'				=> apply_filters('ltple_style_settings',array(
 				array(
 					'id' 			=> 'homeLogo',
 					'label'			=> __( 'Home Logo' , $this->plugin->slug ),
@@ -700,13 +702,13 @@ class LTPLE_Client_Settings {
 					'placeholder'	=> '#ff5722',
 					'default'		=> '#ff5722',
 				),
-			)
+			))
 		);
 		
 		$settings['marketing'] = array(
 			'title'					=> __( 'Marketing', $this->plugin->slug ),
 			'description'			=> 'Some information about the targeted market',
-			'fields'				=> array(
+			'fields'				=> apply_filters('ltple_marketing_settings',array(
 				array(
 					'id' 			=> 'niche_business',
 					'label'			=> __( 'Niche business' , $this->plugin->slug ),
@@ -764,21 +766,23 @@ class LTPLE_Client_Settings {
 					'type'			=> 'text',
 					'placeholder'	=> 'http://',
 				),
-			)
+			))
 		);
 
 		$settings['stars'] = array(
 			'title'					=> __( 'Ranking', $this->plugin->slug ),
 			'description'			=> __( 'Setting up the stars and ranking system', $this->plugin->slug ),
-			'fields'				=> array(
+			'fields'				=> apply_filters('ltple_stars_settings',array(
 				array(
 					'id' 			=> 'enable_ranking',
 					'label'			=> __( 'Enable Ranking' , $this->plugin->slug ),
 					'description'	=> '',
 					'type'			=> 'switch',
 				),
-			)
+			))
 		);
+		
+		// TODO add triggers via ltple_stars_settings filter 
 		
 		foreach( $this->parent->stars->triggers as $group => $trigger ){
 			
@@ -798,7 +802,7 @@ class LTPLE_Client_Settings {
 		$settings['tax'] = array(
 			'title'					=> __( 'Tax', $this->plugin->slug ),
 			'description'			=> __( 'Setting up the tax system', $this->plugin->slug ),
-			'fields'				=> array(
+			'fields'				=> apply_filters('ltple_tax_settings',array(
 				array(
 					'id' 			=> 'enable_taxes',
 					'label'			=> __( 'Enable Taxes' , $this->plugin->slug ),
@@ -812,19 +816,25 @@ class LTPLE_Client_Settings {
 					'type'			=> 'number',
 					'style'			=> 'width:50px;'
 				),
-			),
+			)),
+		);
+		
+		$settings['importer'] = array(
+			'title'					=> __( 'Importer', $this->plugin->slug ),
+			'description'			=> __( 'Importer & update remote data', $this->plugin->slug ),
+			'fields'				=> apply_filters('ltple_importer_settings',array()),
 		);
 
 		$settings['addons'] = array(
 			'title'					=> __( 'Addons', $this->plugin->slug ),
 			'description'			=> '',
 			'class'					=> 'pull-right',
-			'fields'				=> array(
+			'fields'				=> apply_filters('ltple_addon_settings',array(
 				array(
 					'id' 			=> 'addon_plugins',
 					'type'			=> 'addon_plugins'
 				)				
-			),
+			)),
 		);
 
 		$settings = apply_filters( $this->parent->_token . '_settings_fields', $settings );
@@ -943,17 +953,25 @@ class LTPLE_Client_Settings {
 		if ( is_array( $this->settings ) ) {
 
 			// Check posted/selected tab
+			
 			$current_section = '';
+			
 			if ( isset( $_POST['tab'] ) && $_POST['tab'] ) {
+				
 				$current_section = $_POST['tab'];
-			} else {
+			} 
+			else {
+				
 				if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {
+					
 					$current_section = $_GET['tab'];
 				}
 			}
 
 			foreach ( $this->settings as $section => $data ) {
-
+				
+				if( empty($data['fields']) ) continue;
+				
 				if ( $current_section && $current_section != $section ) continue;
 
 				// Add section to page
@@ -1020,6 +1038,8 @@ class LTPLE_Client_Settings {
 				$c = 0;
 				foreach ( $this->settings as $section => $data ) {
 
+					if( empty($data['fields']) ) continue;
+
 					// Set tab class
 					
 					$class = 'nav-tab';
@@ -1073,7 +1093,7 @@ class LTPLE_Client_Settings {
 					
 					$html .= ob_get_clean();
 
-					if( !isset($_GET['tab']) || $_GET['tab'] != 'addons' ){
+					if( !isset($_GET['tab']) || !in_array($_GET['tab'],array('addons','importer')) ){
 					
 						$html .= '<p class="submit">' . "\n";
 							$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
