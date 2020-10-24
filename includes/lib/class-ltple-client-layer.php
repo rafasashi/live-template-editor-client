@@ -1915,10 +1915,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 				$meta = get_term_meta($range->term_id);
 				
-				$ranges[$range->slug]['name'] 	= $range->name;
-				$ranges[$range->slug]['slug'] 	= $range->slug;
-				$ranges[$range->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $range->name;
-				$ranges[$range->slug]['count'] 	= !empty($meta['default_layer_count'][0]) ? $meta['default_layer_count'][0] : 0;
+				$ranges[$range->slug]['term_id'] 	= $range->term_id;
+				$ranges[$range->slug]['name'] 		= $range->name;
+				$ranges[$range->slug]['slug'] 		= $range->slug;
+				$ranges[$range->slug]['short'] 		= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $range->name;
+				$ranges[$range->slug]['count'] 		= !empty($meta['default_layer_count'][0]) ? $meta['default_layer_count'][0] : 0;
+				$ranges[$range->slug]['taxonomy'] 	= $range->taxonomy;
 			}
 		}
 
@@ -1961,10 +1963,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$meta = get_term_meta($addon_range->term_id);
 						
+					$ranges[$addon_range->slug]['term_id'] 	= $addon_range->term_id;
 					$ranges[$addon_range->slug]['name'] 	= $addon_range->name;
 					$ranges[$addon_range->slug]['slug'] 	= $addon_range->slug;
 					$ranges[$addon_range->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $addon_range->name;
 					$ranges[$addon_range->slug]['count'] 	= $query->found_posts;
+					$ranges[$addon_range->slug]['taxonomy'] = $range->taxonomy;
 				}
 			}
 		}

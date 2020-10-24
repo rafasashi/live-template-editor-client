@@ -405,25 +405,25 @@ class LTPLE_Client_Plan {
 						
 						foreach( $type->ranges as $range ){
 							
-							if( empty($type->addon_range) || $type->addon_range->term_id != $range->term_id ){
+							if( empty($type->addon_range) || $type->addon_range->term_id != $range['term_id'] ){
 								
 								$row .='<tr>';
 								
 									$row .='<td>';
 									
-										$row .= $range->name;
+										$row .= $range['name'];
 
 									$row .='</td>';
 									
 									$row .='<td style="text-align:center;">';
 										
-										if( isset($plan['options'][0]) && in_array( $range->slug, $plan['options'] ) ){
+										if( isset($plan['options'][0]) && in_array( $range['slug'], $plan['options'] ) ){
 											
 											// plan view
 											
 											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
 										}
-										elseif( isset( $plan['taxonomies'][$range->taxonomy]['terms'][$range->slug]['has_term'] ) && $plan['taxonomies'][$range->taxonomy]['terms'][$range->slug]['has_term'] === true ){
+										elseif( isset( $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] ) && $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] === true ){
 											
 											// billing info view
 											
