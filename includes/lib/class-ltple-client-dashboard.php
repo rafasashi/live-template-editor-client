@@ -362,7 +362,7 @@ class LTPLE_Client_Dashboard {
 		
 	public function get_sidebar( $currentTab = 'home', $output = '' ){
 			
-		$storage_count = $this->parent->layer->count_layers_by('storage');
+		$storage_count = $this->parent->layer->count_layers_by_storage();
 		
 		$sidebar =  '<div id="sidebar">';
 				

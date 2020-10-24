@@ -239,7 +239,7 @@
 								echo'</div>';
 							}
 						}
-						elseif( $storage_count = $ltple->layer->count_layers_by('storage') ){
+						elseif( $storage_count = $ltple->layer->count_layers_by_storage() ){
 							
 							$storage_types = $ltple->layer->get_storage_types();
 							

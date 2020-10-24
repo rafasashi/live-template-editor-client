@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Gallery {
 	
 	var $all_sections 	= null;
-	var $current_types 		= null;
+	var $current_types 	= null;
 	var $all_ranges 	= null;
 	var $max_num_pages;
 	

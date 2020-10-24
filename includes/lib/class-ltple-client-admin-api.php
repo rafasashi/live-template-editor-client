@@ -341,6 +341,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 				break;
 				
+				/*
+				
 				case 'edit_layer':
 					
 					$html .= '<div class="row">';
@@ -378,14 +380,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 								'post_type' 		=> 'cb-default-layer', 
 								'posts_per_page'	=> -1,
-								/*
-								'tax_query'			=> array(
-								
-									'taxonomy' 	=> 'layer-type',
-									'terms' 	=> $layerTypes, // how to get them?
-									'field' 	=> 'slug'
-								)
-								*/
 							));
 
 							if( !empty( $layers ) ){
@@ -503,6 +497,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					}
 
 				break;
+				*/
 				
 				case 'checkbox_multi_plan_options':
 					

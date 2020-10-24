@@ -2265,7 +2265,7 @@ class LTPLE_Client_Plan {
 			
 			do_action('ltple_user_plan_info',$user_id);
 		}
-
+		
 		return $this->user_plans[$user_id];	
 	}
 	

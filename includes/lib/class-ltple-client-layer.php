@@ -12,7 +12,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $storageTypes	= null;
 	public $mediaTypes		= null;
 	
-	public $counts			= null;
+	public $storage_count	= null;
 	public $editors			= null;
 	public $sections		= null;
 	public $types			= null; 
@@ -599,86 +599,52 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 		return $is_hosted;
 	}	
-
-	public function count_layers_by( $count_by = 'storage' ){
+	
+	public function count_layers_by($type = 'storage'){
 		
-		if( is_null($this->counts) ){
+		if( $type == 'storage' ){
 			
-			$this->counts = array();
+			return $this->count_layers_by_storage();
+		}
+		
+		dump( 'missing count_layer_by : ' . $type );
+		
+		return false;
+	}
+	
+	public function count_layers_by_storage(){
+		
+		if( is_null($this->storage_count) ){
 			
-			if( $count_by == 'type' || $count_by == 'storage' || $count_by == 'output' ){
+			$storage_count = array();
+			
+			if( $types = $this->get_layer_types() ){
 				
-				if( $default_layers = get_posts( array(
+				foreach( $types as $type ){
 					
-					'post_type' 	=> 'cb-default-layer',
-					'status'		=> 'publish',
-					'numberposts'	=> -1,
-					'tax_query' => array(
-						/*
-						array(
-							'taxonomy' => 'layer-type',
-							'terms'    => get_terms( 'layer-type', [ 'fields' => 'ids'  ] ),
-							'operator' => 'IN'
-						),
-						*/
-						array(
-							'taxonomy' => 'layer-range',
-							'terms'    => get_terms( 'layer-range', [ 'fields' => 'ids'  ] ),
-							'operator' => 'IN'
-						)
-					)
-				))){
+					if( empty($type->ranges) )
+						continue;
 					
-					foreach( $default_layers as $layer ){
+					foreach( $type->ranges as $range ){
 						
-						$layer_type = $this->parent->layer->get_layer_type($layer);
+						$count = intval($range['count']);
 						
-						if( !empty($layer_type->slug) ){
+						if( !isset($storage_count[$type->storage]) ){
 							
-							// count type
+							$storage_count[$type->storage] = $count;
+						}
+						else{
 							
-							if( !isset($this->counts['type'][$layer_type->slug]) ){
-								
-								$this->counts['type'][$layer_type->slug] = 1;
-							}
-							else{
-								
-								++$this->counts['type'][$layer_type->slug];
-							}						
-							
-							// count storage
-							
-							if( !isset($this->counts['storage'][$layer_type->storage]) ){
-								
-								$this->counts['storage'][$layer_type->storage] = 1;
-							}
-							else{
-								
-								++$this->counts['storage'][$layer_type->storage];
-							}
-							
-							// count output
-							
-							if( !isset($this->counts['output'][$layer_type->output]) ){
-								
-								$this->counts['output'][$layer_type->output] = 1;
-							}
-							else{
-								
-								++$this->counts['output'][$layer_type->output];
-							}
-						}					
+							$storage_count[$type->storage] += $count;
+						}
 					}
 				}
 			}
-		}
-		
-		if( isset($this->counts[$count_by]) ){
 			
-			return $this->counts[$count_by];
+			$this->storage_count = $storage_count;
 		}
 		
-		return false;
+		return $this->storage_count;
 	}	
 	
 	public function can_customize_url($post){
@@ -1885,24 +1851,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 						$term->gallery_section = $this->get_type_gallery_section($term);
 						
-						if( $ranges = get_terms(array(
-						
-							'taxonomy' 		=> 'layer-range',
-							'meta_query' 	=> array(
-							
-								array(
-								
-									'key'       => 'range_type',
-									'value'     => $term->term_id,
-									'compare'   => '=',
-								),				
-							),
-						))){
-							
-							$term->ranges = $ranges;
-						}
+						$term->ranges 		= $this->get_type_ranges($term);
 
-						$term->addon_range = $this->get_type_addon_range($term);
+						$term->addon_range 	= $this->get_type_addon_range($term);
 					
 						$current_types[] = $term;
 					}
