@@ -341,164 +341,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 				break;
 				
-				/*
-				
-				case 'edit_layer':
-					
-					$html .= '<div class="row">';
-						
-						$html .= '<div class="col-xs-6">';
-						
-							$html .= '<input' . $style . ' class="form-control" id="' . $id . '" type="text" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" '.$required.'/>' . "\n";
-						
-						$html .= '</div>';
-						
-						$html .= '<div class="col-xs-6 text-center">';
-												
-						$html .= '</div>';
-						
-					$html .= '</div>';
-					
-					//$html .= '<hr/>';
-					
-					if( empty($data) || !is_numeric($data) ){
-
-						if( !empty($item) && $item->is_local ){
-							
-							// get valid output
-							
-							$valid_output = 'hosted-page';
-							
-							if( $item->post_type == 'email-model' ){
-								
-								$valid_output = 'inline-css';
-							}
-							
-							// get layers
-							
-							$layers = get_posts( array( 
-						
-								'post_type' 		=> 'cb-default-layer', 
-								'posts_per_page'	=> -1,
-							));
-
-							if( !empty( $layers ) ){
-								
-								$items = [];
-								
-								foreach( $layers as $layer ){
-									
-									$layer_type = $this->parent->layer->get_layer_type($layer);
-									
-									if( $layer_type->output == $valid_output ){
-										
-										$item = '';
-										
-										$item.='<div class="' . implode( ' ', get_post_class("col-xs-12 col-sm-6 col-md-4",$layer->ID) ) . '" id="post-' . $layer->ID . '">';
-											
-											$item.='<div class="panel panel-default">';
-												
-												$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($layer) . ');height:120px;background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper
-												
-												$item.='<div class="panel-body" style="height:50px;overflow:hidden;">';
-													
-													$item.='<b>' . $layer->post_title . '</b>';
-													
-												$item.='</div>';
-												
-												$item.='<div class="panel-footer text-right">';
-
-													if( intval($data) == $layer->ID ){
-
-														$item.='<button type="button" class="btn btn-xs btn-success layer-selected" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
-															
-															$item.='Selected'.PHP_EOL;
-														
-														$item.='</button>'.PHP_EOL;																			
-													}
-													else{
-														
-														$item.='<button type="button" class="btn btn-xs btn-warning" data-toggle="layer" data-target="'.$layer->ID.'">'.PHP_EOL;
-															
-															$item.='Select'.PHP_EOL;
-														
-														$item.='</button>'.PHP_EOL;										
-													}
-
-												$item.='</div>';
-											
-											$item.='</div>';
-											
-										$item.='</div>';
-
-										$items[$layer_type->slug][]=$item;
-									}
-								}
-								
-								if( !empty($items) ){
-									
-									$html .= '<ul class="nav nav-tabs" role="tablist" style="margin-top:10px;">';
-
-										$active=' class="active"';
-										
-										foreach($items as $type => $type_items){
-											
-											$html .= '<li role="presentation"'.$active.'><a href="#' . $type . '" aria-controls="' . $type . '" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$type)).'</a></li>';
-											
-											$active='';
-										}
-
-									$html .= '</ul>';	
-
-									$html .= '<div class="tab-content row" style="margin-top:10px;">';
-
-										$active=' active';
-									
-										foreach($items as $type => $type_items){
-											
-											$html .= '<div role="tabpanel" class="tab-pane'.$active.'" id="' . $type . '">';
-											
-											foreach($type_items as $item){
-
-												$html .= $item;
-											}
-											
-											$html .= '</div>';
-											
-											$active='';
-										}
-										
-									$html .= '</div>';
-									
-									$html .= '<script>';
-									
-										$html .= ';(function($){';
-											
-											$html .= '$(document).ready(function(){';
-
-												$html .= '$(\'[data-toggle="layer"]\').on(\'click\', function (e) {';
-													
-													$html .= '$(".layer-selected").html("Select").removeClass("btn-success layer-selected").addClass("btn-warning");';
-													
-													$html .= '$(this).html("Selected").removeClass("btn-warning").addClass("btn-success layer-selected");';
-													
-													$html .= '$("#defaultLayerId").val($(this).data(\'target\'));';
-													
-												$html .= '});';							
-											
-											$html .= '});';
-											
-										$html .= '})(jQuery);';								
-									
-									$html .= '</script>';
-								}
-							}
-						}
-					}
-
-				break;
-				*/
-				
 				case 'checkbox_multi_plan_options':
 					
 					$total_price_amount 	= 0;
@@ -1697,17 +1539,23 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'importer':
 					
-					// add importer style
+					if( !wp_style_is($this->parent->_token . '-importer') ){
 					
-					wp_register_style($this->parent->_token . '-importer', false,array());
-					wp_enqueue_style($this->parent->_token . '-importer');
-					wp_add_inline_style($this->parent->_token . '-importer', $this->get_importer_style() );
+						// add importer style
 					
-					// add importer script
+						wp_register_style($this->parent->_token . '-importer', false,array());
+						wp_enqueue_style($this->parent->_token . '-importer');
+						wp_add_inline_style($this->parent->_token . '-importer', $this->get_importer_style() );
+					}
 					
-					wp_register_script( $this->parent->_token . '-importer', '', array( 'jquery', 'jquery-ui-dialog' ) );
-					wp_enqueue_script( $this->parent->_token . '-importer' );
-					wp_add_inline_script( $this->parent->_token . '-importer', $this->get_importer_script() );
+					if( !wp_script_is($this->parent->_token . '-importer') ){
+					
+						// add importer script
+					
+						wp_register_script( $this->parent->_token . '-importer', '', array( 'jquery', 'jquery-ui-dialog' ) );
+						wp_enqueue_script( $this->parent->_token . '-importer' );
+						wp_add_inline_script( $this->parent->_token . '-importer', $this->get_importer_script() );
+					}
 					
 					$source = $field['source'];
 					
@@ -2049,18 +1897,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 						// bind buttons
 						
-						$(".importer-button").each(function(i){
+						$("button[data-target=\'\\#importerConsole\']").each(function(i,$btn){
 							
 							$(this).on("click",function(){
 								
 								var id = $(this).attr("data-id");
 			
-								var $btns 		= $("#importer-buttons-" + id);
 								var $meter 		= $("#importer-meter-" + id);
 								var $progress 	= $("#importer-meter-" + id + " .progress");
 								var $completed 	= $("#importer-message-" + id + " .completed");
 								
-								$btns.find("button").prop("disabled",true);
+								$(this).prop("disabled",true);
 								$meter.show();
 								$completed.hide();
 								
@@ -2080,7 +1927,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 										console.error(source + " error");
 																										
 										$meter.hide();
-										$btns.find("button").prop("disabled",false);
+										$(this).prop("disabled",false);
 									},
 									success: function(sources) {
 									
@@ -2132,7 +1979,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 																$meter.hide();
 																$progress.css("width", "0%");
-																$btns.find("button").prop("disabled",false);
+																$(this).prop("disabled",false);
 																$completed.show();
 															});
 															
@@ -2147,7 +1994,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 														
 											$meter.hide();
 											$progress.css("width", "0%");
-											$btns.find("button").prop("disabled",false);
+											$(this).prop("disabled",false);
 											$completed.show();
 										}
 									},

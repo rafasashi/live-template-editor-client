@@ -208,7 +208,7 @@
 							
 							echo'<div class="col-xs-3 text-right">';
 							
-								echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->home . '/contact-us/">Claim it</a>';
+								echo '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->home . '/contact/">Claim it</a>';
 							
 							echo '</div>';
 							

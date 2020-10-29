@@ -725,18 +725,21 @@ class LTPLE_Client_Gallery {
 		
 		$item_title.='</div>';
 		
-		$item_title.='<div style="font-size: 11px;">';
-			
-			if( $this->parent->inWidget === true ){
-				
-				$item_title.='by <span>' . $nickname . '</span>';
-			}
-			else{
-				
-				$item_title.='by <a href="' . $this->parent->urls->profile . $post->post_author . '/">' . $nickname . '</a>';
-			}
+		if( !empty($nickname) ){
 		
-		$item_title.='</div>';
+			$item_title.='<div style="font-size: 11px;">';
+				
+				if( $this->parent->inWidget === true ){
+					
+					$item_title.='by <span>' . $nickname . '</span>';
+				}
+				else{
+					
+					$item_title.='by <a href="' . $this->parent->urls->profile . $post->post_author . '/">' . $nickname . '</a>';
+				}
+			
+			$item_title.='</div>';
+		}
 		
 		return $item_title;
 	}
