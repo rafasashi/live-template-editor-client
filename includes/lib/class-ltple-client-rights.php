@@ -21,6 +21,8 @@ class LTPLE_Client_Rights {
 		
 		add_action( 'init', array( $this, 'init' ));
 		
+		add_action( 'ltple_user_loaded', array( $this, 'set_user_capabilities' ));
+		
 		/*
 		
 		// add rights taxonomy custom fields
@@ -36,6 +38,16 @@ class LTPLE_Client_Rights {
 		*/
 	}
 	
+	public function set_user_capabilities(){
+		
+		if( current_user_can('administrator') ){
+			
+			//dump($this->parent->user);
+			
+			//dump( $this->parent->user->has_cap('edit_user-page') );
+		}
+	}
+	
 	public function init(){
 		
 		// set administrator capabilities 
@@ -43,7 +55,10 @@ class LTPLE_Client_Rights {
 		$role = get_role('administrator');
 		
 		empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;	
-		
+		empty($role->capabilities['edit_user-pages']) ? $role->add_cap('edit_user-pages') : true;
+		empty($role->capabilities['edit_user-pages']) ? $role->add_cap('edit_user-pages') : true;
+		empty($role->capabilities['edit_other_user-pages']) ? $role->add_cap('edit_other_user-pages') : true;				
+
 		// set subscriber capabilities 
 		
 		$role = get_role('subscriber');
