@@ -456,36 +456,38 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function count_layer_range($terms,$taxonomy){
 		
-		//$terms = $this->get_layer_ranges(); // bulk count
-		
-		if( !empty($terms) ){
+		if( defined('WP_IMPORTING') && WP_IMPORTING === true )
 			
-			foreach( $terms as $term ){
-				
-				$term_id = is_object($term) ? $term->term_id : $term;
-
-				// count default layers
-				
-				$query = new WP_Query(array(
-				
-					'posts_per_page' 	=> 1,
-					'post_type' 		=> 'cb-default-layer',
-					'tax_query' 		=> array(
-						
-						array(
-							'taxonomy' 			=> $taxonomy->name,
-							'terms' 			=> $term_id,
-							'field' 			=> 'id',
-							'include_children'	=> false,
-						)
-					)
-				));
-				
-				update_term_meta($term_id,'default_layer_count',$query->found_posts);
-			}
-		}
+			return;
 		
-		return true;
+		if( empty($terms) || empty($taxonomy) )
+			
+			return;
+			
+		foreach( $terms as $term ){
+			
+			$term_id = is_object($term) ? $term->term_id : $term;
+
+			// count default layers
+			
+			$query = new WP_Query(array(
+			
+				'posts_per_page' 	=> 1,
+				'post_type' 		=> 'cb-default-layer',
+				'post_status' 		=> 'publish',
+				'tax_query' 		=> array(
+					
+					array(
+						'taxonomy' 			=> $taxonomy->name,
+						'terms' 			=> $term_id,
+						'field' 			=> 'id',
+						'include_children'	=> false,
+					)
+				)
+			));
+			
+			update_term_meta($term_id,'default_layer_count',$query->found_posts);
+		}
 	}
 	
 	public function get_local_types(){

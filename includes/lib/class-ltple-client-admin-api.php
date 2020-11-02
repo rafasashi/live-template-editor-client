@@ -1428,9 +1428,22 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</select> ';
 				break;
 				
+				case 'dynamic_tags':
+					
+					$html .= post_tags_meta_box( $item, array(
+					
+						'id' 		=> 'tagsdiv-' . $field['taxonomy'],
+						'callback' 	=> !empty($field['callback']) ? $field['callback'] : '',
+						'args' 		=> array(
+							'taxonomy' => $field['taxonomy'],
+						),
+					));
+				
+				break;
+				
 				case 'dropdown_categories':
 
-					$html .=wp_dropdown_categories(array(
+					$html .= wp_dropdown_categories(array(
 					
 						'show_option_none' => 'None',
 						'taxonomy'     => $field['taxonomy'],
