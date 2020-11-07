@@ -36,7 +36,7 @@ class LTPLE_Client_Server {
 			// set access control
 			
 			$url = parse_url($this->url);
-						
+			
 			header('Access-Control-Allow-Origin: ' . $url['scheme']."://".$url['host'], false);
 			header('Access-Control-Allow-Credentials: true', false);			
 		}		

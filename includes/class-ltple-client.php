@@ -1418,7 +1418,7 @@ class LTPLE_Client {
 								$args['ID'] 			= $post_id;
 								$args['post_date'] 		= $time;
 								$args['post_date_gmt'] 	= get_gmt_from_date( $time );
-		
+							
 								wp_update_post($args);
 							}
 							
@@ -1470,14 +1470,7 @@ class LTPLE_Client {
 						}
 					}
 					
-					$redirect_url = add_query_arg( array( 
-					
-						'edited' => '',
-					
-					), $this->urls->current);
-					
-					wp_redirect($redirect_url);
-					exit;
+					$this->exit_message('Settings successfully updated!',200);
 				}
 			}
 			elseif( $this->layer->type == $this->layer->layerStorage && isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){

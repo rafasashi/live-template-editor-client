@@ -2248,7 +2248,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 					if( !empty($field['label']) && !empty($field['id']) ){
 						
-						$meta_box .= '<div for="' . $field['id'] . '">' . $field['label'] . '</div> ' . PHP_EOL;
+						$meta_box .= '<div style="font-weight:600;margin:15px 0;" for="' . $field['id'] . '">' . $field['label'] . '</div> ' . PHP_EOL;
 					}
 					
 					$meta_box .= $this->display_field( $field, $post, false ) . PHP_EOL;

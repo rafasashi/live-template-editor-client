@@ -93,19 +93,18 @@
 						if( $ltple->layer->type != 'cb-default-layer' ){
 														
 							if( $ltple->user->has_layer && !$ltple->layer->is_media ){
-													
-								// view button 
-								
-								if( $ltple->layer->has_preview($ltple->layer->type) ){
-									
-									echo '<a target="_blank" class="btn btn-sm" href="' . get_preview_post_link($ltple->layer->id) . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
-								}
-								
-								// delete button
-								
-								if( !empty($_GET['action']) && $_GET['action'] == 'edit' && $ltple->layer->type != 'cb-default-layer' ){
 
-									echo '<a style="border:none;background: #f44336;" class="btn btn-sm" href="#removeCurrentTpl" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</a>';
+								if( !empty($_GET['action']) && $_GET['action'] == 'edit' && $ltple->layer->type != 'cb-default-layer' ){
+									
+									echo'<div id="navLoader" style="margin-right:10px;display:none;"><img src="' . $ltple->assets_url . 'loader.gif" style="height: 20px;"></div>';				
+
+									// save button
+									
+									echo '<button style="border:none;" class="btn btn-sm btn-success" type="button" id="saveBtn">Save</button>';
+
+									// delete button
+									
+									echo '<a style="border:none;background:#f44336;margin-left:2px;color:#fff;" class="btn btn-sm" href="#removeCurrentTpl" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</a>';
 								
 									echo'<div style="display:none;" id="removeCurrentTpl" title="Remove current template">';
 										
@@ -116,6 +115,13 @@
 										//echo '<button style="margin:10px;" type="button" class="btn btn-xs btn-danger ui-button ui-widget" role="button" title="Close"><span class="ui-button-text">No</span></button>';
 
 									echo'</div>';						
+								}
+								
+								// view button 
+								
+								if( $ltple->layer->has_preview($ltple->layer->type) ){
+									
+									echo '<a target="_blank" class="btn btn-sm" href="' . get_preview_post_link($ltple->layer->id) . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 								}
 							}
 						}

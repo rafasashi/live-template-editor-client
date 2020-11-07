@@ -103,6 +103,10 @@ class LTPLE_Client_Editor {
 					
 					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
 						
+						wp_register_script( $this->parent->_token . '-editor-panel', '', array( 'jquery', $this->parent->_token . '-notify-js' ) );
+						wp_enqueue_script( $this->parent->_token . '-editor-panel' );
+						wp_add_inline_script( $this->parent->_token . '-editor-panel', $this->get_editor_panel_script());
+						
 						include( $this->parent->views . '/editor-panel.php' );
 					}
 					elseif( ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $this->parent->layer->type == 'cb-default-layer' || $this->parent->layer->is_media ) ){
@@ -180,6 +184,74 @@ class LTPLE_Client_Editor {
 				exit;
 			}
 		}
+	}
+	
+	public function get_editor_panel_script(){
+		
+		$script = '
+		
+			;(function($){
+			
+				$(document).ready(function(){
+
+					$("#saveBtn").on("click",function(e){
+						
+						e.preventDefault();
+						
+						$("#navLoader").css("display","inline-block");
+						
+						var action 	= $("#savePostForm").attr("action");
+						
+						var data 	= $("#savePostForm").serialize();
+						
+						$.ajax({
+							
+							type		: "POST",
+							url			: action,
+							cache		: false,
+							data		: data,
+							asych		: false,
+							xhrFields	: {
+								
+								withCredentials: true
+							},
+							success	: function(data){
+								
+								// display message
+								
+								$.notify( data, {
+									
+									className: "success",
+									position: "top center"
+								});
+								
+								$("#navLoader").css("display","none");
+							},
+							error : function (request, status, error) {
+								
+								//console.log(request);
+								
+								// display message
+								
+								$.notify( "Error saving settings...", {
+									
+									className: "danger",
+									position: "top center"
+								});
+								
+								$("#navLoader").css("display","none");
+							}				
+						});
+						
+					});
+					
+				});
+					
+			})(jQuery);			
+		';
+		
+		
+		return $script;
 	}
 
 	public function filter_iframe_url($url,$layer){

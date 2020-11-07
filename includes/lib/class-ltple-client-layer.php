@@ -1618,7 +1618,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'stripcslashes'	=> false,
 						'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 					);
-					
+
 					if( $this->is_public_output($layer_type->output) ){
 					
 						$this->userFields[] = array(

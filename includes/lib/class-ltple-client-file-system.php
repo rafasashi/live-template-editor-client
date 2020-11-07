@@ -241,18 +241,21 @@
 		public function put_contents( $filename, $contents ) {
 			
 			$dir = dirname($filename);
-
-			if( $this->create_folder($dir) && self::request_filesystem_credentials() ){
-				
-				global $wp_filesystem;
-				
-				if ( $wp_filesystem->put_contents( $filename, $contents, FS_CHMOD_FILE ) ) {
-					
-					return true;					
-				}
-				elseif( file_put_contents($filename, $contents, LOCK_EX) ){
-					
+			
+			if( $this->create_folder($dir) ){
+			
+				if( @file_put_contents($filename, $contents, LOCK_EX) ){
+						
 					return true;
+				}
+				elseif( self::request_filesystem_credentials() ){
+					
+					global $wp_filesystem;
+					
+					if ( $wp_filesystem->put_contents( $filename, $contents, FS_CHMOD_FILE ) ) {
+						
+						return true;					
+					}
 				}
 			}
 

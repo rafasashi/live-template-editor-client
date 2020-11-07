@@ -37,18 +37,24 @@ echo'<div id="panel" class="wrapper">';
 					
 				$fields = $ltple->layer->get_user_layer_fields(array(),$ltple->user->layer);
 						
-				echo '<form method="post" enctype="multipart/form-data">';
+				echo '<form id="savePostForm" method="post" enctype="multipart/form-data">';
 					
 					echo'<div class="row gutter-20">';
 						
 						echo'<div class="col-md-9">';
+							
+							// action
 							
 							echo'<input type="hidden" name="postAction" value="edit" />';
 							
 							// ID
 							
 							echo'<input type="hidden" name="id" value="' . ( !empty($ltple->user->layer->ID) ? $ltple->user->layer->ID : 0 ) . '" />';
-
+							
+							// json
+							
+							
+							
 							// title
 							
 							echo'<div class="panel panel-default">';
@@ -78,16 +84,6 @@ echo'<div id="panel" class="wrapper">';
 							echo'<div class="panel panel-default">';
 								
 								do_action('ltple_edit_layer_status',$ltple->user->layer,$post_type);
-								
-								echo'<div class="panel-footer">';
-								
-									echo'<div class="row" style="padding: 0 10px;">';
-								
-										echo '<input type="submit" value="Update" class="btn btn-md btn-success pull-right" style="font-size:12px;" />';
-									
-									echo'</div>'; 
-									
-								echo'</div>';
 
 							echo'</div>';
 						
