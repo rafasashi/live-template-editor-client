@@ -181,8 +181,8 @@
 									echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size: 15px;height:28px;background: none;border: none;color: #a5a5a5;box-shadow: none;"><span class="glyphicon glyphicon-cog icon-cog" aria-hidden="true"></span></button>';
 														
 									echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
-											
-										if( $ltple->layer->layerOutput != 'image' ){
+										
+										if( $ltple->layer->layerOutput != 'image' && $ltple->layer->has_preview($ltple->layer->type) ){
 										
 											echo'<li style="position:relative;">';
 												

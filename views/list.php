@@ -47,11 +47,11 @@
 								
 								$modal_id='modal_'.md5($gallery_url);
 								
-								echo'<button style="margin:7px;padding:5px 10px !important;" type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+								echo'<a href="#new" style="margin:7px 3px;padding:5px 10px !important;" type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 									
 									echo'+ New'.PHP_EOL;
 								
-								echo'</button>'.PHP_EOL;
+								echo'</a>'.PHP_EOL;
 
 								echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 									
@@ -75,10 +75,12 @@
 										
 									echo'</div>'.PHP_EOL;
 									
-								echo'</div>'.PHP_EOL;							
-								
+								echo'</div>'.PHP_EOL;
+
 							echo '</li>';
 						}
+						
+						do_action('ltple_dashboard_list_actions',$post_type);
 						
 					echo'</ul>';
 
