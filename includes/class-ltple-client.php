@@ -194,6 +194,8 @@ class LTPLE_Client {
 
 			$this->editor 	= new LTPLE_Client_Editor( $this );
 			
+			$this->websocket = new LTPLE_Client_Websocket( $this );
+		
 			$this->media 	= new LTPLE_Client_Media( $this );
 			 
 			$this->apps 	= new LTPLE_Client_Apps( $this );
