@@ -52,18 +52,20 @@ class LTPLE_Client_Rights {
 		
 		// set administrator capabilities 
 		
-		$role = get_role('administrator');
+		if( $role = get_role('administrator') ){
 		
-		empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;	
-		empty($role->capabilities['edit_user-pages']) ? $role->add_cap('edit_user-pages') : true;
-		empty($role->capabilities['edit_user-pages']) ? $role->add_cap('edit_user-pages') : true;
-		empty($role->capabilities['edit_other_user-pages']) ? $role->add_cap('edit_other_user-pages') : true;				
-
+			empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;	
+			empty($role->capabilities['edit_user-pages']) ? $role->add_cap('edit_user-pages') : true;
+			empty($role->capabilities['edit_user-pages']) ? $role->add_cap('edit_user-pages') : true;
+			empty($role->capabilities['edit_other_user-pages']) ? $role->add_cap('edit_other_user-pages') : true;				
+		}
+		
 		// set subscriber capabilities 
 		
-		$role = get_role('subscriber');
+		if( $role = get_role('subscriber') ){
 		
-		empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;
+			empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;
+		}
 	}
 	
 	public function get_user_rights( $user ) {

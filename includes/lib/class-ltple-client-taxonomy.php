@@ -65,6 +65,11 @@ class LTPLE_Client_Taxonomy {
 		// Register taxonomy
 		add_action('init', array( $this, 'register_taxonomy' ),0 );
 	}
+	
+	public function filter_taxonomy_parent_dropdown_args($args){
+		
+		return $args;
+	}
 
 	/**
 	 * Register new taxonomy

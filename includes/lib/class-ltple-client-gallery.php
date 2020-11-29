@@ -7,6 +7,7 @@ class LTPLE_Client_Gallery {
 	var $all_sections 	= null;
 	var $current_types 	= null;
 	var $all_ranges 	= null;
+	var $per_page 		= 50;
 	var $max_num_pages;
 	
 	/**
@@ -310,7 +311,7 @@ class LTPLE_Client_Gallery {
 			
 				'post_type' 	=> 'cb-default-layer', 
 				'tax_query' 	=> $tax_query,
-				'posts_per_page'=> 100,
+				'posts_per_page'=> $this->per_page,
 				'paged'			=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 			);
 			
@@ -698,7 +699,8 @@ class LTPLE_Client_Gallery {
 						$card		= true,
 						$itemHeight	= 300, 
 						$fixedHeight= true, 
-						$echo		= true
+						$echo		= true,
+						$pageSize	= $this->per_page
 						
 					);
 

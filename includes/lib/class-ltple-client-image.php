@@ -122,16 +122,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			$this->isDownloadable = true;
 		}
 		
-		if( $this->isDownloadable ){
-			
-			$this->url = str_replace( 'https://', 'http://', dirname($this->parent->layer->layerStaticUrl) ) . '/assets/images/';
-			$this->dir = dirname($this->parent->layer->layerStaticPath) . '/assets/images/';
-		}
-		else{
-			
-			$this->url = ( defined('LTPLE_IMAGE_URL') ? LTPLE_IMAGE_URL : str_replace( 'https://', 'http://', $this->parent->urls->home ) . '/i/');
-			$this->dir = ( defined('LTPLE_IMAGE_DIR') ? LTPLE_IMAGE_DIR : ABSPATH . 'i/');
-		}
+		$this->url = ( defined('LTPLE_IMAGE_URL') ? LTPLE_IMAGE_URL : str_replace( 'https://', 'http://', $this->parent->urls->home ) . '/i/');
+		$this->dir = ( defined('LTPLE_IMAGE_DIR') ? LTPLE_IMAGE_DIR : ABSPATH . 'i/');
 		
 		if( !is_admin() ) {
 			

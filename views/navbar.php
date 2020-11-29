@@ -14,6 +14,8 @@
 		
 			echo'<div class="row" style="box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);background: rgb(236, 236, 236);padding: 8px 0;margin: 0;border-bottom: 1px solid #ddd;position: relative;">';
 		}
+			
+			$user_storage_types = !empty($ltple->user->ID) ? $ltple->layer->get_user_storage_types($ltple->user->ID) : null;
 		
 			echo'<div class="col-xs-6 col-sm-4" style="z-index:10;padding:0 8px;">';			
 				
@@ -27,27 +29,7 @@
 					
 				echo'</div>';
 				
-				/*
-				echo'<div class="pull-left">';
-				
-					echo'<a class="menuIconBtn" href="' . $ltple->urls->dashboard . '" style="width: 32px;height: 28px;border-top: 0;border-right: 1px solid #ddd;border-bottom: 0;border-left: 0;color: #777;text-align: left;font-size: 16px;display: block;background: transparent;padding: 3px 5px;margin: 0 10px 0 0;">';
-							
-						echo'<i class="glyphicon glyphicon-th-large"></i>';
-						
-					echo'</a>';
-					
-				echo'</div>';
-				*/
-				
 				echo'<div class="pull-left hidden-xs">';
-					
-					/*
-					echo'<a style="background:' . $ltple->settings->mainColor . ';border:1px solid ' . $ltple->settings->borderColor . ';" class="btn btn-sm" href="'. $ltple->urls->gallery .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Gallery of Templates" data-content="The gallery is where you can find templates to start a project. New things are added every weeks.">';
-					
-						echo'Templates';
-					
-					echo'</a>';
-					*/
 					
 					echo'<a style="color:' . $ltple->settings->mainColor . ';background: #f5f5f5;border: none;" class="btn btn-sm" href="'. $ltple->urls->dashboard .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Dashboard" data-content="The dashboard is where you can manage all your projects and services. New things are added every weeks.">';
 					
@@ -57,15 +39,18 @@
 					
 				echo'</div>';
 				
-				echo'<div class="pull-left hidden-xs">';
-
-					echo'<a style="color:' . $ltple->settings->mainColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->gallery . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Template Gallery" data-content="The template gallery is where you can start, edit and deploy a new project. Check the plans to unlock more ranges.">';
-						
-						echo'Templates';
-					
-					echo'</a>';
+				if( !empty($user_storage_types) ){
 				
-				echo'</div>';
+					echo'<div class="pull-left hidden-xs">';
+
+						echo'<a style="color:' . $ltple->settings->mainColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->gallery . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Template Gallery" data-content="The template gallery is where you can start, edit and deploy a new project. Check the plans to unlock more ranges.">';
+							
+							echo'Templates';
+						
+						echo'</a>';
+					
+					echo'</div>';
+				}
 
 				echo'<div class="pull-left hidden-xs">';
 
@@ -245,9 +230,7 @@
 								echo'</div>';
 							}
 						}
-						elseif( $storage_count = $ltple->layer->count_layers_by_storage() ){
-							
-							$storage_types = $ltple->layer->get_storage_types();
+						elseif( !empty($user_storage_types) ){
 							
 							echo'<div style="margin:0 2px;" class="btn-group">';
 								
@@ -255,16 +238,13 @@
 								
 								echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 									
-									foreach( $storage_types as $slug => $name ){
+									foreach( $user_storage_types as $slug => $name ){
 										
-										if( $slug != 'user-menu' && !empty($storage_count[$slug]) ){
-											
-											echo'<li style="position:relative;">';
-											
-												echo '<a href="' . $ltple->urls->gallery . '?layer[default_storage]='.$slug.'">' . $name . '</a>';
+										echo'<li style="position:relative;">';
 										
-											echo'</li>';
-										}
+											echo '<a href="' . $ltple->urls->gallery . '?layer[default_storage]='.$slug.'">' . $name . '</a>';
+									
+										echo'</li>';
 									}
 								
 								echo'</ul>';

@@ -2616,6 +2616,27 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $layer_rows;
 	}
 	
+	public function get_user_storage_types($user_id){
+		
+		$user_storage_types = array();
+		
+		if( $storage_count = $this->count_layers_by_storage() ){
+			
+			if( $storage_types = $this->get_storage_types() ){
+
+				foreach( $storage_types as $slug => $name ){
+					
+					if( $slug != 'user-menu' && !empty($storage_count[$slug]) ){
+						
+						$user_storage_types[$slug] = $name;
+					}
+				}
+			}
+		}
+		
+		return $user_storage_types;
+	}
+	
 	public function get_user_psd_rows($request) {
 		
 		$psd_rows = [];

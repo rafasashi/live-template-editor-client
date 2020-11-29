@@ -7,6 +7,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	var $parent;
 	var $type;
 	var $slug;
+	var $per_page = 50;
 	
 	/**
 	 * Constructor function
@@ -356,25 +357,30 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		$args =  array( 
 		
 			'post_type' 		=> 'default-image',
-			'posts_per_page' 	=> 100,
+			'posts_per_page' 	=> $this->per_page,
 			'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),		
 		);
 		
 		if( !empty($_GET['filter']) ){
 			
-			$args['tax_query'] = array(
-				
-				'relation' => 'AND',
-			);
+			parse_str($_GET['filter'],$filter);
 			
-			foreach( $_GET['filter'] as $taxonomy => $terms ){
+			if(!empty($filter['image-type'])){
 				
-				$args['tax_query'][] = array(
-				
-					'taxonomy' 	=> $taxonomy,
-					'field' 	=> 'slug',
-					'terms' 	=> $terms,
+				$args['tax_query'] = array(
+					
+					'relation' => 'AND',
 				);
+				
+				foreach( $filter as $taxonomy => $terms ){
+					
+					$args['tax_query'][] = array(
+					
+						'taxonomy' 	=> $taxonomy,
+						'field' 	=> 'slug',
+						'terms' 	=> $terms,
+					);
+				}
 			}
 		}
 		
@@ -418,7 +424,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'post_type'      	=> 'attachment',
 				'post_mime_type' 	=> 'image',
 				'post_status'    	=> 'inherit',
-				'posts_per_page' 	=> 100,
+				'posts_per_page' 	=> $this->per_page,
 				'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 				'author' 			=> $user_id,
 			);
@@ -476,7 +482,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			$args =  array(
 			
 				'post_type' 		=> 'user-image', 
-				'posts_per_page' 	=> 100,
+				'posts_per_page' 	=> $this->per_page,
 				'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 				'author' 			=> $user_id,
 			);
@@ -677,7 +683,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			$q = new WP_Query( array( 
 				
 				'post_type' 		=> 'user-bookmark', 
-				'posts_per_page' 	=> 100,
+				'posts_per_page' 	=> $this->per_page,
 				'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ), 
 				'author' 			=> $user_id 
 			));
@@ -783,7 +789,11 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						$pagination	= 'scroll',
 						$form		= false,
 						$toolbar 	= 'toolbar',
-						$card		= true
+						$card		= true,
+						$itemHeight	= 235, 
+						$fixedHeight= true, 
+						$echo		= true,
+						$pageSize	= $this->per_page
 					);
 
 				echo'</div>';

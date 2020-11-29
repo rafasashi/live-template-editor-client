@@ -1609,7 +1609,7 @@ class LTPLE_Client {
 				
 				$post_content 	= $_POST['postContent'];
 				
-				//$post_content 	= base64_decode($post_content); // why b64?
+				//$post_content = base64_decode($post_content); // why b64?
 				
 				//$post_content 	= urldecode($post_content); // why url decode?
 				
