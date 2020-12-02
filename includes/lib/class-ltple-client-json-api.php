@@ -16,6 +16,28 @@ class LTPLE_Client_Json_API {
 
 	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar', $card=false, $itemHeight=235, $fixedHeight=true, $echo=true, $pageSize=20 ){
 		
+		// bootstrap table css
+		
+		wp_register_style( 'ltple-bootstrap-table', esc_url( $this->parent->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->parent->_version );
+		wp_enqueue_style( 'ltple-bootstrap-table' );
+		
+		// bootstrap table js
+		
+		wp_register_script( 'ltple-bootstrap-table', esc_url( $this->parent->assets_url ) . 'js/bootstrap-table.min.js', array( 'jquery','ltple-bootstrap-js' ), $this->parent->_version);
+		wp_enqueue_script( 'ltple-bootstrap-table' );
+
+		//wp_register_script( 'ltple-bootstrap-table-export', esc_url( $this->parent->assets_url ) . 'js/bootstrap-table-export.js', array( 'jquery','ltple-bootstrap-js', $this->_token . 'sprintf' ), $this->parent->_version);
+		//wp_enqueue_script( 'ltple-bootstrap-table-export' );
+		
+		//wp_register_script( 'ltple-table-export', esc_url( $this->parent->assets_url ) . 'js/tableExport.js', array( 'jquery' ), $this->parent->_version);
+		//wp_enqueue_script( 'ltple-table-export' ); 
+		
+		wp_register_script( 'ltple-bootstrap-table-mobile', esc_url( $this->parent->assets_url ) . 'js/bootstrap-table-mobile.min.js', array( 'jquery','ltple-bootstrap-js' ), $this->parent->_version);
+		wp_enqueue_script( 'ltple-bootstrap-table-mobile' ); 		
+
+		wp_register_script( 'ltple-bootstrap-table-filter-control', esc_url( $this->parent->assets_url ) . 'js/bootstrap-table-filter-control.min.js', array( 'jquery','ltple-bootstrap-js' ), $this->parent->_version);
+		wp_enqueue_script( 'ltple-bootstrap-table-filter-control' ); 
+		
 		$tableId = 'table_'  . md5($api_url); 
 		
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );

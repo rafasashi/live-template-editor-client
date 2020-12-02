@@ -696,23 +696,14 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					}
 					
 					// get user image path
-					
-					if( $this->isDownloadable ){
-						
-						$path = $this->dir;
-					}
-					else{
-						
-						$path = $this->dir . $this->parent->user->ID . '/';
-					}
+
+					$path = $this->dir . $this->parent->user->ID . '/';
 					
 					// create user image path
 				
 					if( !file_exists($path) ) {
 						
 						$this->parent->filesystem->create_folder_recursively($path);
-						
-						//file_put_contents($path . 'index.html', '');
 					}
 					
 					// set transparency
@@ -727,19 +718,63 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					$info = getimagesize($path.$name);
 
 					if ($info[0] > 0 && $info[1] > 0 && $info['mime']) {
-						
-						if( $this->isDownloadable ){
-							
-							return $this->url . $name . '?ltple-time=' . time();
-						}
-						else{
-							
-							return $this->url . $this->parent->user->ID . '/' . $name . '?ltple-time=' . time();
-						}
+
+						return $this->url . $this->parent->user->ID . '/' . $name . '?ltple-time=' . time();
 					}
 					else{
 						
 						unlink($path.$name);
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public function upload_image_url($name,$url){
+		
+		if( !empty($this->parent->user->ID) ){
+			
+			$response = wp_remote_get($url, array(
+				
+				'blocking' 			=> true,
+				'timeout' 			=> 30,
+				//'redirection' 	=> 5,
+				//'httpversion' 	=> '1.0',
+				//'headers' 		=> array(),
+				//'cookies' 		=> array()
+			));
+			
+			if( $img = wp_remote_retrieve_body($response) ){
+				
+				$info = getimagesizefromstring($img);
+				
+				if ($info[0] > 0 && $info[1] > 0 && $info['mime']) {
+					
+					// create image directory
+					
+					if(!file_exists($this->dir)) {
+						
+						$this->parent->filesystem->create_folder_recursively($this->dir);
+					}
+					
+					// get user image path
+					
+					$path = $this->dir . $this->parent->user->ID . '/';
+					
+					// create user image path
+				
+					if( !file_exists($path) ) {
+						
+						$this->parent->filesystem->create_folder_recursively($path);
+					}
+						
+					// put user image
+					
+					if( $this->parent->filesystem->put_contents($path . $name, $img) ){
+
+						return $this->url . $this->parent->user->ID . '/' . $name . '?ltple-time=' . time();
 					}
 				}
 			}

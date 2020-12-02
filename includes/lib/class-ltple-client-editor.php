@@ -73,11 +73,18 @@ class LTPLE_Client_Editor {
 				
 				if( !empty($_GET['lk']) ){
 					
-					if( !empty($_POST['base64']) && !empty($_POST['domId']) ){
+					if(  !empty($_POST['domId']) ){
 						
-						// handle cropped image upload
+						if( !empty($_POST['base64']) ){
 						
-						echo $this->parent->image->upload_base64_image($this->parent->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
+							// handle cropped image upload
+						
+							echo $this->parent->image->upload_base64_image($this->parent->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
+						}
+						elseif( !empty($_POST['url']) ){
+							
+							echo $this->parent->image->upload_image_url($this->parent->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['url']);
+						}
 					}
 					elseif( !empty($_FILES) && !empty($_POST['location']) && $_POST['location'] == 'media' ){
 							
