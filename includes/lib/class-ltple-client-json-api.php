@@ -37,8 +37,12 @@ class LTPLE_Client_Json_API {
 
 		wp_register_script( 'ltple-bootstrap-table-filter-control', esc_url( $this->parent->assets_url ) . 'js/bootstrap-table-filter-control.min.js', array( 'jquery','ltple-bootstrap-js' ), $this->parent->_version);
 		wp_enqueue_script( 'ltple-bootstrap-table-filter-control' ); 
+				
+		$tableId = $this->get_table_id($api_url);
 		
-		$tableId = 'table_'  . md5($api_url); 
+		wp_register_script( 'ltple-table-' . $tableId, '', array( 'ltple-bootstrap-table' ) );
+		wp_enqueue_script( 'ltple-table-' . $tableId );
+		wp_add_inline_script( 'ltple-table-' . $tableId, $this->get_table_script($api_url,$pagination) );
 		
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );
 		
@@ -339,231 +343,6 @@ class LTPLE_Client_Json_API {
 			
 		$table .= '</style>';
 		
-		if( $pagination === 'scroll' ){
-			
-			// infinit scrolling
-			
-			$url = parse_url($api_url);
-			
-			$args = array();
-			
-			if( !empty($url['query']) ){
-				
-				parse_str(html_entity_decode($url['query']),$args);
-			}
-			
-			$args['page'] = '[JS_PAGE_VAR]';
-			
-			$json = json_encode($args);
-			
-			$json = str_replace('"[JS_PAGE_VAR]"','1',$json);
-			
-			$table .=  "
-			<script>
-			;(function($){
-
-				var tableLoading 	= false;
-				var tableMargin		= 300;
-				var tableUrl 		= '" . $url['scheme'] . "://" . $url['host'] . $url['path'] . "';
-				var tableData		= " . $json . ";
-				
-				function tableRequest(){
-					
-					tableLoading = true;
-					
-					$.ajax({
-						
-						type 		: 'GET',
-						url  		: tableUrl,
-						data		: tableData,
-						beforeSend	: function() {
-
-							$('.table tbody').append('<tr class=\"tableLoader\"><td style=\"background-repeat:no-repeat;background-position:center center;background-image:url(" . $this->parent->server->url . "/c/p/live-template-editor-server/assets/loader.gif);\"></td></tr>');
-						},
-						success: function(data) {
-							
-							++tableData.page;
-							
-							$('.fixed-table-loading').hide();
-							
-							$('#" . $tableId . " .tableLoader').remove();
-							
-							if( data.length > 0 ){
-								
-								$('.no-records-found').remove();
-							
-								$.each(data, function(i,item) {
-									
-									$('.table tbody').append('<tr><td>' + item.item + '</td></tr>');
-								});
-								
-								$('.table').trigger('page-change.bs.table');
-							}
-							
-							if( data.length < $('#".$tableId."').data('page-size') ){
-								
-								tableLoading = 'stopped';
-							}
-							else{
-								
-								tableLoading = false;
-							}
-						},
-						complete: function(data){
-							
-							
-						}
-					});
-					
-				}
-				
-				tableRequest();
-				
-				$(document).ready(function(){
-
-					$('#".$tableId." tbody').scroll(function() {
-
-						if ( $('#".$tableId." tbody tr').length < $('#".$tableId."').data('page-size') || tableLoading == true || tableLoading == 'stopped' ) return;
-						
-						if( $('#".$tableId." tbody').scrollTop() + $('#".$tableId." tbody').innerHeight() + tableMargin >= $('#".$tableId." tbody').prop('scrollHeight') ) {
-							
-							tableRequest();
-						}
-					});
-					
-					$('#".$tableId."').on('refresh.bs.table',function(e){
-						
-						$('#".$tableId." tbody').empty();
-						
-						tableData.page 	= 1;
-						tableLoading 	= false;
-
-						tableRequest();								
-					});
-					
-					// table search
-					
-					$('#".$tableId."').on('search.bs.table',function(e,text){
-						
-						e.preventDefault();
-						
-						tableData.page 	= 1;
-						tableData.s 	= text;
-
-						$('#".$tableId."').bootstrapTable('refresh');
-					}); 
-					
-					// table filters
-
-					if( $('#formFilters').length > 0 ){
-										
-						$('#formFilters').change(function () {
-							
-							tableData['filter'] =  $('#formFilters').serialize();
-							
-							//console.log(tableData);
-							
-							$('#formFilters :input').filter(function(index, element) {
-
-								/*
-								var name = $(element).attr('name');
-							
-								var val = '';
-								
-								if( $(element).attr('type') == 'checkbox' ){
-									
-									name = name.replace('[]', '[' + $(element).val() + ']');
-									
-									if($(element).is(':checked')){
-										
-										val = 'true';
-									}
-								}
-								else{
-									
-									val = $(element).val();									
-								}
-								
-								if( val.length > 0 ){
-									
-									tableData['filter'] = {};
-									
-									tableData.filter[name]= val;
-								}
-								else{
-									
-									tableData['filter'] = null;
-								}
-								*/
-							});
-							
-							$('#".$tableId."').bootstrapTable('refresh');
-
-						});
-					}
-				});
-				
-			})(jQuery);
-			
-			</script>
-			";
-		}
-		else{
-			
-			$table .=  "
-			<script>
-			;(function($){
-				
-				$(document).ready(function(){
-					
-					// table filters
-
-					if( $('#formFilters').length > 0 ){
-
-						$('#formFilters').change(function () {
-
-							var formFilters = {};
-
-							$('#formFilters :input').filter(function(index, element) {
-
-								var name = $(element).attr('name');
-
-								var val = '';
-
-								if( $(element).attr('type') == 'checkbox' ){
-
-									name = name.replace('[]', '[' + $(element).val() + ']');
-
-									if($(element).is(':checked')){
-
-										val = 'true';
-									}
-								}
-								else{
-
-									val = $(element).val();									
-								}
-
-								if( val != '' && val != 0 && val != $(element).attr('data-original') ){
-
-									formFilters[name] = val;
-								}										
-							});
-
-							$('#".$tableId."').bootstrapTable('filterBy',formFilters);
-
-						});
-					}
-					
-					
-				});
-				
-			})(jQuery);
-			
-			</script>
-			";
-		}
-		
 		if($form){
 		
 			$table .=  '<form id="tableForm" action="' . $this->parent->urls->current . '" method="post">';
@@ -676,6 +455,231 @@ class LTPLE_Client_Json_API {
 			
 			return $table;
 		}
+	}
+	
+	public function get_table_id( $api_url){
+	
+		return 'table_'  . md5($api_url);
+	}
+	
+	public function get_table_script($api_url,$pagination){
+		
+		$tableId = $this->get_table_id($api_url);
+					
+		$script =  ";(function($){ ";
+
+		if( $pagination === 'scroll' ){
+			
+			// infinit scrolling
+
+			$url = parse_url($api_url);
+			
+			$args = array();
+			
+			if( !empty($url['query']) ){
+				
+				parse_str(html_entity_decode($url['query']),$args);
+			}
+			
+			$args['page'] = '[JS_PAGE_VAR]';
+			
+			$json = json_encode($args);
+			
+			$json = str_replace('"[JS_PAGE_VAR]"','1',$json);
+			
+			$script .=  "
+
+			var tableLoading 	= false;
+			var tableMargin		= 300;
+			var tableUrl 		= '" . $url['scheme'] . "://" . $url['host'] . $url['path'] . "';
+			var tableData		= " . $json . ";
+			
+			function tableRequest(){
+				
+				tableLoading = true;
+				
+				$.ajax({
+					
+					type 		: 'GET',
+					url  		: tableUrl,
+					data		: tableData,
+					beforeSend	: function() {
+
+						$('.table tbody').append('<tr class=\"tableLoader\"><td style=\"background-repeat:no-repeat;background-position:center center;background-image:url(" . $this->parent->server->url . "/c/p/live-template-editor-server/assets/loader.gif);\"></td></tr>');
+					},
+					success: function(data) {
+						
+						++tableData.page;
+						
+						$('.fixed-table-loading').hide();
+						
+						$('#" . $tableId . " .tableLoader').remove();
+						
+						if( data.length > 0 ){
+							
+							$('.no-records-found').remove();
+						
+							$.each(data, function(i,item) {
+								
+								$('.table tbody').append('<tr><td>' + item.item + '</td></tr>');
+							});
+							
+							$('.table').trigger('page-change.bs.table');
+						}
+						
+						if( data.length < $('#".$tableId."').data('page-size') ){
+							
+							tableLoading = 'stopped';
+						}
+						else{
+							
+							tableLoading = false;
+						}
+					},
+					complete: function(data){
+						
+						
+					}
+				});
+				
+			}
+			
+			tableRequest();
+			
+			$(document).ready(function(){
+
+				$('#".$tableId." tbody').scroll(function() {
+
+					if ( $('#".$tableId." tbody tr').length < $('#".$tableId."').data('page-size') || tableLoading == true || tableLoading == 'stopped' ) return;
+					
+					if( $('#".$tableId." tbody').scrollTop() + $('#".$tableId." tbody').innerHeight() + tableMargin >= $('#".$tableId." tbody').prop('scrollHeight') ) {
+						
+						tableRequest();
+					}
+				});
+				
+				$('#".$tableId."').on('refresh.bs.table',function(e){
+					
+					$('#".$tableId." tbody').empty();
+					
+					tableData.page 	= 1;
+					tableLoading 	= false;
+
+					tableRequest();								
+				});
+				
+				// table search
+				
+				$('#".$tableId."').on('search.bs.table',function(e,text){
+					
+					e.preventDefault();
+					
+					tableData.page 	= 1;
+					tableData.s 	= text;
+
+					$('#".$tableId."').bootstrapTable('refresh');
+				}); 
+				
+				// table filters
+
+				if( $('#formFilters').length > 0 ){
+									
+					$('#formFilters').change(function () {
+						
+						tableData['filter'] =  $('#formFilters').serialize();
+						
+						//console.log(tableData);
+						
+						$('#formFilters :input').filter(function(index, element) {
+
+							/*
+							var name = $(element).attr('name');
+						
+							var val = '';
+							
+							if( $(element).attr('type') == 'checkbox' ){
+								
+								name = name.replace('[]', '[' + $(element).val() + ']');
+								
+								if($(element).is(':checked')){
+									
+									val = 'true';
+								}
+							}
+							else{
+								
+								val = $(element).val();									
+							}
+							
+							if( val.length > 0 ){
+								
+								tableData['filter'] = {};
+								
+								tableData.filter[name]= val;
+							}
+							else{
+								
+								tableData['filter'] = null;
+							}
+							*/
+						});
+						
+						$('#".$tableId."').bootstrapTable('refresh');
+
+					});
+				}
+				
+			});";
+		}
+		else{
+			
+			$script .= "$(document).ready(function(){
+				
+				// table filters
+
+				if( $('#formFilters').length > 0 ){
+
+					$('#formFilters').change(function () {
+
+						var formFilters = {};
+
+						$('#formFilters :input').filter(function(index, element) {
+
+							var name = $(element).attr('name');
+
+							var val = '';
+
+							if( $(element).attr('type') == 'checkbox' ){
+
+								name = name.replace('[]', '[' + $(element).val() + ']');
+
+								if($(element).is(':checked')){
+
+									val = 'true';
+								}
+							}
+							else{
+
+								val = $(element).val();									
+							}
+
+							if( val != '' && val != 0 && val != $(element).attr('data-original') ){
+
+								formFilters[name] = val;
+							}										
+						});
+
+						$('#".$tableId."').bootstrapTable('filterBy',formFilters);
+
+					});
+				}
+				
+			});";
+		}
+
+		$script .= " })(jQuery);";
+		
+		return $script;
 	}
 	
 	/**

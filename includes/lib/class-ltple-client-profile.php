@@ -106,7 +106,7 @@ class LTPLE_Client_Profile {
 	public function get_profile_parameters(){
 		
 		// get displayed user id
-		
+
 		$this->id = apply_filters('ltple_profile_id',intval(get_query_var('pr')));
 
 		// displayed user data
@@ -299,7 +299,7 @@ class LTPLE_Client_Profile {
 				// get post
 				
 				$post = get_page_by_path( 'profile', OBJECT, 'page' );
-
+				
 				$this->post = apply_filters('ltple_post',$post);
 				
 				// get post content

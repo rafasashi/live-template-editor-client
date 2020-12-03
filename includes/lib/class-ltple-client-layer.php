@@ -417,7 +417,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		// init
 		
-		add_filter('init', array( $this, 'init_layer' ));
+		add_filter('init', array( $this, 'init_layer' ),10);
 		
 		add_filter('admin_init', array( $this, 'init_layer_backend' ));
 		
@@ -2495,10 +2495,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function init_layer(){
 		
-		$this->dirUrl = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/');
-
-		$this->dirPath = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/');	
-
 		// set layer
 		
 		$this->set_uri();
@@ -2769,7 +2765,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->mediaTypes = LTPLE_Editor::get_media_types();				
 				
 				$this->is_media = ( isset( $this->mediaTypes[$layer->post_type] ) ? true : false );
-				
+
 				if( $layer->post_type == 'cb-default-layer' || $this->is_storage || $this->is_local || $this->is_media ){
 					
 					$this->id 			= $layer->ID;
@@ -5149,7 +5145,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $output == 'hosted-page' ){
 			
-			$static_url = $this->sanitize_url( $this->dirUrl . $postId . '/' );	
+			$static_url = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/') . $postId . '/';	
 		}
 	
 		return $static_url;
@@ -5171,41 +5167,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_static_asset_url($postId, $type = 'css', $filename = 'style'){
 		
-		$static_url = $this->sanitize_url( $this->dirUrl . $postId . '/assets/'.$type.'/' . $filename . '.' . $type );
+		$static_url = ( defined('LTPLE_LAYER_URL') ? LTPLE_LAYER_URL : $this->parent->urls->home . '/t/') . $postId . '/assets/'.$type.'/' . $filename . '.' . $type;
 		
 		return $static_url;
 	}
 	
 	public function get_static_dir($postId,$empty=false){
 		
-		$static_dir = $this->dirPath . $postId;
-		
-		/*
-		if( !is_dir($static_dir) ){
-			
-			$this->parent->filesystem->create_folder_recursively($static_dir);
-		}
-		elseif( $empty === true ){
-			
-			$this->delete_static_contents( $postId );
-			
-			$this->parent->filesystem->create_folder_recursively($static_dir);
-		}
-		*/
-	
+		$static_dir = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/'). $postId;
+
 		return $static_dir;
 	}
 	
 	public function get_static_asset_dir($postId, $type = 'css'){
 		
-		$static_dir = $this->dirPath . $postId . '/assets/' . $type;
-		
-		/*
-		if( !is_dir($static_dir) ){
-			
-			$this->parent->filesystem->create_folder_recursively($static_dir);
-		}
-		*/		
+		$static_dir = ( defined('LTPLE_LAYER_DIR') ? LTPLE_LAYER_DIR : ABSPATH . 't/') . $postId . '/assets/' . $type;
 		
 		return $static_dir;
 	}	
