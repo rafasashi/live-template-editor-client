@@ -112,7 +112,7 @@
 						
 						echo '<span class="badge" style="background-color:#fff;color:' . $this->parent->settings->mainColor . ';font-size:18px;border-radius: 25px;padding: 8px 18px;box-shadow: inset 0px 0px 1px #666;">';
 							
-							echo '<span class="glyphicon glyphicon-star" aria-hidden="true"></span> ';
+							echo '<span class="fa fa-star" aria-hidden="true"></span> ';
 							
 							echo $this->parent->stars->get_count($this->user->ID);
 					

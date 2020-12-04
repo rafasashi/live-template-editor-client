@@ -122,7 +122,7 @@
 												echo'<td style="font-size:16px;font-weight:bold;text-align:center;"># '.$rank.'</td>';
 												echo'<td style="font-size:15px;padding:1px;"><a href="' . $this->parent->urls->profile . $user->ID . '/">' . '<img src="'.$picture.'" height="35" width="35" /> '. ucfirst( $user->nickname ) . '</a></td>';
 												echo'<td style="text-align:center;">'.( !empty($user->user_url) ? '<a target="_blank" href="'.$user->user_url . '"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>' : '').'</td>';
-												echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;"><span class="glyphicon glyphicon-star" aria-hidden="true"></span> ' . $stars . '</span></td>';
+												echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;"><span class="fa fa-star" aria-hidden="true"></span> ' . $stars . '</span></td>';
 											
 											echo'</tr>';										
 
@@ -192,7 +192,7 @@
 													echo'<tr>';
 													
 														echo'<td>'.ucfirst($data['description']).'</td>';
-														echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;">'.( $stars > 0 ? '+ ' . $stars : $stars ).' <span class="glyphicon glyphicon-star" aria-hidden="true"></span></span></td>';
+														echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;">'.( $stars > 0 ? '+ ' . $stars : $stars ).' <span class="fa fa-star" aria-hidden="true"></span></span></td>';
 													
 													echo'</tr>';
 												}									

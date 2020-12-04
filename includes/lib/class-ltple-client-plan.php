@@ -389,7 +389,7 @@ class LTPLE_Client_Plan {
 								}
 								else{
 									
-									$row .= 'Unlimited access';
+									$row .= 'Unlimited resources';
 									
 									if( $total_storage_amount > 0 ){
 										
