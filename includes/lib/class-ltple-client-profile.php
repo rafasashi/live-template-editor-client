@@ -123,7 +123,7 @@ class LTPLE_Client_Profile {
 			
 			// profile tab
 			
-			$this->tab 		= apply_filters('ltple_profile_tab',get_query_var('tab','about-me'));
+			$this->tab 		= apply_filters('ltple_profile_tab',get_query_var('tab','about'));
 			
 			$this->tabSlug 	= apply_filters('ltple_profile_slug',get_query_var('slug',''));
 			
@@ -200,7 +200,7 @@ class LTPLE_Client_Profile {
 							background-image: url("' . $this->background_image . '");
 							background-position: center center;
 							background-size: cover;
-							background-attachment: '. ( $this->tab == 'about-me' ? 'scroll' : 'scroll' ).';
+							background-attachment: '. ( $this->tab == 'about' ? 'scroll' : 'scroll' ).';
 							background-repeat: no-repeat;
 							border-bottom:5px solid ' . $this->parent->settings->mainColor . ';
 							position:relative;
@@ -213,7 +213,7 @@ class LTPLE_Client_Profile {
 							height:350px;
 							position:absolute;
 							background-image: linear-gradient(to bottom right,#284d6b,' . $this->parent->settings->mainColor . ');
-							opacity:'. ( $this->tab == 'about-me' ? '.5' : '.7' ).';
+							opacity:'. ( $this->tab == 'about' ? '.5' : '.7' ).';
 						}
 						
 						.profile-heading h1, .profile-heading h2 {
@@ -341,7 +341,7 @@ class LTPLE_Client_Profile {
 			$title = ucfirst($this->user->nickname) . "'s profile";
 		}
 		
-		if( $this->tab != 'about-me' ){
+		if( $this->tab != 'about' ){
 			
 			$tabs = $this->get_profile_tabs();
 			
@@ -728,13 +728,13 @@ class LTPLE_Client_Profile {
 		
 			$tabs = [];
 
-			// about me
+			// about
 			
-			$tabs['about-me']['position'] = 1;
+			$tabs['about']['position'] = 1;
 		
-			$tabs['about-me']['name'] = 'About Me';
+			$tabs['about']['name'] = 'About';
 			
-			$tabs['about-me']['content'] = '';
+			$tabs['about']['content'] = '';
 			
 			if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true ) : '' ){
 
@@ -765,19 +765,19 @@ class LTPLE_Client_Profile {
 							scroll-behavior: smooth !important;
 						}
 
-						#about-me {
+						#about {
 
 							margin:0px !important;
 							display:block !important;
 							width:auto !important;
 						}
 
-						#about-me ul, #about-me li {
+						#about ul, #about li {
 							
 							list-style:none !important;
 						}
 
-						#about-me .layer-' . $this->user->ID . ' > *:first-child {
+						#about .layer-' . $this->user->ID . ' > *:first-child {
 
 							position: initial !important;
 							display: block !important;						
@@ -803,7 +803,7 @@ class LTPLE_Client_Profile {
 					
 				},10 );
 				
-				$tabs['about-me']['content'] .= '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
+				$tabs['about']['content'] .= '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
 			}
 			else{
 			
@@ -814,7 +814,7 @@ class LTPLE_Client_Profile {
 				
 					wp_add_inline_style( $this->parent->_token . '-about-me', '
 
-						#about-me {
+						#about {
 							
 							margin-top:15px !important;
 						}
@@ -825,19 +825,19 @@ class LTPLE_Client_Profile {
 			
 				$this->fields = $this->get_general_fields();
 				
-				$tabs['about-me']['content'] .= '<div class="form-table-wrapper" style="margin:0 15px;">';
-				$tabs['about-me']['content'] .= '<table class="form-table">';
-				$tabs['about-me']['content'] .= '<tbody>';
+				$tabs['about']['content'] .= '<div class="form-table-wrapper" style="margin:0 15px;">';
+				$tabs['about']['content'] .= '<table class="form-table">';
+				$tabs['about']['content'] .= '<tbody>';
 				
 					foreach( $this->fields as $field ){
 						
 						if( !empty($field['id']) && !in_array($field['id'],array( $this->parent->_base . 'profile_html', $this->parent->_base . 'profile_css')) ){
 						
-							$tabs['about-me']['content'] .= '<tr>';
+							$tabs['about']['content'] .= '<tr>';
 							
-								$tabs['about-me']['content'] .= '<th style="max-width:200px;"><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+								$tabs['about']['content'] .= '<th style="max-width:200px;"><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
 								
-								$tabs['about-me']['content'] .= '<td>';
+								$tabs['about']['content'] .= '<td>';
 									
 									if( isset($this->user->{$field['id']}) ){
 										
@@ -852,31 +852,31 @@ class LTPLE_Client_Profile {
 									
 										if(	$field['id'] == 'user_url'){
 												
-											$tabs['about-me']['content'] .=  '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
+											$tabs['about']['content'] .=  '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
 										}
 										else{
 											
-											$tabs['about-me']['content'] .=  '<p>';
+											$tabs['about']['content'] .=  '<p>';
 											
-												$tabs['about-me']['content'] .=  str_replace(PHP_EOL,'</p><p>',strip_tags($meta));
+												$tabs['about']['content'] .=  str_replace(PHP_EOL,'</p><p>',strip_tags($meta));
 												
-											$tabs['about-me']['content'] .=  '</p>';
+											$tabs['about']['content'] .=  '</p>';
 										}
 									}
 									else{
 										
-										$tabs['about-me']['content'] .=  '';
+										$tabs['about']['content'] .=  '';
 									}
 								
-								$tabs['about-me']['content'] .= '</td>';
+								$tabs['about']['content'] .= '</td>';
 								
-							$tabs['about-me']['content'] .= '</tr>';
+							$tabs['about']['content'] .= '</tr>';
 						}
 					}
 				
-				$tabs['about-me']['content'] .= '</tbody>';
-				$tabs['about-me']['content'] .= '</table>';
-				$tabs['about-me']['content'] .= '</div>';
+				$tabs['about']['content'] .= '</tbody>';
+				$tabs['about']['content'] .= '</table>';
+				$tabs['about']['content'] .= '</div>';
 			}
 			
 			// add addon tabs
@@ -1121,7 +1121,7 @@ class LTPLE_Client_Profile {
 		
 		if( is_null($this->privacySettings) ){
 			
-			$this->privacySettings['about-me'] = array(
+			$this->privacySettings['about'] = array(
 
 				'id' 			=> $this->parent->_base . 'policy_about-me',
 				'label'			=> 'My Profile',

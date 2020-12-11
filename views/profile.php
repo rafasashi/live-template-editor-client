@@ -10,7 +10,7 @@
 		
 		echo'<div id="profile_page" style="display:block;">';
 
-			if( $this->tab == 'about-me' ){
+			if( $this->tab == 'about' ){
 
 				// full header
 				
@@ -91,7 +91,7 @@
 			
 			echo'<div id="panel" style="display:inline-block !important;margin-bottom:-8px !important;box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
 			
-				echo'<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2 hidden-xs text-center'.( $this->tab != 'about-me' ? ' hidden-xs' : '' ).'" style="padding:30px;">';
+				echo'<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2 hidden-xs text-center'.( $this->tab != 'about' ? ' hidden-xs' : '' ).'" style="padding:30px;">';
 						
 					// desktop avatar	
 						
@@ -151,7 +151,7 @@
 				
 				echo '</div>';
 
-				echo'<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="padding:0;border-left:1px solid #ddd;background:#fff;padding-bottom:0px;min-height:100vh;">';
+				echo'<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="padding:0;border-left:1px solid #ddd;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 150px );">';
 				
 					echo'<ul class="nav nav-pills" role="tablist" style="box-shadow:inset 0px 2px 5px -4px rgba(0,0,0,0.75);overflow:visible;margin:0;">';
 						
@@ -163,7 +163,7 @@
  
 								$url = $this->parent->profile->url . '/';
 
-								if( $tab['slug'] != 'about-me' ){
+								if( $tab['slug'] != 'about' ){
 									
 									$url .= $tab['slug'] . '/';
 								}
