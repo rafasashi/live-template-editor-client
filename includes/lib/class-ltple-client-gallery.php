@@ -391,7 +391,7 @@ class LTPLE_Client_Gallery {
 				
 				if( !$is_addon && !$has_options && !empty($plans) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 
-					$item ='<div class="panel panel-default bs-callout bs-callout-primary" style="min-height:287px;margin:0px;padding:7%;border:none !important;">';
+					$item ='<div class="panel panel-default bs-callout bs-callout-primary" style="min-height:315px;margin:0px;padding:7%;border:none !important;">';
 						
 						$item .='<div style="padding-bottom:35px;">';
 						

@@ -120,11 +120,7 @@ class LTPLE_Client_Profile {
 			$this->user->period_end = $this->parent->plan->get_license_period_end( $this->user->ID);
 			
 			$this->user->remaining_days = $this->parent->plan->get_license_remaining_days( $this->user->period_end );
-			
-			// profile tabs
-			
-			//$this->tabs = $this->get_profile_tabs();
-			
+
 			// current tab
 			
 			$this->tab = apply_filters('ltple_profile_tab',get_query_var('tab','home'));
@@ -733,28 +729,30 @@ class LTPLE_Client_Profile {
 			$tabs = [];
 			
 			// home
-
-			if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true ) : '' ){
-
-				$tabs['home']['position'] 	= 0;
 			
-				$tabs['home']['name'] 		= 'Home';
+			$tabs['home']['position'] 	= 0;
+			
+			$tabs['home']['name'] 		= 'Home';
 				
-				$tabs['home']['slug'] 		= 'home';
+			$tabs['home']['slug'] 		= 'home';
+			
+			$tabs['home']['content'] 	= '';
+			
+			if( $this->tab == 'home' ){
+				
+				if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true ) : '' ){
 
-				$tabs['home']['content'] 	= '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';				
-				
-				// get home css
-				
-				$this->profile_css = get_user_meta( $this->user->ID , $this->parent->_base . 'profile_css', true );
-				
-				if( !empty($this->profile_css) ){
+					$tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
+					
+					// get home css
+					
+					$this->profile_css = get_user_meta( $this->user->ID , $this->parent->_base . 'profile_css', true );
+					
+					if( !empty($this->profile_css) ){
 
-					$this->profile_css = $this->parent->layer->parse_css_content($this->profile_css, '.layer-' . $this->user->ID);
-				}
-				
-				if( $this->tab == 'home' ){
-				
+						$this->profile_css = $this->parent->layer->parse_css_content($this->profile_css, '.layer-' . $this->user->ID);
+					}
+
 					wp_register_style( $this->parent->_token . '-about', false, array());
 					wp_enqueue_style( $this->parent->_token . '-about' );
 				
@@ -804,13 +802,11 @@ class LTPLE_Client_Profile {
 			
 			// about
 			
-			$about_slug = !isset($tabs['home']) ? 'home' : 'about';
-			
-			$tabs[$about_slug]['position'] = 1;
+			$tabs['about']['position'] = 1;
 		
-			$tabs[$about_slug]['name'] = 'About';
+			$tabs['about']['name'] = 'About';
 			
-			$tabs[$about_slug]['slug'] = $about_slug;
+			$tabs['about']['slug'] = 'about';
 			
 			$content = '';
 			
@@ -878,13 +874,13 @@ class LTPLE_Client_Profile {
 				}
 			}
 			
-			$tabs[$about_slug]['content'] = '<div class="col-md-9">';
+			$tabs['about']['content'] = '<div class="col-md-9">';
 			
-				$tabs[$about_slug]['content'] .= apply_filters('ltple_profile_about_content',$content);
+				$tabs['about']['content'] .= apply_filters('ltple_profile_about_content',$content);
 			
-			$tabs[$about_slug]['content'] .= '</div>';
+			$tabs['about']['content'] .= '</div>';
 			
-			if( $this->tab == $about_slug ){
+			if( $this->tab == 'about' ){
 				
 				// register about style
 
@@ -893,12 +889,12 @@ class LTPLE_Client_Profile {
 			
 				wp_add_inline_style( $this->parent->_token . '-about', '
 
-					#'.$about_slug.' {
+					#about {
 						
 						margin-top:15px !important;
 					}
 					
-					#'.$about_slug.' h5 {
+					#about h5 {
 					
 						padding:8px;
 						text-transform:uppercase;
@@ -907,12 +903,12 @@ class LTPLE_Client_Profile {
 						color:' . $this->parent->settings->mainColor . ';
 					}
 					
-					#'.$about_slug.' table th {
+					#about table th {
 						background: none;
 						font-weight: bold;
 					}
 					
-					#'.$about_slug.' table td, #'.$about_slug.' table th {
+					#about table td, #about table th {
 						padding: 8px;
 						border-bottom: none;
 						border-right: none;
