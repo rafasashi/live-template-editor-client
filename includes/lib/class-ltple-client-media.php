@@ -790,7 +790,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						$form		= false,
 						$toolbar 	= 'toolbar',
 						$card		= true,
-						$itemHeight	= 235, 
+						$itemHeight	= 280, 
 						$fixedHeight= true, 
 						$echo		= true,
 						$pageSize	= $this->per_page

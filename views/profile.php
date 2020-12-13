@@ -9,8 +9,8 @@
 		// profile page
 		
 		echo'<div id="profile_page" style="display:block;">';
-
-			if( $this->tab == 'about' ){
+			
+			if( $this->tab == $this->tabs[0]['slug'] ){
 
 				// full header
 				
@@ -163,7 +163,7 @@
  
 								$url = $this->parent->profile->url . '/';
 
-								if( $tab['slug'] != 'about' ){
+								if( $tab['slug'] != $this->tabs[0]['slug'] ){
 									
 									$url .= $tab['slug'] . '/';
 								}

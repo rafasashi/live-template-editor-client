@@ -524,7 +524,7 @@ class LTPLE_Client_Gallery {
 
 					$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
 					
-					$item.='<div class="panel-body">';
+					$item.='<div class="panel-body" style="padding-bottom:0;">';
 						
 						$item.= apply_filters('ltple_gallery_item_title','<b>' . $post_title . '</b>',$post);
 						 
@@ -697,7 +697,7 @@ class LTPLE_Client_Gallery {
 						$form		= false,
 						$toolbar 	= 'toolbar',
 						$card		= true,
-						$itemHeight	= 300, 
+						$itemHeight	= 335, 
 						$fixedHeight= true, 
 						$echo		= true,
 						$pageSize	= $this->per_page
@@ -715,7 +715,7 @@ class LTPLE_Client_Gallery {
 		
 		$nickname = get_the_author_meta( 'nickname', $post->post_author );
 			
-		$item_title='<a href="' . $this->parent->urls->profile . $post->post_author . '/" style="position: absolute;top: 145px;">';
+		$item_title='<a href="' . $this->parent->urls->profile . $post->post_author . '/" style="position: absolute;top:180px;">';
 			
 			$item_title.='<img src="'.$this->parent->image->get_avatar_url($post->post_author).'" style="height:50px;width:50px;border: 5px solid #fff;background:#fff;border-radius:250px;">';
 			

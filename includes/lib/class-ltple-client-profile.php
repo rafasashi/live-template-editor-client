@@ -727,30 +727,23 @@ class LTPLE_Client_Profile {
 		if( is_null($this->tabs) ){
 		
 			$tabs = [];
+			
+			// home
 
-			// about
-			
-			$tabs['about']['position'] = 1;
-		
-			$tabs['about']['name'] = 'About';
-			
-			$tabs['about']['content'] = '';
-			
 			if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true ) : '' ){
 
+				$tabs['home']['position'] 	= 0;
+			
+				$tabs['home']['name'] 		= 'Home';
+
+				$tabs['home']['content'] 	= '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';				
+				
+				// get home css
+				
 				$this->profile_css = get_user_meta( $this->user->ID , $this->parent->_base . 'profile_css', true );
 				
 				if( !empty($this->profile_css) ){
-					
-					/*
-					add_filter('ltple_document_classes',function($classes){
-						
-						$classes .= ' layer-'  . $this->user->ID;
-						
-						return $classes;
-					});
-					*/
-					
+
 					$this->profile_css = $this->parent->layer->parse_css_content($this->profile_css, '.layer-' . $this->user->ID);
 				}
 				
@@ -802,83 +795,120 @@ class LTPLE_Client_Profile {
 					}
 					
 				},10 );
-				
-				$tabs['about']['content'] .= '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
 			}
-			else{
 			
-				add_action( 'wp_enqueue_scripts',function(){
+			// about
+			
+			$tabs['about']['position'] = 1;
+		
+			$tabs['about']['name'] = 'About';
+			
+			$content = '';
+			
+			if( $fields = $this->get_general_fields() ){
 
-					wp_register_style( $this->parent->_token . '-about-me', false, array());
-					wp_enqueue_style( $this->parent->_token . '-about-me' );
-				
-					wp_add_inline_style( $this->parent->_token . '-about-me', '
+				foreach( $fields as $field ){
+					
+					if( !empty($field['id']) && !in_array($field['id'],array( 'nickname', $this->parent->_base . 'profile_html', $this->parent->_base . 'profile_css')) ){
 
-						#about {
+						if( isset($this->user->{$field['id']}) ){
 							
-							margin-top:15px !important;
+							$meta = $this->user->{$field['id']};
+						}
+						else{
+							
+							$meta = get_user_meta( $this->user->ID , $field['id'] );
 						}
 						
-					');
-
-				},10 );			
-			
-				$this->fields = $this->get_general_fields();
-				
-				$tabs['about']['content'] .= '<div class="form-table-wrapper" style="margin:0 15px;">';
-				$tabs['about']['content'] .= '<table class="form-table">';
-				$tabs['about']['content'] .= '<tbody>';
-				
-					foreach( $this->fields as $field ){
-						
-						if( !empty($field['id']) && !in_array($field['id'],array( $this->parent->_base . 'profile_html', $this->parent->_base . 'profile_css')) ){
-						
-							$tabs['about']['content'] .= '<tr>';
+						if(	$field['id'] == 'user_url'){
+								
+							$meta = '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
+						}
+						else{
 							
-								$tabs['about']['content'] .= '<th style="max-width:200px;"><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+							if( !empty($meta) ){
 								
-								$tabs['about']['content'] .= '<td>';
+								// add line break
+								
+								$meta = '<p>' . str_replace(PHP_EOL,'</p><p>',strip_tags($meta)) . '</p>';
+							}							
+							
+							if( $field['id'] == 'description' ){
+								
+								$meta = apply_filters('ltple_profile_about_description',$meta);
+							
+								if( empty($meta) ){
 									
-									if( isset($this->user->{$field['id']}) ){
-										
-										$meta = $this->user->{$field['id']};
-									}
-									else{
-										
-										$meta = get_user_meta( $this->user->ID , $field['id'] );
-									}
+									$meta = 'Nothing to say';
+								}
+							}
+						}
 
-									if(!empty($meta)){
+						if( !empty($meta) ){
+													
+							$content .= '<div class="panel panel-default">';
+								
+								$content .= '<div class="panel-heading">';
+								
+									$content .= '<h4>' . ucfirst($field['label']) . '</h4>';
+								
+								$content .= '</div>';
+								
+								$content .= '<div class="panel-body">';
 									
-										if(	$field['id'] == 'user_url'){
-												
-											$tabs['about']['content'] .=  '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
-										}
-										else{
-											
-											$tabs['about']['content'] .=  '<p>';
-											
-												$tabs['about']['content'] .=  str_replace(PHP_EOL,'</p><p>',strip_tags($meta));
-												
-											$tabs['about']['content'] .=  '</p>';
-										}
-									}
-									else{
-										
-										$tabs['about']['content'] .=  '';
-									}
+									$content .= $meta;
+									
+								$content .= '</div>';
 								
-								$tabs['about']['content'] .= '</td>';
-								
-							$tabs['about']['content'] .= '</tr>';
+							$content .= '</div>';
 						}
 					}
-				
-				$tabs['about']['content'] .= '</tbody>';
-				$tabs['about']['content'] .= '</table>';
-				$tabs['about']['content'] .= '</div>';
+				}
 			}
 			
+			$tabs['about']['content'] = '<div class="col-md-9">';
+			
+				$tabs['about']['content'] .= apply_filters('ltple_profile_about_content',$content);
+			
+			$tabs['about']['content'] .= '</div>';
+			
+			add_action( 'wp_enqueue_scripts',function(){
+
+				wp_register_style( $this->parent->_token . '-about', false, array());
+				wp_enqueue_style( $this->parent->_token . '-about' );
+			
+				wp_add_inline_style( $this->parent->_token . '-about', '
+
+					#about {
+						
+						margin-top:15px !important;
+					}
+					
+					#about h5 {
+					
+						padding:8px;
+						text-transform:uppercase;
+						font-size:14px;
+						font-weight:bold;
+						color:' . $this->parent->settings->mainColor . ';
+					}
+					
+					#about table th {
+						background: none;
+						font-weight: bold;
+					}
+					
+					#about table td, #about table th {
+						padding: 8px;
+						border-bottom: none;
+						border-right: none;
+						border-left: none;
+						text-align: left;
+					}
+				');
+
+			},10 );
+
 			// add addon tabs
 			
 			$tabs = apply_filters('ltple_profile_tabs',$tabs);
@@ -1017,16 +1047,7 @@ class LTPLE_Client_Profile {
 			'type'			=> 'text',
 			'required'		=> true
 		);
-		
-		$fields['user_url'] = array(
-		
-			'id' 			=> 'user_url',
-			'label'			=> 'External URL',
-			'description'	=> 'SEO optimized backlink (dofollow)',
-			'placeholder'	=> 'https://',
-			'type'			=> 'text'			
-		);
-		
+
 		$fields['description'] = array(
 
 			'id' 			=> 'description',
@@ -1035,6 +1056,15 @@ class LTPLE_Client_Profile {
 			'placeholder'	=> '',
 			'type'			=> 'textarea',
 			'style'			=> 'height:80px;',
+		);
+		
+		$fields['user_url'] = array(
+		
+			'id' 			=> 'user_url',
+			'label'			=> 'External URL',
+			'description'	=> 'SEO optimized backlink (dofollow)',
+			'placeholder'	=> 'https://',
+			'type'			=> 'text'			
 		);
 		
 		if( $this->parent->user->remaining_days > 0 ){
