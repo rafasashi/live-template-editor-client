@@ -821,8 +821,11 @@ class LTPLE_Client_Profile {
 						}
 						
 						if(	$field['id'] == 'user_url'){
-								
-							$meta = '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
+							
+							if( !empty($meta) ){
+							
+								$meta = '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
+							}
 						}
 						else{
 							
