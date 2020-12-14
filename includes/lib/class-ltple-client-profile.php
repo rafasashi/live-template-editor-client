@@ -120,7 +120,11 @@ class LTPLE_Client_Profile {
 			$this->user->period_end = $this->parent->plan->get_license_period_end( $this->user->ID);
 			
 			$this->user->remaining_days = $this->parent->plan->get_license_remaining_days( $this->user->period_end );
-
+			
+			// profile tabs
+			
+			//$this->tabs = $this->get_profile_tabs();
+			
 			// current tab
 			
 			$this->tab = apply_filters('ltple_profile_tab',get_query_var('tab','home'));
@@ -368,8 +372,15 @@ class LTPLE_Client_Profile {
 	public function get_profile_shortcode(){
 		
 		if( $this->id > 0 ){
-						
-			include($this->parent->views . '/profile.php');
+			
+			if( $this->tab == 'home' ){
+				
+				include($this->parent->views . '/card.php');
+			}
+			else{
+			
+				include($this->parent->views . '/profile.php');
+			}
 		}
 		elseif( $this->parent->user->loggedin ){
 			
@@ -738,65 +749,62 @@ class LTPLE_Client_Profile {
 			
 			$tabs['home']['content'] 	= '';
 			
-			if( $this->tab == 'home' ){
+			if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true ) : '' ){
+
+				$tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
 				
-				if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true ) : '' ){
+				// get home css
+				
+				$this->profile_css = get_user_meta( $this->user->ID , $this->parent->_base . 'profile_css', true );
+				
+				if( !empty($this->profile_css) ){
 
-					$tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
-					
-					// get home css
-					
-					$this->profile_css = get_user_meta( $this->user->ID , $this->parent->_base . 'profile_css', true );
-					
-					if( !empty($this->profile_css) ){
+					$this->profile_css = $this->parent->layer->parse_css_content($this->profile_css, '.layer-' . $this->user->ID);
+				}
 
-						$this->profile_css = $this->parent->layer->parse_css_content($this->profile_css, '.layer-' . $this->user->ID);
+				wp_register_style( $this->parent->_token . '-about', false, array());
+				wp_enqueue_style( $this->parent->_token . '-about' );
+			
+				wp_add_inline_style( $this->parent->_token . '-about', '
+				
+					html {
+						scroll-behavior: smooth !important;
 					}
 
-					wp_register_style( $this->parent->_token . '-about', false, array());
-					wp_enqueue_style( $this->parent->_token . '-about' );
-				
-					wp_add_inline_style( $this->parent->_token . '-about', '
-					
-						html {
-							scroll-behavior: smooth !important;
-						}
+					#home {
 
-						#home {
+						margin:0px !important;
+						display:block !important;
+						width:auto !important;
+					}
 
-							margin:0px !important;
-							display:block !important;
-							width:auto !important;
-						}
-
-						#home ul, #about li {
-							
-							list-style:none !important;
-						}
-
-						#home .layer-' . $this->user->ID . ' > *:first-child {
-
-							position: initial !important;
-							display: block !important;						
-							top: 0 !important;
-							bottom: 0 !important;
-							left: 0 !important;
-							right: 0 !important;
-							clear: both !important;
-							margin:0 !important;
-							border:none !important;
-							box-shadow:none !important;
-						}
-
-					');
-					
-					if( !empty($this->profile_css) ){
+					#home ul, #about li {
 						
-						wp_register_style( $this->parent->_token . '-profile-css', false, array());
-						wp_enqueue_style( $this->parent->_token . '-profile-css' );
-					
-						wp_add_inline_style( $this->parent->_token . '-profile-css', $this->profile_css );							
+						list-style:none !important;
 					}
+
+					#home .layer-' . $this->user->ID . ' > *:first-child {
+
+						position: initial !important;
+						display: block !important;						
+						top: 0 !important;
+						bottom: 0 !important;
+						left: 0 !important;
+						right: 0 !important;
+						clear: both !important;
+						margin:0 !important;
+						border:none !important;
+						box-shadow:none !important;
+					}
+
+				');
+				
+				if( !empty($this->profile_css) ){
+					
+					wp_register_style( $this->parent->_token . '-profile-css', false, array());
+					wp_enqueue_style( $this->parent->_token . '-profile-css' );
+				
+					wp_add_inline_style( $this->parent->_token . '-profile-css', $this->profile_css );							
 				}
 			}
 			

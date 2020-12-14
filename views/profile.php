@@ -1,5 +1,7 @@
 <?php
 	
+	include_once( get_template_directory() . '/navbar-profile.php' );
+	
 	if( $this->is_public()|| $this->is_self() ){
 		
 		// get name
