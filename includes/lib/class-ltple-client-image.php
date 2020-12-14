@@ -123,6 +123,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		}
 		
 		$this->url = ( defined('LTPLE_IMAGE_URL') ? LTPLE_IMAGE_URL : str_replace( 'https://', 'http://', $this->parent->urls->home ) . '/i/');
+		
 		$this->dir = ( defined('LTPLE_IMAGE_DIR') ? LTPLE_IMAGE_DIR : ABSPATH . 'i/');
 		
 		if( !is_admin() ) {
@@ -826,6 +827,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				
 				$url = $this->parse_avatar_url($url,$user_id);
 			}
+			
+			
 			
 			$url = add_query_arg(array('_','876756564564'),$url);
 		}
