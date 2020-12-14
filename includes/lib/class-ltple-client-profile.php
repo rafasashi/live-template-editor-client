@@ -373,7 +373,7 @@ class LTPLE_Client_Profile {
 		
 		if( $this->id > 0 ){
 			
-			if( $this->tab == 'home' ){
+			if( $this->tab == 'home' && empty($this->tabs[0]['content']) ){
 				
 				include($this->parent->views . '/card.php');
 			}
