@@ -28,14 +28,17 @@ class LTPLE_Client_Urls {
 		$this->parent 		= $parent;
 		
 		$this->home 		= ( is_ssl() ? home_url('','https') : home_url() );	
+		
 		$this->current 		= $this->home . $_SERVER['REQUEST_URI'];
+
+		$this->primary		= defined('REW_PRIMARY_SITE') && !empty(REW_PRIMARY_SITE) ? REW_PRIMARY_SITE : $this->home;
 
 		$this->api 			= $this->home . '/' . rest_get_url_prefix() . '/';
 		$this->api_embedded	= $this->api . 'ltple-embedded/v1/info';
 		
-		$this->host 		= get_option( $this->parent->_base . 'host_url' );	
+		// get edit gallery
 		
-		$this->edit 		= $this->home . '/edit/';
+		$this->edit = $this->home . '/edit/';
 		
 		if( $this->editorSlug = get_option( $this->parent->_base . 'editorSlug' )){
 			
@@ -43,6 +46,8 @@ class LTPLE_Client_Urls {
 		
 			$this->gallery 	= $this->editor;
 		}
+		
+		// get apps url
 		
 		if( $this->appsSlug = get_option( $this->parent->_base . 'appsSlug' )){
 			

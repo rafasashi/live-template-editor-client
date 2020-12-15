@@ -64,7 +64,7 @@ class LTPLE_Client_Profile {
 		
 		add_filter('rew_cache_bail_page', array( $this , 'bail_profile_cache' ) );
 				
-		add_filter('template_redirect', array( $this, 'get_profile_parameters' ),1,999999999);
+		add_filter('template_redirect', array( $this, 'get_profile_parameters' ),1);
 		
 		add_shortcode('ltple-client-profile', array( $this , 'get_profile_shortcode' ) );
 
@@ -924,7 +924,7 @@ class LTPLE_Client_Profile {
 			
 			// add addon tabs
 			
-			$tabs = apply_filters('ltple_profile_tabs',$tabs);
+			$tabs = apply_filters('ltple_profile_tabs',$tabs,$this->user,$this->tab);
 
 			// sort tabs
 			

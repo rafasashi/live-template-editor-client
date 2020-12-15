@@ -583,7 +583,7 @@ class LTPLE_Client_Gallery {
 											
 											if( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post ) === true ){
 												
-												$item.= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->server->url . '/c/p/live-template-editor-server/assets/loader.gif\');"></div>';
+												$item.= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . '/loader.gif\');"></div>';
 
 												$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 145px);overflow: hidden;"></iframe>';											
 											}

@@ -16,7 +16,7 @@ if( !$ltple->inWidget ){
 		
 		echo '<div style="min-height:calc( 100vh - 145px );overflow:hidden;">';
 		
-			echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position:50% center;background-repeat: no-repeat;background-image:url(\''. $ltple->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
+			echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position:50% center;background-repeat: no-repeat;background-image:url(\''. $ltple->assets_url .'/loader.gif\');height:64px;"></div>';
 				
 			echo'<iframe src="' . $url . '" style="position: absolute;width:100%;top:95px;bottom:0;border:0;height:calc(100vh - 145px);overflow:hidden;"></iframe>';
 		

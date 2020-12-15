@@ -505,7 +505,7 @@ class LTPLE_Client_Json_API {
 					data		: tableData,
 					beforeSend	: function() {
 
-						$('.table tbody').append('<tr class=\"tableLoader\"><td style=\"background-repeat:no-repeat;background-position:center center;background-image:url(" . $this->parent->server->url . "/c/p/live-template-editor-server/assets/loader.gif);\"></td></tr>');
+						$('.table tbody').append('<tr class=\"tableLoader\"><td style=\"background-repeat:no-repeat;background-position:center center;background-image:url(" . $this->parent->assets_url . "/loader.gif);\"></td></tr>');
 					},
 					success: function(data) {
 						

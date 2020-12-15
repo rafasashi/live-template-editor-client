@@ -337,7 +337,7 @@ class LTPLE_Client_Editor {
 			echo '<div id="LiveImgEditorElements" title="Elements library" style="display:none;">'; 
 			echo '<div id="LiveImgEditorElementsPanel">';
 				
-				echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->parent->server->url .'/c/p/live-template-editor-server/assets/loader.gif\');height:64px;"></div>';
+				echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->parent->assets_url . '/loader.gif\');height:64px;"></div>';
 				
 				echo'<iframe data-src="' . $this->parent->urls->media . '?output=widget" style="border:0;width:100%;height:100%;position:absolute;top:0;bottom:0;right:0;left:0;"></iframe>';
 				

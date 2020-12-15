@@ -342,7 +342,7 @@
 		
 		  <div id="content">
 		  
-			<a id="logo" href="<?php echo REW_PRIMARY_SITE; ?>">
+			<a id="logo" href="<?php echo $ltple->urls->primary; ?>">
 			
 				<img src="<?php echo $site_logo; ?>">
 			
