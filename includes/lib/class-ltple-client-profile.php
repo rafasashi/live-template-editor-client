@@ -64,7 +64,7 @@ class LTPLE_Client_Profile {
 		
 		add_filter('rew_cache_bail_page', array( $this , 'bail_profile_cache' ) );
 				
-		add_filter('template_redirect', array( $this, 'get_profile_parameters' ),1);
+		add_filter('template_redirect', array( $this, 'get_profile_parameters' ),1,999999999);
 		
 		add_shortcode('ltple-client-profile', array( $this , 'get_profile_shortcode' ) );
 
@@ -121,10 +121,6 @@ class LTPLE_Client_Profile {
 			
 			$this->user->remaining_days = $this->parent->plan->get_license_remaining_days( $this->user->period_end );
 			
-			// profile tabs
-			
-			//$this->tabs = $this->get_profile_tabs();
-			
 			// current tab
 			
 			$this->tab = apply_filters('ltple_profile_tab',get_query_var('tab','home'));
@@ -177,103 +173,110 @@ class LTPLE_Client_Profile {
 				// get tabs
 				
 				$this->tabs = $this->get_profile_tabs();				
-				
-				// get apps
-				
-				$this->apps = $this->parent->apps->getUserApps($this->user->ID);
 
-				// get profile picture
-				
-				$this->picture = $this->parent->image->get_avatar_url( $this->user->ID );
-				
-				// enqueue inline style
-				
-				add_action( 'wp_enqueue_scripts',function(){
-
-					wp_register_style( $this->parent->_token . '-profile', false, array());
-					wp_enqueue_style( $this->parent->_token . '-profile' );
-
-					wp_add_inline_style( $this->parent->_token . '-profile', '
-			
-						@import url("https://fonts.googleapis.com/css?family=Pacifico");
+				if( $this->tab == 'home' && empty($this->tabs[0]['content']) ){
 					
-						.profile-heading {
-							
-							height:350px;
-							background-color: #333;
-							background-image: url("' . $this->background_image . '");
-							background-position: center center;
-							background-size: cover;
-							background-attachment: '. ( $this->tab == $this->tabs[0]['slug'] ? 'scroll' : 'scroll' ).';
-							background-repeat: no-repeat;
-							border-bottom:5px solid ' . $this->parent->settings->mainColor . ';
-							position:relative;
-							overflow:hidden;
-						}		
+					include $this->parent->views . '/card.php';
+				}
+				else{
+				
+					// get apps
 					
-						.profile-overlay {
-							
-							width:100%;
-							height:350px;
-							position:absolute;
-							background-image: linear-gradient(to bottom right,#284d6b,' . $this->parent->settings->mainColor . ');
-							opacity:'. ( $this->tab == $this->tabs[0]['slug'] ? '.5' : '.7' ).';
-						}
+					$this->apps = $this->parent->apps->getUserApps($this->user->ID);
+
+					// get profile picture
+					
+					$this->picture = $this->parent->image->get_avatar_url( $this->user->ID );
+
+					// enqueue inline style
+					
+					add_action( 'wp_enqueue_scripts',function(){
+
+						wp_register_style( $this->parent->_token . '-profile', false, array());
+						wp_enqueue_style( $this->parent->_token . '-profile' );
+
+						wp_add_inline_style( $this->parent->_token . '-profile', '
+				
+							@import url("https://fonts.googleapis.com/css?family=Pacifico");
 						
-						.profile-heading h1, .profile-heading h2 {
-							
-							padding-top:'.( $this->is_editable ? '80px' : '125px').';
-							color: #fff !important;
-							font-weight: normal;
-							font-size: 53px;
-							font-family: "Pacifico", cursive;
-							position: relative;
-							text-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
-							box-shadow: none !important;
-							background: none !important;
-						}
-							
-						.profile-avatar img {
-
-							border: solid 7px #f9f9f9;
-							border-radius: 100px;
-							margin:0px;
-							position: relative;
-							background:#fff;
-							box-shadow:6px -10px 6px -7px rgba(0, 0, 0, 0.27), -7px -10px 6px -7px rgba(0, 0, 0, 0.27);
-						}
+							.profile-heading {
 								
-						.profile-menu {
+								height:350px;
+								background-color: #333;
+								background-image: url("' . $this->background_image . '");
+								background-position: center center;
+								background-size: cover;
+								background-attachment: '. ( $this->tab == $this->tabs[0]['slug'] ? 'scroll' : 'scroll' ).';
+								background-repeat: no-repeat;
+								border-bottom:5px solid ' . $this->parent->settings->mainColor . ';
+								position:relative;
+								overflow:hidden;
+							}		
+						
+							.profile-overlay {
+								
+								width:100%;
+								height:350px;
+								position:absolute;
+								background-image: linear-gradient(to bottom right,#284d6b,' . $this->parent->settings->mainColor . ');
+								opacity:'. ( $this->tab == $this->tabs[0]['slug'] ? '.5' : '.7' ).';
+							}
 							
-							padding: 90px 15px 0 15px;
-						}
+							.profile-heading h1, .profile-heading h2 {
+								
+								padding-top:'.( $this->is_editable ? '80px' : '125px').';
+								color: #fff !important;
+								font-weight: normal;
+								font-size: 53px;
+								font-family: "Pacifico", cursive;
+								position: relative;
+								text-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
+								box-shadow: none !important;
+								background: none !important;
+							}
+								
+							.profile-avatar img {
 
-						.profile-menu ul {
+								border: solid 7px #f9f9f9;
+								border-radius: 100px;
+								margin:0px;
+								position: relative;
+								background:#fff;
+								box-shadow:6px -10px 6px -7px rgba(0, 0, 0, 0.27), -7px -10px 6px -7px rgba(0, 0, 0, 0.27);
+							}
+									
+							.profile-menu {
+								
+								padding: 90px 15px 0 15px;
+							}
+
+							.profile-menu ul {
+								
+								font-size: 16px;
+							}	
 							
-							font-size: 16px;
-						}	
+							#social_icons img {
+							
+								background:#fff;
+								border:1px solid #eee;
+								padding:1px;
+								height:30px;
+								width:30px;
+								border-radius:250px;
+							}
+							
+						');
 						
-						#social_icons img {
+						if( !empty($this->profile_css) ){
+							
+							wp_register_style( $this->parent->_token . '-profile-css', false, array());
+							wp_enqueue_style( $this->parent->_token . '-profile-css' );
 						
-							background:#fff;
-							border:1px solid #eee;
-							padding:1px;
-							height:30px;
-							width:30px;
-							border-radius:250px;
+							wp_add_inline_style( $this->parent->_token . '-profile-css', $this->profile_css );							
 						}
 						
-					');
-					
-					if( !empty($this->profile_css) ){
-						
-						wp_register_style( $this->parent->_token . '-profile-css', false, array());
-						wp_enqueue_style( $this->parent->_token . '-profile-css' );
-					
-						wp_add_inline_style( $this->parent->_token . '-profile-css', $this->profile_css );							
-					}
-					
-				},10 );	
+					},10 );
+				}
 			}
 		}
 		elseif( !is_admin() && $this->parent->user->loggedin ){
@@ -373,14 +376,7 @@ class LTPLE_Client_Profile {
 		
 		if( $this->id > 0 ){
 			
-			if( $this->tab == 'home' && empty($this->tabs[0]['content']) ){
-				
-				include($this->parent->views . '/card.php');
-			}
-			else{
-			
-				include($this->parent->views . '/profile.php');
-			}
+			include($this->parent->views . '/profile.php');
 		}
 		elseif( $this->parent->user->loggedin ){
 			
