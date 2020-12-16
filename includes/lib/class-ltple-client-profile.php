@@ -11,9 +11,9 @@ class LTPLE_Client_Profile {
 	var $slug 		= null;
 	var $tabSlug 	= null;
 	var $url 		= null;
-	var $tabs 		= null;
+	var $tabs 		= array();
 	var $user 		= null;
-	
+
 	var $privacySettings 		= null;
 	var $socialAccounts 		= null;
 	var $notificationSettings 	= null;
@@ -25,9 +25,11 @@ class LTPLE_Client_Profile {
 	var $is_public		= null;
 	var $is_unclaimed	= null;
 	var $is_self		= null;
+		
+	var $in_tab 		= false;
 	
-	var $is_pro				= false;
-	var $is_editable 		= false;
+	var $is_pro			= false;
+	var $is_editable 	= false;
 	
 	var $completeness = array();
 	
@@ -172,14 +174,18 @@ class LTPLE_Client_Profile {
 				
 				// get tabs
 				
-				$this->tabs = $this->get_profile_tabs();				
+				$this->tabs = $this->get_profile_tabs();
+					
+				// in tab
+				
+				$this->in_tab = isset($this->tabs[$this->tab]) ? true : false;
 
-				if( $this->tab == 'home' && empty($this->tabs[0]['content']) ){
+				if( $this->tab == 'home' && empty($this->tabs['home']['content']) ){
 					
 					include $this->parent->views . '/card.php';
 				}
 				else{
-				
+
 					// get apps
 					
 					$this->apps = $this->parent->apps->getUserApps($this->user->ID);
@@ -206,7 +212,7 @@ class LTPLE_Client_Profile {
 								background-image: url("' . $this->background_image . '");
 								background-position: center center;
 								background-size: cover;
-								background-attachment: '. ( $this->tab == $this->tabs[0]['slug'] ? 'scroll' : 'scroll' ).';
+								background-attachment: '. ( $this->tab == 'home' ? 'scroll' : 'scroll' ).';
 								background-repeat: no-repeat;
 								border-bottom:5px solid ' . $this->parent->settings->mainColor . ';
 								position:relative;
@@ -219,7 +225,7 @@ class LTPLE_Client_Profile {
 								height:350px;
 								position:absolute;
 								background-image: linear-gradient(to bottom right,#284d6b,' . $this->parent->settings->mainColor . ');
-								opacity:'. ( $this->tab == $this->tabs[0]['slug'] ? '.5' : '.7' ).';
+								opacity:'. ( $this->tab == 'home' ? '.5' : '.7' ).';
 							}
 							
 							.profile-heading h1, .profile-heading h2 {
@@ -342,13 +348,8 @@ class LTPLE_Client_Profile {
 	}
 	
 	public function get_profile_title($title=''){
-		
-		if( !empty($this->user) ){
-		
-			$title = ucfirst($this->user->nickname) . "'s profile";
-		}
-		
-		if( $this->tab != $this->tabs[0]['slug'] ){
+
+		if( $this->tab != 'home' ){
 			
 			$tabs = $this->get_profile_tabs();
 			
@@ -356,11 +357,17 @@ class LTPLE_Client_Profile {
 				
 				if( $tab['slug'] == $this->tab){
 					
-					$title .= ' - ' . $tab['name'];
+					$title = $tab['name'];
 					break;
 				}
 			}
 		}
+		
+		if( !empty($this->user) ){
+		
+			$title .= ' ' . ucfirst($this->user->nickname);
+		}
+		
 		
 		return $title;
 	}
@@ -376,13 +383,39 @@ class LTPLE_Client_Profile {
 		
 		if( $this->id > 0 ){
 			
-			include($this->parent->views . '/profile.php');
+			if( $this->in_tab ){
+			
+				include($this->parent->views . '/profile.php');
+			}
+			elseif( $this->id == $this->parent->user->ID ){
+				
+				include($this->parent->views . '/navbar.php');
+			
+				include($this->parent->views . '/settings.php');
+			}
+			elseif( !$this->parent->user->loggedin ){
+				
+				echo $this->parent->login->get_form();
+			}
+			else{
+				
+				// TODO new page starter
+				
+				include($this->parent->views . '/card.php');
+			}
 		}
-		elseif( $this->parent->user->loggedin ){
+		else{
 			
 			include($this->parent->views . '/navbar.php');
 			
-			include($this->parent->views . '/settings.php');
+			if( $this->parent->user->loggedin ){
+
+				include($this->parent->views . '/settings.php');
+			}
+			else{
+				
+				echo $this->parent->login->get_form();
+			}
 		}
 	}
 	
@@ -731,23 +764,21 @@ class LTPLE_Client_Profile {
 	
 	public function get_profile_tabs(){
 		
-		if( is_null($this->tabs) ){
-		
-			$tabs = [];
+		if( empty($this->tabs) ){
+
+			// get home tab
 			
-			// home
+			$this->tabs['home']['position'] = 0;
 			
-			$tabs['home']['position'] 	= 0;
-			
-			$tabs['home']['name'] 		= 'Home';
+			$this->tabs['home']['name'] 	= 'Home';
 				
-			$tabs['home']['slug'] 		= 'home';
+			$this->tabs['home']['slug'] 	= 'home';
 			
-			$tabs['home']['content'] 	= '';
+			$this->tabs['home']['content'] 	= '';
 			
 			if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true ) : '' ){
 
-				$tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
+				$this->tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
 				
 				// get home css
 				
@@ -804,13 +835,13 @@ class LTPLE_Client_Profile {
 				}
 			}
 			
-			// about
+			// get about tab
 			
-			$tabs['about']['position'] = 1;
+			$this->tabs['about']['position'] = 1;
 		
-			$tabs['about']['name'] = 'About';
+			$this->tabs['about']['name'] = 'About';
 			
-			$tabs['about']['slug'] = 'about';
+			$this->tabs['about']['slug'] = 'about';
 			
 			$content = '';
 			
@@ -878,11 +909,11 @@ class LTPLE_Client_Profile {
 				}
 			}
 			
-			$tabs['about']['content'] = '<div class="col-md-9">';
+			$this->tabs['about']['content'] = '<div class="col-md-9">';
 			
-				$tabs['about']['content'] .= apply_filters('ltple_profile_about_content',$content);
+				$this->tabs['about']['content'] .= apply_filters('ltple_profile_about_content',$content);
 			
-			$tabs['about']['content'] .= '</div>';
+			$this->tabs['about']['content'] .= '</div>';
 			
 			if( $this->tab == 'about' ){
 				
@@ -922,28 +953,25 @@ class LTPLE_Client_Profile {
 				');
 			}
 			
-			// add addon tabs
+			// get addon tabs
 			
-			$tabs = apply_filters('ltple_profile_tabs',$tabs,$this->user,$this->tab);
+			$tabs = apply_filters('ltple_profile_tabs',[],$this->user,$this->tab);
 
-			// sort tabs
+			// sort addon tabs
 			
 			usort($tabs, function($a, $b) {
 				
 				return $a['position'] - $b['position'];
 			});
 			
-			// parse tabs
+			// parse addon tabs
 			
 			foreach( $tabs as $i => $tab ){
 				
-				if( empty($tabs[$i]['slug']) ){
-					
-					$tabs[$i]['slug'] = sanitize_title($tab['name']);
-				}
+				$tab['slug'] = empty($tab['slug']) ? sanitize_title($tab['name']) : $tab['slug'];
+				
+				$this->tabs[$tab['slug']] = $tab;
 			}
-			 
-			$this->tabs = $tabs;
 		}
 		
 		return $this->tabs;

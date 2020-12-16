@@ -134,11 +134,22 @@
 						}
 						else{
 							
-							$redirect_to 	= !empty($_GET['redirect_to']) ? $_GET['redirect_to'] : admin_url();
+							if( !empty($_GET['redirect_to']) ){
+								
+								$redirect_to = $_GET['redirect_to'];
+							}
+							elseif( strpos($this->parent->urls->current,$this->parent->urls->login) === false ){
+								
+								$redirect_to = $this->parent->urls->current;
+							}
+							else{
+								
+								$redirect_to = admin_url();
+							}
 							
-							$register_url	= $this->get_register_url( wp_login_url() );
+							$register_url = $this->get_register_url( wp_login_url() );
 						
-							$password_url	= wp_lostpassword_url();
+							$password_url = wp_lostpassword_url();
 						}
 						
 						wp_login_form( array(

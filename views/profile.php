@@ -1,48 +1,15 @@
 <?php
+
+	include_once( $this->parent->views . '/profile/header.php' );
 	
-	include_once( get_template_directory() . '/navbar-profile.php' );
+	include_once( $this->parent->views . '/profile/navbar.php' );
 	
 	if( $this->is_public()|| $this->is_self() ){
-		
-		// get name
-		
-		$name = get_user_meta( $this->user->ID , 'nickname', true );
 		
 		// profile page
 		
 		echo'<div id="profile_page" style="display:block;">';
 
-			// profile header
-
-			echo'<div class="profile-heading text-center" style="height:100px;padding:0;">';
-			
-				echo'<div class="profile-overlay"></div>';
-			
-				// mobile avatar
-				
-				echo'<div class="col-xs-3 col-sm-3 col-md-3 col-lg-2">';
-
-					echo '<div class="profile-avatar text-left hidden-sm hidden-md hidden-lg" style="padding:12px 8px;position:absolute;">';
-					
-						echo'<img style="border:solid 5px #f9f9f9;" src="' . $this->picture . '" height="70" width="70" />';
-						
-						if( $this->is_pro ){
-							
-							echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';									
-						}
-						
-					echo '</div>';					
-				
-				echo'</div>';
-				
-				echo'<div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">';
-				
-					echo '<h2 style="font-size:25px;float:left;padding:31px 0 0 0;margin:0;">' . $name . '</h2>';
-				
-				echo'</div>';
-				
-			echo'</div>';
-			
 			echo'<div id="panel" style="display:inline-block !important;margin-bottom:-8px !important;box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
 			
 				echo'<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2 hidden-xs text-center'.( $this->tab != 'about' ? ' hidden-xs' : '' ).'" style="padding:30px;">';
@@ -117,7 +84,7 @@
  
 								$url = $this->parent->profile->url . '/';
 
-								if( $tab['slug'] != $this->tabs[0]['slug'] ){
+								if( $tab['slug'] != 'home' ){
 									
 									$url .= $tab['slug'] . '/';
 								}
@@ -214,3 +181,5 @@
 			
 		echo '</div>';
 	}
+	
+	include_once( $this->parent->views . '/profile/footer.php' );

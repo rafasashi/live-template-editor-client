@@ -162,7 +162,6 @@ class LTPLE_Client_Login {
 							}
 						}
 					}
-					
 				}
 			}			
 
@@ -216,11 +215,20 @@ class LTPLE_Client_Login {
 
 		$register_url = add_query_arg( array(
 
-			'action' 		=> 'register',
+			'action' => 'register',
 			
 		), $register_url );		
 		
-		if( !empty($_GET['redirect_to']) ){
+		if( $this->parent->inWidget ){
+			
+			$register_url = add_query_arg( array(
+			
+				'output' 		=> 'widget',
+				'redirect_to' 	=> $this->parent->urls->current,
+				
+			), $register_url );
+		}
+		elseif( !empty($_GET['redirect_to']) ){
 		
 			$register_url = add_query_arg( array(
 			
@@ -247,8 +255,6 @@ class LTPLE_Client_Login {
 	}
 	
 	public function set_login_redirect_url( $redirect_to, $request, $user ) {
-		
-		//$url = $this->parent->urls->profile . $user->ID . '/';
 		
 		$url = $this->parent->urls->dashboard;
 		
