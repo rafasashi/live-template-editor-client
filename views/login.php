@@ -176,7 +176,7 @@
 					echo'</div>';
 				}
 
-				if( empty($user_email) ){
+				if( empty($user_email) && empty($ltple->profile->id) ){
 				
 					do_action('ltple_alternative_login');
 				}
