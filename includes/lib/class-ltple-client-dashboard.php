@@ -81,15 +81,20 @@ class LTPLE_Client_Dashboard {
 	
 	public function get_dashboard_shortcode(){
 		
+
 		include($this->parent->views . '/navbar.php');
 		
 		if($this->parent->user->loggedin){
-			
+
 			if( !empty($_REQUEST['list']) ){
+				
+				add_action('ltple_list_sidebar',array($this,'get_sidebar'),10,3);
 				
 				include( $this->parent->views . '/list.php' );
 			}
 			else{
+				
+				add_action('ltple_dashboard_sidebar',array($this,'get_sidebar'),10,3);
 				
 				include($this->parent->views . '/dashboard.php');
 			}
@@ -360,93 +365,62 @@ class LTPLE_Client_Dashboard {
 		return $saved_projects;
 	}
 		
-	public function get_sidebar( $currentTab = 'home', $output = '' ){
+	public function get_sidebar( $sidebar, $currentTab = 'home', $output = '' ){
 			
 		$storage_count = $this->parent->layer->count_layers_by_storage();
 		
-		$sidebar =  '<div id="sidebar">';
-				
-			$sidebar .= '<div class="gallery_type_title gallery_head">Dashboard</div>';
-
-			$sidebar .= '<ul class="nav nav-tabs tabs-left">';
-				
-				// manage section
-				
-				$manage_section = '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '"><span class="glyphicon glyphicon-dashboard"></span> Overview</a></li>';
-				
-				$manage_section .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->profile .'"><span class="glyphicon glyphicon-cog"></span> Profile Settings</a></li>';
-				
-				$manage_section .= '<li><a href="' . $this->parent->urls->media .'user-images/"><span class="glyphicon glyphicon-folder-close"></span> Media Library</a></li>';
-				
-				$manage_section = apply_filters('ltple_dashboard_manage_sidebar',$manage_section,$currentTab,$output);
-				
-				if( !empty($manage_section) ){
-					
-					$sidebar .= '<li class="gallery_type_title">Manage</li>';
-					
-					$sidebar .= $manage_section;
-				}
-				
-				// edit section 
-				
-				$edit_section = '';
-				
-				if( !empty($storage_count['user-layer']) ){
-				
-					$edit_section .= '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
-				}
-				
-				if( !empty($storage_count['user-psd']) ){
-				
-					$edit_section .= '<li'.( ( $currentTab == 'user-psd' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Graphic Designs</a></li>';
-				}
-				
-				$edit_section = apply_filters('ltple_dashboard_design_sidebar',$edit_section,$currentTab,$output);
-				
-				if( !empty($edit_section) ){
-					
-					$sidebar .= '<li class="gallery_type_title">Edit</li>';
-					
-					$sidebar .= $edit_section;
-				}
-				
-				// publish section
-				
-				$publish_section = '';
-				
-				if( !empty($storage_count['user-page']) ){
-				
-					$publish_section .= '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->dashboard . '?list=user-page"><span class="glyphicon glyphicon-file"></span> Web Pages</a></li>';
-				}
-				
-				$publish_section = apply_filters('ltple_dashboard_publish_sidebar',$publish_section,$currentTab,$output);
-
-				if( !empty($publish_section) ){
-	
-					$sidebar .= '<li class="gallery_type_title">Publish</li>';
-					
-					$sidebar .= $publish_section;
-				}
-				
-				// deploy section
-				
-				$deploy_section = apply_filters('ltple_dashboard_deploy_sidebar','',$currentTab,$output);
-				
-				if( !empty($deploy_section) ){
-	
-					$sidebar .= '<li class="gallery_type_title">Deploy</li>';
-					
-					$sidebar .= $deploy_section;
-				}
-				
-				
-				// addon sections
-				
-				$sidebar = apply_filters('ltple_dashboard_sidebar',$sidebar,$currentTab,$output);
-				
-			$sidebar .= '</ul>';
+		// manage section
+		
+		$manage_section = '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '"><span class="glyphicon glyphicon-dashboard"></span> Overview</a></li>';
+		
+		$manage_section .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->profile .'"><span class="fa fa-user-cog"></span> Profile Settings</a></li>';
+		
+		$manage_section .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->account .'/?tab=home-page"><span class="fa fa-globe"></span> My Website</a></li>';
+		
+		$manage_section .= '<li><a href="' . $this->parent->urls->media .'user-images/"><span class="glyphicon glyphicon-folder-close"></span> Media Library</a></li>';
+		
+		$manage_section = apply_filters('ltple_dashboard_manage_sidebar',$manage_section,$currentTab,$output);
+		
+		if( !empty($manage_section) ){
 			
-		$sidebar .= '</div>';
+			$sidebar .= '<li class="gallery_type_title">Manage</li>';
+			
+			$sidebar .= $manage_section;
+		}
+		
+		// edit section 
+		
+		$edit_section = '';
+		
+		if( !empty($storage_count['user-layer']) ){
+		
+			$edit_section .= '<li'.( ( $currentTab == 'user-layer' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-layer"><span class="glyphicon glyphicon-scissors"></span> Templates</a></li>';
+		}
+		
+		if( !empty($storage_count['user-psd']) ){
+		
+			$edit_section .= '<li'.( ( $currentTab == 'user-psd' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Graphic Designs</a></li>';
+		}
+		
+		$edit_section = apply_filters('ltple_dashboard_design_sidebar',$edit_section,$currentTab,$output);
+		
+		if( !empty($edit_section) ){
+			
+			$sidebar .= '<li class="gallery_type_title">Edit</li>';
+			
+			$sidebar .= $edit_section;
+		}
+		
+		// deploy section
+		
+		$deploy_section = apply_filters('ltple_dashboard_deploy_sidebar','',$currentTab,$output);
+		
+		if( !empty($deploy_section) ){
+
+			$sidebar .= '<li class="gallery_type_title">Deploy</li>';
+			
+			$sidebar .= $deploy_section;
+		}
 		
 		return $sidebar;
 	}

@@ -18,7 +18,17 @@ $layer_type = $ltple->layer->get_layer_type($ltple->layer->id);
 
 echo'<div id="panel" class="wrapper">';
 
-	echo $ltple->dashboard->get_sidebar($currentTab);
+	echo '<div id="sidebar">';
+			
+		echo '<div class="gallery_type_title gallery_head">Dashboard</div>';
+
+		echo '<ul class="nav nav-tabs tabs-left">';
+			
+			echo apply_filters('ltple_list_sidebar','',$currentTab);
+			
+		echo '</ul>';
+		
+	echo '</div>';
 	
 	echo'<div id="content" class="library-content" style="border-left:1px solid #ddd;background:#fbfbfb;padding-bottom:15px;min-height:calc( 100vh - ' . ( $ltple->inWidget ?  0 : 190 ) . 'px);">';
 		

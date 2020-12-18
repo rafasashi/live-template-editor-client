@@ -16,7 +16,6 @@ class LTPLE_Client_Profile {
 
 	var $privacySettings 		= null;
 	var $socialAccounts 		= null;
-	var $notificationSettings 	= null;
 	var $pictures;
 	
 	var $profile_css 		= null;
@@ -74,22 +73,28 @@ class LTPLE_Client_Profile {
 			
 			echo'<li style="position:relative;background:#182f42;">';
 				
-				echo '<a href="'. $this->parent->urls->dashboard .'"><span class="glyphicon glyphicon-th-large" aria-hidden="true"></span> Dashboard</a>';
+				echo '<a href="'. $this->parent->urls->dashboard .'"><span class="fa fa-th-large" aria-hidden="true"></span> Dashboard</a>';
 
 			echo'</li>';					
-					
+
 			echo'<li style="position:relative;background:#182f42;">';
 				
-				echo '<a href="'. $this->parent->urls->profile .'"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Profile Settings</a>';
+				echo '<a href="'. $this->parent->urls->profile .'"><span class="fa fa-user-cog" aria-hidden="true"></span> Profile Settings</a>';
 
 			echo'</li>';			
 		},1);
 		
 		add_action( 'ltple_view_my_profile', function(){
-			
+	
 			echo'<li style="position:relative;background:#182f42;">';
 				
-				echo '<a href="'. $this->parent->urls->profile .'?tab=billing-info"><span class="glyphicon glyphicon-credit-card" aria-hidden="true"></span> Billing Info</a>';
+				echo '<a href="'. $this->parent->urls->account .'"><span class="fa fa-key" aria-hidden="true"></span> Account Settings</a>';
+
+			echo'</li>';
+
+			echo'<li style="position:relative;background:#182f42;">';
+				
+				echo '<a href="'. $this->parent->urls->account .'?tab=billing-info"><span class="fa fa-credit-card" aria-hidden="true"></span> Billing Info</a>';
 
 			echo'</li>';
 			
@@ -97,12 +102,14 @@ class LTPLE_Client_Profile {
 			
 				echo'<li style="position:relative;background:#182f42;">';
 					
-					echo '<a href="'. $this->parent->urls->dashboard .'?list=user-app"><span class="glyphicon glyphicon-transfer" aria-hidden="true"></span> Connected Apps</a>';
+					echo '<a href="'. $this->parent->urls->dashboard .'?list=user-app"><span class="fa fa-exchange-alt" aria-hidden="true"></span> Connected Apps</a>';
 
 				echo'</li>';
 			}
 			
 		},1);
+		
+		add_action('ltple_profile_settings_home-page',array($this,'get_home_page_panel'),10,1);
 	}
 	
 	public function get_profile_parameters(){
@@ -179,10 +186,10 @@ class LTPLE_Client_Profile {
 				// in tab
 				
 				$this->in_tab = isset($this->tabs[$this->tab]) ? true : false;
-
+				
 				if( $this->tab == 'home' && empty($this->tabs['home']['content']) ){
 					
-					include $this->parent->views . '/card.php';
+					include $this->parent->views . '/profile/card.php';
 				}
 				else{
 
@@ -401,7 +408,7 @@ class LTPLE_Client_Profile {
 				
 				// TODO new page starter
 				
-				include($this->parent->views . '/card.php');
+				include($this->parent->views . '/profile/card.php');
 			}
 		}
 		else{
@@ -409,14 +416,56 @@ class LTPLE_Client_Profile {
 			include($this->parent->views . '/navbar.php');
 			
 			if( $this->parent->user->loggedin ){
-
-				include($this->parent->views . '/settings.php');
+				
+				if( !empty($_REQUEST['list']) ){
+					
+					add_action('ltple_list_sidebar',array($this,'get_sidebar'),10,3);
+					
+					include( $this->parent->views . '/list.php' );
+				}
+				else{
+					
+					add_action('ltple_settings_sidebar',array($this,'get_sidebar'),10,3);
+					
+					include($this->parent->views . '/settings.php');
+				}
 			}
 			else{
 				
 				echo $this->parent->login->get_form();
 			}
 		}
+	}
+	
+	public function get_sidebar( $sidebar, $currentTab = 'home', $output = '' ){
+			
+		$storage_count = $this->parent->layer->count_layers_by_storage();
+		
+		$sidebar .= '<li class="gallery_type_title">Profile Settings</li>';
+		
+		$sidebar .= '<li'.( $currentTab == 'general-info' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '"><span class="fa fa-user-circle"></span> General Info</a></li>';
+		
+		$sidebar .= '<li'.( $currentTab == 'privacy-settings' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=privacy-settings"><span class="fa fa-user-shield"></span> Privacy Settings</a></li>';
+		
+		if( !empty($this->parent->apps->list) ){
+		
+			$sidebar .= '<li'.( $currentTab == 'social-accounts' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=social-accounts"><span class="fa fa-share-alt"></span> Social Accounts</a></li>';
+		}
+		
+		$sidebar .= apply_filters('ltple_profile_settings_sidebar','',$currentTab,$storage_count);
+		
+		$sidebar .= '<li class="gallery_type_title">Website Settings</li>';
+		
+		$sidebar .= '<li'.( $currentTab == 'home-page' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=home-page"><span class="fa fa-house-user"></span> Home Page</a></li>';
+		
+		if( !empty($storage_count['user-page']) ){
+		
+			$sidebar .=  '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?list=user-page"><span class="fa fa-layer-group"></span> Web Pages</a></li>';
+		}
+		
+		$sidebar .= apply_filters('ltple_website_settings_sidebar','',$currentTab,$storage_count);
+				
+		return $sidebar;
 	}
 	
 	public function get_profile_completeness($user_id){
@@ -456,12 +505,6 @@ class LTPLE_Client_Profile {
 							'name' 		=> 'Description',
 							'complete' 	=> false,
 							'points' 	=> 2,
-						),							
-						$this->parent->_base . 'profile_html' => array(
-								
-							'name' 		=> 'Home Page',
-							'complete' 	=> false,
-							'points' 	=> 3,
 						),
 					);
 												
@@ -587,6 +630,86 @@ class LTPLE_Client_Profile {
 		return $this->is_self;
 	}
 	
+	public function get_home_page_panel(){
+
+		echo'<div class="tab-pane active" id="home-page">';
+		
+			echo'<form method="post" enctype="multipart/form-data" class="tab-content row" style="margin:10px 10px 50px 10px;">';
+				
+				echo'<input type="hidden" name="settings" value="general-info" />';
+				
+				echo'<div class="col-xs-8">';
+			
+					echo'<h3>Home Page</h3>';
+					
+				echo'</div>';
+				
+				echo'<div class="col-xs-4 text-right">';
+					
+					echo'<a target="_blank" class="label label-primary" style="font-size: 13px;" href="'.$this->parent->urls->profile . $this->parent->user->ID . '/">view home</a>';
+					
+				echo'</div>';
+				
+				echo'<div class="col-xs-12 col-sm-2"></div>';
+				
+				echo'<div class="clearfix"></div>';
+				
+				echo'<div class="col-xs-12 col-sm-4 pull-right">';
+					
+					// TODO show template suggestions
+					
+				echo'</div>';
+				
+				echo'<div class="col-xs-12 col-sm-8">';
+
+					echo'<table class="form-table">';
+						
+						if(!empty($this->parent->profile->fields )){
+							
+							foreach( $this->parent->profile->fields as $field ){
+								
+								if( $field['location'] == 'home-page' ){
+									
+									$field_id = $field['id'];
+									
+									$field['data'] = isset($this->parent->user->{$field_id}) ? $this->parent->user->{$field_id} : '';
+									
+									echo'<tr>';
+									
+										echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+										
+										echo'<td style="padding:20px;">';
+											
+											$this->parent->admin->display_field( $field );
+										
+										echo'</td>';
+										
+									echo'</tr>';
+								}
+							}
+						}
+						
+					echo'</table>';
+					
+				echo'</div>';
+				
+				echo'<div class="clearfix"></div>';
+				
+				echo'<div class="col-xs-12 col-sm-6"></div>';
+				
+				echo'<div class="col-xs-12 col-sm-2 text-right">';
+			
+					echo'<button class="btn btn-sm btn-primary" style="width:100%;margin-top: 10px;">Save</button>';
+					
+				echo'</div>';
+
+				echo'<div class="col-xs-12 col-sm-4"></div>';
+					
+			echo'</form>';
+			
+		echo'</div>';
+	}		
+	
 	public function handle_update_profile(){
 			
 		if(!empty($_POST['settings'])){
@@ -670,34 +793,6 @@ class LTPLE_Client_Profile {
 					}
 				}
 			}
-			elseif( $_POST['settings'] == 'email-notifications' && !empty($this->parent->user->notify) ){
-				
-				// save notification settings			
-				
-				$notify = $this->parent->user->notify;
-				
-				foreach( $notify as $key => $value ){
-				
-					if( !empty($_POST[$this->parent->_base . 'notify'][$key]) && $_POST[$this->parent->_base . 'notify'][$key] == 'on' ){
-						
-						$notify[$key] = 'true';
-						
-						$this->notificationSettings[$key]['data'] = 'on';
-					}
-					else{
-						
-						$notify[$key] = 'false';
-						
-						$this->notificationSettings[$key]['data'] = 'off';
-					}
-				}
-				
-				update_user_meta($this->parent->user->ID, $this->parent->_base . '_can_spam', $notify['series']);
-					
-				update_user_meta($this->parent->user->ID, $this->parent->_base . 'notify', $notify);					
-			
-				$this->parent->user->notify = $notify;
-			}
 			
 			do_action('ltple_update_profile');
 		}
@@ -718,24 +813,6 @@ class LTPLE_Client_Profile {
 		
 		$image 			= get_avatar_url( $user_id );
 		$pictures[] 	= add_query_arg('_',time(),$image);
-		
-		// get connected twitter pictures
-		
-		/*
-		if( !empty($userApps) ){
-		
-			foreach( $userApps as $i => $userApp ){
-				
-				$key = 'twitter-';
-				
-				if( strpos( $userApp->post_name, $key ) === 0 ){
-					
-					$name 		= str_replace($key,'',$userApp->post_name);
-					$pictures[] = 'https://twitter.com/'.$name.'/profile_image?size=original&_'.time();
-				}
-			}
-		}
-		*/
 
 		// get local picture
 
@@ -845,7 +922,7 @@ class LTPLE_Client_Profile {
 			
 			$content = '';
 			
-			if( $fields = $this->get_general_fields() ){
+			if( $fields = $this->get_profile_fields() ){
 
 				foreach( $fields as $field ){
 					
@@ -1050,15 +1127,11 @@ class LTPLE_Client_Profile {
 					
 					$this->set_social_fields();
 				}
-				elseif( !empty($_GET['tab']) && $_GET['tab'] == 'email-notifications' ){
-					
-					$this->set_notification_fields();
-				}
 				else{
 					
 					$this->pictures	= $this->get_profile_picture_fields();
 					
-					$this->fields = $this->get_general_fields();
+					$this->fields = $this->get_profile_fields();
 				}
 				
 				// update profile fields
@@ -1068,7 +1141,7 @@ class LTPLE_Client_Profile {
 		}
 	}
 	
-	public function get_general_fields( $fields=[] ){
+	public function get_profile_fields( $fields=[] ){
 		
 		/*
 		$fields['user_login'] = array(
@@ -1078,6 +1151,7 @@ class LTPLE_Client_Profile {
 			'description'	=> '',
 			'placeholder'	=> 'Username',
 			'type'			=> 'text',
+			'location'		=> 'general-info',
 			'disabled'		=> true
 		);
 		*/
@@ -1089,6 +1163,7 @@ class LTPLE_Client_Profile {
 			'description'	=> 'Your public name',
 			'placeholder'	=> 'Nickname',
 			'type'			=> 'text',
+			'location'		=> 'general-info',
 			'required'		=> true
 		);
 
@@ -1099,6 +1174,7 @@ class LTPLE_Client_Profile {
 			'description'	=> 'Brief text description of yourself',
 			'placeholder'	=> '',
 			'type'			=> 'textarea',
+			'location'		=> 'general-info',
 			'style'			=> 'height:80px;',
 		);
 		
@@ -1108,6 +1184,7 @@ class LTPLE_Client_Profile {
 			'label'			=> 'External URL',
 			'description'	=> 'SEO optimized backlink (dofollow)',
 			'placeholder'	=> 'https://',
+			'location'		=> 'general-info',
 			'type'			=> 'text'			
 		);
 		
@@ -1120,6 +1197,7 @@ class LTPLE_Client_Profile {
 				'description'	=> 'Customize your profile home page with HTML',
 				'placeholder'	=> '',
 				'type'			=> 'textarea',
+				'location'		=> 'home-page',
 				'disabled'		=> false,
 				
 			);
@@ -1131,6 +1209,7 @@ class LTPLE_Client_Profile {
 				'description'	=> 'Customize your profile home page with CSS',
 				'placeholder'	=> '',
 				'type'			=> 'textarea',
+				'location'		=> 'home-page',
 				'disabled'		=> false,
 			);			
 		}
@@ -1143,6 +1222,7 @@ class LTPLE_Client_Profile {
 				'description'	=> 'Customize your profile home page with HTML',
 				'placeholder'	=> 'For paid license only',
 				'type'			=> 'textarea',
+				'location'		=> 'home-page',
 				'disabled'		=> true,
 				'data'			=> '',
 				
@@ -1155,6 +1235,7 @@ class LTPLE_Client_Profile {
 				'description'	=> 'Customize your profile home page with CSS',
 				'placeholder'	=> 'For paid license only',
 				'type'			=> 'textarea',
+				'location'		=> 'home-page',
 				'disabled'		=> true,
 				'data'			=> '',
 			);			
@@ -1198,8 +1279,8 @@ class LTPLE_Client_Profile {
 			$this->privacySettings['about'] = array(
 
 				'id' 			=> $this->parent->_base . 'policy_about-me',
-				'label'			=> 'My Profile',
-				'description'	=> 'Anyone can see My Profile page',
+				'label'			=> 'My Website',
+				'description'	=> 'Anyone can see My Website',
 				'type'			=> 'switch',
 				'default'		=> 'on',
 			);
@@ -1208,31 +1289,6 @@ class LTPLE_Client_Profile {
 		}
 		
 		return $this->privacySettings;
-	}
-	
-	public function set_notification_fields(){
-		
-		if( is_null($this->notificationSettings) ){
-			
-			if( !empty($this->parent->user->notify) ){
-			
-				$descriptions = $this->parent->email->get_notification_settings('description');
-				
-				foreach( $this->parent->user->notify as $key => $value ){
-					
-					$this->notificationSettings[$key] = array(
-
-						'id' 			=> $this->parent->_base . 'notify['.$key.']',
-						'label'			=> ucfirst($key),
-						'description'	=> $descriptions[$key],
-						'type'			=> 'switch',
-						'data'			=> ( $value == 'true' ? 'on' : 'off' ),
-					);				
-				}
-			}
-		}
-		
-		return $this->notificationSettings;
 	}
 	
 	/**

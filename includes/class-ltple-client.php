@@ -219,6 +219,7 @@ class LTPLE_Client {
 			$this->programs = new LTPLE_Client_Programs( $this );
 			$this->channels = new LTPLE_Client_Channels( $this );
 			$this->network 	= new LTPLE_Client_Network( $this );			
+			$this->account 	= new LTPLE_Client_Account( $this );
 			$this->profile 	= new LTPLE_Client_Profile( $this );
 			
 			$this->extension = new LTPLE_Client_Extension( $this );

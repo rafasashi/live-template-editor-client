@@ -162,7 +162,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'message':
 				
-					$html .= '<div class="alert '. ( !empty( $field['class'] ) ? $field['class'] : 'alert-info' ) .'">'. $field['value'].'</div>';
+					$html .= '<div' . $style . ' class="alert '. ( !empty( $field['class'] ) ? $field['class'] : 'alert-info' ) .'">'. $field['value'].'</div>';
 					
 				break;
 				

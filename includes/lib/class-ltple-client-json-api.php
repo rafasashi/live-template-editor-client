@@ -350,16 +350,6 @@ class LTPLE_Client_Json_API {
 	
 		$table .=  '<div id="'.$toolbar.'" class="btn-group">';
 			
-			/*
-			$table .=  '<button id="add" type="button" class="btn btn-default">';
-				$table .=  '<i class="glyphicon glyphicon-plus"></i>';
-			$table .=  '</button>';
-			
-			$table .=  '<button id="like" type="button" class="btn btn-default">';
-				$table .=  '<i class="glyphicon glyphicon-heart"></i>';
-			$table .=  '</button>';
-			*/
-			
 			if($trash){
 			
 				$table .=  '<button id="trash" type="button" class="btn btn-default">';

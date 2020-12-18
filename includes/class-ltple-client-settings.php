@@ -604,6 +604,13 @@ class LTPLE_Client_Settings {
 					'placeholder'	=> __( 'editor', $this->plugin->slug )
 				),
 				array(
+					'id' 			=> 'accountSlug',
+					'label'			=> __( 'Account' , $this->plugin->slug ),
+					'description'	=> '[ltple-client-account]',
+					'type'			=> 'slug',
+					'placeholder'	=> __( 'editor', $this->plugin->slug )
+				),
+				array(
 					'id' 			=> 'appsSlug',
 					'label'			=> __( 'Apps' , $this->plugin->slug ),
 					'description'	=> '[ltple-client-apps]',

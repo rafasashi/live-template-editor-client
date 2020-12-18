@@ -9,8 +9,18 @@
 	// ------------- output panel --------------------
 	
 	echo'<div id="panel" class="wrapper">';
+		
+		echo '<div id="sidebar">';
+				
+			echo '<div class="gallery_type_title gallery_head">Dashboard</div>';
 
-		echo $this->parent->dashboard->get_sidebar($currentTab);
+			echo '<ul class="nav nav-tabs tabs-left">';
+				
+				echo apply_filters('ltple_list_sidebar','',$currentTab);
+				
+			echo '</ul>';
+			
+		echo '</div>';
 		
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;;min-height:700px;">';
 			
@@ -22,9 +32,9 @@
 						
 						if( $currentTab == 'user-page' || $currentTab == 'user-menu' ){
 							
-							echo'<li role="presentation"'.( $currentTab == 'user-page' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-page" role="tab">Pages</a></li>';
+							echo'<li role="presentation"'.( $currentTab == 'user-page' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->profile . '?list=user-page" role="tab">Pages</a></li>';
 						
-							echo'<li role="presentation"'.( $currentTab == 'user-menu' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-menu" role="tab">Menus</a></li>';							
+							echo'<li role="presentation"'.( $currentTab == 'user-menu' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->profile . '?list=user-menu" role="tab">Menus</a></li>';							
 						}
 						else{ 
 							
@@ -164,19 +174,3 @@
 		echo'</div>	';
 
 	echo'</div>';
-	
-	?>
-	
-	<script>
-
-		;(function($){		
-			
-			$(document).ready(function(){
-
-			
-				
-			});
-			
-		})(jQuery);
-
-	</script>

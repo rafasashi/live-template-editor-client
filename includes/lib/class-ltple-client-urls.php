@@ -35,7 +35,7 @@ class LTPLE_Client_Urls {
 
 		$this->api 			= $this->home . '/' . rest_get_url_prefix() . '/';
 		$this->api_embedded	= $this->api . 'ltple-embedded/v1/info';
-		
+				
 		// get edit gallery
 		
 		$this->edit = $this->home . '/edit/';
@@ -45,6 +45,13 @@ class LTPLE_Client_Urls {
 			$this->editor 	= $this->home . '/' . $this->editorSlug . '/';
 		
 			$this->gallery 	= $this->editor;
+		}
+		
+		// get account url
+		
+		if( $this->accountSlug = get_option( $this->parent->_base . 'accountSlug' )){
+			
+			$this->account = $this->home . '/' . $this->accountSlug . '/';
 		}
 		
 		// get apps url
@@ -129,6 +136,17 @@ class LTPLE_Client_Urls {
 			'post_status' 		=> 'publish',
 			'menu_order' 		=> 0
 		));
+		
+		$this->register_url('account', array(
+			
+			'post_title' 		=> 'Account',
+			'post_type'     	=> 'page',
+			'comment_status' 	=> 'closed',
+			'ping_status' 		=> 'closed',
+			'post_content' 		=> '[ltple-client-account]',
+			'post_status' 		=> 'publish',
+			'menu_order' 		=> 0
+		));		
 		
 		$this->register_url('apps', array(
 			

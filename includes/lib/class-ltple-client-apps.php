@@ -127,7 +127,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 
 		if( !empty($this->list) ){
 		
-			$sidebar .= '<li'.( $currentTab == 'user-app' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-app"><span class="glyphicon glyphicon-plus"></span> Applications</a></li>';
+			$sidebar .= '<li'.( $currentTab == 'user-app' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-app"><span class="fa fa-plug"></span> Applications</a></li>';
 		}
 		
 		return $sidebar;
