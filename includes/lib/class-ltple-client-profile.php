@@ -283,7 +283,7 @@ class LTPLE_Client_Profile {
 		#profile_nav {
 			
 			border:none;
-			box-shadow:inset 0px 2px 5px -4px rgba(0,0,0,0.75);
+			box-shadow:0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);
 			overflow:visible;
 			margin:0;
 			background:#182f42;
