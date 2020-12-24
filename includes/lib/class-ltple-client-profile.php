@@ -282,11 +282,12 @@ class LTPLE_Client_Profile {
 		
 		#profile_nav {
 			
+			border:none;
 			box-shadow:inset 0px 2px 5px -4px rgba(0,0,0,0.75);
 			overflow:visible;
 			margin:0;
 			background:#182f42;
-			height: 42px;
+			height: 41px;
 		}
 		
 		#profile_nav > li+li  {
