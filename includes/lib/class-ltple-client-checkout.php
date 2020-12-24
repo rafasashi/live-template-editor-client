@@ -32,121 +32,125 @@ class LTPLE_Client_Checkout {
 	
 	public function get_shortcode() {
 		
-		if( $this->parent->user->loggedin ){	
+		if( !empty($_GET['template']) && is_numeric($_GET['template']) ){
 			
-			if( !empty($_GET['template']) && is_numeric($_GET['template']) ){
+			$layer_id = intval($_GET['template']);
+		
+			if( $layer = get_post($layer_id) ){
 				
-				$layer_id = intval($_GET['template']);
-			
-				if( $layer = get_post($layer_id) ){
-					
-					if( $layer->post_type == 'cb-default-layer' ){
-					
-						echo'<div class="col-sm-7">';
+				if( $layer->post_type == 'cb-default-layer' ){
+				
+					echo'<div class="col-sm-7">';
 
-							if( $plans = $this->parent->plan->get_plans_by_id( $layer->ID ) ){
+						if( $plans = $this->parent->plan->get_plans_by_id( $layer->ID ) ){
+							
+							echo '<h4 style="margin-top:15px;">This template is included in ' . count($plans) . ' plans</h4>';
+							
+							foreach( $plans as $plan ){
 								
-								echo '<h4 style="margin-top:15px;">This template is included in ' . count($plans) . ' plans</h4>';
+								echo'<hr style="margin-top:15px;margin-bottom:15px;">';
 								
-								foreach( $plans as $plan ){
-									
-									echo'<hr style="margin-top:15px;margin-bottom:15px;">';
-									
-									echo'<div class="row">';
+								echo'<div class="row">';
 
-										echo'<div class="col-xs-8">';
-											
-											echo'<div>';
-											
-												echo '<b>' . $plan['title'] . '</b>';
-											
-											echo'</div>';
-											
-											echo'<div>';
-												
-												echo '<span class="label label-success">' . $plan['price_tag'] . '</span>';			
-												
-											echo'</div>';
-
-										echo'</div>';
+									echo'<div class="col-xs-8">';
 										
-										echo'<div class="col-xs-4 text-right">';
-											
-											echo'<a href="'.$plan['info_url'].'" target="_blank" class="btn btn-sm btn-info" style="margin-right: 5px;">Info</a>';
-											
-											echo'<a href="'.$plan['agreement_url'].'" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+										echo'<div>';
+										
+											echo '<b>' . $plan['title'] . '</b>';
 										
 										echo'</div>';
 										
+										echo'<div>';
+											
+											echo '<span class="label label-success">' . $plan['price_tag'] . '</span>';			
+											
+										echo'</div>';
+
 									echo'</div>';
-								}				
-							}
+									
+									echo'<div class="col-xs-4 text-right">';
+										
+										echo'<a href="'.$plan['info_url'].'" target="_blank" class="btn btn-sm btn-info" style="margin-right: 5px;">Info</a>';
+										
+										echo'<a href="'.$plan['agreement_url'].'" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+									
+									echo'</div>';
+									
+								echo'</div>';
+							}				
+						}
+					
+					echo'</div>';
+				}
+				else{
+					
+					echo apply_filters('ltple_checkout_content','',$layer);
+				}
+			}
+			else{
+				
+				echo 'This template doesn\'t exist...';
+			}
+		}
+		elseif( !empty($_GET['options']) ){
+		
+			$options = explode('|',$_GET['options']);
+			
+			echo'<div class="col-sm-7" style="' . ( !$this->parent->inWidget ? 'margin-top:20px;' : '' ).'">';
+				
+				if( $plans = $this->parent->plan->get_plans_by_options( $options ) ){
+					
+					//echo '<h4 style="margin-top:15px;">Upgrade to one of the following plans</h4>';
+					
+					foreach( $plans as $i => $plan ){
 						
+						if( $i > 0 ){
+							
+							echo'<hr style="margin-top:15px;margin-bottom:15px;">';
+						}
+						
+						echo'<div class="row">';
+
+							echo'<div class="col-xs-8">';
+								
+								echo'<div>';
+								
+									echo '<b>' . $plan['title'] . '</b>';
+								
+								echo'</div>';
+								
+								echo'<div>';
+									
+									echo '<span class="label label-success">' . $plan['price_tag'] . '</span>';			
+									
+								echo'</div>';
+
+							echo'</div>';
+							
+							echo'<div class="col-xs-4 text-right">';
+								
+								echo'<a href="'.$plan['info_url'].'" target="_blank" class="btn btn-sm btn-info" style="margin-right: 5px;">Info</a>';
+	
+								if( $this->parent->user->loggedin ){
+								
+									echo'<a href="' . $plan['agreement_url'] . '" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+								}
+								else{
+									
+									echo'<a href="' . wp_login_url(remove_query_arg('output',$this->parent->urls->current)) . '" target="_parent" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+								}
+								
+							echo'</div>';
+							
 						echo'</div>';
-					}
-					else{
-						
-						echo apply_filters('ltple_checkout_content','',$layer);
 					}
 				}
 				else{
 					
-					echo 'This template doesn\'t exist...';
+					echo '<div class="alert alert-warning">No plan available for this item, please contact the sales department</div>';
 				}
-			}
-			elseif( !empty($_GET['options']) ){
 			
-				$options = explode('|',$_GET['options']);
-				
-				echo'<div class="col-sm-7">';
-					
-					if( $plans = $this->parent->plan->get_plans_by_options( $options ) ){
-						
-						//echo '<h4 style="margin-top:15px;">Upgrade to one of the following plans</h4>';
-						
-						foreach( $plans as $i => $plan ){
-							
-							if( $i > 0 ){
-								
-								echo'<hr style="margin-top:15px;margin-bottom:15px;">';
-							}
-							
-							echo'<div class="row">';
-
-								echo'<div class="col-xs-8">';
-									
-									echo'<div>';
-									
-										echo '<b>' . $plan['title'] . '</b>';
-									
-									echo'</div>';
-									
-									echo'<div>';
-										
-										echo '<span class="label label-success">' . $plan['price_tag'] . '</span>';			
-										
-									echo'</div>';
-
-								echo'</div>';
-								
-								echo'<div class="col-xs-4 text-right">';
-									
-									echo'<a href="'.$plan['info_url'].'" target="_blank" class="btn btn-sm btn-info" style="margin-right: 5px;">Info</a>';
-									
-									echo'<a href="'.$plan['agreement_url'].'" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
-								
-								echo'</div>';
-								
-							echo'</div>';
-						}
-					}
-					else{
-						
-						echo '<div class="alert alert-warning">No plan available for this item, please contact the sales department</div>';
-					}
-				
-				echo'</div>';
-			}
+			echo'</div>';
 		}
 	}
 	

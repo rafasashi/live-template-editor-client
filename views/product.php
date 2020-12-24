@@ -165,7 +165,7 @@
 								echo'</div>'.PHP_EOL;
 							}
 						
-							if( $this->parent->user->loggedin ){
+							//if( $this->parent->user->loggedin ){
 								
 								if( $has_layer === true){
 									
@@ -175,6 +175,7 @@
 									
 									echo $this->get_checkout_button($this,$layer_type->name);
 								}
+							/*
 							}
 							else{
 								
@@ -184,6 +185,7 @@
 							
 								echo'</button>'.PHP_EOL;								
 							}
+							*/
 									
 						echo'</div>';
 						
@@ -470,16 +472,7 @@
 
 		echo'</div>';
 		
-		if( !$this->parent->user->loggedin ){
-
-			// login modal
+		// upgrade plan modal
 			
-			include( $this->parent->views  . '/modals/login.php');
-		}
-		else{
-			
-			// upgrade plan modal
-			
-			include( $this->parent->views  . '/modals/upgrade.php');				
-		}
+		include( $this->parent->views  . '/modals/upgrade.php');
 	}

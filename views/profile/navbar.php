@@ -6,16 +6,7 @@
 	
 ?>
 
-<nav class="formheadersearch" role="navigation" style="background-color:transparent;z-index:9999999;">
-	
-	<!--
-	<form id="search" style="float:left;" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
-		
-		<input style="background-color:#fff;margin:0px;box-shadow:inset 0px 0px 1px #182f42;height:30px;border-radius:15px;margin-top:10px;" type="search" class="search-field" placeholder="<?php echo esc_attr_x( 'Enter search keywords here &hellip;', 'placeholder', 'ltple-theme' ); ?>" value="<?php echo esc_attr( get_search_query() ); ?>" name="s" title="<?php _ex( 'Search for:', 'label', 'ltple-theme' ); ?>">
-		<input style="background-color:transparent;" type="submit" class="search-submit" value="">
-
-	</form>
-	-->
+<nav class="formheadersearch" role="navigation" style="background-color:transparent;z-index:998;">
 
 	<?php
 
@@ -86,7 +77,9 @@
 				
 				echo'<li style="position:relative;background:#182f42;">';
 					
-					echo '<a href="'. wp_logout_url( $ltple->urls->editor ) .'"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout</a>';
+					$redirect_to = $ltple->profile->id > 0 ? $ltple->urls->current : $ltple->urls->editor;
+					
+					echo '<a href="'. wp_logout_url( $redirect_to ) .'"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout</a>';
 
 				echo'</li>';					
 			}

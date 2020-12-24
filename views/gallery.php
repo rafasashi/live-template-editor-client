@@ -188,19 +188,10 @@
 						//output Tab panes
 						
 						$this->gallery->get_gallery_table($layer_type,$layer_range);
-						
-						if( !$this->user->loggedin ){
-
-							// login modal
 							
-							include( $this->views  . '/modals/login.php');
-						}
-						else{
+						// upgrade plan modal
 							
-							// upgrade plan modal
-							
-							include( $this->views  . '/modals/upgrade.php');				
-						}
+						include( $this->views  . '/modals/upgrade.php');
 						
 					echo '</div>';
 

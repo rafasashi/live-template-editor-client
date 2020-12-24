@@ -418,7 +418,7 @@ class LTPLE_Client_Gallery {
 														
 						$item .='<div>';
 										
-							$item .='<button type="button" class="btn btn-sm" data-toggle="modal" data-target="'.( $this->parent->user->loggedin  === true ? '#upgrade_plan' : '#login_first').'" style="width:100%;font-size:17px;background:' . $this->parent->settings->mainColor . '99;color:#fff;padding: 15px 0;border:1px solid ' . $this->parent->settings->mainColor . ';">';
+							$item .='<button type="button" class="btn btn-sm" data-toggle="modal" data-target="#upgrade_plan" style="width:100%;font-size:17px;background:' . $this->parent->settings->mainColor . '99;color:#fff;padding: 15px 0;border:1px solid ' . $this->parent->settings->mainColor . ';">';
 							
 								$item .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> ' . ( $this->parent->user->plan['info']['total_price_amount'] > 0 ? 'upgrade' : 'start' );
 								
@@ -617,7 +617,7 @@ class LTPLE_Client_Gallery {
 								
 							$item.='</div>'.PHP_EOL;
 
-							if($this->parent->user->loggedin){
+							//if($this->parent->user->loggedin){
 								
 								if($this->parent->plan->user_has_layer( $post ) === true){
 									
@@ -631,6 +631,7 @@ class LTPLE_Client_Gallery {
 							
 									$item.='</button>'.PHP_EOL;
 								}
+							/*
 							}
 							else{
 								
@@ -640,6 +641,7 @@ class LTPLE_Client_Gallery {
 							
 								$item.='</button>'.PHP_EOL;								
 							}
+							*/
 						}
 						
 					$item.='</div>';

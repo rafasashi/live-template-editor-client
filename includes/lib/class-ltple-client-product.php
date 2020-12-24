@@ -278,7 +278,7 @@ class LTPLE_Client_Product {
 		
 		$button = '';					
 	
-		if($this->parent->user->loggedin){
+		//if($this->parent->user->loggedin){
 			
 			if($this->parent->plan->user_has_layer( $post ) === true){
 				
@@ -334,6 +334,7 @@ class LTPLE_Client_Product {
 					
 				$button.='</div>'.PHP_EOL;									
 			}
+		/*
 		}
 		else{
 			
@@ -343,6 +344,7 @@ class LTPLE_Client_Product {
 		
 			$button.='</button>'.PHP_EOL;								
 		}
+		*/
 
 		return $button;
 	}

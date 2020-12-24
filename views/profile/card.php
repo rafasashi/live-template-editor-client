@@ -27,11 +27,7 @@
 	// get profile picture
 	
 	$picture = $ltple->image->get_avatar_url( $ltple->profile->id );
-	
-	// get stars
-	
-	$stars = $ltple->stars->get_count($ltple->profile->id);
-	
+
 	// get description
 	
 	$description = wp_trim_words(get_user_meta($ltple->profile->id, 'description', true),50,' [...]');
@@ -356,13 +352,22 @@
 				<div id="info-box">
 				  <div class="info">
 					<h1><?php echo $name; ?></h1>
-					<h2>
 					
-						<span class="fa fa-star" aria-hidden="true"></span> 
+					<h2>
 						
-						<?php echo $stars; ?>			
+						<?php
+
+							echo'<span class="fa fa-star" aria-hidden="true"></span>'; 
+							
+							if( $ltple->settings->options->enable_ranking == 'on' ){
+							
+								echo $ltple->stars->get_count($ltple->profile->id);
+							}
+							
+						?>
 					
 					</h2>
+					
 				  </div>
 				</div>
 				<div id="social-bar">

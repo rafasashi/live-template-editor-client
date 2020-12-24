@@ -14,7 +14,7 @@ class LTPLE_Client_Login {
 		
 		$this->parent 	= $parent;
 		
-		add_filter( 'login_url', array($this, 'set_login_url'), 10, 3 );
+		add_filter( 'login_url', array($this, 'filter_login_url'), 10, 3 );
 	
 		add_filter( 'register_url', array($this, 'set_register_url'), 10, 3 );
 		
@@ -199,13 +199,13 @@ class LTPLE_Client_Login {
 		exit;
 	}
 	
-	public function set_login_url( $login_url, $redirect, $force_reauth ) {
+	public function filter_login_url( $login_url, $redirect, $force_reauth ) {
 		
 		$login_url = home_url( '/login/' );
 		
 		if( !empty($redirect) ){
 			
-			$login_url = add_query_arg( 'redirect_to', $redirect, $login_url );
+			$login_url = add_query_arg( 'redirect_to', urlencode(urldecode($redirect)), $login_url );
 		}
 		
 		return $login_url;

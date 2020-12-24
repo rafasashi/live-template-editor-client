@@ -16,11 +16,11 @@
 
 				echo'<li'.( $currentTab == 'email-notifications' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->account . '?tab=email-notifications">Email Notifications</a></li>';
 								
-				echo'<li><a href="' . wp_lostpassword_url() . '">Reset Password</a></li>';			
-				
 				echo'<li'.( $currentTab == 'billing-info' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->account . '?tab=billing-info">Billing Info</a></li>';
 				
 				do_action('ltple_account_settings_sidebar',$currentTab);
+
+				echo'<li><a href="' . wp_lostpassword_url() . '">Reset Password</a></li>';
 
 			echo'</ul>';
 			

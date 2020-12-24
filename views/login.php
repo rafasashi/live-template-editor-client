@@ -113,7 +113,7 @@
 					
 					echo'</button>';				
 					
-					echo'<div id="emailLogin" class="collapse' . (!empty($user_email) ? ' in' : '' ).'" style="margin-top: 25px;">';
+					echo'<div id="emailLogin" class="collapse in" style="margin-top: 25px;">';
 						
 						if( $ltple->inWidget ){
 						

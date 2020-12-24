@@ -31,35 +31,60 @@
 		$name = get_user_meta( $ltple->profile->user->ID , 'nickname', true );
 
 		if( $ltple->profile->in_tab ){
+			
+			if( $ltple->profile->tab == 'about' ){
 
-			echo'<div class="profile-heading text-center" style="height:100px;padding:0;">';
-			
-				echo'<div class="profile-overlay"></div>';
-			
-				// mobile avatar
+				echo'<div class="profile-heading text-center" style="height:100px;padding:0;">';
 				
-				echo'<div class="col-xs-3 col-sm-3 col-md-3 col-lg-2">';
-
-					echo '<div class="profile-avatar text-left hidden-sm hidden-md hidden-lg" style="padding:12px 8px;position:absolute;">';
+					echo'<div class="profile-overlay"></div>';
+				
+					// mobile avatar
 					
-						echo'<img style="border:solid 5px #f9f9f9;" src="' . $ltple->profile->picture . '" height="70" width="70" />';
+					echo'<div class="col-xs-3 col-sm-3 col-md-3 col-lg-2">';
+
+						echo '<div class="profile-avatar text-left hidden-sm hidden-md hidden-lg" style="padding:12px 8px;position:absolute;">';
 						
-						if( $ltple->profile->is_pro ){
+							echo'<img style="border:solid 5px #f9f9f9;" src="' . $ltple->profile->picture . '" height="70" width="70" />';
 							
-							echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $ltple->settings->mainColor . ';font-size:14px;">pro</span>';									
-						}
+							if( $ltple->profile->is_pro ){
+								
+								echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $ltple->settings->mainColor . ';font-size:14px;">pro</span>';									
+							}
+							
+						echo '</div>';					
+					
+					echo'</div>';
+					
+					echo'<div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">';
+					
+						echo '<h2 style="font-size:25px;float:left;padding:30px 0 0 0;margin:0;">' . $name . '</h2>';
+					
+					echo'</div>';
+					
+				echo'</div>';
+			}
+			else{
+
+				echo'<div class="profile-heading text-center" style="height:80px;padding:0;">';
+				
+					echo'<div class="profile-overlay"></div>';
+				
+					// avatar
+					
+					echo'<div class="col-xs-12">';
+
+						echo '<div class="profile-avatar text-left" style="padding:10px;position:absolute;">';
 						
-					echo '</div>';					
-				
+							echo'<img style="border:none;" src="' . $ltple->profile->picture . '" height="55" width="55" />';
+							
+						echo '</div>';					
+					
+						echo '<h2 style="font-size:23px;float:left;padding:25px 0 0 100px;margin:0;">' . $name . '</h2>';
+					
+					echo'</div>';
+					
 				echo'</div>';
-				
-				echo'<div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">';
-				
-					echo '<h2 style="font-size:25px;float:left;padding:31px 0 0 0;margin:0;">' . $name . '</h2>';
-				
-				echo'</div>';
-				
-			echo'</div>';
+			}
 		}
 		else{
 			

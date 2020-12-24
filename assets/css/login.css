@@ -47,7 +47,7 @@
 .mobile #login{padding:20px 0}.mobile #login form{margin-left:0}
 .mobile #login #backtoblog,.mobile #login #nav{margin-left:8px}
 
-#login-wrap {padding:6% 0 0 0;background:#EEE;min-height:100vh;} 
+#login-wrap {padding:6% 0 0 0;background:#fff;min-height:100vh;} 
 
 .login div#login {background:rgb(246 246 246);border-radius:3px;-moz-border-radius:3px;-ms-border-radius:3px;-o-border-radius:3px;-o-border-radius:3px;-webkit-border-radius:3px;padding:30px 60px;box-shadow:0 1px 3px #CCC;-moz-box-shadow:0 1px 3px #CCC;-ms-box-shadow:0 1px 3px #CCC;-o-box-shadow:0 1px 3px #CCC;-webkit-box-shadow:0 1px 3px #CCC;}
 

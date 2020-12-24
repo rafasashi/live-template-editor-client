@@ -1794,11 +1794,13 @@ class LTPLE_Client_Plan {
 						}
 					}
 				}
-
+			
 				$plan['upgrade'] = array();
-
-				//if( $plan['info']['total_price_amount'] > 0 || $plan['info']['total_fee_amount'] > 0 ){				
 				
+				$plan['action'] = 'subscribe';
+				
+				$plan['user_has_plan'] = false;
+
 				if( $this->parent->user->loggedin ){
 					
 					// user has plan
@@ -1806,7 +1808,6 @@ class LTPLE_Client_Plan {
 					$plan['user_has_plan'] = $this->user_has_plan( $plan_id );
 					
 					// plan upgrade
-
 
 					$total_upgrade = 0;
 					
@@ -1824,8 +1825,6 @@ class LTPLE_Client_Plan {
 					}
 
 					// plan action
-					
-					$plan['action'] = 'subscribe';
 					
 					if( $plan['info']['total_price_amount'] == 0 && $plan['info']['total_fee_amount'] == 0 && $plan['user_has_plan'] === true ){
 						
@@ -1859,8 +1858,6 @@ class LTPLE_Client_Plan {
 				$plan['info_url'] 	 	= get_post_permalink($plan_id);
 				
 				$plan['agreement_url'] 	= $this->parse_agreement_url($plan);
-			
-				//}
 			}
 			
 			$this->subscription_plans[$plan_id] = $plan;
