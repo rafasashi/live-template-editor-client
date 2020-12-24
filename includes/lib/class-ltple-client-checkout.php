@@ -72,8 +72,15 @@ class LTPLE_Client_Checkout {
 										
 										echo'<a href="'.$plan['info_url'].'" target="_blank" class="btn btn-sm btn-info" style="margin-right: 5px;">Info</a>';
 										
-										echo'<a href="'.$plan['agreement_url'].'" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
-									
+										if( $this->parent->user->loggedin ){
+											
+											echo'<a href="' . $plan['agreement_url'] . '" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+										}
+										else{
+											
+											echo'<a href="' . wp_login_url(remove_query_arg('output',$this->parent->urls->current)) . '" target="_parent" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+										}
+										
 									echo'</div>';
 									
 								echo'</div>';
