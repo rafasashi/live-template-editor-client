@@ -148,7 +148,7 @@ class LTPLE_Client_Product {
 	}
 	
 	public function get_permalink( $post_link, $post ){
-
+		
 		if( $post->post_type == 'cb-default-layer' ){
 			
 			$post_link = $this->parent->urls->home . '/' . $this->slug . '/' . $post->post_name . '/';

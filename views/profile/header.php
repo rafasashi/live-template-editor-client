@@ -102,11 +102,11 @@
 		}
 	}
 		
-		if( $buttons = apply_filters('ltple_floating_buttons','')){
+	if( $buttons = apply_filters('ltple_floating_buttons','')){
+	
+		echo '<div class="floating-buttons" style="position:fixed;z-index:1050;right:0;top:' . ( $ltple->inWidget ? 70 : 190 ).'px;margin:15px 3%;">';
 		
-			echo '<div class="floating-buttons" style="position:fixed;z-index:1050;right:0;bottom:50px;margin:15px 3%;">';
+			echo  $buttons;
 			
-				echo  $buttons;
-				
-			echo '</div>';
-		}
+		echo '</div>';
+	}

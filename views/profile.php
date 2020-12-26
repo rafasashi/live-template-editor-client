@@ -171,31 +171,34 @@
 				echo'<div id="panel" style="background:#fff;">';
 
 					echo'<div class="library-content" style="padding:0;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 130px );">';
-					
-						echo'<ul id="profile_nav" class="nav nav-pills" role="tablist">';
+						
+						if( !$this->parent->inWidget ){
 							
-							foreach( $this->tabs as $tab){
+							echo'<ul id="profile_nav" class="nav nav-pills" role="tablist">';
 								
-								if( !empty($tab['name']) ){
+								foreach( $this->tabs as $tab){
+									
+									if( !empty($tab['name']) ){
 
-									$active = ( $tab['slug'] == $this->tab ? ' active' : '');
-	 
-									$url = $this->parent->profile->url . '/';
+										$active = ( $tab['slug'] == $this->tab ? ' active' : '');
+		 
+										$url = $this->parent->profile->url . '/';
 
-									if( $tab['slug'] != 'home' ){
+										if( $tab['slug'] != 'home' ){
+											
+											$url .= $tab['slug'] . '/';
+										}
 										
-										$url .= $tab['slug'] . '/';
+										echo'<li role="presentation" class="'.$active.'">';
+										
+											echo'<a href="' . $url . '" role="tab">'.$tab['name'].'</a>';
+										
+										echo'</li>';
 									}
-									
-									echo'<li role="presentation" class="'.$active.'">';
-									
-										echo'<a href="' . $url . '" role="tab">'.$tab['name'].'</a>';
-									
-									echo'</li>';
 								}
-							}
-							
-						echo'</ul>';
+								
+							echo'</ul>';
+						}
 						
 						if( !$this->is_public() && $this->is_self() ){
 							
