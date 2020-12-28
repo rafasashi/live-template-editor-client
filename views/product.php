@@ -153,7 +153,7 @@
 											
 												if( $this->parent->user->loggedin  && $has_layer === true ){
 
-													echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this '.$output_name.'">Start</a>';
+													echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
 												}
 												
 											echo'</div>'.PHP_EOL;
@@ -169,7 +169,7 @@
 								
 								if( $has_layer === true){
 									
-									echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this '.$output_name.'">Start</a>';
+									echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
 								}
 								elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 									

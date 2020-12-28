@@ -44,12 +44,7 @@
 
 						echo '<div class="profile-avatar text-left hidden-sm hidden-md hidden-lg" style="padding:12px 8px;position:absolute;">';
 						
-							echo'<img style="border:solid 5px #f9f9f9;" src="' . $ltple->profile->picture . '" height="70" width="70" />';
-							
-							if( $ltple->profile->is_pro ){
-								
-								echo'<span class="label label-primary" style="position:absolute;bottom:24%;margin-left:-30px;background:' . $ltple->settings->mainColor . ';font-size:14px;">pro</span>';									
-							}
+							echo'<img style="border:none;" src="' . $ltple->profile->picture . '" height="70" width="70" />';
 							
 						echo '</div>';					
 					

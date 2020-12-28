@@ -536,7 +536,7 @@ class LTPLE_Client_Gallery {
 							
 							if( $this->parent->plan->user_has_layer( $post ) === true ){
 								
-								$action = '<a target="_parent" class="btn btn-sm btn-success" href="'. $editor_url .'" title="Start editting this template">Start</a>';
+								$action = '<a target="_parent" class="btn btn-sm btn-success" href="'. $editor_url .'" title="Start editing this template">Start</a>';
 							}
 							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
@@ -598,7 +598,7 @@ class LTPLE_Client_Gallery {
 										
 											if( $this->parent->user->loggedin ){
 
-												$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
+												$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
 											}
 											else{
 												
@@ -621,7 +621,7 @@ class LTPLE_Client_Gallery {
 								
 								if($this->parent->plan->user_has_layer( $post ) === true){
 									
-									$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_parent" title="Start editting this template">Start</a>';
+									$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_parent" title="Start editing this template">Start</a>';
 								}
 								elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 									

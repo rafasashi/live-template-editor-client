@@ -286,7 +286,7 @@ class LTPLE_Client_Product {
 
 				$editor_url = $this->parent->urls->edit . '?uri='.$post->ID;
 								
-				$button.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editting this template">Start</a>';
+				$button.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
 			}
 			else{
 				

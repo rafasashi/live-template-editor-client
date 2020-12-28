@@ -61,10 +61,6 @@ echo'<div id="panel" class="wrapper">';
 							
 							echo'<input type="hidden" name="id" value="' . ( !empty($ltple->user->layer->ID) ? $ltple->user->layer->ID : 0 ) . '" />';
 							
-							// json
-							
-							
-							
 							// title
 							
 							echo'<div class="panel panel-default">';

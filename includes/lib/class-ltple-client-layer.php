@@ -1337,7 +1337,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$steps = array();
 		
-		if( $layer_type = $this->get_layer_type($layer) ){
+		$layer_type = $this->get_layer_type($layer);
+		
+		if( !empty($layer_type->term_id) ){
 			
 			if( $install = get_term_meta($layer_type->term_id,'installation',true) ){
 				

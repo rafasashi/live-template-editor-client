@@ -352,7 +352,11 @@ class LTPLE_Client_Dashboard {
 						
 							$saved_projects .= $post->post_title . ( $post->post_status == 'draft' ? ' <span class="label" style="background:#d8d6d6;padding:2px 5px;font-size:10px;border-radius:20px;">draft</span>' : '' );
 							
-							$saved_projects .= '<br><span class="label" style="color:' . $this->parent->settings->mainColor . ';border: 1px solid ' . $this->parent->settings->mainColor . ';font-size:10px;">' . $layer_type->name . '</span>';
+							if( !empty($layer_type->name) ){
+							
+								$saved_projects .= '<br><span class="label" style="color:' . $this->parent->settings->mainColor . ';border: 1px solid ' . $this->parent->settings->mainColor . ';font-size:10px;">' . $layer_type->name . '</span>';
+						
+							}
 						
 						$saved_projects .= '</a>';
 						
