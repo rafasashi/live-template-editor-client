@@ -30,6 +30,8 @@ class LTPLE_Client_Profile {
 	var $is_pro			= false;
 	var $is_editable 	= false;
 	
+	var $is_enabled 	= array();
+	
 	var $completeness = array();
 	
 	var $post = null;
@@ -111,6 +113,18 @@ class LTPLE_Client_Profile {
 		
 		add_action('ltple_profile_settings_home-page',array($this,'get_home_page_panel'),10,1);
 	}
+	
+	public function is_enabled($feature){
+		
+		if( !isset($this->is_enabled[$feature])){
+			
+			$enabled = get_option($this->parent->_base . 'enable_profile_' . $feature);
+			
+			$this->is_enabled[$feature] = $enabled == 'on' ? true : false;
+		}
+		
+		return $this->is_enabled[$feature];
+	}	
 	
 	public function get_profile_parameters(){
 		
@@ -405,12 +419,14 @@ class LTPLE_Client_Profile {
 	public function get_profile_url(){
 		
 		$profile_url = apply_filters( 'ltple_profile_url', $this->parent->urls->profile . $this->id );
-			
-		if( defined('REW_DEV_ENV') && REW_DEV_ENV === true ){
+		
+		if( defined('REW_DEV_ENV') && REW_DEV_ENV === true && strpos($profile_url,REW_SERVER) === false ){
 			
 			// set dev url
 			
-			$profile_url = str_replace('.','--',untrailingslashit($profile_url)) . '.' . REW_SERVER;				 
+			$url = parse_url($profile_url);
+
+			$profile_url = $url['scheme'] . '://' . str_replace('.','--',untrailingslashit($url['host'])) . '.' . REW_SERVER;
 		}
 		
 		$this->parent->canonical_url = $profile_url;
@@ -486,17 +502,29 @@ class LTPLE_Client_Profile {
 		
 		$sidebar .= apply_filters('ltple_profile_settings_sidebar','',$currentTab,$storage_count);
 		
-		$sidebar .= '<li class="gallery_type_title">Website Settings</li>';
+		// website settings
 		
-		$sidebar .= '<li'.( $currentTab == 'home-page' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=home-page"><span class="fa fa-house-user"></span> Home Page</a></li>';
+		$website = '';
+		
+		if( $this->is_enabled('home_page') ){
+
+			$website .= '<li'.( $currentTab == 'home-page' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=home-page"><span class="fa fa-house-user"></span> Home Page</a></li>';
+		}
 		
 		if( !empty($storage_count['user-page']) ){
 		
-			$sidebar .=  '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?list=user-page"><span class="fa fa-layer-group"></span> Web Pages</a></li>';
+			$website .=  '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?list=user-page"><span class="fa fa-layer-group"></span> Web Pages</a></li>';
 		}
 		
-		$sidebar .= apply_filters('ltple_website_settings_sidebar','',$currentTab,$storage_count);
+		$website .= apply_filters('ltple_website_settings_sidebar','',$currentTab,$storage_count);
 				
+		if( !empty($website) ){
+
+			$sidebar .= '<li class="gallery_type_title">Website Settings</li>';
+			
+			$sidebar .= $website;
+		}
+			
 		return $sidebar;
 	}
 	
@@ -664,82 +692,85 @@ class LTPLE_Client_Profile {
 	
 	public function get_home_page_panel(){
 
-		echo'<div class="tab-pane active" id="home-page">';
-		
-			echo'<form method="post" enctype="multipart/form-data" class="tab-content row" style="margin:10px 10px 50px 10px;">';
-				
-				echo'<input type="hidden" name="settings" value="general-info" />';
-				
-				echo'<div class="col-xs-8">';
-			
-					echo'<h3>Home Page</h3>';
-					
-				echo'</div>';
-				
-				echo'<div class="col-xs-4 text-right">';
-					
-					echo'<a target="_blank" class="label label-primary" style="font-size: 13px;" href="'.$this->parent->urls->profile . $this->parent->user->ID . '/">view home</a>';
-					
-				echo'</div>';
-				
-				echo'<div class="col-xs-12 col-sm-2"></div>';
-				
-				echo'<div class="clearfix"></div>';
-				
-				echo'<div class="col-xs-12 col-sm-4 pull-right">';
-					
-					// TODO show template suggestions
-					
-				echo'</div>';
-				
-				echo'<div class="col-xs-12 col-sm-8">';
+		if( $this->is_enabled('home_page') ){
 
-					echo'<table class="form-table">';
+			echo'<div class="tab-pane active" id="home-page">';
+			
+				echo'<form method="post" enctype="multipart/form-data" class="tab-content row" style="margin:10px 10px 50px 10px;">';
+					
+					echo'<input type="hidden" name="settings" value="general-info" />';
+					
+					echo'<div class="col-xs-8">';
+				
+						echo'<h3>Home Page</h3>';
 						
-						if(!empty($this->parent->profile->fields )){
+					echo'</div>';
+					
+					echo'<div class="col-xs-4 text-right">';
+						
+						echo'<a target="_blank" class="label label-primary" style="font-size: 13px;" href="'.$this->parent->urls->profile . $this->parent->user->ID . '/">view home</a>';
+						
+					echo'</div>';
+					
+					echo'<div class="col-xs-12 col-sm-2"></div>';
+					
+					echo'<div class="clearfix"></div>';
+					
+					echo'<div class="col-xs-12 col-sm-4 pull-right">';
+						
+						// TODO show template suggestions
+						
+					echo'</div>';
+					
+					echo'<div class="col-xs-12 col-sm-8">';
+
+						echo'<table class="form-table">';
 							
-							foreach( $this->parent->profile->fields as $field ){
+							if(!empty($this->parent->profile->fields )){
 								
-								if( $field['location'] == 'home-page' ){
+								foreach( $this->parent->profile->fields as $field ){
 									
-									$field_id = $field['id'];
-									
-									$field['data'] = isset($this->parent->user->{$field_id}) ? $this->parent->user->{$field_id} : '';
-									
-									echo'<tr>';
-									
-										echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
+									if( $field['location'] == 'home-page' ){
 										
-										echo'<td style="padding:20px;">';
+										$field_id = $field['id'];
+										
+										$field['data'] = isset($this->parent->user->{$field_id}) ? $this->parent->user->{$field_id} : '';
+										
+										echo'<tr>';
+										
+											echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
 											
-											$this->parent->admin->display_field( $field );
-										
-										echo'</td>';
-										
-									echo'</tr>';
+											echo'<td style="padding:20px;">';
+												
+												$this->parent->admin->display_field( $field );
+											
+											echo'</td>';
+											
+										echo'</tr>';
+									}
 								}
 							}
-						}
+							
+						echo'</table>';
 						
-					echo'</table>';
+					echo'</div>';
 					
-				echo'</div>';
-				
-				echo'<div class="clearfix"></div>';
-				
-				echo'<div class="col-xs-12 col-sm-6"></div>';
-				
-				echo'<div class="col-xs-12 col-sm-2 text-right">';
-			
-					echo'<button class="btn btn-sm btn-primary" style="width:100%;margin-top: 10px;">Save</button>';
+					echo'<div class="clearfix"></div>';
 					
-				echo'</div>';
+					echo'<div class="col-xs-12 col-sm-6"></div>';
+					
+					echo'<div class="col-xs-12 col-sm-2 text-right">';
+				
+						echo'<button class="btn btn-sm btn-primary" style="width:100%;margin-top: 10px;">Save</button>';
+						
+					echo'</div>';
 
-				echo'<div class="col-xs-12 col-sm-4"></div>';
-					
-			echo'</form>';
-			
-		echo'</div>';
+					echo'<div class="col-xs-12 col-sm-4"></div>';
+						
+				echo'</form>';
+				
+			echo'</div>';
+		}
 	}		
 	
 	public function handle_update_profile(){
@@ -1320,14 +1351,17 @@ class LTPLE_Client_Profile {
 		
 		if( is_null($this->privacySettings) ){
 			
-			$this->privacySettings['about'] = array(
+			if( $this->is_enabled('home_page') ){
+			
+				$this->privacySettings['about'] = array(
 
-				'id' 			=> $this->parent->_base . 'policy_about-me',
-				'label'			=> 'My Website',
-				'description'	=> 'Anyone can see My Website',
-				'type'			=> 'switch',
-				'default'		=> 'on',
-			);
+					'id' 			=> $this->parent->_base . 'policy_about-me',
+					'label'			=> 'My Website',
+					'description'	=> 'Anyone can see My Website',
+					'type'			=> 'switch',
+					'default'		=> 'on',
+				);
+			}
 			
 			do_action('ltple_privacy_settings');
 		}
