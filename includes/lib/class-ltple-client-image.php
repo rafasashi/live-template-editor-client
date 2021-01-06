@@ -800,25 +800,41 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	}
 	
 	public function get_avatar_url($user_id){
+		
+		$url = $this->parent->assets_url . 'images/avatar.png';
+		
+		if( defined('REW_DEV_ENV') && REW_DEV_ENV === true ){
+			
+			$u = parse_url($url);
+			
+			$url = $u['scheme'] . '://' . REW_SITE . $u['path'];
+		}
 
 		if( is_numeric($user_id) ){
+			
+			$path = $this->get_avatar_path($user_id);
 
-			if( file_exists($this->get_avatar_path($user_id)) ){
+			if( file_exists($path) ){
 			
 				$url = $this->url . $user_id . '/avatar.png';
 			}
-			else{
+			elseif( $user_id > 0 ){
 				
-				$url = get_avatar_url( $user_id, array(
+				$gravatar_url = get_avatar_url( $user_id, array(
 					
 					'size'		=> 125,
-					'default' 	=> $this->parent->assets_url . 'images/avatar.png',
+					'default' 	=> $url,
 				));
+				
+				$image = wp_get_image_editor( $gravatar_url );
+				
+				if ( !is_wp_error( $image ) ){
+					
+					$image->save($path);
+
+					$url = $this->url . $user_id . '/avatar.png';
+				}
 			}
-		}
-		else{
-			
-			$url = $this->parent->assets_url . 'images/avatar.png';
 		}
 		
 		return $url;
@@ -925,7 +941,9 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					// resize image
 					
 					//$image->rotate( 90 );
+					
 					$image->resize( 1920, 1080, true );
+					
 					$image->save( $this->get_banner_path( $this->parent->user->ID ) );
 
 					return true;
