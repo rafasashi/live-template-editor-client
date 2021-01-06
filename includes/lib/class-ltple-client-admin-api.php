@@ -1320,39 +1320,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$checked = array();
 					
-					$data = remove_query_arg('_',$data);
-					
-					foreach ( $field['options'] as $k => $v ) {
+					$image_url = add_query_arg('_',time(),$data);
 
-						if( $k === 0){
-						
-							$checked[$k] = true;
-						}
-						else{
-							
-							$checked[$k] = false;
-							
-							if ( $v == $data ) {
-								
-								$checked[$k] 	= true;
-								$checked[0] 	= false;
-							}						
-						}		
-					}
-					
-					foreach ( $field['options'] as $k => $v ) {
-						
-						$image_url = add_query_arg('_',time(),$v);
-						
-						$html .= '<div for="' . esc_attr( $field['id'] . '_' . $k ) . '" style="width:50px;text-align:center;display:inline-block;">';
-						
-							$html .= '<img class="img-circle" src="' . $image_url . '" height="50" width="50" title="My picture '.( $k + 1 ).'" />'; 
-						
-							$html .= '<input type="radio" ' . checked( $checked[$k], true, false ) . ' name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $image_url ) . '" id="' . esc_attr( $field['id'] . '_' . $k ) . '" />';
+					$html .= '<img class="img-circle" src="' . $image_url . '" height="125" width="125" title="My avatar" />'; 
 
-						$html .= '</div>';
-					}
-					
 					$html .= '<div class="input-group col-xs-10" style="margin:10px 0;">';
 					
 						$html .= '<input style="padding:2px;height:26px;" class="form-control input-sm" type="file" name="avatar" accept="image/*">';

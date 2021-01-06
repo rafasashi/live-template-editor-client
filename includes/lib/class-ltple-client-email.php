@@ -141,10 +141,12 @@ class LTPLE_Client_Email {
 			return 'please-reply@'.$domain;
 		});
 		
+		/*
 		add_filter('wp_mail_from_name', function($old) {
 			
 			return 'Live Editor';
 		});
+		*/
 		
 		add_filter('ltple_loaded', array( $this, 'init_email' ));
 		

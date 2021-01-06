@@ -51,29 +51,41 @@ class LTPLE_Client_Dashboard {
 		
 		if( is_null($this->all_boxes) ){
 		
-			$this->all_boxes = apply_filters('ltple_dashboard_boxes',array(
+			$boxes = array();
 			
-				'last_articles' => array(
+			if( $articles = $this->get_recent_posts( array(
+
+				'post_type' 	=> 'post',
+				'numberposts' 	=> 10,
+						
+			))){
+				
+				$boxes['new_templates'] = array(
 				
 					'title' 	=> 'Last Articles',
-					'content' 	=> $this->get_recent_posts(array(
-
-						'post_type' 	=> 'post',
-						'numberposts' 	=> 10,
-						
-					)),
-				),
-				'new_templates' => array(
+					'content' 	=> $articles,
+				);
+			}
+			
+			if( $templates = $this->get_new_templates(10) ){
 				
-					'title' 	=> 'New in Gallery',
-					'content' 	=> $this->get_new_templates(10),
-				),
-				'saved_projects' => array(
+				$boxes['new_templates'] = array(
+				
+					'title' 	=> 'New templates',
+					'content' 	=> $templates,
+				);
+			}
+			
+			if( $projects = $this->get_saved_projects(20) ){
+				
+				$boxes['saved_projects'] = array(
 				
 					'title' 	=> 'Saved Projects',
-					'content' 	=> $this->get_saved_projects(20),
-				),
-			));
+					'content' 	=> $projects,
+				);
+			}			
+			
+			$this->all_boxes = apply_filters('ltple_dashboard_boxes',$boxes);
 		}
 		
 		return $this->all_boxes;

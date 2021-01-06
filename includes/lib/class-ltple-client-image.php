@@ -799,87 +799,26 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		return false;
 	}
 	
-	public function get_local_avatar_url($user_id){
-			
-		if( file_exists($this->get_avatar_path($user_id)) ){
-		
-			$url = $this->url . $user_id . '/avatar.png';
-		}
-		else{
-			
-			$url = $this->parent->assets_url . 'images/avatar.png';
-		}
-			
-		return $url;
-	}
-	
 	public function get_avatar_url($user_id){
 
 		if( is_numeric($user_id) ){
+
+			if( file_exists($this->get_avatar_path($user_id)) ){
 			
-			$url = get_user_meta( $user_id , $this->parent->_base . 'profile_picture', true );
-			
-			if( empty($url) ){
-				
-				$url = $this->get_local_avatar_url($user_id);
+				$url = $this->url . $user_id . '/avatar.png';
 			}
 			else{
 				
-				$url = $this->parse_avatar_url($url,$user_id);
+				$url = get_avatar_url( $user_id, array(
+					
+					'size'		=> 125,
+					'default' 	=> $this->parent->assets_url . 'images/avatar.png',
+				));
 			}
-			
-			
-			
-			$url = add_query_arg(array('_','876756564564'),$url);
 		}
 		else{
 			
 			$url = $this->parent->assets_url . 'images/avatar.png';
-		}
-		
-		return $url;
-	}
-	
-	public function parse_avatar_url($url,$user_id,$refresh=false){
-		
-		$md5 = md5(str_replace(array('http://','https://'),'',$url));
-		
-		$path = $this->get_avatar_path($user_id,$md5);
-		
-		if( !$refresh && file_exists($path) ){
-			
-			$url = $this->url . $user_id . '/avatar_'.$md5.'.png';
-		}
-		else{
-			
-			$image = wp_get_image_editor( $url );
-			
-			if ( !is_wp_error( $image ) ){
-				
-				// resize image
-				
-				$image->resize( 125, 125, true );
-				$image->save( $path );
-
-				$url = $this->url . $user_id . '/avatar_'.$md5.'.png';
-			}
-			else{
-				
-				$default_url = $this->parent->assets_url . 'images/avatar.png';
-				
-				$image = wp_get_image_editor( $default_url );
-				
-				if ( !is_wp_error( $image ) ){
-					
-					$image->save( $path );
-					
-					$url = $this->url . $user_id . '/avatar_'.$md5.'.png';
-				}
-				else{
-					
-					$url = $default_url;
-				}
-			}
 		}
 		
 		return $url;

@@ -520,7 +520,7 @@ class LTPLE_Client_Profile {
 				
 		if( !empty($website) ){
 
-			$sidebar .= '<li class="gallery_type_title">Website Settings</li>';
+			$sidebar .= '<li class="gallery_type_title">My Website</li>';
 			
 			$sidebar .= $website;
 		}
@@ -805,27 +805,6 @@ class LTPLE_Client_Profile {
 						$this->parent->user->{$field_id} = $content;
 					}
 				}
-				
-				// save pictures
-				
-				foreach( $this->pictures as $field){
-					
-					$id = $field['id'];
-					
-					if( isset($_POST[$id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$id])) ) ){
-						
-						$content = wp_kses_post($_POST[$id]);
-
-						update_user_meta( $this->parent->user->ID, $id, $content );
-					
-						if( $id == $this->parent->_base . 'profile_picture' ){
-							
-							// refresh image
-							
-							$this->parent->image->parse_avatar_url($content,$this->parent->user->ID,true);
-						}
-					}
-				}
 			}
 			elseif( $_POST['settings'] == 'privacy-settings' ){
 				
@@ -869,25 +848,16 @@ class LTPLE_Client_Profile {
 			
 			$userApps = $this->parent->user->apps;
 		}
-		
-		$pictures 	= array();
-		
-		//get gravatar picture
-		
-		$image 			= get_avatar_url( $user_id );
-		$pictures[] 	= add_query_arg('_',time(),$image);
 
 		// get local picture
 
-		$pictures[] = $this->parent->image->get_local_avatar_url( $user_id );
-		
 		$fields['profile_picture'] = array(
 
 			'id' 			=> $this->parent->_base . 'profile_picture',
 			'label'			=> 'Avatar',
 			'description'	=> '',
 			'type'			=> 'avatar',
-			'options'		=> $pictures,
+			'value'			=> $this->parent->image->get_avatar_url( $user_id ),
 		);
 		
 		$fields['profile_banner'] = array(
