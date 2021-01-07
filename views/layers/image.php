@@ -17,7 +17,7 @@
 
 		if( !empty($attachment_url) ){
 			
-			// CORS Allow from any origin
+			// set CORS
 			
 			if (isset($_SERVER['HTTP_ORIGIN'])) {
 				

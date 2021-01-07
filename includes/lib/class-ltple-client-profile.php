@@ -261,9 +261,11 @@ class LTPLE_Client_Profile {
 	
 	public function get_profile_menu( $rest = NULL ){
 		
-		if( empty($_GET['origin']) )
+		$referer = $rest->get_header('referer');
+		
+		if( empty($referer) )
 			
-			die('unknown origin');
+			die('unknown referer');
 
 		// get content
 		
@@ -360,9 +362,9 @@ class LTPLE_Client_Profile {
 		
 		// set CORS
 		
-		header('Access-Control-Allow-Origin: ' . $_GET['origin']);
+		header('Access-Control-Allow-Origin: ' . $referer);
 		header('Access-Control-Allow-Credentials: true');
-	
+
 		return array( 
 		
 			'html' => $html,
@@ -475,11 +477,9 @@ class LTPLE_Client_Profile {
 						$.ajax({
 							
 							type		: "GET",
+							dataType	: "json",
+							crossDomain	: "true",
 							url  		: "' . $this->parent->urls->api . 'ltple-menu/v1/profile/",
-							data		: {
-								
-								origin : window.location.origin,
-							},
 							xhrFields	: {
 								
 								withCredentials: true

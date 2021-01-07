@@ -33,7 +33,7 @@ class LTPLE_Client_Server {
 				$this->url = str_replace('.','--',untrailingslashit($this->url)) . '.' . REW_SERVER;				 
 			}
 			
-			// set access control
+			// set CORS
 			
 			$url = parse_url($this->url);
 			

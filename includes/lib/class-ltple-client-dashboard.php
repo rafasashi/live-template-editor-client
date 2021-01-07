@@ -60,7 +60,7 @@ class LTPLE_Client_Dashboard {
 						
 			))){
 				
-				$boxes['new_templates'] = array(
+				$boxes['last_articles'] = array(
 				
 					'title' 	=> 'Last Articles',
 					'content' 	=> $articles,
