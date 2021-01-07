@@ -70,12 +70,18 @@ class LTPLE_Client_Profile {
 		add_filter('template_redirect', array( $this, 'get_profile_parameters' ),1);
 
 		add_action( 'rest_api_init', function () {
-			
-			register_rest_route( 'ltple-menu/v1', '/profile', array(
+	
+			register_rest_route( 'ltple-menu/v1', '/script', array(
 				
 				'methods' 	=> 'GET',
-				'callback' 	=> array($this,'get_profile_menu'),
-			) );
+				'callback' 	=> array($this,'get_menu_script'),
+			));
+	
+			register_rest_route( 'ltple-menu/v1', '/content', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_menu_content'),
+			));
 			
 		} );
 
@@ -244,11 +250,9 @@ class LTPLE_Client_Profile {
 						
 						// enqueue inline script
 
-						wp_register_script( $this->parent->_token . '-profile_js', '', array( 'jquery' ) );
+						wp_register_script( $this->parent->_token . '-profile_js',  $this->parent->urls->api . 'ltple-menu/v1/script/', array( 'jquery' ), time() );
 						wp_enqueue_script( $this->parent->_token . '-profile_js' );
 					
-						wp_add_inline_script( $this->parent->_token . '-profile_js', $this->get_script());					
-						
 					},10 );
 				}
 			}
@@ -259,13 +263,43 @@ class LTPLE_Client_Profile {
 		}
 	}
 	
-	public function get_profile_menu( $rest = NULL ){
+	public function get_menu_script( $rest = NULL ){
 		
-		$referer = $rest->get_header('referer');
+		header('Content-Type: text/javascript',true);
+
+		echo '
 		
-		if( empty($referer) )
-			
-			die('unknown referer');
+			;(function($){
+
+				$(document).ready(function(){
+					
+					if( $("#profile_menu").length > 0 ){
+
+						$.ajax({
+							
+							type		: "GET",
+							dataType	: "json",
+							crossDomain	: "true",
+							url  		: "' . $this->parent->urls->api . 'ltple-menu/v1/content/",
+							xhrFields	: {
+								
+								withCredentials: true
+							},
+							success: function(data) {
+								
+								$("#profile_menu").append(data.html);
+							}
+						});
+					}
+				});
+					
+			})(jQuery);			
+		';
+		
+		exit;
+	}
+	
+	public function get_menu_content( $rest = NULL ){
 
 		// get content
 		
@@ -357,17 +391,10 @@ class LTPLE_Client_Profile {
 			}
 			
 		echo'</ul>';
-		
-		$html = ob_get_clean();
-		
-		// set CORS
-		
-		header('Access-Control-Allow-Origin: ' . $referer);
-		header('Access-Control-Allow-Credentials: true');
 
 		return array( 
 		
-			'html' => $html,
+			'html' => ob_get_clean(),
 		);
 	}
 	
@@ -462,40 +489,6 @@ class LTPLE_Client_Profile {
 		';
 		
 		return $style;
-	}
-	
-	public function get_script(){
-		
-		$script = '
-		
-			;(function($){
-
-				$(document).ready(function(){
-				
-					if( $("#profile_menu").length > 0 ){
-
-						$.ajax({
-							
-							type		: "GET",
-							dataType	: "json",
-							crossDomain	: "true",
-							url  		: "' . $this->parent->urls->api . 'ltple-menu/v1/profile/",
-							xhrFields	: {
-								
-								withCredentials: true
-							},
-							success: function(data) {
-								
-								$("#profile_menu").append(data.html);
-							}
-						});
-					}
-				});
-					
-			})(jQuery);			
-		';
-		
-		return $script;
 	}
 	
 	public function bail_profile_cache($bail){
