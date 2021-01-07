@@ -33,16 +33,16 @@ class LTPLE_Client_Urls {
 
 		$this->primary		= defined('REW_PRIMARY_SITE') && !empty(REW_PRIMARY_SITE) ? REW_PRIMARY_SITE : $this->home;
 		
-		$this->api 			= $this->primary . '/' . rest_get_url_prefix() . '/';
+		$this->api 			= $this->home . '/' . rest_get_url_prefix() . '/';
 		$this->api_embedded	= $this->api . 'ltple-embedded/v1/info';
 				
 		// get edit gallery
 		
-		$this->edit = $this->primary . '/edit/';
+		$this->edit = $this->home . '/edit/';
 		
 		if( $this->editorSlug = get_option( $this->parent->_base . 'editorSlug' )){
 			
-			$this->editor 	= $this->primary . '/' . $this->editorSlug . '/';
+			$this->editor 	= $this->home . '/' . $this->editorSlug . '/';
 		
 			$this->gallery 	= $this->editor;
 		}
@@ -51,14 +51,14 @@ class LTPLE_Client_Urls {
 		
 		if( $this->accountSlug = get_option( $this->parent->_base . 'accountSlug' )){
 			
-			$this->account = $this->primary . '/' . $this->accountSlug . '/';
+			$this->account = $this->home . '/' . $this->accountSlug . '/';
 		}
 		
 		// get apps url
 		
 		if( $this->appsSlug = get_option( $this->parent->_base . 'appsSlug' )){
 			
-			$this->apps = $this->primary . '/' . $this->appsSlug . '/';
+			$this->apps = $this->home . '/' . $this->appsSlug . '/';
 		}
 		
 		add_filter('init', array( $this, 'init_urls'));
@@ -224,7 +224,7 @@ class LTPLE_Client_Urls {
 			}
 		}
 		
-		$this->{$id} = $this->primary . '/' . $slug . '/';
+		$this->{$id} = $this->home . '/' . $slug . '/';
 		
 		add_filter('pre_update_option_' . $option_name, function($value, $old_value, $option_name){
 			
