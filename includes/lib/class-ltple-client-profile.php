@@ -267,34 +267,31 @@ class LTPLE_Client_Profile {
 		
 		header('Content-Type: text/javascript',true);
 
-		echo '
-		
-			;(function($){
+		echo ';(function($){
 
-				$(document).ready(function(){
-					
-					if( $("#profile_menu").length > 0 ){
+			$(document).ready(function(){
+				
+				if( $("#profile_menu").length > 0 ){
 
-						$.ajax({
+					$.ajax({
+						
+						type		: "GET",
+						dataType	: "json",
+						crossDomain	: "true",
+						url  		: "' . $this->parent->urls->api . 'ltple-menu/v1/content/?id=' . $this->parent->user->ID . '",
+						xhrFields	: {
 							
-							type		: "GET",
-							dataType	: "json",
-							crossDomain	: "true",
-							url  		: "' . $this->parent->urls->api . 'ltple-menu/v1/content/",
-							xhrFields	: {
-								
-								withCredentials: true
-							},
-							success: function(data) {
-								
-								$("#profile_menu").append(data.html);
-							}
-						});
-					}
-				});
-					
-			})(jQuery);			
-		';
+							withCredentials: true
+						},
+						success: function(data) {
+							
+							$("#profile_menu").append(data.html);
+						}
+					});
+				}
+			});
+				
+		})(jQuery);';
 		
 		exit;
 	}
