@@ -28,7 +28,7 @@ $ltple = LTPLE_Client::instance();
 					
 						 <?php
 						  if( get_theme_mod( 'wow_copyright' ) == '') { ?>
-						  <a href="<?php echo REW_PRIMARY_SITE; ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
+						  <a href="<?php echo $ltple->urls->primary; ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
 						  <?php }
 						  else { echo wp_kses_post( get_theme_mod( 'wow_copyright' ) ); } ?>
 

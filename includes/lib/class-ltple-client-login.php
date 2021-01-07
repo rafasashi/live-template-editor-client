@@ -212,7 +212,7 @@ class LTPLE_Client_Login {
 	}
 	
 	public function get_register_url( $register_url ) {
-
+		
 		$register_url = add_query_arg( array(
 
 			'action' => 'register',

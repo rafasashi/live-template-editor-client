@@ -15,8 +15,8 @@ class LTPLE_Client_Client {
 		
 		$this->parent = $parent;
 		
-		$site_url = site_url();
-		
+		$site_url = defined('REW_PRIMARY_SITE') ? REW_PRIMARY_SITE : site_url();
+
 		// check path
 		
 		$pathinfo = pathinfo($site_url);

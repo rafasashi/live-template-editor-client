@@ -2,8 +2,6 @@
 
 	include_once( $this->parent->views . '/profile/header.php' );
 	
-	include_once( $this->parent->views . '/profile/navbar.php' );
-	
 	if( $this->is_public()|| $this->is_self() ){
 		
 		// profile page

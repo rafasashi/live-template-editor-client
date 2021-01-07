@@ -68,7 +68,17 @@ class LTPLE_Client_Profile {
 		add_filter('rew_cache_bail_page', array( $this , 'bail_profile_cache' ) );
 				
 		add_filter('template_redirect', array( $this, 'get_profile_parameters' ),1);
-		
+
+		add_action( 'rest_api_init', function () {
+			
+			register_rest_route( 'ltple-menu/v1', '/profile', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_profile_menu'),
+			) );
+			
+		} );
+
 		add_shortcode('ltple-client-profile', array( $this , 'get_profile_shortcode' ) );
 
 		add_action( 'ltple_view_my_profile_settings', function(){
@@ -232,6 +242,13 @@ class LTPLE_Client_Profile {
 							wp_add_inline_style( $this->parent->_token . '-profile_css', $this->profile_css );							
 						}
 						
+						// enqueue inline script
+
+						wp_register_script( $this->parent->_token . '-profile_js', '', array( 'jquery' ) );
+						wp_enqueue_script( $this->parent->_token . '-profile_js' );
+					
+						wp_add_inline_script( $this->parent->_token . '-profile_js', $this->get_script());					
+						
 					},10 );
 				}
 			}
@@ -240,6 +257,116 @@ class LTPLE_Client_Profile {
 				
 			$this->pictures	= $this->get_profile_picture_fields();
 		}
+	}
+	
+	public function get_profile_menu( $rest = NULL ){
+		
+		if( empty($_GET['origin']) )
+			
+			die('unknown origin');
+
+		// get content
+		
+		ob_start();
+		
+		echo'<div id="navbar-features" class="pull-left" style="padding:12px 0;">';	
+		
+			do_action('ltple_menu_buttons');	
+		
+		echo'</div>';
+		
+		// avatar
+		
+		do_action('ltple_avatar_menu');
+
+		$picture = add_query_arg('_',time(),$this->parent->image->get_avatar_url( $this->parent->user->ID ));
+		
+		echo'<button style="margin-right:5px;float:right;background:transparent;border:none;width:49px;height:50px;display:inline-block;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img style="padding:10px;" class="img-circle" src="'.$picture.'" height="50" width="50" /></button>';
+		
+		// account settings
+		
+		echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;margin-top:-3px;">';
+			
+			if( $this->parent->user->ID > 0 ){
+
+				echo'<li style="position:relative;display:table;width:100%;background:#112331;box-shadow: inset 0 0 10px #060c10;">';
+					
+					echo'<div style="
+						float: left;
+						width: 30%;
+						padding: 12px;
+					">';
+					
+						echo'<img style="border: 2px solid #3b4954;" class="img-circle" src="'.$picture.'">';
+					
+					echo'</div>';
+					
+					echo'<div style="
+						width: 70%;
+						float: left;
+						padding: 8px 6px 2px 6px;
+					">';
+							
+						echo'<div style="color:#eee;font-weight:bold;max-width:100%;overflow:hidden;">';
+						
+							echo $this->parent->user->nickname;
+
+						echo'</div>';
+						
+						echo'<a href="'. $this->parent->urls->primary . '/profile/' . $this->parent->user->ID . '/" style="display:block;width:100%;">';
+							
+							echo'<span class="glyphicon glyphicon-user" aria-hidden="true"></span> ';
+							
+							echo'View Profile';
+						
+						echo'</a>';
+
+					echo'</div>';
+					
+				echo'</li>';	
+					
+				do_action('ltple_view_my_profile_settings');														
+					
+				do_action('ltple_view_my_profile');
+				
+				echo'<li style="position:relative;background:#182f42;">';
+					
+					$redirect_to = $this->parent->profile->id > 0 ? $this->parent->urls->current : $this->parent->urls->editor;
+					
+					echo '<a href="'. wp_logout_url( $redirect_to ) .'"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Logout</a>';
+
+				echo'</li>';					
+			}
+			else{
+				
+				$login_url = home_url('/login/');
+
+				echo'<li style="position:relative;background:#182f42;">';
+					
+					echo '<a href="'. esc_url( $login_url ) .'"><span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Login</a>';
+
+				echo'</li>';
+				
+				echo'<li style="position:relative;background:#182f42;">';
+					
+					echo '<a href="'. esc_url( add_query_arg('action','register',$login_url) ) .'"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span> Register</a>';
+
+				echo'</li>';
+			}
+			
+		echo'</ul>';
+		
+		$html = ob_get_clean();
+		
+		// set CORS
+		
+		header('Access-Control-Allow-Origin: ' . $_GET['origin']);
+		header('Access-Control-Allow-Credentials: true');
+	
+		return array( 
+		
+			'html' => $html,
+		);
 	}
 	
 	public function get_style(){
@@ -333,6 +460,42 @@ class LTPLE_Client_Profile {
 		';
 		
 		return $style;
+	}
+	
+	public function get_script(){
+		
+		$script = '
+		
+			;(function($){
+
+				$(document).ready(function(){
+				
+					if( $("#profile_menu").length > 0 ){
+
+						$.ajax({
+							
+							type		: "GET",
+							url  		: "' . $this->parent->urls->api . 'ltple-menu/v1/profile/",
+							data		: {
+								
+								origin : window.location.origin,
+							},
+							xhrFields	: {
+								
+								withCredentials: true
+							},
+							success: function(data) {
+								
+								$("#profile_menu").append(data.html);
+							}
+						});
+					}
+				});
+					
+			})(jQuery);			
+		';
+		
+		return $script;
 	}
 	
 	public function bail_profile_cache($bail){
