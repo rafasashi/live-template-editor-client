@@ -139,9 +139,6 @@ class LTPLE_Client_Settings {
 		$email_info['charset']              = get_bloginfo("charset");
 		$email_info['version']              = get_bloginfo("version");
 		$email_info['language']             = get_bloginfo("language");
-		$email_info['niche_b']             	= get_option($this->parent->_base . 'niche_business');
-		$email_info['niche_s']             	= get_option($this->parent->_base . 'niche_single');
-		$email_info['niche_p']             	= get_option($this->parent->_base . 'niche_plural');
 		//$email_info['html_type']            = get_bloginfo("html_type");
 		//$email_info['text_direction']       = get_bloginfo("text_direction");
 		//$email_info['stylesheet_url']       = get_bloginfo("stylesheet_url");
@@ -640,7 +637,7 @@ class LTPLE_Client_Settings {
 				)
 			))
 		);
-		
+
 		$settings['style'] = array(
 			'title'					=> __( 'Style', $this->plugin->slug ),
 			'description'			=> '',
@@ -712,64 +709,23 @@ class LTPLE_Client_Settings {
 			))
 		);
 		
-		$settings['marketing'] = array(
-			'title'					=> __( 'Marketing', $this->plugin->slug ),
-			'description'			=> 'Some information about the targeted market',
-			'fields'				=> apply_filters('ltple_marketing_settings',array(
+		$settings['plans'] = array(
+			'title'					=> __( 'Plans', $this->plugin->slug ),
+			'description'			=> 'Default settings for products & plans',
+			'fields'				=> apply_filters('ltple_plan_settings',array(				
 				array(
-					'id' 			=> 'niche_business',
-					'label'			=> __( 'Niche business' , $this->plugin->slug ),
-					'description'	=> 'Singular term representing the targeted industry',
+					'id' 			=> 'main_image',
+					'name' 			=> 'main_image',
+					'label'			=> __( 'Cover image' , $this->plugin->slug ),
+					'description'	=> 'Main cover image for plans',
 					'type'			=> 'text',
-					'placeholder'	=> __( 'modeling', $this->plugin->slug )
-				),	
-				array(
-					'id' 			=> 'niche_single',
-					'label'			=> __( 'Niche user name<br/>(singular)' , $this->plugin->slug ),
-					'description'	=> 'Singular term representing the targeted group of people',
-					'type'			=> 'text',
-					'default'		=> 'user',
-					'placeholder'	=> __( 'user', $this->plugin->slug )
-				),					
-				array(
-					'id' 			=> 'niche_plural',
-					'label'			=> __( 'Niche user name<br/>(plural)' , $this->plugin->slug ),
-					'description'	=> 'Plural term representing the targeted group of people',
-					'type'			=> 'text',
-					'default'		=> 'users',
-					'placeholder'	=> __( 'users', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'niche_terms',
-					'label'			=> __( 'Niche terms' , $this->plugin->slug ),
-					'description'	=> 'List of key words separated by line break to describe the niche. This list is used to fetch leads, prospects and contacts across the connected apps.',
-					'type'			=> 'textarea',
-					'style'			=> 'height:100px;width:250px;',
-					'default'		=> '',
-					'placeholder'	=> __( 'user...', $this->plugin->slug )
-				),
-				array(
-					'id' 			=> 'niche_hashtags',
-					'label'			=> __( 'Niche hashtags' , $this->plugin->slug ),
-					'description'	=> 'List of hashtags to be used for automated actions such as auto retweet.',
-					'type'			=> 'textarea',
-					'style'			=> 'height:100px;width:250px;',
-					'default'		=> '',
-					'placeholder'	=> __( '#nicheTag...', $this->plugin->slug )
+					'placeholder'	=> 'https://',
 				),
 				array(
 					'id' 			=> 'main_video',
 					'name' 			=> 'main_video',
-					'label'			=> __( 'Main video' , $this->plugin->slug ),
-					'description'	=> 'Main youtube video',
-					'type'			=> 'text',
-					'placeholder'	=> 'http://',
-				),
-				array(
-					'id' 			=> 'main_image',
-					'name' 			=> 'main_image',
-					'label'			=> __( 'Main image' , $this->plugin->slug ),
-					'description'	=> 'Main cover image',
+					'label'			=> __( 'HTML editor video' , $this->plugin->slug ),
+					'description'	=> 'HTML editor video',
 					'type'			=> 'text',
 					'placeholder'	=> 'http://',
 				),

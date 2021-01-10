@@ -442,35 +442,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		return $fields;
 	}
-
-	public function get_niche_terms(){
-	
-		$terms = get_option( $this->parent->_base . 'niche_terms' );
-		
-		if(is_string($terms)){
-			
-			$terms 	= explode( PHP_EOL, $terms );
-			$terms	= array_map('trim',$terms);
-			$terms 	= array_filter($terms);
-		}
-		
-		return $terms;
-	}
-	
-	public function get_niche_hashtags(){
-	
-		$terms = get_option( $this->parent->_base . 'niche_hashtags' );
-		
-		if(is_string($terms)){
-			
-			$terms 	= explode( PHP_EOL, $terms );
-			$terms	= array_map('trim',$terms);
-			$terms	= array_map('strtolower',$terms);
-			$terms 	= array_filter($terms);
-		}
-		
-		return $terms;
-	}
 	
 	public function newAppConnected(){
 		

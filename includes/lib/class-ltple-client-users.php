@@ -249,7 +249,7 @@
 					
 					add_filter('admin_footer-users.php', array($this, 'add_users_table_view'));
 					
-					add_filter('get_avatar', array($this, 'get_user_avatar'), 1, 5);			
+					add_filter('get_avatar', array($this, 'get_user_avatar'),9999,5);			
 				
 					add_action('admin_head', array($this, 'update_user_manually'));				
 					

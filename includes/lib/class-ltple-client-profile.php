@@ -1022,7 +1022,7 @@ class LTPLE_Client_Profile {
 			'label'			=> 'Avatar',
 			'description'	=> '',
 			'type'			=> 'avatar',
-			'value'			=> $this->parent->image->get_avatar_url( $user_id ),
+			'data'			=> $this->parent->image->get_avatar_url( $user_id ),
 		);
 		
 		$fields['profile_banner'] = array(

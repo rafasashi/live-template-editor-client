@@ -1902,7 +1902,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( $terms = get_terms( array(
 		
 			'taxonomy'		=> 'layer-range',
-			'hide_empty' 	=> true,
+			'hide_empty' 	=> false,
 			'exclude'		=> $exclude,
 			'meta_query'	=> array( 
 				

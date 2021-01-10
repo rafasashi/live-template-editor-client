@@ -2359,7 +2359,7 @@ class LTPLE_Client {
 			
 			$style .='}';
 			
-			$style .='.panel-header h1{';
+			$style .='.panel-header h1, .entry-content h1 {';
 
 				$style .='font-size: 24px;';
 			
@@ -2383,8 +2383,20 @@ class LTPLE_Client {
 				}
 				
 			$style .='}';
+			
+			$style .='.wedocs-sidebar .widget-title {';
+			
+				$style .='color:#fff !important;';
+				$style .='background-color: #4276a0 !important;';
+				$style .='font-size: 15px !important;';
+				$style .='text-transform:uppercase;';
+				$style .='box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);';
+				$style .='border: none !important;';
+			
+			$style .='}';
+			
+			$style .='span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {';
 				
-			$style .=' span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {';
 				$style .='background-color: '.$this->settings->mainColor.' !important;';
 				
 				if( !empty($this->settings->borderColor) ){

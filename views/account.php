@@ -144,7 +144,7 @@
 									
 									echo '<div style="margin-bottom:20px;background: rgb(248, 248, 248);display:block;padding:20px;text-align:left;border-left: 5px solid #888;">';
 										
-										echo'Your license is currently handled by <a style="font-weight:bold;" href="' . $this->parent->urls->account . $license_holder->ID . '/">' . ucfirst($license_holder->nickname) . '</a>';
+										echo'Your license is currently handled by <a style="font-weight:bold;" href="' . $this->parent->urls->profile . $license_holder->ID . '/">' . ucfirst($license_holder->nickname) . '</a>';
 										
 									echo '</div>';									
 								}
