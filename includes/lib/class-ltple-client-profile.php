@@ -13,6 +13,8 @@ class LTPLE_Client_Profile {
 	var $url 		= null;
 	var $tabs 		= array();
 	var $user 		= null;
+	
+	var $urls 		= array();
 
 	var $privacySettings 		= null;
 	var $socialAccounts 		= null;
@@ -162,13 +164,13 @@ class LTPLE_Client_Profile {
 			
 			// profile url
 			
-			$this->url = $this->get_profile_url();
+			$this->url = $this->get_canonical_url();
 			
 			do_action('ltple_profile_redirect');
 			
-			add_filter('ltple_header_canonical_url', array($this,'get_profile_url'),10);
+			add_filter('ltple_header_canonical_url', array($this,'get_canonical_url'),10);
 
-			add_filter('get_canonical_url', array($this,'get_profile_url'),10);			
+			add_filter('get_canonical_url', array($this,'get_canonical_url'),10);			
 			
 			// profile title
 			
@@ -572,31 +574,35 @@ class LTPLE_Client_Profile {
 			}
 		}
 		
-		if( !empty($this->user) ){
-		
-			$title .= ' ' . ucfirst($this->user->nickname);
-		}
-		
-		
 		return $title;
 	}
 	
-	public function get_profile_url(){
+	public function get_canonical_url(){
 		
-		$profile_url = apply_filters( 'ltple_profile_url', $this->parent->urls->profile . $this->id );
-		
-		if( defined('REW_DEV_ENV') && REW_DEV_ENV === true && strpos($profile_url,REW_SERVER) === false ){
-			
-			// set dev url
-			
-			$url = parse_url($profile_url);
-
-			$profile_url = $url['scheme'] . '://' . str_replace('.','--',untrailingslashit($url['host'])) . '.' . REW_SERVER;
-		}
-		
-		$this->parent->canonical_url = $profile_url;
+		$this->parent->canonical_url = $this->get_user_url($this->id);
 			
 		return $this->parent->canonical_url;
+	}
+	
+	public function get_user_url($user_id){
+		
+		if( !isset($this->urls[$user_id]) ){
+		
+			$profile_url = apply_filters( 'ltple_profile_url', $this->parent->urls->profile . $user_id );
+			
+			if( defined('REW_DEV_ENV') && REW_DEV_ENV === true && strpos($profile_url,REW_SERVER) === false ){
+				
+				// set dev url
+				
+				$url = parse_url($profile_url);
+
+				$profile_url = $url['scheme'] . '://' . str_replace('.','--',untrailingslashit($url['host'])) . '.' . REW_SERVER;
+			}
+			
+			$this->urls[$user_id] = $profile_url;
+		}
+		
+		return $this->urls[$user_id];
 	}
 	
 	public function get_profile_shortcode(){

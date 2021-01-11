@@ -28,7 +28,7 @@
 		
 		// get name
 		
-		$name = get_user_meta( $ltple->profile->user->ID , 'nickname', true );
+		$name = ucfirst(get_user_meta( $ltple->profile->user->ID , 'nickname', true ));
 
 		if( $ltple->profile->in_tab ){
 			

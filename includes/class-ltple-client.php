@@ -983,13 +983,15 @@ class LTPLE_Client {
 		
 		if( !empty($post) ){
 		
-			$service_name = get_bloginfo( 'name' );
+			$service_name = get_bloginfo('name');
+		
+			$site_name = apply_filters('ltple_site_name',$service_name);
 		
 			// output default meta tags
 			
 			$title = apply_filters('ltple_header_title',ucfirst($post->post_title));
 		
-			echo '<title>' . $title .  ' | ' . $service_name . '</title>'.PHP_EOL;
+			echo '<title>' . $title .  ' • ' . $site_name . '</title>'.PHP_EOL;
 			echo '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
 			echo '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
 			echo '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;
@@ -1059,7 +1061,7 @@ class LTPLE_Client {
 			echo '<meta name="classification" content="Business" />' . PHP_EOL;
 			//echo '<meta name="classification" content="products, product classifications, company classification, company type, industry" />' . PHP_EOL;
 			
-			echo '<meta name="copyright" content="'.$service_name.'" />'.PHP_EOL;
+			echo '<meta name="copyright" content="'.$site_name.'" />'.PHP_EOL;
 			echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
 			
 			$this->canonical_url = get_permalink( $post->ID );
