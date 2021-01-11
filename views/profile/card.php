@@ -22,7 +22,7 @@
 	
 	// get name
 	
-	$name = get_user_meta( $ltple->profile->id , 'nickname', true );
+	$name = ucfirst(get_user_meta( $ltple->profile->id , 'nickname', true ));
 	
 	// get profile picture
 	
@@ -39,7 +39,7 @@
 	
 	// get page title
 	
-	$title = $name . '\'s card | ' . $site_name;
+	$title = $name;
 	
 	$locale = get_locale();
 	$robots = 'index,follow';
