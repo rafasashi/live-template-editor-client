@@ -8,7 +8,7 @@
 
 		echo '<div id="sidebar">';
 				
-			echo '<div class="gallery_type_title gallery_head">My Profile</div>';
+			echo '<div class="gallery_type_title gallery_head">Website</div>';
 
 			echo '<ul class="nav nav-tabs tabs-left">';
 				

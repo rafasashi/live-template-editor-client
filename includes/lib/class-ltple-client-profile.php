@@ -691,7 +691,7 @@ class LTPLE_Client_Profile {
 				
 		if( !empty($website) ){
 
-			$sidebar .= '<li class="gallery_type_title">My Website</li>';
+			$sidebar .= '<li class="gallery_type_title">Hosted Pages</li>';
 			
 			$sidebar .= $website;
 		}
@@ -1493,12 +1493,12 @@ class LTPLE_Client_Profile {
 		if( is_null($this->privacySettings) ){
 			
 			if( $this->is_enabled('home_page') ){
-			
+			 
 				$this->privacySettings['about'] = array(
 
 					'id' 			=> $this->parent->_base . 'policy_about-me',
-					'label'			=> 'My Website',
-					'description'	=> 'Anyone can see My Website',
+					'label'			=> 'Website',
+					'description'	=> 'Anyone can see my profile & pages',
 					'type'			=> 'switch',
 					'default'		=> 'on',
 				);
