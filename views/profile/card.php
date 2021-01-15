@@ -129,7 +129,8 @@
 			}
 
 			#wrapper {
-			  opacity: 0;
+			  /*opacity: 0;*/
+			  opacity: 1;
 			  display: table;
 			  height: 100%;
 			  width: 100%;

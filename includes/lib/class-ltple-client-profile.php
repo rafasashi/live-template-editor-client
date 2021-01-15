@@ -82,7 +82,9 @@ class LTPLE_Client_Profile {
 		} );
 
 		add_shortcode('ltple-client-profile', array( $this , 'get_profile_shortcode' ) );
-
+		
+		add_action( 'template_include', array( $this , 'include_user_profile' ));
+		
 		add_action( 'ltple_view_my_profile_settings', function(){
 			
 			echo'<li style="position:relative;background:#182f42;">';
@@ -298,11 +300,7 @@ class LTPLE_Client_Profile {
 
 				echo'<li style="position:relative;display:table;width:100%;background:#112331;box-shadow: inset 0 0 10px #060c10;">';
 					
-					echo'<div style="
-						float: left;
-						width: 30%;
-						padding: 12px;
-					">';
+					echo'<div style="float:left;width:30%;padding:12px;">';
 					
 						echo'<img style="border: 2px solid #3b4954;" class="img-circle" src="'.$picture.'">';
 					
@@ -589,7 +587,7 @@ class LTPLE_Client_Profile {
 		return $this->parent->canonical_url;
 	}
 	
-	public function get_user_url($user_id){
+	public function get_user_url($user_id,$path=''){
 		
 		if( !isset($this->urls[$user_id]) ){
 		
@@ -607,35 +605,22 @@ class LTPLE_Client_Profile {
 			$this->urls[$user_id] = $profile_url;
 		}
 		
-		return $this->urls[$user_id];
+		return $this->urls[$user_id] . $path;
 	}
 	
-	public function get_profile_shortcode(){
-		
-		if( $this->id > 0 ){
+	public function include_user_profile($template){
+
+		if( $this->id > 0 && $this->in_tab ){
 			
-			if( $this->in_tab ){
-			
-				include($this->parent->views . '/profile.php');
-			}
-			elseif( $this->id == $this->parent->user->ID ){
-				
-				include($this->parent->views . '/navbar.php');
-			
-				include($this->parent->views . '/settings.php');
-			}
-			elseif( !$this->parent->user->loggedin ){
-				
-				echo $this->parent->login->get_form();
-			}
-			else{
-				
-				// TODO new page starter
-				
-				include($this->parent->views . '/profile/card.php');
-			}
+			include($this->parent->views . '/profile.php');
 		}
-		else{
+		
+		return $template;
+	}	
+	
+	public function get_profile_shortcode(){
+
+		if( empty($this->id) ){
 			
 			include($this->parent->views . '/navbar.php');
 			
