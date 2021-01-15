@@ -288,11 +288,11 @@ class LTPLE_Client_Profile {
 
 		$picture = add_query_arg('_',time(),$this->parent->image->get_avatar_url( $this->parent->user->ID ));
 		
-		echo'<button style="margin-right:5px;float:right;background:transparent;border:none;width:49px;height:50px;display:inline-block;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img style="padding:10px;" class="img-circle" src="'.$picture.'" height="50" width="50" /></button>';
+		echo'<button style="margin:0 5px 0 0;padding:0;float:right;background:transparent;border:none;width:50px;height:50px;display:inline-block;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img style="padding:10px;" class="img-circle" src="'.$picture.'" height="50" width="50" /></button>';
 		
 		// account settings
 		
-		echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;margin-top:-3px;">';
+		echo'<ul id="avatar-menu" class="dropdown-menu dropdown-menu-right">';
 			
 			if( $this->parent->user->ID > 0 ){
 
@@ -444,9 +444,19 @@ class LTPLE_Client_Profile {
 			border-left: 1px solid #132533;
 		}
 		
+		#profile_nav > li {
+			
+			position: relative;
+			display: block;
+			line-height: 25px;
+		}
+		
 		#profile_nav > li > a {
 			
 			padding:8px 15px !important;
+			color:#fff;
+			display:inline-block;
+			height: 41px;
 		}
 		
 		#profile_nav > li > a:hover {
@@ -455,11 +465,6 @@ class LTPLE_Client_Profile {
 		}
 		
 		#profile_nav > .active > a:hover {
-			
-			color:#fff;
-		}
-		
-		#profile_nav > li > a {
 			
 			color:#fff;
 		}

@@ -65,18 +65,14 @@
 					echo'<div class="profile-overlay"></div>';
 				
 					// avatar
-					
-					echo'<div class="col-xs-12">';
 
-						echo '<div class="profile-avatar text-left" style="padding:10px;position:absolute;">';
+					echo '<div class="profile-avatar text-left" style="padding:10px;position:absolute;">';
+					
+						echo'<img style="border:none;" src="' . $ltple->profile->picture . '" height="55" width="55" />';
 						
-							echo'<img style="border:none;" src="' . $ltple->profile->picture . '" height="55" width="55" />';
-							
-						echo '</div>';					
+					echo '</div>';					
 					
-						echo '<h2 style="font-size:23px;float:left;padding:25px 0 0 100px;margin:0;">' . $name . '</h2>';
-					
-					echo'</div>';
+					echo '<h2 style="font-size:23px;float:left;padding:25px 0 0 85px;margin:0;line-height:25px;">' . $name . '</h2>';
 					
 				echo'</div>';
 			}
@@ -87,11 +83,7 @@
 			
 				echo'<div class="profile-overlay"></div>';
 				
-				echo'<div class="col-xs-12">';
-				
-					echo '<h2 style="font-size:22px;float:left;padding:15px 0 0 0;margin:0;">' . $name . '</h2>';
-				
-				echo'</div>';
+				echo '<h2 style="font-size:22px;float:left;padding:15px 0 0 0;margin:0;">' . $name . '</h2>';
 				
 			echo'</div>';
 		}
