@@ -537,7 +537,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					}
 				}						
 				
-				$item.='<div class="thumb_wrapper">';
+				$item.='<div class="media_wrapper">';
 				
 					$item.= '<img class="lazy" data-original="' . $image_url . '" />';
 				
