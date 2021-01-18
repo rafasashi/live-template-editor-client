@@ -948,13 +948,20 @@ class LTPLE_Client {
 				
 				return $path; 
 			}
-			elseif( $this->user->loggedin && ( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID )){
+			elseif( $this->user->loggedin ){
 				
-				$path = $this->views . '/layer.php';
+				if( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID ){
+				
+					$path = $this->views . '/layer.php';
+				}
+				else{
+					
+					$this->exit_message('You don\'t have access to this template...',404);	
+				}
 			}
 			else{
 				
-				$this->exit_message('You don\'t have access to this template...',404);
+				$this->exit_message('Sign in to access this template...',404);
 			}				
 		}
 		elseif( file_exists($this->views . '/'.$layer->post_type . '.php') ){

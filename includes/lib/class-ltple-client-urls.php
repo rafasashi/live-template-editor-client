@@ -63,21 +63,28 @@ class LTPLE_Client_Urls {
 		
 		add_filter('init', array( $this, 'init_urls'));
 		
-		add_filter('post_type_link', array( $this, 'parse_permalink'),1,2);
+		add_filter('post_type_link', array( $this, 'filter_type_link'),999999,2);
 	}
 	
-	public function parse_permalink( $post_link, $post ){
+	public function filter_type_link( $post_link, $post ){
 		
 		$post_link = str_replace('%author%', $post->post_author, $post_link);
 		
-		if( !$this->parent->layer->is_hosted( $post->post_type ) ){
+		$url = parse_url($post_link);
+		
+		if( !empty($url['query']) ){
+			
+			parse_str($url['query'],$args);
 
-			$post_link = add_query_arg(array( 
-			
-				'post_type' => $post->post_type,
-				'p' 		=> $post->ID,
-			
-			),$post_link);
+			if( !empty($args[$post->post_type]) ){
+
+				$post_link = add_query_arg(array( 
+				
+					'post_type' => $post->post_type,
+					'p' 		=> $post->ID,
+				
+				),$post_link);
+			}
 		}
 			
 		return $post_link;
