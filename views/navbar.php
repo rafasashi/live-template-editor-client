@@ -164,7 +164,7 @@
 										
 											echo'<li style="position:relative;">';
 												
-												echo '<a target="_blank" href="' . get_post_permalink( $ltple->layer->id ) . '"> Preview Template</a>';
+												echo '<a target="_blank" href="' . get_preview_post_link( $ltple->layer->id ) . '"> Preview Template</a>';
 
 											echo'</li>';
 										}
