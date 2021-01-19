@@ -63,10 +63,10 @@ class LTPLE_Client_Urls {
 		
 		add_filter('init', array( $this, 'init_urls'));
 		
-		add_filter('post_type_link', array( $this, 'filter_type_link'),999999,2);
+		add_filter('post_type_link', array( $this, 'filter_post_type_link'),999999,2);
 	}
 	
-	public function filter_type_link( $post_link, $post ){
+	public function filter_post_type_link( $post_link, $post ){
 		
 		$post_link = str_replace('%author%', $post->post_author, $post_link);
 		
@@ -88,6 +88,32 @@ class LTPLE_Client_Urls {
 		}
 			
 		return $post_link;
+	}
+	
+	public function assign_post_name($post,$post_name=''){
+		
+		if( empty($post_name) ){
+			
+			$post_name = sanitize_title($post->post_title);
+		}
+		
+		$post_name = wp_unique_post_slug( $post_name, $post->ID, $post->post_status, $post->post_type, $post->post_parent );
+					
+		if( wp_update_post(array(
+		
+			'ID' 		=> $post->ID,
+			'post_name' => $post_name,
+		
+		)) ){
+			
+			// flush rewrite rules
+						
+			update_option('rewrite_rules',false);
+			
+			return $post_name;
+		}
+					
+		return false;	
 	}
 	
 	public function current_url_in($slug){

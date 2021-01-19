@@ -1134,8 +1134,30 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 				case 'element':
 					
-					//$types = ['grid','section','form','media','mix'];
-					$types = ['headers','sections','components','buttons','features','blogs','teams','projects','products','pricing','testimonials','contact','images','videos','widgets'];
+					$types = [
+						
+						'headers',
+						'sections',
+						'actions',
+						'contents',
+						'components',
+						'buttons',
+						'features',
+						'blogs',
+						'teams',
+						'profiles',
+						'projects',
+						'products',
+						'pricing',
+						'testimonials',
+						'contact',
+						'images',
+						'videos',
+						'widgets',
+						'menus',
+						'forms',
+						'footers',
+					];
 					
 					if( !is_array($data) || !isset($data['name']) ){
 
@@ -1174,15 +1196,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									
 								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;border-top:1px solid #eee;padding:15px 0 10px 0;margin:0;">';
 									
-									$html .= '<div class="col-sm-11">';
+									$html .= '<div style="width:90%;float:left;">';
 										
 										// name
 										
 										$html .= '<div class="form-group">';
 									
-											$html .= '<label class="col-sm-2">Name</label>';
+											$html .= '<label>Name</label>';
 											
-											$html .= '<div class="col-sm-10">';
+											$html .= '<div>';
 											
 												$html .= '<input class="form-control" style="width:100%;" type="text" placeholder="value" name="'.$field['name'].'[name][]" value="'.$name.'">';
 										
@@ -1194,9 +1216,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 										
 										$html .= '<div class="form-group">';
 										
-											$html .= '<label class="col-sm-2">Type</label>';
+											$html .= '<label>Type</label>';
 									
-											$html .= '<div class="col-sm-10">';
+											$html .= '<div>';
 												
 												$html .= '<select style="height:35px;" class="form-control" name="'.$field['name'].'[type][]">';
 
@@ -1220,25 +1242,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 										
 										// image
 										
-										$html .= '<div class="form-group">';
-									
-											$html .= '<label class="col-sm-2">Image</label>';
-											
-											$html .= '<div class="col-sm-10">';
-											
-												$html .= '<input class="form-control" style="width:100%;" type="text" placeholder="http://" name="'.$field['name'].'[image][]" value="'.$image.'">';
-										
-											$html .= '</div>';
-										
-										$html .= '</div>';
-										
+										$html .= '<input class="form-control" style="width:100%;" type="hidden" name="'.$field['name'].'[image][]" value="'.$image.'">';
+
 										// content
 										
 										$html .= '<div class="form-group">';
 									
-											$html .= '<label class="col-sm-2">Content</label>';
+											$html .= '<label>Content</label>';
 											
-											$html .= '<div class="col-sm-10">';
+											$html .= '<div>';
 											
 												$html .= '<textarea class="form-control" placeholder="HTML content" name="'.$field['name'].'[content][]">' . $content . '</textarea>';
 										
@@ -1250,9 +1262,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 										
 										$html .= '<div class="form-group">';
 									
-											$html .= '<label class="col-sm-2">Drop</label>';
+											$html .= '<label>Drop</label>';
 											
-											$html .= '<div class="col-sm-10">';
+											$html .= '<div>';
 	
 												$html .= '<select style="height:35px;" class="form-control" name="'.$field['name'].'[drop][]">';
 													
@@ -1269,7 +1281,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									
 									if( $e > 0 ){
 										
-										$html .= '<div class="col-sm-1" style="padding:0;">';
+										$html .= '<div style="padding:0;">';
 										
 											$html .= '<a class="remove-input-group" href="#">x</a> ';
 										

@@ -2978,20 +2978,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						//get css libraries
 
-						$this->layerCssLibraries = wp_get_post_terms( $this->defaultId, 'css-library', array( 'orderby' => 'term_id' ) );
+						$this->layerCssLibraries = $this->get_libraries($this->defaultId,'css');
 
 						//get js libraries
 						
-						$this->layerJsLibraries = wp_get_post_terms( $this->defaultId, 'js-library', array( 'orderby' => 'term_id' ) );								
+						$this->layerJsLibraries = $this->get_libraries($this->defaultId,'js');							
 						
 						//get font libraries
 						
-						$this->layerFontLibraries = wp_get_post_terms( $this->defaultId, 'font-library', array( 'orderby' => 'term_id' ) );																			
+						$this->layerFontLibraries = $this->get_libraries($this->defaultId,'font');																			
 						
 						//get element libraries
 						
-						$this->layerHtmlLibraries = wp_get_post_terms( $this->defaultId, 'element-library', array( 'orderby' => 'term_id' ) );								
-						
+						$this->layerHtmlLibraries = $this->get_libraries($this->defaultId,'element');
+
 						if( $this->is_hosted_output($this->layerOutput) ){
 							
 							// get layer menu
@@ -3058,6 +3058,46 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 			}
 		}
+	}
+	
+	public function get_libraries($layer_id,$type){
+		
+		$libraries = array();
+		
+		if( $terms = wp_get_post_terms( $layer_id, $type . '-library', array( 
+			
+			'orderby' => 'term_id',
+			
+		))){
+			
+			foreach( $terms as $term ){
+				
+				$libraries[$term->term_id] = $term;
+				
+				if( $term->parent == 0 ){
+					
+					$children = get_term_children($term->term_id,$term->taxonomy);
+					
+					if( !empty($children) ){
+					
+						$children = get_terms( array(
+							
+							'taxonomy' 		=> $term->taxonomy,
+							'hide_empty' 	=> false,
+							'include' 		=> $children,
+						
+						));
+						
+						foreach( $children as $child ){
+							
+							$libraries[$child->term_id] = $child;
+						}
+					}
+				}
+			}
+		}
+		
+		return $libraries;
 	}
 	
 	public function extract_css_urls( $str ){
