@@ -95,7 +95,7 @@ class LTPLE_Client_Profile {
 
 			echo'<li style="position:relative;background:#182f42;">';
 				
-				echo '<a href="'. $this->parent->urls->profile .'"><span class="fa fa-user-cog" aria-hidden="true"></span> Profile Settings</a>';
+				echo '<a href="'. $this->parent->urls->profile .'"><span class="fa fa-cog" aria-hidden="true"></span> Profile Settings</a>';
 
 			echo'</li>';			
 		},1);
@@ -118,7 +118,7 @@ class LTPLE_Client_Profile {
 			
 				echo'<li style="position:relative;background:#182f42;">';
 					
-					echo '<a href="'. $this->parent->urls->dashboard .'?list=user-app"><span class="fa fa-exchange-alt" aria-hidden="true"></span> Connected Apps</a>';
+					echo '<a href="'. $this->parent->urls->dashboard .'?list=user-app"><span class="fa fa-exchange" aria-hidden="true"></span> Connected Apps</a>';
 
 				echo'</li>';
 			}

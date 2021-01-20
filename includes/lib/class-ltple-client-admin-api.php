@@ -1194,13 +1194,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									$class='input-group-row ui-state-default ui-state-disabled';
 								}								
 									
-								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;border-top:1px solid #eee;padding:15px 0 10px 0;margin:0;">';
+								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;background:#fff;border:1px solid #eee;border-radius:3px;padding:10px;margin:10px 0;box-shadow:0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);">';
 									
 									$html .= '<div style="width:90%;float:left;">';
 										
 										// name
 										
-										$html .= '<div class="form-group">';
+										$html .= '<div class="form-group" style="padding-bottom:10px;">';
 									
 											$html .= '<label>Name</label>';
 											
@@ -1214,7 +1214,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 										
 										// type
 										
-										$html .= '<div class="form-group">';
+										$html .= '<div class="form-group" style="float:left;">';
 										
 											$html .= '<label>Type</label>';
 									
@@ -1240,27 +1240,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 											
 										$html .= '</div>';
 										
-										// image
-										
-										$html .= '<input class="form-control" style="width:100%;" type="hidden" name="'.$field['name'].'[image][]" value="'.$image.'">';
-
-										// content
-										
-										$html .= '<div class="form-group">';
-									
-											$html .= '<label>Content</label>';
-											
-											$html .= '<div>';
-											
-												$html .= '<textarea class="form-control" placeholder="HTML content" name="'.$field['name'].'[content][]">' . $content . '</textarea>';
-										
-											$html .= '</div>';
-										
-										$html .= '</div>';
-										
 										// drop
 										
-										$html .= '<div class="form-group">';
+										$html .= '<div class="form-group" style="float:left;">';
 									
 											$html .= '<label>Drop</label>';
 											
@@ -1275,13 +1257,31 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 												
 											$html .= '</div>';
 										
-										$html .= '</div>';									
+										$html .= '</div>';	
+										
+										// image
+										
+										$html .= '<input class="form-control" style="width:100%;" type="hidden" name="'.$field['name'].'[image][]" value="'.$image.'">';
+
+										// content
+										
+										$html .= '<div class="form-group" style="clear:both;padding-top:10px;">';
+									
+											$html .= '<label>Content</label>';
+											
+											$html .= '<div>';
+											
+												$html .= '<textarea class="form-control" style="height:150px;" placeholder="HTML content" name="'.$field['name'].'[content][]">' . $content . '</textarea>';
+										
+											$html .= '</div>';
+										
+										$html .= '</div>';			
 										
 									$html .= '</div>';
 									
 									if( $e > 0 ){
 										
-										$html .= '<div style="padding:0;">';
+										$html .= '<div style="padding:0;float:right;margin-top: -10px;">';
 										
 											$html .= '<a class="remove-input-group" href="#">x</a> ';
 										

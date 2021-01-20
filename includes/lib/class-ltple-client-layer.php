@@ -1470,7 +1470,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
 		}
-		
+
 		return $url;
 	}
 	
@@ -5684,7 +5684,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function filter_local_layer_content($content,$layer){
 		
 		if( $layer->output == 'hosted-page' ){
-		
+			
+			/*
 			if( $layer->area == 'frontend' && $this->layerEcho === true ){
 				
 				$content = $this->layerBodyContent;
@@ -5692,6 +5693,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			elseif( $layer->area == 'backend' && !empty($this->layerStyleClasses) ){
 				
 				$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . $content . '</div>';
+			}
+			*/
+			
+			if( !empty($this->layerStyleClasses) && ( $layer->area == 'backend' || $layer->output == 'hosted-page' ) ){
+				
+				$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . $content . '</div>';
+			}
+			elseif( $layer->area == 'frontend' && $this->layerEcho === true ){
+				
+				$content = $this->layerBodyContent;
 			}
 		}
 		
@@ -5761,7 +5772,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							wp_register_style( $this->parent->_token . '-layer-inline-' . $class, false, array());
 							wp_enqueue_style( $this->parent->_token . '-layer-inline-' . $class );
 			
-							wp_add_inline_style( $this->parent->_token . '-layer-inline-' . $class, stripcslashes($css_content));
+							wp_add_inline_style( $this->parent->_token . '-layer-inline-' . $class, strip_tags(stripcslashes($css_content)));
 						}
 					}
 				}

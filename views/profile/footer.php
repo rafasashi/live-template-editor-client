@@ -83,3 +83,4 @@ $ltple = LTPLE_Client::instance();
 <?php wp_footer(); ?>
 </body>
 </html>
+<?php exit; ?>
