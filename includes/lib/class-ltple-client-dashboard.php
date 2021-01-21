@@ -254,7 +254,7 @@ class LTPLE_Client_Dashboard {
 				
 				if( empty($image_url) ){
 					
-					$image_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
+					$image_url = '<div style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
 				}
 				
 				// get layer type
@@ -332,7 +332,7 @@ class LTPLE_Client_Dashboard {
 				
 					if( empty($image_url) ){
 						
-						$image_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
+						$image_url = '<div style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
 					}
 				}
 				
