@@ -816,7 +816,11 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 
 			if( file_exists($path) ){
 			
-				$url = $this->url . $user_id . '/avatar.png';
+				$url = add_query_arg( array(
+				
+					'_' => time(),
+				
+				),$this->url . $user_id . '/avatar.png');
 			}
 			elseif( $user_id > 0 ){
 				
