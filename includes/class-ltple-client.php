@@ -708,7 +708,7 @@ class LTPLE_Client {
 		echo '<style>';
 					
 			echo '#adminmenu a {color:' . $this->settings->linkColor . ' !important;}';
-			echo '#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head, #adminmenu .wp-menu-arrow, #adminmenu .wp-menu-arrow div, #adminmenu li.current a.menu-top, #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu, .folded #adminmenu li.current.menu-top, .folded #adminmenu li.wp-has-current-submenu { border-left: 5px solid ' . $this->settings->borderColor . '; }';
+			echo '#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head, #adminmenu .wp-menu-arrow, #adminmenu .wp-menu-arrow div, #adminmenu li.current a.menu-top, #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu, .folded #adminmenu li.current.menu-top, .folded #adminmenu li.wp-has-current-submenu { border-left: 5px solid ' . $this->settings->mainColor . '; }';
 					
 			echo '.displaying-num {  
 				background-color: #337ab7;
@@ -2420,11 +2420,11 @@ class LTPLE_Client {
 						
 			$style .='span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {';
 				
-				$style .='background-color: '.$this->settings->mainColor.' !important;';
+				$style .='background-color: '.$this->settings->mainColor . ' !important;';
 				
-				if( !empty($this->settings->borderColor) ){
+				if( !empty($this->settings->mainColor) ){
 					
-					$style .='border: 0px solid '.$this->settings->borderColor.' !important;';
+					$style .='border: 0px solid '.$this->settings->mainColor . ' !important;';
 				}
 				
 			$style .='}';

@@ -309,7 +309,7 @@ class LTPLE_Client_Editor {
 		
 			foreach( $this->parent->layer->layerHtmlLibraries as $term ){
 				
-				$elements = get_option( 'elements_' . $term->slug );
+				$elements = $this->parent->element->get_library_elements($term);
 
 				if( !empty($elements['name'][0]) ){
 					

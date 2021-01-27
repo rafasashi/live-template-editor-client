@@ -259,7 +259,7 @@
 			}
 			#card #back .back-info a {
 				
-				color:<?php echo $ltple->settings->mainColor; ?>;
+				color:<?php echo $ltple->settings->linkColor; ?>;
 			}
 			#card #back #social-bar {
 			  height: 50px;
@@ -274,7 +274,7 @@
 			#card #back #social-bar a {
 			  display: inline-block;
 			  line-height: 18px;
-			  color: <?php echo $ltple->settings->mainColor; ?>;
+			  color: <?php echo $ltple->settings->linkColor; ?>;
 			  text-decoration: none;
 			  padding: 5px;
 			  border-radius: 5px;

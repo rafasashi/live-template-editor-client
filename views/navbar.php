@@ -24,7 +24,7 @@
 				
 				echo'<div class="pull-left hidden-xs">';
 					
-					echo'<a style="color:' . $ltple->settings->mainColor . ';background: #f5f5f5;border: none;" class="btn btn-sm" href="'. $ltple->urls->dashboard .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Dashboard" data-content="The dashboard is where you can manage all your projects and services. New things are added every weeks.">';
+					echo'<a style="color:' . $ltple->settings->linkColor . ';background: #f5f5f5;border: none;" class="btn btn-sm" href="'. $ltple->urls->dashboard .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Dashboard" data-content="The dashboard is where you can manage all your projects and services. New things are added every weeks.">';
 					
 						echo'Dashboard';
 					
@@ -36,7 +36,7 @@
 				
 					echo'<div class="pull-left hidden-xs">';
 
-						echo'<a style="color:' . $ltple->settings->mainColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->gallery . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Template Gallery" data-content="The template gallery is where you can start, edit and deploy a new project. Check the plans to unlock more ranges.">';
+						echo'<a style="color:' . $ltple->settings->linkColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->gallery . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Template Gallery" data-content="The template gallery is where you can start, edit and deploy a new project. Check the plans to unlock more ranges.">';
 							
 							echo'Templates';
 						
@@ -47,7 +47,7 @@
 
 				echo'<div class="pull-left hidden-xs">';
 
-					echo'<a style="color:' . $ltple->settings->mainColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->media . 'user-images/" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
+					echo'<a style="color:' . $ltple->settings->linkColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->media . 'user-images/" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
 						
 						echo'Media';
 					

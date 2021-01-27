@@ -142,6 +142,7 @@ class LTPLE_Client_Session {
 			
 			exit;
 		}
+		/*
 		elseif( isset($_GET['ltple-token']) && isset($_GET['ltple-id']) && isset($_GET['ltple-ref']) ){
 
 			//decrypted user_name
@@ -299,6 +300,7 @@ class LTPLE_Client_Session {
 				add_action( 'wp_footer', array( $this, 'get_servers' ));
 			}			
 		}
+		*/
 	}
 	
 	

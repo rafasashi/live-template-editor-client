@@ -62,8 +62,7 @@ class LTPLE_Client_Settings {
 		$this->navbarColor 	= get_option( $this->parent->_base . 'navbarColor', '#182f42' );
 		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor', '#506988' );
 		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor', '#506988' );	
-		$this->borderColor 	= get_option( $this->parent->_base . 'borderColor', '#182f42' );
-		
+
 		// Initialise settings
 		add_action( 'init', array( $this, 'init_settings' ), 11 );
 
@@ -697,14 +696,6 @@ class LTPLE_Client_Settings {
 					'type'			=> 'text',
 					'placeholder'	=> '#F86D18',
 					'default'		=> '#F86D18',
-				),
-				array(
-					'id' 			=> 'borderColor',
-					'label'			=> __( 'Border Color' , $this->plugin->slug ),
-					'description'	=> '',
-					'type'			=> 'text',
-					'placeholder'	=> '#ff5722',
-					'default'		=> '#ff5722',
 				),
 			))
 		);

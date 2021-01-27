@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Element extends LTPLE_Client_Object { 
 	
 	public $parent;
+	
+	public $list = array();
 
 	/**
 	 * Constructor function
@@ -37,12 +39,23 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 		add_filter('init', array( $this, 'init_element_frontend' ));
 		
-		add_action('wp_loaded', array($this,'get_element_types'));	
+		add_action('wp_loaded', array($this,'set_default_elements'));	
+	
+		add_shortcode('ltple-element-site', array( $this , 'get_element_site' ) );
 	}
 	
-	public function get_element_types(){
+	public function get_element_site($content){
+		
+		if( defined('REW_SITE') )
+			
+			return REW_SITE;
+			
+		return $_SERVER['SERVER_NAME'];
+	}
+	
+	public function set_default_elements(){
 
-		$this->types = $this->get_terms( 'element-library', array(
+		$libraries = $this->get_terms( 'element-library', array(
 			
 			'bootstrap-3-grid' => array(
 			
@@ -55,114 +68,96 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 						
 							'name' 		=> '1 block',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/1-block.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);">block<span></span></div><div class="clearfix"></div></div>',
 						),
 						array(
 						
 							'name' 		=> '2 columns',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/2-columns.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
 						),
 						array(
 						
 							'name' 		=> '3 columns',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/3-columns.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
 						),
 						array(
 						
 							'name' 		=> '4 columns',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/4-columns.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
 						),
 						array(
 						
 							'name' 		=> '2 rows',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/2-rows.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="clearfix"></div></div>',
 						),
 						array(
 						
 							'name' 		=> '3 rows',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/3-rows.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="clearfix"></div></div>',
 						),	
 						array(
 						
 							'name' 		=> 'landing page',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/landing-page.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-xs-12 text-center" style="background: rgba(128, 194, 249, 0.18);"><span>block</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
 						),
 						array(
 						
 							'name' 		=> 'nav left',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/nav-left.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>nav</span></div><div class="col-sm-9" style="background: rgba(128, 194, 249, 0.18);"><span>block</span></div><div class="clearfix"></div></div>',
 						),
 						array(
 						
 							'name' 		=> 'nav right',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/nav-right.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-sm-9" style="background: rgba(128, 194, 249, 0.18);"><span>block</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>nav</span></div><div class="clearfix"></div>',
 						),
 						array(
 						
 							'name' 		=> 'L grid',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/l-grid.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="clearfix"></div></div>',
 						),	
 						array(
 						
 							'name' 		=> 'M grid',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/m-grid.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="clearfix"></div></div>',
 						),
 						array(
 						
 							'name' 		=> 'S grid',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/s-grid.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
 						),
 						array(
 						
 							'name' 		=> 'XS grid',
 							'type'		=> 'grid',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/xs-grid.jpg',
+							'image' 	=> '',
 							'content' 	=> '<div class="row"><div class="col-sm-1 ltple-ex"></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-1 ltple-ex"></div><div class="clearfix"></div><div class="col-sm-1 ltple-ex"></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-1 ltple-ex"></div><div class="clearfix"></div><div class="col-sm-1 ltple-ex"></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-1 ltple-ex"></div><div class="clearfix"></div><div class="col-sm-1 ltple-ex"></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-1 ltple-ex"></div><div class="clearfix"></div></div>',
 						),							
 					)),
 				),
 			),
-			/*
-			'bootstrap-3-blog' => array(
-			
-				'name' 		=> 'Bootstrap 3 - Blog',
-				'options'	=> array(
-				
-					'elements'	=> $this->index_keys(array(
-					
-						array(
-						
-							'name' 		=> '1 block',
-							'image' 	=> $this->parent->assets_url . 'images/flow-charts/grid/1-block.jpg',
-							'content' 	=> '<div class="row"><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);">block<span></span></div><div class="clearfix"></div></div>',
-						),
-					)),
-				),
-			),
-			*/
 		));
 	}
 
@@ -179,22 +174,151 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 		add_action('edit_element-library', array( $this, 'save_fields' ) );	
 	
-		add_filter('rew_export_term', array( $this, 'filter_exported_term' ),10,1 );
+		add_filter('rew_export_term', array( $this, 'filter_exported_term' ),10,2 );
+
+		add_filter('manage_edit-element-library_columns', array( $this, 'filter_element_library_columns' ) );
+		
+		add_filter('manage_element-library_custom_column', array( $this, 'filter_element_library_column_content' ),10,3);
 	}
 	
-	function filter_exported_term($term){
+	public function filter_exported_term($term=array(),$term_id){
 		
-		if( !empty($term['slug']) ){
-		
-			$term['options']['elements_' . $term['slug']] = get_option( 'elements_' . $term['slug'] );
+		if( !empty($term_id) ){
+
+			$term['meta'][$this->parent->_base . 'elements'] = $this->get_library_elements($term_id);
 		}
 		
 		return $term;
 	}
 	
+	public function get_library_elements($term){
+		
+		if( is_numeric($term) ){
+			
+			$term = get_term($term);
+		}
+		
+		if( isset($term->term_id) ){
+			
+			$term_id = $term->term_id;
+			
+			if( !isset($this->list[$term_id]) ){
+			
+				if( !$elements = get_term_meta($term_id,$this->parent->_base . 'elements',true) ){
+					
+					if( $elements = get_option('elements_' . $term->slug,false) ){
+						
+						// migrate to meta
+						
+						update_term_meta($term_id,$this->parent->_base . 'elements', $elements);
+					}
+				}
+				
+				if( 1==1 ){
+					
+					// normalize content
+					
+					$old_elements = $elements;
+					
+					foreach( $elements['content'] as $i => $content ){
+						
+						// normalize content
+						
+						$content = str_replace( array(
+							
+							'wordpress.recuweb.com',
+						
+						),'[ltple-element-site]',$content);
+						
+						$elements['content'][$i] = $content;
+					}
+				}
+				
+				// do shortcodes
+				
+				foreach( $elements['content'] as $i => $content ){
+					
+					// normalize content
+
+					$elements['content'][$i] = do_shortcode($content);
+				}
+				
+				$this->list[$term_id] = $elements;
+			}
+			
+			return $this->list[$term_id];
+		}
+		
+		return false;
+	}
+	
 	public function init_element_frontend(){
 
 	
+	}
+	
+	public function filter_element_library_columns($columns){
+		
+		$columns = [];
+		
+		$columns['cb'] 				= '<input type="checkbox" />';
+		$columns['name'] 			= 'Name';
+		//$columns['description'] 	= 'Description';
+		$columns['slug'] 			= 'Slug';
+		$columns['elements'] 		= 'Elements';
+
+		return $columns;
+	}
+	
+	public function filter_element_library_column_content($content, $column_name, $term_id){
+		
+		if( $column_name == 'elements' ){
+			
+			$content = $this->count_elements($term_id);
+		}
+		
+		return $content;
+	}
+	
+	public function count_elements($term){
+		
+		$count = 0;
+		
+		if( is_numeric($term) ){
+			
+			$term = get_term($term);
+		}
+		
+		if( isset($term->term_id) ){
+			
+			$term_id = $term->term_id;
+			
+			if( $elements = $this->get_library_elements($term) ){
+				
+				if( isset($elements['name']) ){
+					
+					foreach( $elements['name'] as $i => $name ){
+						
+						if( !empty($name) && !empty($elements['content'][$i]) )
+						
+							$count++;
+					}
+				}
+			}
+			
+			if( $term->parent == 0 ){
+				
+				if( $children = get_term_children($term->term_id,$term->taxonomy) ){
+
+					foreach( $children as $child ){
+						
+						$count += $this->count_elements($child);
+					}
+				}
+			}
+		}
+		
+		return $count;
 	}
 	
 	public function get_fields($term){	
@@ -212,8 +336,8 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 				$this->parent->admin->display_field( array(
 				
 					'type'				=> 'element',
-					'id'				=> 'elements_'.$term->slug,
-					'name'				=> 'elements_'.$term->slug,
+					'id'				=> 'elements_'.$term->term_id,
+					'name'				=> 'elements_'.$term->term_id,
 					'array' 			=> [],
 					'description'		=> ''
 					
@@ -226,17 +350,11 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	
 	public function save_fields($term_id){
 
-		//collect all term related data for this new taxonomy
-		
-		$term = get_term($term_id);
-
-		//save our custom fields as wp-options
-		
-		if( isset($_POST['elements_'.$term->slug]['name']) && isset($_POST['elements_'.$term->slug]['type']) && isset($_POST['elements_'.$term->slug]['image']) && isset($_POST['elements_'.$term->slug]['content'])  ){
+		if( isset($_POST['elements_'.$term_id]['name']) && isset($_POST['elements_'.$term_id]['type']) && isset($_POST['elements_'.$term_id]['image']) && isset($_POST['elements_'.$term_id]['content'])  ){
 			
-			if( is_array($_POST['elements_'.$term->slug]['name']) && is_array($_POST['elements_'.$term->slug]['type']) && is_array($_POST['elements_'.$term->slug]['image']) && is_array($_POST['elements_'.$term->slug]['content'])  ){
+			if( is_array($_POST['elements_'.$term_id]['name']) && is_array($_POST['elements_'.$term_id]['type']) && is_array($_POST['elements_'.$term_id]['image']) && is_array($_POST['elements_'.$term_id]['content'])  ){
 
-				update_option('elements_'.$term->slug, $_POST['elements_'.$term->slug],false);			
+				update_term_meta($term_id,$this->parent->_base . 'elements', $_POST['elements_'.$term_id]);
 			}
 			else{
 					
