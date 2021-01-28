@@ -89,11 +89,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			}
 			
 			// Show default data if no option saved and default is supplied
-
+			
 			if( $data === '' && isset( $field['default'] ) ) {
 				
 				$data = $field['default'];
-				
 			} 
 			elseif ( $data === false ) {
 				
@@ -277,10 +276,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$checked = '';
 					
-					if ( $data && 'on' == $data ) {
+					if( $data && $data == 'on' ) {
 						
 						$checked = 'checked="checked"';
-					
 					}
 					
 					$html .= '<label class="switch">';

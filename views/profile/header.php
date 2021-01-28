@@ -83,7 +83,15 @@
 			
 				echo'<div class="profile-overlay"></div>';
 				
-				echo '<h2 style="font-size:22px;float:left;padding:15px 0 0 0;margin:0;">' . $name . '</h2>';
+				// avatar
+
+				echo '<div class="profile-avatar text-left" style="padding:8px;position:absolute;">';
+				
+					echo'<img style="border:none;" src="' . $ltple->profile->picture . '" height="40" width="40" />';
+					
+				echo '</div>';	
+					
+				echo '<h2 style="font-size:22px;float:left;padding:15px 0 0 60px;margin:0;">' . $name . '</h2>';
 				
 			echo'</div>';
 		}

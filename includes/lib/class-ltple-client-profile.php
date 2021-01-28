@@ -214,7 +214,7 @@ class LTPLE_Client_Profile {
 				// in tab
 				
 				$this->in_tab = isset($this->tabs[$this->tab]) ? true : false;
-				
+
 				if( $this->tab == 'home' && empty($this->tabs['home']['content']) ){
 					
 					include $this->parent->views . '/profile/card.php';
@@ -259,11 +259,17 @@ class LTPLE_Client_Profile {
 					},10 );
 				}
 			}
+			else{
+					
+				include( $this->parent->views . '/profile/restricted.php' );
+			}
 		}
 		elseif( !is_admin() && $this->parent->user->loggedin ){
 				
 			$this->pictures	= $this->get_profile_picture_fields();
 		}
+		
+		do_action('ltple_profile_loaded');
 	}
 	
 	public function get_profile_menu( $rest = NULL ){
@@ -827,8 +833,8 @@ class LTPLE_Client_Profile {
 				if( $last_seen > 0 || $skip_unclaimed === true ){
 					
 					$aboutMe = get_user_meta( $this->user->ID, $this->parent->_base . 'policy_about-me',true );
-
-					if( $aboutMe != 'off' ){
+					
+					if( $aboutMe !== 'off' ){
 						
 						$is_public = true;
 					}
@@ -1487,7 +1493,7 @@ class LTPLE_Client_Profile {
 				$this->privacySettings['about'] = array(
 
 					'id' 			=> $this->parent->_base . 'policy_about-me',
-					'label'			=> 'Website',
+					'label'			=> 'Profile',
 					'description'	=> 'Anyone can see my profile & pages',
 					'type'			=> 'switch',
 					'default'		=> 'on',

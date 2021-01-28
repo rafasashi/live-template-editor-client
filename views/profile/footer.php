@@ -6,7 +6,7 @@ $ltple = LTPLE_Client::instance();
 
 	if( !$ltple->inWidget ){
 	
-		echo'<footer role="contentinfo" style="position:relative;">';
+		echo'<footer role="contentinfo" style="margin:0 !important;padding:0 !important;position:relative;">';
 		
 		if( LTPLE_CSS_FRAMEWORK == 'bootstrap-4' ){
 			

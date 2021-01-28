@@ -2,7 +2,7 @@
 	
 	$ltple = LTPLE_Client::instance();
 
-	if( !$ltple->inWidget ){
+	if( !$ltple->inWidget && ( $ltple->profile->id === 0 || $ltple->user->loggedin ) ){
 
 		// get navbar
 		
