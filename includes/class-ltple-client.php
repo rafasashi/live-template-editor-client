@@ -906,39 +906,61 @@ class LTPLE_Client {
 	
 	public function filter_template_path( $path, $layer ){
 		
-		global $post;
-		
 		if( $layer->post_type == 'cb-default-layer' && empty($_GET['action']) && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
 			
-			$path = $this->views . '/preview.php';
-			
-			if( $layer_type = $this->layer->get_layer_type($layer) ){
+			if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer->output) ){
+						
+				if( $this->layer->is_html_output($layer->output) ){
 				
-				if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer_type->output) ){
-							
-					if( $this->layer->is_html_output($layer_type->output) ){
+					$show_layer = false;
+				
+					$visibility = get_post_meta( $layer->ID, 'layerVisibility', true );
 					
-						$visibility = get_post_meta( $layer->ID, 'layerVisibility', true );
+					if( $visibility == 'anyone' ){
+						
+						$show_layer = true;
+					}
+					elseif( $visibility == 'registered' && $this->user->loggedin ){
+						
+						$show_layer = true;
+					}
+					elseif( $this->plan->user_has_layer( $layer ) === true ){
+						
+						$show_layer = true;
+					}
+					elseif( $this->user->can_edit ){
+						
+						$show_layer = true;
+					}
+					
+					if( $show_layer ){
+						
+						if( $this->user->loggedin ){
 
-						if( $visibility == 'anyone' ){
+							if( $tab = apply_filters('ltple_preview_profile_tab',false,$this->layer->get_layer_type($layer)) ){
+								
+								add_filter('ltple_css_framework',function($framework){
+									
+									return 'bootstrap-4';
+									
+								},99999999,1);
+								
+								$user_id = $this->user->ID;
 							
-							$path = $this->views . '/layer.php';
-						}
-						elseif( $visibility == 'registered' && $this->user->loggedin ){
-							
-							$path = $this->views . '/layer.php';
-						}
-						elseif( $this->plan->user_has_layer( $layer ) === true && $this->user->loggedin ){
-							
-							$path = $this->views . '/layer.php';
-						}
-						elseif( !empty($_GET['preview']) && $this->user->can_edit ){
-							
-							$path = $this->views . '/layer.php';
-						}
+								$slug = $layer->post_name;
+								
+								$this->profile->set_profile($user_id,$tab,$slug,false);
+								
+								include($this->views . '/profile.php');					
+							}
+						}				
+						
+						return $this->views . '/layer.php';
 					}
 				}
 			}
+			
+			return $this->views . '/preview.php';
 		}
 		elseif( $default_id = $this->layer->get_default_id($layer->ID) ){
 			
@@ -952,7 +974,7 @@ class LTPLE_Client {
 				
 				if( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID ){
 				
-					$path = $this->views . '/layer.php';
+					return $this->views . '/layer.php';
 				}
 				else{
 					
@@ -966,7 +988,7 @@ class LTPLE_Client {
 		}
 		elseif( file_exists($this->views . '/'.$layer->post_type . '.php') ){
 			
-			$path = $this->views .  '/' . $layer->post_type . '.php';
+			return $this->views .  '/' . $layer->post_type . '.php';
 		}
 		
 		return $path;

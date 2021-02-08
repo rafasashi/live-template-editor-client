@@ -826,6 +826,7 @@
 				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : '';
 				$this->list->{$user_id}->sent 		= isset($meta[$this->parent->_base . '_email_sent']) ? $meta[$this->parent->_base . '_email_sent'] : '';
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
+				//$this->list->{$user_id}->claimed	= isset($meta[$this->parent->_base . 'profile_claimed']) && $meta[$this->parent->_base . 'profile_claimed'] == 'false' ? false : true;
 				
 				// user marketing channel
 				

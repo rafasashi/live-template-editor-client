@@ -16,8 +16,8 @@ class LTPLE_Client_Profile {
 	
 	var $urls 		= array();
 
-	var $privacySettings 		= null;
-	var $socialAccounts 		= null;
+	var $privacySettings 	= null;
+	var $socialAccounts 	= null;
 	var $pictures;
 	
 	var $profile_css 		= null;
@@ -34,7 +34,7 @@ class LTPLE_Client_Profile {
 	
 	var $is_enabled 	= array();
 	
-	var $completeness = array();
+	var $completeness 	= array();
 	
 	var $post = null;
 	
@@ -69,7 +69,7 @@ class LTPLE_Client_Profile {
 		
 		add_filter('rew_cache_bail_page', array( $this , 'bail_profile_cache' ) );
 				
-		add_filter('template_redirect', array( $this, 'get_profile_parameters' ),1);
+		add_filter('template_redirect', array( $this, 'get_current_parameters' ),1);
 
 		add_action( 'rest_api_init', function () {
 			
@@ -138,17 +138,35 @@ class LTPLE_Client_Profile {
 		}
 		
 		return $this->is_enabled[$feature];
-	}	
+	}
 	
-	public function get_profile_parameters(){
+	public function get_current_parameters(){
 		
-		// get displayed user id
+		$user_id = apply_filters('ltple_profile_id',intval(get_query_var('pr')));
+		
+		if( $user_id > 0 ){
 
-		$this->id = apply_filters('ltple_profile_id',intval(get_query_var('pr')));
-
+			$tab  = apply_filters('ltple_profile_tab',get_query_var('tab','home'));
+			
+			$slug = apply_filters('ltple_profile_slug',get_query_var('slug',''));
+			
+			$this->set_profile($user_id,$tab,$slug,true);
+		}
+		elseif( !is_admin() && $this->parent->user->loggedin ){
+				
+			$this->pictures	= $this->get_profile_picture_fields();
+		}
+		
+		do_action('ltple_profile_loaded');
+	}
+	
+	public function set_profile($user_id=0,$tab='',$slug='',$redirect=true){
+		
 		// displayed user data
 		
-		if( $this->id > 0 ){
+		if( $user_id > 0 ){
+			
+			$this->id = $user_id;
 			
 			// profile user
 			
@@ -158,17 +176,16 @@ class LTPLE_Client_Profile {
 			
 			$this->user->remaining_days = $this->parent->plan->get_license_remaining_days( $this->user->period_end );
 			
-			// current tab
+			$this->tab 		= $tab;
 			
-			$this->tab = apply_filters('ltple_profile_tab',get_query_var('tab','home'));
+			$this->tabSlug 	= $slug;
 			
-			$this->tabSlug 	= apply_filters('ltple_profile_slug',get_query_var('slug',''));
+			$this->url 		= $this->get_canonical_url();
 			
-			// profile url
+			if( $redirect === true ){
 			
-			$this->url = $this->get_canonical_url();
-			
-			do_action('ltple_profile_redirect');
+				do_action('ltple_profile_redirect');
+			}
 			
 			add_filter('ltple_header_canonical_url', array($this,'get_canonical_url'),10);
 
@@ -264,12 +281,6 @@ class LTPLE_Client_Profile {
 				include( $this->parent->views . '/profile/restricted.php' );
 			}
 		}
-		elseif( !is_admin() && $this->parent->user->loggedin ){
-				
-			$this->pictures	= $this->get_profile_picture_fields();
-		}
-		
-		do_action('ltple_profile_loaded');
 	}
 	
 	public function get_profile_menu( $rest = NULL ){
@@ -525,13 +536,16 @@ class LTPLE_Client_Profile {
 		
 		if( is_null($this->post) ){
 			
-			global $post;
-			
 			if( $this->id > 0 ){
 				
 				// get post
 				
-				$post = get_page_by_path( 'profile', OBJECT, 'page' );
+				global $post;
+				
+				if( is_null($post) || $post->post_type != 'cb-default-layer' ){
+					
+					$post = get_page_by_path( 'profile', OBJECT, 'page' );
+				}
 				
 				$this->post = apply_filters('ltple_post',$post);
 				
@@ -1488,17 +1502,14 @@ class LTPLE_Client_Profile {
 		
 		if( is_null($this->privacySettings) ){
 			
-			if( $this->is_enabled('home_page') ){
-			 
-				$this->privacySettings['about'] = array(
+			$this->privacySettings['about'] = array(
 
-					'id' 			=> $this->parent->_base . 'policy_about-me',
-					'label'			=> 'Profile',
-					'description'	=> 'Anyone can see my profile & pages',
-					'type'			=> 'switch',
-					'default'		=> 'on',
-				);
-			}
+				'id' 			=> $this->parent->_base . 'policy_about-me',
+				'label'			=> 'Profile',
+				'description'	=> 'Anyone can see my profile & pages',
+				'type'			=> 'switch',
+				'default'		=> 'on',
+			);
 			
 			do_action('ltple_privacy_settings');
 		}

@@ -8,7 +8,7 @@ $ltple = LTPLE_Client::instance();
 	
 		echo'<footer role="contentinfo" style="margin:0 !important;padding:0 !important;position:relative;">';
 		
-		if( LTPLE_CSS_FRAMEWORK == 'bootstrap-4' ){
+		if( LTPLE_Editor::get_framework('css') == 'bootstrap-4' ){
 			
 			echo '<div class="footerbottom px-2">';
 			

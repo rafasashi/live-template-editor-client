@@ -600,7 +600,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	
 		return $is_hosted;
-	}	
+	}
 	
 	public function count_layers_by($type = 'storage'){
 		
@@ -1113,6 +1113,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function is_html_output($output){
 					
 		$outputs = apply_filters('ltple_layer_html_output',array(
+			
 			'post',
 			'page',
 			'inline-css',
@@ -1561,131 +1562,132 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !empty($post->ID) ){
 				
-				$default_id = $this->get_default_id($post->ID);
-				
-				$metabox = array( 
+				if( $default_id = $this->get_default_id($post->ID) ){
 					
-					'name' 		=> 'ltple_settings',
-					'title' 	=> __( 'LTPLE Settings', 'live-template-editor-client' ), 
-					'screen'	=> array($post->post_type),
-					'context' 	=> 'advanced',
-					'frontend'	=> false,
-				);
-
-				$this->userFields[]=array(
-				
-					'metabox' 		=> $metabox,
-					'type'			=> $default_id > 0 ? 'text' : 'hidden',
-					'id'			=> 'defaultLayerId',
-					'label'			=> $default_id > 0 ? 'Default ID' : '',
-					'placeholder'	=> '',
-					'description'	=> '',
-					'disabled'		=> true,
-					'data'			=> $default_id
-				);
-					
-				$layer_type = $this->get_layer_type($post);
-				
-				if( $this->is_html_output($layer_type->output) ){
-					
-					$this->userFields[] = array(
-					
-						'metabox' 		=> $metabox,
-						'type'			=> 'textarea',
-						'id'			=> 'layerContent',
-						'label'			=> 'HTML',
-						'placeholder'	=> "HTML content",
-						'htmlentities'	=> true,
-						'description'	=>''
-					);
-											
-					$this->userFields[] = array(
-					
-						'metabox' 		=> $metabox,
-						'type'			=> 'textarea',
-						'id'			=> 'layerCss',
-						'label'			=> 'CSS',
-						'placeholder'	=> "Internal CSS style sheet",
-						'stripcslashes'	=> false,
-						'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-					);
-					
-					$this->userFields[] = array(
-					
-						'metabox' 		=> $metabox,
-						'type'			=> 'textarea',
-						'id'			=> 'layerJs',
-						'label'			=> 'Javascript',
-						'placeholder'	=> "Additional Javascript",
-						'stripcslashes'	=> false,
-						'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+					$metabox = array( 
+						
+						'name' 		=> 'ltple_settings',
+						'title' 	=> __( 'LTPLE Settings', 'live-template-editor-client' ), 
+						'screen'	=> array($post->post_type),
+						'context' 	=> 'advanced',
+						'frontend'	=> false,
 					);
 
-					if( $this->is_public_output($layer_type->output) ){
+					$this->userFields[]=array(
 					
+						'metabox' 		=> $metabox,
+						'type'			=> $default_id > 0 ? 'text' : 'hidden',
+						'id'			=> 'defaultLayerId',
+						'label'			=> $default_id > 0 ? 'Default ID' : '',
+						'placeholder'	=> '',
+						'description'	=> '',
+						'disabled'		=> true,
+						'data'			=> $default_id
+					);
+						
+					$layer_type = $this->get_layer_type($post);
+					
+					if( $this->is_html_output($layer_type->output) ){
+						
 						$this->userFields[] = array(
 						
 							'metabox' 		=> $metabox,
 							'type'			=> 'textarea',
-							'id'			=> 'layerDescription',
-							'label'			=> 'Short Description',
-							'placeholder'	=> 'Short text description',
+							'id'			=> 'layerContent',
+							'label'			=> 'HTML',
+							'placeholder'	=> "HTML content",
 							'htmlentities'	=> true,
-							'description'	=> '<span style="float:right;font-size:10px;">max 500 words</span>',
-							'style'			=> 'height:100px;',
+							'description'	=>''
 						);
-					}
-				}
-				
-				if( $post->post_type == 'user-page' ){
-					
-					$options = array(
+												
+						$this->userFields[] = array(
 						
-						'-1' => 'None'
-					);						
-					
-					if( $menus = get_posts( array(
+							'metabox' 		=> $metabox,
+							'type'			=> 'textarea',
+							'id'			=> 'layerCss',
+							'label'			=> 'CSS',
+							'placeholder'	=> "Internal CSS style sheet",
+							'stripcslashes'	=> false,
+							'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+						);
 						
-						'post_type' 	=> 'user-menu',
-						'post_status' 	=> 'publish',
-						'author' 		=> $post->post_author,
+						$this->userFields[] = array(
 						
-					))){
+							'metabox' 		=> $metabox,
+							'type'			=> 'textarea',
+							'id'			=> 'layerJs',
+							'label'			=> 'Javascript',
+							'placeholder'	=> "Additional Javascript",
+							'stripcslashes'	=> false,
+							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+						);
 
-						foreach( $menus as $menu ){
+						if( $this->is_public_output($layer_type->output) ){
+						
+							$this->userFields[] = array(
 							
-							$options[$menu->ID] = ucfirst($menu->post_title);
+								'metabox' 		=> $metabox,
+								'type'			=> 'textarea',
+								'id'			=> 'layerDescription',
+								'label'			=> 'Short Description',
+								'placeholder'	=> 'Short text description',
+								'htmlentities'	=> true,
+								'description'	=> '<span style="float:right;font-size:10px;">max 500 words</span>',
+								'style'			=> 'height:100px;',
+							);
 						}
 					}
+					
+					if( $post->post_type == 'user-page' ){
 						
-					$this->userFields[]=array(
-					
-						'metabox' 		=> $metabox,
-						'type'			=> 'select',
-						'id'			=> 'layerMenuId',
-						'label'			=> 'Menu',
-						'description'	=> '',
-						'options'		=> $options,
-						'class'			=> 'col-xs-6',
-					);
-					
-					/*
-					$this->userFields[]=array(
-					
-						'metabox' 		=> $metabox,,
-						'type'			=> 'select',
-						'id'			=> 'layerFooter',
-						'label'			=> 'Footer',
-						'description'	=> '',
-						'options'		=> array(
-						
+						$options = array(
+							
 							'-1' => 'None'
-						),
-					);
-					*/
+						);						
+						
+						if( $menus = get_posts( array(
+							
+							'post_type' 	=> 'user-menu',
+							'post_status' 	=> 'publish',
+							'author' 		=> $post->post_author,
+							
+						))){
+
+							foreach( $menus as $menu ){
+								
+								$options[$menu->ID] = ucfirst($menu->post_title);
+							}
+						}
+							
+						$this->userFields[]=array(
+						
+							'metabox' 		=> $metabox,
+							'type'			=> 'select',
+							'id'			=> 'layerMenuId',
+							'label'			=> 'Menu',
+							'description'	=> '',
+							'options'		=> $options,
+							'class'			=> 'col-xs-6',
+						);
+						
+						/*
+						$this->userFields[]=array(
+						
+							'metabox' 		=> $metabox,,
+							'type'			=> 'select',
+							'id'			=> 'layerFooter',
+							'label'			=> 'Footer',
+							'description'	=> '',
+							'options'		=> array(
+							
+								'-1' => 'None'
+							),
+						);
+						*/
+					}
+					
+					do_action('ltple_user_layer_fields',$post,$metabox);
 				}
-				
-				do_action('ltple_user_layer_fields',$post,$metabox);
 			}
 		}
 		
