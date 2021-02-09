@@ -934,28 +934,32 @@ class LTPLE_Client {
 					}
 					
 					if( $show_layer ){
-						
-						if( $this->user->loggedin ){
 
-							if( $tab = apply_filters('ltple_preview_profile_tab',false,$this->layer->get_layer_type($layer)) ){
+						if( $tab = apply_filters('ltple_preview_profile_tab',false,$this->layer->get_layer_type($layer)) ){
+							
+							add_filter('ltple_css_framework',function($framework){
 								
-								add_filter('ltple_css_framework',function($framework){
-									
-									return 'bootstrap-4';
-									
-								},99999999,1);
+								return 'bootstrap-4';
+								
+							},99999999,1);
+							
+							if( $this->user->loggedin ){
 								
 								$user_id = $this->user->ID;
-							
-								$slug = $layer->post_name;
-								
-								$this->profile->set_profile($user_id,$tab,$slug,false);
-								
-								include($this->views . '/profile.php');					
 							}
-						}				
-						
-						return $this->views . '/layer.php';
+							else{
+								
+								$user_id = $layer->post_author;
+							}
+							
+							$this->profile->set_profile($user_id,$tab,$layer->post_name,false);
+							
+							include($this->views . '/profile.php');					
+						}			
+						else{
+							
+							return $this->views . '/layer.php';
+						}
 					}
 				}
 			}

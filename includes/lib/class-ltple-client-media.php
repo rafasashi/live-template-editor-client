@@ -762,7 +762,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				// get table fields
 				
-				echo'<div class="row" style="margin:-20px -15px 0px -15px;">';
+				echo'<div style="margin:-20px 0px -15px 0px;">';
 					
 					$fields = array(
 						

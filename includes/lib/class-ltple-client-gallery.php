@@ -664,7 +664,7 @@ class LTPLE_Client_Gallery {
 				
 				// get table fields
 				
-				echo'<div class="row" style="margin:-20px -15px 0px -15px;">';
+				echo'<div class="row" style="margin:-20px 0px -15px 0px;">';
 					
 					$fields = array(
 						

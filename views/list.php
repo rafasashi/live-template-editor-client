@@ -22,7 +22,7 @@
 			
 		echo '</div>';
 		
-		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;;min-height:700px;">';
+		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;min-height:10vh;">';
 			
 			echo'<div class="tab-content">';
 
@@ -96,7 +96,7 @@
 
 					// get table fields
 					
-					echo'<div class="row">';
+					echo'<div>';
 						
 						$fields = array(
 							

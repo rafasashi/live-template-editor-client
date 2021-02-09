@@ -28,7 +28,7 @@
 
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fff;padding-bottom:15px;;min-height:700px;">';
 			
-			echo'<div class="tab-content">';
+			echo'<div class="tab-content col-xs-12">';
 			  
 				//---------------------- output world ranking --------------------------
 				

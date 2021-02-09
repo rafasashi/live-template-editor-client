@@ -1259,7 +1259,7 @@ class LTPLE_Client_Profile {
 			// get addon tabs
 			
 			$tabs = apply_filters('ltple_profile_tabs',[],$this->user,$this->tab);
-
+			
 			// sort addon tabs
 			
 			usort($tabs, function($a, $b) {

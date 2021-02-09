@@ -32,7 +32,7 @@ echo'<div id="panel" class="wrapper">';
 	
 	echo'<div id="content" class="library-content" style="border-left:1px solid #ddd;background:#fbfbfb;padding-bottom:15px;min-height:calc( 100vh - ' . ( $ltple->inWidget ?  0 : 190 ) . 'px);">';
 		
-		echo'<div class="tab-content">';
+		echo'<div class="tab-content col-xs-12">';
 		
 			if(!empty($ltple->parent->message)){ 
 			
@@ -43,7 +43,7 @@ echo'<div id="panel" class="wrapper">';
 			
 			if( !empty($ltple->user->layer) ){
 				
-				echo '<h2 style="margin-top:5px;">Edit ' . $post_type->labels->singular_name . '</h2>';
+				echo '<h2 style="margin-top:15px;">Edit ' . $post_type->labels->singular_name . '</h2>';
 					
 				$fields = $ltple->layer->get_user_layer_fields(array(),$ltple->user->layer);
 						
@@ -156,7 +156,7 @@ echo'<div id="panel" class="wrapper">';
 					
 				echo'</form>';
 			}
-
+		
 		echo'</div>';
 		
 	echo'</div>	';
