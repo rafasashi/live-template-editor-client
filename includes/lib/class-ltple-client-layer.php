@@ -82,7 +82,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
-			'show_in_menu' 			=> 'user-layer',
+			'show_in_menu' 			=> false,
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export' 			=> true,
@@ -139,7 +139,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'query_var' 			=> true,
 			'can_export' 			=> true,
 			'rewrite' 				=> false,
-			'capability_type' 		=> 'user-page', 
+			'capability_type' 		=> false, 
 			'has_archive' 			=> true,
 			'hierarchical' 			=> false,
 			'show_in_rest' 			=> false,
@@ -165,7 +165,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'query_var' 			=> true,
 			'can_export' 			=> true,
 			'rewrite' 				=> false,
-			'capability_type' 		=> 'user-page',
+			'capability_type' 		=> false,
 			'has_archive' 			=> false,
 			'hierarchical' 			=> false,
 			'show_in_rest' 			=> false,
@@ -450,7 +450,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		// layer parameters
 		
 		add_filter('ltple_layer_id', array($this,'get_layer_id'),10,1);
+		
 		add_filter('ltple_layer_output', array($this,'get_layer_editor'),10,2);
+		
 		add_filter('ltple_layer_is_editable', array($this,'is_editable_output'),10,2 );
 	}
 	
@@ -1477,7 +1479,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_layer_id($id){
 		
-		return isset($_GET['uri']) ? $_GET['uri'] : get_the_ID();
+		if( isset($_GET['uri']) ){
+			
+			$id = $_GET['uri'];
+		}
+		elseif( $post = $this->parent->profile->get_profile_post() ){
+			
+			$id = $post->ID;
+		}
+		else{
+			
+			$id = get_the_ID();
+		}
+		
+		return $id;
 	}
 	
 	public function add_edit_layer_status($layer,$post_type){
@@ -5734,70 +5749,75 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function add_local_layer_scripts( $layer ){
-		
-		if(!isset($_GET['uri'])){
+
+		if( !isset($_GET['uri']) ){
 			
-			if( !empty($this->layerCssLibraries) ){
+			if( $layer->area == 'backend' || $layer->output == 'hosted-page' ){
 				
-				foreach($this->layerCssLibraries as $term){
+				if( !empty($this->layerCssLibraries) ){
 					
-					$class = 'style-' . $term->term_id;
-					
-					$this->layerStyleClasses[] = $class;
-					
-					$css_url = $this->get_css_parsed_url($term);
-					
-					if( !empty($css_url) ){
+					foreach($this->layerCssLibraries as $term){
 						
-						$css_url = $this->sanitize_url($css_url);
+						$class = 'style-' . $term->term_id;
+						
+						$this->layerStyleClasses[] = $class;
+						
+						$css_url = $this->get_css_parsed_url($term);
 						
 						if( !empty($css_url) ){
-
-							wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
-							wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
-						}					
-					}
-					else{
-					
-						$css_url = $this->sanitize_url(get_option( 'css_url_' . $term->slug));
-						
-						if( !empty($css_url) ){
-
-							wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
-							wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
-						}
-						
-						$css_content = get_option( 'css_content_' . $term->slug);
-						
-						if( !empty($css_content) ){
 							
-							wp_register_style( $this->parent->_token . '-layer-inline-' . $class, false, array());
-							wp_enqueue_style( $this->parent->_token . '-layer-inline-' . $class );
-			
-							wp_add_inline_style( $this->parent->_token . '-layer-inline-' . $class, strip_tags(stripcslashes($css_content)));
+							$css_url = $this->sanitize_url($css_url);
+							
+							if( !empty($css_url) ){
+
+								wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
+								wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
+							}					
+						}
+						else{
+						
+							$css_url = $this->sanitize_url(get_option( 'css_url_' . $term->slug));
+							
+							if( !empty($css_url) ){
+
+								wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
+								wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
+							}
+							
+							$css_content = get_option( 'css_content_' . $term->slug);
+							
+							if( !empty($css_content) ){
+								
+								wp_register_style( $this->parent->_token . '-layer-inline-' . $class, false, array());
+								wp_enqueue_style( $this->parent->_token . '-layer-inline-' . $class );
+				
+								wp_add_inline_style( $this->parent->_token . '-layer-inline-' . $class, strip_tags(stripcslashes($css_content)));
+							}
 						}
 					}
 				}
-			}
-			
-			if( !empty($this->defaultCss) ){
 				
-				$defaultCss = $this->parse_css_content($this->defaultCss, '.layer-' . $this->defaultId);
+				if( !empty($this->defaultCss) ){
+					
+					$defaultCss = $this->parse_css_content($this->defaultCss, '.layer-' . $this->defaultId);
+					
+					wp_register_style( $this->parent->_token . '-layer-default-css', false, array());
+					wp_enqueue_style( $this->parent->_token . '-layer-default-css' );
 				
-				wp_register_style( $this->parent->_token . '-layer-default-css', false, array());
-				wp_enqueue_style( $this->parent->_token . '-layer-default-css' );
-			
-				wp_add_inline_style( $this->parent->_token . '-layer-default-css',$defaultCss);
-			}
-			
-			if( !empty($this->layerCss) ){
-							
-				wp_register_style( $this->parent->_token . '-layer-custom-css', false, array());
-				wp_enqueue_style( $this->parent->_token . '-layer-custom-css' );
-			
-				wp_add_inline_style( $this->parent->_token . '-layer-custom-css',$this->layerCss);
+					wp_add_inline_style( $this->parent->_token . '-layer-default-css',$defaultCss);
+				}
+				
+				if( !empty($this->layerCss) ){
+								
+					wp_register_style( $this->parent->_token . '-layer-custom-css', false, array());
+					wp_enqueue_style( $this->parent->_token . '-layer-custom-css' );
+				
+					wp_add_inline_style( $this->parent->_token . '-layer-custom-css',$this->layerCss);
+				}
 			}
 		}
+		
+		return $layer;
 	}
 	
 	public function output_static_layer( $output ){

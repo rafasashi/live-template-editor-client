@@ -245,6 +245,21 @@ class LTPLE_Client_Profile {
 					// get profile picture
 					
 					$this->picture = $this->parent->image->get_avatar_url( $this->user->ID );
+					
+					// get css framework
+					
+					$this->framework = 'bootstrap-3';
+					
+					if( $this->tab == 'store' && !empty($this->tabSlug) ){
+						
+						$this->framework = 'bootstrap-4';
+					}
+					
+					add_filter('ltple_css_framework',function($framework){
+						
+						return $this->framework;
+						
+					},99999999,1);					
 
 					// enqueue inline style
 					
@@ -347,9 +362,9 @@ class LTPLE_Client_Profile {
 					
 				echo'</li>';	
 					
-				do_action('ltple_view_my_profile_settings');														
+				do_action('ltple_view_my_profile_settings',$referer);														
 					
-				do_action('ltple_view_my_profile');
+				do_action('ltple_view_my_profile',$referer);
 				
 				echo'<li style="position:relative;background:#182f42;">';
 					
@@ -471,7 +486,8 @@ class LTPLE_Client_Profile {
 			padding:8px 15px !important;
 			color:#fff;
 			display:inline-block;
-			height: 41px;
+			height:41px;
+			font-family: "Open Sans", Helvetica;
 		}
 		
 		#profile_nav > li > a:hover {

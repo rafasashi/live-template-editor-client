@@ -937,12 +937,6 @@ class LTPLE_Client {
 
 						if( $tab = apply_filters('ltple_preview_profile_tab',false,$this->layer->get_layer_type($layer)) ){
 							
-							add_filter('ltple_css_framework',function($framework){
-								
-								return 'bootstrap-4';
-								
-							},99999999,1);
-							
 							if( $this->user->loggedin ){
 								
 								$user_id = $this->user->ID;

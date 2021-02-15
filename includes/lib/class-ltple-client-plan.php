@@ -61,7 +61,7 @@ class LTPLE_Client_Plan {
 			'publicly_queryable' 	=> false,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> false,
-			'show_in_menu' 			=> 'user-plan',
+			'show_in_menu' 			=> false,
 			'show_in_nav_menus' 	=> false,
 			'query_var' 			=> true,
 			'can_export'			=> true,

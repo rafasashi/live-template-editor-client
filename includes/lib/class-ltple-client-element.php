@@ -15,7 +15,28 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	public function __construct( $parent ) {
 		
 		$this->parent = $parent;
+	
+		$this->parent->register_post_type( 'default-element', __( 'Default Elements', 'live-template-editor-client' ), __( 'Default Element', 'live-template-editor-client' ), '', array(
 
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> false,
+			'show_in_nav_menus' 	=> false,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> false,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> false,
+			//'supports'			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array('title', 'editor'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));
+		
 		$this->parent->register_taxonomy( 'element-library', __( 'Element Libraries', 'live-template-editor-client' ), __( 'Element Library', 'live-template-editor-client' ),array('cb-default-layer'), 
 	
 			array(
