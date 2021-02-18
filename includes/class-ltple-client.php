@@ -1632,15 +1632,13 @@ class LTPLE_Client {
 				
 				// get post content
 				
-				$is_static 		= ( ( $this->layer->layerOutput == 'hosted-page' || $this->layer->layerOutput == 'downloadable' ) ? true : false );
-				
 				$post_content 	= $_POST['postContent'];
 				
 				//$post_content = base64_decode($post_content); // why b64?
 				
 				//$post_content 	= urldecode($post_content); // why url decode?
 				
-				$post_content 	= LTPLE_Editor::sanitize_content( $post_content, $is_static );
+				$post_content 	= LTPLE_Editor::sanitize_content( $post_content );
 				
 				$post_css 		= ( !empty($_POST['postCss']) ? sanitize_meta('layerCss',$_POST['postCss'],'post') : '' ); // unslash breaks unicode char
 				$post_js 		= ( !empty($_POST['postJs'])  ? sanitize_meta('layerJs',stripcslashes( $_POST['postJs'] ),'post') : '' );

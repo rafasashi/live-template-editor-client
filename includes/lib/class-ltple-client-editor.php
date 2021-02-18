@@ -387,20 +387,17 @@ class LTPLE_Client_Editor {
 					echo '</div>';							
 				}
 			}
-			else{
-				
-				if( $this->parent->layer->is_downloadable_output($layer->output) ){
+			elseif( $this->parent->layer->is_downloadable_output($layer->output) ){
 					
-					echo '<div style="margin:0 2px;" class="btn-group">';
-						
-						echo '<a href="' . apply_filters('ltple_downloadable_url','#download',$layer->ID,$layer->output) . '" class="btn btn-sm" style="border:none;background: #4c94af;">';
-						
-							echo 'Download';
-						
-						echo '</a>';
-						
-					echo '</div>';								
-				}							
+				echo '<div style="margin:0 2px;" class="btn-group">';
+					
+					echo '<a href="' . apply_filters('ltple_downloadable_url','#download',$layer->ID,$layer->output) . '" class="btn btn-sm" style="border:none;background: #4c94af;">';
+					
+						echo 'Download';
+					
+					echo '</a>';
+					
+				echo '</div>';							
 			}
 		}
 	}

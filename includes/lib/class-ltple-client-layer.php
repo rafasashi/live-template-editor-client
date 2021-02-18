@@ -222,7 +222,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'css-library', __( 'CSS Libraries', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'css-library', __( 'CSS Libraries', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -236,7 +236,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'js-library', __( 'JS Libraries', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'js-library', __( 'JS Libraries', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -250,7 +250,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'font-library', __( 'Font Libraries', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'font-library', __( 'Font Libraries', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -268,7 +268,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$post = get_post();
 			
-			if( empty($_REQUEST['post']) && !empty($_REQUEST['post_type']) && $_REQUEST['post_type'] == 'cb-default-layer' ){
+			if( empty($_REQUEST['post']) && !empty($_REQUEST['post_type']) && ( $_REQUEST['post_type'] == 'cb-default-layer' ) ){
 				
 				// remove all metaboxes except submit button
 				
@@ -292,25 +292,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$this->parent->admin->add_meta_boxes($fields);
 				}
 			}
-			elseif( isset($this->storageTypes[$post->post_type]) || $this->is_local ){
+			elseif( isset($this->storageTypes[$post->post_type]) || $this->is_local($post) ){
 				
 				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){			
 					
 					// remove metaboxes
 					
-					if( $post->post_type == 'cb-default-layer' ){
+					if( $this->is_default($post) ){
 						
 						// remove taxonomy boxes
 						
 						$layer_type = $this->get_layer_type($post);	
 						
-						if( !$this->has_html_elements($layer_type->output) ){
+						if( !$this->has_html_elements($layer_type) ){
 						
 							remove_meta_box( 'element-librarydiv', 'cb-default-layer', 'side' );
 						}
 						
 						if( !$this->is_html_output($layer_type->output) && !$this->is_hosted_output($layer_type->output) ){
-														
+												
 							remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
 							remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
 							remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );
@@ -501,6 +501,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'page',
 				'post',
 				'cb-default-layer',
+				'default-element',
 				'email-model',
 			));
 		}
@@ -567,6 +568,41 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $is_public;
+	}
+	
+	public function is_default($post){
+		
+		$is_default = false;
+		
+		$post_type = '';
+		
+		if( is_object($post) ){
+			
+			if(!empty($post->post_type)){
+			
+				$post_type = $post->post_type;
+			}
+			elseif(!empty($post->name)){
+				
+				$post_type = $post->name;
+			}
+		}
+		else{
+			
+			$post_type = $post;
+		}
+		
+		if( in_array( $post_type, array(
+		
+			'cb-default-layer',
+			'default-element',
+			
+		)) ){
+			
+			$is_default = true;
+		}
+		
+		return $is_default;
 	}
 	
 	public function is_hosted($post){
@@ -689,46 +725,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( empty($this->defaultFields) ){		
 			
-			//get current layer range
-			
-			$this->defaultFields[] = array(
-			
-				'metabox' => array( 
-				
-					'name' 		=> 'layer-rangediv',
-					'title' 	=> __( 'Template Range', 'live-template-editor-client' ), 
-					'screen'	=> array('cb-default-layer'),
-					'context' 	=> 'side',
-					'taxonomy'	=> 'layer-range',
-					'frontend'	=> false,
-				),
-				
-				'type'		=> 'dropdown_categories',
-				'id'		=> 'layer-range',
-				'name'		=> 'tax_input[layer-range][]',
-				'label'		=> '',
-				'taxonomy'	=> 'layer-range',
-				'callback' 	=> array($this,'get_layer_range_id'),
-				'description'=>''
-			);
-			
-			$this->defaultFields[] = array(
-			
-				'metabox' => array( 
-				
-					'name' 		=> 'layer-gallery',
-					'title' 	=> __( 'Gallery Images', 'live-template-editor-client' ), 
-					'screen'	=> array('cb-default-layer'),
-					'context' 	=> 'side',
-					'frontend'	=> false,
-				),
-				
-				'type'			=> 'gallery',
-				'id'			=> 'layer-gallery',
-				'label'			=> '',
-				'description'	=>''
-			);
-			
 			//get post
 			
 			if( empty($post) ){
@@ -736,109 +732,54 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$post = get_post();
 			}
 			
+			if( $post->post_type == 'cb-default-layer' ){
+				
+				//get current layer range
+				
+				$this->defaultFields[] = array(
+				
+					'metabox' => array( 
+					
+						'name' 		=> 'layer-rangediv',
+						'title' 	=> __( 'Template Range', 'live-template-editor-client' ), 
+						'screen'	=> array($post->post_type),
+						'context' 	=> 'side',
+						'taxonomy'	=> 'layer-range',
+						'frontend'	=> false,
+					),
+					
+					'type'		=> 'dropdown_categories',
+					'id'		=> 'layer-range',
+					'name'		=> 'tax_input[layer-range][]',
+					'label'		=> '',
+					'taxonomy'	=> 'layer-range',
+					'callback' 	=> array($this,'get_layer_range_id'),
+					'description'=>''
+				);
+				
+				$this->defaultFields[] = array(
+				
+					'metabox' => array( 
+					
+						'name' 		=> 'layer-gallery',
+						'title' 	=> __( 'Gallery Images', 'live-template-editor-client' ), 
+						'screen'	=> array($post->post_type),
+						'context' 	=> 'side',
+						'frontend'	=> false,
+					),
+					
+					'type'			=> 'gallery',
+					'id'			=> 'layer-gallery',
+					'label'			=> '',
+					'description'	=>''
+				);
+			}
+			
 			//get layer type
 			
 			$layer_type = $this->get_layer_type($post);	
 			
 			if( !empty($layer_type->output) ){
-				
-				// json object
-				/*
-				$this->defaultFields[]=array(
-				
-					'metabox' => array(
-					
-						'name' 		=> 'metabox_1',
-						'title' 	=> __( 'Template JSON', 'live-template-editor-client' ), 
-						'screen'	=> array('cb-default-layer'),
-						'context' 	=> 'advanced',
-						'add_new'	=> false
-					),					
-
-					'id'=>"pageDef",
-					'label'=>"",
-					'type'=>'textarea',
-					'placeholder'=>"JSON object",
-					'description'=>'
-					
-						<table class="widefat fixed striped" cellspacing="0">
-							<thead>
-							
-								<tr>
-								
-									<th>option</th>
-									<th>description</th>
-									<th>default</th>
-									<th>possible values</th>
-									
-								</tr>
-								
-							</thead>
-							<tbody>
-							
-								<tr>
-								
-									<td><strong>name</strong></td>
-									<td>ID of the element</td>
-									<td>null</td>
-									<td>String</td>
-									
-								</tr>
-								<tr>
-								
-									<td><strong>iconClass</strong></td>
-									<td>Class of the icon before the element name</td>
-									<td>glyphicon glyphicon-plus</td>
-									<td>String</td>
-									
-								</tr>							
-								<tr>
-								
-									<td><strong>props</strong></td>
-									<td>List of editable CSS propertises</td>
-									<td>null</td>
-									<td>Array</td>
-								</tr>
-								
-								<tr>
-									<td><strong>labels</strong></td>
-									<td>Labels of the editable CSS propertises</td>
-									<td>null</td>
-									<td>Array</td>
-								</tr>
-								
-								<tr>
-								
-									<td><strong>editorsConfig</strong></td>
-									<td>Configuration of some editable CSS propertise surch as background-image or image source</td>
-									<td>null</td>
-									<td>Object{"prop":{"urls":Object}}</td>
-									
-								</tr>
-								
-								<tr>
-								
-									<td><strong>draggable</strong></td>
-									<td>Is the element draggable inside the preview</td>
-									<td>false</td>
-									<td>String</td>
-									
-								</tr>
-								
-								<tr>
-								
-									<td><strong>contenteditable</strong></td>
-									<td>Is the element content editable</td>
-									<td>true</td>
-									<td>String</td>
-									
-								</tr>
-								
-							</tbody>
-							
-						</table>'
-				);
-				*/
 				
 				if( $this->is_html_output($layer_type->output) ){
 				
@@ -850,7 +791,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 							'name' 		=> 'layer-content',
 							'title' 	=> __( 'Template HTML', 'live-template-editor-client' ), 
-							'screen'	=> array('cb-default-layer'),
+							'screen'	=> array($post->post_type),
 							'context' 	=> 'advanced',
 							'add_new'	=> false,
 						),
@@ -869,7 +810,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 							'name' 		=> 'layer-margin',
 							'title' 	=> __( 'Editor Margin', 'live-template-editor-client' ), 
-							'screen'	=> array('cb-default-layer'),
+							'screen'	=> array($post->post_type),
 							'context' 	=> 'side',
 							'add_new'	=> false,
 						),
@@ -892,7 +833,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 								'name' 		=> 'layer-css',
 								'title' 	=> __( 'Template CSS', 'live-template-editor-client' ), 
-								'screen'	=> array('cb-default-layer'),
+								'screen'	=> array($post->post_type),
 								'context' 	=> 'advanced',
 								'add_new'	=> false,
 							),
@@ -915,7 +856,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 								'name' 		=> 'layer-json',
 								'title' 	=> __( 'Template JSON', 'live-template-editor-client' ), 
-								'screen'	=> array('cb-default-layer'),
+								'screen'	=> array($post->post_type),
 								'context' 	=> 'advanced'
 							),
 							
@@ -932,7 +873,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 								'name' 		=> 'layer-js',
 								'title' 	=> __( 'Template Javascript', 'live-template-editor-client' ), 
-								'screen'	=> array('cb-default-layer'),
+								'screen'	=> array($post->post_type),
 								'context' 	=> 'advanced'
 							),
 							
@@ -944,7 +885,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 						);
 						
-						if( $this->is_public_output($layer_type->output) ){
+						if( $post->post_type != 'default-element' && $this->is_public_output($layer_type->output) ){
 						
 							$this->defaultFields[]=array(
 							
@@ -952,7 +893,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 									'name' 		=> 'layer-meta',
 									'title' 	=> __( 'Template Meta Data', 'live-template-editor-client' ), 
-									'screen'	=> array('cb-default-layer'),
+									'screen'	=> array($post->post_type),
 									'context' 	=> 'advanced'
 								),
 								
@@ -963,31 +904,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'description'	=> '<i>Additional Meta Data</i>'
 							);	
 						}
-						
-						if( $layer_type->output == 'downloadable' ){
-							
-							$this->defaultFields[]=array(
-							
-								'metabox' => array(
-								
-									'name' 		=> 'layer-static-url',
-									'title' 	=> __( 'Template Static Content', 'live-template-editor-client' ), 
-									'screen'	=> array('cb-default-layer'),
-									'context' 	=> 'advanced'
-								),
-								'id'			=> "layerStaticTpl",
-								'type'			=> 'file',
-								'label'			=> '<b>Upload Archive</b>',
-								'accept'		=> '.zip,.tar',
-								'script'		=> 'jQuery(document).ready(function($){$(\'form#post\').attr(\'enctype\',\'multipart/form-data\');});',
-								'placeholder'	=> "archive.zip",
-								'style'			=> "padding:5px;margin: 15px 0 5px 0;",
-								'description'	=> "Upload a static template (zip,tar)",
-							);					
-						}
 					}
 					
-					if( $this->has_html_elements($layer_type->output) ){
+					if( $this->has_html_elements($layer_type) ){
 						
 						$this->defaultFields[]=array(
 						
@@ -995,7 +914,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 								'name' 		=> 'layer-elements',
 								'title' 	=> __( 'Template Elements', 'live-template-editor-client' ), 
-								'screen'	=> array('cb-default-layer'),
+								'screen'	=> array($post->post_type),
 								'context' 	=> 'advanced',
 								'frontend' 	=> false,
 							),
@@ -1015,7 +934,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 							'name' 		=> 'layer-image-url',
 							'title' 	=> __( 'Image Template', 'live-template-editor-client' ), 
-							'screen'	=> array('cb-default-layer'),
+							'screen'	=> array($post->post_type),
 							'context' 	=> 'advanced'
 						),
 						
@@ -1038,7 +957,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 							'name' 		=> 'layer-form',
 							'title' 	=> __( 'Template Action', 'live-template-editor-client' ), 
-							'screen'	=> array('cb-default-layer'),
+							'screen'	=> array($post->post_type),
 							'context' 	=> 'side',
 							'frontend' 	=> false,
 						),
@@ -1064,7 +983,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					'name' 		=> 'layer-visibility',
 					'title' 	=> __( 'Template Visibility', 'live-template-editor-client' ), 
-					'screen'	=> array('cb-default-layer'),
+					'screen'	=> array($post->post_type),
 					'context' 	=> 'side',
 					'frontend' 	=> false,
 				),	
@@ -1113,7 +1032,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function is_html_output($output){
-					
+		
 		$outputs = apply_filters('ltple_layer_html_output',array(
 			
 			'post',
@@ -1132,8 +1051,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return false;
 	}
 	
-	public function has_html_elements($output){
-					
+	public function has_html_elements($layer_type){
+		
+		if( $layer_type->storage == 'user-element' )
+			
+			return false;
+		
 		$outputs = apply_filters('ltple_layer_html_elements',array(
 		
 			'inline-css',
@@ -1142,7 +1065,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'canvas',
 		));
 		
-		if( in_array($output,$outputs) ){
+		if( in_array($layer_type->output,$outputs) ){
 			
 			return true;
 		}
@@ -1155,7 +1078,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$hosted_output = apply_filters('ltple_layer_hosted_output',array(
 		
 			'hosted-page',
-			'downloadable',
 		));
 		
 		if( in_array($output,$hosted_output) ){
@@ -1171,7 +1093,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$public_output = apply_filters('ltple_layer_public_output',array(
 		
 			'hosted-page',
-			'downloadable',
 		));
 		
 		if( in_array($output,$public_output) ){
@@ -1184,17 +1105,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 	public function is_downloadable_output($output){
 		
-		$is_downloadable = false;
-		
-		if( $output == 'downloadable' ){
-			
-			$is_downloadable = true;
-		}
-		else{
-			
-			$is_downloadable = apply_filters('ltple_downloadable_' . $output,$is_downloadable);
-		}
-		
+		$is_downloadable = apply_filters('ltple_downloadable_' . $output,false);
+
 		return $is_downloadable;
 	}
 	
@@ -1718,7 +1630,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'inline-css'		=>'HTML',
 				'external-css'		=>'HTML + CSS',
 				'hosted-page'		=>'Hosted',
-				//'downloadable'	=>'Downloadable',
 				'canvas'			=>'HTML to PNG',
 				'image'				=>'Image',
 			));
@@ -1756,6 +1667,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$this->storageTypes = apply_filters('ltple_layer_storages',array(
 					
 				'user-layer'	=>'HTML Template',
+				'user-element'	=>'HTML Element',
 				'user-psd'		=>'Graphic Design',
 				'user-page'		=>'Web Page',
 				'user-menu'		=>'Menu',
@@ -2293,7 +2205,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( !isset($this->layer_types[$post_id]) ){
 					
-					$term = null;
+					$term = new stdClass();
 					
 					if( !is_object($post) ){
 						
@@ -2302,10 +2214,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 					if( !empty($post->post_type) ){
 						
-						if( isset( $this->mediaTypes[$post->post_type] ) ){
-							
-							$term = new stdClass();
+						if( $post->post_type == 'default-element' ){
 						
+							$term->output 	= 'inline-css';
+							$term->storage 	= 'user-element';
+						}
+						elseif( isset( $this->mediaTypes[$post->post_type] ) ){
+							
 							$term->output 	= 'image';
 							$term->storage 	= 'attachment';				
 						}
@@ -2341,7 +2256,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									}
 								}
 								
-								if( !empty($term) ){
+								if( !empty($term->term_id) ){
 
 									// update layer type
 											
@@ -2353,7 +2268,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								$term = $terms[0];
 							}
 							
-							if( !empty($term) ){
+							if( !empty($term->term_id) ){
 								
 								$term->output = $this->get_type_output($term);
 
@@ -2364,9 +2279,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( !isset($term->output) ){
 						
-						$term = new stdClass();
-						
 						$term->output 	= '';
+					}
+					
+					if( !isset($term->storage) ){
+
 						$term->storage 	= '';
 					}
 					
@@ -2472,6 +2389,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function init_layer_backend(){
 		
 		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ),9999);
+		
+		add_filter('default-element_custom_fields', array( $this, 'get_default_layer_fields' ),9999);
 			
 		if( $this->storageTypes = $this->get_storage_types() ){
 				
@@ -5862,83 +5781,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				echo'</body>';
 				
 				exit;
-			}
-			elseif(( $this->type == 'user-layer' || $this->type == 'cb-default-layer' ) && $this->layerOutput == 'downloadable' ){
-			 
-				// sanitize content
-				
-				$output = str_replace(array('<?php'),'',$output);
-				
-				// remove absolute image path
-				
-				$output = str_replace($this->parent->image->url,'assets/images/',$output);
-				
-				// store static output
-				
-				//if( $this->type == 'user-layer' || !file_exists($this->layerStaticPath) ){ 
-				
-					file_put_contents($this->layerStaticPath,$output);
-				//}
-				
-				// store static css
-				
-				if( !empty( $this->defaultCss ) ){
-				
-					file_put_contents($this->defaultStaticCssPath,$this->defaultCss);
-				}
-				
-				if( $this->type == 'user-layer' && $this->layerCss != $this->defaultCss ){
-					
-					file_put_contents($this->layerStaticCssPath,$this->layerCss);
-				}					
-				
-				// store static js
-				
-				if( !empty( $this->defaultJs) ){
-				
-					file_put_contents($this->defaultStaticJsPath,$this->defaultJs);
-				}
-				
-				if( $this->type == 'user-layer' && $this->layerJs != $this->defaultJs ){
-					
-					file_put_contents($this->layerStaticJsPath,$this->layerJs);
-				}
-				
-				// output content
-				
-				if( isset($_GET['preview']) ){
-					
-					echo '<!DOCTYPE html>';
-					
-					echo '<head>';
-					
-						echo '<title>';
-						
-							echo 'Preview - ' . $this->title;
-							
-						echo '</title>';
-					
-					echo '</head>';
-					
-					echo '<body>';
-					
-						echo '<iframe src="' . $this->layerStaticUrl . '" style="position:fixed;top:0px;left:0px;bottom:0px;right:0px;width:100%;height:100%;border:none;margin:0;padding:0;overflow:hidden;z-index:999999;" />';
-						
-					echo '</body>';
-				}
-				else{
-					
-					wp_redirect($this->layerStaticUrl);exit;
-					
-					// add base
-					
-					$content  = '<head>' . PHP_EOL;
-					$content .= '<base href="' . dirname($this->layerStaticUrl) . '/">';
-					
-					$output = str_replace('<head>',$content,$output);
-					
-					echo $output;
-				}
 			}
 			else{
 				

@@ -19,7 +19,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		$this->parent->register_post_type( 'default-element', __( 'Default Elements', 'live-template-editor-client' ), __( 'Default Element', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
-			'publicly_queryable' 	=> false,
+			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
 			'show_in_menu' 			=> false,
@@ -32,7 +32,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			'hierarchical' 			=> false,
 			'show_in_rest' 			=> false,
 			//'supports'			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array('title', 'editor'),
+			'supports' 				=> array('title', 'thumbnail'),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
@@ -354,12 +354,13 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			
 			echo'<td>';
 				
+				
 				$this->parent->admin->display_field( array(
 				
 					'type'				=> 'element',
 					'id'				=> 'elements_'.$term->term_id,
 					'name'				=> 'elements_'.$term->term_id,
-					'array' 			=> [],
+					'data' 				=> $this->get_library_elements($term),
 					'description'		=> ''
 					
 				), false );
