@@ -5720,7 +5720,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $layer->output == 'hosted-page' ){
 			
-			if( !empty($this->layerStyleClasses) && $layer->area == 'backend' ){
+			if( !empty($this->layerStyleClasses) && ( $layer->area == 'backend' || $layer->output == 'hosted-page' ) ){
 				
 				$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . do_shortcode($content) . '</div>';
 			}
