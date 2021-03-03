@@ -10,7 +10,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public $localTypes 		= null;
 	public $storageTypes	= null;
-	public $mediaTypes		= null;
 	
 	public $storage_count	= null;
 	public $editors			= null;
@@ -33,6 +32,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $form			= '';
 	public $embedded		= '';
 	
+	public $is_default		= false;
 	public $is_local		= false;
 	public $is_storage		= false;
 	public $is_media		= false;	
@@ -537,6 +537,39 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $post->is_local;
 	}
 	
+	public function is_storage($layer){
+					
+		$types = $this->get_storage_types();
+		
+		if( isset( $types[$layer->post_type] ) )
+			
+			return true;
+		
+		return false;
+	}
+	
+	public function is_media($layer){
+					
+		$types = LTPLE_Editor::get_media_types();
+		
+		if( isset( $types[$layer->post_type] ) )
+			
+			return true;
+		
+		return false;
+	}
+	
+	public function is_element( $layer ){
+		
+		$types = LTPLE_Editor::get_element_types();
+		
+		if( isset( $types[$layer->post_type] ) )
+			
+			return true;
+		
+		return false;
+	}
+	
 	public function is_public($post){
 		
 		$is_public = false;
@@ -732,6 +765,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$post = get_post();
 			}
 			
+			if( empty($post->ID) )
+			
+				return false;
+			
+			$storage_name = 'Template';
+			
+			if( $post->post_type == 'default-element' ){
+				
+				$storage_name = 'Element';
+			}
+			
 			if( $post->post_type == 'cb-default-layer' ){
 				
 				//get current layer range
@@ -741,7 +785,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'metabox' => array( 
 					
 						'name' 		=> 'layer-rangediv',
-						'title' 	=> __( 'Template Range', 'live-template-editor-client' ), 
+						'title' 	=> __( $storage_name . ' Range', 'live-template-editor-client' ), 
 						'screen'	=> array($post->post_type),
 						'context' 	=> 'side',
 						'taxonomy'	=> 'layer-range',
@@ -790,7 +834,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'metabox' => array(
 						
 							'name' 		=> 'layer-content',
-							'title' 	=> __( 'Template HTML', 'live-template-editor-client' ), 
+							'title' 	=> __( $storage_name . ' HTML', 'live-template-editor-client' ), 
 							'screen'	=> array($post->post_type),
 							'context' 	=> 'advanced',
 							'add_new'	=> false,
@@ -802,26 +846,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'placeholder'	=> "HTML content",
 						'htmlentities'	=> true,
 						//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>',
-					);
-
-					$this->defaultFields[]=array(
-					
-						'metabox' => array(
-						
-							'name' 		=> 'layer-margin',
-							'title' 	=> __( 'Editor Margin', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'side',
-							'add_new'	=> false,
-						),
-						
-						'id'			=> "layerMargin",
-						'label'			=> "",
-						'type'			=> 'text',
-						'placeholder'	=> '0px auto',
-						'default'		=> '',
-						'description'	=> ''
-					);				
+					);			
 
 					if( $layer_type->output != 'inline-css' ){
 						
@@ -832,7 +857,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'metabox' => array(
 							
 								'name' 		=> 'layer-css',
-								'title' 	=> __( 'Template CSS', 'live-template-editor-client' ), 
+								'title' 	=> __( $storage_name . ' CSS', 'live-template-editor-client' ), 
 								'screen'	=> array($post->post_type),
 								'context' 	=> 'advanced',
 								'add_new'	=> false,
@@ -848,82 +873,141 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						);
 					}
 					
-					if( $this->is_hosted_output($layer_type->output) ){		
+					if( $post->post_type == 'cb-default-layer' ){
 						
-						$this->defaultFields[]=array(
-						
-							'metabox' => array(
+						if( $this->is_hosted_output($layer_type->output) ){		
 							
-								'name' 		=> 'layer-json',
-								'title' 	=> __( 'Template JSON', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced'
-							),
-							
-							'id'			=> "layerJson",
-							'label'			=> "",
-							'type'			=> 'textarea',
-							'placeholder'	=> "JSON Data",
-							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
-						);						
-						
-						$this->defaultFields[]=array(
-						
-							'metabox' => array(
-							
-								'name' 		=> 'layer-js',
-								'title' 	=> __( 'Template Javascript', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced'
-							),
-							
-							'id'			=> "layerJs",
-							'label'			=> "",
-							'type'			=> 'textarea',
-							'placeholder'	=> "Additional Javascript",
-							'htmlentities'	=> false,
-							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
-						);
-						
-						if( $post->post_type != 'default-element' && $this->is_public_output($layer_type->output) ){
-						
 							$this->defaultFields[]=array(
 							
 								'metabox' => array(
 								
-									'name' 		=> 'layer-meta',
-									'title' 	=> __( 'Template Meta Data', 'live-template-editor-client' ), 
+									'name' 		=> 'layer-json',
+									'title' 	=> __( $storage_name . ' JSON', 'live-template-editor-client' ), 
 									'screen'	=> array($post->post_type),
 									'context' 	=> 'advanced'
 								),
 								
-								'id'			=> "layerMeta",
+								'id'			=> "layerJson",
 								'label'			=> "",
 								'type'			=> 'textarea',
-								'placeholder'	=> "JSON",
-								'description'	=> '<i>Additional Meta Data</i>'
+								'placeholder'	=> "JSON Data",
+								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+							);						
+							
+							$this->defaultFields[]=array(
+							
+								'metabox' => array(
+								
+									'name' 		=> 'layer-js',
+									'title' 	=> __( $storage_name . ' Javascript', 'live-template-editor-client' ), 
+									'screen'	=> array($post->post_type),
+									'context' 	=> 'advanced'
+								),
+								
+								'id'			=> "layerJs",
+								'label'			=> "",
+								'type'			=> 'textarea',
+								'placeholder'	=> "Additional Javascript",
+								'htmlentities'	=> false,
+								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+							);
+							
+							if( $this->is_public_output($layer_type->output) ){
+							
+								$this->defaultFields[]=array(
+								
+									'metabox' => array(
+									
+										'name' 		=> 'layer-meta',
+										'title' 	=> __( $storage_name . ' Meta Data', 'live-template-editor-client' ), 
+										'screen'	=> array($post->post_type),
+										'context' 	=> 'advanced'
+									),
+									
+									'id'			=> "layerMeta",
+									'label'			=> "",
+									'type'			=> 'textarea',
+									'placeholder'	=> "JSON",
+									'description'	=> '<i>Additional Meta Data</i>'
+								);	
+							}
+						}
+						else{
+							
+							$this->defaultFields[]=array(
+							
+								'metabox' => array(
+								
+									'name' 		=> 'layer-margin',
+									'title' 	=> __( 'Editor Margin', 'live-template-editor-client' ), 
+									'screen'	=> array($post->post_type),
+									'context' 	=> 'side',
+									'add_new'	=> false,
+								),
+								
+								'id'			=> "layerMargin",
+								'label'			=> "",
+								'type'			=> 'text',
+								'placeholder'	=> '0px auto',
+								'default'		=> '',
+								'description'	=> ''
 							);	
 						}
+						
+						if( $this->has_html_elements($layer_type) ){
+							
+							$this->defaultFields[]=array(
+							
+								'metabox' => array(
+								
+									'name' 		=> 'layer-elements',
+									'title' 	=> __( 'Template Elements', 'live-template-editor-client' ), 
+									'screen'	=> array($post->post_type),
+									'context' 	=> 'advanced',
+									'frontend' 	=> false,
+								),
+								
+								'id'			=> "layerElements",
+								'name'			=> "layerElements",
+								'type'			=> 'element',
+								'description'	=> '',
+							);
+						}
 					}
-					
-					if( $this->has_html_elements($layer_type) ){
+					elseif( $post->post_type == 'default-element' ){
+						
+						$metabox = array(
+							
+							'name' 		=> 'element-options',
+							'title' 	=> __( $storage_name . ' Options', 'live-template-editor-client' ), 
+							'screen'	=> array($post->post_type),
+							'context' 	=> 'advanced',
+							'add_new'	=> false,
+						);
 						
 						$this->defaultFields[]=array(
 						
-							'metabox' => array(
-							
-								'name' 		=> 'layer-elements',
-								'title' 	=> __( 'Template Elements', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend' 	=> false,
-							),
-							
-							'id'			=> "layerElements",
-							'name'			=> "layerElements",
-							'type'			=> 'element',
+							'metabox' 		=> $metabox,
+							'id'			=> 'elementType',
+							'label'			=> 'Element Section',
+							'type'			=> 'select',
+							'options'		=> $this->parent->element->get_default_sections(),
 							'description'	=> '',
 						);
+						
+						$this->defaultFields[]=array(
+						
+							'metabox' 		=> $metabox,
+							'id'			=> 'elementDrop',
+							'label'			=> 'Target Drop',
+							'type'			=> 'select',
+							'options'		=> array(
+								
+								'out'	=> 'Out',
+								'in'	=> 'In',
+							),
+							'description'	=> '',
+						);	
 					}
 				}
 				elseif( $this->is_image_output($layer_type->output) ){
@@ -949,57 +1033,59 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					);						
 				}
 				
-				if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
+				if( $post->post_type == 'cb-default-layer' ){
+					
+					if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
+						
+						$this->defaultFields[]=array( 
+						
+							'metabox' => array(
 							
+								'name' 		=> 'layer-form',
+								'title' 	=> __( 'Template Action', 'live-template-editor-client' ), 
+								'screen'	=> array($post->post_type),
+								'context' 	=> 'side',
+								'frontend' 	=> false,
+							),
+							'id'			=> "layerForm",
+							'label'			=> "",
+							'type'			=> 'radio',
+							'options'		=> array(
+							
+								'none'		=> 'None',
+								'importer'	=> 'Importer',
+								//'scraper'	=> 'Scraper',
+							),
+							'inline'		=> false,
+							'description'	=> ''
+						);					
+					}
+					
 					$this->defaultFields[]=array( 
 					
 						'metabox' => array(
 						
-							'name' 		=> 'layer-form',
-							'title' 	=> __( 'Template Action', 'live-template-editor-client' ), 
+							'name' 		=> 'layer-visibility',
+							'title' 	=> __( 'Template Visibility', 'live-template-editor-client' ), 
 							'screen'	=> array($post->post_type),
 							'context' 	=> 'side',
 							'frontend' 	=> false,
-						),
-						
-						'id'			=> "layerForm",
+						),	
+						'id'			=> "layerVisibility",
 						'label'			=> "",
 						'type'			=> 'radio',
 						'options'		=> array(
 						
-							'none'		=> 'None',
-							'importer'	=> 'Importer',
-							//'scraper'	=> 'Scraper',
+							'subscriber'	=> 'Subscriber',
+							'assigned'		=> 'Assigned (tailored)',
+							'registered'	=> 'Registered',
+							'anyone'		=> 'Anyone',
 						),
 						'inline'		=> false,
 						'description'	=> ''
-					);				
+					);	
 				}
 			}
-
-			$this->defaultFields[]=array( 
-			
-				'metabox' => array(
-				
-					'name' 		=> 'layer-visibility',
-					'title' 	=> __( 'Template Visibility', 'live-template-editor-client' ), 
-					'screen'	=> array($post->post_type),
-					'context' 	=> 'side',
-					'frontend' 	=> false,
-				),	
-				'id'			=> "layerVisibility",
-				'label'			=> "",
-				'type'			=> 'radio',
-				'options'		=> array(
-				
-					'subscriber'	=> 'Subscriber',
-					'assigned'		=> 'Assigned (tailored)',
-					'registered'	=> 'Registered',
-					'anyone'		=> 'Anyone',
-				),
-				'inline'		=> false,
-				'description'	=> ''
-			);
 			
 			do_action('ltple_default_layer_fields',$layer_type);
 		}
@@ -2035,15 +2121,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'css_url'	 => 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
 					'css_content' => '',
 				),
-			),
-			'elementor-2-2-7' => array(
-			
-				'name' 		=> 'Elementor 2.2.7',
-				'options' 	=> array(
-				
-					'css_url'	 	=> 'https://ltple.recuweb.com/c/p/live-template-editor-resources/assets/elementor/2.2.7/frontend.min.css',
-					'css_content' 	=> '',
-				),
 			),			
 			'animate-3-5-2' => array(
 			
@@ -2054,6 +2131,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'css_content' => '',
 				),
 			),
+			/*
+			'elementor-2-2-7' => array(
+			
+				'name' 		=> 'Elementor 2.2.7',
+				'options' 	=> array(
+				
+					'css_url'	 	=> 'https://ltple.recuweb.com/c/p/live-template-editor-resources/assets/elementor/2.2.7/frontend.min.css',
+					'css_content' 	=> '',
+				),
+			),
+			*/
 		));
 	}
 	
@@ -2063,7 +2151,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'jquery-3-1-1' => array(
 			
 				'name' 		=> 'Jquery 3.1.1',
-				'options' 	=> array(
+				'meta' 	=> array(
 				
 					'js_url'	 => 'https://code.jquery.com/jquery-3.1.1.min.js',
 					'js_content' => '',
@@ -2073,7 +2161,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'jquery-ui-1-12-1' => array(
 					
 						'name' 		=> 'Jquery UI 1.12.1',
-						'options' 	=> array(
+						'meta' 	=> array(
 
 							'js_url'		=> 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
 							'js_content'	=> '
@@ -2092,7 +2180,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'bootstrap-3-3-7' => array(
 					
 						'name' 		=> 'Bootstrap 3.3.7',
-						'options' 	=> array(
+						'meta' 	=> array(
 
 							'js_url'		=> 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js',
 							'js_content'	=> '
@@ -2143,7 +2231,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'material-icons' => array(
 			
 				'name' 		=> 'Material Icons',
-				'options' 	=> array(
+				'meta' 	=> array(
 				
 					'font_url'	 => 'https://fonts.googleapis.com/css?family=Material+Icons',
 				),
@@ -2151,7 +2239,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'roboto' => array(
 			
 				'name' 		=> 'Roboto',
-				'options' 	=> array(
+				'meta' 	=> array(
 				
 					'font_url'	 => 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700',
 				),
@@ -2187,7 +2275,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 
 	public function get_layer_type($post){
-		
+		 
 		if( !empty($post) ){
 		
 			$post_id = 0;
@@ -2211,15 +2299,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$post = get_post($post_id);
 					}
-
+					
 					if( !empty($post->post_type) ){
 						
 						if( $post->post_type == 'default-element' ){
 						
-							$term->output 	= 'inline-css';
+							$term->output 	= 'hosted-page';
 							$term->storage 	= 'user-element';
 						}
-						elseif( isset( $this->mediaTypes[$post->post_type] ) ){
+						elseif( $this->is_media($post) ){
 							
 							$term->output 	= 'image';
 							$term->storage 	= 'attachment';				
@@ -2677,44 +2765,38 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->default_ids[$id];
 	}
 	
+	public function get_layer($layer){
+		
+		// TODO throw errors
+		
+		return LTPLE_Editor::instance()->get_layer($layer);
+	}
+	
 	public function set_layer( $layer = NULL, $echo = true ){
 		
-		if( is_numeric($layer) ){
-			
-			$layer = get_post($layer);
-		}
-		
-		if( !empty($layer) ){
+		if( $layer = get_post($layer) ){
 			
 			if( $layer->post_status == 'publish' || $layer->post_status == 'draft' || $layer->post_status == 'inherit' || $layer->post_status == 'pending' ){
 				
 				$this->layerEcho = $echo;
 				
-				$this->is_local = $this->is_local($layer);
+				$this->is_default 	= $this->is_default($layer);
 				
-				// get default storage
+				$this->is_local 	= $this->is_local($layer);
 				
-				$this->storageTypes = $this->get_storage_types();
+				$this->is_storage 	= $this->is_storage($layer);
 				
-				$this->is_storage = ( isset( $this->storageTypes[$layer->post_type] ) ? true : false );
-
-				// get default storage
+				$this->is_media 	= $this->is_media($layer);
 				
-				$this->mediaTypes = LTPLE_Editor::get_media_types();				
-				
-				$this->is_media = ( isset( $this->mediaTypes[$layer->post_type] ) ? true : false );
-
-				if( $layer->post_type == 'cb-default-layer' || $this->is_storage || $this->is_local || $this->is_media ){
+				if( $this->is_default || $this->is_storage || $this->is_local || $this->is_media ){
 					
 					$this->id 			= $layer->ID;
 					$this->type 		= $layer->post_type;
 					$this->slug 		= $layer->post_name;
 					$this->title 		= $layer->post_title;
 					$this->author 		= intval($layer->post_author);
-					
-					$local_types = $this->get_local_types();
-					
-					if( $layer->post_type == 'cb-default-layer' ){
+
+					if( $this->is_default ){
 						
 						$this->defaultId = $this->id;
 						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );						
@@ -2723,7 +2805,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 						$this->defaultId = $this->get_default_id($this->id);
 					}
-					elseif( !empty($local_types) && in_array( $layer->post_type, $local_types ) ){
+					elseif( $this->is_local ){
 						
 						$this->defaultId = $this->get_default_id($layer->ID);
 						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );							
@@ -2740,11 +2822,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					//get layer output
 
-					$this->layerOutput = !empty($this->defaultLayerType->output) ? $this->defaultLayerType->output : '';
+					$this->layerOutput = !empty($this->defaultLayerType->output) ? $this->defaultLayerType->output : $layer->output;
 					
 					//get layer storage
 					
-					$this->layerStorage = !empty($this->defaultLayerType->storage) ? $this->defaultLayerType->storage : '';
+					$this->layerStorage = !empty($this->defaultLayerType->storage) ? $this->defaultLayerType->storage : $layer->storage;
 					
 					if( $this->layerOutput == 'image' ){
 						
@@ -2915,7 +2997,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						//get css libraries
 
 						$this->layerCssLibraries = $this->get_libraries($this->defaultId,'css');
-
+						
 						//get js libraries
 						
 						$this->layerJsLibraries = $this->get_libraries($this->defaultId,'js');							
@@ -2973,15 +3055,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 										
 										//get menu css libraries
 
-										$this->layerCssLibraries = array_merge($this->layerCssLibraries,wp_get_post_terms( $this->layerMenuDefaultId, 'css-library', array( 'orderby' => 'term_id' ) ));
+										$this->layerCssLibraries = array_merge($this->layerCssLibraries,$this->get_libraries($this->layerMenuDefaultId,'css'));
 
 										//get menu js libraries
 										
-										$this->layerJsLibraries = array_merge($this->layerJsLibraries,wp_get_post_terms( $this->layerMenuDefaultId, 'js-library', array( 'orderby' => 'term_id' ) ));								
+										$this->layerJsLibraries = array_merge($this->layerJsLibraries,$this->get_libraries($this->layerMenuDefaultId,'js'));								
 										
 										//get menu font libraries
 										
-										$this->layerFontLibraries = array_merge($this->layerFontLibraries,wp_get_post_terms( $this->layerMenuDefaultId, 'font-library', array( 'orderby' => 'term_id' ) ));																			
+										$this->layerFontLibraries = array_merge($this->layerFontLibraries,$this->get_libraries($this->layerMenuDefaultId,'font'));																			
 									}
 								}
 							}							
@@ -3010,28 +3092,53 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$libraries[$term->term_id] = $term;
 				
-				if( $term->parent == 0 ){
+				if( $type == 'element' ){
+						
+					if( $term->parent == 0 ){
+						
+						$children = get_term_children($term->term_id,$term->taxonomy);
+						
+						if( !empty($children) ){
+						
+							$children = get_terms( array(
+								
+								'taxonomy' 		=> $term->taxonomy,
+								'hide_empty' 	=> false,
+								'include' 		=> $children,
+							
+							));
+							
+							foreach( $children as $child ){
+								
+								$libraries[$child->term_id] = $child;
+							}
+						}
+					}
+				}
+				elseif( $term->parent > 0 ){
+
+					$ancestors = get_ancestors($term->term_id,$term->taxonomy);
 					
-					$children = get_term_children($term->term_id,$term->taxonomy);
+					if( !empty($ancestors) ){
 					
-					if( !empty($children) ){
-					
-						$children = get_terms( array(
+						$ancestors = get_terms( array(
 							
 							'taxonomy' 		=> $term->taxonomy,
 							'hide_empty' 	=> false,
-							'include' 		=> $children,
+							'include' 		=> $ancestors,
 						
 						));
 						
-						foreach( $children as $child ){
+						foreach( $ancestors as $ancestor ){
 							
-							$libraries[$child->term_id] = $child;
+							$libraries[$ancestor->term_id] = $ancestor;
 						}
 					}
 				}
 			}
 		}
+		
+		$libraries = array_reverse($libraries);
 		
 		return $libraries;
 	}
@@ -3337,7 +3444,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$layerContent = LTPLE_Editor::sanitize_content($layerContent);
 		}
-
+		
 		// parse content elements
 		
 		libxml_use_internal_errors( true );
@@ -3430,7 +3537,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			foreach($this->layerFontLibraries as $term){
 				
-				$font_url = get_option( 'font_url_' . $term->slug);
+				$font_url = $this->get_meta( $term, 'font_url' );
 				
 				if( !empty($font_url) ){
 					
@@ -3496,7 +3603,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 				else{
 				
-					$css_url = $this->sanitize_url(get_option( 'css_url_' . $term->slug));
+					$css_url = $this->sanitize_url($this->get_meta( $term, 'css_url' ));
 					
 					if( !empty($css_url) && !in_array($css_url,$headLinks) ){
 
@@ -3505,7 +3612,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$headLinks[] = $css_url;
 					}
 					
-					$css_content = get_option( 'css_content_' . $term->slug);
+					$css_content = $this->get_meta( $term, 'css_content' );
 					
 					if( !empty($css_content) ){
 					
@@ -3740,13 +3847,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$body .= '</div>';
 			}
 			
-			// layer content
-						
-			$body .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($this->layerMargin) ? 'margin:'.$this->layerMargin.';' : '' ) . '">';
+			if( $this->in_editor() ){
+				
+				// layer content
 							
+				$body .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($this->layerMargin) ? 'margin:'.$this->layerMargin.';' : '' ) . '">';
+								
+					$body .= $layerContent;
+				
+				$body .= '</ltple-layer>' .PHP_EOL;
+			}
+			else{
+				
 				$body .= $layerContent;
-			
-			$body .= '</ltple-layer>' .PHP_EOL;
+			}
 
 		if( $this->is_local($this->id) ){
 		
@@ -3766,19 +3880,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( $this->is_local ){
 				
-					$js_skip = get_option( 'js_skip_local_' . $term->slug);
+					$js_skip = $this->get_meta( $term, 'js_skip_local' ) != 'on' ? 'off' : 'on' ;
 				}
 				
 				if( $js_skip != 'on' ){
 					
-					$js_url = get_option( 'js_url_' . $term->slug);
+					$js_url = $this->get_meta( $term, 'js_url' );
 					
 					if( !empty($js_url) ){
 						
 						$body .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
 					}
 					
-					$js_content = get_option( 'js_content_' . $term->slug);
+					$js_content = $this->get_meta( $term, 'js_content' );
 					
 					if( !empty($js_content) ){
 					
@@ -3795,7 +3909,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$body .= '<script src="'.$url.'"></script>' .PHP_EOL;
 			}
 		}
-		
+
 		//include layer script
 		
 		$body .='<script id="LiveTplEditorScript">' .PHP_EOL;
@@ -3812,7 +3926,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 		$body .='</script>' .PHP_EOL;
 		
-		if($this->type == 'user-layer' && !empty($layerJs) ){
+		if( $this->type == 'user-layer' && !empty($layerJs) ){
 
 			$body .= '<script src="'.$this->layerStaticJsUrl.'"></script>' .PHP_EOL;
 		}
@@ -3822,6 +3936,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		$this->layerBodyContent = $body;
+	}
+	
+	public function in_editor(){
+		
+		if( !empty($_GET['preview']) && $_GET['preview'] == 'ltple' )
+			
+			return true;
+			
+		return false;
 	}
 	
 	public function get_layer_attachments($post_id,$storage='user-psd'){
@@ -4377,12 +4500,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->display_field(array(
 				
 					'type'				=> 'text',
-					'id'				=> 'css_url_'.$term->slug,
-					'name'				=> 'css_url_'.$term->slug,
+					'id'				=> 'css_url',
+					'name'				=> 'css_url',
 					'placeholder'		=> 'http://',
 					'description'		=> '',
 					
-				), false );					
+				), $term );					
 				
 			echo'</td>';
 			
@@ -4401,18 +4524,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->display_field(array(
 				
 					'type'				=> 'textarea',
-					'id'				=> 'css_content_'.$term->slug,
-					'name'				=> 'css_content_'.$term->slug,
+					'id'				=> 'css_content',
+					'name'				=> 'css_content',
 					'placeholder'		=> '.style{display:block;}',
 					'description'		=> '<i>without ' . htmlentities('<style></style>') . '</i>'
 					
-				), false );				
+				), $term );				
 					
 			echo'</td>';
 			
 		echo'</tr>';
 		
-		$parse = get_option('css_parse_'.$term->slug,'off');
+		$parse = $this->get_meta( $term, 'css_parse' ) != 'on' ? 'off' : 'on' ;
 		
 		echo'<tr class="form-field">';
 		
@@ -4427,184 +4550,152 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->display_field(array(
 				
 					'type'			=> 'switch',
-					'id'			=> 'css_parse_'.$term->slug,
-					'name'			=> 'css_parse_'.$term->slug,
+					'id'			=> 'css_parse',
+					'name'			=> 'css_parse',
 					'data'			=> $parse,
 					'description'	=> 'Prepend unique class name to CSS selectors',
 					
-				), false );				
+				), $term );				
 					
 			echo'</td>';
 			
 		echo'</tr>';
 		
-		if( $parse == 'on' ){
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Source </label>';
 			
-			/*
-			echo'<tr class="form-field">';
+			echo'</th>';
 			
-				echo'<th valign="top" scope="row">';
+			echo'<td>';
 					
-					echo'<label for="category-text">Md5 </label>';
+				$this->parent->admin->display_field(array(
 				
-				echo'</th>';
-				
-				echo'<td>';
-						
-					$this->parent->admin->display_field(array(
+					'type'		=> 'text',
+					'id'		=> 'css_source',
+					'name'		=> 'css_source',
+					'data'		=> $this->get_css_parsed_url($term),
+					'disabled'	=> true,
 					
-						'type'		=> 'text',
-						'id'		=> 'css_md5_'.$term->slug,
-						'name'		=> 'css_md5_'.$term->slug,
-						'disabled'	=> true,
-						
-					), false );				
-						
-				echo'</td>';
-				
-			echo'</tr>';
-			*/
+				), $term );				
+					
+			echo'</td>';
 			
-			echo'<tr class="form-field">';
-			
-				echo'<th valign="top" scope="row">';
-					
-					echo'<label for="category-text">Source </label>';
-				
-				echo'</th>';
-				
-				echo'<td>';
-						
-					$this->parent->admin->display_field(array(
-					
-						'type'		=> 'text',
-						'id'		=> 'css_source_'.$term->slug,
-						'name'		=> 'css_source_'.$term->slug,
-						'data'		=> $this->get_css_parsed_url($term),
-						'disabled'	=> true,
-						
-					), false );				
-						
-				echo'</td>';
-				
-			echo'</tr>';
-		}
+		echo'</tr>';
 	}
 	
 	public function get_css_parsed_url($term){
 		
-		$css_parse = get_option('css_parse_'.$term->slug);
-	
-		if( $css_parse == 'on' ){
-			
-			$attach_id = intval(get_option('css_attachment_'.$term->slug));		
+		$attach_id 		= intval($this->get_meta( $term, 'css_attachment' ));		
 
-			$css_url = get_option('css_url_'.$term->slug);
-			
-			$css_content = get_option('css_content_'.$term->slug);
+		$css_url 		= $this->get_meta( $term, 'css_url' );
+		
+		$css_content 	= $this->get_meta( $term, 'css_content' );
 
-			$css_md5 = get_option('css_md5_'.$term->slug);
+		$css_md5 		= $this->get_meta( $term, 'css_md5' );
+		
+		$css_version 	= '1.0.6';
+		
+		$styleName = $this->get_meta( $term, 'css_parse' ) == 'on' ? 'style-' . $term->term_id : '';
+		
+		$styleClass = !empty($styleName) ? '.' . $styleName : '';
+
+		$md5 = md5($css_url.$css_content.$styleName.$css_version);
+		
+		if( $css_md5 != $md5 ){
 			
-			$css_version = '1.0.6';
-			
-			$styleName = 'style-' . $term->term_id;
-			
-			$md5 = md5($css_url.$css_content.$styleName.$css_version);
-			
-			if( $css_md5 != $md5 ){
+			$content = '';
+
+			if( !empty($css_url) ){
 				
-				$content = '';
+				$response = wp_remote_get($css_url);
 				
-				if( !empty($css_url) ){
+				if ( is_array( $response ) ) {
 					
-					$response = wp_remote_get($css_url);
-					
-					if ( is_array( $response ) ) {
+					$body = $response['body'];
+
+					if( !empty($body) ){
 						
-						$body = $response['body'];
-
-						if( !empty($body) ){
-							
-							$content .= $this->parse_css_content($body, '.' . $styleName, $css_url);
-						}
+						$content .= $this->parse_css_content($body, $styleClass, $css_url);
 					}
 				}
-				
-				if( !empty($css_content) ){
-					
-					$content .= $this->parse_css_content($css_content, '.' . $styleName, $css_content);
-				}
-				
-				//dump($content);
-
-				if( !empty($content) ){
-					
-					// remove current attachement
-					
-					$css_attachement = get_post($attach_id);
-					
-					if(!empty($css_attachement)){
-						
-						wp_delete_attachment( $css_attachement->ID, true );
-					}				
-				
-					// add style to media
-					
-					if ( !function_exists('media_handle_upload') ) {
-						
-						require_once(ABSPATH . "wp-admin" . '/includes/image.php');
-						require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-						require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-					}
-
-					// create archive
-					
-					$tmp = wp_tempnam($styleName) . '.css';
-					
-					file_put_contents($tmp,$content);
-					
-					$file_array = array(
-					
-						'name' 		=> $styleName . '.css',
-						'tmp_name' 	=> $tmp,
-					);
-					
-					$post_data = array(
-					
-						'post_title' 		=> $styleName,
-						'post_mime_type' 	=> 'text/css',
-					);
-
-					if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
-					
-					$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
-					
-					@unlink($tmp);
-					
-					if( is_numeric($attach_id) ){
-					
-						update_option('css_attachment_'.$term->slug,$attach_id,false);
-					}
-					else{
-						
-						dump($attach_id);
-					}
-				}
-				
-				//update md5
-				
-				update_option('css_md5_'.$term->slug,$md5,false);
 			}
 			
-			if( is_numeric($attach_id) ){
+			if( !empty($css_content) ){
 				
-				$url = wp_get_attachment_url($attach_id);
+				$content .= $this->parse_css_content($css_content, $styleClass, $css_content);
+			}
+			
+			if( !empty($content) ){
 				
-				if(!empty($url)){
+				// remove current attachement
 				
-					return $url . '?' . $md5;
+				$css_attachement = get_post($attach_id);
+				
+				if(!empty($css_attachement)){
+					
+					wp_delete_attachment( $css_attachement->ID, true );
+				}				
+			
+				// add style to media
+				
+				if ( !function_exists('media_handle_upload') ) {
+					
+					require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+					require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+					require_once(ABSPATH . "wp-admin" . '/includes/media.php');
 				}
-			} 			
+
+				// create archive
+				
+				$tmp = wp_tempnam($term->slug) . '.css';
+				
+				file_put_contents($tmp,$content);
+				
+				$file_array = array(
+				
+					'name' 		=> $term->slug . '.css',
+					'type' 		=> 'text/css',
+					'tmp_name' 	=> $tmp,
+				);
+				
+				$post_data = array(
+				
+					'post_title' 		=> $term->slug,
+					'post_mime_type' 	=> 'text/css',
+				);
+
+				if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
+				
+				$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
+				
+				@unlink($tmp);
+				
+				if( is_numeric($attach_id) ){
+				
+					update_term_meta($term->term_id,'css_attachment',$attach_id);
+				}
+				else{
+					
+					dump($attach_id);
+				}
+			}
+			
+			//update md5
+			
+			update_term_meta($term->term_id,'css_md5',$md5);
+		}
+		
+		if( is_numeric($attach_id) ){
+			
+			$url = wp_get_attachment_url($attach_id);
+			
+			if(!empty($url)){
+			
+				return $url . '?' . $md5;
+			}
 		}
 		
 		return false;
@@ -4627,12 +4718,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->display_field(array(
 				
 					'type'				=> 'text',
-					'id'				=> 'js_url_'.$term->slug,
-					'name'				=> 'js_url_'.$term->slug,
+					'id'				=> 'js_url',
+					'name'				=> 'js_url',
 					'placeholder'		=> 'http://',
 					'description'		=> ''
 					
-				), false );					
+				), $term );					
 				
 			echo'</td>';
 			
@@ -4651,12 +4742,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->display_field(array(
 				
 					'type'				=> 'textarea',
-					'id'				=> 'js_content_'.$term->slug,
-					'name'				=> 'js_content_'.$term->slug,
+					'id'				=> 'js_content',
+					'name'				=> 'js_content',
 					'placeholder'		=> htmlentities('<script></script>'),
 					'description'		=> '<i>with '.htmlentities('<script></script>').'</i>'
 					
-				), false );				
+				), $term );				
 					
 			echo'</td>';
 			
@@ -4675,11 +4766,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->display_field(array(
 				
 					'type'			=> 'switch',
-					'id'			=> 'js_skip_local_'.$term->slug,
-					'name'			=> 'js_skip_local_'.$term->slug,
+					'id'			=> 'js_skip_local',
+					'name'			=> 'js_skip_local',
 					'description'	=> 'Skip the library in local pages to avoid conflict with the current theme',
 					
-				), false );				
+				), $term );				
 					
 			echo'</td>';
 			
@@ -4703,12 +4794,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$this->parent->admin->display_field(array(
 				
 					'type'				=> 'text',
-					'id'				=> 'font_url_'.$term->slug,
-					'name'				=> 'font_url_'.$term->slug,
+					'id'				=> 'font_url',
+					'name'				=> 'font_url',
 					'placeholder'		=> 'http://',
 					'description'		=> ''
 					
-				), false );					
+				), $term );					
 				
 			echo'</td>';
 			
@@ -5076,43 +5167,51 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( $this->parent->user->can_edit ){
 			
 			//collect all term related data for this new taxonomy
+			
 			$term = get_term($term_id);
 
 			//save our custom fields as wp-options
-
-			if(isset($_POST['css_url_'.$term->slug])){
-
-				update_option('css_url_'.$term->slug, $_POST['css_url_'.$term->slug],false);			
-			}
 			
-			if(isset($_POST['css_content_'.$term->slug])){
+			if( $term->taxonomy == 'css-library' ){
+				
+				if( isset($_POST['css_url']) ){
 
-				update_option('css_content_'.$term->slug, $_POST['css_content_'.$term->slug],false);			
+					update_term_meta($term->term_id, 'css_url', $_POST['css_url']);			
+				}
+				
+				if(isset($_POST['css_content'])){
+
+					update_term_meta($term->term_id, 'css_content', $_POST['css_content']);			
+				}
+				
+				$parse = isset($_POST['css_parse']) ? $_POST['css_parse'] : 'off';
+				
+				update_term_meta($term->term_id, 'css_parse', $parse);			
+
 			}
-			
-			if(isset($_POST['css_parse_'.$term->slug])){
+			elseif( $term->taxonomy == 'js-library' ){
+				
+				if(isset($_POST['js_url'])){
 
-				update_option('css_parse_'.$term->slug, $_POST['css_parse_'.$term->slug],false);			
+					update_term_meta($term->term_id, 'js_url', $_POST['js_url']);			
+				}
+				
+				if(isset($_POST['js_content'])){
+
+					update_term_meta($term->term_id, 'js_content', $_POST['js_content']);			
+				}
+				
+				if(isset($_POST['js_skip_local'])){
+
+					update_term_meta($term->term_id, 'js_skip_local', $_POST['js_skip_local']);			
+				}
 			}
-			
-			if(isset($_POST['js_url_'.$term->slug])){
+			elseif( $term->taxonomy == 'font-library' ){
+					
+				if(isset($_POST['font_url'])){
 
-				update_option('js_url_'.$term->slug, $_POST['js_url_'.$term->slug],false);			
-			}
-			
-			if(isset($_POST['js_content_'.$term->slug])){
-
-				update_option('js_content_'.$term->slug, $_POST['js_content_'.$term->slug],false);			
-			}
-			
-			if(isset($_POST['js_skip_local_'.$term->slug])){
-
-				update_option('js_skip_local_'.$term->slug, $_POST['js_skip_local_'.$term->slug],false);			
-			}
-			
-			if(isset($_POST['font_url_'.$term->slug])){
-
-				update_option('font_url_'.$term->slug, $_POST['font_url_'.$term->slug],false);			
+					update_term_meta($term->term_id, 'font_url', $_POST['font_url']);			
+				}
 			}
 		}
 	}
@@ -5578,7 +5677,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function output_layer(){
 		
 		$content = '';
-		
+
 		if( !empty($this->layerOutput) ){
 			
 			ob_start();
@@ -5621,20 +5720,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $layer->output == 'hosted-page' ){
 			
-			/*
-			if( $layer->area == 'frontend' && $this->layerEcho === true ){
+			if( !empty($this->layerStyleClasses) && $layer->area == 'backend' ){
 				
-				$content = $this->layerBodyContent;
-			}
-			elseif( $layer->area == 'backend' && !empty($this->layerStyleClasses) ){
-				
-				$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . $content . '</div>';
-			}
-			*/
-			
-			if( !empty($this->layerStyleClasses) && ( $layer->area == 'backend' || $layer->output == 'hosted-page' ) ){
-				
-				$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . $content . '</div>';
+				$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . do_shortcode($content) . '</div>';
 			}
 			elseif( $layer->area == 'frontend' && $this->layerEcho === true ){
 				
@@ -5695,7 +5783,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						}
 						else{
 						
-							$css_url = $this->sanitize_url(get_option( 'css_url_' . $term->slug));
+							$css_url = $this->sanitize_url($this->get_meta( $term, 'css_url' ));
 							
 							if( !empty($css_url) ){
 
@@ -5703,7 +5791,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
 							}
 							
-							$css_content = get_option( 'css_content_' . $term->slug);
+							$css_content = $this->get_meta( $term, 'css_content' );
 							
 							if( !empty($css_content) ){
 								

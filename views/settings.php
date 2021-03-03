@@ -197,12 +197,6 @@
 							
 							if(!empty($this->parent->profile->privacySettings )){
 							
-								echo'<div class="col-xs-12 col-sm-2 text-right">';
-									
-									echo'<a target="_blank" class="label label-primary" style="font-size: 13px;" href="'.$this->parent->urls->profile . $this->parent->user->ID . '/">view website</a>';
-									
-								echo'</div>';
-								
 								echo'<div class="col-xs-12 col-sm-2"></div>';
 								
 								echo'<div class="clearfix"></div>';

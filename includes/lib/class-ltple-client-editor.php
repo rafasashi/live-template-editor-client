@@ -110,7 +110,7 @@ class LTPLE_Client_Editor {
 					
 					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
 						
-						wp_register_script( $this->parent->_token . '-editor-panel', '', array( 'jquery', $this->parent->_token . '-notify-js' ) );
+						wp_register_script( $this->parent->_token . '-editor-panel', '', array( 'jquery', $this->parent->_token . '-notify' ) );
 						wp_enqueue_script( $this->parent->_token . '-editor-panel' );
 						wp_add_inline_script( $this->parent->_token . '-editor-panel', $this->get_editor_panel_script());
 						
@@ -306,7 +306,7 @@ class LTPLE_Client_Editor {
 		}			
 		
 		if( !empty($this->parent->layer->layerHtmlLibraries) ){
-		
+			
 			foreach( $this->parent->layer->layerHtmlLibraries as $term ){
 				
 				$elements = $this->parent->element->get_library_elements($term);

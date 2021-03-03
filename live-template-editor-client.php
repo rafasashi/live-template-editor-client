@@ -84,6 +84,6 @@
 			
 			// start plugin
 		
-			LTPLE_Client('1.5.1.46');
+			LTPLE_Client('1.5.2.3');
 		}
 	}

@@ -78,7 +78,7 @@ html>body #email_series .ui-sortable li { height: 1.5em; line-height: 1.2em; }
 .subnav-li-active {
     font-weight: bold;
 }
-.subnav-li-inactive a {
+.subnav-li a {
     text-decoration: none;
     color: #0073aa;
 }

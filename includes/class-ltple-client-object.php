@@ -76,6 +76,37 @@ class LTPLE_Client_Object {
 		return $list;
 	}
 	
+	public function get_meta( $term, $key ){
+		
+		if( is_numeric($term) ){
+			
+			$term = get_term_by('id',$term);
+		}
+		
+		$meta = null;
+		
+		if( !empty($term->term_id) ){
+		
+			if( !$meta = get_term_meta( $term->term_id, $key, true ) ){
+				
+				// get value from options (deprecated schema)
+				
+				$option = get_option( $key . '_' . $term->slug, null );
+			
+				if( !is_null($option) ){
+					
+					$meta = $option;
+
+					// migrate data  
+					
+					update_term_meta( $term->term_id, $key, $meta);	
+				}
+			}
+		}
+		
+		return $meta;
+	}
+	
 	public function index_keys($fields = array()){
 		
 		$index = array();

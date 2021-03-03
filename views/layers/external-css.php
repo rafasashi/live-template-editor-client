@@ -6,23 +6,23 @@
 	
 	//get css libraries
 
-	$layerCssLibraries =$this->layerCssLibraries;
+	$layerCssLibraries = $this->layerCssLibraries;
 
 	//get js libraries
 	
-	$layerJsLibraries =$this->layerJsLibraries;
+	$layerJsLibraries = $this->layerJsLibraries;
 	
 	//get font libraries
 	
-	$layerFontLibraries =$this->layerFontLibraries;	
+	$layerFontLibraries = $this->layerFontLibraries;	
 	
 	//get layer margin
 	
-	$layerMargin =$this->layerMargin;
+	$layerMargin = $this->layerMargin;
 	
 	//get layer Min Width
 	
-	$layerMinWidth =$this->layerMinWidth;
+	$layerMinWidth = $this->layerMinWidth;
 
 	// get layer content
 	
@@ -118,7 +118,7 @@
 		
 		foreach($layerFontLibraries as $term){
 			
-			$font_url = get_option( 'font_url_' . $term->slug);
+			$font_url = $this->get_meta( $term, 'font_url' );
 			
 			if( !empty($font_url) ){
 				
@@ -180,7 +180,7 @@
 			
 			foreach($layerCssLibraries as $term){
 				
-				$css_url =$this->sanitize_url( get_option( 'css_url_' . $term->slug) );
+				$css_url =$this->sanitize_url( $this->get_meta( $term, 'css_url' ) );
 				
 				if( !empty($css_url) && !in_array($css_url,$headLinks) ){
 
@@ -189,7 +189,7 @@
 					$headLinks[] = $css_url;
 				}
 				
-				$css_content = get_option( 'css_content_' . $term->slug);
+				$css_content = $this->get_meta( $term, 'css_content' );
 				
 				if( !empty($css_content) ){
 				
@@ -251,14 +251,14 @@
 			
 			foreach($layerJsLibraries as $term){
 				
-				$js_url = get_option( 'js_url_' . $term->slug);
+				$js_url = $this->get_meta( $term, 'js_url' );
 				
 				if( !empty($js_url) ){
 					
 					$layer .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
 				}
 				
-				$js_content = get_option( 'js_content_' . $term->slug);
+				$js_content = $this->get_meta( $term, 'js_content' );
 				
 				if( !empty($js_content) ){
 				

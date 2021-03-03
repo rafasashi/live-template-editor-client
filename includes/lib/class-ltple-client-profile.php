@@ -488,6 +488,8 @@ class LTPLE_Client_Profile {
 			display:inline-block;
 			height:41px;
 			font-family: "Open Sans", Helvetica;
+			text-transform: uppercase;
+			font-size: 12px;
 		}
 		
 		#profile_nav > li > a:hover {

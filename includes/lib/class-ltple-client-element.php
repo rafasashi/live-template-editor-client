@@ -32,12 +32,12 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			'hierarchical' 			=> false,
 			'show_in_rest' 			=> false,
 			//'supports'			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array('title', 'thumbnail'),
+			'supports' 				=> array('title','thumbnail'),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_taxonomy( 'element-library', __( 'Element Libraries', 'live-template-editor-client' ), __( 'Element Library', 'live-template-editor-client' ),array('cb-default-layer'), 
+		$this->parent->register_taxonomy( 'element-library', __( 'Element Libraries', 'live-template-editor-client' ), __( 'Element Library', 'live-template-editor-client' ),array('cb-default-layer','default-element'), 
 	
 			array(
 				'hierarchical' 			=> true,
@@ -54,14 +54,12 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			)
 		);
 		
-		add_filter('init', array( $this, 'init_element' ));
-		
 		add_filter('admin_init', array( $this, 'init_element_backend' ));
-		
-		add_filter('init', array( $this, 'init_element_frontend' ));
-		
+
 		add_action('wp_loaded', array($this,'set_default_elements'));	
-	
+		
+		add_action('ltple_element_types', array($this,'filter_element_types'));	
+		
 		add_shortcode('ltple-element-site', array( $this , 'get_element_site' ) );
 	}
 	
@@ -74,142 +72,65 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		return $_SERVER['SERVER_NAME'];
 	}
 	
+	public function filter_element_types($types=array()){
+		
+		$types['default-element'] = 'Default Element';
+		
+		return $types;
+	}
+	
+	public function get_default_sections(){
+		
+		$types = [
+						
+			'headers'	=>	__( 'Headers', 'live-template-editor-client' ),
+			'sections'	=>	__( 'Sections', 'live-template-editor-client' ),
+			'actions'	=>	__( 'Actions', 'live-template-editor-client' ),
+			'contents'	=>	__( 'Contents', 'live-template-editor-client' ),
+			'components'=>	__( 'Components', 'live-template-editor-client' ),
+			'buttons'	=>	__( 'Buttons', 'live-template-editor-client' ),
+			'features'	=>	__( 'Features', 'live-template-editor-client' ),
+			'blogs'		=>	__( 'Blogs', 'live-template-editor-client' ),
+			'teams'		=>	__( 'Teams', 'live-template-editor-client' ),
+			'profiles'	=>	__( 'Profiles', 'live-template-editor-client' ),
+			'projects'	=>	__( 'Projects', 'live-template-editor-client' ),
+			'products'	=>	__( 'Products', 'live-template-editor-client' ),
+			'pricing'	=>	__( 'Pricing', 'live-template-editor-client' ),
+			'testimonials'	=>	__( 'Testimonials', 'live-template-editor-client' ),
+			'contact'	=>	__( 'Contact', 'live-template-editor-client' ),
+			'images'	=>	__( 'Images', 'live-template-editor-client' ),
+			'videos'	=>	__( 'Videos', 'live-template-editor-client' ),
+			'widgets'	=>	__( 'Widgets', 'live-template-editor-client' ),
+			'menus'		=>	__( 'Menus', 'live-template-editor-client' ),
+			'forms'		=>	__( 'Forms', 'live-template-editor-client' ),
+			'footers'	=>	__( 'Footers', 'live-template-editor-client' ),
+		];
+		
+		return $types;		
+	}
+	
 	public function set_default_elements(){
 
 		$libraries = $this->get_terms( 'element-library', array(
 			
+			/*
 			'bootstrap-3-grid' => array(
 			
-				'name' 		=> 'Bootstrap 3 - Grid',
-				'options'	=> array(
-				
-					'elements'	=> $this->index_keys(array(
-					
-						array(
-						
-							'name' 		=> '1 block',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);">block<span></span></div><div class="clearfix"></div></div>',
-						),
-						array(
-						
-							'name' 		=> '2 columns',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
-						),
-						array(
-						
-							'name' 		=> '3 columns',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
-						),
-						array(
-						
-							'name' 		=> '4 columns',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
-						),
-						array(
-						
-							'name' 		=> '2 rows',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="clearfix"></div></div>',
-						),
-						array(
-						
-							'name' 		=> '3 rows',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="col-xs-12" style="background: rgba(128, 194, 249, 0.18);"><span>row</span></div><div class="clearfix"></div></div>',
-						),	
-						array(
-						
-							'name' 		=> 'landing page',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-xs-12 text-center" style="background: rgba(128, 194, 249, 0.18);"><span>block</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
-						),
-						array(
-						
-							'name' 		=> 'nav left',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>nav</span></div><div class="col-sm-9" style="background: rgba(128, 194, 249, 0.18);"><span>block</span></div><div class="clearfix"></div></div>',
-						),
-						array(
-						
-							'name' 		=> 'nav right',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-sm-9" style="background: rgba(128, 194, 249, 0.18);"><span>block</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>nav</span></div><div class="clearfix"></div>',
-						),
-						array(
-						
-							'name' 		=> 'L grid',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-6" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="clearfix"></div></div>',
-						),	
-						array(
-						
-							'name' 		=> 'M grid',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="col-sm-4" style="background: rgba(128, 194, 249, 0.18);"><span>cell</span></div><div class="clearfix"></div></div>',
-						),
-						array(
-						
-							'name' 		=> 'S grid',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-3" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="clearfix"></div></div>',
-						),
-						array(
-						
-							'name' 		=> 'XS grid',
-							'type'		=> 'grid',
-							'image' 	=> '',
-							'content' 	=> '<div class="row"><div class="col-sm-1 ltple-ex"></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-1 ltple-ex"></div><div class="clearfix"></div><div class="col-sm-1 ltple-ex"></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-1 ltple-ex"></div><div class="clearfix"></div><div class="col-sm-1 ltple-ex"></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-1 ltple-ex"></div><div class="clearfix"></div><div class="col-sm-1 ltple-ex"></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-2" style="background: rgba(128, 194, 249, 0.18);"><span>col</span></div><div class="col-sm-1 ltple-ex"></div><div class="clearfix"></div></div>',
-						),							
-					)),
-				),
+				'name' 	=> 'Bootstrap 3 - Grid',
 			),
+			*/
 		));
 	}
 
-	public function init_element(){
-
-	
-	}
-	
 	public function init_element_backend(){
-
-		add_action('element-library_edit_form_fields', array( $this, 'get_fields' ) );
 	
-		add_action('create_element-library', array( $this, 'save_fields' ) );
-		
-		add_action('edit_element-library', array( $this, 'save_fields' ) );	
-	
-		add_filter('rew_export_term', array( $this, 'filter_exported_term' ),10,2 );
-
 		add_filter('manage_edit-element-library_columns', array( $this, 'filter_element_library_columns' ) );
-		
 		add_filter('manage_element-library_custom_column', array( $this, 'filter_element_library_column_content' ),10,3);
-	}
 	
-	public function filter_exported_term($term=array(),$term_id){
-		
-		if( !empty($term_id) ){
-
-			$term['meta'][$this->parent->_base . 'elements'] = $this->get_library_elements($term_id);
-		}
-		
-		return $term;
+		add_filter('manage_default-element_posts_columns', 	array( $this, 'filter_default_element_columns' ),999 );
+		add_filter('manage_default-element_posts_custom_column', array( $this, 'filter_default_element_column_content' ),10,3);
+	
+		add_filter('admin_enqueue_scripts',array( $this, 'add_action_scripts' ) );
 	}
 	
 	public function get_library_elements($term){
@@ -224,44 +145,138 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			$term_id = $term->term_id;
 			
 			if( !isset($this->list[$term_id]) ){
-			
-				if( !$elements = get_term_meta($term_id,$this->parent->_base . 'elements',true) ){
+				
+				$elements = array();
+				
+				// get elements
+				
+				if( $elems = get_posts( array(
+				
+					'post_type' 	=> 'default-element',
+					'numberposts' 	=> -1,
+					'orderby'		=> 'id',
+					'order' 		=> 'ASC',
+					'tax_query' 	=> array(
+						
+						array(
+						
+							'taxonomy' 		=> 'element-library',
+							'field' 		=> 'term_id', 
+							'terms' 		=> $term->term_id,
+							'include_children' => false
+						)
+					)
 					
-					if( $elements = get_option('elements_' . $term->slug,false) ){
+				))){
+					
+					foreach( $elems as $elem ){
 						
-						// migrate to meta
+						$meta = get_post_meta($elem->ID);
 						
-						update_term_meta($term_id,$this->parent->_base . 'elements', $elements);
+						$content 	= isset($meta['layerContent'][0]) ? $meta['layerContent'][0] : '';
+						$type 		= isset($meta['elementType'][0])  ? $meta['elementType'][0]	 : 'sections';
+						$drop 		= isset($meta['elementDrop'][0])  ? $meta['elementDrop'][0]  : 'out';
+						$image 	 	= '';
+						
+						$elements['name'][] 	= $elem->post_title;
+						$elements['content'][] 	= $content;
+						$elements['type'][] 	= $type;
+						$elements['drop'][] 	= $drop;
+						$elements['image'][] 	= $image;
 					}
 				}
 				
-				if( 1==1 ){
+				if( empty($elements) ){
 					
-					// normalize content
+					// migrate old content from meta
 					
-					$old_elements = $elements;
-					
-					foreach( $elements['content'] as $i => $content ){
+					if( $elements = $this->get_meta($term,'elements') ){
 						
 						// normalize content
 						
-						$content = str_replace( array(
+						foreach( $elements['content'] as $i => $content ){
 							
-							'wordpress.recuweb.com',
-						
-						),'[ltple-element-site]',$content);
-						
-						$elements['content'][$i] = $content;
+							// normalize content
+							
+							$content = str_replace( array(
+								
+								'wordpress.recuweb.com',
+							
+							),'[ltple-element-site]',$content);
+							
+							$elements['content'][$i] = $content;
+							
+							$name =	$elements['name'][$i];
+							
+							if( !empty($content) && !empty($name) ){
+							
+								// migrate to default element
+								
+								$element = null;
+								
+								$slug = sanitize_title($name);
+								
+								if( $elems = get_posts( array(
+									
+									'name' 			=> $slug,
+									'post_type' 	=> 'default-element',
+									'post_status' 	=> 'publish',
+									'numberposts' 	=> -1,
+									
+								)) ){
+									
+									foreach( $elems as $elem ){
+										
+										if( $elem->post_name == $slug ){
+											
+											$element = $elem;
+											
+											break;
+										}
+									}
+								}
+								
+								if( empty($element) ){
+									
+									$element_id = wp_insert_post( array(
+										
+										'post_title' 	=> $name,
+										'post_name' 	=> $slug,
+										'post_type' 	=> 'default-element',
+										'post_status' 	=> 'publish',
+									));
+									
+									wp_set_object_terms($element_id,$term->term_id,$term->taxonomy,true);
+									
+									update_post_meta($element_id,'layerContent',$content);
+									update_post_meta($element_id,'elementType',$elements['type'][$i]);
+									update_post_meta($element_id,'elementDrop',$elements['drop'][$i]);
+									
+									if( REW_SITE == 'himalayas.life' ){
+										
+										wp_set_object_terms($element_id,6750,'css-library',true);
+										wp_set_object_terms($element_id,6782,'font-library',true);
+									}
+								}
+								else{
+									
+									$element_id = $element->ID;
+								}
+							}
+						}
 					}
 				}
 				
-				// do shortcodes
+				if( !empty($elements) ){
 				
-				foreach( $elements['content'] as $i => $content ){
-					
-					// normalize content
+					// do shortcodes
+				
+					foreach( $elements['content'] as $i => $content ){
+						
+						// normalize content
 
-					$elements['content'][$i] = do_shortcode($content);
+						$elements['content'][$i] = do_shortcode($content);
+					}
 				}
 				
 				$this->list[$term_id] = $elements;
@@ -272,12 +287,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 		return false;
 	}
-	
-	public function init_element_frontend(){
 
-	
-	}
-	
 	public function filter_element_library_columns($columns){
 		
 		$columns = [];
@@ -342,47 +352,372 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		return $count;
 	}
 	
-	public function get_fields($term){	
-	
-		echo'<tr class="form-field">';
+	public function filter_default_element_columns($columns){
 		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Elements</label>';
+		// Remove description, posts, wpseo columns
+		
+		$columns = [];
+		
+		// Add artist-website, posts columns
+
+		$columns['cb'] 		= '<input type="checkbox" />';
+		$columns['thumb'] 	= 'Preview';
+		$columns['title'] 	= 'Title';
+		
+		if( current_user_can('administrator') ){
 			
-			echo'</th>';
+			$columns['actions'] = 'Actions';
+		}
+		
+		return $columns;
+	}
+
+	public function filter_default_element_column_content($column_name, $post_id){
+	
+		if( $column_name === 'thumb' ){
+
+			if( !$url = get_the_post_thumbnail_url($post_id,'post-thumbnail')){
+				
+				$url = $this->parent->assets_url . 'images/default-element.jpg';
+			}
+
+			echo '<img style="width:150px;" src="'.$url.'">';
+		}
+		elseif( $column_name === 'actions' ){
+				
+			echo '<div id="action-buttons-'.$post_id.'" class="action-buttons">';
+				
+					$source = '';
+
+					echo '<button data-id="'.$post_id.'" data-title="Generate Preview" data-source="'.$source.'" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small">';
+						
+						echo 'Refresh Preview';
+						
+					echo '</button>';
+
+			echo '</div>';
 			
-			echo'<td>';
+			echo '<div id="meter-'.$post_id.'" class="action-meter" style="display:none;">';
 				
+				echo '<span class="progress" style="width:0%;"></span>';
 				
-				$this->parent->admin->display_field( array(
-				
-					'type'				=> 'element',
-					'id'				=> 'elements_'.$term->term_id,
-					'name'				=> 'elements_'.$term->term_id,
-					'data' 				=> $this->get_library_elements($term),
-					'description'		=> ''
-					
-				), false );
-				
-			echo'</td>';
+			echo '</div>';
 			
-		echo'</tr>';		
+			echo '<div id="message-'.$post_id.'" class="action-message">';
+			
+				echo '<span class="completed" style="display:none;">Completed!</span>';
+		
+			echo '</div>';
+		}
+		
+		return $column_name;
 	}
 	
-	public function save_fields($term_id){
-
-		if( isset($_POST['elements_'.$term_id]['name']) && isset($_POST['elements_'.$term_id]['type']) && isset($_POST['elements_'.$term_id]['image']) && isset($_POST['elements_'.$term_id]['content'])  ){
+	public function is_element_panel(){
+		
+		if( is_admin() ){
 			
-			if( is_array($_POST['elements_'.$term_id]['name']) && is_array($_POST['elements_'.$term_id]['type']) && is_array($_POST['elements_'.$term_id]['image']) && is_array($_POST['elements_'.$term_id]['content'])  ){
+			$post_type = !empty($_GET['post_type']) ? $_GET['post_type'] : '';
+			
+			if( $post_type == 'default-element' )
+			
+				return true;
+		}
+			
+		return false;
+	}
+	
+	public function add_action_footer(){
+		
+		if( $this->is_element_panel() ){
+			
+			echo '<div id="actionConsole" style="display:none;" title="Action Console">';
+				
+				echo '<div id="actionLogs" style="height:50vh;width:50vw;">';
 
-				update_term_meta($term_id,$this->parent->_base . 'elements', $_POST['elements_'.$term_id]);
-			}
-			else{
-					
-				echo 'Error saving elements...';
-				exit;
+				echo '</div>';				
+				
+			echo '</div>';
+		}
+	}
+	
+	public function add_action_scripts(){
+		
+		if( $this->is_element_panel() ){
+		
+			if( current_user_can('administrator') ){
+				
+				// add style
+				
+				wp_register_style($this->parent->_token . '-element-actions', false,array());
+				wp_enqueue_style($this->parent->_token . '-element-actions');
+	
+				wp_add_inline_style($this->parent->_token . '-element-actions', $this->get_style() );
+				
+				// add script
+				
+				wp_register_script( $this->parent->_token . '-element-actions', '', array( 'jquery' ) );
+				wp_enqueue_script( $this->parent->_token . '-element-actions' );
+
+				wp_add_inline_script( $this->parent->_token . '-element-actions', $this->get_script() );
+			
+				add_filter('admin_footer',array( $this, 'add_action_footer' ) );
 			}
 		}
+	}
+		
+	public function get_style(){
+		
+		$style = '
+			
+			.column-actions{
+				
+				width: 150px;
+			}
+			
+			.action-buttons {
+				margin-bottom:10px;
+			}
+			
+			.action-buttons button {
+				margin-right:5px !important;
+			}
+			
+			.action-message {
+				padding:0 !important;
+			}
+					
+			.action-meter { 
+				height: 10px;
+				padding: 5px;
+				position: relative;
+				background: #555;
+				-moz-border-radius: 25px;
+				-webkit-border-radius: 25px;
+				border-radius: 25px;
+				box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+			}
+			.action-meter > span {
+			  display: block;
+			  height: 100%;
+			  border-top-right-radius: 8px;
+			  border-bottom-right-radius: 8px;
+			  border-top-left-radius: 20px;
+			  border-bottom-left-radius: 20px;
+			  background-color: rgb(43,194,83);
+			  background-image: linear-gradient(
+				center bottom,
+				rgb(43,194,83) 37%,
+				rgb(84,240,84) 69%
+			  );
+			  box-shadow: 
+				inset 0 2px 9px  rgba(255,255,255,0.3),
+				inset 0 -2px 6px rgba(0,0,0,0.4);
+			  position: relative;
+			  overflow: hidden;
+			  transition: width 5s;
+			}
+
+			.action-meter > span:after {
+				content: "";
+				position: absolute;
+				top: 0; left: 0; bottom: 0; right: 0;
+				background-image: 
+				   -webkit-gradient(linear, 0 0, 100% 100%, 
+					  color-stop(.25, rgba(255, 255, 255, .2)), 
+					  color-stop(.25, transparent), color-stop(.5, transparent), 
+					  color-stop(.5, rgba(255, 255, 255, .2)), 
+					  color-stop(.75, rgba(255, 255, 255, .2)), 
+					  color-stop(.75, transparent), to(transparent)
+				   );
+				background-image: 
+					-moz-linear-gradient(
+					  -45deg, 
+					  rgba(255, 255, 255, .2) 25%, 
+					  transparent 25%, 
+					  transparent 50%, 
+					  rgba(255, 255, 255, .2) 50%, 
+					  rgba(255, 255, 255, .2) 75%, 
+					  transparent 75%, 
+					  transparent
+				   );
+				z-index: 1;
+				-webkit-background-size: 50px 50px;
+				-moz-background-size: 50px 50px;
+				-webkit-animation: move 2s linear infinite;
+				   -webkit-border-top-right-radius: 8px;
+				-webkit-border-bottom-right-radius: 8px;
+					   -moz-border-radius-topright: 8px;
+					-moz-border-radius-bottomright: 8px;
+						   border-top-right-radius: 8px;
+						border-bottom-right-radius: 8px;
+					-webkit-border-top-left-radius: 20px;
+				 -webkit-border-bottom-left-radius: 20px;
+						-moz-border-radius-topleft: 20px;
+					 -moz-border-radius-bottomleft: 20px;
+							border-top-left-radius: 20px;
+						 border-bottom-left-radius: 20px;
+				overflow: hidden;
+			}
+			
+			@-webkit-keyframes move {
+				0% {
+				   background-position: 0 0;
+				}
+				100% {
+				   background-position: 50px 50px;
+				}
+			}				
+		';
+		
+		return $style;
+	}
+	
+	public function get_script(){
+					
+		$script = '
+			
+			;(function($){
+				
+				// define a new console
+				
+				var console = (function(oldCons){
+					
+					return {
+					
+						log: function(text){
+							
+							oldCons.log(text);
+							
+							$("#actionLogs").append("<p style=\"margin-top:0px;color:green;\">" + text + "</p>");
+						},
+						info: function (text) {
+							
+							oldCons.info(text);
+							
+							$("#actionLogs").append("<p style=\"margin-top:0px;font-weight:bold;\">" + text + "</p>");
+						},
+						warn: function (text) {
+							
+							oldCons.warn(text);
+							
+							// $("#actionLogs").append("<p style=\"margin-top:0px;color:orange;\">" + text + "</p>");
+						},
+						error: function (text) {
+							
+							oldCons.error(text);
+							
+							$("#actionLogs").append("<p style=\"margin-top:0px;color:red;\">" + text + "</p>");
+						}
+					};
+					
+				}(window.console));
+
+				//Then redefine the old console
+				
+				window.console = console;
+
+				$(document).ready(function(){
+					
+					// requests handler
+					
+					var ajaxQueue = $({});
+
+					$.ajaxQueue = function( ajaxOpts ) {
+						var jqXHR,
+							dfd = $.Deferred(),
+							promise = dfd.promise();
+
+						// queue our ajax request
+						ajaxQueue.queue( doRequest );
+
+						// add the abort method
+						promise.abort = function( statusText ) {
+
+							// proxy abort to the jqXHR if it is active
+							if ( jqXHR ) {
+								return jqXHR.abort( statusText );
+							}
+
+							// if there wasnt already a jqXHR we need to remove from queue
+							var queue = ajaxQueue.queue(),
+								index = $.inArray( doRequest, queue );
+
+							if ( index > -1 ) {
+								queue.splice( index, 1 );
+							}
+
+							// and then reject the deferred
+							dfd.rejectWith( ajaxOpts.context || ajaxOpts,
+								[ promise, statusText, "" ] );
+
+							return promise;
+						};
+
+						// run the actual query
+						function doRequest( next ) {
+							jqXHR = $.ajax( ajaxOpts )
+								.done( dfd.resolve )
+								.fail( dfd.reject )
+								.then( next, next );
+						}
+
+						return promise;
+					};
+					
+					// bind buttons
+					
+					$(".action-button").each(function(i){
+						
+						$(this).on("click",function(){
+							
+							var id 		= $(this).attr("data-id");
+							var title 	= $(this).attr("data-title");
+							var source 	= $(this).attr("data-source");
+							
+							var $btns 		= $("#action-buttons-" + id);
+							var $meter 		= $("#meter-" + id);
+							var $progress 	= $("#meter-" + id + " .progress");
+							var $completed 	= $("#message-" + id + " .completed");
+							
+							$btns.find("button").prop("disabled",true);
+							
+							$meter.show();
+							
+							$completed.hide();
+						
+							$.ajaxQueue({
+								
+								type 		: "GET",
+								url  		: source,
+								cache		: false,
+								beforeSend	: function(){
+									
+									
+								},
+								error: function() {
+								
+									console.error(source + " error");
+																									
+									$meter.hide();
+									$btns.find("button").prop("disabled",false);
+								},
+								success: function(data) {
+								
+									
+								},
+								complete: function(){
+									
+									
+								}
+							});
+						});
+					});
+				});
+				
+			})(jQuery);
+		';	
+
+		return $script;
 	}
 }

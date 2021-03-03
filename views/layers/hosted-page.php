@@ -1,12 +1,14 @@
 <?php 
+	
+	$html_classes = ' class="' . implode(' ',$this->layerStyleClasses) . '"';
 
 	// get layer
 	
 	$layer  = '<!DOCTYPE html>';
-	$layer .= '<html class="' . implode(' ',$this->layerStyleClasses) . '">';
+	$layer .= '<html' . $html_classes . '>';
 	
 	$layer .= '<head>';
-	
+			
 		$layer .= '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
 		$layer .= '<!--[if lt IE 9]>';
 		$layer .= '<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>';
@@ -19,7 +21,7 @@
 		
 		$layer .= '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
 		$layer .= '<link rel="dns-prefetch" href="//s.w.org">';
-	
+		
 		$layer .= $this->layerHeadContent;
 		
 	$layer .= '<head>';

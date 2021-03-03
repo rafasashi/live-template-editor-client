@@ -221,7 +221,7 @@ class LTPLE_Client_Settings {
 				
 					echo'<li class="subnav-li subnav-li-active">';
 						
-						echo $data['name'];
+						echo '<a href="' . $data['url'] . '">' . $data['name'] . '</a>';
 						
 					echo'</li>';
 				}

@@ -370,13 +370,8 @@ class LTPLE_Client {
 	public function init_frontend(){	
 
 		// Load frontend JS & CSS
-		
-		// TODO move css and js from ltple to client
-		
-		add_action( 'wp_enqueue_scripts', array( LTPLE_Editor(), 'enqueue_editor_styles' ), 99999 );
-		add_action( 'wp_enqueue_scripts', array( LTPLE_Editor(), 'enqueue_editor_scripts' ), 99999 );
-				
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
+
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 99999 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 		
 		add_action( 'login_enqueue_scripts', array( $this, 'get_login_logo' ) );
@@ -408,6 +403,22 @@ class LTPLE_Client {
 		// loaded hook
 		
 		do_action( 'ltple_loaded');
+	}
+	
+	public function in_ui(){
+		
+		if( $this->profile->id > 0 && LTPLE_Editor::get_framework('css') == 'bootstrap-4' )
+			
+			return false;
+
+		global $post;
+		
+		if( !empty($post->post_type) && $post->post_type == 'default-element' )
+			
+			return false;
+
+		
+		return apply_filters('ltple_in_ui',true);
 	}
 	
 	public function get_current_user(){
@@ -906,7 +917,7 @@ class LTPLE_Client {
 	
 	public function filter_template_path( $path, $layer ){
 		
-		if( $layer->post_type == 'cb-default-layer' && empty($_GET['action']) && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
+		if( $this->layer->is_default($layer) && empty($_GET['action']) && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
 			
 			if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer->output) ){
 						
@@ -934,7 +945,7 @@ class LTPLE_Client {
 					}
 					
 					if( $show_layer ){
-
+						
 						if( $tab = apply_filters('ltple_preview_profile_tab',false,$this->layer->get_layer_type($layer)) ){
 							
 							if( $this->user->loggedin ){
@@ -949,7 +960,17 @@ class LTPLE_Client {
 							$this->profile->set_profile($user_id,$tab,$layer->post_name,false);
 							
 							include($this->views . '/profile.php');					
-						}			
+						}
+						elseif( $layer->post_type == 'default-element' ) {
+							
+							add_filter('ltple_css_framework',function($framework){
+								
+								return 'bootstrap-4';
+								
+							},99999999,1);	
+							
+							return get_stylesheet_directory() . '/templates/landing-page.php';
+						}
 						else{
 							
 							return $this->views . '/layer.php';
@@ -1402,9 +1423,6 @@ class LTPLE_Client {
 	
 	public function do_editor_action(){	
 
-		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-toggle-switch' );
-		
 		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
 			
 			if( $this->layer->type == $this->layer->layerStorage && isset($_POST['postAction'])&& $_POST['postAction']=='edit' ){
@@ -2242,16 +2260,32 @@ class LTPLE_Client {
 	 */
 	public function enqueue_styles() {
 		
-		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-toggle-switch' );		
+		if( $this->in_ui() ){
+			
+			wp_enqueue_style( 'jquery-ui-dialog' );
+			
+			wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
+			wp_enqueue_style( $this->_token . '-jquery-ui' );		
+			
+			wp_register_style( $this->_token . '-client-ui', esc_url( $this->assets_url ) . 'css/client-ui.css', array(), $this->_version );
+			wp_enqueue_style( $this->_token . '-client-ui' );
+		
+			wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
+			wp_enqueue_style( $this->_token . '-toggle-switch' );
+		}
 		
 		wp_register_style( 'fontawesome-5', '//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css', array(), $this->_version );
 		wp_enqueue_style( 'fontawesome-5' );			
 		
-		wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css'));
-		wp_enqueue_style( $this->_token . '-client' );
+		global $post;
 		
-		wp_add_inline_style( $this->_token . '-client', $this->get_client_style() );
+		if( empty($post->post_type) || $post->post_type != 'default-element' ){
+		
+			wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css'));
+			wp_enqueue_style( $this->_token . '-client' );
+		
+			wp_add_inline_style( $this->_token . '-client', $this->get_client_style() );
+		}
 	}
 	
 	public function get_client_style(){
@@ -2360,7 +2394,7 @@ class LTPLE_Client {
 				
 			$style .='}';
 	
-			$style .=' .navbar-collapse .nav>li>a:hover, .navbar-nav>.active, #search a, .nav-next a:link, .nav-next a:visited, .nav-previous a:link, .nav-previous a:visited {';
+			$style .=' .navbar-collapse .nav>li>a:hover, .navbar-nav>.active, #search a, .nav-next a:link, .nav-next a:visited, .nav-previous a:link, .nav-previous a:visited, a.totop, a.totop:hover {';
 
 				$style .='background-color:'.$this->settings->mainColor.' !important;';
 			
@@ -2411,6 +2445,74 @@ class LTPLE_Client {
 				
 			$style .='}';
 			
+			// bs modals
+
+			$style .='.fade.in {';
+				$style .='opacity: 1;';
+			$style .='}';
+
+			$style .='.modal-header {';
+				$style .='padding: 4px 10px !important;';
+				$style .='background: #345774 !important;';
+				$style .='color: #fff;';
+				$style .='border-bottom: none;';
+				$style .='font-size: 16px;';
+				$style .='display: block;';
+			$style .='}';
+
+			$style .='.modal-header .close span {';
+				$style .='color: #fff;';
+				$style .='opacity: 1;';
+				$style .='font-size: 35px;';
+				$style .='filter: none;';
+				$style .='box-shadow: none;';
+				$style .='float: right;';
+			$style .='}';
+
+			$style .='.modal-title {';
+				$style .='margin: 0;';
+				$style .='line-height: 40px;';
+				$style .='font-size: 20px;';
+				$style .='color: #fff;';
+				$style .='display:inline-block;';
+			$style .='}';
+
+			$style .='.modal-content{';
+				
+				$style .='border-radius: 0 !important;';	
+			$style .='}';
+
+			$style .='.modal-full{';
+				   
+				$style .='display: contents;';
+				$style .='width:100vw !important;';
+				$style .='height: 100vh !important;';
+				$style .='margin:0;';
+				$style .='top:0;';
+				$style .='bottom:0;';
+				$style .='left:0;';
+				$style .='right:0;';
+				$style .='position:absolute;';
+			$style .='}';
+
+			$style .='.modal-full .modal-content {';
+
+				$style .='width:100vw !important;';
+				$style .='height: 100vh !important;';
+				$style .='border: none;';
+				$style .='overflow: hidden;';
+			$style .='}';
+
+			$style .='@media (min-width: 992px){';
+				
+				$style .='.modal-lg {';
+					
+					$style .='width: 1050px !important;';
+				$style .='}';
+			$style .='}';
+
+			// wedocs
+			
 			$style .='.wedocs-sidebar .widget-title {';
 			
 				$style .='color:#fff !important;';
@@ -2438,11 +2540,11 @@ class LTPLE_Client {
 						
 			$style .='span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {';
 				
-				$style .='background-color: '.$this->settings->mainColor . ' !important;';
+				$style .='background-color: '.$this->settings->mainColor . ';';
 				
 				if( !empty($this->settings->mainColor) ){
 					
-					$style .='border: 0px solid '.$this->settings->mainColor . ' !important;';
+					$style .='border-color: '.$this->settings->mainColor . ';';
 				}
 				
 			$style .='}';
@@ -2619,8 +2721,15 @@ class LTPLE_Client {
 	 * @return  void
 	 */
 	public function enqueue_scripts () {
-		
-		wp_enqueue_script('jquery-ui-dialog');
+
+		if( $this->in_ui() ){
+
+			wp_register_script($this->_token . '-notify', esc_url( $this->assets_url ) . 'js/notify.js', array( 'jquery' ), $this->_version);
+			wp_enqueue_script( $this->_token . '-notify' );
+		}
+
+		wp_register_script($this->_token . '-client-ui', esc_url( $this->assets_url ) . 'js/client-ui.js', array( 'jquery', 'jquery-ui-dialog' ), $this->_version);
+		wp_enqueue_script( $this->_token . '-client-ui' );		
 		
 		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap-js' );

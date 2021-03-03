@@ -179,7 +179,18 @@ class LTPLE_Client_Urls {
 			'post_content' 		=> '[ltple-client-account]',
 			'post_status' 		=> 'publish',
 			'menu_order' 		=> 0
-		));		
+		));
+
+		$this->register_url('profile', array(
+			
+			'post_title' 		=> 'Profile',
+			'post_type'     	=> 'page',
+			'comment_status' 	=> 'closed',
+			'ping_status' 		=> 'closed',
+			'post_content' 		=> '[ltple-client-profile]',
+			'post_status' 		=> 'publish',
+			'menu_order' 		=> 0
+		));	
 		
 		$this->register_url('apps', array(
 			

@@ -1132,30 +1132,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 				case 'element':
 					
-					$types = [
-						
-						'headers',
-						'sections',
-						'actions',
-						'contents',
-						'components',
-						'buttons',
-						'features',
-						'blogs',
-						'teams',
-						'profiles',
-						'projects',
-						'products',
-						'pricing',
-						'testimonials',
-						'contact',
-						'images',
-						'videos',
-						'widgets',
-						'menus',
-						'forms',
-						'footers',
-					];
+					$types = $this->parent->element->get_default_sections();
 					
 					if( !is_array($data) || !isset($data['name']) ){
 
@@ -1220,7 +1197,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 												
 												$html .= '<select style="height:35px;" class="form-control" name="'.$field['name'].'[type][]">';
 
-													foreach ( $types as $type ) {
+													foreach ( $types as $type => $name ) {
 														
 														$selected = false;
 														
@@ -1229,7 +1206,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 															$selected = true;
 														}
 														
-														$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $type ) . '">' . ucfirst($type) . '</option>';
+														$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $type ) . '">' . ucfirst($name) . '</option>';
 													}
 												
 												$html .= '</select> ';
@@ -1256,10 +1233,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 											$html .= '</div>';
 										
 										$html .= '</div>';	
-										
-										// image
-										
-										$html .= '<input class="form-control" style="width:100%;" type="hidden" name="'.$field['name'].'[image][]" value="'.$image.'">';
 
 										// content
 										
@@ -1275,6 +1248,22 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 										
 										$html .= '</div>';			
 										
+										// image
+										
+										$html .= '<div class="form-group" style="clear:both;padding-bottom:10px;">';
+									
+											$html .= '<label>Image</label>';
+											
+											$html .= '<div>';
+											
+												$html .= '<input class="form-control" style="width:100%;" type="text" placeholder="https://" name="'.$field['name'].'[image][]" value="'.$image.'">';
+										
+											$html .= '</div>';
+										
+										$html .= '</div>';
+										
+										//$html .= '<input class="form-control" style="width:100%;" type="hidden" name="'.$field['name'].'[image][]" value="'.$image.'">';
+
 									$html .= '</div>';
 									
 									if( $e > 0 ){
