@@ -925,7 +925,7 @@ class LTPLE_Client {
 				
 					$show_layer = false;
 				
-					$visibility = get_post_meta( $layer->ID, 'layerVisibility', true );
+					$visibility = $this->layer->get_layer_visibility($layer);
 					
 					if( $visibility == 'anyone' ){
 						
@@ -2259,20 +2259,21 @@ class LTPLE_Client {
 	 * @return void
 	 */
 	public function enqueue_styles() {
-		
+	
 		if( $this->in_ui() ){
 			
 			wp_enqueue_style( 'jquery-ui-dialog' );
-			
+	
 			wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
-			wp_enqueue_style( $this->_token . '-jquery-ui' );		
-			
-			wp_register_style( $this->_token . '-client-ui', esc_url( $this->assets_url ) . 'css/client-ui.css', array(), $this->_version );
-			wp_enqueue_style( $this->_token . '-client-ui' );
-		
-			wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
-			wp_enqueue_style( $this->_token . '-toggle-switch' );
+			wp_enqueue_style( $this->_token . '-jquery-ui' );
 		}
+		
+		wp_register_style( $this->_token . '-client-ui', esc_url( $this->assets_url ) . 'css/client-ui.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-client-ui' );
+	
+		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-toggle-switch' );
+	
 		
 		wp_register_style( 'fontawesome-5', '//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css', array(), $this->_version );
 		wp_enqueue_style( 'fontawesome-5' );			
@@ -2726,14 +2727,14 @@ class LTPLE_Client {
 
 			wp_register_script($this->_token . '-notify', esc_url( $this->assets_url ) . 'js/notify.js', array( 'jquery' ), $this->_version);
 			wp_enqueue_script( $this->_token . '-notify' );
-		}
-
+		}			
+		
 		wp_register_script($this->_token . '-client-ui', esc_url( $this->assets_url ) . 'js/client-ui.js', array( 'jquery', 'jquery-ui-dialog' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-client-ui' );		
 		
 		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap-js' );
-		
+			
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-lazyload' );	
 

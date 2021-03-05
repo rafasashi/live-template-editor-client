@@ -1864,7 +1864,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 											
 						// todo move visibility to term meta
 							
-						$term->visibility 	= get_option('visibility_'.$term->slug,'anyone');
+						$term->visibility 	= $this->get_type_visibility($term);
 
 						$term->output 		= $this->get_type_output($term);
 
@@ -2395,6 +2395,32 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $type_term;
+	}
+	
+	public function get_layer_visibility($layer){
+		
+		if( is_numeric($layer) ){
+			
+			$layer = get_post($layer);
+		}
+		
+		if( $layer->post_type == 'default-element' ){
+			
+			$visibility = 'anyone';
+		}
+		elseif( !$visibility = get_post_meta( $layer->ID, 'layerVisibility', true ) ){
+			
+			$visibility = 'anyone';
+		}
+		
+		return $visibility;
+	}
+	
+	public function get_type_visibility($term){
+		
+		$visibility = get_option('visibility_'.$term->slug,'anyone');
+	
+		return $visibility;
 	}
 	
 	public function get_type_output($term){
@@ -4963,10 +4989,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			elseif($column_name === 'visibility') {
 				
-				if(!$visibility = get_option('visibility_' . $term->slug)){
-					
-					$visibility = 'anyone';
-				}
+				$visibility = $this->get_type_visibility($term);
 				
 				if( $visibility == 'admin' ){
 					

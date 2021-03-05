@@ -46,6 +46,8 @@ class LTPLE_Client_Editor {
 				
 		add_filter( 'ltple_right_editor_navbar', array( $this, 'filter_right_navbar' ),1);			
 		
+		add_filter( 'ltple_editor_export_buttons', array( $this, 'filter_export_buttons' ),9999,2);
+		
 		add_filter( 'ltple_editor_navbar_settings', array( $this, 'filter_navbar_settings' ),1);
 		
 		add_filter( 'ltple_editor_js_settings', array( $this, 'filter_js_settings' ),1,2);	
@@ -355,51 +357,31 @@ class LTPLE_Client_Editor {
 			echo '</div>';
 			echo '</div>';										
 		}
+	}
+	
+	public function filter_export_buttons($buttons,$layer){
 		
-		if( $layer->post_type != 'cb-default-layer' ){
+		if( empty($_GET['quick']) ){
 
 			// download button
 			
 			if( empty($_GET['action']) || $_GET['action'] != 'edit' ){
 				
-				if( $layer->output == 'canvas' ){
+				if( $layer->output == 'canvas' || $layer->output == 'image' || $layer->output == 'inline-css' || $layer->output == 'external-css' || $layer->is_element ){
+			
+					if( $layer->output == 'canvas' || $layer->output == 'image' ){
 					
-					echo '<div style="margin:0 2px;" class="btn-group">';
+						$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-export" aria-hidden="true"></span> Download image';
+					}
+					else{
 						
-						echo '<button id="downloadImgBtn" type="button" class="btn btn-sm dropdown-toggle" style="border:none;background: #4c94af;">';
-						
-							echo 'Download';
-						
-						echo '</button>';
-						
-					echo '</div>';
+						$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-camera" aria-hidden="true"></span> Make a screenshot';
+					}					
 				}
-				elseif( $layer->output == 'image' ){
-
-					echo '<div style="margin:0 2px;" class="btn-group">';
-						
-						echo '<button id="downloadImgBtn" type="button" class="btn btn-sm dropdown-toggle" style="border:none;background: #4c94af;">';
-						
-							echo 'Download';
-						
-						echo '</button>';
-						
-					echo '</div>';							
-				}
-			}
-			elseif( $this->parent->layer->is_downloadable_output($layer->output) ){
-					
-				echo '<div style="margin:0 2px;" class="btn-group">';
-					
-					echo '<a href="' . apply_filters('ltple_downloadable_url','#download',$layer->ID,$layer->output) . '" class="btn btn-sm" style="border:none;background: #4c94af;">';
-					
-						echo 'Download';
-					
-					echo '</a>';
-					
-				echo '</div>';							
 			}
 		}
+		
+		return $buttons;
 	}
 	
 	public function filter_navbar_settings($layer){
@@ -515,17 +497,6 @@ class LTPLE_Client_Editor {
 
 			$js .= ' var disableReturn 	= true;' .PHP_EOL;
 			$js .= ' var autoWrapText 	= false;' .PHP_EOL;
-			
-			//include icon settings
-			
-			$enableIcons = 'false';
-			
-			if( in_array_field( 'font-awesome-4-7-0', 'slug', $this->parent->layer->layerCssLibraries ) ){
-				
-				$enableIcons = 'true';
-			}
-			
-			$js .= ' var enableIcons = '.$enableIcons.';' .PHP_EOL;
 		}
 
 		return $js;

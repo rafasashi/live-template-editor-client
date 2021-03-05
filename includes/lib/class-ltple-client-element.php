@@ -18,7 +18,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	
 		$this->parent->register_post_type( 'default-element', __( 'Default Elements', 'live-template-editor-client' ), __( 'Default Element', 'live-template-editor-client' ), '', array(
 
-			'public' 				=> false,
+			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
@@ -387,7 +387,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 				
 			echo '<div id="action-buttons-'.$post_id.'" class="action-buttons">';
 				
-					$source = '';
+					$source = get_preview_post_link($post_id);
 
 					echo '<button data-id="'.$post_id.'" data-title="Generate Preview" data-source="'.$source.'" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small">';
 						

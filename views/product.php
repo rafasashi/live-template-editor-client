@@ -5,7 +5,7 @@
 		echo $this->message;
 	}
 	
-	$visibility = get_post_meta( $this->ID, 'layerVisibility', true );
+	$visibility = $this->parent->layer->get_layer_visibility( $this->ID );
 		
 	if( $visibility != 'assigned' || $this->parent->user->is_admin || $this->parent->user->has_layer ){
 				
