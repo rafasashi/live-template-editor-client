@@ -93,13 +93,15 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			);
 		});		
 	
-		add_filter("default-image_custom_fields", array( $this, 'get_fields' ));	
+		add_filter('default-image_custom_fields', array( $this, 'get_fields' ));	
 		
 		add_filter('init', array( $this, 'init_image' ));
-		
+
 		add_action('wp_loaded', array($this,'get_images_types'));
 		
 		add_action( 'before_delete_post', array($this,'delete_static_images'), 10, 3 );
+	
+		add_filter('ltple_admin_loaded', array( $this, 'do_admin_action' ));
 	}
 	
 	public function get_images_types(){
@@ -155,6 +157,19 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			
 			add_action( 'ltple_update_profile', array( $this, 'upload_avatar_image' ), 0 );
 			add_action( 'ltple_update_profile', array( $this, 'upload_banner_image' ), 0 );
+		}
+	}
+	
+	public function do_admin_action(){
+		
+		if( !empty($_POST['imgData']) && !empty($_POST['postId']) ){
+			
+			if( current_user_can('edit_posts') ){
+				
+				echo $this->upload_base64_thumbnail($_POST['postId'],$_POST['imgData']);
+				
+				exit;
+			}
 		}
 	}
 	
@@ -726,6 +741,82 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		}
 		
 		return false;
+	}
+	
+	public function upload_base64_thumbnail($post_id,$base64){
+		
+		if( !empty($this->parent->user->ID) ){
+
+			$md5 =  md5($base64);
+
+			//check if image exists
+			
+			$q = new WP_Query(array(
+				
+				'name' 			=> $md5,
+				'post_author' 	=> $this->parent->user->ID,
+				'post_type' 	=> 'attachment',
+				'posts_per_page'=> -1,
+			));
+
+			if( $q->post_count == 0 ){	
+				
+				if ( !function_exists('media_handle_upload') ) {
+					
+					require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+					require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+					require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+				}			
+				
+				list(,$img) = explode('image/png;base64,',$base64);
+
+				if( $img = base64_decode($img) ){
+					
+					if ( $img = imagecreatefromstring($img) ) {
+
+						// set transparency
+						
+						imagealphablending($img, false);
+						imagesavealpha($img, true);					
+
+						// put tmp image
+						
+						$name 	= $md5 . '.png';
+						$tmp 	= get_temp_dir() . $name;
+						
+						imagepng($img, $tmp);
+						
+						// handle sideload
+						
+						$file_array = array(
+						
+							'name' 		=> $name,
+							'tmp_name' 	=> $tmp,
+						);
+						
+						$post_data = array(
+						
+							'post_title' => $md5,
+						);
+
+						if ( $attach_id = media_handle_sideload( $file_array, null, null, $post_data ) ) {
+							
+							set_post_thumbnail($post_id, $attach_id);
+							
+							@unlink($tmp);
+						}
+					}
+				}
+			}
+			else{
+				
+				set_post_thumbnail($post_id, $q->posts[0]->ID);
+			}
+			
+			// get thumbnail url
+			
+			return get_the_post_thumbnail_url($post_id);
+		}
 	}
 	
 	public function upload_image_url($name,$url){

@@ -139,103 +139,83 @@ class LTPLE_Client {
 	
 		add_action('init', array( $this, 'load_localisation' ), 0 );		
 
-		if(isset($_POST['imgData']) && isset($_POST["submitted"])&& isset($_POST["download_image_nonce_field"]) && $_POST["submitted"]=='true'){
+		// start session
+		
+		if( !session_id() ) {
 			
-			// dowload meme image
-			
-			//wp_verify_nonce($_POST["download_image_nonce_field"], "download_image_nonce");
-			
-			$data = sanitize_text_field($_POST['imgData']);
-			
-			list($type, $data) = explode(';', $data);
-			list(, $data)      = explode(',', $data);
-			
-			header('Content-Description: File Transfer');
-			header("Content-type: application/octet-stream");
-			header("Content-disposition: attachment; filename= ltple_meme_image.png");
-			
-			exit(base64_decode($data));
+			session_start();
+		}			
+		
+		$this->client 		= new LTPLE_Client_Client( $this );
+		$this->request 		= new LTPLE_Client_Request( $this );
+		$this->email 		= new LTPLE_Client_Email( $this );
+		$this->session 		= new LTPLE_Client_Session( $this );
+		$this->triggers		= new LTPLE_Client_Triggers( $this );
+								
+		$this->urls 		= new LTPLE_Client_Urls( $this );
+
+		$this->stars 		= new LTPLE_Client_Stars( $this );
+		$this->login 		= new LTPLE_Client_Login( $this );
+		$this->rights 		= new LTPLE_Client_Rights( $this );
+		
+		// Load API for generic admin functions
+		
+		$this->admin 	= new LTPLE_Client_Admin_API( $this );
+		$this->cron 	= new LTPLE_Client_Cron( $this );
+		
+		$this->campaign = new LTPLE_Client_Campaign( $this );
+		
+		$this->api 		= new LTPLE_Client_Json_API( $this );
+		$this->server 	= new LTPLE_Client_Server( $this );
+		
+		$this->tax 		= new LTPLE_Client_Tax( $this );
+		$this->checkout = new LTPLE_Client_Checkout( $this );
+		
+		$this->dashboard = new LTPLE_Client_Dashboard( $this );
+
+		$this->editor 	= new LTPLE_Client_Editor( $this );
+		
+		$this->websocket = new LTPLE_Client_Websocket( $this );
+	
+		$this->media 	= new LTPLE_Client_Media( $this );
+		 
+		$this->apps 	= new LTPLE_Client_Apps( $this );
+		
+		$this->gallery 	= new LTPLE_Client_Gallery( $this );			
+		
+		$this->element 	= new LTPLE_Client_Element( $this );
+		
+		$this->layer 	= new LTPLE_Client_Layer( $this );
+		$this->tutorials = new LTPLE_Client_Tutorials( $this );
+		
+		$this->services = new LTPLE_Client_Services( $this );			
+		$this->plan 	= new LTPLE_Client_Plan( $this );
+		$this->product 	= new LTPLE_Client_Product( $this );
+
+		$this->image 	= new LTPLE_Client_Image( $this );
+
+		$this->bookmark = new LTPLE_Client_Bookmark( $this );
+		
+		$this->users 	= new LTPLE_Client_Users( $this );
+		$this->programs = new LTPLE_Client_Programs( $this );
+		$this->channels = new LTPLE_Client_Channels( $this );
+		$this->network 	= new LTPLE_Client_Network( $this );			
+		$this->account 	= new LTPLE_Client_Account( $this );
+		$this->profile 	= new LTPLE_Client_Profile( $this );
+		
+		$this->extension = new LTPLE_Client_Extension( $this );
+		
+		if( is_admin() ) {		
+		
+			add_action( 'init', array( $this, 'init_backend' ));
 		}
 		else{
-
-			// start session
 			
-			if( !session_id() ) {
-				
-				session_start();
-			}			
-			
-			$this->client 		= new LTPLE_Client_Client( $this );
-			$this->request 		= new LTPLE_Client_Request( $this );
-			$this->email 		= new LTPLE_Client_Email( $this );
-			$this->session 		= new LTPLE_Client_Session( $this );
-			$this->triggers		= new LTPLE_Client_Triggers( $this );
-									
-			$this->urls 		= new LTPLE_Client_Urls( $this );
-
-			$this->stars 		= new LTPLE_Client_Stars( $this );
-			$this->login 		= new LTPLE_Client_Login( $this );
-			$this->rights 		= new LTPLE_Client_Rights( $this );
-			
-			// Load API for generic admin functions
-			
-			$this->admin 	= new LTPLE_Client_Admin_API( $this );
-			$this->cron 	= new LTPLE_Client_Cron( $this );
-			
-			$this->campaign = new LTPLE_Client_Campaign( $this );
-			
-			$this->api 		= new LTPLE_Client_Json_API( $this );
-			$this->server 	= new LTPLE_Client_Server( $this );
-			
-			$this->tax 		= new LTPLE_Client_Tax( $this );
-			$this->checkout = new LTPLE_Client_Checkout( $this );
-			
-			$this->dashboard = new LTPLE_Client_Dashboard( $this );
-
-			$this->editor 	= new LTPLE_Client_Editor( $this );
-			
-			$this->websocket = new LTPLE_Client_Websocket( $this );
-		
-			$this->media 	= new LTPLE_Client_Media( $this );
-			 
-			$this->apps 	= new LTPLE_Client_Apps( $this );
-			
-			$this->gallery 	= new LTPLE_Client_Gallery( $this );			
-			
-			$this->element 	= new LTPLE_Client_Element( $this );
-			
-			$this->layer 	= new LTPLE_Client_Layer( $this );
-			$this->tutorials = new LTPLE_Client_Tutorials( $this );
-			
-			$this->services = new LTPLE_Client_Services( $this );			
-			$this->plan 	= new LTPLE_Client_Plan( $this );
-			$this->product 	= new LTPLE_Client_Product( $this );
-
-			$this->image 	= new LTPLE_Client_Image( $this );
-
-			$this->bookmark = new LTPLE_Client_Bookmark( $this );
-			
-			$this->users 	= new LTPLE_Client_Users( $this );
-			$this->programs = new LTPLE_Client_Programs( $this );
-			$this->channels = new LTPLE_Client_Channels( $this );
-			$this->network 	= new LTPLE_Client_Network( $this );			
-			$this->account 	= new LTPLE_Client_Account( $this );
-			$this->profile 	= new LTPLE_Client_Profile( $this );
-			
-			$this->extension = new LTPLE_Client_Extension( $this );
-			
-			if( is_admin() ) {		
-			
-				add_action( 'init', array( $this, 'init_backend' ));
-			}
-			else{
-				
-				add_action( 'init', array( $this, 'init_frontend' ));
-			}
-			
-			add_action( 'ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
+			add_action( 'init', array( $this, 'init_frontend' ));
 		}
-
+		
+		add_action( 'ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
+		
 	} // End __construct ()
 	
 	private function ltple_get_secret_iv(){
@@ -707,11 +687,11 @@ class LTPLE_Client {
 			$this->editedUser = $this->user;
 		}
 		
-		do_action('ltple_user_loaded');
-
-		// loaded hook
+		do_action( 'ltple_user_loaded' );
 		
-		do_action( 'ltple_loaded');
+		do_action( 'ltple_admin_loaded' );
+		
+		do_action( 'ltple_loaded' );
 	}
 	
 	public function custom_admin_dashboard_css() {
@@ -1422,7 +1402,7 @@ class LTPLE_Client {
 	}
 	
 	public function do_editor_action(){	
-
+		
 		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
 			
 			if( $this->layer->type == $this->layer->layerStorage && isset($_POST['postAction'])&& $_POST['postAction']=='edit' ){

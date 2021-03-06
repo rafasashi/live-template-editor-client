@@ -3092,11 +3092,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 										$this->layerFontLibraries = array_merge($this->layerFontLibraries,$this->get_libraries($this->layerMenuDefaultId,'font'));																			
 									}
 								}
-							}							
-							
-							// parse layer content
-							
-							$this->parse_hosted_content();
+							}
 						}
 					}
 				}
@@ -3164,7 +3160,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}
 		
-		$libraries = array_reverse($libraries);
+		if( !empty($libraries) ){
+			
+			// order libraries
+			
+			$libraries = array_reverse($libraries);
+			
+			foreach( $libraries as $library ){
+				
+				if( $type == 'css' ){
+					
+					$library->url 		= $this->get_css_parsed_url($library);
+					$library->prefix 	= 'style-' . $library->term_id;
+				}
+			}
+		}
 		
 		return $libraries;
 	}
@@ -3454,7 +3464,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			// get body
 			
-			if( !empty($this->parent->layer->layerContent) ){
+			if( !empty($this->layerContent) ){
 			
 				$layerContent = $this->layerContent;
 			}
@@ -3502,16 +3512,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$defaultJson 	= '';
 		$layerJs 		= '';
 		$layerMeta 		= '';
-		
-		// get layerStyleClasses
-		
-		$this->layerStyleClasses = array('layer-' . $this->defaultId);
-		
-		if( $this->defaultId != $this->id  ){
-			
-			$this->layerStyleClasses[] = 'layer-' . $this->id;
-		}
-		
+
 		if( isset($_POST['importCss']) ){
 
 			$layerCss = stripcslashes($_POST['importCss']);
@@ -3581,11 +3582,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 			}
 		}
-
+			
 		// get head content
 
 		$head = '';
 		
+	
 		// font library
 		
 		if( !empty($googleFonts) ){
@@ -3610,41 +3612,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !empty($this->layerCssLibraries) ){
 			
-			foreach($this->layerCssLibraries as $term){
+			foreach($this->layerCssLibraries as $library){
 				
-				$this->layerStyleClasses[] = 'style-' . $term->term_id;
-				
-				$css_url = $this->get_css_parsed_url($term);
-				
-				if( !empty($css_url) ){
-					
-					$css_url = $this->sanitize_url($css_url);
-					
-					if( !empty($css_url) && !in_array($css_url,$headLinks) ){
-
-						$head .= '<link href="' . $css_url . '" rel="stylesheet" type="text/css" />';
-							
-						$headLinks[] = $css_url;
-					}					
-				}
-				else{
-				
-					$css_url = $this->sanitize_url($this->get_meta( $term, 'css_url' ));
-					
-					if( !empty($css_url) && !in_array($css_url,$headLinks) ){
-
-						$head .= '<link href="' . $css_url . '" rel="stylesheet" type="text/css" />';
-							
-						$headLinks[] = $css_url;
-					}
-					
-					$css_content = $this->get_meta( $term, 'css_content' );
-					
-					if( !empty($css_content) ){
-					
-						$head .= '<style>' . stripcslashes($css_content) . '</style>';
-					}
-				}
+				$head .= '<link href="' . $library->url . '" rel="stylesheet" type="text/css" />';
 			}
 		}
 		
@@ -3826,7 +3796,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$head .= '<link rel="apple-touch-icon-precomposed" href="'.$favicon.'"/>'.PHP_EOL;
 			$head .= '<meta name="msapplication-TileImage" content="'.$favicon.'"/>'.PHP_EOL;						
 		}
-		
+			
 		$this->layerHeadContent = $head;
 		
 		// get body content
@@ -3856,41 +3826,31 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		//include layer
 		
 		$layer_template = get_page_template_slug( $this->id );
-		
-		if( $this->is_local($this->id) ){
-		
-			$body .='<div class="' . implode(' ',$this->layerStyleClasses) . '" style="width:100%;">' .PHP_EOL;
-		}
 
-			// layer menu
+		// layer menu
+		
+		if( !empty($this->layerMenuContent) ){
 			
-			if( !empty($this->layerMenuContent) ){
-				
-				$body .= '<div class="menu-' . $this->layerMenuId . '">';
-						
-					$body .= $this->layerMenuContent;
+			$body .= '<div class="menu-' . $this->layerMenuId . '">';
 					
-				$body .= '</div>';
-			}
-			
-			if( $this->in_editor() ){
+				$body .= $this->layerMenuContent;
 				
-				// layer content
-							
-				$body .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($this->layerMargin) ? 'margin:'.$this->layerMargin.';' : '' ) . '">';
-								
-					$body .= $layerContent;
-				
-				$body .= '</ltple-layer>' .PHP_EOL;
-			}
-			else{
-				
-				$body .= $layerContent;
-			}
-
-		if( $this->is_local($this->id) ){
+			$body .= '</div>';
+		}
 		
-			$body .='</div>' .PHP_EOL;
+		if( $this->in_editor() ){
+			
+			// layer content
+						
+			$body .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($this->layerMargin) ? 'margin:'.$this->layerMargin.';' : '' ) . '">';
+							
+				$body .= $layerContent;
+			
+			$body .= '</ltple-layer>' .PHP_EOL;
+		}
+		else{
+			
+			$body .= $layerContent;
 		}
 		
 		if( !empty($defaultJson) ){
@@ -5697,7 +5657,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return true;
 	}
 
-	public function output_layer(){
+	public function render_output(){
+		
+		// parse layer content
+							
+		$this->parse_hosted_content();
 		
 		$content = '';
 
@@ -5735,7 +5699,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !isset($_REQUEST['uri']) && $this->is_local($post) && !empty($this->layerOutput) && $this->layerOutput == 'hosted-page' ){
 			
-			echo $this->layerHeadContent;
+			if( !empty($this->layerHeadContent) )
+			
+				echo $this->layerHeadContent;
 		}
 	}
 	
@@ -5743,9 +5709,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $layer->output == 'hosted-page' ){
 			
-			if( !empty($this->layerStyleClasses) && ( $layer->area == 'backend' || $layer->output == 'hosted-page' ) ){
+			if( $layer->area == 'backend' || $layer->output == 'hosted-page' ){
 				
-				$content = '<div class="' . implode(' ',$this->layerStyleClasses) . '">' . do_shortcode($content) . '</div>';
+				$content = '<div class="' . $this->get_layer_classes($layer->ID) . '">' . do_shortcode($content) . '</div>';
 			}
 			elseif( $layer->area == 'frontend' && $this->layerEcho === true ){
 				
@@ -5754,6 +5720,33 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $content;
+	}
+	
+	public function get_layer_classes($layer_id){
+		
+		$classes = array();
+		
+		if( $defaultId = $this->get_default_id($layer_id) ){
+		
+			$classes[] = 'layer-' . $defaultId;
+		}
+		
+		if( $defaultId != $layer_id ){
+			
+			$classes[] = 'layer-' . $layer_id;
+		}
+		
+		// TODO get libraries by layer id instead of globaly
+		
+		if( !empty($this->layerCssLibraries) ){
+			
+			foreach( $this->layerCssLibraries as $library ){
+				
+				$classes[] = $library->prefix;
+			}
+		}
+		
+		return !empty($classes) ? implode(' ',$classes) : '';
 	}
 	
 	public function get_preview_layer_link($url,$post=null){
@@ -5779,51 +5772,33 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function add_local_layer_scripts( $layer ){
-
+		
 		if( !isset($_GET['uri']) ){
 			
 			if( $layer->area == 'backend' || $layer->output == 'hosted-page' ){
 				
+				if( !empty($this->layerFontLibraries) ){
+					
+					$fontsLibraries = array();
+					
+					foreach($this->layerFontLibraries as $term){
+						
+						$font_url = $this->get_meta( $term, 'font_url' );
+						
+						if( !empty($font_url) ){
+							
+							wp_register_style( $this->parent->_token . '-font-' . $term->slug, $font_url, array(), null); // null to enqueue multiple fonts
+							wp_enqueue_style( $this->parent->_token . '-font-' . $term->slug );
+						}
+					}
+				}
+				
 				if( !empty($this->layerCssLibraries) ){
 					
-					foreach($this->layerCssLibraries as $term){
+					foreach($this->layerCssLibraries as $library){
 						
-						$class = 'style-' . $term->term_id;
-						
-						$this->layerStyleClasses[] = $class;
-						
-						$css_url = $this->get_css_parsed_url($term);
-						
-						if( !empty($css_url) ){
-							
-							$css_url = $this->sanitize_url($css_url);
-							
-							if( !empty($css_url) ){
-
-								wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
-								wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
-							}					
-						}
-						else{
-						
-							$css_url = $this->sanitize_url($this->get_meta( $term, 'css_url' ));
-							
-							if( !empty($css_url) ){
-
-								wp_register_style( $this->parent->_token . '-layer-' . $class, $css_url, array());
-								wp_enqueue_style( $this->parent->_token . '-layer-' . $class );
-							}
-							
-							$css_content = $this->get_meta( $term, 'css_content' );
-							
-							if( !empty($css_content) ){
-								
-								wp_register_style( $this->parent->_token . '-layer-inline-' . $class, false, array());
-								wp_enqueue_style( $this->parent->_token . '-layer-inline-' . $class );
-				
-								wp_add_inline_style( $this->parent->_token . '-layer-inline-' . $class, strip_tags(stripcslashes($css_content)));
-							}
-						}
+						wp_register_style( $this->parent->_token . $library->prefix, $library->url, array());
+						wp_enqueue_style( $this->parent->_token . $library->prefix );
 					}
 				}
 				
@@ -5844,6 +5819,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					wp_add_inline_style( $this->parent->_token . '-layer-custom-css',$this->layerCss);
 				}
+				
+				// TODO JS scripts
+				
 			}
 		}
 		

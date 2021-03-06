@@ -1,11 +1,9 @@
 <?php 
 	
-	$html_classes = ' class="' . implode(' ',$this->layerStyleClasses) . '"';
-
 	// get layer
 	
 	$layer  = '<!DOCTYPE html>';
-	$layer .= '<html' . $html_classes . '>';
+	$layer .= '<html class="' . $this->get_layer_classes($this->id) . '">';
 	
 	$layer .= '<head>';
 			

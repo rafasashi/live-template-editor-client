@@ -380,16 +380,20 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 				
 				$url = $this->parent->assets_url . 'images/default-element.jpg';
 			}
-
-			echo '<img style="width:150px;" src="'.$url.'">';
+			
+			echo '<a class="preview-' . $post_id . '" target="_blank" href="'.$url.'">';
+			
+				echo '<img style="width:150px;" src="'.$url.'">';
+			
+			echo '</a>';
 		}
 		elseif( $column_name === 'actions' ){
 				
-			echo '<div id="action-buttons-'.$post_id.'" class="action-buttons">';
+			echo '<div id="action-buttons-' . $post_id . '" class="action-buttons">';
 				
-					$source = get_preview_post_link($post_id);
+					$source = get_permalink($post_id);
 
-					echo '<button data-id="'.$post_id.'" data-title="Generate Preview" data-source="'.$source.'" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small">';
+					echo '<button data-id="' . $post_id . '" data-title="' . get_the_title($post_id) . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small">';
 						
 						echo 'Refresh Preview';
 						
@@ -574,7 +578,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	}
 	
 	public function get_script(){
-					
+		
 		$script = '
 			
 			;(function($){
@@ -674,11 +678,14 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 							var id 		= $(this).attr("data-id");
 							var title 	= $(this).attr("data-title");
 							var source 	= $(this).attr("data-source");
-							
+	
 							var $btns 		= $("#action-buttons-" + id);
 							var $meter 		= $("#meter-" + id);
 							var $progress 	= $("#meter-" + id + " .progress");
 							var $completed 	= $("#message-" + id + " .completed");
+							
+							var screenshotUrl 	= "' . get_option( $this->parent->_base . 'server_url') . '";
+							var uploaderUrl		= "' . get_admin_url() . '";
 							
 							$btns.find("button").prop("disabled",true);
 							
@@ -693,7 +700,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 								cache		: false,
 								beforeSend	: function(){
 									
-									
+									console.info("Processing " + title + "...");
 								},
 								error: function() {
 								
@@ -702,9 +709,83 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 									$meter.hide();
 									$btns.find("button").prop("disabled",false);
 								},
-								success: function(data) {
+								success: function(htmlDoc) {
 								
+									var proto = window.location.href.split("/")[0];
 									
+									// get total requests
+									
+									$progress.css("width", ( 100 / 3 ) + "%");
+							
+									$.ajaxQueue({
+										
+										type 		: "POST",
+										url  		: screenshotUrl,
+										data  		: {
+											
+											dev		: "true",
+											action	: "takeScreenshot",
+											htmlDoc : htmlDoc,
+											selector: "body"
+										},
+										cache		: false,
+										beforeSend	: function(){
+											
+											
+										},
+										error: function() {
+										
+											console.error(screenshotUrl + " error");
+										},
+										success: function(imgData) {
+
+											$.ajaxQueue({
+												
+												type 		: "POST",
+												url  		: uploaderUrl,
+												data  		: {
+													
+													postId	: id,
+													imgData	: "image/png;base64," + imgData
+												},
+												cache		: false,
+												xhrFields	: {
+													
+													withCredentials: true
+												},
+												beforeSend	: function(){
+													
+													
+												},
+												error: function() {
+												
+													console.error(uploaderUrl + " error");
+												},
+												success: function(thumbUrl) {
+													
+													$( ".preview-" + id ).attr("href",thumbUrl);
+													$( ".preview-" + id + " img" ).attr("src",thumbUrl);
+												},
+												complete: function(){
+
+													$progress.css("width", "100%");
+													
+													$progress.bind("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function(){
+														
+														$meter.hide();
+														$progress.css("width", "0%");
+														$btns.find("button").prop("disabled",false);
+														$completed.show();
+														$progress.unbind();
+													});
+												}
+											});
+										},
+										complete: function(){
+
+											$progress.css("width", ( 100 * 2 / 3 ) + "%");
+										}
+									});
 								},
 								complete: function(){
 									
