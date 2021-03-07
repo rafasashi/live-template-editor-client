@@ -2406,7 +2406,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $layer->post_type == 'default-element' ){
 			
-			$visibility = 'anyone';
+			$visibility = 'registered';
 		}
 		elseif( !$visibility = get_post_meta( $layer->ID, 'layerVisibility', true ) ){
 			
@@ -4660,7 +4660,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				@unlink($tmp);
 				
 				if( is_numeric($attach_id) ){
-				
+					
+					update_post_meta($attach_id,'ltple_upload_dest','editor');
+					
 					update_term_meta($term->term_id,'css_attachment',$attach_id);
 				}
 				else{

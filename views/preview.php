@@ -2,7 +2,19 @@
 <!DOCTYPE>
 <html>
 
-    <head></head>
+    <head>
+	
+		<style>
+		
+			img {
+				
+				width:100%;
+				height:auto;
+			}
+		
+		</style>	
+			
+	</head>
     
 	<body style="padding:0;margin:0;display:inline-block;width:100%;text-align:center;">
 		
@@ -10,7 +22,7 @@
 		
 		if ( have_posts() ) : while ( have_posts() ) : the_post();
 			
-			if( $image = get_the_post_thumbnail( get_the_ID(), 'recentprojects-thumb') ){
+			if( $image = get_the_post_thumbnail( get_the_ID(), 'full' ) ){
 				
 				echo $image;
 			}

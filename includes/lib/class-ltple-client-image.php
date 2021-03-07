@@ -746,27 +746,6 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	public function upload_base64_thumbnail($post_id,$base64){
 		
 		if( !empty($this->parent->user->ID) ){
-
-			$md5 =  md5($base64);
-
-			//check if image exists
-			
-			$q = new WP_Query(array(
-				
-				'name' 			=> $md5,
-				'post_author' 	=> $this->parent->user->ID,
-				'post_type' 	=> 'attachment',
-				'posts_per_page'=> -1,
-			));
-
-			if( $q->post_count == 0 ){	
-				
-				if ( !function_exists('media_handle_upload') ) {
-					
-					require_once(ABSPATH . "wp-admin" . '/includes/image.php');
-					require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-					require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-				}			
 				
 				list(,$img) = explode('image/png;base64,',$base64);
 
@@ -781,41 +760,13 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 
 						// put tmp image
 						
-						$name 	= $md5 . '.png';
-						$tmp 	= get_temp_dir() . $name;
+						$tmp = get_temp_dir() . md5($base64) . '.png';
 						
-						imagepng($img, $tmp);
+						imagepng($img,$tmp);
 						
-						// handle sideload
-						
-						$file_array = array(
-						
-							'name' 		=> $name,
-							'tmp_name' 	=> $tmp,
-						);
-						
-						$post_data = array(
-						
-							'post_title' => $md5,
-						);
-
-						if ( $attach_id = media_handle_sideload( $file_array, null, null, $post_data ) ) {
-							
-							set_post_thumbnail($post_id, $attach_id);
-							
-							@unlink($tmp);
-						}
+						return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,true);
 					}
 				}
-			}
-			else{
-				
-				set_post_thumbnail($post_id, $q->posts[0]->ID);
-			}
-			
-			// get thumbnail url
-			
-			return get_the_post_thumbnail_url($post_id);
 		}
 	}
 	

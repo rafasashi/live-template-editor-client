@@ -18,7 +18,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	
 		$this->parent->register_post_type( 'default-element', __( 'Default Elements', 'live-template-editor-client' ), __( 'Default Element', 'live-template-editor-client' ), '', array(
 
-			'public' 				=> true,
+			'public' 				=> false,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
@@ -363,6 +363,8 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		$columns['cb'] 		= '<input type="checkbox" />';
 		$columns['thumb'] 	= 'Preview';
 		$columns['title'] 	= 'Title';
+		
+		$columns['taxonomy-element-library'] = 'Libraries';
 		
 		if( current_user_can('administrator') ){
 			
@@ -729,6 +731,10 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 											selector: "body"
 										},
 										cache		: false,
+										xhrFields	: {
+											
+											withCredentials: true
+										},										
 										beforeSend	: function(){
 											
 											

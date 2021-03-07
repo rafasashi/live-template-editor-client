@@ -587,9 +587,13 @@ class LTPLE_Client_Gallery {
 
 												$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 145px);overflow: hidden;"></iframe>';											
 											}
+											elseif( $image = get_the_post_thumbnail($post->ID, 'full') ){
+											
+												$item.= $image;
+											}
 											else{
 												
-												$item.= get_the_post_thumbnail($post->ID, 'recentprojects-thumb');
+												$item.= '<img src="' . $this->parent->layer->get_thumbnail_url($post) . '">';
 											}
 
 										$item.='</div>'.PHP_EOL;
