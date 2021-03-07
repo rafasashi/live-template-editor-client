@@ -725,7 +725,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 										url  		: screenshotUrl,
 										data  		: {
 											
-											dev		: "true",
+											dev		: "'.( REW_DEV_ENV === true ? 'true' : 'false' ).'",
 											action	: "takeScreenshot",
 											htmlDoc : htmlDoc,
 											selector: "body"
