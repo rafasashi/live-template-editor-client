@@ -71,9 +71,9 @@ class LTPLE_Client_Editor {
 		
 		if( $slug = get_query_var('edit') ){
 			
-			if( !empty($_GET['uri']) ){
+			if( !empty($_REQUEST['uri']) ){
 				
-				if( !empty($_GET['lk']) ){
+				if( !empty($_REQUEST['lk']) ){
 					
 					if(  !empty($_POST['domId']) ){
 						
@@ -81,18 +81,14 @@ class LTPLE_Client_Editor {
 						
 							// handle cropped image upload
 						
-							echo $this->parent->image->upload_base64_image($this->parent->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['base64']);
+							echo LTPLE_Editor::upload_base64_image($layer, $_POST['domId'], $_POST['base64']);
 						}
 						elseif( !empty($_POST['url']) ){
 							
-							echo $this->parent->image->upload_image_url($this->parent->layer->id . '_' . $_POST['domId'] . '.png' ,$_POST['url']);
-						}
-					}
-					elseif( !empty($_FILES) && !empty($_POST['location']) && $_POST['location'] == 'media' ){
+							$crop = !empty($_POST['crop']) ? json_decode(stripslashes($_POST['crop']),true) : false;
 							
-						// handle canvas image upload
-						
-						echo $this->parent->image->upload_collage_image();
+							echo LTPLE_Editor::upload_image_url($layer, $_POST['domId'], $_POST['url'], $crop);
+						}
 					}
 					else{
 			
@@ -375,7 +371,7 @@ class LTPLE_Client_Editor {
 					}
 					else{
 						
-						$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-camera" aria-hidden="true"></span> Make a screenshot';
+						$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-camera" aria-hidden="true"></span> Take a screenshot';
 					}					
 				}
 			}

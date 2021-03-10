@@ -176,7 +176,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 						$content 	= isset($meta['layerContent'][0]) ? $meta['layerContent'][0] : '';
 						$type 		= isset($meta['elementType'][0])  ? $meta['elementType'][0]	 : 'sections';
 						$drop 		= isset($meta['elementDrop'][0])  ? $meta['elementDrop'][0]  : 'out';
-						$image 	 	= '';
+						$image 	 	= get_the_post_thumbnail_url($elem->ID,'post-thumbnail');
 						
 						$elements['name'][] 	= $elem->post_title;
 						$elements['content'][] 	= $content;
