@@ -2401,7 +2401,7 @@ class LTPLE_Client {
 			
 			$style .='}';
 			
-			$style .='.panel-header h1, .entry-content h1 {';
+			$style .='.panel-header .page-title, .entry-content .page-title {';
 
 				$style .='font-size: 24px;';
 			
