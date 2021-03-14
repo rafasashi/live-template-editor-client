@@ -20,7 +20,7 @@
 </head> 
 <body <?php body_class('boxedlayout'); ?>>
 
-	<div id="ltple-wrapper" class="boxedcontent" style="position:absolute;z-index:auto;border:none;width:100%;">
+	<div id="ltple-wrapper" class="boxedcontent" style="position:absolute;z-index:auto;border:none;width:100%;top:0;left:0;right:0;display:contents !important;">
 		
 <?php 
 	

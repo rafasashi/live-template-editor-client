@@ -646,14 +646,14 @@ class LTPLE_Client_Profile {
 		return $this->urls[$user_id] . $path;
 	}
 	
-	public function include_user_profile($template){
+	public function include_user_profile($path){
 
 		if( $this->id > 0 && $this->in_tab ){
 			
 			include($this->parent->views . '/profile.php');
 		}
 		
-		return $template;
+		return $path;
 	}	
 	
 	public function get_profile_shortcode(){
