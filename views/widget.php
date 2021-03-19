@@ -28,41 +28,43 @@
 	</head>
 	<body id="ltple-wrapper" style="background-color:#fff !important;position:absolute;overflow:hidden;top:0;bottom:0;left:0;right:0;">
 	
-		<?php
+	<?php 
+		
+		wp_body_open();
 
-			if(!empty($_SESSION['message'])){
-				
-				echo $_SESSION['message'].PHP_EOL;
-				
-				$_SESSION['message'] = '';
-			}					
+		if(!empty($_SESSION['message'])){
 			
-			global $post;
+			echo $_SESSION['message'].PHP_EOL;
 			
-			if( isset($post->post_type) ){
+			$_SESSION['message'] = '';
+		}					
+		
+		global $post;
+		
+		if( isset($post->post_type) ){
 
-				if( $post->post_type ==  'subscription-plan' ){
+			if( $post->post_type ==  'subscription-plan' ){
+				
+				if( !empty($_GET['sc']) && shortcode_exists( $_GET['sc'] ) ){
 					
-					if( !empty($_GET['sc']) && shortcode_exists( $_GET['sc'] ) ){
-						
-						echo do_shortcode( '['.$_GET['sc'].' id="' . $post->ID . '" widget="true"]' );
-					}
-					else{
-						
-						echo do_shortcode( '[subscription-plan id="' . $post->ID . '" widget="true"]' );
-					}
+					echo do_shortcode( '['.$_GET['sc'].' id="' . $post->ID . '" widget="true"]' );
 				}
 				else{
 					
-					// addon widgets
-
-					echo apply_filters( 'the_content', $post->post_content );
+					echo do_shortcode( '[subscription-plan id="' . $post->ID . '" widget="true"]' );
 				}
 			}
-			
-			wp_footer(); 
+			else{
+				
+				// addon widgets
+
+				echo apply_filters( 'the_content', $post->post_content );
+			}
+		}
+		
+		wp_footer(); 
 		 
-		?>
+	?>
 	
 	</body>
 </html>

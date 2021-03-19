@@ -334,7 +334,7 @@
 	
 	</head>
 	<body>
-	
+	<?php wp_body_open(); ?>
 		<div id="wrapper">
 		
 		  <div id="content">

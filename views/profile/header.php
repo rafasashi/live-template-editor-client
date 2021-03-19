@@ -19,7 +19,7 @@
 	<?php wp_head();?>
 </head> 
 <body <?php body_class('boxedlayout'); ?>>
-
+<?php wp_body_open(); ?>
 	<div id="ltple-wrapper" class="boxedcontent" style="position:absolute;z-index:auto;border:none;width:100%;top:0;left:0;right:0;display:contents !important;">
 		
 <?php 

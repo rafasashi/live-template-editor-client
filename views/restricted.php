@@ -13,7 +13,9 @@ $ltple = LTPLE_Client::instance();
 	</head>
 	
 	<body>
-
+		
+		<?php wp_body_open(); ?>
+		
 		<div class="alert alert-warning">
 			
 			Access to this project restricted, please switch user.

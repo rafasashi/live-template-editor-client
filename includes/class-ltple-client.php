@@ -2254,7 +2254,6 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-toggle-switch' );
 	
-		
 		wp_register_style( 'fontawesome-5', '//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css', array(), $this->_version );
 		wp_enqueue_style( 'fontawesome-5' );			
 		
@@ -2262,7 +2261,7 @@ class LTPLE_Client {
 		
 		if( empty($post->post_type) || $post->post_type != 'default-element' ){
 		
-			wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css'));
+			wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css','theme-style',$this->_token . '-client-ui'));
 			wp_enqueue_style( $this->_token . '-client' );
 		
 			wp_add_inline_style( $this->_token . '-client', $this->get_client_style() );
