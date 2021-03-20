@@ -251,7 +251,12 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				}
 			
 				$(document).ready(function(){
-
+			
+					$( "#saveImageForm button" ).click(function() {
+						
+						this.closest( "form" ).submit();
+					});
+			
 					$(".table").on("load-success.bs.table", function(e) {
 						
 						set_image_preview();

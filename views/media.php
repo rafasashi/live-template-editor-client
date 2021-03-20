@@ -683,28 +683,4 @@
 		echo'</div>';	
 
 	echo'</div>';
-
-?>
-
-<script>
-
-	;(function($){
-		
-		$(document).ready(function(){
-
-			// submit forms
-			
-			$( "button" ).click(function() {
-				
-				this.closest( "form" ).submit();
-			});
-			
-			// set tooltips & popovers
-			
-			$('[data-toggle="tooltip"]').tooltip();
-			$('[data-toggle="popover"]').popover();
-		});
-		
-	})(jQuery);
-
-</script>
+	
