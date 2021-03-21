@@ -384,6 +384,10 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 									
 									if( $attach_id = media_handle_upload( $file, 0 ) ){
 				
+										// set source meta
+										
+										update_post_meta($attach_id,$this->parent->_base . 'upload_source','upload');
+				
 										// output message
 										
 										if( !$this->parent->inWidget ){
@@ -617,7 +621,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 						
 						imagepng($img,$tmp);
 						
-						return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,true);
+						return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,'thumbnail');
 					}
 				}
 		}
