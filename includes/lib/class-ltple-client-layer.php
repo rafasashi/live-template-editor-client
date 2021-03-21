@@ -130,7 +130,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->parent->register_post_type( 'user-page', __( 'Pages', 'live-template-editor-client' ), __( 'Page', 'live-template-editor-client' ), '', array(
 
-			'public' 				=> false,
+			'public' 				=> true,
 			'publicly_queryable' 	=> true,
 			'exclude_from_search' 	=> true,
 			'show_ui' 				=> true,
