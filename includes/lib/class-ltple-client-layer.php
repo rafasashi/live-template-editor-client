@@ -331,34 +331,44 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		// default layer
 		
-		add_filter('manage_cb-default-layer_posts_columns', array( $this, 'set_default_layer_columns'));
+		add_filter('manage_cb-default-layer_posts_columns', array( $this, 'set_default_layer_columns'),99999);
 		add_action('manage_cb-default-layer_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);
+		
+		add_filter('ltple_admin_editor_actions',function($editor_actions){
+			
+			if( !empty($_GET['post_type']) && $_GET['post_type'] == 'cb-default-layer' && current_user_can('administrator') ){
+			
+				$editor_actions['refresh-preview'] = 'Refresh Preview';
+			}
+			
+			return $editor_actions;
+		});
 		
 		// user layer
 		
-		add_filter('manage_user-layer_posts_columns', array( $this, 'set_user_layer_columns'));
+		add_filter('manage_user-layer_posts_columns', array( $this, 'set_user_layer_columns'),99999);
 		add_action('manage_user-layer_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);
 		
 		// user page
 		
-		add_filter('manage_user-page_posts_columns', array( $this, 'set_user_layer_columns'));
+		add_filter('manage_user-page_posts_columns', array( $this, 'set_user_layer_columns'),99999);
 		add_action('manage_user-page_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);		
 		
 		// user menu
 		
-		add_filter('manage_user-menu_posts_columns', array( $this, 'set_user_layer_columns'));
+		add_filter('manage_user-menu_posts_columns', array( $this, 'set_user_layer_columns'),99999);
 		add_action('manage_user-menu_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);		
 		
 		// user psd
 		
-		add_filter('manage_user-psd_posts_columns', array( $this, 'set_user_layer_columns'));
+		add_filter('manage_user-psd_posts_columns', array( $this, 'set_user_layer_columns'),99999);
 		add_action('manage_user-psd_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);
 				
 		// account option fields
 		
 		add_action('account-option_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );	
 	
-		add_filter('manage_edit-account-option_columns', array( $this, 'set_account_option_columns' ) );
+		add_filter('manage_edit-account-option_columns', array( $this, 'set_account_option_columns' ),99999 );
 		add_filter('manage_account-option_custom_column', array( $this, 'add_layer_tax_column_content' ),10,3);			
 	
 		add_action('create_account-option', array( $this, 'save_layer_taxonomy_fields' ) );
@@ -368,7 +378,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_action('layer-type_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );
 	
-		add_filter('manage_edit-layer-type_columns', array( $this, 'set_layer_type_columns' ) );
+		add_filter('manage_edit-layer-type_columns', array( $this, 'set_layer_type_columns' ),99999 );
 		add_filter('manage_layer-type_custom_column', array( $this, 'add_layer_tax_column_content' ),10,3);		
 		
 		add_action('create_layer-type', array( $this, 'save_layer_taxonomy_fields' ) );
@@ -378,10 +388,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_action('layer-range_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );
 	
-		add_filter('manage_edit-layer-range_columns', array( $this, 'set_layer_range_columns' ) );
+		add_filter('manage_edit-layer-range_columns', array( $this, 'set_layer_range_columns' ),99999 );
 		add_filter('manage_layer-range_custom_column', array( $this, 'add_layer_tax_column_content' ),10,3);
 	
-		add_action('create_layer-range', array( $this, 'save_layer_taxonomy_fields' ) );
+		add_action('create_layer-range', array( $this, 'save_layer_taxonomy_fields' ),99999 );
 		add_action('edit_layer-range', array( $this, 'save_layer_taxonomy_fields' ) );			
 		
 		// layer tabs
@@ -4796,10 +4806,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function set_default_layer_columns($columns){
 		
-		$columns = 	array_slice($columns, 0, 3, true) +
-					array("output" => "Output") +
-					array_slice($columns, 3, count($columns)-3, true);
+		$columns = array(
+					
+			'cb' 					=> '<input type="checkbox">',
+			'thumb' 				=> 'Preview',
+			'title' 				=> 'Title',
+			'author' 				=> 'Author',
+			'taxonomy-layer-type' 	=> 'Gallery',
+			'taxonomy-layer-range' 	=> 'Range',
+			'output' 				=> 'Output',
+		);
 		
+		if( current_user_can('administrator') ){
+			
+			$columns['actions'] = 'Actions';
+		}
+
 		return $columns;
 	} 
 
@@ -4814,7 +4836,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function add_layer_type_column_content($column_name, $post_id){
 		
-		if($column_name == 'output') {
+		if( $column_name === 'thumb' ){
+
+			if( !$url = get_the_post_thumbnail_url($post_id,'post-thumbnail')){
+				
+				$url = $this->parent->assets_url . 'images/default-element.jpg';
+			}
+			
+			echo '<a class="preview-' . $post_id . '" target="_blank" href="'.$url.'">';
+			
+				echo '<img style="width:150px;" src="'.$url.'">';
+			
+			echo '</a>';
+		}
+		elseif($column_name == 'output') {
 			
 			$layer_type = $this->get_layer_type($post_id);
 			
@@ -4830,6 +4865,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				//wp_delete_post( $post_id, true );
 			}
+		}
+		elseif( $column_name === 'actions' ){
+			
+			echo $this->parent->editor->get_admin_action_buttons($post_id);
 		}
 	}
 
