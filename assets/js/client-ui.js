@@ -696,12 +696,12 @@
 		
 		if( $('.collect-info').length > 0 ){
 		
-			$('.collect-info').on('click', function (e) {
+			$('.collect-info button').on('click', function (e) {
 				
 				e.preventDefault();
 				
 				$form = $(this).closest("form");
-
+				
 				$.ajax({
 					
 					type 		: $form.attr('method'),
