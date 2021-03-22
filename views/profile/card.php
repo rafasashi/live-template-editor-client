@@ -45,6 +45,10 @@
 	$robots = 'index,follow';
 	
 	$canonical_url = $ltple->urls->home;
+	
+	$sitemap_url = trailingslashit($ltple->urls->home) . 'wp-sitemap.xml';
+	
+	
 ?>
 <!DOCTYPE html>
 <html>
@@ -87,6 +91,8 @@
 		<link rel="original-source" href="<?php echo $canonical_url; ?>" />
 		<meta property="og:url" content="<?php echo $canonical_url; ?>" />
 		<meta name="twitter:url" content="<?php echo $canonical_url; ?>" />
+		
+		<link rel="sitemap" href="<?php echo $sitemap_url; ?>" type="application/xml" />
 		
 		<meta name="rating" content="General" />
 		<meta name="directory" content="submission" />

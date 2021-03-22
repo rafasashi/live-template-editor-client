@@ -8,6 +8,8 @@
 		
 	add_action( 'wp_head', array( $ltple, 'get_header') );
 	
+	$sitemap_url = trailingslashit($ltple->urls->home) . 'wp-sitemap.xml';
+	
 ?>
 <!DOCTYPE html>	
 <html <?php language_attributes(); ?> class="<?php echo apply_filters('ltple_document_classes','ltple-theme'); ?>">
@@ -16,6 +18,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link rel="sitemap" href="<?php echo $sitemap_url; ?>" type="application/xml" />
+	
 	<?php wp_head();?>
 </head> 
 <body <?php body_class('boxedlayout'); ?>>
