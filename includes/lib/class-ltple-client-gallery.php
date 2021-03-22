@@ -593,7 +593,7 @@ class LTPLE_Client_Gallery {
 											}
 											else{
 												
-												$item.= '<img src="' . $this->parent->layer->get_thumbnail_url($post) . '">';
+												$item.= '<img loading="lazy" src="' . $this->parent->layer->get_thumbnail_url($post) . '">';
 											}
 
 										$item.='</div>'.PHP_EOL;
@@ -723,7 +723,7 @@ class LTPLE_Client_Gallery {
 			
 		$item_title='<a href="' . $this->parent->profile->get_user_url($post->post_author) . '" style="position:absolute;top:-25px;">';
 			
-			$item_title.='<img src="'.$this->parent->image->get_avatar_url($post->post_author).'" style="height:50px;width:50px;border: 5px solid #fff;background:#fff;border-radius:250px;">';
+			$item_title.='<img loading="lazy" src="'.$this->parent->image->get_avatar_url($post->post_author).'" style="height:50px;width:50px;border: 5px solid #fff;background:#fff;border-radius:250px;">';
 			
 		$item_title.='</a>';
 		

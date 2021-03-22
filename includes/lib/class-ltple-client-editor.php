@@ -345,7 +345,7 @@ class LTPLE_Client_Editor {
 			
 			// insert image button
 			
-			echo '<button style="margin-left:2px;margin-right:2px;border: none;background:#9C27B0;" id="elementsBtn" class="btn btn-sm pull-left" href="#" data-toggle="dialog" data-target="#LiveImgEditorElements" data-height="450" data-width="75%" data-resizable="false">Insert</button>';
+			echo '<button style="margin-left:2px;margin-right:2px;border:none;background:#9C27B0;color:#fff;" id="elementsBtn" class="btn btn-sm pull-left" href="#" data-toggle="dialog" data-target="#LiveImgEditorElements" data-height="450" data-width="75%" data-resizable="false">Insert</button>';
 	
 			echo '<div id="LiveImgEditorElements" title="Elements library" style="display:none;">'; 
 			echo '<div id="LiveImgEditorElementsPanel">';
@@ -367,7 +367,7 @@ class LTPLE_Client_Editor {
 			
 			if( empty($_GET['action']) || $_GET['action'] != 'edit' ){
 				
-				if( $layer->output == 'canvas' || $layer->output == 'image' || $layer->output == 'inline-css' || $layer->output == 'external-css' || $layer->is_element ){
+				if( $layer->post_type == 'cb-default-layer' || $layer->output == 'canvas' || $layer->output == 'image' || $layer->output == 'inline-css' || $layer->output == 'external-css' || $layer->is_element ){
 			
 					if( $layer->output == 'canvas' || $layer->output == 'image' ){
 					
@@ -576,14 +576,17 @@ class LTPLE_Client_Editor {
 		$buttons = '';
 		
 		if( !empty($this->actions) ){
-				
+			
+			$layer = LTPLE_Editor::instance()->get_layer($post_id);
+					
 			foreach( $this->actions as $slug => $name ){
 				
-				if( $slug == 'live-template-editor' ){
+				if( $slug == 'edit-with-ltple' ){
 					
-					// TODO edit with LTPLE
+					if( $layer->output != 'image' ){
 					
-					
+						$buttons .= '<a href="' . $layer->urls['edit'] . '" class="button button-primary button-small" style="margin-bottom:5px;">'.$name.'</a>';
+					}
 				}
 				elseif( $slug == 'refresh-preview' ){
 					
@@ -593,7 +596,7 @@ class LTPLE_Client_Editor {
 						
 							$source = get_preview_post_link($post_id);
 
-							$buttons .= '<button data-id="' . $post_id . '" data-title="' . get_the_title($post_id) . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small">';
+							$buttons .= '<button data-id="' . $post_id . '" data-title="' . get_the_title($post_id) . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small" style="margin-bottom:5px;">';
 								
 								$buttons .= $name;
 								

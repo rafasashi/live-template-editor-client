@@ -544,7 +544,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				$item.='<div class="media_wrapper">';
 				
-					$item.= '<img class="lazy" data-original="' . $image_url . '" />';
+					$item.= '<img loading="lazy" class="lazy" data-original="' . $image_url . '" />';
 				
 				$item.='</div>'; //thumb_wrapper						
 				
@@ -722,7 +722,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				$item.='<div class="col-xs-2 col-sm-2 col-lg-1">';
 
-					$item.='<img class="lazy" data-original="' . $this->parent->assets_url . '/images/payment.png" />';
+					$item.='<img loading="lazy" class="lazy" data-original="' . $this->parent->assets_url . '/images/payment.png" />';
 						
 				$item.='</div>';
 

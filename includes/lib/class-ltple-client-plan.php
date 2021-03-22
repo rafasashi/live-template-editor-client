@@ -215,7 +215,7 @@ class LTPLE_Client_Plan {
 			
 			echo '<div style="width:250px;">';
 				
-				echo '<img src="'.$thumb_url.'" style="width:100%;" />';
+				echo '<img loading="lazy" src="'.$thumb_url.'" style="width:100%;" />';
 			
 			echo '</div>';
 		}		

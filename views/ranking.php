@@ -120,7 +120,7 @@
 											echo'<tr>';
 											
 												echo'<td style="font-size:16px;font-weight:bold;text-align:center;"># '.$rank.'</td>';
-												echo'<td style="font-size:15px;padding:1px;"><a href="' . $this->parent->urls->profile . $user->ID . '/">' . '<img src="'.$picture.'" height="35" width="35" /> '. ucfirst( $user->nickname ) . '</a></td>';
+												echo'<td style="font-size:15px;padding:1px;"><a href="' . $this->parent->urls->profile . $user->ID . '/">' . '<img loading="lazy" src="'.$picture.'" height="35" width="35" /> '. ucfirst( $user->nickname ) . '</a></td>';
 												echo'<td style="text-align:center;">'.( !empty($user->user_url) ? '<a target="_blank" href="'.$user->user_url . '"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>' : '').'</td>';
 												echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;"><span class="fa fa-star" aria-hidden="true"></span> ' . $stars . '</span></td>';
 											

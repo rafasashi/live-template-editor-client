@@ -131,7 +131,7 @@
 							
 							$link .= '<a style="display:inline-block;" href="'.$url.'" title="View '.$name.'\'s profile" class="bbp-author-avatar">';
 								
-								$link .= '<img style="border:0;border-radius:250px;" alt="" src="'.$picture.'" srcset="'.$picture.'" class="avatar photo" />';
+								$link .= '<img loading="lazy" style="border:0;border-radius:250px;" alt="" src="'.$picture.'" srcset="'.$picture.'" class="avatar photo" />';
 							
 							$link .= '</a>';
 							
@@ -683,7 +683,7 @@
 
 			$avatar_url = $this->parent->image->get_avatar_url($user_id);
 			
-			$avatar = '<img alt="" class="lazy" data-original="'.$avatar_url.'" disabled-srcset="'.$avatar_url.'" height="32" width="32" src="'.$avatar_url.'" style="border-radius:250px;">';
+			$avatar = '<img loading="lazy" alt="" class="lazy" data-original="'.$avatar_url.'" disabled-srcset="'.$avatar_url.'" height="32" width="32" src="'.$avatar_url.'" style="border-radius:250px;">';
 
 			return $avatar;
 		}
@@ -883,7 +883,7 @@
 				
 				$row .= '<a href="'.$update_period_url.'">';
 				
-					$row .= "<img src='" . $this->parent->assets_url . "images/send.png' width=25 height=25>";
+					$row .= "<img loading='lazy' src='" . $this->parent->assets_url . "images/send.png' width=25 height=25>";
 				
 				$row .= '</a>';
 			}
@@ -957,7 +957,7 @@
 				
 				$row .= '<span>';
 						
-					$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/magnet.png' width=24 height=24>";
+					$text = "<img loading='lazy' class='lazy' data-original='" . $this->parent->assets_url . "/images/magnet.png' width=24 height=24>";
 					$row .= "<a title=\"Load leads from Twitter\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_twt_get_leads"), "app" => "twitter", "action" => "importLeads" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_load_leads", $text) . "</a>";
 					
 				$row .= '</span>';
@@ -981,7 +981,7 @@
 						
 						if( $can_notify != 'true' ){
 							
-							$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=15 height=15>" . $channel_name;
+							$text = "<img loading='lazy' class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=15 height=15>" . $channel_name;
 							$row .= "<a title=\"Subscribe to ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "true" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
 						}
 						else{

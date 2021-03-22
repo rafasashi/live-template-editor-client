@@ -891,7 +891,7 @@ class LTPLE_Client {
 			
 			$post = get_post($post_id);
 			
-			echo '<img src="' . $post->post_content . '" style="width:100px;" />';
+			echo '<img loading="lazy" src="' . $post->post_content . '" style="width:100px;" />';
 		}		
 	}
 	

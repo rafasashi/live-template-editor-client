@@ -615,37 +615,6 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			fclose($destination);
 			
 			return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,'thumbnail');
-			
-			list(,$img) = explode('image/png;base64,',$base64);
-			
-			$img = str_replace(' ', '+', $img);
-			
-			if( $img = base64_decode($img) ){
-				
-				$tmp = get_temp_dir() . md5($base64) . '.png';
-				
-				file_put_contents($tmp,$img);
-				
-				return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,'thumbnail');
-				
-				/*
-				if ( $img = imagecreatefromstring($img) ) {
-
-					// set transparency
-					
-					imagealphablending($img, false);
-					imagesavealpha($img, true);					
-
-					// put tmp image
-					
-					$tmp = get_temp_dir() . md5($base64) . '.png';
-					
-					imagepng($img,$tmp);
-					
-					return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,'thumbnail');
-				}
-				*/
-			}
 		}
 	}
 	

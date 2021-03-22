@@ -396,7 +396,7 @@ class LTPLE_Client_Session {
 						
 						//output html
 					
-						//echo '<img class="ltple" src="' . $this->parent->request->proto . $server . '/?ltple-token='.$user_email.'&ltple-key='.$this -> key_num.'&ltple-id='.$user_name.'&ltple-ref='.$user_ref.'&_' . time() . '" height="1" width="1" style="border-style:none;" >';								
+						//echo '<img loading="lazy" class="ltple" src="' . $this->parent->request->proto . $server . '/?ltple-token='.$user_email.'&ltple-key='.$this -> key_num.'&ltple-id='.$user_name.'&ltple-ref='.$user_ref.'&_' . time() . '" height="1" width="1" style="border-style:none;" >';								
 						
 						echo'<iframe class="ltple" src="' . $this->parent->request->proto . $server . '/?ltple-token='.$user_email.'&ltple-key='.$this -> key_num.'&ltple-id='.$user_name.'&ltple-ref='.$user_ref.'&_' . time() . '" style="width:1px;height:1px;border-style:none;position:absolute;display:block;"></iframe>';
 					}

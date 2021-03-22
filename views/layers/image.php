@@ -41,5 +41,5 @@
 
 		$img_url =$this->get_thumbnail_url($this->parent->layer->id);
 		
-		$layer = '<img src="'.$img_url.'" />';
+		$layer = '<img loading="lazy" src="'.$img_url.'" />';
 	}

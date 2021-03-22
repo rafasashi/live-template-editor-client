@@ -654,7 +654,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			if(!empty($thumb_url)){
 				
-				$content.='<img style="width: 70px;" src="'.$thumb_url.'" />';
+				$content.='<img loading="lazy" style="width: 70px;" src="'.$thumb_url.'" />';
 			}
 			else{
 				

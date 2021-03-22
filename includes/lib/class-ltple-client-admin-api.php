@@ -1321,7 +1321,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$image_url = add_query_arg('_',time(),$data);
 
-					$html .= '<img class="img-circle" src="' . $image_url . '" height="125" width="125" title="My avatar" />'; 
+					$html .= '<img loading="lazy" class="img-circle" src="' . $image_url . '" height="125" width="125" title="My avatar" />'; 
 
 					$html .= '<div class="input-group col-xs-10" style="margin:10px 0;">';
 					
@@ -1339,7 +1339,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'banner': 
 					
-					$html .= '<img src="'.$field['default'].'" />';
+					$html .= '<img loading="lazy" src="'.$field['default'].'" />';
 					
 					$html .= '<div class="input-group col-xs-10" style="margin:10px 0;">';
 					
@@ -1714,7 +1714,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					if ( $data ) {
 						$image_thumb = wp_get_attachment_thumb_url( $data );
 					}
-					$html .= '<img id="' . $option_name . '_preview" class="image_preview" src="' . $image_thumb . '" /><br/>' . "\n";
+					$html .= '<img loading="lazy" id="' . $option_name . '_preview" class="image_preview" src="' . $image_thumb . '" /><br/>' . "\n";
 					$html .= '<input id="' . $option_name . '_button" type="button" data-uploader_title="' . __( 'Upload an image' , 'live-template-editor-client' ) . '" data-uploader_button_text="' . __( 'Use image' , 'live-template-editor-client' ) . '" class="image_upload_button button" value="'. __( 'Upload new image' , 'live-template-editor-client' ) . '" />' . "\n";
 					$html .= '<input id="' . $option_name . '_delete" type="button" class="image_delete_button button" value="'. __( 'Remove image' , 'live-template-editor-client' ) . '" />' . "\n";
 					$html .= '<input id="' . $option_name . '" class="image_data_field" type="hidden" name="' . $option_name . '" value="' . $data . '"/><br/>' . "\n";
