@@ -1,6 +1,6 @@
-<div id="newsletterPreferencesBackdrop" class="modal-backdrop in"></div>
+<div id="newsletterPreferencesBackdrop" class="collect-info-backdrop modal-backdrop in"></div>
 
-<div id="newsletterPreferences" class="modal fade in" tabindex="-1" role="dialog" aria-labelledby="channelModal" style="display:block;">
+<div id="newsletterPreferences" class="collect-info modal fade in" tabindex="-1" role="dialog" aria-labelledby="channelModal" style="display:block;">
 	
 	<div class="modal-dialog modal-lg" role="document">
 		
@@ -60,36 +60,3 @@
 	</div>
 	
 </div>
-
-<script>
-		
-	;(function($){
-
-		$(document).ready(function(){
-			
-			$('#submitNewsletterPreferences').on('click', function (e) {
-				
-				e.preventDefault();
-				
-				$form = $(this).closest("form");
-
-				$.ajax({
-					
-					type 		: $form.attr('method'),
-					url  		: $form.attr('action'),
-					data		: $form.serialize(),
-					beforeSend	: function() {
-
-						$('#newsletterPreferences').css('display','none');
-						$('#newsletterPreferencesBackdrop').css('display','none');
-					},
-					success: function(data) {
-						
-					}
-				});
-			});
-		});
-		
-	})(jQuery);		
-		
-</script>

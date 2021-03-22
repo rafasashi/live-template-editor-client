@@ -691,6 +691,33 @@
 				}
 			});
 		}
+		
+		// collect info modals
+		
+		if( $('.collect-info').length > 0 ){
+		
+			$('.collect-info').on('click', function (e) {
+				
+				e.preventDefault();
+				
+				$form = $(this).closest("form");
+
+				$.ajax({
+					
+					type 		: $form.attr('method'),
+					url  		: $form.attr('action'),
+					data		: $form.serialize(),
+					beforeSend	: function() {
+
+						$('.collect-info').css('display','none');
+						$('.collect-info-backdrop').css('display','none');
+					},
+					success: function(data) {
+						
+					}
+				});
+			});
+		}
 	});
 	
 	// set hash on popstate

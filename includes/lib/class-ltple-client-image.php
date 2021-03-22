@@ -603,27 +603,49 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	public function upload_base64_thumbnail($post_id,$base64){
 		
 		if( !empty($this->parent->user->ID) ){
+			
+			$tmp  = get_temp_dir() . md5($base64) . '.png';
+			
+			$source 	 = fopen('data:' . $base64, 'r');
+			$destination = fopen($tmp, 'w');
+
+			stream_copy_to_stream($source, $destination);
+
+			fclose($source);
+			fclose($destination);
+			
+			return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,'thumbnail');
+			
+			list(,$img) = explode('image/png;base64,',$base64);
+			
+			$img = str_replace(' ', '+', $img);
+			
+			if( $img = base64_decode($img) ){
 				
-				list(,$img) = explode('image/png;base64,',$base64);
+				$tmp = get_temp_dir() . md5($base64) . '.png';
+				
+				file_put_contents($tmp,$img);
+				
+				return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,'thumbnail');
+				
+				/*
+				if ( $img = imagecreatefromstring($img) ) {
 
-				if( $img = base64_decode($img) ){
+					// set transparency
 					
-					if ( $img = imagecreatefromstring($img) ) {
+					imagealphablending($img, false);
+					imagesavealpha($img, true);					
 
-						// set transparency
-						
-						imagealphablending($img, false);
-						imagesavealpha($img, true);					
-
-						// put tmp image
-						
-						$tmp = get_temp_dir() . md5($base64) . '.png';
-						
-						imagepng($img,$tmp);
-						
-						return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,'thumbnail');
-					}
+					// put tmp image
+					
+					$tmp = get_temp_dir() . md5($base64) . '.png';
+					
+					imagepng($img,$tmp);
+					
+					return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,'thumbnail');
 				}
+				*/
+			}
 		}
 	}
 	

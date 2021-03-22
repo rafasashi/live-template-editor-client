@@ -579,31 +579,40 @@ class LTPLE_Client_Editor {
 				
 			foreach( $this->actions as $slug => $name ){
 				
-				// TODO differentiate actions with slug 
-				
-				$buttons .= '<div id="action-buttons-' . $post_id . '" class="action-buttons">';
+				if( $slug == 'live-template-editor' ){
 					
-						$source = get_preview_post_link($post_id);
+					// TODO edit with LTPLE
+					
+					
+				}
+				elseif( $slug == 'refresh-preview' ){
+					
+					// TODO differentiate actions with slug 
+					
+					$buttons .= '<div id="action-buttons-' . $post_id . '" class="action-buttons">';
+						
+							$source = get_preview_post_link($post_id);
 
-						$buttons .= '<button data-id="' . $post_id . '" data-title="' . get_the_title($post_id) . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small">';
-							
-							$buttons .= $name;
-							
-						$buttons .= '</button>';
+							$buttons .= '<button data-id="' . $post_id . '" data-title="' . get_the_title($post_id) . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small">';
+								
+								$buttons .= $name;
+								
+							$buttons .= '</button>';
 
-				$buttons .= '</div>';
-				
-				$buttons .= '<div id="meter-'.$post_id.'" class="action-meter" style="display:none;">';
+					$buttons .= '</div>';
 					
-					$buttons .= '<span class="progress" style="width:0%;"></span>';
+					$buttons .= '<div id="meter-'.$post_id.'" class="action-meter" style="display:none;">';
+						
+						$buttons .= '<span class="progress" style="width:0%;"></span>';
+						
+					$buttons .= '</div>';
 					
-				$buttons .= '</div>';
+					$buttons .= '<div id="message-'.$post_id.'" class="action-message">';
+					
+						$buttons .= '<span class="completed" style="display:none;">Completed!</span>';
 				
-				$buttons .= '<div id="message-'.$post_id.'" class="action-message">';
-				
-					$buttons .= '<span class="completed" style="display:none;">Completed!</span>';
-			
-				$buttons .= '</div>';
+					$buttons .= '</div>';
+				}
 			}
 		}
 		

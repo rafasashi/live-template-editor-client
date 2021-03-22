@@ -1162,58 +1162,12 @@ class LTPLE_Client {
 		
 		if( $this->user->loggedin && !is_admin() && !$this->inWidget ){	
 			
-			// credit account credits from server
-			
-			/*
-			$credits_url = $this->server->url . '/agreement/?overview=' . $this->ltple_encrypt_uri($this->user->user_email) . '&credit';
-			
-			echo'<script>' . PHP_EOL;	
-			
-				echo';(function($){' . PHP_EOL;	
-
-					echo'$(document).ready(function(){' . PHP_EOL;	
-						
-						echo'if( $("#accountCreditsValue").length ){' . PHP_EOL;	
-							
-							echo'function refresh_account_credits(){' . PHP_EOL;
-							
-								echo'$.get({
-									
-									url: "'.$credits_url .'", 
-									cache: false
-									
-								},function( data ) {' . PHP_EOL;
-									
-									echo'$( "#accountCreditsValue" ).html( data );' . PHP_EOL;
-								
-								echo'});' . PHP_EOL;
-
-							echo'}' . PHP_EOL;						
-							
-							echo'refresh_account_credits();' . PHP_EOL;
-							
-						echo'}' . PHP_EOL;
-						
-					echo'});' . PHP_EOL;			
-
-				echo'})(jQuery);' . PHP_EOL;			
-			
-			echo'</script>';
-			*/			
-			
 			// collect usr information
 
 			if( empty( $this->user->can_spam_set ) && !isset($_POST['can_spam']) ){
 				
 				include($this->views . '/modals/newsletter.php');
-			} 
-			
-			/*
-			if( empty( $this->user->channel ) && !isset($_POST['marketing-channel']) ){
-				
-				include($this->views . '/modals/channel.php');
 			}
-			*/
 			
 			do_action('ltple_collect_user_information');
 		}

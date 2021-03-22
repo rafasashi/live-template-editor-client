@@ -55,19 +55,3 @@
 	</div>
 	
 </div>
-
-<script>
-		
-	;(function($){
-
-		$(document).ready(function(){
-			
-			$('#submitBtn').on('click', function (e) {
-				
-				this.closest( "form" ).submit();
-			});
-		});
-		
-	})(jQuery);		
-		
-</script>
