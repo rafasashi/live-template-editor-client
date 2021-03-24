@@ -137,14 +137,7 @@ class LTPLE_Client_Plan {
 							
 			add_filter('manage_subscription-plan_posts_columns', array( $this, 'set_subscription_plan_columns'));
 			add_action('manage_subscription-plan_posts_custom_column', array( $this, 'add_subscription_plan_column_content'), 10, 2);
-			add_filter('nav_menu_css_class', array( $this, 'change_subscription_plan_menu_classes'), 10,2 );
-			
-			/*
-			if( !empty($_REQUEST['ltple_update']) && $_REQUEST['ltple_update'] == 'ids' ){
-				
-				$this->remote_update_image_urls();
-			}
-			*/			
+			add_filter('nav_menu_css_class', array( $this, 'change_subscription_plan_menu_classes'), 10,2 );		
 		}
 	}
 	
@@ -2119,7 +2112,7 @@ class LTPLE_Client_Plan {
 			}
 		}
 		
-		return $license_holder_email;
+		return strtolower($license_holder_email);
 	}
 	
 	public function get_license_users($holder_id){

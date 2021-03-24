@@ -51,17 +51,24 @@
 
 		public function init_periods(){
 			
-			// update subscription periods
-		
-			if( !empty($_REQUEST['ltple_update']) && $_REQUEST['ltple_update'] == 'periods' ){
-				
-				$this->update_periods();
-				
-				echo'Periods updated';
-				exit;
-			}
-			
 			if( is_admin() ){
+				
+				if( !empty($_REQUEST['ltple_update_period']) && is_numeric($_REQUEST['ltple_update_period']) ){
+					
+					// update subscription periods
+					
+					$this->update_periods($_REQUEST['ltple_update_period']);
+					
+					add_action('admin_notices',function(){
+						
+						echo '<div class="notice notice-success is-dismissible">';
+							
+							echo '<p>Periods updated</p>';
+						
+						echo '</div>';
+						
+					});
+				}
 				
 				// schedule update subscription periods
 				
@@ -879,7 +886,7 @@
 					
 				$row .= '</span>';
 				
-				$update_period_url  = add_query_arg(array_merge(array('ltple_update'=>'periods'),$_REQUEST),$this->parent->urls->current);
+				$update_period_url  = add_query_arg(array_merge(array('ltple_update_period'=>$user_id),$_REQUEST),$this->parent->urls->current);
 				
 				$row .= '<a href="'.$update_period_url.'">';
 				

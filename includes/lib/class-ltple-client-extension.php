@@ -53,9 +53,9 @@ class LTPLE_Client_Extension {
 			}
 			else{
 				
-				echo '<a href="' . wp_login_url() . '" target="_blank">Login</a>';
+				echo '<a href="' . add_query_arg( array('output' => 'widget'),wp_login_url($this->parent->urls->current)) . '" target="_self">Login</a>';
 			}
-			
+			 
 			exit;
 		}
 	}
