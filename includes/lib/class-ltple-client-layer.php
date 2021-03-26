@@ -464,7 +464,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('ltple_layer_output', array($this,'get_layer_editor'),10,2);
 		
-		add_filter('ltple_layer_is_editable', array($this,'is_editable_output'),10,2 );
+		add_filter('ltple_layer_is_editable', array($this,'filter_layer_is_editable'),10,2 );
 	}
 	
 	public function count_layer_range($terms,$taxonomy){
@@ -1104,6 +1104,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->defaultFields;
 	}
 	
+	public function filter_layer_is_editable($is_editable,$post){
+		
+		if( $this->is_storage($post) ){
+			
+			return $this->is_editable_output($post->ID,$is_editable);
+		}
+		
+		return $is_editable;
+	}
+	
 	public function is_editable_output($output,$is_editable = false){
 		
 		if( is_numeric($output) ){
@@ -1123,9 +1133,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$is_editable = true;
 		}
 		
-		$is_editable = apply_filters('ltple_editable_' . $output,$is_editable);
-		
-		return $is_editable;
+		return apply_filters('ltple_editable_' . $output,$is_editable);
 	}
 	
 	public function is_html_output($output){

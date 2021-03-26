@@ -1020,6 +1020,9 @@ class LTPLE_Client {
 			$title = apply_filters('ltple_header_title',ucfirst($post->post_title));
 		
 			echo '<title>' . $title .  ' • ' . $site_name . '</title>'.PHP_EOL;
+			
+			echo '<meta property="og:site_name" content="' . $site_name . '" />'.PHP_EOL;
+			
 			echo '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
 			echo '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
 			echo '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;
@@ -1092,48 +1095,50 @@ class LTPLE_Client {
 			echo '<meta name="copyright" content="'.$site_name.'" />'.PHP_EOL;
 			echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
 			
-			$this->canonical_url = get_permalink( $post->ID );
+			$canonical_url = get_permalink( $post->ID );
 			
-			do_action('ltple_header_canonical_url');
-			
-			echo '<meta name="url" content="'.$this->canonical_url.'" />' . PHP_EOL;
-			echo '<meta name="canonical" content="'.$this->canonical_url.'" />' . PHP_EOL;
-			echo '<meta name="original-source" content="'.$this->canonical_url.'" />' . PHP_EOL;
-			echo '<link rel="original-source" href="'.$this->canonical_url.'" />' . PHP_EOL;
-			echo '<meta property="og:url" content="'.$this->canonical_url.'" />' . PHP_EOL;
-			echo '<meta name="twitter:url" content="'.$this->canonical_url.'" />' . PHP_EOL;
+			echo '<meta name="url" content="' . $canonical_url . '" />' . PHP_EOL;
+			echo '<meta name="canonical" content="'.$canonical_url.'" />' . PHP_EOL;
+			echo '<meta name="original-source" content="'.$canonical_url.'" />' . PHP_EOL;
+			echo '<link rel="original-source" href="'.$canonical_url.'" />' . PHP_EOL;
+			echo '<meta property="og:url" content="'.$canonical_url.'" />' . PHP_EOL;
+			echo '<meta name="twitter:url" content="'.$canonical_url.'" />' . PHP_EOL;
 			
 			echo '<meta name="rating" content="General" />' . PHP_EOL;
 			echo '<meta name="directory" content="submission" />' . PHP_EOL;
 			echo '<meta name="coverage" content="Worldwide" />' . PHP_EOL;
 			echo '<meta name="distribution" content="Global" />' . PHP_EOL;
 			echo '<meta name="target" content="all" />' . PHP_EOL;
-			echo '<meta name="medium" content="blog" />' . PHP_EOL;
-			echo '<meta property="og:type" content="article" />' . PHP_EOL;
-			echo '<meta name="twitter:card" content="summary" />' . PHP_EOL;
 			
+			$og_type = apply_filters('ltple_meta_og_type','article',$post);
+			
+			if( $og_type == 'article' ){
+				
+				echo '<meta name="medium" content="blog" />' . PHP_EOL;
+			}
+			
+			echo '<meta property="og:type" content="'.$og_type.'" />' . PHP_EOL;
+			
+			$twitter_card = 'summary';
+			
+			if( $thumb_id = get_post_thumbnail_id($post) ){
+				
+				$twitter_card = 'summary_large_image';
+				$image = wp_get_attachment_image_src( $thumb_id, 'full', false );
+				
+				echo '<meta property="og:image" content="'.$image[0].'" />' . PHP_EOL;
+				echo '<meta property="og:image:width" content="'.$image[1].'" />' . PHP_EOL;
+				echo '<meta property="og:image:height" content="'.$image[2].'" />' . PHP_EOL;
+			
+				echo '<meta property="twitter:image" content="'.$image[0].'" />' . PHP_EOL;
+				echo '<meta property="twitter:image:width" content="'.$image[1].'" />' . PHP_EOL;
+				echo '<meta property="twitter:image:height" content="'.$image[2].'" />' . PHP_EOL;			
+			}
+			
+			echo '<meta name="twitter:card" content="'.$twitter_card.'" />' . PHP_EOL;
+		
+			// TODO application/ld+json
 		}
-
-		?>
-		<!-- Facebook Pixel Code -->
-		<!--
-		<script>
-		!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-		n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-		n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-		t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-		document,'script','https://connect.facebook.net/en_US/fbevents.js');
-		fbq('init', '135366043652148'); // Insert your pixel ID here.
-		fbq('track', 'PageView');
-		</script>
-		
-		<noscript><img height="1" width="1" style="display:none"
-		src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"
-		/></noscript>
-		-->
-		<!-- End Facebook Pixel Code -->
-		
-		<?php
 	}
 	
 	public function get_menu( $items, $args ){
