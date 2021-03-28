@@ -5,7 +5,9 @@
 	// get pre filled user email
 
 	$user_email = ( !empty($_GET['loe']) ? $this->parent->ltple_decrypt_uri($_GET['loe'])  : '' );
-
+	
+	$target = $ltple->inWidget ? '_blank' : '_self';
+	
 	// output form
 	
 	echo'<div id="login-wrap">';
@@ -70,7 +72,7 @@
 				
 				if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'register' ){
 					
-					echo'<form name="registerform" id="loginform" action="' . wp_registration_url() . '" method="post" novalidate="novalidate">';
+					echo'<form target="'.$target.'" name="registerform" id="loginform" action="' . wp_registration_url() . '" method="post" novalidate="novalidate">';
 						
 						echo'<p>';
 							
@@ -152,8 +154,9 @@
 							$password_url = wp_lostpassword_url();
 						}
 						
-						wp_login_form( array(
-						
+						$form = wp_login_form( array(
+							
+							'echo' 				=> false,
 							'redirect' 			=> $redirect_to, 
 							'form_id' 			=> 'loginform',
 							'label_username' 	=> __( 'Email' ),
@@ -164,6 +167,8 @@
 							'value_remember' 	=> true,
 							'remember' 			=> true
 						));
+	
+						echo str_replace('<form ','<form target="'.$target.'" ',$form);
 						
 						echo'<div style="width:100%;text-align:center;display:block;">';
 							

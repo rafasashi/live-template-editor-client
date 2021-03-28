@@ -113,8 +113,6 @@ class LTPLE_Client_Session {
 		
 		// add cors header
 
-		add_action( 'send_headers', array($this, 'add_cross_site_scripting_header') );
-		
 		if(is_user_logged_in()){
 			
 			add_action( 'send_headers', array($this, 'add_cors_header') );
@@ -305,11 +303,6 @@ class LTPLE_Client_Session {
 		}
 		*/
 	}
-	
-	public function add_cross_site_scripting_header() {
-		
-		header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
-	}	
 	
 	public function add_cors_header() {
 		
