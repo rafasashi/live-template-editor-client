@@ -1106,7 +1106,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function filter_layer_is_editable($is_editable,$post){
 		
-		if( $this->is_storage($post) ){
+		if( $this->is_default($post) || $this->is_storage($post) ){
 			
 			return $this->is_editable_output($post->ID,$is_editable);
 		}
