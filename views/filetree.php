@@ -15,7 +15,6 @@
 	
 	<style>
 	body { background-color:#182f42; color:#fff; font-family:'Quicksand';}
-	.container { margin:150px auto; max-width:640px;}
 	</style>
 	
 </head>

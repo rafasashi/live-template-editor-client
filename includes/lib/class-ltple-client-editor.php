@@ -581,44 +581,44 @@ class LTPLE_Client_Editor {
 					
 			foreach( $this->actions as $slug => $name ){
 				
-				if( $slug == 'edit-with-ltple' ){
+				if( $this->parent->layer->is_html_output($layer->output) ){
 					
-					if( $layer->output != 'image' ){
-					
+					if( $slug == 'edit-with-ltple' ){
+						 
 						$buttons .= '<a href="' . $layer->urls['edit'] . '" class="button button-primary button-small" style="margin-bottom:5px;">'.$name.'</a>';
 					}
-				}
-				elseif( $slug == 'refresh-preview' ){
-					
-					// TODO differentiate actions with slug 
-					
-					$buttons .= '<div id="action-buttons-' . $post_id . '" class="action-buttons">';
+					elseif( $slug == 'refresh-preview' ){
 						
-							$source = get_preview_post_link($post_id);
+						// TODO differentiate actions with slug 
+						
+						$buttons .= '<div id="action-buttons-' . $post_id . '" class="action-buttons">';
+							
+								$source = get_preview_post_link($post_id);
 
-							$buttons .= '<button data-id="' . $post_id . '" data-title="' . get_the_title($post_id) . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small" style="margin-bottom:5px;">';
-								
-								$buttons .= $name;
-								
-							$buttons .= '</button>';
+								$buttons .= '<button data-id="' . $post_id . '" data-title="' . get_the_title($post_id) . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small" style="margin-bottom:5px;">';
+									
+									$buttons .= $name;
+									
+								$buttons .= '</button>';
 
-					$buttons .= '</div>';
-					
-					$buttons .= '<div id="meter-'.$post_id.'" class="action-meter" style="display:none;">';
+						$buttons .= '</div>';
 						
-						$buttons .= '<span class="progress" style="width:0%;"></span>';
+						$buttons .= '<div id="meter-'.$post_id.'" class="action-meter" style="display:none;">';
+							
+							$buttons .= '<span class="progress" style="width:0%;"></span>';
+							
+						$buttons .= '</div>';
 						
-					$buttons .= '</div>';
+						$buttons .= '<div id="message-'.$post_id.'" class="action-message">';
+						
+							$buttons .= '<span class="completed" style="display:none;">Completed!</span>';
 					
-					$buttons .= '<div id="message-'.$post_id.'" class="action-message">';
-					
-						$buttons .= '<span class="completed" style="display:none;">Completed!</span>';
-				
-					$buttons .= '</div>';
+						$buttons .= '</div>';
+					}
 				}
 			}
 		}
-		
+
 		return $buttons;
 	}
 	

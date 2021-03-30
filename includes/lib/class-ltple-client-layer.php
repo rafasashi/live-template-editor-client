@@ -4877,7 +4877,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		elseif( $column_name === 'actions' ){
 			
-			echo $this->parent->editor->get_admin_action_buttons($post_id);
+			if( $buttons =  $this->parent->editor->get_admin_action_buttons($post_id) ){
+				
+				echo $buttons;
+			}
+			else{
+				
+				echo 'N/A';
+			}
 		}
 	}
 
@@ -5901,7 +5908,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					echo'<style>';
 					echo'body { background-color:#182f42; color:#fff; font-family:\'Quicksand\';}';
-					echo'.container { margin:150px auto; max-width:640px;}';
 					echo'</style>';
 					
 				echo'</head>';

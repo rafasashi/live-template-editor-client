@@ -1523,7 +1523,7 @@ class LTPLE_Client_Profile {
 			$this->privacySettings['about'] = array(
 
 				'id' 			=> $this->parent->_base . 'policy_about-me',
-				'label'			=> 'Profile',
+				'label'			=> 'Public Access',
 				'description'	=> 'Anyone can see my profile & pages',
 				'type'			=> 'switch',
 				'default'		=> 'on',

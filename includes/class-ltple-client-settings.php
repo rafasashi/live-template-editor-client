@@ -876,7 +876,7 @@ class LTPLE_Client_Settings {
 			),
 			'user-contents' => array(
 			  
-				'user-layer' 	=> array( 'tab'  => 'Templates', 	'name' => 'Templates'),
+				'user-layer' 	=> array( 'tab'  => 'HTML', 		'name' => 'HTML'),
 				'user-page' 	=> array( 'tab'  => 'Pages', 		'name' => 'Pages'),
 				'user-menu' 	=> array( 'tab'  => 'Pages',		'name' => 'Menus'),
 				'user-image' 	=> array( 'tab'  => 'Images',		'name' => 'Images'),				
