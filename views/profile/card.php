@@ -47,7 +47,7 @@
 	$canonical_url = $ltple->urls->home;
 	
 	$sitemap_url = trailingslashit($ltple->urls->home) . 'wp-sitemap.xml';
-	
+	$feed_url 	 = trailingslashit($ltple->urls->home) . 'feed/';
 	
 ?>
 <!DOCTYPE html>
@@ -93,6 +93,7 @@
 		<meta name="twitter:url" content="<?php echo $canonical_url; ?>" />
 		
 		<link rel="sitemap" href="<?php echo $sitemap_url; ?>" type="application/xml" />
+		<link rel="alternate" href="<?php echo $feed_url; ?>"  type="application/rss+xml" title="RSS Feed" />
 		
 		<meta name="rating" content="General" />
 		<meta name="directory" content="submission" />

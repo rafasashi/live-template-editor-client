@@ -9,7 +9,7 @@
 	add_action( 'wp_head', array( $ltple, 'get_header') );
 	
 	$sitemap_url = trailingslashit($ltple->urls->home) . 'wp-sitemap.xml';
-	
+	$feed_url 	 = trailingslashit($ltple->urls->home) . 'feed/';
 ?>
 <!DOCTYPE html>	
 <html <?php language_attributes(); ?> class="<?php echo apply_filters('ltple_document_classes','ltple-theme'); ?>">
@@ -19,7 +19,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<link rel="profile" href="http://gmpg.org/xfn/11">
 	<link rel="sitemap" href="<?php echo $sitemap_url; ?>" type="application/xml" />
-	
+	<link rel="alternate" href="<?php echo $feed_url; ?>"  type="application/rss+xml" title="RSS Feed" />
 	<?php wp_head();?>
 </head> 
 <body <?php body_class('boxedlayout'); ?>>
