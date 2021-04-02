@@ -1490,6 +1490,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
 		}
+		elseif( $post->post_status != 'publish' ){
+			
+			if( $post->post_type == 'user-page' )
+				
+				$url = add_query_arg( array(
+					
+					'p' 		=> $post->ID,
+					'post_type' => $post->post_type,
+					'preview' 	=> 'true',
+					
+				),$this->parent->urls->home);
+		}
 
 		return $url;
 	}
@@ -1504,9 +1516,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$id = $post->ID;
 		}
+		elseif( $this->parent->user->loggedin && !is_admin() && !empty($_GET['p']) && !empty($_GET['preview']) && !empty($_GET['post_type']) ){
+			
+			// get id from preview url
+			
+			if( $post = get_post($_GET['p']) ){
+				
+				if( intval($post->post_author) == $this->parent->user->ID )
+				
+					$id = $post->ID;
+			}
+		}
 		else{
 			
 			$id = get_the_ID();
+			
 		}
 		
 		return $id;
