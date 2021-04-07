@@ -1324,22 +1324,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 						$tab .= '<iframe id="iframe_'.$modal_id.'" data-src="' . $media_url . '" data-input-id="#' . $input_id . '" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';						
 						
-						$tab .= '<script>';
-
-							$tab .= ';(function($){';
-
-								$tab .= '$(document).ready(function(){
-									
-									$("#'.$input_id.'").on("change", function(e){
-										
-										$("#'.$preview_id.'").attr("src",$(this).val());
-									});
-								
-								});';
-							
-							$tab .= '})(jQuery);';
-							
-						$tab .= '</script>';
+						wp_register_script( $this->parent->_token . '-image-tab', '', array( 'jquery' ) );
+						wp_enqueue_script( $this->parent->_token . '-image-tab' );
+						wp_add_inline_script( $this->parent->_token . '-image-tab', $this->get_image_tab_script($input_id,$preview_id) );
 						
 					$tab .= '</div>'.PHP_EOL;
 					
@@ -1349,6 +1336,24 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $tab;
+	}
+	
+	public function get_image_tab_script($input_id,$preview_id){
+
+		$script = ';(function($){';
+
+			$script .= '$(document).ready(function(){
+				
+				$("#'.$input_id.'").on("change", function(e){
+					
+					$("#'.$preview_id.'").attr("src",$(this).val());
+				});
+			
+			});';
+		
+		$script .= '})(jQuery);';
+
+		return $script;
 	}
 	
 	public function get_installation_info($layer){
@@ -3970,6 +3975,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function in_editor(){
 		
 		if( !empty($_GET['preview']) && $_GET['preview'] == 'ltple' )
+			
+			// layer url
+			
+			return true;
+			
+		if( !empty($_GET['uri']) )
+						
+			// inline content
 			
 			return true;
 			

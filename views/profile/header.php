@@ -56,7 +56,7 @@
 					
 					echo'<div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">';
 					
-						echo '<h2 style="font-size:25px;float:left;padding:30px 0 0 0;margin:0;">' . $name . '</h2>';
+						echo '<h2 style="font-size:calc( 0.5vw + 15px );float:left;padding:35px 0 0 0;margin:0;">' . $name . '</h2>';
 					
 					echo'</div>';
 					

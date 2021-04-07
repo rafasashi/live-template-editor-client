@@ -380,7 +380,7 @@
 				</div>
 				<div id="social-bar">
 				  <a href="javascript:void" class="more-info">
-					<i class="fa fa-user"></i> Flip me
+					<i class="fa fa-user"></i> Flip
 				  </a>
 				</div>
 			  </div>

@@ -460,39 +460,7 @@
 		$head .= '<meta name="target" content="all" />' . PHP_EOL;
 		$head .= '<meta name="medium" content="blog" />' . PHP_EOL;
 		$head .= '<meta property="og:type" content="article" />' . PHP_EOL;
-		$head .= '<meta name="twitter:card" content="summary" />' . PHP_EOL;
-		
-		/*
-		$head .= '<meta name="geo.position" content="latitude; longitude" />' . PHP_EOL;
-		$head .= '<meta name="geo.placename" content="Place Name" />' . PHP_EOL;
-		$head .= '<meta name="geo.region" content="Country Subdivision Code" />' . PHP_EOL;
-		*/
-		
-		/*
-		$ggl_analytics_id = get_option( $this->parent->_base . 'embedded_ggl_analytics_id' );
-						
-		if( !empty($ggl_analytics_id) ){
-		
-			?>
-			<script> 
-			
-				<!-- Google Analytics Code -->
-			
-				(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-				(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-				m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-				})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-				ga('create', '<?php echo $ggl_analytics_id; ?>', 'auto');
-				ga('send', 'pageview');
-				
-				<!-- End Google Analytics Code -->
-				
-			</script>
-
-			<?php					
-		}
-		*/		
+		$head .= '<meta name="twitter:card" content="summary" />' . PHP_EOL;	
 		
 	$head .= '</head>';
 

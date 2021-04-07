@@ -118,7 +118,7 @@ class LTPLE_Client_Profile {
 			
 				echo'<li style="position:relative;background:#182f42;">';
 					
-					echo '<a href="'. $this->parent->urls->dashboard .'?list=user-app"><span class="fa fa-exchange" aria-hidden="true"></span> Connected Apps</a>';
+					echo '<a href="'. $this->parent->urls->dashboard .'?list=user-app"><span class="fa fa-exchange-alt" aria-hidden="true"></span> Connected Apps</a>';
 
 				echo'</li>';
 			}

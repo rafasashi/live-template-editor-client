@@ -1341,53 +1341,6 @@ class LTPLE_Client_Plan {
 									*/
 									
 								$_SESSION['message'] .= '</div>';
-									
-								//Google adwords Code for subscription completed
-								
-								$_SESSION['message'] .='<script type="text/javascript">' . PHP_EOL;
-									$_SESSION['message'] .='/* <![CDATA[ */' . PHP_EOL;
-									$_SESSION['message'] .='var google_conversion_id = 866030496;' . PHP_EOL;
-									$_SESSION['message'] .='var google_conversion_language = "en";' . PHP_EOL;
-									$_SESSION['message'] .='var google_conversion_format = "3";' . PHP_EOL;
-									$_SESSION['message'] .='var google_conversion_color = "ffffff";' . PHP_EOL;
-									$_SESSION['message'] .='var google_conversion_label = "wm6DCP2p7GwQoKf6nAM";' . PHP_EOL;
-									$_SESSION['message'] .='var google_conversion_value = '.$this->data['price'].'.00;' . PHP_EOL;
-									$_SESSION['message'] .='var google_conversion_currency = "USD";' . PHP_EOL;
-									$_SESSION['message'] .='var google_remarketing_only = false;' . PHP_EOL;
-									$_SESSION['message'] .='/* ]]> */' . PHP_EOL;
-								$_SESSION['message'] .='</script>' . PHP_EOL;
-								
-								$_SESSION['message'] .='<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">' . PHP_EOL;
-								$_SESSION['message'] .='</script>' . PHP_EOL;
-								
-								$_SESSION['message'] .='<noscript>' . PHP_EOL;
-									$_SESSION['message'] .='<div style="display:inline;">' . PHP_EOL;
-										$_SESSION['message'] .='<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/866030496/?value='.$this->data['price'].'.00&amp;currency_code=USD&amp;label=wm6DCP2p7GwQoKf6nAM&amp;guid=ON&amp;script=0"/>' . PHP_EOL;
-									$_SESSION['message'] .='</div>' . PHP_EOL;
-								$_SESSION['message'] .='</noscript>' . PHP_EOL;	
-
-								//Facebook Pixel Code for subscription completed
-								
-								$_SESSION['message'] .='<script>' . PHP_EOL;	
-								
-									$_SESSION['message'] .='!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?' . PHP_EOL;	
-									$_SESSION['message'] .='n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;' . PHP_EOL;	
-									$_SESSION['message'] .='n.push=n;n.loaded=!0;n.version=\'2.0\';n.queue=[];t=b.createElement(e);t.async=!0;' . PHP_EOL;	
-									$_SESSION['message'] .='t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,' . PHP_EOL;	
-									$_SESSION['message'] .='document,\'script\',\'https://connect.facebook.net/en_US/fbevents.js\');' . PHP_EOL;	
-									$_SESSION['message'] .='fbq(\'init\', \'135366043652148\');' . PHP_EOL;	
-									//$_SESSION['message'] .='fbq(\'track\', \'PageView\');' . PHP_EOL;	
-									$_SESSION['message'] .='fbq(\'track\', \'Purchase\', {' . PHP_EOL;	
-										$_SESSION['message'] .='value: '.$this->data['price'].'.00,' . PHP_EOL;	
-										$_SESSION['message'] .='currency: \'USD\'' . PHP_EOL;
-									$_SESSION['message'] .='});' . PHP_EOL;
-									
-									$_SESSION['message'] .='<noscript><img height="1" width="1" style="display:none"' . PHP_EOL;	
-									$_SESSION['message'] .='src="https://www.facebook.com/tr?id=135366043652148&ev=PageView&noscript=1"' . PHP_EOL;	
-									$_SESSION['message'] .='/></noscript>' . PHP_EOL;						
-
-								$_SESSION['message'] .='</script>' . PHP_EOL;	
-
 							}
 							else{
 								
