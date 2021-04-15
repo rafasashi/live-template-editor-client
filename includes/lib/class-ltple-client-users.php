@@ -387,9 +387,9 @@
 					
 					foreach( $users as $user ){
 						
-						if( intval($user->id) > 1 && !empty($periods[$user->user_email]) ){
+						if( intval($user->id) > 1 && !empty($periods[strtolower($user->user_email)]) ){
 							
-							$this->update_user_period($user->id,$periods[$user->user_email]);
+							$this->update_user_period($user->id,$periods[strtolower($user->user_email)]);
 						}
 					}
 				}							

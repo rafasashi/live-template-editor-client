@@ -111,7 +111,7 @@ echo'<div id="panel" class="wrapper">';
 							
 							if( $tabs = $ltple->layer->get_project_tabs($ltple->user->layer,$fields) ){
 								
-								echo'<ul class="nav nav-tabs" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;overflow:visible !important;height:50px;font-size:15px;font-weight:bold;">';
+								echo'<ul class="nav nav-tabs" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;overflow:visible !important;height:47px;font-size:13px;font-weight:bold;">';
 									
 									$class=' class="active"';
 									

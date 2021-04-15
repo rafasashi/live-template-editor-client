@@ -56,10 +56,21 @@ class LTPLE_Client_Rights {
 		
 			empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;	
 			empty($role->capabilities['edit_user-pages']) ? $role->add_cap('edit_user-pages') : true;
-			empty($role->capabilities['edit_user-pages']) ? $role->add_cap('edit_user-pages') : true;
 			empty($role->capabilities['edit_other_user-pages']) ? $role->add_cap('edit_other_user-pages') : true;				
+			
+			/*
+			empty($role->capabilities['edit_published_user-page']) ? $role->add_cap('edit_published_user-page') : true;
+			empty($role->capabilities['publish_user-page']) ? $role->add_cap('publish_user-page') : true;
+			empty($role->capabilities['delete_user-page']) ? $role->add_cap('delete_user-page') : true;
+			empty($role->capabilities['delete_others_user-page']) ? $role->add_cap('delete_others_user-page') : true;
+			empty($role->capabilities['delete_published_user-page']) ? $role->add_cap('delete_published_user-page') : true;
+			empty($role->capabilities['delete_private_user-page']) ? $role->add_cap('delete_private_user-page') : true;
+			empty($role->capabilities['edit_private_user-page']) ? $role->add_cap('edit_private_user-page') : true;
+			empty($role->capabilities['read_private_user-page']  ) ? $role->add_cap('read_private_user-page') : true;
+			*/
 		}
-		
+
+
 		// set subscriber capabilities 
 		
 		if( $role = get_role('subscriber') ){

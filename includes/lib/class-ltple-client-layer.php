@@ -139,7 +139,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'query_var' 			=> true,
 			'can_export' 			=> true,
 			'rewrite' 				=> false,
-			'capability_type' 		=> false, 
+			'capability_type' 		=> 'post', 
 			'has_archive' 			=> true,
 			'hierarchical' 			=> false,
 			'show_in_rest' 			=> false,
@@ -147,7 +147,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'supports' 				=> array('title','author'),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
-		));
+		)); 
 		
 		add_filter('ltple_user-page_layer_area',function(){ 
 			
@@ -165,7 +165,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'query_var' 			=> true,
 			'can_export' 			=> true,
 			'rewrite' 				=> false,
-			'capability_type' 		=> false,
+			'capability_type' 		=> 'post',
 			'has_archive' 			=> false,
 			'hierarchical' 			=> false,
 			'show_in_rest' 			=> false,
@@ -3576,13 +3576,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$layerCss .= $this->parse_css_content($this->layerMenuCss, '.menu-' . $this->layerMenuId);
 			}
 			
-			$defaultJs = $this->defaultJs;
+			$defaultJs 		= $this->defaultJs;
 			
-			$defaultJson = $this->defaultJson;
+			$defaultJson 	= $this->defaultJson;
 			
-			$layerJs = $this->layerJs;
+			$layerJs 		= $this->layerJs;
 			
-			$layerMeta = $this->layerMeta;
+			$layerMeta 		= $this->layerMeta;
 		}
 		
 		$defaultCss = sanitize_text_field($defaultCss);
@@ -3947,9 +3947,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		//include layer script
 		
 		$body .='<script id="LiveTplEditorScript">' .PHP_EOL;
-		
+			
 			if( $layerJs != '' ){
-
+				
 				$body .= $layerJs .PHP_EOL;				
 			}
 			
@@ -3960,14 +3960,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 		$body .='</script>' .PHP_EOL;
 		
+		/*
 		if( $this->type == 'user-layer' && !empty($layerJs) ){
 
-			$body .= '<script src="'.$this->layerStaticJsUrl.'"></script>' .PHP_EOL;
+			$body .= '<script src="' . $this->layerStaticJsUrl . '"></script>' .PHP_EOL;
 		}
 		elseif( !empty($defaultJs) ){
 			
-			$body .= '<script src="'.$this->defaultStaticJsUrl.'"></script>' .PHP_EOL;
+			$body .= '<script src="' . $this->defaultStaticJsUrl . '"></script>' .PHP_EOL;
 		}
+		*/
 		
 		$this->layerBodyContent = $body;
 	}
