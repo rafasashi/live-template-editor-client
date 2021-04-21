@@ -21,7 +21,7 @@ class LTPLE_Client_Websocket {
 		
 		$ssl = $isSecure ? 's' : '';
 		
-		$host_name = $isSecure ? 'ws.recuweb.co' : 'ec2-34-250-115-140.eu-west-1.compute.amazonaws.com';
+		$host_name = 'ws.recuweb.co';
 		
 		// start server
 		

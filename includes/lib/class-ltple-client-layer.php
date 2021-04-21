@@ -887,30 +887,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					if( $post->post_type == 'cb-default-layer' ){
 						
 						if( $this->is_hosted_output($layer_type->output) ){		
-							
-							$this->defaultFields[]=array(
-							
-								'metabox' => array(
-								
-									'name' 		=> 'layer-json',
-									'title' 	=> __( $storage_name . ' JSON', 'live-template-editor-client' ), 
-									'screen'	=> array($post->post_type),
-									'context' 	=> 'advanced'
-								),
-								
-								'id'			=> "layerJson",
-								'label'			=> "",
-								'type'			=> 'textarea',
-								'placeholder'	=> "JSON Data",
-								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
-							);						
-							
+												
 							$this->defaultFields[]=array(
 							
 								'metabox' => array(
 								
 									'name' 		=> 'layer-js',
-									'title' 	=> __( $storage_name . ' Javascript', 'live-template-editor-client' ), 
+									'title' 	=> __( $storage_name . ' JS', 'live-template-editor-client' ), 
 									'screen'	=> array($post->post_type),
 									'context' 	=> 'advanced'
 								),
@@ -2950,11 +2933,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						// get default js
 
 						$this->defaultJs = $this->get_layer_js($this->defaultId);
-						
-						// get default json
 
-						$this->defaultJson = get_post_meta( $this->defaultId, 'layerJson', true );
-							
 						// get layer js
 						
 						$this->layerJs = $this->get_layer_js($this->id);
@@ -3392,12 +3371,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_layer_js($layer_id){
 		
-		if( $layer_js = get_post_meta( $layer_id, 'layerJs', true )){
-			
-			$layer_js = apply_filters('ltple_layer_js',$layer_js,$layer_id);
-		}
-		
-		return $layer_js;
+		return apply_filters('ltple_layer_js',get_post_meta( $layer_id, 'layerJs', true ),$layer_id);
 	}
 	
 	public function parse_hosted_content(){
@@ -3557,7 +3531,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$defaultCss 	= '';
 		$layerCss 		= '';
 		$defaultJs 		= '';
-		$defaultJson 	= '';
 		$layerJs 		= '';
 		$layerMeta 		= '';
 
@@ -3577,9 +3550,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			
 			$defaultJs 		= $this->defaultJs;
-			
-			$defaultJson 	= $this->defaultJson;
-			
+
 			$layerJs 		= $this->layerJs;
 			
 			$layerMeta 		= $this->layerMeta;
@@ -3900,11 +3871,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$body .= $layerContent;
 		}
-		
-		if( !empty($defaultJson) ){
-			
-			$body .= '<script>'.$defaultJson.'</script>' .PHP_EOL;
-		}
 
 		if( !empty($this->layerJsLibraries) ){
 			
@@ -3985,6 +3951,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( !empty($_GET['uri']) )
 						
 			// inline content
+			
+			return true;
+			
+		if( is_admin() && !empty($_GET['action']) && $_GET['action'] == 'ltple' )
+			
+			// admin editor
 			
 			return true;
 			
