@@ -620,6 +620,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$post_type = '';
 		
+		if( is_numeric($post) )
+		
+			$post = get_post($post);
+		
 		if( is_object($post) ){
 			
 			if(!empty($post->post_type)){
@@ -3371,7 +3375,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_layer_js($layer_id){
 		
-		return apply_filters('ltple_layer_js',get_post_meta( $layer_id, 'layerJs', true ),$layer_id);
+		return apply_filters('ltple_layer_js',get_post_meta( $layer_id, 'layerJs', true ),$layer_id,$this->is_default($layer_id));
 	}
 	
 	public function parse_hosted_content(){
