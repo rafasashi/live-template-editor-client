@@ -27,8 +27,8 @@ class LTPLE_Client_Rights {
 		
 		// add rights taxonomy custom fields
 		
-		add_action( 'show_user_profile', array( $this, 'get_user_rights' ),2,10 );
-		add_action( 'edit_user_profile', array( $this, 'get_user_rights' ) );
+		add_action( 'show_user_profile', array( $this, 'show_user_rights' ),99,1 );
+		add_action( 'edit_user_profile', array( $this, 'show_user_rights' ),99,1 );
 		
 		// save rights taxonomy custom fields
 		
@@ -79,7 +79,7 @@ class LTPLE_Client_Rights {
 		}
 	}
 	
-	public function get_user_rights( $user ) {
+	public function show_user_rights( $user ) {
 		
 		if( current_user_can( 'administrator' ) ){
 			

@@ -123,8 +123,8 @@ class LTPLE_Client_Plan {
 
 			// add user taxonomy custom fields
 			
-			add_action( 'show_user_profile', array( $this, 'get_user_plan_and_pricing' ),2,10 );
-			add_action( 'edit_user_profile', array( $this, 'get_user_plan_and_pricing' ) );
+			add_action( 'show_user_profile', array( $this, 'show_user_plan_and_pricing' ),21,1 );
+			add_action( 'edit_user_profile', array( $this, 'show_user_plan_and_pricing' ),21,1 );
 			
 			// save user taxonomy custom fields
 			
@@ -892,7 +892,7 @@ class LTPLE_Client_Plan {
 		return $in_plan;
 	}
 	
-	public function get_user_plan_and_pricing( $user, $context='admin-dashboard' ) {
+	public function show_user_plan_and_pricing( $user, $context='admin-dashboard' ) {
 		
 		if( current_user_can( 'administrator' ) ){
 				
@@ -926,35 +926,7 @@ class LTPLE_Client_Plan {
 					'description'	=> ''
 				));
 				
-			echo'</div>';				
-
-			//get list of emails sent to user
-			
-			echo '<div class="postbox" style="min-height:45px;">';
-				
-				echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Emails sent', 'live-template-editor-client' ) . '</h3>';
-				
-				$emails = get_user_meta($user->ID, $this->parent->_base . '_email_sent', true);
-				
-				if( !empty($emails) ){
-					
-					$emails = json_decode($emails,true);
-					
-					echo '<ul style="padding-left:10px;">';
-					
-						foreach($emails as $slug => $time){
-							
-							echo '<li>';
-							
-								echo date( 'd/m/y', $time) . ' - ' . ucfirst(str_replace('-',' ',$slug));
-							
-							echo '</li>';
-						}
-					
-					echo '</ul>';
-				}				
-				
-			echo'</div>';			
+			echo'</div>';		
 		}	
 	}
 	

@@ -17,8 +17,8 @@
 			
 			if( is_admin() ){
 			
-				add_action( 'show_user_profile', array( $this, 'get_user_programs' ),2,10 );
-				add_action( 'edit_user_profile', array( $this, 'get_user_programs' ) );
+				add_action( 'show_user_profile', array( $this, 'show_user_programs' ),22,1 );
+				add_action( 'edit_user_profile', array( $this, 'show_user_programs' ),22,1 );
 				
 				// save user programs
 					
@@ -27,7 +27,7 @@
 			}
 		}
 
-		public function get_user_programs( $user ) {
+		public function show_user_programs( $user ) {
 			
 			if( current_user_can( 'administrator' ) ){
 				
@@ -40,42 +40,33 @@
 				
 				do_action('ltple_list_programs');
 
-				echo '<div class="postbox" style="min-height:45px;">';
-					
-					echo '<h3 style="margin:10px;width:300px;display: inline-block;float: left;">' . __( 'Programs', 'live-template-editor-client' ) . '</h3>';
+				if( !empty($this->list) ){
 
-					echo '<div style="margin:10px 0 10px 0;display: inline-block;">';
-					
-						foreach($this->list as $slug => $name){
-							
-							echo '<div style="width:100px;display:inline-block;font-weight:bold;">'.$name.'</div>';
-							
-							echo '<label class="switch" for="user-program-'.$slug.'">';
-								
-								echo '<input class="form-control" type="checkbox" name="' . $this->parent->_base . 'user-programs[]" id="user-program-'.$slug.'" value="'.$slug.'"'.( in_array( $slug, $user_programs ) ? ' checked="checked"' : '' ).'>';
-								echo '<div class="slider round"></div>';
-							
-							echo '</label>';
-
-							echo '<br>';
-						}				
-							
-					echo'</div>';
-						
-				echo'</div>';
-				
-				/*
-				if( user_can( $user->ID, 'administrator' ) ){
-					
 					echo '<div class="postbox" style="min-height:45px;">';
 						
-						echo '<h3 style="float:left;margin:10px;width:300px;display: inline-block;">' . __( 'Stripe Account', 'live-template-editor-client' ) . '</h3>';
+						echo '<h3 style="margin:10px;width:300px;display: inline-block;float: left;">' . __( 'Programs', 'live-template-editor-client' ) . '</h3>';
+
+						echo '<div style="margin:10px 0 10px 0;display: inline-block;">';
 						
-						echo '<iframe src="' . $this->parent->server->url . '/endpoint/?connect=' . $this->parent->ltple_encrypt_uri($user->user_email) . '" style="width:250px;height:50px;overflow:hidden;"></iframe>';				
+							foreach($this->list as $slug => $name){
+								
+								echo '<div style="width:100px;display:inline-block;font-weight:bold;">'.$name.'</div>';
+								
+								echo '<label class="switch" for="user-program-'.$slug.'">';
+									
+									echo '<input class="form-control" type="checkbox" name="' . $this->parent->_base . 'user-programs[]" id="user-program-'.$slug.'" value="'.$slug.'"'.( in_array( $slug, $user_programs ) ? ' checked="checked"' : '' ).'>';
+									echo '<div class="slider round"></div>';
+								
+								echo '</label>';
+
+								echo '<br>';
+							}				
+								
+						echo'</div>';
 							
 					echo'</div>';
+					
 				}
-				*/
 			}	
 		}
 

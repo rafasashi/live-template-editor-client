@@ -100,8 +100,13 @@ class LTPLE_Client_Email {
 				array("email-campaign"),
 				'advanced'
 			);
-		});		
-			
+		});
+
+		// admin user panel 
+		
+		add_action( 'show_user_profile', array( $this, 'show_email_sent' ),99,1 );
+		add_action( 'edit_user_profile', array( $this, 'show_email_sent' ),99,1 );
+					
 		// add cron events
 			
 		add_action( $this->parent->_base . 'send_email_event', array( $this, 'send_model'),1,2);
@@ -151,6 +156,38 @@ class LTPLE_Client_Email {
 		add_filter('ltple_loaded', array( $this, 'init_email' ));
 		
 		add_action( 'ltple_users_bulk_imported', array( $this, 'schedule_invitations' ));
+	}
+	
+	public function show_email_sent( $user ) {
+		
+		if( current_user_can( 'administrator' ) ){
+			
+			$emails = get_user_meta($user->ID, $this->parent->_base . '_email_sent', true);
+
+			if( !empty($emails) ){
+					
+				$emails = json_decode($emails,true);
+					
+				echo '<div class="postbox" style="min-height:45px;">';
+					
+					echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Emails sent', 'live-template-editor-client' ) . '</h3>';
+
+					echo '<ul style="padding-left:10px;">';
+					
+						foreach($emails as $slug => $time){
+							
+							echo '<li>';
+							
+								echo date( 'd/m/y', $time) . ' - ' . ucfirst(str_replace('-',' ',$slug));
+							
+							echo '</li>';
+						}
+					
+					echo '</ul>';
+
+				echo'</div>';
+			}
+		}	
 	}
 	
 	public function is_email($email){

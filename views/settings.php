@@ -195,7 +195,7 @@
 								
 							echo'</div>';
 							
-							if(!empty($this->parent->profile->privacySettings )){
+							if( $fields = $this->parent->profile->get_privacy_fields() ){
 							
 								echo'<div class="col-xs-12 col-sm-2"></div>';
 								
@@ -205,7 +205,7 @@
 
 									echo'<table class="form-table">';
 										
-										foreach( $this->parent->profile->privacySettings as $field ){
+										foreach( $fields as $field ){
 											
 											echo'<tr>';
 											
@@ -263,7 +263,7 @@
 								
 							echo'</div>';							
 							
-							if(!empty($this->parent->profile->socialAccounts )){		
+							if( $accounts = $this->get_social_accounts() ){		
 	
 								echo'<div class="col-xs-12 col-sm-2"></div>';
 								
@@ -273,7 +273,7 @@
 
 									echo'<table class="form-table">';
 										
-										foreach( $this->parent->profile->socialAccounts as $label => $fields ){
+										foreach( $accounts as $label => $fields ){
 											
 											echo'<tr>';
 											

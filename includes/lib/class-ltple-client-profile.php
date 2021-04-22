@@ -84,7 +84,13 @@ class LTPLE_Client_Profile {
 		add_shortcode('ltple-client-profile', array( $this , 'get_profile_shortcode' ) );
 		
 		add_action( 'template_include', array( $this , 'include_user_profile' ));
+			
+		add_action( 'show_user_profile', array( $this, 'show_privacy_settings' ),20,1 );
+		add_action( 'edit_user_profile', array( $this, 'show_privacy_settings' ),20,1 );
 		
+		add_action( 'personal_options_update', array( $this, 'save_privacy_settings' ) );
+		add_action( 'edit_user_profile_update', array( $this, 'save_privacy_settings' ) );
+		 
 		add_action( 'ltple_view_my_profile_settings', function(){
 			
 			echo'<li style="position:relative;background:#182f42;">';
@@ -646,6 +652,40 @@ class LTPLE_Client_Profile {
 		return $this->urls[$user_id] . $path;
 	}
 	
+	public function show_privacy_settings( $user ) {
+		
+		if( current_user_can( 'administrator' ) ){
+			
+			echo '<div class="postbox" style="min-height:45px;">';
+				
+				echo '<h3 style="float:left;margin:10px;width:300px;display:inline-block;">' . __( 'Privacy Settings', 'live-template-editor-client' ) . '</h3>';
+				
+				if( $fields = $this->get_privacy_fields() ){
+					
+					echo '<div style="margin:10px 0 10px 0;display: inline-block;">';
+					
+						foreach( $fields as $field ){
+
+							echo '<div style="width:100px;display:inline-block;font-weight:bold;">'.$field['label'].'</div>';
+							
+							$this->parent->admin->display_field(array(
+								
+								'id'		=> $field['id'],
+								'type'		=> 'switch',
+								'default'	=> !empty($field['default']) ? $field['default'] : 'off',
+							
+							), $user );
+								
+							echo'<br>';
+						}
+					
+					echo '</div>';
+				}
+					
+			echo'</div>';
+		}	
+	}
+	
 	public function include_user_profile($path){
 
 		if( $this->id > 0 && $this->in_tab ){
@@ -1007,35 +1047,47 @@ class LTPLE_Client_Profile {
 			}
 			elseif( $_POST['settings'] == 'privacy-settings' ){
 				
-				// save privacy settings
-
-				foreach( $this->privacySettings as $field){
-					
-					$id = $field['id'];
-					
-					$content = ( !empty($_POST[$id]) ? wp_kses_post($_POST[$id]) : 'off' );
-
-					update_user_meta( $this->parent->user->ID, $id, $content );
-				}
+				$this->save_privacy_settings($this->parent->user->ID);
 			}
 			elseif( $_POST['settings'] == 'social-accounts' ){
 				
-				// save privacy settings
-
-				foreach( $this->socialAccounts as $label => $fields){
-					
-					foreach( $fields as $field ){
-					
-						$id = $field['id'];
-					
-						$content = ( !empty($_POST[$id]) ? wp_kses_post($_POST[$id]) : 'off' );
-
-						update_user_meta( $this->parent->user->ID, $id, $content );
-					}
-				}
+				$this->save_social_accounts($this->parent->user->ID);
 			}
 			
 			do_action('ltple_update_profile');
+		}
+	}
+	
+	public function save_privacy_settings($user_id){
+
+		if( $fields = $this->get_privacy_fields() ){
+				
+			foreach( $fields as $field){
+				
+				$id = $field['id'];
+				
+				$content = ( !empty($_POST[$id]) ? wp_kses_post($_POST[$id]) : 'off' );
+
+				update_user_meta( $user_id, $id, $content );
+			}
+		}
+	}
+	
+	public function save_social_accounts($user_id){
+		
+		if( $accounts = $this->get_social_accounts() ){
+
+			foreach( $accounts as $label => $fields){
+				
+				foreach( $fields as $field ){
+				
+					$id = $field['id'];
+				
+					$content = ( !empty($_POST[$id]) ? wp_kses_post($_POST[$id]) : 'off' );
+
+					update_user_meta( $user_id, $id, $content );
+				}
+			}
 		}
 	}
 	
@@ -1365,11 +1417,10 @@ class LTPLE_Client_Profile {
 				
 				if( !empty($_GET['tab']) && $_GET['tab'] == 'privacy-settings' ){
 					
-					$this->set_privacy_fields();
 				}
 				elseif( !empty($_GET['tab']) && $_GET['tab'] == 'social-accounts' ){
 					
-					$this->set_social_fields();
+					
 				}
 				else{
 					
@@ -1488,7 +1539,7 @@ class LTPLE_Client_Profile {
 		return $fields;
 	}
 	
-	public function set_social_fields(){
+	public function get_social_accounts(){
 		
 		if( is_null($this->socialAccounts) ){
 			
@@ -1513,10 +1564,10 @@ class LTPLE_Client_Profile {
 			do_action('ltple_social_accounts');
 		}
 		
-		return $this->privacySettings;
+		return $this->socialAccounts;
 	}	
 	
-	public function set_privacy_fields(){
+	public function get_privacy_fields(){
 		
 		if( is_null($this->privacySettings) ){
 			
