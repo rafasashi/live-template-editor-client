@@ -134,7 +134,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			
 			if( $this->is_element_panel() && current_user_can('administrator') ){
 				
-				$editor_actions['edit-with-ltple'] 	= 'Edit with LTPLE';
+				$editor_actions['edit-with-ltple'] 	= 'Editor';
 				$editor_actions['refresh-preview'] 	= 'Refresh Preview';
 			}
 			
@@ -370,15 +370,9 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		// Add artist-website, posts columns
 
 		$columns['cb'] 		= '<input type="checkbox" />';
-		$columns['thumb'] 	= 'Preview';
 		$columns['title'] 	= 'Title';
-		
 		$columns['taxonomy-element-library'] = 'Libraries';
-		
-		if( current_user_can('administrator') ){
-			
-			$columns['actions'] = 'Actions';
-		}
+		$columns['thumb'] 	= 'Preview'; // must remain last for mobile view
 		
 		return $columns;
 	}
@@ -397,10 +391,6 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 				echo '<img loading="lazy" style="width:150px;" src="'.$url.'">';
 			
 			echo '</a>';
-		}
-		elseif( $column_name === 'actions' ){
-			
-			echo $this->parent->editor->get_admin_action_buttons($post_id);
 		}
 
 		return $column_name;

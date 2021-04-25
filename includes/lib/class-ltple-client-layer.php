@@ -338,7 +338,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !empty($_GET['post_type']) && $_GET['post_type'] == 'cb-default-layer' && current_user_can('administrator') ){
 				
-				$editor_actions['edit-with-ltple'] 	= 'Edit with LTPLE';
+				$editor_actions['edit-with-ltple'] 	= 'Editor';
 				$editor_actions['refresh-preview'] 	= 'Refresh Preview';
 			}
 			
@@ -4833,18 +4833,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$columns = array(
 					
 			'cb' 					=> '<input type="checkbox">',
-			'thumb' 				=> 'Preview',
 			'title' 				=> 'Title',
 			'author' 				=> 'Author',
 			'taxonomy-layer-type' 	=> 'Gallery',
 			'taxonomy-layer-range' 	=> 'Range',
 			'output' 				=> 'Output',
+			'thumb' 				=> 'Preview', // must remain last for mobile view
 		);
-		
-		if( current_user_can('administrator') ){
-			
-			$columns['actions'] = 'Actions';
-		}
 
 		return $columns;
 	} 
@@ -4888,17 +4883,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				// clean up corrupted projects
 				
 				//wp_delete_post( $post_id, true );
-			}
-		}
-		elseif( $column_name === 'actions' ){
-			
-			if( $buttons =  $this->parent->editor->get_admin_action_buttons($post_id) ){
-				
-				echo $buttons;
-			}
-			else{
-				
-				echo 'N/A';
 			}
 		}
 	}

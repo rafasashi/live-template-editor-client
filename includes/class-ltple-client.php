@@ -589,8 +589,8 @@ class LTPLE_Client {
 		
 		add_action('admin_head', array($this, 'custom_admin_dashboard_css'));
 		
-		add_filter( 'page_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
-		add_filter( 'post_row_actions', array($this, 'remove_custom_post_quick_edition'), 10, 2 );
+		add_filter( 'page_row_actions', array($this, 'filter_post_type_row_actions'), 10, 2 );
+		add_filter( 'post_row_actions', array($this, 'filter_post_type_row_actions'), 10, 2 );
 		
 		// add email-campaign
 		
@@ -736,14 +736,20 @@ class LTPLE_Client {
 		echo '</style>';
 	}	
 	
-	public function remove_custom_post_quick_edition( $actions, $post ){
+	public function filter_post_type_row_actions( $actions, $post ){
 
 		if( $post->post_type != 'page' && $post->post_type != 'post' ){
+		
+			// remove quick edit
 		
 			//unset( $actions['edit'] );
 			//unset( $actions['view'] );
 			unset( $actions['trash'] );
 			unset( $actions['inline hide-if-no-js'] );
+			
+			// duplicate action
+			
+			$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-target="#duplicateItem" class="duplicate-button" data-id="' . $post->ID . '">Duplicate</a>';
 		}
 		
 		return $actions;

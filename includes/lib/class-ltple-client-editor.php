@@ -57,6 +57,12 @@ class LTPLE_Client_Editor {
 		add_filter( 'ltple_editor_script', array( $this, 'filter_editor_script' ),1);
 	
 		add_filter('admin_enqueue_scripts',array( $this, 'add_actions_scripts' ) );
+	
+		add_filter( 'page_row_actions', array($this, 'filter_editor_row_actions'), 10, 2 );
+		
+		add_filter( 'post_row_actions', array($this, 'filter_editor_row_actions'), 10, 2 );
+	
+		add_action( 'admin_post_duplicate', array($this, 'duplicate_post_type') );
 	}
 	
 	public function init_editor(){
@@ -571,13 +577,11 @@ class LTPLE_Client_Editor {
 		}
 	}
 	
-	public function get_admin_action_buttons($post_id){
+	public function filter_editor_row_actions($actions,$post){
 	
-		$buttons = '';
-		
 		if( !empty($this->actions) ){
 			
-			$layer = LTPLE_Editor::instance()->get_layer($post_id);
+			$layer = LTPLE_Editor::instance()->get_layer($post);
 					
 			foreach( $this->actions as $slug => $name ){
 				
@@ -585,58 +589,114 @@ class LTPLE_Client_Editor {
 					
 					if( $slug == 'edit-with-ltple' ){
 						 
-						$buttons .= '<a href="' . $layer->urls['edit'] . '" class="button button-primary button-small" style="margin-bottom:5px;">'.$name.'</a>';
+						$actions[$slug] = '<a href="' . $layer->urls['edit'] . '">'.$name.'</a>';
 					}
 					elseif( $slug == 'refresh-preview' ){
 						
+						$source = get_preview_post_link($post->ID);
+						
 						// TODO differentiate actions with slug 
 						
-						$buttons .= '<div id="action-buttons-' . $post_id . '" class="action-buttons">';
-							
-								$source = get_preview_post_link($post_id);
+						$action = '<div id="action-buttons-' . $post->ID . '">';
 
-								$buttons .= '<button data-id="' . $post_id . '" data-title="' . get_the_title($post_id) . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button button button-default button-small" style="margin-bottom:5px;">';
-									
-									$buttons .= $name;
-									
-								$buttons .= '</button>';
+							$action .= '<a href="#refreshPreview" data-id="' . $post->ID . '" data-title="preview for ' . $post->post_title . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button">';
+								
+								$action .= $name;
+								 
+							$action .= '</a>';
 
-						$buttons .= '</div>';
-						
-						$buttons .= '<div id="meter-'.$post_id.'" class="action-meter" style="display:none;">';
-							
-							$buttons .= '<span class="progress" style="width:0%;"></span>';
-							
-						$buttons .= '</div>';
-						
-						$buttons .= '<div id="message-'.$post_id.'" class="action-message">';
-						
-							$buttons .= '<span class="completed" style="display:none;">Completed!</span>';
-					
-						$buttons .= '</div>';
+						$action .= '</div>';
+
+						$actions[$slug] = $action;
 					}
 				}
 			}
 		}
 
-		return $buttons;
+		return $actions;
+	}
+	
+	public function duplicate_post_type(){
+		
+		if( current_user_can( 'administrator' ) ){
+			
+			if( !empty($_POST['id']) && !empty($_POST['title']) ){
+				
+				$post_id = $_POST['id'];
+				
+				if( $post = get_post($post_id,ARRAY_A) ){
+					
+					unset(
+					
+						$post['ID'],
+						$post['post_name'],
+						$post['post_author'],
+						$post['post_date'],
+						$post['post_date_gmt'],
+						$post['post_modified'],
+						$post['post_modified_gmt']
+					);
+					
+					$post['post_title'] 	= $_POST['title'];
+					$post['post_status'] 	= 'draft';
+					
+					if( $new_id = wp_insert_post($post) ){
+						
+						// duplicate all post meta
+						
+						if( $meta = get_post_meta($post_id) ){
+				
+							foreach($meta as $name => $value){
+								
+								if( isset($value[0]) ){
+									
+									update_post_meta( $new_id, $name, maybe_unserialize($value[0]) );
+								}
+							}
+						}
+						
+						// duplicate all taxonomies
+						
+						if( $taxonomies = get_object_taxonomies($post['post_type']) ){
+						
+							foreach( $taxonomies as $taxonomy ) {
+								
+								if( $terms = wp_get_object_terms($post_id, $taxonomy, array('fields' => 'slugs')) ){
+								
+									wp_set_object_terms($new_id, $terms, $taxonomy, false);
+								}
+							}
+						}
+						
+						// redirect to new post
+						
+						wp_redirect(get_admin_url().'post.php?post='.$new_id.'&action=edit');
+						exit;
+					}
+				}
+			}
+		}
+		
+		if( !empty($_POST['ref']) ){
+			
+			wp_redirect($_POST['ref']);
+			exit;
+		}
 	}
 	
 	public function get_actions_style(){
 		
 		$style = '
 			
-			.column-actions{
+			.row-actions{
 				
-				width: 150px;
+				margin-top:10px;
+				width:60vw;
 			}
 			
-			.action-buttons {
-				margin-bottom:10px;
-			}
-			
-			.action-buttons button {
-				margin-right:5px !important;
+			.row-actions div{
+				
+				display:inline-block;
 			}
 			
 			.action-message {
@@ -751,7 +811,7 @@ class LTPLE_Client_Editor {
 							
 							oldCons.info(text);
 							
-							$("#actionLogs").append("<p style=\"margin-top:0px;font-weight:bold;\">" + text + "</p>");
+							$("#actionLogs").append(text);
 						},
 						warn: function (text) {
 							
@@ -821,133 +881,147 @@ class LTPLE_Client_Editor {
 						return promise;
 					};
 					
-					// bind buttons
+					// bind duplicate
 					
-					$(".action-button").each(function(i){
+					$(".duplicate-button").on("click",function(){
 						
-						$(this).on("click",function(){
-							
-							var id 		= $(this).attr("data-id");
-							var title 	= $(this).attr("data-title");
-							var source 	= $(this).attr("data-source");
-	
-							var $btns 		= $("#action-buttons-" + id);
-							var $meter 		= $("#meter-" + id);
-							var $progress 	= $("#meter-" + id + " .progress");
-							var $completed 	= $("#message-" + id + " .completed");
-							
-							var screenshotUrl 	= "' . get_option( $this->parent->_base . 'server_url') . '";
-							var uploaderUrl		= "' . get_admin_url() . '";
-							
-							$btns.find("button").prop("disabled",true);
-							
-							$meter.show();
-							
-							$completed.hide();
+						var id = $(this).attr("data-id");
 						
-							$.ajaxQueue({
-								
-								type 		: "GET",
-								url  		: source,
-								cache		: false,
-								beforeSend	: function(){
-									
-									console.info("Processing " + title + "...");
-								},
-								error: function() {
-								
-									console.error(source + " error");
-																									
-									$meter.hide();
-									$btns.find("button").prop("disabled",false);
-								},
-								success: function(htmlDoc) {
-								
-									var proto = window.location.href.split("/")[0];
-									
-									// get total requests
-									
-									$progress.css("width", ( 100 / 3 ) + "%");
+						var form = "<form action=\"' . get_admin_url() . 'admin-post.php\" method=\"post\">";
 							
-									$.ajaxQueue({
-										
-										type 		: "POST",
-										url  		: screenshotUrl,
-										data  		: {
-											
-											dev		: "'.( REW_DEV_ENV === true ? 'true' : 'false' ).'",
-											action	: "takeScreenshot",
-											htmlDoc : htmlDoc,
-											selector: "body"
-										},
-										cache		: false,
-										xhrFields	: {
-											
-											withCredentials: true
-										},										
-										beforeSend	: function(){
-											
-											
-										},
-										error: function() {
-										
-											console.error(screenshotUrl + " error");
-										},
-										success: function(imgData) {
+							form += "<input type=\"hidden\" name=\"action\" value=\"duplicate\">";
+							form += "<input type=\"hidden\" name=\"id\" value=\"" + id + "\">";
+							form += "<input type=\"hidden\" name=\"ref\" value=\"' . $this->parent->urls->current . '\">";
+							
+							form += "<input type=\"text\" name=\"title\" value=\"\" placeholder=\"New Title\" class=\"required\" required>";
+							
+							form += "<button class=\"button\" type=\"submit\" id=\"duplicateBtn\">Duplicate</button>";
+							
+						form += "</form>";
+						
+						$("#duplicateForm").empty().append(form);
+						
+					});
+					
+					// bind action buttons
 
-											$.ajaxQueue({
-												
-												type 		: "POST",
-												url  		: uploaderUrl,
-												data  		: {
-													
-													postId	: id,
-													imgData	: "image/png;base64," + imgData
-												},
-												cache		: false,
-												xhrFields	: {
-													
-													withCredentials: true
-												},
-												beforeSend	: function(){
-													
-													
-												},
-												error: function() {
-												
-													console.error(uploaderUrl + " error");
-												},
-												success: function(thumbUrl) {
-													
-													$( ".preview-" + id ).attr("href",thumbUrl);
-													$( ".preview-" + id + " img" ).attr("src",thumbUrl);
-												},
-												complete: function(){
+					$(".action-button").on("click",function(){
+						
+						var id 		= $(this).attr("data-id");
+						var title 	= $(this).attr("data-title");
+						var source 	= $(this).attr("data-source");
 
-													$progress.css("width", "100%");
-													
-													$progress.bind("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function(){
-														
-														$meter.hide();
-														$progress.css("width", "0%");
-														$btns.find("button").prop("disabled",false);
-														$completed.show();
-														$progress.unbind();
-													});
-												}
-											});
-										},
-										complete: function(){
+						var screenshotUrl 	= "' . get_option( $this->parent->_base . 'server_url') . '";
+						var uploaderUrl		= "' . get_admin_url() . '";
+						
+						console.info("<b>Processing " + title + "...</b>");
+					
+						var html = "<div id=\"meter-" + id + "\" class=\"action-meter\">";
+							
+							html += "<span class=\"progress\" style=\"width:0%;\"></span>";
+							
+						html += "</div>";
 
-											$progress.css("width", ( 100 * 2 / 3 ) + "%");
-										}
-									});
-								},
-								complete: function(){
+						console.info(html);								
+						
+						$.ajaxQueue({
+							
+							type 		: "GET",
+							url  		: source,
+							cache		: false,
+							beforeSend	: function(){
+								
+							
+							},
+							error: function() {
+							
+								console.error(source + " error");
+																								
+								$meter.hide();
+								$btns.find("button").prop("disabled",false);
+							},
+							success: function(htmlDoc) {
+							
+								var proto = window.location.href.split("/")[0];
+								
+								// get total requests
+								
+								$("#meter-" + id + " .progress").css("width", ( 100 / 3 ) + "%");
+						
+								$.ajaxQueue({
 									
+									type 		: "POST",
+									url  		: screenshotUrl,
+									data  		: {
+										
+										dev		: "'.( REW_DEV_ENV === true ? 'true' : 'false' ).'",
+										action	: "takeScreenshot",
+										htmlDoc : htmlDoc,
+										selector: "body"
+									},
+									cache		: false,
+									xhrFields	: {
+										
+										withCredentials: true
+									},										
+									beforeSend	: function(){
+										
+										
+									},
+									error: function() {
 									
-								}
-							});
+										console.error(screenshotUrl + " error");
+									},
+									success: function(imgData) {
+
+										$.ajaxQueue({
+											
+											type 		: "POST",
+											url  		: uploaderUrl,
+											data  		: {
+												
+												postId	: id,
+												imgData	: "image/png;base64," + imgData
+											},
+											cache		: false,
+											xhrFields	: {
+												
+												withCredentials: true
+											},
+											beforeSend	: function(){
+												
+												
+											},
+											error: function() {
+											
+												console.error(uploaderUrl + " error");
+											},
+											success: function(thumbUrl) {
+												
+												$( ".preview-" + id ).attr("href",thumbUrl);
+												$( ".preview-" + id + " img" ).attr("src",thumbUrl);
+											},
+											complete: function(){
+
+												$("#meter-" + id + " .progress").css("width", "100%");
+												
+												$("#meter-" + id + " .progress").bind("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function(){
+													
+													$("#meter-" + id).after("<div class=\"completed\">Completed!</div>").remove();
+												});
+											}
+										});
+									},
+									complete: function(){
+
+										$("#meter-" + id + " .progress").css("width", ( 100 * 2 / 3 ) + "%");
+									}
+								});
+							},
+							complete: function(){
+								
+								
+							}
 						});
 					});
 				});
@@ -965,6 +1039,14 @@ class LTPLE_Client_Editor {
 			echo '<div id="actionLogs" style="height:50vh;width:50vw;">';
 
 			echo '</div>';				
+			
+		echo '</div>';
+		
+		echo '<div id="duplicateItem" style="display:none;" title="Duplicate">';
+			
+			echo '<div id="duplicateForm" style="min-width:300px;">';
+
+			echo '</div>';	
 			
 		echo '</div>';
 	}

@@ -177,7 +177,7 @@
 												
 												echo'<form class="" style="width:250px;display:inline-block;" target="_parent" action="' . $ltple->urls->current . '" id="duplicatePostForm" method="post">';
 													
-													echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;">';
+													echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;" required>';
 													echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
 													echo'<input type="hidden" name="postContent" value="">';
 													echo'<input type="hidden" name="postCss" value="">'; 

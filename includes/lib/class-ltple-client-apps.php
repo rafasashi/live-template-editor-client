@@ -636,10 +636,10 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		// Add artist-website, posts columns
 
 		$columns['cb'] 		= '<input type="checkbox" />';
-		$columns['thumb'] 	= 'Thumb';
 		$columns['name'] 	= 'Name';
 		$columns['slug'] 	= 'Slug';
 		$columns['types'] 	= 'Types';
+		$columns['thumb'] 	= 'Thumb'; // must remain last for mobile view
 		
 		return $columns;
 	}
