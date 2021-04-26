@@ -557,24 +557,23 @@ class LTPLE_Client_Editor {
 	
 	public function add_actions_scripts(){
 		
-		if( $this->actions = apply_filters('ltple_admin_editor_actions',array()) ){
+		// add style
 			
-			// add style
-			
-			wp_register_style($this->parent->_token . '-admin-actions', false,array());
-			wp_enqueue_style($this->parent->_token . '-admin-actions');
+		wp_register_style($this->parent->_token . '-admin-actions', false,array());
+		wp_enqueue_style($this->parent->_token . '-admin-actions');
 
-			wp_add_inline_style($this->parent->_token . '-admin-actions', $this->get_actions_style() );
+		wp_add_inline_style($this->parent->_token . '-admin-actions', $this->get_actions_style() );
 			
-			// add script
+		// add script
 			
-			wp_register_script( $this->parent->_token . '-admin-actions', '', array( 'jquery' ) );
-			wp_enqueue_script( $this->parent->_token . '-admin-actions' );
+		wp_register_script( $this->parent->_token . '-admin-actions', '', array( 'jquery' ) );
+		wp_enqueue_script( $this->parent->_token . '-admin-actions' );
 
-			wp_add_inline_script( $this->parent->_token . '-admin-actions', $this->get_actions_script() );
-		
-			add_filter('admin_footer',array( $this, 'add_actions_footer' ) );
-		}
+		wp_add_inline_script( $this->parent->_token . '-admin-actions', $this->get_actions_script() );
+
+		// add footer
+
+		add_filter('admin_footer',array( $this, 'add_actions_footer' ) );
 	}
 	
 	public function filter_editor_row_actions($actions,$post){

@@ -177,10 +177,10 @@ class LTPLE_Client_Plan {
 		
 		$columns['cb'] 			= '<input type="checkbox" />';
 		$columns['title'] 		= 'Title';
-		$columns['cover'] 		= 'Cover';
 		$columns['shortcode'] 	= 'Shortcode';
 		$columns['date'] 		= 'Date';
-
+		$columns['thumb'] 		= 'Cover';
+		
 		return $columns;		
 	}
 	
@@ -202,7 +202,7 @@ class LTPLE_Client_Plan {
 			
 			echo '<input style="width:200px;" type="text" name="shortcode" value="[subscription-plan id=\'' . $post_id . '\']" ' . disabled( true, true, false ) . ' />';
 		}	
-		elseif($column_name == 'cover') {
+		elseif($column_name == 'thumb') {
 			
 			$thumb_url = $this->get_thumb_url($post_id);
 			
