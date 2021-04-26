@@ -62,7 +62,7 @@ class LTPLE_Client_Editor {
 		
 		add_filter( 'post_row_actions', array($this, 'filter_editor_row_actions'), 10, 2 );
 	
-		add_action( 'admin_post_duplicate', array($this, 'duplicate_post_type') );
+		add_action( 'admin_post_duplicate', array($this, 'duplicate_item') );
 	}
 	
 	public function init_editor(){
@@ -616,62 +616,101 @@ class LTPLE_Client_Editor {
 		return $actions;
 	}
 	
-	public function duplicate_post_type(){
+	public function duplicate_item(){
 		
 		if( current_user_can( 'administrator' ) ){
 			
-			if( !empty($_POST['id']) && !empty($_POST['title']) ){
+			if( !empty($_POST['id']) && !empty($_POST['title']) && !empty($_POST['type']) ){
 				
-				$post_id = $_POST['id'];
+				list($type,$type_value) = explode(':',$_POST['type']);
 				
-				if( $post = get_post($post_id,ARRAY_A) ){
+				if( $type == 'post_type' ){
 					
-					unset(
+					$post_id = intval($_POST['id']);
 					
-						$post['ID'],
-						$post['post_name'],
-						$post['post_author'],
-						$post['post_date'],
-						$post['post_date_gmt'],
-						$post['post_modified'],
-						$post['post_modified_gmt']
-					);
-					
-					$post['post_title'] 	= $_POST['title'];
-					$post['post_status'] 	= 'draft';
-					
-					if( $new_id = wp_insert_post($post) ){
+					if( $post = get_post($post_id,ARRAY_A) ){
 						
-						// duplicate all post meta
+						unset(
 						
-						if( $meta = get_post_meta($post_id) ){
-				
-							foreach($meta as $name => $value){
-								
-								if( isset($value[0]) ){
+							$post['ID'],
+							$post['post_name'],
+							$post['post_author'],
+							$post['post_date'],
+							$post['post_date_gmt'],
+							$post['post_modified'],
+							$post['post_modified_gmt']
+						);
+						
+						$post['post_title'] 	= $_POST['title'];
+						$post['post_status'] 	= 'draft';
+						
+						if( $new_id = wp_insert_post($post) ){
+							
+							// duplicate all post meta
+							
+							if( $meta = get_post_meta($post_id) ){
+					
+								foreach($meta as $name => $value){
 									
-									update_post_meta( $new_id, $name, maybe_unserialize($value[0]) );
+									if( isset($value[0]) ){
+										
+										update_post_meta( $new_id, $name, maybe_unserialize($value[0]) );
+									}
 								}
 							}
-						}
-						
-						// duplicate all taxonomies
-						
-						if( $taxonomies = get_object_taxonomies($post['post_type']) ){
-						
-							foreach( $taxonomies as $taxonomy ) {
-								
-								if( $terms = wp_get_object_terms($post_id, $taxonomy, array('fields' => 'slugs')) ){
-								
-									wp_set_object_terms($new_id, $terms, $taxonomy, false);
+							
+							// duplicate all taxonomies
+							
+							if( $taxonomies = get_object_taxonomies($post['post_type']) ){
+							
+								foreach( $taxonomies as $taxonomy ) {
+									
+									if( $terms = wp_get_object_terms($post_id, $taxonomy, array('fields' => 'slugs')) ){
+									
+										wp_set_object_terms($new_id, $terms, $taxonomy, false);
+									}
 								}
 							}
+							
+							// redirect to new post
+							
+							wp_redirect(get_admin_url().'post.php?post='.$new_id.'&action=edit');
+							exit;
 						}
+					}
+				}
+				elseif( $type == 'taxonomy' ){
+					
+					$term_id = intval($_POST['id']);
+					
+					if( $term = get_term_by('id',$term_id,$type_value,ARRAY_A) ){
 						
-						// redirect to new post
+						if( $new_term = wp_insert_term( $_POST['title'], $type_value, array(
+							
+							'description'	=> $term['description'],
+							'parent'		=> $term['parent'],
+							'alias_of'		=> $term['term_group'],
 						
-						wp_redirect(get_admin_url().'post.php?post='.$new_id.'&action=edit');
-						exit;
+						))){
+							
+							// duplicate all term meta
+							
+							if( $meta = get_term_meta($term_id) ){
+								
+								foreach($meta as $name => $value){
+									
+									if( isset($value[0]) ){
+										
+										update_term_meta( $new_term['term_id'], $name, maybe_unserialize($value[0]) );
+									}
+								}
+							}
+							
+							// redirect to new term
+							
+							wp_redirect(get_admin_url().'term.php?tag_ID=' . $new_term['term_id'] . '&taxonomy=' . $type_value);
+							exit;
+						}
 					}
 				}
 			}
@@ -885,12 +924,14 @@ class LTPLE_Client_Editor {
 					
 					$(".duplicate-button").on("click",function(){
 						
-						var id = $(this).attr("data-id");
+						var id 		= $(this).attr("data-id");
+						var type 	= $(this).attr("data-type");
 						
 						var form = "<form action=\"' . get_admin_url() . 'admin-post.php\" method=\"post\">";
 							
 							form += "<input type=\"hidden\" name=\"action\" value=\"duplicate\">";
 							form += "<input type=\"hidden\" name=\"id\" value=\"" + id + "\">";
+							form += "<input type=\"hidden\" name=\"type\" value=\"" + type + "\">";
 							form += "<input type=\"hidden\" name=\"ref\" value=\"' . $this->parent->urls->current . '\">";
 							
 							form += "<input type=\"text\" name=\"title\" value=\"\" placeholder=\"New Title\" class=\"required\" required>";

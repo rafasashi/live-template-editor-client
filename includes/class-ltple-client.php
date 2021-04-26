@@ -591,6 +591,7 @@ class LTPLE_Client {
 		
 		add_filter( 'page_row_actions', array($this, 'filter_post_type_row_actions'), 10, 2 );
 		add_filter( 'post_row_actions', array($this, 'filter_post_type_row_actions'), 10, 2 );
+		add_filter( 'tag_row_actions', array($this, 'filter_taxonomy_row_actions'), 10, 2 );
 		
 		// add email-campaign
 		
@@ -749,8 +750,17 @@ class LTPLE_Client {
 			
 			// duplicate action
 			
-			$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-target="#duplicateItem" class="duplicate-button" data-id="' . $post->ID . '">Duplicate</a>';
+			$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-type="post_type:' . $post->post_type . '" data-target="#duplicateItem" class="duplicate-button" data-id="' . $post->ID . '">Duplicate</a>';
 		}
+		
+		return $actions;
+	}
+	
+	public function filter_taxonomy_row_actions( $actions, $term ){
+
+		// duplicate action
+		
+		$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-type="taxonomy:' . $term->taxonomy . '" data-target="#duplicateItem" class="duplicate-button" data-id="' . $term->term_id . '">Duplicate</a>';
 		
 		return $actions;
 	}		
