@@ -748,11 +748,48 @@ class LTPLE_Client {
 			unset( $actions['trash'] );
 			unset( $actions['inline hide-if-no-js'] );
 			
+			
 			// duplicate action
 			
 			$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-type="post_type:' . $post->post_type . '" data-target="#duplicateItem" class="duplicate-button" data-id="' . $post->ID . '">Duplicate</a>';
 		}
 		
+		// add editor actions
+		
+		if( $editor_actions = apply_filters('ltple_admin_editor_actions',array()) ){
+			
+			$layer = LTPLE_Editor::instance()->get_layer($post);
+					
+			foreach( $editor_actions as $slug => $name ){
+				
+				if( $this->layer->is_html_output($layer->output) ){
+					
+					if( $slug == 'edit-with-ltple' ){
+						 
+						$actions[$slug] = '<a href="' . $layer->urls['edit'] . '">'.$name.'</a>';
+					}
+					elseif( $slug == 'refresh-preview' ){
+						
+						$source = get_preview_post_link($post->ID);
+						
+						// TODO differentiate actions with slug 
+						
+						$action = '<div id="action-buttons-' . $post->ID . '">';
+
+							$action .= '<a href="#refreshPreview" data-id="' . $post->ID . '" data-title="preview for ' . $post->post_title . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button">';
+								
+								$action .= $name;
+								 
+							$action .= '</a>';
+
+						$action .= '</div>';
+
+						$actions[$slug] = $action;
+					}
+				}
+			}
+		}
+
 		return $actions;
 	}
 	

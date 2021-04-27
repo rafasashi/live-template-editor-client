@@ -57,11 +57,7 @@ class LTPLE_Client_Editor {
 		add_filter( 'ltple_editor_script', array( $this, 'filter_editor_script' ),1);
 	
 		add_filter('admin_enqueue_scripts',array( $this, 'add_actions_scripts' ) );
-	
-		add_filter( 'page_row_actions', array($this, 'filter_editor_row_actions'), 10, 2 );
 		
-		add_filter( 'post_row_actions', array($this, 'filter_editor_row_actions'), 10, 2 );
-	
 		add_action( 'admin_post_duplicate', array($this, 'duplicate_item') );
 	}
 	
@@ -575,46 +571,7 @@ class LTPLE_Client_Editor {
 
 		add_filter('admin_footer',array( $this, 'add_actions_footer' ) );
 	}
-	
-	public function filter_editor_row_actions($actions,$post){
-	
-		if( !empty($this->actions) ){
-			
-			$layer = LTPLE_Editor::instance()->get_layer($post);
-					
-			foreach( $this->actions as $slug => $name ){
-				
-				if( $this->parent->layer->is_html_output($layer->output) ){
-					
-					if( $slug == 'edit-with-ltple' ){
-						 
-						$actions[$slug] = '<a href="' . $layer->urls['edit'] . '">'.$name.'</a>';
-					}
-					elseif( $slug == 'refresh-preview' ){
-						
-						$source = get_preview_post_link($post->ID);
-						
-						// TODO differentiate actions with slug 
-						
-						$action = '<div id="action-buttons-' . $post->ID . '">';
 
-							$action .= '<a href="#refreshPreview" data-id="' . $post->ID . '" data-title="preview for ' . $post->post_title . '" data-source="' . $source . '" data-toggle="dialog" data-target="#actionConsole" class="action-button">';
-								
-								$action .= $name;
-								 
-							$action .= '</a>';
-
-						$action .= '</div>';
-
-						$actions[$slug] = $action;
-					}
-				}
-			}
-		}
-
-		return $actions;
-	}
-	
 	public function duplicate_item(){
 		
 		if( current_user_can( 'administrator' ) ){
