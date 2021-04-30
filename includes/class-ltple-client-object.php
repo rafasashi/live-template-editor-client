@@ -102,6 +102,19 @@ class LTPLE_Client_Object {
 					update_term_meta( $term->term_id, $key, $meta);	
 				}
 			}
+			
+			// normalize contents
+			
+			if( $key == 'js_content' ){
+				
+				$meta = trim($meta);
+				
+				$meta = ltrim($meta,'<script>');
+				
+				$meta = rtrim($meta,'</script>');
+				
+				$meta = '<script>' . $meta . '</script>';
+			}
 		}
 		
 		return $meta;

@@ -756,7 +756,7 @@ class LTPLE_Client {
 		
 		// add editor actions
 		
-		if( $editor_actions = apply_filters('ltple_admin_editor_actions',array()) ){
+		if( $editor_actions = apply_filters('ltple_admin_editor_actions',array(), $post) ){
 			
 			$layer = LTPLE_Editor::instance()->get_layer($post);
 					
@@ -2781,7 +2781,7 @@ class LTPLE_Client {
 		wp_enqueue_style( $this->_token . '-toggle-switch' );
 
 	} // End admin_enqueue_scripts ()
-	
+
 	public function get_login_logo(){
 		
 		echo'<style type="text/css">';

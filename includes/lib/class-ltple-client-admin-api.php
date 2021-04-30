@@ -272,6 +272,48 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  
 				break;
 				
+				case 'code_editor':
+					
+					$code = !empty($field['code']) ? $field['code'] : 'html';
+			
+					$type = ( $code == 'json' ? 'application' : 'text' ) . '/' . $code;
+					
+					$settings = wp_enqueue_code_editor( array( 'type' => $type ) );
+					
+					$script = 'jQuery(document).ready(function($) {' . PHP_EOL;
+
+						$script .= 'wp.codeEditor.initialize($(\'#' . $id . '\'), '.wp_json_encode( $settings ).');' . PHP_EOL;
+					
+					$script .= '})' . PHP_EOL;
+			
+					wp_register_script( $this->parent->_token . '_code_editor_'.$id, '', array( 'wp-theme-plugin-editor' ) );
+					
+					wp_enqueue_script( $this->parent->_token . '_code_editor_' . $id );
+					
+					wp_add_inline_script( $this->parent->_token . '_code_editor_' . $id, $script );
+						
+					if( !empty($data) ){
+						
+						if( is_array($data) ){
+							
+							$data = json_encode($data, JSON_PRETTY_PRINT);
+						}	
+
+						if( !isset($field['stripcslashes']) || $field['stripcslashes'] == true ){
+
+							$data = stripcslashes($data);
+						}
+						
+						if( !isset($field['htmlentities']) || $field['htmlentities'] == true ){
+							
+							$data = htmlentities($data);
+						}
+					}
+				
+					$html .= '<textarea'.$style.' class="code-editor" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
+				
+				break;
+				
 				case 'switch':
 					
 					$checked = '';

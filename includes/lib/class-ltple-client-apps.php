@@ -103,7 +103,8 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				array('name'=>"appData"),
 				'id'			=>	"appData",
 				'label'			=>	"",
-				'type'			=>	'textarea',
+				'type'			=>	'code_editor',
+				'code'			=>	'json',
 				'placeholder'	=>	"JSON object",
 				'description'	=>	''
 		);
@@ -115,7 +116,8 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				array('name'=>"appSettings"),
 				'id'			=>	"appSettings",
 				'label'			=>	"",
-				'type'			=>	'textarea',
+				'type'			=>	'code_editor',
+				'code'			=>	'json',
 				'placeholder'	=>	"JSON object",
 				'description'	=>	''
 		);

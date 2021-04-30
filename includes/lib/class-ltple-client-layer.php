@@ -857,7 +857,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						'id'			=> "layerContent",
 						'label'			=> "",
-						'type'			=> 'textarea',
+						'type'			=> 'code_editor',
+						'code'			=> 'html',
 						'placeholder'	=> "HTML content",
 						'htmlentities'	=> true,
 						//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>',
@@ -880,7 +881,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 							'id'			=> "layerCss",
 							'label'			=> "",
-							'type'			=> 'textarea',
+							'type'			=> 'code_editor',
+							'code'			=> 'css',
 							'stripcslashes'	=> false,
 							'htmlentities'	=> false,
 							'placeholder'	=> "Internal CSS style sheet",
@@ -904,7 +906,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 								'id'			=> "layerJs",
 								'label'			=> "",
-								'type'			=> 'textarea',
+								'type'			=> 'code_editor',
+								'code'			=> 'javascript',
 								'placeholder'	=> "Additional Javascript",
 								'htmlentities'	=> false,
 								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
@@ -924,7 +927,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									
 									'id'			=> "layerMeta",
 									'label'			=> "",
-									'type'			=> 'textarea',
+									'type'			=> 'code_editor',
+									'code'			=> 'json',
 									'placeholder'	=> "JSON",
 									'description'	=> '<i>Additional Meta Data</i>'
 								);	
@@ -1640,7 +1644,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->userFields[] = array(
 						
 							'metabox' 		=> $metabox,
-							'type'			=> 'textarea',
+							'type'			=> 'code_editor',
+							'code'			=> 'html',
 							'id'			=> 'layerContent',
 							'label'			=> 'HTML',
 							'placeholder'	=> "HTML content",
@@ -1651,7 +1656,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->userFields[] = array(
 						
 							'metabox' 		=> $metabox,
-							'type'			=> 'textarea',
+							'type'			=> 'code_editor',
+							'code'			=> 'css',
 							'id'			=> 'layerCss',
 							'label'			=> 'CSS',
 							'placeholder'	=> "Internal CSS style sheet",
@@ -1662,7 +1668,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->userFields[] = array(
 						
 							'metabox' 		=> $metabox,
-							'type'			=> 'textarea',
+							'type'			=> 'code_editor',
 							'id'			=> 'layerJs',
 							'label'			=> 'Javascript',
 							'placeholder'	=> "Additional Javascript",
@@ -4543,7 +4549,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 				$this->parent->admin->display_field(array(
 				
-					'type'				=> 'textarea',
+					'type'				=> 'code_editor',
+					'code'				=> 'css',
 					'id'				=> 'css_content',
 					'name'				=> 'css_content',
 					'placeholder'		=> '.style{display:block;}',
@@ -4763,11 +4770,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 				$this->parent->admin->display_field(array(
 				
-					'type'				=> 'textarea',
+					'type'				=> 'code_editor',
+					'code'				=> 'javascript',
 					'id'				=> 'js_content',
 					'name'				=> 'js_content',
-					'placeholder'		=> htmlentities('<script></script>'),
-					'description'		=> '<i>with '.htmlentities('<script></script>').'</i>'
+					'placeholder'		=> 'javascript',
+					'description'		=> '<i>without '.htmlentities('<script></script>').'</i>'
 					
 				), $term );				
 					
