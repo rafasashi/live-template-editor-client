@@ -277,21 +277,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$code = !empty($field['code']) ? $field['code'] : 'html';
 			
 					$type = ( $code == 'json' ? 'application' : 'text' ) . '/' . $code;
-					
-					$settings = wp_enqueue_code_editor( array( 'type' => $type ) );
-					
-					$script = 'jQuery(document).ready(function($) {' . PHP_EOL;
-
-						$script .= 'wp.codeEditor.initialize($(\'#' . $id . '\'), '.wp_json_encode( $settings ).');' . PHP_EOL;
-					
-					$script .= '})' . PHP_EOL;
-			
-					wp_register_script( $this->parent->_token . '_code_editor_'.$id, '', array( 'wp-theme-plugin-editor' ) );
-					
-					wp_enqueue_script( $this->parent->_token . '_code_editor_' . $id );
-					
-					wp_add_inline_script( $this->parent->_token . '_code_editor_' . $id, $script );
-						
+	
 					if( !empty($data) ){
 						
 						if( is_array($data) ){
@@ -309,9 +295,44 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							$data = htmlentities($data);
 						}
 					}
-				
-					$html .= '<textarea'.$style.' class="code-editor" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
-				
+					
+					$html .= '<div id="' . $id . '" style="width:100%;height:300px;">';
+					
+						$html .= '<div class="btn-wrapper" style="background:#fbfbfb;padding:120px 0;text-align:center;">';
+							
+							$html .= '<a href="#edit_'.$id.'" class="button button-primary button-hero btn btn-lg btn-primary">Edit ' . strtoupper(($code=='javascript'?'js':$code)) . ' Code</a>';
+						
+						$html .= '</div>';
+						
+						$html .= '<textarea style="display:none;" class="code-editor" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
+						
+					$html .= '</div>';
+					
+					// enqueue script
+					
+					$settings = wp_enqueue_code_editor( array( 'type' => $type ) );
+					
+					$script = 'jQuery(document).ready(function($) {' . PHP_EOL;
+						
+						$script .= '$(\'#' . $id . ' a\').one(\'click\',function(e){' . PHP_EOL;
+							
+							$script .= 'e.preventDefault();' . PHP_EOL;
+							$script .= 'e.stopPropagation();' . PHP_EOL;
+							
+							$script .= '$(\'#' . $id . ' .btn-wrapper\').hide();' . PHP_EOL;
+							
+							$script .= 'wp.codeEditor.initialize($(\'#' . $id . ' textarea\'), '.wp_json_encode( $settings ).');' . PHP_EOL;
+							
+						$script .= '})' . PHP_EOL;
+							
+					$script .= '})' . PHP_EOL;
+					
+					wp_register_script( $this->parent->_token . '_code_editor_'.$id, '', array( 'wp-theme-plugin-editor' ) );
+					
+					wp_enqueue_script( $this->parent->_token . '_code_editor_' . $id );
+					
+					wp_add_inline_script( $this->parent->_token . '_code_editor_' . $id, $script );
+					
 				break;
 				
 				case 'switch':
