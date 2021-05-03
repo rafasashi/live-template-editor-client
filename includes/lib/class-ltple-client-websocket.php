@@ -15,7 +15,7 @@ class LTPLE_Client_Websocket {
 		$this->parent 	= $parent;
 	}
 	
-	public function get_url(){
+	public function get_url($room = '1234'){
 		
 		$isSecure = ( (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' ) || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ) ? true : false;
 		
@@ -29,7 +29,7 @@ class LTPLE_Client_Websocket {
 		
 		if( $ch = curl_init() ){
 
-			curl_setopt($ch, CURLOPT_URL, 'http'.$ssl.'://' . $host_name . '/a/chat/start.php' );
+			curl_setopt($ch, CURLOPT_URL, 'http'.$ssl.'://' . $host_name . '/a/chat/start.php?room=' . $room );
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 
 			$socket_url = curl_exec($ch);
@@ -40,9 +40,9 @@ class LTPLE_Client_Websocket {
 		return $socket_url;
 	}
 	
-	public function open_socket($data){
+	public function open_socket($room,$data){
 		
-		if( $socket_url = $this->get_url() ){
+		if( $socket_url = $this->get_url($room) ){
 			
 			$url = parse_url($socket_url);
 			
@@ -82,13 +82,15 @@ class LTPLE_Client_Websocket {
 	
 	public function send_user_message($str,$message){
 		
+		$room 	= $this->get_key($str);
+		
 		$data 	= json_encode(array(
 			
-			'chat_user' 	=> $this->get_key($str),
+			'chat_user' 	=> $room,
 			'chat_message' 	=> $message,
 		));		
 		
-		if( $socket = $this->open_socket($data) ){
+		if( $socket = $this->open_socket($room,$data) ){
 
 			if( fwrite($socket, $this->hybi10Encode($data)) ){
 				
@@ -96,20 +98,6 @@ class LTPLE_Client_Websocket {
 				
 				return true;
 			}
-		}
-		
-		return false;
-	}
-	
-	function read_socket(){
-		
-		if( $socket = $this->open_socket() ){
-		
-			$wsdata = fread($socket, 2000);
-			
-			fclose($socket);
-
-			return $this->hybi10Decode($wsdata);
 		}
 		
 		return false;
