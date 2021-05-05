@@ -131,7 +131,7 @@ class LTPLE_Client_Editor {
 						
 						include( $this->parent->views . '/editor-panel.php' );
 					}
-					elseif( ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $this->parent->layer->type == 'cb-default-layer' || $this->parent->layer->is_media ) ){
+					elseif( ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) && !isset($_REQUEST['quick']) && ( $this->parent->layer->type == 'cb-default-layer' || $this->parent->layer->is_media ) ){
 
 						include( $this->parent->views . '/editor-starter.php' );
 					}

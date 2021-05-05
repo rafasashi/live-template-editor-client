@@ -55,17 +55,26 @@ else{
 		
 		$plan_usage = $ltple->plan->get_user_plan_usage( $ltple->user->ID );
 
+		// get download url
+		
+		$download_url = add_query_arg( array(
+		
+			'quick' 	=> '',
+			
+		), remove_query_arg('output',$ltple->urls->current) );
+		
 		// get download button
 		
 		$download_button = '';
 		
 		if( $ltple->layer->layerOutput == 'image' ){
 			
-			$download_button = '<a href="'.add_query_arg('quick','',$ltple->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit image ( without saving )</a>';
+			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit image ( without saving )</a>';
 		}
 		elseif( $ltple->layer->layerOutput == 'inline-css' || $ltple->layer->layerOutput == 'external-css' ){
 			
-			$download_button = '<a target="_parent" href="'.add_query_arg('quick','',$ltple->urls->current).'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
+			
+			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
 		}
 
 		get_header();		
