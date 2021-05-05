@@ -579,7 +579,7 @@ class LTPLE_Client_Gallery {
 										
 										$item.='</div>'.PHP_EOL;
 									  
-										$item.='<div class="modal-body">'.PHP_EOL;
+										$item.='<div class="modal-body" style="padding:0px;height:calc(100vh - 100px);overflow:auto;">'.PHP_EOL;
 											
 											if( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post ) === true ){
 												
