@@ -26,9 +26,9 @@
 			}
 			echo '<div class="container">';
 			
-				echo'<div id="plan_description">';
+				echo'<div id="plan_description" class="entry-content panel-body">';
 				
-					echo apply_filters( 'the_content', '<div class="text-left" style="background-color:#f5f5f5;border:1px solid #e3e3e3;border-radius:4px;padding:20px;margin:10px 10px 0 10px;font-size:19px;">' . $post->post_content . '</div>' );
+					echo apply_filters( 'the_content', $post->post_content);
 				
 				echo '</div>';
 				
