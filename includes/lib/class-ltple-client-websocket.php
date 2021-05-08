@@ -75,6 +75,20 @@ class LTPLE_Client_Websocket {
 		return false;
 	}
 	
+	public function read_socket(){
+
+		if( $socket = $this->open_socket() ){
+
+			$wsdata = fread($socket, 2000);
+
+			fclose($socket);
+
+			return $this->hybi10Decode($wsdata);
+		}
+
+		return false;
+	}
+	
 	public function get_key($str){
 		
 		return $this->parent->ltple_encrypt_str($str);
