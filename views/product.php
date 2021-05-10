@@ -161,7 +161,11 @@
 												}
 												else{
 													
-													// TODO open checkout modal
+													echo '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+							
+														echo '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
+											
+													echo '</button>'.PHP_EOL;
 												}
 												
 											echo'</div>'.PHP_EOL;
