@@ -579,7 +579,7 @@ class LTPLE_Client_Gallery {
 										
 										$item.='</div>'.PHP_EOL;
 									  
-										$item.='<div class="modal-body" style="padding:0px;height:calc(100vh - 100px);overflow:auto;">'.PHP_EOL;
+										$item.='<div class="modal-body">'.PHP_EOL;
 											
 											if( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post ) === true ){
 												
@@ -588,12 +588,20 @@ class LTPLE_Client_Gallery {
 												$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 145px);overflow: hidden;"></iframe>';											
 											}
 											elseif( $image = get_the_post_thumbnail($post->ID, 'full') ){
-											
-												$item.= $image;
+												
+												$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow: auto;">';
+												
+													$item.= $image;
+												
+												$item.= '</div>';
 											}
 											else{
 												
-												$item.= '<img loading="lazy" src="' . $this->parent->layer->get_thumbnail_url($post) . '">';
+												$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow: auto;">';
+
+													$item.= '<img loading="lazy" src="' . $this->parent->layer->get_thumbnail_url($post) . '">';
+													
+												$item.= '</div>';
 											}
 
 										$item.='</div>'.PHP_EOL;
@@ -606,7 +614,7 @@ class LTPLE_Client_Gallery {
 											}
 											else{
 												
-												$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
+												$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 												
 													$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 											
@@ -621,31 +629,18 @@ class LTPLE_Client_Gallery {
 								
 							$item.='</div>'.PHP_EOL;
 
-							//if($this->parent->user->loggedin){
+							if($this->parent->plan->user_has_layer( $post ) === true){
 								
-								if($this->parent->plan->user_has_layer( $post ) === true){
-									
-									$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_parent" title="Start editing this template">Start</a>';
-								}
-								elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
-									
-									$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
-								
-										$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
-							
-									$item.='</button>'.PHP_EOL;
-								}
-							/*
+								$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_parent" title="Start editing this template">Start</a>';
 							}
-							else{
+							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
-								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
-								
+								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+							
 									$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
-							
-								$item.='</button>'.PHP_EOL;								
+						
+								$item.='</button>'.PHP_EOL;
 							}
-							*/
 						}
 						
 					$item.='</div>';

@@ -144,7 +144,11 @@
 												}
 												else{
 													
-													echo get_the_post_thumbnail($this->ID, 'recentprojects-thumb');
+													echo '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow: auto;">';
+													
+														echo get_the_post_thumbnail($this->ID, 'recentprojects-thumb');
+													
+													echo '</div>';
 												}
 
 											echo'</div>'.PHP_EOL;
@@ -154,6 +158,10 @@
 												if( $this->parent->user->loggedin  && $has_layer === true ){
 
 													echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
+												}
+												else{
+													
+													// TODO open checkout modal
 												}
 												
 											echo'</div>'.PHP_EOL;
@@ -165,27 +173,14 @@
 								echo'</div>'.PHP_EOL;
 							}
 						
-							//if( $this->parent->user->loggedin ){
+							if( $has_layer === true){
 								
-								if( $has_layer === true){
-									
-									echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
-								}
-								elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
-									
-									echo $this->get_checkout_button($this,$layer_type->name);
-								}
-							/*
+								echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
 							}
-							else{
+							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
-								echo'<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
-								
-									echo'<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
-							
-								echo'</button>'.PHP_EOL;								
+								echo $this->get_checkout_button($this,$layer_type->name);
 							}
-							*/
 									
 						echo'</div>';
 						

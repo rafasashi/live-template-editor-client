@@ -277,74 +277,61 @@ class LTPLE_Client_Product {
 		}
 		
 		$button = '';					
-	
-		//if($this->parent->user->loggedin){
-			
-			if($this->parent->plan->user_has_layer( $post ) === true){
-				
-				//get editor_url
 
-				$editor_url = $this->parent->urls->edit . '?uri='.$post->ID;
-								
-				$button.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
-			}
-			else{
-				
-				//get checkout button
-				
-				$checkout_url = $this->get_checkout_url($post,$layer_type,$price);
-				
-				$modal_id='modal_'.md5($checkout_url);
-				
-				$button.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+		if($this->parent->plan->user_has_layer( $post ) === true){
 			
-					$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
+			//get editor_url
+
+			$editor_url = $this->parent->urls->edit . '?uri='.$post->ID;
+							
+			$button.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
+		}
+		else{
+			
+			//get checkout button
+			
+			$checkout_url = $this->get_checkout_url($post,$layer_type,$price);
+			
+			$modal_id='modal_'.md5($checkout_url);
+			
+			$button.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 		
-				$button.='</button>'.PHP_EOL;
+				$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
+	
+			$button.='</button>'.PHP_EOL;
+			
+			$button.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 				
-				$button.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+				$button.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 					
-					$button.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
+					$button.='<div class="modal-content">'.PHP_EOL;
+					
+						$button.='<div class="modal-header">'.PHP_EOL;
+							
+							$button.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+							
+							$button.= '<h4 class="modal-title" id="myModalLabel">';
+							
+								$button.= 'Unlock ' . $post->post_title;
+							
+							$button.= '</h4>'.PHP_EOL;
 						
-						$button.='<div class="modal-content">'.PHP_EOL;
+						$button.='</div>'.PHP_EOL;
 						
-							$button.='<div class="modal-header">'.PHP_EOL;
-								
-								$button.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-								
-								$button.= '<h4 class="modal-title" id="myModalLabel">';
-								
-									$button.= 'Unlock ' . $post->post_title;
-								
-								$button.= '</h4>'.PHP_EOL;
-							
-							$button.='</div>'.PHP_EOL;
-							
-							$button.='<div class="modal-body" style="padding:0px;">'.PHP_EOL;
+						$button.='<div class="modal-body" style="padding:0px;">'.PHP_EOL;
 
-								$button.= '<div class="loadingIframe" style="position:absolute;height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . '/loader.gif\');"></div>';
+							$button.= '<div class="loadingIframe" style="position:absolute;height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . '/loader.gif\');"></div>';
 
-								$button.= '<iframe data-src="'.$checkout_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 60px);overflow: hidden;"></iframe>';
-							
-							$button.='</div>'.PHP_EOL;
-							
+							$button.= '<iframe data-src="'.$checkout_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 60px);overflow: hidden;"></iframe>';
+						
 						$button.='</div>'.PHP_EOL;
 						
 					$button.='</div>'.PHP_EOL;
 					
-				$button.='</div>'.PHP_EOL;									
-			}
-		/*
+				$button.='</div>'.PHP_EOL;
+				
+			$button.='</div>'.PHP_EOL;									
 		}
-		else{
-			
-			$button.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#login_first">'.PHP_EOL;
-			
-				$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
-		
-			$button.='</button>'.PHP_EOL;								
-		}
-		*/
 
 		return $button;
 	}
