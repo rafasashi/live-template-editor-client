@@ -892,7 +892,7 @@ class LTPLE_Client_Settings {
 				
 				'subscription-plan' => array( 'tab'  => 'Plans', 		'name' => 'Plans' ),
 				'gallery-section' 	=> array( 'tab'  => 'Galleries',	'name' => 'Sections', 	'type' => 'taxonomy' ),
-				'layer-type' 		=> array( 'tab'  => 'Galleries', 	'name' => 'Editors',	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'layer-type' 		=> array( 'tab'  => 'Galleries', 	'name' => 'Categories',	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
 				'layer-range' 		=> array( 'tab'  => 'Galleries', 	'name' => 'Ranges',   	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
 				'account-option' 	=> array( 'tab'  => 'Options', 		'name' => 'Options',  	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
 				'addon-service' 	=> array( 'tab'  => 'Options', 		'name' => 'Services', 	'type' => 'taxonomy', 'post-type' => 'subscription-plan' ),	
