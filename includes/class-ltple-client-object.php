@@ -113,6 +113,8 @@ class LTPLE_Client_Object {
 				
 				$meta = rtrim($meta,'</script>');
 				
+				$meta = stripcslashes($meta);
+				
 				$meta = '<script>' . $meta . '</script>';
 			}
 		}

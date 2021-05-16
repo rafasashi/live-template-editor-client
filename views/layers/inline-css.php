@@ -263,7 +263,7 @@
 				
 				if( !empty($js_content) ){
 				
-					$layer .= stripcslashes($js_content) .PHP_EOL;	
+					$layer .= $js_content .PHP_EOL;	
 				}
 			}
 		}

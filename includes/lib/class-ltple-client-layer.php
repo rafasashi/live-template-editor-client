@@ -3881,7 +3881,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$body .= $layerContent;
 		}
-
+		
 		if( !empty($this->layerJsLibraries) ){
 			
 			foreach($this->layerJsLibraries as $term){
@@ -3906,7 +3906,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( !empty($js_content) ){
 					
-						$body .= stripcslashes($js_content) .PHP_EOL;	
+						$body .= $js_content .PHP_EOL;	
 					}
 				}
 			}
@@ -5244,8 +5244,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 				
 				if(isset($_POST['js_content'])){
-
-					update_term_meta($term->term_id, 'js_content', $_POST['js_content']);			
+					
+					// protect backslash
+					
+					$js_content = str_replace('\\','\\\\',$_POST['js_content']);
+					
+					update_term_meta($term->term_id, 'js_content', $js_content);			
 				}
 				
 				if(isset($_POST['js_skip_local'])){
