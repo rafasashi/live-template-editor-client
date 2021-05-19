@@ -2663,11 +2663,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$action .= '<button data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</button>';
  
-		$action .= '<div style="display:none;" id="quickRemoveTpl' . $post->ID . '" title="Remove Project #' . $post->ID . '">';
+		$action .= '<div style="display:none;text-align:center;" id="quickRemoveTpl' . $post->ID . '" title="Remove Project #' . $post->ID . '">';
 			
-			$action .=  '<h4>Are you sure you want to delete this project?</h4>';						
+			$action .=  '<div class="alert alert-danger">Are you sure you want to delete this project?</div>';						
 
-			$action .=  '<a target="'.$target.'" style="margin:10px;" class="btn btn-xs btn-success" href="' . $this->parent->urls->edit . '?uri=' . $post->ID . '&postAction=delete&confirmed" target="_self">Yes</a>';
+			$action .=  '<a data-toggle="action" data-refresh="self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . $this->parent->urls->edit . '?uri=' . $post->ID . '&postAction=delete&confirmed">Delete permanently</a>';
 			
 		$action .= '</div>';
 
