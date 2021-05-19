@@ -340,10 +340,12 @@ class LTPLE_Client {
 	
 	public function exit_message($message,$code=200){
 		
-		if( !is_string($message) ){
+		if( is_string($message) ){
 			
-			$message = json_encode($message);
+			$message = array('message'=>$message);
 		}
+		
+		$message = json_encode($message);
 		
 		http_response_code($code);
 
@@ -1605,38 +1607,7 @@ class LTPLE_Client {
 					
 					// output message
 					
-					$this->layer->id = -1;
-						
-					$_SESSION['message'] ='<div class="alert alert-success">';
-
-						$_SESSION['message'] .= 'Template successfully deleted!';
-
-					$_SESSION['message'] .='</div>';
-					
-					//redirect page
-					
-					$parsed = parse_url($this->urls->dashboard .'?'. $_SERVER['QUERY_STRING']);
-
-					parse_str($parsed['query'], $params);
-
-					unset($params['uri'],$params['postAction']);
-					
-					if( !empty($layer_type->storage) ){
-						
-						$params['list'] = $layer_type->storage;
-					}
-					
-					$url = $this->urls->dashboard;
-					
-					$query = http_build_query($params);
-					
-					if( !empty($query) ){
-						
-						$url .= '?' . $query;		
-					}
-
-					wp_redirect($url);
-					exit;
+					$this->exit_message('Template successfully deleted!',200);
 				}
 			}
 			elseif( isset($_POST['postAction']) && $_POST['postAction'] == 'download' ){

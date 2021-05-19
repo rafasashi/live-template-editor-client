@@ -2662,7 +2662,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		$action .= '<button data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</button>';
-
+ 
 		$action .= '<div style="display:none;" id="quickRemoveTpl' . $post->ID . '" title="Remove Project #' . $post->ID . '">';
 			
 			$action .=  '<h4>Are you sure you want to delete this project?</h4>';						
