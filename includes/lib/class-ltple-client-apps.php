@@ -325,7 +325,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				$thumb_url = get_option('thumbnail_' . $app->app_type->slug);
 				
-				$action = '<a href="#quickRemoveApp' . ( $i + 1 ) . '" data-toggle="dialog" data-target="#quickRemoveApp' . ( $i + 1 ) . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</a>';
+				$action = '<button data-toggle="dialog" data-target="#quickRemoveApp' . ( $i + 1 ) . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</button>';
 
 				$action .= '<div style="display:none;" id="quickRemoveApp' . ( $i + 1 ) . '" title="Remove App #' . $app->ID . '">';
 					

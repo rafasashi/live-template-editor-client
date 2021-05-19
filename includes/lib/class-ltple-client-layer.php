@@ -2661,7 +2661,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$action .= '<a target="_blank" href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
 		}
 		
-		$action .= '<a href="#quickRemoveTpl' . $post->ID . '" data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</a>';
+		$action .= '<button data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</button>';
 
 		$action .= '<div style="display:none;" id="quickRemoveTpl' . $post->ID . '" title="Remove Project #' . $post->ID . '">';
 			
@@ -4230,7 +4230,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				echo'<th valign="top" scope="row">';
 					
-					echo'<label for="category-text">Default Storage </label>';
+					echo'<label for="category-text">Storage unit </label>';
 				
 				echo'</th>';
 				

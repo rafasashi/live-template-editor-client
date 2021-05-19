@@ -246,8 +246,8 @@
 					
 					$('#' + dialogId + 'ActionText').hide();
 					
-					var refresh = $(this).attr('data-refresh');
-				
+					var refresh  = $(this).attr('data-refresh');
+
 					$.ajaxQueue({
 									
 						type 		: "GET",
@@ -286,7 +286,27 @@
 						},
 						success: function(data) {
 							
-							$.notify( data, {
+							data = JSON.parse(data);
+							
+							if( typeof data.message != typeof undefined ){
+								
+								// object response
+								
+								var message = data.message;
+								
+								if( typeof data.callback != typeof undefined ){
+									
+									eval(data.callback);
+								}							
+							}							
+							else{
+								
+								// text response
+								
+								var message = data;
+							}
+
+							$.notify( message, {
 								
 								className: 'success',
 								position: 'top center'

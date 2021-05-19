@@ -340,6 +340,11 @@ class LTPLE_Client {
 	
 	public function exit_message($message,$code=200){
 		
+		if( !is_string($message) ){
+			
+			$message = json_encode($message);
+		}
+		
 		http_response_code($code);
 
 		echo $message;
