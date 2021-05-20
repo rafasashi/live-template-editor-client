@@ -185,7 +185,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 						$content 	= isset($meta['layerContent'][0]) ? $meta['layerContent'][0] : '';
 						$type 		= isset($meta['elementType'][0])  ? $meta['elementType'][0]	 : 'sections';
 						$drop 		= isset($meta['elementDrop'][0])  ? $meta['elementDrop'][0]  : 'out';
-						$image 	 	= get_the_post_thumbnail_url($elem->ID,'post-thumbnail');
+						$image 	 	= $this->parent->layer->get_preview_image_url($elem->ID,'post-thumbnail');
 						
 						$elements['name'][] 	= $elem->post_title;
 						$elements['content'][] 	= $content;
@@ -381,10 +381,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	
 		if( $column_name === 'thumb' ){
 
-			if( !$url = get_the_post_thumbnail_url($post_id,'post-thumbnail')){
-				
-				$url = $this->parent->assets_url . 'images/default-element.jpg';
-			}
+			$url = $this->parent->layer->get_preview_image_url($post_id,'post-thumbnail',$this->parent->assets_url . 'images/default-element.jpg');
 			
 			echo '<a class="preview-' . $post_id . '" target="_blank" href="'.$url.'">';
 			

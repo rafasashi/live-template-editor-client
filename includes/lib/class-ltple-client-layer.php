@@ -2541,6 +2541,37 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->parent->assets_url . 'images/default_item.png';
 	}
 	
+	public function get_preview_image_url($post_id,$size='post-thumbnail',$alt_url=false){
+		
+		// preview screenshot
+		
+		if( $att_id = get_post_meta($post_id,'ltple_screenshot_att_id',true) ){
+			
+			if( $src = wp_get_attachment_image_src( $att_id,$size ) ){
+				
+				return $src[0];
+			}
+		}
+		
+		// featured image
+		
+		if( $url = get_the_post_thumbnail_url($post_id,$size)){
+
+			return $url;
+		}
+		
+		// alternative image
+		
+		if( !empty($alt_url) ){
+			
+			return $alt_url;
+		}
+		
+		// default image
+		
+		return $this->parent->assets_url . 'images/default-element.jpg';
+	}
+			
 	public function init_layer_backend(){
 		
 		add_filter('cb-default-layer_custom_fields', array( $this, 'get_default_layer_fields' ),9999);
@@ -4864,12 +4895,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function add_layer_type_column_content($column_name, $post_id){
 		
 		if( $column_name === 'thumb' ){
-
-			if( !$url = get_the_post_thumbnail_url($post_id,'post-thumbnail')){
-				
-				$url = $this->parent->assets_url . 'images/default-element.jpg';
-			}
 			
+			$url = $this->get_preview_image_url($post_id);
+
 			echo '<a class="preview-' . $post_id . '" target="_blank" href="'.$url.'">';
 			
 				echo '<img loading="lazy" style="width:150px;" src="'.$url.'">';

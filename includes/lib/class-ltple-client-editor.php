@@ -87,7 +87,7 @@ class LTPLE_Client_Editor {
 						
 							// handle cropped image upload
 						
-							echo LTPLE_Editor::upload_base64_image($layer, $_POST['domId'], $_POST['base64']);
+							echo LTPLE_Editor::upload_base64_image($layer, $_POST['domId'], $_POST['base64'],'editor');
 						}
 						elseif( !empty($_POST['url']) ){
 							
@@ -908,7 +908,7 @@ class LTPLE_Client_Editor {
 						var title 	= $(this).attr("data-title");
 						var source 	= $(this).attr("data-source");
 
-						var screenshotUrl 	= "' . get_option( $this->parent->_base . 'server_url') . '";
+						var screenshotUrl 	= "' . $this->parent->server->url . '";
 						var uploaderUrl		= "' . get_admin_url() . '";
 						
 						console.info("<b>Processing " + title + "...</b>");
@@ -952,7 +952,8 @@ class LTPLE_Client_Editor {
 									data  		: {
 										
 										dev		: "'.( REW_DEV_ENV === true ? 'true' : 'false' ).'",
-										action	: "takeScreenshot",
+										action	: "capture",
+										type	: "screenshot",
 										htmlDoc : htmlDoc,
 										selector: "body"
 									},

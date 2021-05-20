@@ -166,7 +166,9 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			
 			if( current_user_can('edit_posts') ){
 				
-				echo $this->upload_base64_thumbnail($_POST['postId'],$_POST['imgData']);
+				$source = 'screenshot';
+				
+				echo LTPLE_Editor::upload_base64_image($_POST['postId'],$source,$_POST['imgData'],$source);
 				
 				exit;
 			}
@@ -597,24 +599,6 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			}
 
 			@unlink($file_array['tmp_name']);
-		}
-	}
-
-	public function upload_base64_thumbnail($post_id,$base64){
-		
-		if( !empty($this->parent->user->ID) ){
-			
-			$tmp  = get_temp_dir() . md5($base64) . '.png';
-			
-			$source 	 = fopen('data:' . $base64, 'r');
-			$destination = fopen($tmp, 'w');
-
-			stream_copy_to_stream($source, $destination);
-
-			fclose($source);
-			fclose($destination);
-			
-			return LTPLE_Editor::upload_image_path($post_id,'screenshot',$tmp,'thumbnail');
 		}
 	}
 	
