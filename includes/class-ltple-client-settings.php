@@ -436,6 +436,20 @@ class LTPLE_Client_Settings {
 			2
 		);
 		
+		add_users_page( 
+			'All Customers', 
+			'All Customers', 
+			'edit_pages',
+			'users.php?' . $this->parent->_base .'view=customers'
+		);
+		
+		add_users_page( 
+			'Newsletter', 
+			'Newsletter', 
+			'edit_pages',
+			'users.php?' . $this->parent->_base .'view=newsletter'
+		);
+		
 		/*
 		add_users_page( 
 			'All Guests', 
@@ -443,26 +457,12 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'users.php?' . $this->parent->_base .'view=guests'
 		);		
-		
-		add_users_page( 
-			'All Subscribers', 
-			'All Subscribers', 
-			'edit_pages',
-			'users.php?' . $this->parent->_base .'view=subscribers'
-		);
-		
+
 		add_users_page( 
 			'All Leads', 
 			'All Leads', 
 			'edit_pages',
 			'users.php?' . $this->parent->_base .'view=leads'
-		);
-		
-		add_users_page( 
-			'All Conversions', 
-			'All Conversions', 
-			'edit_pages',
-			'users.php?' . $this->parent->_base .'view=conversions'
 		);
 		*/
 		

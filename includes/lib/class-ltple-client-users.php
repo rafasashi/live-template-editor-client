@@ -270,7 +270,7 @@
 					}
 					else{
 						
-						add_action('admin_head', array($this, 'custom_subscribers_table_css'));
+						add_action('admin_head', array($this, 'custom_newsletter_table_css'));
 					}
 					
 					if( method_exists($this, 'update_' . $this->view . '_table') ){
@@ -281,7 +281,7 @@
 					}
 					else{
 						
-						add_filter('manage_users_columns', array($this, 'update_subscribers_table'), 100, 3);
+						add_filter('manage_users_columns', array($this, 'set_users_table_columns'), 100, 3);
 					}
 
 					if( method_exists($this, 'get_' . $this->view . '_table_row') ){
@@ -290,7 +290,7 @@
 					}
 					else{
 						
-						add_filter('manage_users_custom_column', array($this, 'get_user_table_row'), 100, 3);
+						add_filter('manage_users_custom_column', array($this, 'get_users_table_row'), 100, 3);
 					}
 					
 					// custom bulk actions
@@ -340,10 +340,12 @@
 					
 					// query filters
 					
+					add_filter( 'pre_get_users', array( $this, 'filter_users_by_email_subscription') );					
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
-					add_filter( 'pre_get_users', array( $this, 'filter_users_by_last_seen') );
-					add_filter( 'pre_get_users', array( $this, 'filter_users_by_role') );
+
+					//add_filter( 'pre_get_users', array( $this, 'filter_users_by_last_seen') );
+					//add_filter( 'pre_get_users', array( $this, 'filter_users_by_role') );
 				}				
 			}
 		}
@@ -366,7 +368,7 @@
 					// get users with subscription
 					
 					$args['meta_query'] = array(
-					
+						
 						'relation' => 'OR',
 						
 						array(
@@ -380,6 +382,14 @@
 							'key'     	=> $this->parent->_base . 'period_end',
 							'compare' 	=> 'EXISTS',
 						),
+						/*
+						array(
+					
+							'key'     	=> $this->parent->_base . 'period_end',
+							'compare' 	=> '<',
+							'value'		=> time(), // for debugging
+						)
+						*/
 					);				
 				}
 				
@@ -387,9 +397,25 @@
 					
 					foreach( $users as $user ){
 						
-						if( intval($user->id) > 1 && !empty($periods[strtolower($user->user_email)]) ){
+						$user_email = strtolower($user->user_email);
+						
+						if( intval($user->id) > 1 && isset($periods[$user_email]) ){
 							
-							$this->update_user_period($user->id,$periods[strtolower($user->user_email)]);
+							if( !empty($periods[$user_email]) ){
+							
+								$this->update_user_period($user->id,$periods[$user_email]);
+							}
+							else{
+								
+								$remaining_days = $this->get_user_remaining_days($user->id);
+								
+								if( $remaining_days < -30 ){
+								
+									// flush user plan
+									
+									$this->parent->plan->flush_user_plan($user->id);
+								}
+							}
 						}
 					}
 				}							
@@ -399,7 +425,7 @@
 				wp_mail($this->parent->settings->options->emailSupport, 'Error updating periods', print_r('',true));
 			}
 		}
-		
+
 		public function update_user_period($user_id=0,$period_end=0){
 			
 			$user_id = intval($user_id);
@@ -418,12 +444,6 @@
 					
 					$user_has_subscription = 'true';
 				}
-				else{
-					
-					// flush plan options
-					
-					update_user_meta( $user_id , $this->parent->_base . 'user_plan_options',[]);
-				}
 				
 				update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
 			
@@ -440,16 +460,16 @@
 			
 			echo '<a class="nav-tab ' . ( empty($this->view) ? 'nav-tab-active' : '' ) . '" href="users.php?s='.$s.'&marketing-channel1='.$mc.'">Users</a>';
 			
+			echo '<a class="nav-tab ' . ( $this->view == 'customers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=customers&s='.$s.'&marketing-channel1='.$mc.'">Customers</a>';
+			
+			echo '<a class="nav-tab ' . ( $this->view == 'newsletter' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=newsletter&s='.$s.'&marketing-channel1='.$mc.'">Newsletter</a>';
+			
 			/*
 			echo '<a class="nav-tab ' . ( $this->view == 'guests' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=guests&s='.$s.'&marketing-channel1='.$mc.'">Guests</a>';
 											
-			echo '<a class="nav-tab ' . ( $this->view == 'subscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=subscribers&s='.$s.'&marketing-channel1='.$mc.'">Subscribers</a>';
-
 			echo '<a class="nav-tab ' . ( $this->view == 'unsubscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=unsubscribers&s='.$s.'&marketing-channel1='.$mc.'">Unsubscribers</a>';
 			
 			echo '<a class="nav-tab ' . ( $this->view == 'leads' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=leads&s='.$s.'&marketing-channel1='.$mc.'">Leads</a>';
-		
-			echo '<a class="nav-tab ' . ( $this->view == 'conversions' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=conversions&s='.$s.'&marketing-channel1='.$mc.'">Conversions</a>';
 			*/
 		}
 		
@@ -461,7 +481,7 @@
 			
 			$name = $taxonomy.'1';
 			
-			echo '<input type="hidden" name="ltple_view" value="subscribers">';
+			echo '<input type="hidden" name="ltple_view" value="newsletter">';
 			
 			echo '<span>';
 				
@@ -487,7 +507,7 @@
 			// TODO replace by plan type, range, option filters
 			
 			/*
-			if( !$this->view == 'conversions' ){
+			if( !$this->view == 'customers' ){
 			
 				echo '<span>';
 					
@@ -535,138 +555,142 @@
 			*/
 		}
 		
-		
 		public function display_user_updater() {
 
-			// add bulk stars
+			if( $this->view == 'newsletter' ){
 			
-			echo '<span>';
+				// add bulk email sender
 				
-				echo '<label style="padding:7px;float:left;">';
-					echo ' Stars';
-				echo '</label>';
-
-				$filter = 'addStars';
-				$name = $filter.'1';
-
-				echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
-
-				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-			
-			echo '</span>';
-			
-			// add bulk email sender
-			
-			$post_type = 'email-model';
-			
-			$name = $post_type.'1';
-
-			echo '<span>';
-			
-				echo $this->parent->get_dropdown_posts(array(
+				$post_type = 'email-model';
 				
-					'show_option_none'  => 'Select an email',
-					'post_type'     	=> $post_type,
-					'name'    	  		=> $name,
-					'style'    	  		=> 'width:130px;',
-					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-					'echo'		   		=> false
-				));
+				$name = $post_type.'1';
 
-				echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
-			
-			echo '</span>';
-			
-			// add plan
-			
-			$post_type = 'subscription-plan';
-			
-			$name = $post_type.'1';
-
-			echo '<span>';
-			
-				echo $this->parent->get_dropdown_posts(array(
+				echo '<span>';
 				
-					'show_option_none'  => 'Select a plan',
-					'post_type'     	=> $post_type,
-					'name'    	  		=> $name,
-					'style'    	  		=> 'width:130px;',
-					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-					'echo'		   		=> false
-				));
+					echo $this->parent->get_dropdown_posts(array(
+					
+						'show_option_none'  => 'Select an email',
+						'post_type'     	=> $post_type,
+						'name'    	  		=> $name,
+						'style'    	  		=> 'width:130px;',
+						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+						'echo'		   		=> false
+					));
 
-				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-			
-			echo '</span>';
-			
-			// add layer type
-			
-			/*
-			
-			$taxonomy = 'layer-type';
-			
-			$name = $taxonomy.'1';
-
-			echo '<span>';
-			
-				echo $this->parent->get_dropdown_terms(array(
+					echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
 				
-					'show_option_none'  => 'Select a type',
-					'taxonomy'     		=> $taxonomy,
-					'name'    	  		=> $name,
-					'style'    	  		=> 'width:130px;',
-					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-					'echo'		   		=> false
-				));
+				echo '</span>';
+			}
+			else{
 
-				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-			
-			echo '</span>';
-			*/
-			
-			// add layer range
-			
-			$taxonomy = 'layer-range';
-			
-			$name = $taxonomy.'1';
-
-			echo '<span>';
-			
-				echo $this->parent->get_dropdown_terms(array(
+				// add bulk stars
 				
-					'show_option_none'  => 'Select a range',
-					'taxonomy'     		=> $taxonomy,
-					'name'    	  		=> $name,
-					'style'    	  		=> 'width:130px;',
-					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-					'echo'		   		=> false
-				));
+				echo '<span>';
+					
+					echo '<label style="padding:7px;float:left;">';
+						echo ' Stars';
+					echo '</label>';
 
-				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-			
-			echo '</span>';
-			
-			// add layer option
-			
-			$taxonomy = 'account-option';
-			
-			$name = $taxonomy.'1';
+					$filter = 'addStars';
+					$name = $filter.'1';
 
-			echo '<span>';
-			
-				echo $this->parent->get_dropdown_terms(array(
+					echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
+
+					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
 				
-					'show_option_none'  => 'Select an option',
-					'taxonomy'     		=> $taxonomy,
-					'name'    	  		=> $name,
-					'style'    	  		=> 'width:130px;',
-					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-					'echo'		   		=> false
-				));
+				echo '</span>';
+				
+				// add plan
+				
+				$post_type = 'subscription-plan';
+				
+				$name = $post_type.'1';
 
-				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-			
-			echo '</span>';
+				echo '<span>';
+				
+					echo $this->parent->get_dropdown_posts(array(
+					
+						'show_option_none'  => 'Select a plan',
+						'post_type'     	=> $post_type,
+						'name'    	  		=> $name,
+						'style'    	  		=> 'width:130px;',
+						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+						'echo'		   		=> false
+					));
+
+					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+				
+				echo '</span>';
+				
+				// add layer type
+				
+				/*
+				
+				$taxonomy = 'layer-type';
+				
+				$name = $taxonomy.'1';
+
+				echo '<span>';
+				
+					echo $this->parent->get_dropdown_terms(array(
+					
+						'show_option_none'  => 'Select a type',
+						'taxonomy'     		=> $taxonomy,
+						'name'    	  		=> $name,
+						'style'    	  		=> 'width:130px;',
+						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+						'echo'		   		=> false
+					));
+
+					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+				
+				echo '</span>';
+				*/
+				
+				// add layer range
+				
+				$taxonomy = 'layer-range';
+				
+				$name = $taxonomy.'1';
+
+				echo '<span>';
+				
+					echo $this->parent->get_dropdown_terms(array(
+					
+						'show_option_none'  => 'Select a range',
+						'taxonomy'     		=> $taxonomy,
+						'name'    	  		=> $name,
+						'style'    	  		=> 'width:130px;',
+						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+						'echo'		   		=> false
+					));
+
+					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+				
+				echo '</span>';
+				
+				// add layer option
+				
+				$taxonomy = 'account-option';
+				
+				$name = $taxonomy.'1';
+
+				echo '<span>';
+				
+					echo $this->parent->get_dropdown_terms(array(
+					
+						'show_option_none'  => 'Select an option',
+						'taxonomy'     		=> $taxonomy,
+						'name'    	  		=> $name,
+						'style'    	  		=> 'width:130px;',
+						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+						'echo'		   		=> false
+					));
+
+					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+				
+				echo '</span>';
+			}
 		}
 		
 		public function time_ago($time_ago) {
@@ -772,7 +796,7 @@
 			<?php
 		}		
 
-		public function update_subscribers_table($column) {
+		public function set_users_table_columns($column) {
 			
 			$column=[];
 			$column["cb"]			= '<input type="checkbox" />';
@@ -793,7 +817,7 @@
 			return $column;
 		}
 		
-		public function custom_subscribers_table_css() {
+		public function custom_newsletter_table_css() {
 			
 			echo '<style>';
 							
@@ -832,7 +856,7 @@
 			return $meta;
 		}
 
-		public function get_user_table_row($val, $column_name, $user_id) {
+		public function get_users_table_row($val, $column_name, $user_id) {
 			
 			if(!isset($this->list->{$user_id})){
 				
@@ -891,13 +915,18 @@
 				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
 					
 					if( !empty($period_end) ){
-
+						
 						$days = floor($this->parent->plan->get_license_remaining_days($period_end));
-			
+
 						$row .= $days . ' ' . ( ($days == 1 || $days == -1) ? 'day' : 'days' ) ;					
+					
+						if( $days < -30 ){
+							
+							$this->parent->plan->flush_user_plan($user_id);
+						}					
 					}
 					else{
-						
+		
 						$row .= $period_end . ' days';
 					}
 					
@@ -913,11 +942,9 @@
 			}
 			elseif ($column_name == "plan") {
 					
-				$row .= '<pre style="margin:0px;padding:0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
-				
-				//$row .= $user_plan['id'].PHP_EOL;
-				
 				if( $user_plan['id'] > 0 ){
+					
+					$row .= '<textarea style="margin:0px;padding:5px;font-size:10px;line-height:14px;height:70px;width:100px;">';
 
 					foreach($user_plan['taxonomies'] as $taxonomy => $tax){
 						
@@ -928,14 +955,10 @@
 								$row .= $term['name'].PHP_EOL;
 							}
 						}
-					}						
-				}
-				else{
-					
-					$row .= 'NULL'.PHP_EOL;
-				}
+					}
 
-				$row .= '</pre>';
+					$row .= '</textarea>';
+				}
 			}
 			elseif ($column_name == "seen") {
 				
@@ -1043,64 +1066,64 @@
 			return $row;
 		}
 		
-		public function update_unsubscribers_table($column) {
+		public function set_unsubscribers_table_columns($column) {
 			
-			return $this->update_subscribers_table($column);
+			return $this->set_users_table_columns($column);
 		}
 
 		public function custom_unsubscribers_table_css($column) {
 			
-			return $this->custom_subscribers_table_css();
+			return $this->custom_newsletter_table_css();
 		}
 		
 		public function get_unsubscribers_table_row($val, $column_name, $user_id) {
 			
-			return $this->get_user_table_row($val, $column_name, $user_id);
+			return $this->get_users_table_row($val, $column_name, $user_id);
 		}		
 		
-		public function update_guests_table($column) {
+		public function set_guests_table_columns($column) {
 			
-			return $this->update_subscribers_table($column);
+			return $this->set_users_table_columns($column);
 		}
 
 		public function custom_guests_table_css($column) {
 			
-			return $this->custom_subscribers_table_css();
+			return $this->custom_newsletter_table_css();
 		}
 		
 		public function get_guests_table_row($val, $column_name, $user_id) {
 			
-			return $this->get_user_table_row($val, $column_name, $user_id);
+			return $this->get_users_table_row($val, $column_name, $user_id);
 		}	
 		
-		public function update_leads_table($column) {
+		public function set_leads_table_columns($column) {
 			
-			return $this->update_subscribers_table($column);
+			return $this->set_users_table_columns($column);
 		}
 
 		public function custom_leads_table_css($column) {
 			
-			return $this->custom_subscribers_table_css();
+			return $this->custom_newsletter_table_css();
 		}
 		
 		public function get_leads_table_row($val, $column_name, $user_id) {
 			
-			return $this->get_user_table_row($val, $column_name, $user_id);
+			return $this->get_users_table_row($val, $column_name, $user_id);
 		}
 		
-		public function update_conversions_table($column) {
+		public function set_customers_table_columns($column) {
 			
-			return $this->update_subscribers_table($column);
+			return $this->set_users_table_columns($column);
 		}
 
-		public function custom_conversions_table_css($column) {
+		public function custom_customers_table_css($column) {
 			
-			return $this->custom_subscribers_table_css();
+			return $this->custom_newsletter_table_css();
 		}
 		
-		public function get_conversions_table_row($val, $column_name, $user_id) {
+		public function get_customers_table_row($val, $column_name, $user_id) {
 			
-			return $this->get_user_table_row($val, $column_name, $user_id);
+			return $this->get_users_table_row($val, $column_name, $user_id);
 		}
 		
 		public function get_user_notification_settings( $user_id ){
@@ -1187,7 +1210,7 @@
 								
 								var items = jQuery('.displaying-num').first().text();
 								
-								jQuery('<caption id="cb-select-all-3" class="alert alert-warning">').html('<input type="checkbox" name="selectAll" /> Select <b>' + items + '</b>' ).prependTo(".wp-list-table");
+								jQuery('<caption id="cb-select-all-3" style="text-align:left;margin-top:-47px;padding:15px 5px;">').html('<input type="checkbox" name="selectAll" /> Select <b>' + items + '</b>' ).prependTo(".wp-list-table");
 							}
 							else{
 								
@@ -1355,7 +1378,7 @@
 					'compare'	=> $compare,
 				);
 				
-				if( $this->view == 'guests' || $this->view == 'leads' || $this->view == 'subscribers' ){
+				if( $this->view == 'guests' || $this->view == 'leads' || $this->view == 'newsletter' ){
 					
 					$meta_query[] = array (
 						
@@ -1398,6 +1421,31 @@
 			return $query;
 		}
 		
+		public function filter_users_by_email_subscription( $query ) {
+			
+			if( $this->view == 'newsletter' ){
+				
+				$meta_query = array (
+					
+					array(
+					
+						'key'     	=> $this->parent->_base . '_can_spam',
+						'compare' 	=> '=',
+						'value'		=> 'true'
+					),
+				);
+					
+				if( !empty($query->query_vars['meta_query']) ){
+					
+					$meta_query = array_merge($meta_query,$query->query_vars['meta_query']);
+				}
+				
+				$query->set( 'meta_query', $meta_query);
+			}
+			
+			return $query;
+		}
+		
 		public function filter_users_by_marketing_channel( $query ) {
 			
 			$taxonomy = 'marketing-channel';
@@ -1406,9 +1454,16 @@
 				
 				// alter the user query to add my meta_query
 				
-				$users = get_objects_in_term( intval($term_id), $taxonomy );
+				$ids =  array( intval($term_id) );
 				
-				if(!empty($users)){
+				if( $children = get_term_children($term_id,$taxonomy) ){
+				
+					$ids =  array_merge($ids,$children);
+				}
+				
+				$users = get_objects_in_term($ids, $taxonomy );
+				
+				if( !empty($users) ){
 					
 					$query->set( 'include', $users);
 				}
@@ -1423,91 +1478,112 @@
 		
 		public function filter_users_by_plan_value( $query ) {
 			
-			/*
-			if( $this->view == 'guests' || $this->view == 'conversions' ){
+			if( $this->view == 'customers' ){
 
-				$query->set( 'role__not_in', 'Administrator' );
-			}		
-		
-			if( $this->view == 'leads' ){
-				
-				$userPlanValue		= 1;
-				$planValueOperator	= '<';
-				$licenseStatus		= 'any';
-			}
-			elseif( $this->view == 'conversions' ){
-				
-				$userPlanValue		= 0;
-				$planValueOperator	= '>';
-				$licenseStatus		= 'any';
-			}
-			else{
-				
-				$userPlanValue		= $this->get_filter_value('userPlanValue');
-				$planValueOperator	= $this->get_filter_value('planValueOperator');
-				$licenseStatus		= $this->get_filter_value('licenseStatus');
-			}
-			*/
-			
-			$userPlanValue		= $this->get_filter_value('userPlanValue');
-			$planValueOperator	= $this->get_filter_value('planValueOperator');
-			$licenseStatus		= $this->get_filter_value('licenseStatus');			
-			
-			$comparition = [];
-			
-			$comparition['=']['operator']	= '!=';
-			$comparition['=']['action']		= 'exclude';
-			
-			$comparition['>']['operator']	= '>';
-			$comparition['>']['action']		= 'include';
-			
-			$comparition['<']['operator']	= '>=';
-			$comparition['<']['action']		= 'exclude';			
-
-			if( !is_null($userPlanValue) && $userPlanValue > -1 ){
-
-				$meta_query = array();
-				
-				$meta_query[] = array(
-				
-					'key'		=> 'userPlanValue',
-					'value'		=> $userPlanValue,
-					'type'		=> 'NUMERIC',
-					'compare'	=> $comparition[$planValueOperator]['operator']
+				$meta_query = array (
+					
+					array(
+							
+						'key'     	=> 'has_subscription',
+						'compare' 	=> '=',
+						'value'		=> 'true',
+					),
+					array(
+					
+						'key'     	=> $this->parent->_base . 'period_end',
+						'compare' 	=> '>',
+						'value'		=> strtotime('-0 days'), // exclude past due
+					),
+					/*
+					array(
+					
+						'key'     	=> $this->parent->_base . 'period_end',
+						'compare' 	=> '<',
+						'value'		=> strtotime('-0 days'), // for debugging
+					),
+					*/
 				);
-				
-				
-			
-				$q = new WP_Query(array(
-				
-					'posts_per_page'=> -1,
-					'post_type'		=> 'user-plan',
-					'fields' 		=> 'post_author',
-					'meta_query'	=> $meta_query,
-				));
+					
+				if( !empty($query->query_vars['meta_query']) ){
+					
+					$meta_query = array_merge($meta_query,$query->query_vars['meta_query']);
+				}
 
-				if(!empty($q->posts)){
+				$query->set( 'meta_query', $meta_query);
+				$query->set( 'meta_key', $this->parent->_base . 'period_end');
+				
+				if( 1 == 2 ){
 					
-					$users = [];
+					// filter plan value
+
+					/*
+					$query->set( 'role__not_in', 'Administrator' );	
+
+					$userPlanValue		= 0;
+					$planValueOperator	= '>';
+					$licenseStatus		= 'any';
+
+					*/
 					
-					foreach($q->posts as $post){
+					$userPlanValue		= $this->get_filter_value('userPlanValue');
+					$planValueOperator	= $this->get_filter_value('planValueOperator');
+					$licenseStatus		= $this->get_filter_value('licenseStatus');			
+					
+					$comparition = [];
+					
+					$comparition['=']['operator']	= '!=';
+					$comparition['=']['action']		= 'exclude';
+					
+					$comparition['>']['operator']	= '>';
+					$comparition['>']['action']		= 'include';
+					
+					$comparition['<']['operator']	= '>=';
+					$comparition['<']['action']		= 'exclude';			
+
+					if( !is_null($userPlanValue) && $userPlanValue > -1 ){
+
+						$meta_query = array();
 						
-						$users[] = $post->post_author;
+						$meta_query[] = array(
+						
+							'key'		=> 'userPlanValue',
+							'value'		=> $userPlanValue,
+							'type'		=> 'NUMERIC',
+							'compare'	=> $comparition[$planValueOperator]['operator']
+						);
+						
+						$q = new WP_Query(array(
+						
+							'posts_per_page'=> -1,
+							'post_type'		=> 'user-plan',
+							'fields' 		=> 'post_author',
+							'meta_query'	=> $meta_query,
+						));
+
+						if(!empty($q->posts)){
+							
+							$users = [];
+							
+							foreach($q->posts as $post){
+								
+								$users[] = $post->post_author;
+							}
+							
+							$query->set( $comparition[$planValueOperator]['action'], $users);
+						}
+						else{
+							
+							$query->set( 'meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
+						}
 					}
 					
-					$query->set( $comparition[$planValueOperator]['action'], $users);
+					if( !is_null($licenseStatus) && $licenseStatus == 'running' ){
+						
+						$query->set( 'meta_key', $this->parent->_base . 'period_end' );
+						$query->set( 'meta_value', time() );
+						$query->set( 'meta_compare', '>' );
+					}
 				}
-				else{
-					
-					$query->set( 'meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
-				}
-			}
-			
-			if( !is_null($licenseStatus) && $licenseStatus == 'running' ){
-				
-				$query->set( 'meta_key', $this->parent->_base . 'period_end' );
-				$query->set( 'meta_value', time() );
-				$query->set( 'meta_compare', '>' );
 			}
 			
 			return $query;

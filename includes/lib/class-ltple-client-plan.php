@@ -1075,6 +1075,21 @@ class LTPLE_Client_Plan {
 		return $plans;		
 	}
 	
+	public function flush_user_plan($user_id){
+		
+		if( $plan_id = $this->get_user_plan_id( $user_id, true ) ){
+			
+			wp_delete_post( $plan_id, true );
+		}
+		
+		delete_user_meta( $user_id , $this->parent->_base . 'user_plan_options');
+		delete_user_meta( $user_id , $this->parent->_base . 'period_end');
+
+		update_user_meta( $user_id , 'has_subscription', 'false');
+	
+		return true;
+	}
+	
 	public function get_user_plan_id( $user_id, $create=false, $tax_query = array() ){	
 	
 		// get user plan id
@@ -2254,7 +2269,7 @@ class LTPLE_Client_Plan {
 		
 		return 0;
 	}
-	
+		
 	public function user_has_layer( $item ){
 		
 		$user_has_layer = false;

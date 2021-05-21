@@ -112,31 +112,29 @@
 			
 								if( $user_plan['holder'] == $this->parent->user->ID ){
 							
-									$plan_usage = $this->parent->plan->get_user_plan_usage( $this->parent->user->ID );
+									if( empty($this->parent->user->period_end) ){
 							
-									echo '<div style="margin-bottom:20px;background: rgb(248, 248, 248);display:block;padding:20px;text-align:left;border-left: 5px solid #888;">';
-										
-										echo'<b>Price</b>: ' . $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].' / '.$user_plan['info']['total_price_period'] . '<br/>';
-										
-									echo '</div>';
-									
-									echo $this->parent->plan->get_plan_table($user_plan,$plan_usage);
-
-									echo'<hr>';
-									
-									echo '<div class="panel panel-default">';
-								
-										echo '<div class="panel-heading"><b>License & Payment</b></div>';
-										
-										echo '<div class="panel-body">';								
-				
-											echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->parent->assets_url . '/loader.gif\');height:64px;"></div>';
-				
-											echo '<iframe src="' . $this->parent->server->url . '/agreement/?overview=' . $this->parent->ltple_encrypt_uri($this->parent->user->user_email) . '&_='.time().'" style="margin-top: -65px;position:relative;top:0;bottom:0;width:100%;height:500px;overflow:hidden;border:0;"></iframe>';
+										echo '<div class="alert alert-warning">Your license is expired, please renew it via the plan page or contact us...</div>';
+									}
+									else{
 											
+										$plan_usage = $this->parent->plan->get_user_plan_usage( $this->parent->user->ID );
+
+										if( $this->parent->user->remaining_days < 0 ){
+							
+											echo '<div class="alert alert-warning">Your license could not be renewed, please update your card details or contact us...</div>';
+											
+											echo '<hr>';
+										}
+										
+										echo '<div style="margin-bottom:20px;background: rgb(248, 248, 248);display:block;padding:20px;text-align:left;border-left: 5px solid #888;">';
+												
+											echo'<b>Price</b>: ' . $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].' / '.$user_plan['info']['total_price_period'] . '<br/>';
+												
 										echo '</div>';
 										
-									echo '</div>';	
+										echo $this->parent->plan->get_plan_table($user_plan,$plan_usage);
+									}
 								}
 								else{
 									
@@ -148,6 +146,20 @@
 										
 									echo '</div>';									
 								}
+
+								echo '<div class="panel panel-default">';
+							
+									echo '<div class="panel-heading"><b>License & Payment</b></div>';
+									
+									echo '<div class="panel-body">';								
+			
+										echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->parent->assets_url . '/loader.gif\');height:64px;"></div>';
+			
+										echo '<iframe src="' . $this->parent->server->url . '/agreement/?overview=' . $this->parent->ltple_encrypt_uri($this->parent->user->user_email) . '&_='.time().'" style="margin-top: -65px;position:relative;top:0;bottom:0;width:100%;height:500px;overflow:hidden;border:0;"></iframe>';
+										
+									echo '</div>';
+									
+								echo '</div>';
 								
 							echo'</div>';
 							
