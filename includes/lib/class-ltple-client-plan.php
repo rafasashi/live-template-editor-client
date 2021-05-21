@@ -1972,17 +1972,6 @@ class LTPLE_Client_Plan {
 					$period_end = $periods[$user_email];
 					
 					$this->parent->users->update_user_period($user_id,$period_end);
-				
-					$user_has_subscription = 'false';
-					
-					$remaining_days = $this->get_license_remaining_days($period_end);
-					
-					if( $remaining_days > 0 ){
-						
-						$user_has_subscription = 'true';
-					}
-					
-					update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
 				}				
 			}
 			

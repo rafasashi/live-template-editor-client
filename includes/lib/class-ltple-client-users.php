@@ -410,6 +410,23 @@
 			
 				update_user_meta($user_id, $this->parent->_base . 'period_end', $period_end);
 			
+				$user_has_subscription = 'false';
+				
+				$remaining_days = $this->parent->plan->get_license_remaining_days($period_end);
+				
+				if( $remaining_days > 0 ){
+					
+					$user_has_subscription = 'true';
+				}
+				else{
+					
+					// flush plan options
+					
+					update_user_meta( $user_id , $this->parent->_base . 'user_plan_options',[]);
+				}
+				
+				update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
+			
 				return true;
 			}
 			
