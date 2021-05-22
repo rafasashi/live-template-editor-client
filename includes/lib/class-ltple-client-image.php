@@ -396,7 +396,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 											
 											$_SESSION['message'] ='<div class="alert alert-success">';
 													
-												$_SESSION['message'] .= 'Image succefully uploaded to your library.';
+												$_SESSION['message'] .= 'Image successfully uploaded to your library.';
 
 											$_SESSION['message'] .='</div>';	
 										}										
@@ -504,7 +504,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 							
 								$_SESSION['message'] ='<div class="alert alert-success">';
 									
-									$_SESSION['message'] .= 'Congratulations! Image url succefully added to your library.';
+									$_SESSION['message'] .= 'Congratulations! Image url successfully added to your library.';
 
 								$_SESSION['message'] .='</div>';	
 							}

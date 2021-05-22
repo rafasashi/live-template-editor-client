@@ -82,16 +82,14 @@
 
 									// delete button
 									
-									echo '<a style="border:none;background:#f44336;margin-left:2px;color:#fff;" class="btn btn-sm" href="#removeCurrentTpl" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</a>';
+									echo '<button style="border:none;background:#f44336;margin-left:2px;color:#fff;" class="btn btn-sm" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</button>';
 								
-									echo'<div style="display:none;" id="removeCurrentTpl" title="Remove current template">';
+									echo'<div style="display:none;text-align:center;" id="removeCurrentTpl" title="Remove current template">';
 										
-										echo '<h4>Are you sure you want to delete this ' . $ltple->layer->get_storage_name($ltple->layer->layerStorage) . '?</h4>';						
+										echo '<div class="alert alert-danger">Are you sure you want to delete this ' . $ltple->layer->get_storage_name($ltple->layer->layerStorage) . '?</div>';						
 
-										echo '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&postAction=delete&confirmed">Yes</a>';
+										echo '<a target="_self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&postAction=delete&confirmed=self">Delete permanently</a>';
 										
-										//echo '<button style="margin:10px;" type="button" class="btn btn-xs btn-danger ui-button ui-widget" role="button" title="Close"><span class="ui-button-text">No</span></button>';
-
 									echo'</div>';						
 								}
 								

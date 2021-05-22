@@ -239,9 +239,27 @@ class LTPLE_Client_Editor {
 							},
 							success	: function(data){
 								
-								// display message
+								data = JSON.parse(data);
 								
-								$.notify( data, {
+								if( typeof data.message != typeof undefined ){
+									
+									// object response
+									
+									var message = data.message;
+									
+									if( typeof data.callback != typeof undefined ){
+										
+										eval(data.callback);
+									}							
+								}							
+								else{
+									
+									// text response
+									
+									var message = data;
+								}
+							
+								$.notify( message, {
 									
 									className: "success",
 									position: "top center"

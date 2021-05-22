@@ -327,11 +327,11 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				$action = '<button data-toggle="dialog" data-target="#quickRemoveApp' . ( $i + 1 ) . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</button>';
 
-				$action .= '<div style="display:none;" id="quickRemoveApp' . ( $i + 1 ) . '" title="Remove App #' . $app->ID . '">';
+				$action .= '<div style="display:none;text-align:center;" id="quickRemoveApp' . ( $i + 1 ) . '" title="Remove App #' . $app->ID . '">';
 					
-					$action .=  '<h4>Are you sure you want to delete this app?</h4>';						
+					$action .=  '<div class="alert alert-danger">Are you sure you want to delete this app?</div>';						
 
-					$action .=  '<a style="margin:10px;" class="btn btn-xs btn-success" href="' . add_query_arg( array( 'deleteApp' => $app->ID , 'confirmed' => md5($app->ID)),$referer) . '" target="_self">Yes</a>';
+					$action .=  '<a data-toggle="action" data-refresh="self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . add_query_arg( array( 'deleteApp' => $app->ID , 'confirmed' => md5($app->ID)),$referer) . '">Delete permanently</a>';
 					
 				$action .= '</div>';				
 

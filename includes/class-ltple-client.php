@@ -1585,7 +1585,7 @@ class LTPLE_Client {
 					// get layer type
 					
 					$layer_type = $this->layer->get_layer_type($this->user->layer);
-					
+
 					//delete images
 					
 					foreach ($images as $image) {
@@ -1607,7 +1607,22 @@ class LTPLE_Client {
 					
 					// output message
 					
-					$this->exit_message('Template successfully deleted!',200);
+					if( $_GET['confirmed'] == 'self' ){
+					
+						$_SESSION['message'] ='<div class="alert alert-success">';
+								
+							$_SESSION['message'] .= 'Template successfully deleted.';
+
+						$_SESSION['message'] .='</div>';	
+					
+						wp_redirect($this->urls->dashboard . '?list=' . $layer_type->storage);
+						exit;
+					}
+					else{
+						
+						$this->exit_message('Template successfully deleted!',200);
+						
+					}
 				}
 			}
 			elseif( isset($_POST['postAction']) && $_POST['postAction'] == 'download' ){
