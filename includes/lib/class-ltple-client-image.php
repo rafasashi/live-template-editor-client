@@ -162,16 +162,20 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	
 	public function do_admin_action(){
 		
-		if( !empty($_POST['imgData']) && !empty($_POST['postId']) ){
+		if( !empty($_POST['postId']) && current_user_can('edit_posts') ){
 			
-			if( current_user_can('edit_posts') ){
-				
-				$source = 'screenshot';
+			$source = 'screenshot';
+			
+			if( !empty($_POST['imgData']) ){
 				
 				echo LTPLE_Editor::upload_base64_image($_POST['postId'],$source,$_POST['imgData'],$source);
-				
-				exit;
 			}
+			elseif( !empty($_POST['imgUrl']) ){
+
+				echo LTPLE_Editor::upload_image_url($_POST['postId'],$source,$_POST['imgUrl'],$source);
+			}
+			
+			exit;
 		}
 	}
 	

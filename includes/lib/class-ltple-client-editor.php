@@ -988,7 +988,7 @@ class LTPLE_Client_Editor {
 									
 										console.error(screenshotUrl + " error");
 									},
-									success: function(imgData) {
+									success: function(imgUrl) {
 
 										$.ajaxQueue({
 											
@@ -997,7 +997,7 @@ class LTPLE_Client_Editor {
 											data  		: {
 												
 												postId	: id,
-												imgData	: "image/png;base64," + imgData
+												imgUrl	: imgUrl
 											},
 											cache		: false,
 											xhrFields	: {
