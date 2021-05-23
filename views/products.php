@@ -48,9 +48,9 @@
 					
 					if( !empty($q) ){
 						
-						echo'<div class="col-md-4" style="min-height:400px;">';
+						echo'<div class="col-md-4" style="height:500px;">';
 
-							echo'<h2 style="background: #eee;padding: 10px;font-size: 25px;color: #8aceec;">';
+							echo'<h2 style="background: #eee;padding: 10px;font-size: 25px;">';
 							
 								echo ucfirst($term->name);
 							
@@ -63,8 +63,15 @@
 									echo '<div class="col-xs-3">';
 									
 										echo '<a class="thumbnail" href="' . get_permalink($post) . '">';
-									
-											echo get_the_post_thumbnail($post->ID, array(150,150));
+					
+											// get image thumb
+					
+											if( !$thumb = get_the_post_thumbnail($post->ID, array(150,150)) ){
+												
+												$thumb = '<div style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width:75px;height:75px;display:block;"></div>';
+											}
+												
+											echo $thumb;
 									
 										echo'</a>';
 									
