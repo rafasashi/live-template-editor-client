@@ -211,6 +211,30 @@ class LTPLE_Client_Dashboard {
 		
 		$new_templates = '';
 		
+		// get included type
+		
+		$layer_types = get_terms( 'layer-type', array(
+		
+			'fields' 		=> 'ids', 
+			'hide_empty' 	=> false,
+			'meta_query' 	=> array(
+			
+				array(
+					'key' 			=> 'visibility',
+					'value' 		=> 'anyone',
+					'compare' 		=> '=',
+				)
+			),
+		));	
+
+		// get included ranges
+		
+		$layer_ranges = get_terms( 'layer-range', array(
+		
+			'fields' 		=> 'ids', 
+			'hide_empty' 	=> false
+		));
+
 		if( $posts = get_posts(array(
 						
 			'post_type' 	=> 'cb-default-layer',
@@ -227,16 +251,14 @@ class LTPLE_Client_Dashboard {
 				)
 			),
 			'tax_query' => array(
-				/*
 				array(
 					'taxonomy' => 'layer-type',
-					'terms'    => get_terms( 'layer-type', [ 'fields' => 'ids'  ] ),
+					'terms'    => $layer_types,
 					'operator' => 'IN'
 				),
-				*/
 				array(
 					'taxonomy' => 'layer-range',
-					'terms'    => get_terms( 'layer-range', [ 'fields' => 'ids'  ] ),
+					'terms'    => $layer_ranges,
 					'operator' => 'IN'
 				)
 			)
