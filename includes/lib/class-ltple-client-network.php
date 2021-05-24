@@ -29,7 +29,7 @@ class LTPLE_Client_Network extends LTPLE_Client_Object {
 			'show_in_nav_menus' 	=> false,
 			'show_tagcloud' 		=> false,
 			'meta_box_cb' 			=> null,
-			'show_admin_column' 	=> false,
+			'show_admin_column' 	=> true,
 			'update_count_callback' => '',
 			'show_in_rest'          => false,
 			'rewrite' 				=> true,

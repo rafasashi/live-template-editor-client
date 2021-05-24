@@ -2721,7 +2721,7 @@ class LTPLE_Client {
 
 			wp_register_script($this->_token . '-notify', esc_url( $this->assets_url ) . 'js/notify.js', array( 'jquery' ), $this->_version);
 			wp_enqueue_script( $this->_token . '-notify' );
-		}			
+		}
 		
 		wp_register_script($this->_token . '-client-ui', esc_url( $this->assets_url ) . 'js/client-ui.js', array( 'jquery', 'jquery-ui-dialog' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-client-ui' );		

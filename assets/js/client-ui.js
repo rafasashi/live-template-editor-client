@@ -47,6 +47,15 @@
 
 			return promise;
 		};
+		
+		function append_url_parameter(url,key,value){
+			
+			// get separator
+								
+			var separator = (url.indexOf("?")===-1) ? "?" : "&";
+								
+			return url + separator + key + "=" + value;
+		}
 
 		//responsive menu
 		
@@ -126,8 +135,10 @@
 							
 							if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
 							
-								//console.log(iframeSrc);
-							
+								// prevent browser caching
+
+								iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
+
 								modalIframe.attr("src", iframeSrc).on('load',function(){
 									
 									// get input id
@@ -203,6 +214,35 @@
 				});
 			}			
 		}
+		
+		function set_iframes(){
+			
+			if( $('iframe').length > 0 ){
+				
+				var $iframe = $('iframe');
+				
+				var iframeSrc = $iframe.attr("src");
+				
+				if(typeof iframeSrc == typeof undefined || iframeSrc == false){
+					
+					iframeSrc = $iframe.attr("data-src");
+					
+					if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
+					
+						// prevent browser caching
+
+						iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
+
+						$iframe.attr("src", iframeSrc).on('load',function(){
+							
+							// do something
+							
+						});
+					}
+				}
+			}
+		}
+				
 		
 		function set_collapsibles(){
 			
@@ -398,7 +438,9 @@
 								
 								if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
 								
-									//console.log(iframeSrc);
+									// prevent browser caching
+
+									iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
 
 									dialogIframe.attr("src", iframeSrc).on('load',function(){
 										
@@ -444,7 +486,7 @@
 													e.stopPropagation();
 													
 													// get media src
-													
+													 
 													var mediaSrc = window.location.origin + '/image-proxy.php?url=' + encodeURIComponent( $(this).attr("data-src") );
 
 													// get editor iframe
@@ -516,6 +558,8 @@
 		set_actionables();
 		
 		set_modals();
+		
+		set_iframes();
 						
 		// lazyload images on scroll
 		
