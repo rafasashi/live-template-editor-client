@@ -666,7 +666,7 @@ class LTPLE_Client_Profile {
 					
 						foreach( $fields as $field ){
 
-							echo '<div style="width:100px;display:inline-block;font-weight:bold;">'.$field['label'].'</div>';
+							echo '<div style="width:150px;display:inline-block;font-weight:bold;">'.$field['label'].'</div>';
 							
 							$this->parent->admin->display_field(array(
 								

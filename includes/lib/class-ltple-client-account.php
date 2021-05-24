@@ -59,7 +59,7 @@ class LTPLE_Client_Account {
 		if( is_null($this->notificationSettings) ){
 			
 			if( !empty($this->parent->user->notify) ){
-			
+				
 				$descriptions = $this->parent->email->get_notification_settings('description');
 				
 				foreach( $this->parent->user->notify as $key => $value ){

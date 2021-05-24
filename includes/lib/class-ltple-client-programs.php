@@ -50,7 +50,7 @@
 						
 							foreach($this->list as $slug => $name){
 								
-								echo '<div style="width:100px;display:inline-block;font-weight:bold;">'.$name.'</div>';
+								echo '<div style="width:150px;display:inline-block;font-weight:bold;">'.$name.'</div>';
 								
 								echo '<label class="switch" for="user-program-'.$slug.'">';
 									

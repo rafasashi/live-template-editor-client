@@ -204,22 +204,34 @@
 								echo'<div class="col-xs-12 col-sm-8">';
 
 									echo'<table class="form-table">';
+									
+										$labels = array();
 										
 										foreach( $fields as $field ){
 											
+											$label = $field['label'];
+											
+											$labels[$label][] = $field;
+										}
+										
+										foreach( $labels as $label => $fields ){
+											
 											echo'<tr>';
 											
-												echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
-												
-												echo'<td style="padding:20px;">';
-												
-													$this->parent->admin->display_field( $field , $this->parent->user );
-												
-												echo'</td>';
+												echo'<th><label for="'.$label.'">'.ucfirst($label).'</label></th>';
+										
+												foreach( $fields as $field ){
+
+													echo'<td style="padding:20px;">';
+														
+														$this->parent->admin->display_field( $field , $this->parent->user );
+														
+													echo'</td>';
+												}
 												
 											echo'</tr>';
 										}
-										
+
 									echo'</table>';
 									
 								echo'</div>';

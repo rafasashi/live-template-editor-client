@@ -344,7 +344,6 @@
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
 					add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
 
-					//add_filter( 'pre_get_users', array( $this, 'filter_users_by_last_seen') );
 					//add_filter( 'pre_get_users', array( $this, 'filter_users_by_role') );
 				}				
 			}
@@ -870,8 +869,8 @@
 				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
-				$this->list->{$user_id}->can_spam 	= isset($meta[$this->parent->_base . '_can_spam']) ? $meta[$this->parent->_base . '_can_spam'] : '';
-				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : '';
+				$this->list->{$user_id}->can_spam 	= isset($meta[$this->parent->_base . '_can_spam']) ? $meta[$this->parent->_base . '_can_spam'] : 'false';
+				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : $this->get_user_notification_settings($user_id);
 				$this->list->{$user_id}->sent 		= isset($meta[$this->parent->_base . '_email_sent']) ? $meta[$this->parent->_base . '_email_sent'] : '';
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
 				//$this->list->{$user_id}->claimed	= isset($meta[$this->parent->_base . 'profile_claimed']) && $meta[$this->parent->_base . 'profile_claimed'] == 'false' ? false : true;
@@ -1011,14 +1010,7 @@
 			}
 			elseif ($column_name == "notify") {
 				
-				if( empty($notify) ){
-					
-					$notify = array_merge($this->parent->email->get_notification_settings(),array( 'series' => $can_spam ));
-				}
-				else{
-					
-					$notify = array_merge($this->parent->email->get_notification_settings(),$notify);
-				}
+				$notify = array_merge($this->parent->email->get_notification_settings(),$notify);
 				
 				foreach( $notify as $channel => $can_notify ){
 					
@@ -1130,7 +1122,11 @@
 			
 			if( !$notify = get_user_meta($user_id, $this->parent->_base . 'notify',true) ){
 				
-				if ( !$can_spam = get_user_meta($user_id, $this->parent->_base . '_can_spam',true) ){
+				if( !$last_seen = get_user_meta($user_id, $this->parent->_base . '_last_seen',true)){
+					
+					$can_spam = 'false';
+				}
+				elseif ( !$can_spam = get_user_meta($user_id, $this->parent->_base . '_can_spam',true) ){
 					
 					$can_spam = 'false';
 				}
@@ -1353,72 +1349,6 @@
 			}
 			
 			return $query;
-		}		
-		
-		public function filter_users_by_last_seen( $query ) {
-			
-			$compare = '';
-			
-			if( $this->view == 'guests' ){
-				
-				$compare = 'NOT EXISTS';
-			}
-			elseif( !empty($this->view) ){
-				
-				$compare = 'EXISTS';
-			}
-			
-			if( !empty($compare) ){
-				
-				$meta_query = [];			
-				
-				$meta_query[] = array(
-					
-					'key' 		=> $this->parent->_base . '_last_seen',
-					'compare'	=> $compare,
-				);
-				
-				if( $this->view == 'guests' || $this->view == 'leads' || $this->view == 'newsletter' ){
-					
-					$meta_query[] = array (
-						
-						array(
-						
-							'key' 		=> $this->parent->_base . '_can_spam',
-							'value'		=> 'false',
-							'compare'	=> '!=',
-						)
-					);
-				}
-				elseif( $this->view == 'unsubscribers' ){
-					
-					$meta_query[] = array (
-					
-						'relation' 		=>	'OR',
-						
-						array(
-						
-							'key' 		=> $this->parent->_base . '_can_spam',
-							'value'		=> 'false',
-							'compare'	=> '=',
-						),
-						array(
-					
-							'key' 		=> $this->parent->_base . '_can_spam',
-							'compare'	=> 'NOT EXISTS',
-						)
-					);						
-				}
-
-				if( !empty($query->query_vars['meta_query']) ){
-					
-					$meta_query = array_merge($meta_query,$query->query_vars['meta_query']);
-				}
-				
-				$query->set( 'meta_query', $meta_query);
-			}
-			
-			return $query;
 		}
 		
 		public function filter_users_by_email_subscription( $query ) {
@@ -1427,6 +1357,11 @@
 				
 				$meta_query = array (
 					
+					array(
+					
+						'key' 		=> $this->parent->_base . '_last_seen',
+						'compare'	=> 'EXISTS', 
+					),
 					array(
 					
 						'key'     	=> $this->parent->_base . '_can_spam',
@@ -1726,7 +1661,15 @@
 					
 					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
 
-					$users = $this->get_all_selected_users('id',$s);
+					$users = $this->get_all_selected_users('id',$s,array(
+					
+						array(
+						
+							'key' 		=> $this->parent->_base . '_email_sent',
+							'value' 	=> $model_slug,
+							'compare' 	=> 'NOT LIKE',
+						),
+					));
 				}
 				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 					
