@@ -383,11 +383,15 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 
 			$url = $this->parent->layer->get_preview_image_url($post_id,'post-thumbnail',$this->parent->assets_url . 'images/default-element.jpg');
 			
-			echo '<a class="preview-' . $post_id . '" target="_blank" href="'.$url.'">';
+			echo '<div style="height:100px;margin:5px 0;overflow:auto;">';
+
+				echo '<a class="preview-' . $post_id . '" target="_blank" href="'.$url.'">';
+				
+					echo '<img loading="lazy" style="width:150px;" src="'.$url.'">';
+				
+				echo '</a>';
 			
-				echo '<img loading="lazy" style="width:150px;" src="'.$url.'">';
-			
-			echo '</a>';
+			echo '</div>';
 		}
 
 		return $column_name;
