@@ -217,29 +217,32 @@
 		
 		function set_iframes(){
 			
-			if( $('iframe').length > 0 ){
+			var $iframe = $('iframe');
+			
+			if( $iframe.length > 0 ){
 				
-				var $iframe = $('iframe');
-				
-				var iframeSrc = $iframe.attr("src");
-				
-				if(typeof iframeSrc == typeof undefined || iframeSrc == false){
+				$iframe.each(function() {
 					
-					iframeSrc = $iframe.attr("data-src");
+					var iframeSrc = $(this).attr("src");
 					
-					if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
-					
-						// prevent browser caching
+					if(typeof iframeSrc == typeof undefined || iframeSrc == false){
+						
+						iframeSrc = $(this).attr("data-src");
+						
+						if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
+						
+							// prevent browser caching
 
-						iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
+							iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
 
-						$iframe.attr("src", iframeSrc).on('load',function(){
-							
-							// do something
-							
-						});
+							$(this).attr("src", iframeSrc).on('load',function(){
+								
+								// do something
+								
+							});
+						}
 					}
-				}
+				});
 			}
 		}
 				

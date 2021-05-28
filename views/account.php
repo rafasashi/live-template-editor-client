@@ -114,7 +114,9 @@
 							
 									if( empty($this->parent->user->period_end) ){
 							
-										echo '<div class="alert alert-warning">Your license is expired, please renew it via the plan page or contact us...</div>';
+										echo '<div class="alert alert-warning">There is no active subscription for the moment, please renew your license via the plan page or contact us.</div>';
+									
+										echo '<hr>';
 									}
 									else{
 											

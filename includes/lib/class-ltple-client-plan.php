@@ -220,7 +220,7 @@ class LTPLE_Client_Plan {
 
 			'name' => $plan['title']
 		);
-
+		
 		if( !empty($plan['id']) ){
 			
 			$plan_data['id'] = $plan['id'];
@@ -683,7 +683,7 @@ class LTPLE_Client_Plan {
 													
 													$this->shortcode .= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . '/loader.gif\');"></div>';
 
-													$this->shortcode .= '<iframe data-src="' . get_permalink( $plan_id ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$this->iframe_height.'px;overflow: hidden;"></iframe>';
+													$this->shortcode .= '<iframe data-src="' . get_permalink( $plan_id ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$this->iframe_height . 'px;overflow: hidden;"></iframe>';
 												}
 												else{
 													
@@ -1043,12 +1043,12 @@ class LTPLE_Client_Plan {
 					$plan['back_url'] = $this->parent->urls->current;
 					
 					$plan['info_url'] = get_permalink($layer_id);
-					
+							
 					$plan['agreement_url'] = $this->parse_agreement_url($plan);
 					
 					$plan['action'] = 'buy';
 					
-					$plans[] = $plan;					
+					$plans[] = $plan;				
 				}
 						
 				if( !empty($layer_range) ){
@@ -1792,7 +1792,7 @@ class LTPLE_Client_Plan {
 				
 				$plan['agreement_url'] 	= $this->parse_agreement_url($plan);
 			}
-			
+		
 			$this->subscription_plans[$plan_id] = $plan;
 		}
 		
@@ -2421,7 +2421,7 @@ class LTPLE_Client_Plan {
 			$total_price_amount = $this->parent->user->plan['info']['total_price_amount'];
 			
 			$plan_options = get_post_meta( $plan_id, 'plan_options', true );	
-				
+			
 			if(!empty($plan_options)){
 				
 				// get new_plan_options
@@ -2431,11 +2431,11 @@ class LTPLE_Client_Plan {
 				$is_ancestor_upgrade = false;
 				
 				foreach($this->parent->user->plan['taxonomies'] as $taxonomy => $tax){
-
+					
 					foreach($tax['terms'] as $term_slug => $new_term){
-
+						
 						if( isset($plan_options[$term_slug]) && $new_term['has_term'] !== true ){
-
+							
 							// get new term value
 							
 							$new_term_value = 0;
@@ -2452,7 +2452,7 @@ class LTPLE_Client_Plan {
 									
 									foreach($this->parent->user->plan['taxonomies'][$taxonomy]['terms'] as $curr_term){
 										
-										if( $curr_term["has_term"] === true ){
+										if( $curr_term['has_term'] === true ){
 											
 											if(term_is_ancestor_of( $new_term['term_id'], $curr_term['term_id'], $taxonomy)){
 												
@@ -2466,11 +2466,12 @@ class LTPLE_Client_Plan {
 									if( $is_ancestor_upgrade ){
 									
 										$new_term_value = $new_term_options['price_amount'] - $this->parent->user->plan['info']['total_price_amount'];
-										
-										if( $new_term_value == 0 ){
+										//dump($new_term_value);
+										if( $new_term_value <= 0 ){
 											
 											$new_term_value = $new_term_options['price_amount'];
 										}
+										
 									}
 								}
 							}
@@ -2482,7 +2483,7 @@ class LTPLE_Client_Plan {
 						}
 					}			
 				}
-			}		
+			}	
 		}
 
 		return $plan_upgrade;
