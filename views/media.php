@@ -280,7 +280,7 @@
 														'description'		=> '',
 														'style'				=> '',
 														
-													), false, false );
+													),false,false);
 													
 													echo '<div class="input-group-btn">';
 														
@@ -347,7 +347,7 @@
 														'description'		=> '',
 														'style'				=> '',
 														
-													), false, false );
+													),false,false);
 													
 													echo '<div class="input-group-btn">';
 														
@@ -417,7 +417,7 @@
 										'description'		=> '',
 										'style'				=> '',
 										
-									), false, false );
+									),false,false);
 									
 								echo'</form>';
 
@@ -498,7 +498,7 @@
 
 												if(!empty($options)){
 
-													echo '<form style="padding:10px;" target="_self" action="'.$this->parent->urls->media . 'user-payment-urls/'.'#' . $app->slug . '" class="saveBookmarkForm" method="post">';
+													echo '<form style="padding:10px;" target="_self" action="' . $this->parent->urls->current . '#' . $app->slug . '" class="saveBookmarkForm" method="post">';
 														
 														echo '<div style="padding-bottom:10px;display:block;">';
 															
@@ -514,7 +514,7 @@
 																'description' 	=> '',
 																'type'			=> 'select',
 																'options'		=> $options,
-															));
+															),false,false);
 															
 															//get parameters
 															
@@ -538,7 +538,7 @@
 																				'description' 	=> '',
 																				'type'			=> 'number',
 																				'placeholder'	=> $value,
-																			));
+																			),false,false);
 																		}
 																		elseif( empty($value) ){
 																			
@@ -550,7 +550,7 @@
 																				'description' 	=> '',
 																				'type'			=> 'text',
 																				'placeholder'	=> $key,
-																			));															
+																			),false,false);															
 																		}
 																		else{
 																			
@@ -574,17 +574,18 @@
 																					'type'			=> 'select',
 																					'options'		=> $options,
 																					'placeholder'	=> '',
-																				));									
+																				),false,false);									
 																			}
 																			else{
-
+																				
 																				echo $this->parent->admin->display_field(array(
 													
 																					'id' 			=> $key,
 																					'type'			=> 'hidden',
-																					'value'			=> $value,
+																					'data'			=> $value,
 																					'description'	=> '',
-																				));																	
+																					
+																				),false,false);
 																			}
 																		}
 																	}
@@ -602,7 +603,8 @@
 																				'description' 	=> '',
 																				'type'			=> 'number',
 																				'placeholder'	=> $value,
-																			));
+																			
+																			),false,false);
 																		}								
 																	}
 																}
@@ -615,12 +617,12 @@
 
 															echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
 															
-															echo '<div style="display:block;">';
-									
-																echo '<button class="btn btn-primary btn-sm" type="button">Add link</button>';
-
-															echo '</div>';												
-													
+															echo '<div style="display:block;margin-top:5px;">';
+																
+																echo '<input class="btn btn-primary btn-sm" type="submit" value="Add link" />';
+															
+															echo '</div>';
+															
 														echo '</div>';
 													
 													echo '</form>';
@@ -633,7 +635,7 @@
 											
 											echo'<div class="col-xs-12 col-sm-8 col-lg-9">';
 												
-												echo '<table class="table table-striped panel-default">';
+												echo '<table class="table-striped panel-default">';
 												echo '<tbody>';								
 												
 													if(!empty($bookmarks[$app->slug])){

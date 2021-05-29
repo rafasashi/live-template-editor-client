@@ -78,16 +78,25 @@ class LTPLE_Integrator_Bookmark {
 	
 		$args 		= [];
 		$filename 	= '';
-
+		
 		if( isset($parameters['key']) ){
 
 			foreach($parameters['key'] as $i => $key){
 				
-				if(isset($request[$key])){
+				if( isset($request[$key]) ){
 				
 					if( $parameters['input'][$i] == 'parameter' ){
 						
-						$args[$key] = trim(esc_html($request[$key]));
+						$value = trim(esc_html($request[$key]));
+
+						$args[$key] = $value;
+						
+						if( substr($key,0,3) == 'not' ){
+							
+							// move key to first position to prevent bug where "&not" is replaced by "¬"
+							
+							$args = array_merge([$key=>$args[$key]],$args);
+						}						
 					}
 					elseif($parameters['input'][$i] == 'folder'){
 						
@@ -101,8 +110,8 @@ class LTPLE_Integrator_Bookmark {
 			}
 		}
 		
-		$bookmark_url = add_query_arg( $args, $bookmark_url.$filename );
-		
+		$bookmark_url = add_query_arg( $args, $bookmark_url . $filename );
+
 		return $bookmark_url;
 	}
 	
@@ -118,11 +127,11 @@ class LTPLE_Integrator_Bookmark {
 				
 				wp_delete_post( $bookmark->ID, true );
 				
-				$this->message ='<div class="alert alert-success">';
+				$_SESSION['message'] ='<div class="alert alert-success">';
 
-					$this->message .= 'Bookmark url successfully deleted!';
+					$_SESSION['message'] .= 'Bookmark url successfully deleted!';
 
-				$this->message .='</div>';
+				$_SESSION['message'] .='</div>';
 			}
 		}
 	}
@@ -130,61 +139,36 @@ class LTPLE_Integrator_Bookmark {
 	public function appAddBookmark(){
 
 		if(!empty($_REQUEST['id'])){
-
+			
 			if( $this->app = $this->parent->apps->getAppData( $_REQUEST['id'], $this->parent->user->ID, true ) ){
 							
 				// get bookmark url
-					
+				
 				$bookmark_url = $this::get_url($this->app,$this->parameters,$_REQUEST);
-				
-				// check bookmark exists
 
-				$ch = curl_init($bookmark_url);
+				// get bookmark title
 				
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); 
-				
-				$result 	= curl_exec($ch);
-				$httpcode 	= curl_getinfo($ch, CURLINFO_HTTP_CODE);
-				
-				curl_close($ch);
-				
-				if( $httpcode >= 300 ){
+				if( !empty($_POST['bookmarkTitle']) ){
 					
-					$this->message .= '<div class="alert alert-warning">';
-						
-						$this->message .= 'Resource not reachable...';
-							
-					$this->message .= '</div>';						
+					$bookmark_title	= sanitize_text_field($_POST['bookmarkTitle']);
 				}
 				else{
+					
+					$bookmark_title	= basename($bookmark_url);
+				}
 				
-					// get bookmark title
+				// insert bookmark
+				
+				if($bookmark_id = wp_insert_post(array(
+			
+					'post_author' 	=> $this->parent->user->ID,
+					'post_title' 	=> $bookmark_title,
+					'post_content' 	=> $bookmark_url,
+					'post_type' 	=> 'user-bookmark',
+					'post_status' 	=> 'publish'
+				))){
 					
-					if( !empty($_POST['bookmarkTitle']) ){
-						
-						$bookmark_title	= sanitize_text_field($_POST['bookmarkTitle']);
-					}
-					else{
-						
-						$bookmark_title	= basename($bookmark_url);
-					}
-					
-					// insert bookmark
-					
-					if(!get_page_by_title( $bookmark_title, OBJECT, 'user-bookmark' )){
-						
-						if($bookmark_id = wp_insert_post(array(
-					
-							'post_author' 	=> $this->parent->user->ID,
-							'post_title' 	=> $bookmark_title,
-							'post_content' 	=> $bookmark_url,
-							'post_type' 	=> 'user-bookmark',
-							'post_status' 	=> 'publish'
-						))){
-							
-							wp_set_object_terms( $bookmark_id, $this->term->term_id, 'app-type' );
-						}
-					}
+					wp_set_object_terms( $bookmark_id, $this->term->term_id, 'app-type' );
 				}
 			}
 		}
@@ -246,13 +230,18 @@ class LTPLE_Integrator_Bookmark {
 			}
 			
 			$ch = curl_init($resourceUrl);
+			
 			curl_setopt($ch, CURLOPT_HEADER, true);    // we want headers
 			curl_setopt($ch, CURLOPT_NOBODY, true);    // we don't need body
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
 			curl_setopt($ch, CURLOPT_TIMEOUT,10);
+			
 			//curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+			
 			$output = curl_exec($ch);
+			
 			$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			
 			curl_close($ch);
 			
 			if( $httpcode >= 400 ){

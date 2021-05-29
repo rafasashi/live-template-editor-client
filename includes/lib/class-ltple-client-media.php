@@ -729,21 +729,19 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				$item.='<div class="col-xs-8 col-sm-8 col-lg-9">';
 
 					$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $bookmark_title . '</b>';
-					$item.='<br>';
+					
 					$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $bookmark->post_content .'" />';
 
 				$item.='</div>';
 				
-				$item.='<div class="col-xs-2 col-sm-2 col-lg-2">';
+				$item.='<div class="col-xs-2 col-sm-2 col-lg-2" style="margin-top:10px;">';
 				
 					if($this->parent->inWidget){
 
-						$item.='<a style="display:block;margin-top:11px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$bookmark->post_content.'">Insert</a>';
+						$item.='<a style="display:inline-block;margin-top:5px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$bookmark->post_content.'">Insert</a>';
 					}
-					else{
-						
-						$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-payment-urls/?id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider.'" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
-					}
+					
+					$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-payment-urls/?id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider . ( $this->parent->inWidget ? '&output=widget' : '' ) . '" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
 				
 				$item.='</div>';
 				

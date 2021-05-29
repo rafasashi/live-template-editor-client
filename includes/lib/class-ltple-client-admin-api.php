@@ -39,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		 * @param  boolean $echo  Whether to echo the field HTML or return it
 		 * @return void
 		 */
-		public function display_field ( $data = array(), $item = false, $echo = true ){
+		public function display_field( $data = array(), $item = false, $echo = true ){
 
 			// Get field info
 			

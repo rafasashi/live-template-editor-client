@@ -2466,12 +2466,11 @@ class LTPLE_Client_Plan {
 									if( $is_ancestor_upgrade ){
 									
 										$new_term_value = $new_term_options['price_amount'] - $this->parent->user->plan['info']['total_price_amount'];
-										//dump($new_term_value);
+										
 										if( $new_term_value <= 0 ){
 											
 											$new_term_value = $new_term_options['price_amount'];
 										}
-										
 									}
 								}
 							}
