@@ -89,14 +89,7 @@ class LTPLE_Integrator_Bookmark {
 						
 						$value = trim(esc_html($request[$key]));
 
-						$args[$key] = $value;
-						
-						if( substr($key,0,3) == 'not' ){
-							
-							// move key to first position to prevent bug where "&not" is replaced by "¬"
-							
-							$args = array_merge([$key=>$args[$key]],$args);
-						}						
+						$args[$key] = $value;				
 					}
 					elseif($parameters['input'][$i] == 'folder'){
 						
@@ -109,8 +102,8 @@ class LTPLE_Integrator_Bookmark {
 				}
 			}
 		}
-		
-		$bookmark_url = add_query_arg( $args, $bookmark_url . $filename );
+
+		$bookmark_url = esc_url(add_query_arg( $args, $bookmark_url . $filename ));
 
 		return $bookmark_url;
 	}

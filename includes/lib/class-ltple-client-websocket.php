@@ -13,6 +13,47 @@ class LTPLE_Client_Websocket {
 	public function __construct ( $parent ) {
 
 		$this->parent 	= $parent;
+		
+		//init websocket 
+		
+		add_action( 'wp_loaded', array( $this, 'init' ));	
+	}
+	
+	public function init(){
+	
+		//Add Custom API Endpoints
+		
+		add_action('rest_api_init', function(){
+					
+			register_rest_route( 'ltple-websocket/v1', '/info/', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_websocket_info'),
+			));
+			
+		});
+	}
+	
+	public function get_websocket_info($request){
+		
+		//$referer = $request->get_header( 'referer' );
+		
+		if( !empty($_GET['room']) ){
+			
+			$room = $_GET['room'];
+			
+			$info = array(
+			
+				'url' 	=> 	$this->get_url($room),
+				'room'	=>	$room
+			);
+			
+			// TODO check if server ready
+			
+			return $info;
+		}
+		
+		return false;
 	}
 	
 	public function get_url($room = '1234'){
