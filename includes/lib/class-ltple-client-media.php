@@ -554,7 +554,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						
 						$item.='<div class="text-right">';
 
-							$item.='<a class="btn-sm btn-primary insert_media" href="#" data-src="' . $image_url . '">Insert</a>';
+							$item.='<button class="btn-sm btn-primary insert_media" data-src="' . $image_url . '">Insert</button>';
 
 						$item.='</div>';							
 						
@@ -609,8 +609,6 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 														$item.='<h4 class="modal-title text-left" id="myModalLabel">Image Effects</h4>'.PHP_EOL;
 													
 													$item.='</div>'.PHP_EOL;
-
-													$item.= '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . '/loader.gif\');"></div>';
 
 													$item.= '<iframe data-src="'.$editor_url.'" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';
 
@@ -738,7 +736,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 					if($this->parent->inWidget){
 
-						$item.='<a style="display:inline-block;margin-top:5px;" class="btn-sm btn-primary insert_media" href="#" data-src="'.$bookmark->post_content.'">Insert</a>';
+						$item.='<button style="display:inline-block;margin-top:5px;" class="btn-sm btn-primary insert_media" data-src="'.$bookmark->post_content.'">Insert</button>';
 					}
 					
 					$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-payment-urls/?id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider . ( $this->parent->inWidget ? '&output=widget' : '' ) . '" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';

@@ -368,13 +368,11 @@ class LTPLE_Client_Editor {
 			echo '<button style="margin-left:2px;margin-right:2px;border:none;background:#9C27B0;color:#fff;" id="elementsBtn" class="btn btn-sm pull-left" href="#" data-toggle="dialog" data-target="#LiveImgEditorElements" data-height="450" data-width="75%" data-resizable="false">Insert</button>';
 	
 			echo '<div id="LiveImgEditorElements" title="Elements library" style="display:none;">'; 
-			echo '<div id="LiveImgEditorElementsPanel">';
-				
-				echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->parent->assets_url . '/loader.gif\');height:64px;"></div>';
-				
-				echo'<iframe data-src="' . $this->parent->urls->media . '?output=widget" style="border:0;width:100%;height:100%;position:absolute;top:0;bottom:0;right:0;left:0;"></iframe>';
-				
-			echo '</div>';
+				echo '<div id="LiveImgEditorElementsPanel">';
+					
+					echo'<iframe data-src="' . $this->parent->urls->media . '?output=widget" style="border:0;width:100%;height:100%;position:absolute;top:0;bottom:0;right:0;left:0;"></iframe>';
+					
+				echo '</div>';
 			echo '</div>';										
 		}
 	}
@@ -541,7 +539,7 @@ class LTPLE_Client_Editor {
 						
 						$editor .= '<div id="media_library_container"></div>';
 						$editor .= '<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . 'loader.gif\');height:64px;"></div>';
-						$editor .= '<iframe id="media_library_iframe" src="" data-src="' . $this->parent->urls->media . '?output=widget" style="' . $iframe_css . '"></iframe>';
+						$editor .= '<iframe id="media_library_iframe" data-src="' . $this->parent->urls->media . '?output=widget" style="' . $iframe_css . '"></iframe>';
 					
 					$editor .= '</div>';
 				$editor .= '</div>';

@@ -2363,7 +2363,7 @@ class LTPLE_Client {
 
 		if( !empty($this->settings->navbarColor) ){
 			
-			$style .=' .navbar{';
+			$style .=' .navbar, .tinynav {';
 				
 				$style .='background:'.$this->settings->navbarColor.' !important;';
 				

@@ -134,13 +134,21 @@
 							iframeSrc = modalIframe.attr("data-src");
 							
 							if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
-							
+								
+								// show loader
+
+								modalIframe.addClass('svgLoader');
+
 								// prevent browser caching
 
 								iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
 
 								modalIframe.attr("src", iframeSrc).on('load',function(){
 									
+									// hide loader
+
+									modalIframe.removeClass('svgLoader');
+
 									// get input id
 											
 									var inputId = modalIframe.attr("data-input-id");
@@ -217,7 +225,7 @@
 		
 		function set_iframes(){
 			
-			var $iframe = $('iframe');
+			var $iframe = $('iframe:visible');
 			
 			if( $iframe.length > 0 ){
 				
@@ -228,17 +236,22 @@
 					if(typeof iframeSrc == typeof undefined || iframeSrc == false){
 						
 						iframeSrc = $(this).attr("data-src");
-						
+
 						if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
-						
+							
+							// show loader
+
+							$(this).addClass('svgLoader');
+
 							// prevent browser caching
 
 							iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
 
 							$(this).attr("src", iframeSrc).on('load',function(){
 								
-								// do something
-								
+								// hide loader
+
+								$(this).removeClass('svgLoader');
 							});
 						}
 					}
@@ -438,14 +451,22 @@
 							if(typeof iframeSrc == typeof undefined || iframeSrc == false){
 								
 								iframeSrc = dialogIframe.attr("data-src");
-								
+								console.log('test4',iframeSrc);
 								if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
-								
+									
+									// show loader
+
+									dialogIframe.addClass('svgLoader');
+
 									// prevent browser caching
 
 									iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
 
 									dialogIframe.attr("src", iframeSrc).on('load',function(){
+									
+										// hide loader
+
+										dialogIframe.removeClass('svgLoader');
 										
 										// get input id
 												
@@ -458,7 +479,7 @@
 											dialogIframe.contents().find(".insert_media").off();
 											
 											dialogIframe.contents().find(".insert_media").on("click", function(e){
-
+console.log('test3');
 												e.preventDefault();
 												e.stopPropagation();
 												
@@ -478,9 +499,9 @@
 
 												$dialog.dialog("close");
 											});
-
+											console.log('test1');
 											dialogIframe.contents().find('.table').bind('DOMSubtreeModified',function(event) {
-												
+												console.log('test2');
 												dialogIframe.contents().find(".insert_media").off();
 											
 												dialogIframe.contents().find(".insert_media").on("click", function(e){

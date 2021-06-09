@@ -502,56 +502,30 @@
 			echo '</span>';
 			
 			// add plan value filter
-			
-			// TODO replace by plan type, range, option filters
-			
-			/*
-			if( !$this->view == 'customers' ){
+
+			if( $this->view == 'customers' ){
 			
 				echo '<span>';
-					
-					echo '<label style="padding:7px;float:left;">';
-						echo ' Plan';
-					echo '</label>';
-					
-					$filter = 'planValueOperator';
-					$name = $filter.'1';							
-					
-					echo'<select name="'.$name.'">';
-						echo'<option value="'.htmlentities ('>').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('>')) ? ' selected="selected"' : '').'>'.htmlentities ('>').'</option>';
-						echo'<option value="'.htmlentities ('<').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('<')) ? ' selected="selected"' : '').'>'.htmlentities ('<').'</option>';								
-						echo'<option value="'.htmlentities ('=').'" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('=')) ? ' selected="selected"' : '').'>'.htmlentities ('=').'</option>';
-					echo'</select>';
-					
-					$filter = 'userPlanValue';
-					$name = $filter.'1';
-
-					echo '<input name="'.$name.'" type="number" value="'.( isset($_REQUEST[$name]) ? intval($_REQUEST[$name]) : -1).'" style="width:55px;float:left;">';
-
-					//echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
-				
-				echo '</span>';
-				
-				echo '<span>';
-					
-					echo '<label style="padding:7px;float:left;">';
-						echo ' License';
-					echo '</label>';
 					
 					$filter = 'licenseStatus';
+					
 					$name = $filter.'1';							
 					
 					echo'<select name="'.$name.'">';
-						echo'<option value="any" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('any')) ? ' selected="selected"' : '').'>Any</option>';
-						echo'<option value="running" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('running')) ? ' selected="selected"' : '').'>Running</option>';								
-						//echo'<option value="outdated" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('outdated')) ? ' selected="selected"' : '').'>Outdated</option>';
+						
+						echo'<option value="all" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('all')) ? ' selected="selected"' : '').'>All Subscriptions</option>';
+						
+						echo'<option value="active" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('active')) ? ' selected="selected"' : '').'>Active</option>';								
+						
+						echo'<option value="due" '.( (isset($_REQUEST[$name]) && $_REQUEST[$name] == htmlentities ('due')) ? ' selected="selected"' : '').'>Past Due</option>';
+					
 					echo'</select>';
 
 					echo '<input id="post-query-submit" type="submit" class="button" value="Filter" name="" style="float:left;">';
 				
 				echo '</span>';
 			}
-			*/
+			
 		}
 		
 		public function display_user_updater() {
@@ -898,7 +872,7 @@
 			$row='';
 			
 			if ($column_name == "subscription") { 
-					
+
 				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
 
 					if( $user_plan['info']['total_fee_amount'] > 0 ){
@@ -1423,12 +1397,6 @@
 						'compare' 	=> '=',
 						'value'		=> 'true',
 					),
-					array(
-					
-						'key'     	=> $this->parent->_base . 'period_end',
-						'compare' 	=> '>',
-						'value'		=> strtotime('-0 days'), // exclude past due
-					),
 					/*
 					array(
 					
@@ -1438,6 +1406,28 @@
 					),
 					*/
 				);
+				
+				if( isset($_REQUEST['licenseStatus1']) ){
+					
+					if( $_REQUEST['licenseStatus1'] == 'active' ){
+						
+						$meta_query[] = array(
+					
+							'key'     	=> $this->parent->_base . 'period_end',
+							'compare' 	=> '>',
+							'value'		=> strtotime('-0 days'), // exclude past due
+						);
+					}
+					elseif( $_REQUEST['licenseStatus1'] == 'due' ){
+						
+						$meta_query[] = array(
+					
+							'key'     	=> $this->parent->_base . 'period_end',
+							'compare' 	=> '<',
+							'value'		=> strtotime('-1 days'), // exclude active
+						);						
+					}
+				}
 					
 				if( !empty($query->query_vars['meta_query']) ){
 					
@@ -1446,79 +1436,6 @@
 
 				$query->set( 'meta_query', $meta_query);
 				$query->set( 'meta_key', $this->parent->_base . 'period_end');
-				
-				if( 1 == 2 ){
-					
-					// filter plan value
-
-					/*
-					$query->set( 'role__not_in', 'Administrator' );	
-
-					$userPlanValue		= 0;
-					$planValueOperator	= '>';
-					$licenseStatus		= 'any';
-
-					*/
-					
-					$userPlanValue		= $this->get_filter_value('userPlanValue');
-					$planValueOperator	= $this->get_filter_value('planValueOperator');
-					$licenseStatus		= $this->get_filter_value('licenseStatus');			
-					
-					$comparition = [];
-					
-					$comparition['=']['operator']	= '!=';
-					$comparition['=']['action']		= 'exclude';
-					
-					$comparition['>']['operator']	= '>';
-					$comparition['>']['action']		= 'include';
-					
-					$comparition['<']['operator']	= '>=';
-					$comparition['<']['action']		= 'exclude';			
-
-					if( !is_null($userPlanValue) && $userPlanValue > -1 ){
-
-						$meta_query = array();
-						
-						$meta_query[] = array(
-						
-							'key'		=> 'userPlanValue',
-							'value'		=> $userPlanValue,
-							'type'		=> 'NUMERIC',
-							'compare'	=> $comparition[$planValueOperator]['operator']
-						);
-						
-						$q = new WP_Query(array(
-						
-							'posts_per_page'=> -1,
-							'post_type'		=> 'user-plan',
-							'fields' 		=> 'post_author',
-							'meta_query'	=> $meta_query,
-						));
-
-						if(!empty($q->posts)){
-							
-							$users = [];
-							
-							foreach($q->posts as $post){
-								
-								$users[] = $post->post_author;
-							}
-							
-							$query->set( $comparition[$planValueOperator]['action'], $users);
-						}
-						else{
-							
-							$query->set( 'meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
-						}
-					}
-					
-					if( !is_null($licenseStatus) && $licenseStatus == 'running' ){
-						
-						$query->set( 'meta_key', $this->parent->_base . 'period_end' );
-						$query->set( 'meta_value', time() );
-						$query->set( 'meta_compare', '>' );
-					}
-				}
 			}
 			
 			return $query;
