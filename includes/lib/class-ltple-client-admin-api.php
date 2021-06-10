@@ -1598,7 +1598,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 						// add importer script
 					
-						wp_register_script( $this->parent->_token . '-importer', '', array( 'jquery', 'jquery-ui-dialog' ) );
+						wp_register_script( $this->parent->_token . '-importer', '', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-dialog' ) );
 						wp_enqueue_script( $this->parent->_token . '-importer' );
 						wp_add_inline_script( $this->parent->_token . '-importer', $this->get_importer_script() );
 					}
