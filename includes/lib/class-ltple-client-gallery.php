@@ -551,6 +551,12 @@ class LTPLE_Client_Gallery {
 						}
 						else{
 							
+							// get visibility
+			
+							$visibility = $this->parent->layer->get_layer_visibility($post);
+							
+							$show_preview = ( $visibility == 'anyone' || $visibility == 'registered' || ( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post ) === true )) ? true : false;
+							
 							// info button
 							
 							$item.='<a target="_parent" class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $info_url . '" title="More info about '. $post_title .' template">Info</a>';
@@ -581,7 +587,7 @@ class LTPLE_Client_Gallery {
 									  
 										$item.='<div class="modal-body">'.PHP_EOL;
 											
-											if( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post ) === true ){
+											if( $show_preview === true ){
 												
 												$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 145px);overflow: hidden;"></iframe>';											
 											}
@@ -606,19 +612,23 @@ class LTPLE_Client_Gallery {
 
 										$item.='<div class="modal-footer">'.PHP_EOL;
 										
+											// get actions
+			
 											if( $this->parent->user->loggedin ){
 
-												$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
+												$actions ='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
 											}
 											else{
 												
-												$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+												$actions ='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 												
-													$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
+													$actions.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 											
-												$item.='</button>'.PHP_EOL;								
+												$actions.='</button>'.PHP_EOL;								
 											}
 											
+											$item.= apply_filters('ltple_layer_preview_actions',$actions,$post,$show_preview);
+										
 										$item.='</div>'.PHP_EOL;
 									  
 									$item.='</div>'.PHP_EOL;

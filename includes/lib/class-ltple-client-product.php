@@ -320,8 +320,6 @@ class LTPLE_Client_Product {
 						
 						$button.='<div class="modal-body" style="padding:0px;">'.PHP_EOL;
 
-							$button.= '<div class="loadingIframe" style="position:absolute;height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . '/loader.gif\');"></div>';
-
 							$button.= '<iframe data-src="'.$checkout_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 60px);overflow: hidden;"></iframe>';
 						
 						$button.='</div>'.PHP_EOL;

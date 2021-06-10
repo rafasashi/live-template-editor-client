@@ -271,7 +271,7 @@
 							
 							echo'<div class="col-xs-12 col-sm-2 text-right">';
 								
-								echo'<a target="_blank" class="label label-success" style="font-size: 13px;" href="'.$this->parent->urls->apps . '">+ add accounts</a>';
+								echo'<a class="label label-success" style="font-size: 13px;" href="'.$this->parent->urls->apps . '">+ add accounts</a>';
 								
 							echo'</div>';							
 							

@@ -6,7 +6,7 @@
 	}
 	
 	$visibility = $this->parent->layer->get_layer_visibility( $this->ID );
-		
+	
 	if( $visibility != 'assigned' || $this->parent->user->is_admin || $this->parent->user->has_layer ){
 				
 		$permalink 		= $this->parent->urls->home . '/preview/' . $this->post_name . '/';
@@ -41,6 +41,8 @@
 		
 		$has_layer 		= $this->parent->plan->user_has_layer( $this );
 		
+		$show_preview 	= ( $visibility == 'anyone' || $visibility == 'registered' || ( $this->parent->user->loggedin && $has_layer === true ) ) ? true : false;
+	
 		$from_amount = null;
 		
 		if( !$has_layer ){
@@ -138,7 +140,7 @@
 										  
 											echo'<div class="modal-body">'.PHP_EOL;
 												
-												if( $this->parent->user->loggedin && $has_layer === true ){
+												if( $show_preview === true ){
 													
 													echo '<iframe data-src="'.$permalink.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow:hidden;"></iframe>';											
 												}
@@ -157,16 +159,18 @@
 											
 												if( $this->parent->user->loggedin  && $has_layer === true ){
 
-													echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
+													$actions = '<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
 												}
 												else{
 													
-													echo '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+													$actions =  '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 							
-														echo '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
+														$actions .=  '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
 											
-													echo '</button>'.PHP_EOL;
+													$actions .=  '</button>'.PHP_EOL;
 												}
+												
+												echo apply_filters('ltple_layer_preview_actions',$actions,$this,$show_preview);
 												
 											echo'</div>'.PHP_EOL;
 										  

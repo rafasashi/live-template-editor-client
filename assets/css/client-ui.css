@@ -1423,6 +1423,7 @@ th input, th select {
 }
 
 .ui-widget.ui-widget-content {
+	z-index:9999;
     border: none;
     padding: 0;
     border-radius: 0;

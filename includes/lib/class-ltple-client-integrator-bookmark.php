@@ -344,7 +344,7 @@ class LTPLE_Integrator_Bookmark {
 								
 									'type'				=> 'checkbox',
 									'id'				=> 'bookmark_is_admin',
-									'style'				=> 'width:15px;height:15px;float:left;',
+									'style'				=> 'width:15px;height:15px;float:left;margin-right:5px;',
 									'description'		=> '',
 									
 						

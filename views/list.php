@@ -77,8 +77,6 @@
 											
 											echo'</div>'.PHP_EOL;
 										  
-											echo '<div class="loadingIframe" style="position:absolute;height:50px;width:100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . '/loader.gif\');"></div>';
-
 											echo '<iframe data-src="'.$gallery_url.'" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';
 										  
 										echo'</div>'.PHP_EOL;
