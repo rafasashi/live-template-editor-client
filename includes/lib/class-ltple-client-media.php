@@ -139,12 +139,33 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				float:left!important;
 			}
-			
 			.table {
 				
-				width:60%!important;
+				width:100%!important;
 			}
 			
+			#previewContainer {
+				
+				display:none;
+				float:right;
+				text-align: center;
+			}
+			
+			@media (min-width: 768px) {
+				
+				.table {
+					
+					width:60%!important;
+				}
+				
+				#previewContainer {
+					
+					display:inline-block;
+					width:40%;
+				}
+			}
+			
+
 			.table td {
 			
 				padding: 4px!important;
@@ -159,13 +180,6 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				outline: 1px solid rgb(86, 180, 239)!important;
 				box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05) inset, 0px 0px 7px rgba(82, 168, 236, 0.6)!important;
-			}
-			
-			#previewContainer {
-				
-				width:40%;
-				float:right;
-				text-align: center;
 			}
 			
 			#previewWrapper {

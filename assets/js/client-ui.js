@@ -92,7 +92,7 @@
 
 				navOverflowWidth = $('.library-content .nav #overflow').width();  
 				
-				if( navItemWidth > navItemMoreWidth ){
+				if( $navItemMore.offset().left > 10 && navItemWidth > navItemMoreWidth ){
 					
 					offset = navItemMoreWidth - navOverflowWidth;
 				}
@@ -102,6 +102,7 @@
 				}
 					
 				$('.library-content .nav #overflow').css({
+					
 					'left': offset
 				});
 			}

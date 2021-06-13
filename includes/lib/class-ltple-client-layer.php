@@ -1243,7 +1243,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			$tabs = apply_filters('ltple_project_advance_tabs',$tabs,$layer,$fields);
 		
-			if( $image = $this->get_image_tab($layer) ){
+			if( $image = $this->get_image_tab_content($layer) ){
 				
 				$tabs['image'] = array(
 				
@@ -1269,7 +1269,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $tabs;
 	}
 	
-	public function get_image_tab($layer){
+	public function get_image_tab_content($layer){
 		
 		$tab = '';
 		
