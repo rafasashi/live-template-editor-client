@@ -87,7 +87,7 @@ class LTPLE_Client_Json_API {
 			
 			#content .nav{
 					
-				padding-right:270px !important;
+				padding-right:250px !important;
 				
 			}
 			';

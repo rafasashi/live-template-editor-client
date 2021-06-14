@@ -10,6 +10,8 @@
 	
 	$sitemap_url = trailingslashit($ltple->urls->home) . 'wp-sitemap.xml';
 	$feed_url 	 = trailingslashit($ltple->urls->home) . 'feed/';
+	
+	$output = $ltple->inWidget ? 'widget' : 'ui';
 ?>
 <!DOCTYPE html>	
 <html <?php language_attributes(); ?> class="<?php echo apply_filters('ltple_document_classes','ltple-theme'); ?>">
@@ -22,8 +24,10 @@
 	<link rel="alternate" href="<?php echo $feed_url; ?>"  type="application/rss+xml" title="RSS Feed" />
 	<?php wp_head();?>
 </head> 
-<body <?php body_class('boxedlayout'); ?>>
-<?php wp_body_open(); ?>
+<body <?php body_class('boxedlayout ltple-' . $output); ?>>
+
+	<?php wp_body_open(); ?>
+
 	<div id="ltple-wrapper" class="boxedcontent" style="position:absolute;z-index:auto;border:none;width:100%;top:0;left:0;right:0;display:contents !important;">
 		
 <?php 

@@ -1222,6 +1222,17 @@ class LTPLE_Client {
 		return $items;
 	}
 	
+	public function get_collapse_button(){
+		
+		$button = '<button type="button" id="sidebarCollapse">';
+				
+			$button .='<i class="glyphicon glyphicon-align-left"></i>';
+			
+		$button .='</button>';
+		
+		return $button;
+	}
+	
 	public function get_footer(){
 
 		// collect information

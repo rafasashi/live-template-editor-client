@@ -78,6 +78,15 @@
 					
 						echo'<ul id="profile_nav" class="nav nav-pills" role="tablist">';
 							
+							if( $this->parent->inWidget ){
+								
+								echo'<li>';
+								
+									echo $this->parent->get_collapse_button();
+									
+								echo'</li>';
+							}
+							
 							foreach( $ltple->profile->tabs as $tab){
 								
 								if( !empty($tab['name']) ){

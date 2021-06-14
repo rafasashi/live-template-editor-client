@@ -181,6 +181,15 @@
 							
 							echo'<ul class="nav nav-pills" role="tablist">';
 							
+								if( $this->parent->inWidget ){
+									
+									echo'<li>';
+									
+										echo $this->parent->get_collapse_button();
+										
+									echo'</li>';
+								}
+							
 							$active=' class="active"';
 							
 							foreach($app_types as $app_type => $apps){

@@ -72,10 +72,13 @@
 				$navItems = $('.library-content .nav > li:not(.more)'),
 				navItemMoreWidth = navItemWidth = $navItemMore.width(),
 				windowWidth = $('.library-content .nav li.more').parent().width(),
-				offset, navOverflowWidth;
+				offset = 0, 
+				navOverflowWidth;
 			  
 			if( windowWidth > 0 ){
-				  
+				 
+				$('.library-content .nav').css('overflow','hidden');
+				 
 				$navItems.each(function() {
 					  
 					navItemWidth += $(this).width();
@@ -90,21 +93,22 @@
 					$navItems.splice(-1,1);
 				}
 
-				navOverflowWidth = $('.library-content .nav #overflow').width();  
-				
-				if( $navItemMore.offset().left > 10 && navItemWidth > navItemMoreWidth ){
+				$navOverflow =  $('.library-content .nav #overflow');
+
+				navOverflowWidth = $navOverflow.width();  
 					
-					offset = navItemMoreWidth - navOverflowWidth;
+				if( $navItems.width() > navOverflowWidth ){
+					
+					offset = $navItems.width() - navOverflowWidth;
 				}
 				else{
 					
-					offset = 0;
+					offset = -$navItems.width();
 				}
+				
+				$('.library-content .nav').css('overflow','visible');
 					
-				$('.library-content .nav #overflow').css({
-					
-					'left': offset
-				});
+				$('.library-content .nav #overflow').css('left',offset);
 			}
 		}
 		
@@ -452,7 +456,7 @@
 							if(typeof iframeSrc == typeof undefined || iframeSrc == false){
 								
 								iframeSrc = dialogIframe.attr("data-src");
-								console.log('test4',iframeSrc);
+						
 								if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
 									
 									// show loader
@@ -480,7 +484,7 @@
 											dialogIframe.contents().find(".insert_media").off();
 											
 											dialogIframe.contents().find(".insert_media").on("click", function(e){
-console.log('test3');
+
 												e.preventDefault();
 												e.stopPropagation();
 												
@@ -500,9 +504,9 @@ console.log('test3');
 
 												$dialog.dialog("close");
 											});
-											console.log('test1');
+											
 											dialogIframe.contents().find('.table').bind('DOMSubtreeModified',function(event) {
-												console.log('test2');
+												
 												dialogIframe.contents().find(".insert_media").off();
 											
 												dialogIframe.contents().find(".insert_media").on("click", function(e){
@@ -564,8 +568,15 @@ console.log('test3');
 		
 		if( $(".library-content .nav").length ){
 
-			window.onresize = navigationResize;
-			
+			if( typeof ResizeObserver != typeof undefined ){
+
+				new ResizeObserver(navigationResize).observe(content);
+			}
+			else{
+				
+				window.onresize = navigationResize;
+			}
+
 			navigationResize();
 		}
 
@@ -575,7 +586,7 @@ console.log('test3');
 			
 			$('#sidebar').toggleClass('active');
 			
-			//$(window).trigger('resize'); //to be fixed
+			navigationResize();
 		});
 		
 		set_collapsibles();

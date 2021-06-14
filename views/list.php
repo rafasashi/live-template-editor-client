@@ -29,7 +29,16 @@
 				if( $post_type = get_post_type_object( $currentTab ) ){
 					
 					echo'<ul class="nav nav-pills" role="tablist">';
-						
+							
+						if( $this->parent->inWidget ){
+							
+							echo'<li>';
+							
+								echo $this->parent->get_collapse_button();
+								
+							echo'</li>';
+						}
+							
 						if( $currentTab == 'user-page' || $currentTab == 'user-menu' ){
 							
 							echo'<li role="presentation"'.( $currentTab == 'user-page' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->profile . '?list=user-page" role="tab">Pages</a></li>';

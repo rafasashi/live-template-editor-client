@@ -158,7 +158,16 @@
 						//output Nav tabs
 						
 						echo'<ul class="nav nav-pills" role="tablist">';
-						
+							
+							if( $ltple->inWidget ){
+								
+								echo'<li>';
+								
+									echo $ltple->get_collapse_button();
+									
+								echo'</li>';
+							}
+							
 							if(!empty($layer_type->ranges)){
 								
 								foreach( $layer_type->ranges as $range ){

@@ -36,19 +36,33 @@
 }
 
 #ltple-wrapper #sidebarCollapse, #ltple-wrapper .menuIconBtn {
-    width: 32px;
-    height: 28px;
+
 	border-top: 0;
     border-right: 1px solid #ddd;
 	border-bottom: 0;
 	border-left: 0;
     color: #777;
-    text-align: left;
     font-size: 16px;
     display: block;
     background: transparent;
+}
+
+.ltple-ui #ltple-wrapper #sidebarCollapse, .ltple-ui #ltple-wrapper .menuIconBtn{
+	
     padding: 3px 5px;
+    width: 32px;
+    height: 28px;
     margin: 0 10px 0 0;
+    text-align: left;
+}
+
+.ltple-widget #ltple-wrapper #sidebarCollapse, .ltple-widget #ltple-wrapper .menuIconBtn{
+	
+    padding: 5px 5px 0px 0px;
+    height: 30px;
+    width: 30px;
+    margin: 5px 5px 0px 5px;
+    text-align: center;
 }
 
 @media (max-width: 768px) {
@@ -56,16 +70,33 @@
     #ltple-wrapper #sidebar {
         margin-left: -220px !important;
     }
+	
     #ltple-wrapper #sidebar.active {
+		
 		margin-left: 0 !important;
 		position: absolute;
 		overflow: hidden;
 		background: #fbfbfb;
-		top: 0;
+		
 		bottom: 0;
 		z-index: 1;
 		box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);
     }
+	
+	.ltple-ui #ltple-wrapper #sidebar.active {
+		
+		top: 0;
+	}
+	
+	.ltple-widget #ltple-wrapper #sidebar.active {
+		
+		top: 40px;
+	}
+	
+	.ltple-widget .entry-content {
+		
+		display:flex !important;
+	}
     
 	#ltple-wrapper #sidebarCollapse span {
         display: none !important;
@@ -294,7 +325,7 @@ th input, th select {
     background: rgb(242, 242, 242);
     padding: 0px;
     font-size: 12px;
-    overflow: visible !important;
+    overflow: hidden;
     height: 41px;
     border-bottom: 1px solid #ddd;
 	text-transform: uppercase;

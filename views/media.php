@@ -78,7 +78,16 @@
 					echo '<div id="user-images">';
 
 						echo'<ul class="nav nav-pills" role="tablist">';
-						
+				
+							if( $this->parent->inWidget ){
+								
+								echo'<li>';
+								
+									echo $this->parent->get_collapse_button();
+									
+								echo'</li>';
+							}
+				
 							//get app list
 							
 							$apps = [];
@@ -182,6 +191,15 @@
 						}
 
 						echo'<ul class="nav nav-pills" role="tablist">';
+							
+							if( $this->parent->inWidget ){
+								
+								echo'<li>';
+								
+									echo $this->parent->get_collapse_button();
+									
+								echo'</li>';
+							}
 							
 							echo'<li role="presentation" class="active"><a href="' . $this->parent->urls->current . '">External URLs</a></li>';
 							
@@ -389,6 +407,15 @@
 					
 						echo'<ul class="nav nav-pills" role="tablist">';
 							
+							if( $this->parent->inWidget ){
+								
+								echo'<li>';
+								
+									echo $this->parent->get_collapse_button();
+									
+								echo'</li>';
+							}
+							
 							echo'<li role="presentation" class="active"><a href="' . $this->parent->urls->current . '">Default Images</a></li>';
 							
 							echo'<li style="padding:3px 6px;">';
@@ -444,6 +471,15 @@
 						else{			
 						
 							echo'<ul class="nav nav-pills" role="tablist">';
+							
+							if( $this->parent->inWidget ){
+								
+								echo'<li>';
+								
+									echo $this->parent->get_collapse_button();
+									
+								echo'</li>';
+							}
 							
 							//get app list
 
@@ -677,7 +713,6 @@
 						}
 						
 					echo'</div>';//user-payment-urls
-					
 				}
 
 			echo'</div>';
