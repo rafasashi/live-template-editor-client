@@ -215,7 +215,7 @@ class LTPLE_Client {
 		}
 		
 		add_action( 'ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
-		
+	
 	} // End __construct ()
 	
 	private function ltple_get_secret_iv(){
@@ -2257,17 +2257,8 @@ class LTPLE_Client {
 	 */
 	public function enqueue_styles() {
 	
-		if( $this->in_ui() ){
-			
-			wp_enqueue_style( 'jquery-ui-dialog' );
-	
-			wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
-			wp_enqueue_style( $this->_token . '-jquery-ui' );
-		}
-		
-		wp_register_style( $this->_token . '-client-ui', esc_url( $this->assets_url ) . 'css/client-ui.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-client-ui' );
-	
+		$this->editor_enqueue_styles();
+
 		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-toggle-switch' );
 	
@@ -2762,6 +2753,14 @@ class LTPLE_Client {
 	
 	
 	public function editor_enqueue_styles(){
+		
+		if( $this->in_ui() ){
+			
+			wp_enqueue_style( 'jquery-ui-dialog' );
+	
+			wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
+			wp_enqueue_style( $this->_token . '-jquery-ui' );
+		}
 		
 		wp_register_style( $this->_token . '-client-ui', esc_url( $this->assets_url ) . 'css/client-ui.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-client-ui' );

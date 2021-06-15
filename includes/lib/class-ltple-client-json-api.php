@@ -103,12 +103,12 @@ class LTPLE_Client_Json_API {
 				
 				#ltple-wrapper #layer_gallery{
 					
-					height:calc( 100vh - ' . ( $this->parent->inWidget ?  0 : 145 ) . 'px);
+					height:100vh !important;
 				}
 				
 				#ltple-wrapper #gallery_sidebar{
 				
-					height:calc(100vh - '.( $this->parent->inWidget ? 42 : 186 ).'px);
+					height:100vh !important;
 					overflow-x:hidden;
 					overflow-y:auto;
 				}
@@ -174,14 +174,7 @@ class LTPLE_Client_Json_API {
 
 			if( $card !== false ){
 				
-				if( $pagination === 'scroll' ){
-				
-					$table .= 'tbody {
-						
-						height:calc( 100vh - ' . ( $this->parent->inWidget ?  40 : 186 ) . 'px);
-					}';
-				}
-				else{
+				if( $pagination != 'scroll' ){
 						
 					$table .= 'tbody {
 						
@@ -208,14 +201,7 @@ class LTPLE_Client_Json_API {
 				
 				$table .= '@media (min-width: 768px) {';
 
-					if( $pagination === 'scroll' ){
-					
-						$table .= 'tbody {
-							
-							height:calc( 100vh - ' . ( $this->parent->inWidget ?  41 : 186 ) . 'px);
-						}';
-					}
-					else{
+					if( $pagination != 'scroll' ){
 						
 						$table .= 'tbody {
 							
@@ -501,6 +487,8 @@ class LTPLE_Client_Json_API {
 						
 						++tableData.page;
 						
+						$('#".$tableId." tbody').css('height','calc( 100vh - ' + $('#".$tableId." tbody').offset().top + 'px )');
+						
 						$('.fixed-table-loading').hide();
 						
 						$('#" . $tableId . " .tableLoader').remove();
@@ -537,7 +525,7 @@ class LTPLE_Client_Json_API {
 			tableRequest();
 			
 			$(document).ready(function(){
-
+				
 				$('#".$tableId." tbody').scroll(function() {
 
 					if ( $('#".$tableId." tbody tr').length < $('#".$tableId."').data('page-size') || tableLoading == true || tableLoading == 'stopped' ) return;

@@ -255,6 +255,21 @@
 				
 			echo'</div>';
 		}
+		else{
+			
+			// widget navbar
+			
+			if( !empty($_GET['modal']['title']) ){
+				
+				echo '<div class="modal-header">';
+					
+					echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>';
+					
+					echo '<h4 class="modal-title text-left">'.$_GET['modal']['title'].'</h4>';
+					
+				echo '</div>';
+			}
+		}
 	}
 	
 	if(!empty($ltple->message)){ 
