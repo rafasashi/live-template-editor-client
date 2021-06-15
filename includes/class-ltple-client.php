@@ -587,19 +587,21 @@ class LTPLE_Client {
         wp_redirect( $url );
         exit;		
 	}	
-	
+
 	public function init_backend(){	
 	
 		// Load admin JS & CSS
 		
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ), 10, 1 );
+		add_action('admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
+		add_action('admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ), 10, 1 );
+		
+		add_action('ltple_editor_admin_enqueue_scripts', array( $this, 'editor_enqueue_styles' ), 10, 1 );
 		
 		add_action('admin_head', array($this, 'custom_admin_dashboard_css'));
 		
-		add_filter( 'page_row_actions', array($this, 'filter_post_type_row_actions'), 10, 2 );
-		add_filter( 'post_row_actions', array($this, 'filter_post_type_row_actions'), 10, 2 );
-		add_filter( 'tag_row_actions', array($this, 'filter_taxonomy_row_actions'), 10, 2 );
+		add_filter('page_row_actions', array($this, 'filter_post_type_row_actions'), 10, 2 );
+		add_filter('post_row_actions', array($this, 'filter_post_type_row_actions'), 10, 2 );
+		add_filter('tag_row_actions', array($this, 'filter_taxonomy_row_actions'), 10, 2 );
 		
 		// add email-campaign
 		
@@ -2753,13 +2755,18 @@ class LTPLE_Client {
 	 * @return  void
 	 */
 	public function admin_enqueue_styles ( $hook = '' ) {
-	
+	 
 		wp_register_style( $this->_token . '-server-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-server-admin' );
-		
-		//wp_register_style( $this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'css/bootstrap.min.css', array(), $this->_version );
-		//wp_enqueue_style( $this->_token . '-bootstrap' );
 	}
+	
+	
+	public function editor_enqueue_styles(){
+		
+		wp_register_style( $this->_token . '-client-ui', esc_url( $this->assets_url ) . 'css/client-ui.css', array(), $this->_version );
+		wp_enqueue_style( $this->_token . '-client-ui' );
+	}
+	
 
 	/**
 	 * Load admin Javascript.

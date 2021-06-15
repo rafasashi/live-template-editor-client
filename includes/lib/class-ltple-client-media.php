@@ -752,8 +752,10 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 						$item.='<button style="display:inline-block;margin-top:5px;" class="btn-sm btn-primary insert_media" data-src="'.$bookmark->post_content.'">Insert</button>';
 					}
+					else{
 					
-					$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-payment-urls/?id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider . ( $this->parent->inWidget ? '&output=widget' : '' ) . '" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
+						$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-payment-urls/?id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider . ( $this->parent->inWidget ? '&output=widget' : '' ) . '" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
+					}
 				
 				$item.='</div>';
 				

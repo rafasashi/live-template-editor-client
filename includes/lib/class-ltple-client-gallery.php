@@ -507,7 +507,7 @@ class LTPLE_Client_Gallery {
 			// get preview url
 			
 			$preview_url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
-
+			
 			//get editor_url
 
 			$editor_url = $this->parent->urls->edit . '?uri='.$post->ID;

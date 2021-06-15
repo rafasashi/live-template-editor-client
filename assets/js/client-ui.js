@@ -97,13 +97,16 @@
 
 				navOverflowWidth = $navOverflow.width();  
 					
-				if( $navItems.width() > navOverflowWidth ){
-					
-					offset = $navItems.width() - navOverflowWidth;
-				}
-				else{
-					
-					offset = -$navItems.width();
+				if ( $navItemMore.offset().left > 10){
+						
+					if( $navItems.width() > navOverflowWidth ){
+						
+						offset = $navItems.width() - navOverflowWidth;
+					}
+					else{
+						
+						offset = -$navItems.width();
+					}
 				}
 				
 				$('.library-content .nav').css('overflow','visible');
@@ -121,7 +124,7 @@
 				$('.modal').appendTo("body");
 						
 				//load modal iframes
-				
+
 				$('.modal').on('shown.bs.modal', function (e) {
 					
 					$('html').css('overflow','hidden');
