@@ -584,31 +584,28 @@ class LTPLE_Client_Gallery {
 											$item.='<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
 										
 										$item.='</div>'.PHP_EOL;
-									  
-										$item.='<div class="modal-body">'.PHP_EOL;
+
+										if( $show_preview === true ){
 											
-											if( $show_preview === true ){
-												
-												$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 145px);overflow: hidden;"></iframe>';											
-											}
-											elseif( $image = get_the_post_thumbnail($post->ID, 'full') ){
-												
-												$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow: auto;">';
-												
-													$item.= $image;
-												
-												$item.= '</div>';
-											}
-											else{
-												
-												$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow: auto;">';
+											$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 110px);overflow: hidden;"></iframe>';											
+										}
+										elseif( $image = get_the_post_thumbnail($post->ID, 'full') ){
+											
+											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 110px);overflow: auto;">';
+											
+												$item.= $image;
+											
+											$item.= '</div>';
+										}
+										else{
+											
+											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 110px);overflow: auto;">';
 
-													$item.= '<img loading="lazy" src="' . $this->parent->layer->get_thumbnail_url($post) . '">';
-													
-												$item.= '</div>';
-											}
+												$item.= '<img loading="lazy" src="' . $this->parent->layer->get_thumbnail_url($post) . '">';
+												
+											$item.= '</div>';
+										}
 
-										$item.='</div>'.PHP_EOL;
 
 										$item.='<div class="modal-footer">'.PHP_EOL;
 										
