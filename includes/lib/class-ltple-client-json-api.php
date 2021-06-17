@@ -87,15 +87,14 @@ class LTPLE_Client_Json_API {
 			
 			#content .nav{
 					
-				padding-right:150px !important;
-				
+				padding-right:35vw !important;		
 			}
 
 			@media (min-width: 768px) {
 
 				#content .nav{
 						
-					padding-right:250px !important;
+					padding-right:20vw !important;		
 					
 				}
 			}
@@ -123,9 +122,17 @@ class LTPLE_Client_Json_API {
 				
 				#ltple-wrapper #gallery_sidebar{
 				
-					height:100vh !important;
+					height:calc(100vh - 80px) !important;
 					overflow-x:hidden;
 					overflow-y:auto;
+				}
+				
+				@media (min-width: 768px) {
+
+					#ltple-wrapper #gallery_sidebar{
+							
+						height:100vh !important;
+					}
 				}
 				
 				.bootstrap-table{

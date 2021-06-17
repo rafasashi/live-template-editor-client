@@ -88,8 +88,19 @@
 				
 				while ( navItemWidth > windowWidth) {
 					
-					navItemWidth -= $navItems.last().width();
-					$navItems.last().prependTo('.library-content .nav #overflow');
+					var $lastItem = $navItems.last();
+					
+					if( $lastItem.find('#sidebarCollapse').length === 0 ){
+					
+						navItemWidth -= $lastItem.width() - 20;
+						
+						$lastItem.prependTo('.library-content .nav #overflow');
+					}
+					else{
+						
+						navItemWidth -= $lastItem.width() - 50;
+					}
+					
 					$navItems.splice(-1,1);
 				}
 

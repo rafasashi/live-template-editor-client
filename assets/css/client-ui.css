@@ -210,6 +210,7 @@ th input, th select {
 	margin: 5px 0 0 0;
 	padding: 6px;
 	height: 26px;
+	max-width: 25vw;
 }
 
 .fixed-table-toolbar .columns label {color:#fff;}
@@ -220,7 +221,9 @@ th input, th select {
 		margin-bottom: -8px !important;
 		margin-right: 0 !important;
 		padding-right: 10px !important;
-		width: auto !important;
+		width: 50vw !important;
+		overflow: hidden;
+		height: 48px;
 	}
 }
 

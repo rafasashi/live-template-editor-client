@@ -1229,7 +1229,9 @@ class LTPLE_Client {
 	
 	public function get_collapse_button(){
 		
-		$button = '<button class="hidden-sm hidden-lg" type="button" id="sidebarCollapse">';
+		$class = $this->inWidget ? 'hidden-sm hidden-lg' : '';
+		
+		$button = '<button class="'.$class.'" type="button" id="sidebarCollapse">';
 				
 			$button .='<i class="glyphicon glyphicon-align-left"></i>';
 			
@@ -2572,12 +2574,6 @@ class LTPLE_Client {
 				
 				$style .='text-decoration:none !important;';
 			
-			$style .='}';
-			
-			$style .= '#content .nav{';
-				
-				$style .='padding-right:0px !important;';
-				
 			$style .='}';
 
 			$style .= '.nav>li>a{';
