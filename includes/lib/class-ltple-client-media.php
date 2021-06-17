@@ -210,101 +210,138 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	
 	public function get_script(){
 		
-		$script = '
-		
-			;(function($){
+		$script = ';(function($){
+			
+			function set_image_preview($previewItem){
+				
+				if( typeof $previewItem == typeof undefined ){
+					
+					$previewItem = $(".table .panel:first");
+				}
+				
+				if( typeof $previewItem != typeof undefined ){
+				
+					var previewSrc = $previewItem.contents().find("img").attr("data-original");
+					
+					$(".selectedItem").removeClass("selectedItem");
+					
+					$previewItem.addClass("selectedItem");
+					
+					if( $("#previewImg").length == 0 ){
 
-				function set_image_preview($previewItem){
-					
-					if( typeof $previewItem == typeof undefined ){
+						var html = "<div id=\"previewContainer\">";
 						
-						$previewItem = $(".table .panel:first");
-					}
-					
-					if( typeof $previewItem != typeof undefined ){
-					
-						var previewSrc = $previewItem.contents().find("img").attr("data-original");
-						
-						$(".selectedItem").removeClass("selectedItem");
-						
-						$previewItem.addClass("selectedItem");
-						
-						if( $("#previewImg").length == 0 ){
-
-							var html = "<div id=\"previewContainer\">";
+							html += "<div id=\"previewWrapper\">";
 							
-								html += "<div id=\"previewWrapper\">";
-								
-									html += "<img id=\"previewImg\" />";
-								
-								html += "</div>";
-								
-								/*
-								html += "<div id=\"previewToolbar\">";
-								
-									html += "tool";
-								
-								html += "</div>";
-								*/
-								
+								html += "<img id=\"previewImg\" />";
+							
 							html += "</div>";
 							
-							$(html).insertAfter(".table");
-						}
+							/*
+							html += "<div id=\"previewToolbar\">";
+							
+								html += "tool";
+							
+							html += "</div>";
+							*/
+							
+						html += "</div>";
 						
-						$("#previewImg").attr("src",previewSrc).attr("data-selector",$previewItem.closest(".hentry").attr("id"));
+						$(html).insertAfter(".table");
 					}
-					else if( $("#previewImg").length > 0 ){
-						
-						var previewSelector = $("#previewImg").attr("data-selector");
 					
-						$(".selectedItem").removeClass("selectedItem");
-						
-						$("#" + previewSelector + " .panel").addClass("selectedItem");						
-					}
+					$("#previewImg").attr("src",previewSrc).attr("data-selector",$previewItem.closest(".hentry").attr("id"));
 				}
-			
-				$(document).ready(function(){
-			
-					$( "#saveImageForm button" ).click(function() {
-						
-						this.closest( "form" ).submit();
-					});
-			
-					$(".table").on("load-success.bs.table", function(e) {
-						
-						set_image_preview();
-						
-						$(".table .panel").on("click",function(){
-							
-							set_image_preview($(this));
-						});
-					});
+				else if( $("#previewImg").length > 0 ){
 					
-					$(".table").on("page-change.bs.table", function(e) {
-						
-						set_image_preview();
-						
-						$(".table .panel").on("click",function(){
-							
-							set_image_preview($(this));
-						});
-					});
+					var previewSelector = $("#previewImg").attr("data-selector");
+				
+					$(".selectedItem").removeClass("selectedItem");
 					
-					$(".table").on("refresh.bs.table", function(e) {
-						
-						set_image_preview();
-						
-						$(".table .panel").on("click",function(){
+					$("#" + previewSelector + " .panel").addClass("selectedItem");						
+				}
+			}
+			
+			function set_table_media(){';
+				
+				if( $this->parent->inWidget && $this->parent->modalId ){
+				
+					// TODO make this implementation global removing dialogs & modals from client-ui
+				
+					$script .= 'if ( window.self !== window.top ) {
 							
-							set_image_preview($(this));
+						$(".table .insert_media").off();
+						
+						$(".table .insert_media").on("click",function(){
+							
+							var modalIframe = $("iframe[data-input-id]", window.parent.document);
+							
+							if( modalIframe.length > 0 ){
+							
+								var src = $(this).attr("data-src");
+							
+								var inputId = modalIframe.attr("data-input-id");
+								
+								$(inputId, window.parent.document).val(src);
+								
+								modalIframe.hide();
+							}
 						});
+							
+					}' . PHP_EOL;
+				}
+				
+			$script .= '
+			
+			}
+			
+			$(document).ready(function(){
+		
+				$( "#saveImageForm button" ).click(function() {
+					
+					$(this).attr("disabled","disabled").empty();
+					
+					$(this).append( \'<svg style="height:4px;margin-bottom:2px;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 53 12" enable-background="new 0 0 0 0" xml:space="preserve"><circle fill="#EEEEEE" stroke="none" cx="6" cy="6" r="6"><animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.1"></animate></circle><circle fill="#EEEEEE" stroke="none" cx="26" cy="6" r="6"><animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.2"></animate></circle><circle fill="#EEEEEE" stroke="none" cx="46" cy="6" r="6"><animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.3"></animate></circle></svg>\');
+					
+					this.closest( "form" ).submit();
+				});
+		
+				$(".table").on("load-success.bs.table", function(e) {
+					
+					set_table_media();
+					set_image_preview();
+					
+					$(".table .panel").on("click",function(){
+						
+						set_image_preview($(this));
 					});
 				});
+				
+				$(".table").on("page-change.bs.table", function(e) {
 					
-			})(jQuery);			
-		';
+					set_table_media();
+					set_image_preview();
+					
+					$(".table .panel").on("click",function(){
+						
+						set_image_preview($(this));
+					});
+				});
+				
+				$(".table").on("refresh.bs.table", function(e) {
+					
+					set_table_media();
+					set_image_preview();
+					
+					$(".table .panel").on("click",function(){
+						
+						set_image_preview($(this));
+					});
+				});
+				
+			});	
 		
+		})(jQuery);' . PHP_EOL;
 		
 		return $script;
 	}
@@ -754,7 +791,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					}
 					else{
 					
-						$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-payment-urls/?id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider . ( $this->parent->inWidget ? '&output=widget' : '' ) . '" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
+						$item.='<a class="btn-xs btn-danger" href="' . $this->parent->urls->media . 'user-payment-urls/?id='. $bookmark->ID . '&action=deleteBookmark&app='.$bookmark_provider . '" style="padding: 0px 5px;position: absolute;top: 11px;right: 25px;font-weight: bold;">x</a>';
 					}
 				
 				$item.='</div>';

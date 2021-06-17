@@ -178,7 +178,7 @@
 																				
 											// set input change
 											 
-											$(inputId).val( src );
+											$(inputId).val(src);
 											
 											// trigger input change
 						

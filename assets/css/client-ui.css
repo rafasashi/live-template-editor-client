@@ -95,7 +95,7 @@
 	
 	.ltple-widget .entry-content {
 		
-		display:flex !important;
+		display:block !important;
 	}
     
 	#ltple-wrapper #sidebarCollapse span {
@@ -202,10 +202,8 @@ th input, th select {
 }
 
 .fixed-table-toolbar .btn {
-
-    margin: 5px 0 0 0;
+ 
     padding: 4px 8px;
-
 }
 
 .fixed-table-toolbar .search input {

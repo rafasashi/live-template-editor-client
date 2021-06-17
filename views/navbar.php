@@ -255,20 +255,9 @@
 				
 			echo'</div>';
 		}
-		else{
-			
-			// widget navbar
-			
-			if( !empty($_GET['modal']['title']) ){
+		elseif( $ltple->modalId ){
 				
-				echo '<div class="modal-header">';
-					
-					echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>';
-					
-					echo '<h4 class="modal-title text-left">'.$_GET['modal']['title'].'</h4>';
-					
-				echo '</div>';
-			}
+			echo '<button style="position:absolute;z-index:999999;right:5px;top:10px;" type="button" class="close close_widget"><span aria-hidden="true">×</span></button>';
 		}
 	}
 	

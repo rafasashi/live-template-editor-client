@@ -87,9 +87,24 @@ class LTPLE_Client_Json_API {
 			
 			#content .nav{
 					
-				padding-right:250px !important;
+				padding-right:150px !important;
 				
 			}
+
+			@media (min-width: 768px) {
+
+				#content .nav{
+						
+					padding-right:250px !important;
+					
+				}
+			}
+			
+			.fixed-table-toolbar .btn {
+
+				margin: 5px '.( $this->parent->modalId ? '15px' : '0' ).' 0 0;
+			}
+			
 			';
 			
 			if( $pagination === 'scroll' ){

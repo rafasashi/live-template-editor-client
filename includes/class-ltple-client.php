@@ -90,6 +90,7 @@ class LTPLE_Client {
 	public $canonical_url;
 	public $triggers;
 	public $inWidget;
+	public $modalId;
 	
 	/**
 	 * Constructor function.
@@ -126,6 +127,8 @@ class LTPLE_Client {
 		$this->assets_url 	= home_url( trailingslashit( str_replace( ABSPATH, '', $this->dir ))  . 'assets/' );
 		
 		$this->inWidget = ( ( isset($_GET['output']) && $_GET['output'] == 'widget' ) ? true : false );
+		
+		$this->modalId  = ( ( $this->inWidget && !empty($_GET['modal']) && is_string($_GET['modal']) ) ? $_GET['modal'] : false );
 		
 		//$this->script_suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
 		
@@ -1226,7 +1229,7 @@ class LTPLE_Client {
 	
 	public function get_collapse_button(){
 		
-		$button = '<button type="button" id="sidebarCollapse">';
+		$button = '<button class="hidden-sm hidden-lg" type="button" id="sidebarCollapse">';
 				
 			$button .='<i class="glyphicon glyphicon-align-left"></i>';
 			
@@ -2392,14 +2395,7 @@ class LTPLE_Client {
 				
 				$style .='color:#fff !important;';
 				
-			$style .='}';
-
-			$style .='.single .entry-content {';
-			
-				$style .='font-size: 16px;';
-				$style .='line-height: 40px;';
-				
-			$style .='}';			
+			$style .='}';		
 			
 			$style .='.single .entry-content h1, .single .entry-content h2, .single .entry-content h3, .single .entry-content h4{';
 				
@@ -2733,11 +2729,46 @@ class LTPLE_Client {
 		
 		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap-js' );
-			
+
+		if( $this->inWidget ){
+
+			wp_register_script($this->_token . '-widget', '', array( $this->_token . '-client-ui',$this->_token . '-bootstrap-js') );
+			wp_enqueue_script($this->_token . '-widget' );
+			wp_add_inline_script($this->_token . '-widget', $this->get_widget_script() );
+		}
+
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-lazyload' );	
 
 	} // End enqueue_scripts ()
+
+	public function get_widget_script(){
+		
+		$script = '';
+		
+		if( $this->modalId ){
+		
+			$script .= ';(function($){' . PHP_EOL;
+				
+				$script .= 'if ( window.self !== window.top ) {' . PHP_EOL;
+				
+					//TODO append close bottom from here
+				
+					$script .= '$(".close_widget").on("click",function(){' . PHP_EOL;
+
+						// hide parent iframe
+						
+						$script .= '$("#'.$this->modalId.'", window.parent.document).hide();' . PHP_EOL;
+
+					$script .= '});' . PHP_EOL;
+					
+				$script .= '}' . PHP_EOL;
+				
+			$script .= '})(jQuery);' . PHP_EOL;
+		}
+
+		return $script;
+	}
 
 	/**
 	 * Load admin CSS.

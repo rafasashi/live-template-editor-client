@@ -1,13 +1,15 @@
 <?php
 	 
 	$output='default';
-	$target='_self';
+	$target= '_self';
 
 	if( $this->parent->inWidget ){
 		
 		$output		= 'widget';
 		$target		= '_blank';
 	}
+	
+	$modal = $this->parent->modalId;
 
 	if( $this->type == 'image-library' ){
 		
@@ -55,14 +57,14 @@
 
 				echo'<li class="gallery_type_title">Images</li>';
 				
-				echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-images/?output='.$output.'">Uploaded Images</a></li>';
-				echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'external-images/?output='.$output.'">External Images</a></li>';
-				echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/?output='.$output.'">Default Images</a></li>';
+				echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-images/?output='.$output.'&modal='.$modal.'">Uploaded Images</a></li>';
+				echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'external-images/?output='.$output.'&modal='.$modal.'">External Images</a></li>';
+				echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/?output='.$output.'&modal='.$modal.'">Default Images</a></li>';
 				
-				//echo'<li'.( $this->type == 'edited-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'edited-images/?output='.$output.'" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Edited Images" data-content="All the images uploaded during the edition process (cropped, resized...). Hosted images will be removed upon template deletion or plan cancelation." data-original-title="" title="">Edited Images <span class="label label-info pull-right hidden-xs hidden-sm hidden-md">hosted</span></a></li>';
+				//echo'<li'.( $this->type == 'edited-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'edited-images/?output='.$output.'&modal='.$modal.'" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Edited Images" data-content="All the images uploaded during the edition process (cropped, resized...). Hosted images will be removed upon template deletion or plan cancelation." data-original-title="" title="">Edited Images <span class="label label-info pull-right hidden-xs hidden-sm hidden-md">hosted</span></a></li>';
 				
 				echo'<li class="gallery_type_title">Bookmarks</li>';
-				echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-payment-urls/?output='.$output.'">Payment Urls</a></li>';
+				echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-payment-urls/?output='.$output.'&modal='.$modal.'">Payment Urls</a></li>';
 					
 			echo'</ul>';
 		echo'</div>';
@@ -147,7 +149,7 @@
 									
 										if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
 													
-											$media_url .= '?output=widget';
+											$media_url .= '?output=widget&modal=' . $modal;
 										}														
 				
 										echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
@@ -162,7 +164,7 @@
 											
 											echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
 
-											echo '<button class="btn btn-primary" type="button">Upload</button>';
+											echo '<button id="uploadBtn" class="btn btn-primary" type="button">Upload</button>';
 
 										echo '</form>';
 									}									
@@ -250,6 +252,8 @@
 														echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
 														
 														echo '<input type="hidden" name="output" value="'.$output.'" />';
+														
+														echo '<input type="hidden" name="modal" value="'.$modal.'" />';
 														
 													echo '</div>';
 													
@@ -664,7 +668,7 @@
 													echo '</form>';
 												}
 												
-												echo '<a target="_self" href="'.$this->parent->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output. '#' . $app->slug . '" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
+												echo '<a target="_self" href="'.$this->parent->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output . '&modal=' . $modal . '#' . $app->slug . '" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
 												
 											echo'</div>';//add-bookmark-wrapper
 											echo'</div>';//add-bookmark
