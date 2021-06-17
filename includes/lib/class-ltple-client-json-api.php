@@ -122,7 +122,7 @@ class LTPLE_Client_Json_API {
 				
 				#ltple-wrapper #gallery_sidebar{
 				
-					height:calc(100vh - 80px) !important;
+					height:calc(100vh - '. ( $this->parent->inWidget ? 80 : 135 ) . 'px) !important;
 					overflow-x:hidden;
 					overflow-y:auto;
 				}
@@ -131,7 +131,7 @@ class LTPLE_Client_Json_API {
 
 					#ltple-wrapper #gallery_sidebar{
 							
-						height:100vh !important;
+						height:calc(100vh - '. ( $this->parent->inWidget ? 35 : 135 ) . 'px) !important;
 					}
 				}
 				
