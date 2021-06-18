@@ -584,7 +584,7 @@
 
 			if( typeof ResizeObserver != typeof undefined ){
 
-				new ResizeObserver(navigationResize).observe(content);
+				new ResizeObserver(navigationResize).observe(document.querySelector('.library-content .nav'));
 			}
 			else{
 				
