@@ -1,32 +1,39 @@
 <?php
 	 
-	$output='default';
-	$target= '_self';
-
+	$output 	='default';
+	$target 	= '_self';
+	
 	if( $this->parent->inWidget ){
 		
 		$output		= 'widget';
 		$target		= '_blank';
 	}
 	
-	$modal = $this->parent->modalId;
+	$modal 		= !empty($this->parent->modalId) ?  $this->parent->modalId : '';
+	$section	= !empty($_GET['section']) ? $_GET['section'] : '';
+	
+	// get query arguments
+	
+	$query_args = array();
+	
+	if( !empty($output)) 	$query_args[] = 'output=' . $output;
+	if( !empty($modal)) 	$query_args[] = 'modal=' 	. $modal;
+	if( !empty($section)) 	$query_args[] = 'section=' . $section;
+	
+	$query_args = !empty($query_args) ? '?'.implode('&amp;',$query_args) : '';
+
+	// get current tab
 
 	if( $this->type == 'image-library' ){
-		
-		// get current tab
 		
 		$tab = ( !empty($_REQUEST['tab']) ? $_REQUEST['tab'] : 'backgrounds' );
 	}
 	elseif( $this->type == 'user-images' ){
 
-		// get current tab
-		
 		$tab = ( !empty($_REQUEST['tab']) ? $_REQUEST['tab'] : 'upload' );
 	}
 	elseif( $this->type == 'external-images' ){
 
-		// get current tab
-		
 		$tab = 'url';
 		
 		if( !empty($_REQUEST['tab']) ){
@@ -46,7 +53,7 @@
 	}
 	
 	// output library
-		
+	
 	echo'<div id="media_library" class="wrapper">';
 
 		echo '<div id="sidebar">';
@@ -55,18 +62,31 @@
 				
 			echo'<ul id="gallery_sidebar" class="nav nav-tabs tabs-left">';
 
-				echo'<li class="gallery_type_title">Images</li>';
-				
-				echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-images/?output='.$output.'&modal='.$modal.'">Uploaded Images</a></li>';
-				echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'external-images/?output='.$output.'&modal='.$modal.'">External Images</a></li>';
-				echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/?output='.$output.'&modal='.$modal.'">Default Images</a></li>';
-				
-				//echo'<li'.( $this->type == 'edited-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'edited-images/?output='.$output.'&modal='.$modal.'" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Edited Images" data-content="All the images uploaded during the edition process (cropped, resized...). Hosted images will be removed upon template deletion or plan cancelation." data-original-title="" title="">Edited Images <span class="label label-info pull-right hidden-xs hidden-sm hidden-md">hosted</span></a></li>';
-				
-				echo'<li class="gallery_type_title">Bookmarks</li>';
-				echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-payment-urls/?output='.$output.'&modal='.$modal.'">Payment Urls</a></li>';
+				if( empty($section) || $section == 'images' || $section == $this->type ){
+
+					echo'<li class="gallery_type_title">Images</li>';
 					
+					if( empty($section) || $section == 'images' || $section == 'user-images' )
+						
+						echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-images/'.$query_args.'">Uploaded Images</a></li>';
+					
+					if( empty($section) || $section == 'images' || $section == 'external-images' )
+					
+						echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'external-images/'.$query_args.'">External Images</a></li>';
+					
+					if( empty($section) || $section == 'images' || $section == 'image-library' )
+					
+						echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/'.$query_args.'">Default Images</a></li>';
+				}
+				
+				if( empty($section) || $section == 'bookmarks' ){
+				
+					echo'<li class="gallery_type_title">Bookmarks</li>';
+					echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-payment-urls/'.$query_args.'">Payment Urls</a></li>';
+				}
+				
 			echo'</ul>';
+			
 		echo'</div>';
 
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;min-height:calc( 100vh - ' . ( $this->parent->inWidget ?  0 : 190 ) . 'px);">';
@@ -145,13 +165,8 @@
 									}
 									else{
 										
-										$media_url = $this->parent->urls->media . 'user-images/';
-									
-										if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
-													
-											$media_url .= '?output=widget&modal=' . $modal;
-										}														
-				
+										$media_url = $this->parent->urls->media . 'user-images/' . $query_args;
+
 										echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
 											
 											echo '<label>Image File</label>';
@@ -251,9 +266,9 @@
 
 														echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
 														
-														echo '<input type="hidden" name="output" value="'.$output.'" />';
+														echo '<input type="hidden" name="output" value="' . $output . '" />';
 														
-														echo '<input type="hidden" name="modal" value="'.$modal.'" />';
+														echo '<input type="hidden" name="modal" value="' . $this->parent->modalId . '" />';
 														
 													echo '</div>';
 													
@@ -422,17 +437,26 @@
 							
 							echo'<li role="presentation" class="active"><a href="' . $this->parent->urls->current . '">Default Images</a></li>';
 							
+							$filter = false;
+							
+							if( !empty($_GET['filter']) ){
+								
+								parse_str($_GET['filter'],$filter);
+							}
+							
+							$type = !empty($filter['image-type']) ? $filter['image-type'] : '';
+
 							echo'<li style="padding:3px 6px;">';
 								
 								echo'<form id="formFilters">';
-								
+									
 									$options = array( '' => 'All' );
 									
 									if( $image_types = get_terms(array(
-										
+								
 										'taxonomy' 		=> 'image-type',
 										'hide_empty' 	=> true,				
-									))){
+									)) ){
 									
 										foreach( $image_types as $image_type ){
 											
@@ -445,15 +469,16 @@
 										'type'				=> 'select',
 										'id'				=> 'image-type',
 										'options' 			=> $options,
+										'data'				=> $type,
 										'description'		=> '',
 										'style'				=> '',
-										
+
 									),false,false);
 									
 								echo'</form>';
-
+								
 							echo'</li>';
-						
+
 						echo'</ul>';
 
 						//output Tab panes
@@ -668,7 +693,7 @@
 													echo '</form>';
 												}
 												
-												echo '<a target="_self" href="'.$this->parent->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output . '&modal=' . $modal . '#' . $app->slug . '" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
+												echo '<a target="_self" href="'.$this->parent->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output . $modal . $section . '#' . $app->slug . '" style="width:100%;text-align:left;" class="btn btn-md btn-default add_account"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add '.$app->name.' account</a>';
 												
 											echo'</div>';//add-bookmark-wrapper
 											echo'</div>';//add-bookmark

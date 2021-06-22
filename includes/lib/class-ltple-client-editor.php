@@ -539,7 +539,7 @@ class LTPLE_Client_Editor {
 						
 						$editor .= '<div id="media_library_container"></div>';
 						$editor .= '<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . 'loader.gif\');height:64px;"></div>';
-						$editor .= '<iframe id="media_library_iframe" data-src="' . $this->parent->urls->media . '?output=widget" style="' . $iframe_css . '"></iframe>';
+						$editor .= '<iframe id="media_library_iframe" data-src="' . $this->parent->urls->media . '?output=widget&section=images" style="' . $iframe_css . '"></iframe>';
 					
 					$editor .= '</div>';
 				$editor .= '</div>';

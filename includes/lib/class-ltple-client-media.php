@@ -274,7 +274,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						
 						$(".table .insert_media").on("click",function(){
 							
-							var modalIframe = $("iframe[data-input-id]", window.parent.document);
+							var modalIframe = $("#'.$this->parent->modalId.'", window.parent.document);
 							
 							if( modalIframe.length > 0 ){
 							

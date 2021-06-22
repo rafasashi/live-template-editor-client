@@ -1279,7 +1279,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$media_url = add_query_arg( array(
 			
-				'output' => 'widget',
+				'output' 	=> 'widget',
+				'section' 	=> 'images',
 				
 			), $this->parent->urls->media . 'user-images/' );
 			
@@ -1290,9 +1291,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$input_id 	= 'input_' . $md5;
 			
 			$tab .= '<button style="position:absolute;margin:5px;z-index:9999;" type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#'.$modal_id.'">Edit</button>';
-				
-			//$tab .= '<div id="'.$preview_id.'" class="thumb_wrapper" style="background-image:url(' . $this->get_thumbnail_url($layer) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;height:280px;display:block;"></div>';
-			
+
 			$tab .= '<img loading="lazy" id="'.$preview_id.'" src="'.$this->get_thumbnail_url($layer).'" style="width:auto;"/>';
 			
 			$tab .= '<input type="hidden" id="'.$input_id.'" name="image_url" value="" />';
