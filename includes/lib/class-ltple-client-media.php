@@ -274,17 +274,29 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						
 						$(".table .insert_media").on("click",function(){
 							
-							var modalIframe = $("#'.$this->parent->modalId.'", window.parent.document);
+							var modalIframe = $( "#' . $this->parent->modalId . '", window.parent.document);
 							
 							if( modalIframe.length > 0 ){
-							
-								var src = $(this).attr("data-src");
-							
-								var inputId = modalIframe.attr("data-input-id");
-								
-								$(inputId, window.parent.document).val(src);
 								
 								modalIframe.hide();
+								
+								if( typeof modalIframe.attr("data-callback") != typeof undefined ){
+									
+									var args = {};
+									
+									$(modalIframe).each(function() {
+										
+										$.each(this.attributes, function() {
+
+											if( this.name.startsWith("data-") ) {
+												
+												args[this.name.substring(5)] = this.value;
+											}
+										});
+									});
+									
+									window.parent[modalIframe.attr("data-callback")]($(this).attr("data-src"),args);
+								}
 							}
 						});
 							

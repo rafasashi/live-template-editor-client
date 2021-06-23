@@ -46,7 +46,9 @@ class LTPLE_Client_Extension {
 	public function get_endpoint(){
 		
 		if( $slug = get_query_var('ext') ){
-
+			
+			do_action('ltple_before_' . $slug . '_extension');
+			
 			if( $this->parent->user->loggedin){
 				
 				do_action('ltple_' . $slug . '_extension');
