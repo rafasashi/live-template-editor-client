@@ -295,7 +295,9 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 										});
 									});
 									
-									window.parent[modalIframe.attr("data-callback")]($(this).attr("data-src"),args);
+									var callback = modalIframe.attr("data-callback");
+									
+									window.parent.editorCallbacks[callback]($(this).attr("data-src"),args);
 								}
 							}
 						});

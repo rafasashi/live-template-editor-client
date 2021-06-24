@@ -565,8 +565,6 @@ class LTPLE_Client_Plan {
 					
 					$this->shortcode .= '<div class="modal-body" style="padding:0px;">'.PHP_EOL;
 					
-						$this->shortcode .= '<div class="loadingIframe" style="position:absolute;height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . '/loader.gif\');"></div>';
-
 						$this->shortcode .= '<iframe src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
 				
 					$this->shortcode .= '</div>';
@@ -681,9 +679,7 @@ class LTPLE_Client_Plan {
 
 												if( $this->parent->user->loggedin ){
 													
-													$this->shortcode .= '<div class="loadingIframe" style="height: 50px;width: 100%;background-position:50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . '/loader.gif\');"></div>';
-
-													$this->shortcode .= '<iframe data-src="' . get_permalink( $plan_id ) . '?output=widget'.'" style="width: 100%;position:relative;top:-50px;margin-bottom:-60px;bottom: 0;border:0;height:'.$this->iframe_height . 'px;overflow: hidden;"></iframe>';
+													$this->shortcode .= '<iframe data-src="' . get_permalink( $plan_id ) . '?output=widget'.'" style="width: 100%;position:relative;top:0px;margin-bottom:-20px;bottom: 0;border:0;height:'.$this->iframe_height . 'px;overflow: hidden;"></iframe>';
 												}
 												else{
 													

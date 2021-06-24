@@ -1,3 +1,7 @@
+// global variables
+
+var editorCallbacks = [];
+
 ;(function($){
 
 	$(document).ready(function(){

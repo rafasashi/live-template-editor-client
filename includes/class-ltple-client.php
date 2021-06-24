@@ -1532,109 +1532,112 @@ class LTPLE_Client {
 					$this->exit_message('Settings successfully updated!',200);
 				}
 			}
-			elseif( $this->layer->type == $this->layer->layerStorage && isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
+			elseif( isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
 				
-				// get local images
-			
-				$image_dir = $this->image->dir . $this->user->ID . '/';
-				$image_url = $this->image->url . $this->user->ID . '/';	
-			
-				$images = glob( $image_dir . $this->user->layer->ID . '_*.png');				
-				
-				if( !isset($_GET['confirmed']) ){
-				
-					// confirm deletion
-
-					$_SESSION['message'] = '<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-						
-						$_SESSION['message'] .= '<h2>Are you sure you want to delete this  ' . $this->layer->get_storage_name($this->layer->layerStorage) . '?</h2>';
+				if( $this->layer->author == $this->user->ID ){
 					
-						if( !empty($images) ){
+					// get local images
+				
+					$image_dir = $this->image->dir . $this->user->ID . '/';
+					$image_url = $this->image->url . $this->user->ID . '/';	
+				
+					$images = glob( $image_dir . $this->user->layer->ID . '_*.png');				
+					
+					if( !isset($_GET['confirmed']) ){
+					
+						// confirm deletion
+
+						$_SESSION['message'] = '<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
 							
-							$_SESSION['message'] .= '<hr></hr>';
-
-							$_SESSION['message'] .= '<div style="margin-top:20px;" class="alert alert-warning">The following images will be removed</div>';
-							
-							$_SESSION['message'] .= '<div style="margin-top:20px;">';
-
-								foreach ($images as $image) {
-									
-									$_SESSION['message'] .= '<div class="row">';
-									
-										$_SESSION['message'] .='<div class="col-xs-3 col-sm-3 col-lg-2">';
-
-											$_SESSION['message'] .='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
-												
-										$_SESSION['message'] .='</div>';
-
-										$_SESSION['message'] .='<div class="col-xs-9 col-sm-9 col-lg-10">';
-
-											$_SESSION['message'] .='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
-											$_SESSION['message'] .='<br>';
-											$_SESSION['message'] .='<input style="width:100%;padding: 2px;" type="text" value="'. $image_url . basename($image) .'" />';
-
-										$_SESSION['message'] .='</div>';										
-									
-									$_SESSION['message'] .= '</div>';
-								}
+							$_SESSION['message'] .= '<h2>Are you sure you want to delete this  ' . $this->layer->get_storage_name($this->layer->layerStorage) . '?</h2>';
+						
+							if( !empty($images) ){
 								
+								$_SESSION['message'] .= '<hr></hr>';
+
+								$_SESSION['message'] .= '<div style="margin-top:20px;" class="alert alert-warning">The following images will be removed</div>';
+								
+								$_SESSION['message'] .= '<div style="margin-top:20px;">';
+
+									foreach ($images as $image) {
+										
+										$_SESSION['message'] .= '<div class="row">';
+										
+											$_SESSION['message'] .='<div class="col-xs-3 col-sm-3 col-lg-2">';
+
+												$_SESSION['message'] .='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
+													
+											$_SESSION['message'] .='</div>';
+
+											$_SESSION['message'] .='<div class="col-xs-9 col-sm-9 col-lg-10">';
+
+												$_SESSION['message'] .='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
+												$_SESSION['message'] .='<br>';
+												$_SESSION['message'] .='<input style="width:100%;padding: 2px;" type="text" value="'. $image_url . basename($image) .'" />';
+
+											$_SESSION['message'] .='</div>';										
+										
+										$_SESSION['message'] .= '</div>';
+									}
+									
+								$_SESSION['message'] .= '</div>';
+							}
+								
+							$_SESSION['message'] .= '<hr></hr>';	
+								
+							$_SESSION['message'] .= '<div style="margin-top:10px;text-align:right;">';						
+								
+								$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-success" href="' . $this->urls->current . '&confirmed">Yes</a>';
+								
+								$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->edit . '?uri=' . $this->user->layer->ID . '">No</a>';
+
 							$_SESSION['message'] .= '</div>';
-						}
-							
-						$_SESSION['message'] .= '<hr></hr>';	
-							
-						$_SESSION['message'] .= '<div style="margin-top:10px;text-align:right;">';						
-							
-							$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-success" href="' . $this->urls->current . '&confirmed">Yes</a>';
-							
-							$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->edit . '?uri=' . $this->user->layer->ID . '">No</a>';
-
-						$_SESSION['message'] .= '</div>';
-					
-					$_SESSION['message'] .= '</div>';
-				}
-				else{
-					
-					// get layer type
-					
-					$layer_type = $this->layer->get_layer_type($this->user->layer);
-
-					//delete images
-					
-					foreach ($images as $image) {
 						
-						unlink($image);
-					}
-					
-					// delete static files
-					
-					$this->layer->delete_static_contents( $this->user->layer->ID );
-				
-					// move layer to trash
-					
-					//wp_trash_post( $this->user->layer->ID );
-					
-					// delete layer
-					
-					wp_delete_post( $this->user->layer->ID, false );
-					
-					// output message
-					
-					if( $_GET['confirmed'] == 'self' ){
-					
-						$_SESSION['message'] ='<div class="alert alert-success">';
-								
-							$_SESSION['message'] .= 'Template successfully deleted.';
-
-						$_SESSION['message'] .='</div>';	
-					
-						wp_redirect($this->urls->dashboard . '?list=' . $layer_type->storage);
-						exit;
+						$_SESSION['message'] .= '</div>';
 					}
 					else{
 						
-						$this->exit_message('Template successfully deleted!',200);
+						// get layer type
 						
+						$layer_type = $this->layer->get_layer_type($this->user->layer);
+
+						//delete images
+						
+						foreach ($images as $image) {
+							
+							unlink($image);
+						}
+						
+						// delete static files
+						
+						$this->layer->delete_static_contents( $this->user->layer->ID );
+					
+						// move layer to trash
+						
+						//wp_trash_post( $this->user->layer->ID );
+						
+						// delete layer
+						
+						wp_delete_post( $this->user->layer->ID, false );
+						
+						// output message
+						
+						if( $_GET['confirmed'] == 'self' ){
+						
+							$_SESSION['message'] ='<div class="alert alert-success">';
+									
+								$_SESSION['message'] .= 'Template successfully deleted.';
+
+							$_SESSION['message'] .='</div>';	
+						
+							wp_redirect($this->urls->dashboard . '?list=' . $layer_type->storage);
+							exit;
+						}
+						else{
+							
+							$this->exit_message('Template successfully deleted!',200);
+							
+						}
 					}
 				}
 			}
