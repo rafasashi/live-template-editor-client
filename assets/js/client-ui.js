@@ -77,7 +77,8 @@ var editorCallbacks = [];
 				navItemMoreWidth = navItemWidth = $navItemMore.width(),
 				windowWidth = $('.library-content .nav li.more').parent().width(),
 				offset = 0, 
-				navOverflowWidth;
+				navOverflowWidth,
+				navItemMoreOffsetLeft;
 			  
 			if( windowWidth > 0 ){
 				 
@@ -112,7 +113,9 @@ var editorCallbacks = [];
 
 				navOverflowWidth = $navOverflow.width();  
 					
-				if ( $navItemMore.offset().left > 10){
+				navItemMoreOffsetLeft = $navItemMore.offset() - $navItemMore.parent().offset().left;
+					
+				if ( navItemMoreOffsetLeft > 10 ){
 						
 					if( $navItems.width() > navOverflowWidth ){
 						

@@ -112,7 +112,7 @@
 						
 						if( !$ltple->profile->is_public() && $ltple->profile->is_self() ){
 							
-							echo '<div class="alert alert-warning row" style="margin:0px 0 20px 0 !important;">';
+							echo '<div class="alert alert-warning row" style="margin:0 0 0 0 !important;">';
 								
 								echo'<div class="col-xs-9">';
 								
@@ -211,7 +211,7 @@
 						
 						if( !$ltple->profile->is_public() && $ltple->profile->is_self() ){
 							
-							echo '<div class="alert alert-warning row" style="margin:0px 0 20px 0 !important;">';
+							echo '<div class="alert alert-warning row" style="margin:0 0 0 0 !important;">';
 								
 								echo'<div class="col-xs-9">';
 								
