@@ -384,6 +384,8 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	
 	public function get_media_shortcode(){
 		
+		do_action('ltple_before_media');
+		
 		include($this->parent->views . '/navbar.php');
 		
 		if($this->parent->user->loggedin){
