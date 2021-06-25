@@ -956,7 +956,7 @@ class LTPLE_Client {
 	}
 	
 	public function filter_template_path( $path, $layer ){
-		
+	
 		if( $this->layer->is_default($layer) && empty($_GET['action']) && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
 			
 			if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer->output) ){
