@@ -22,6 +22,8 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		add_filter('query_vars', array( $this, 'add_query_vars'), 1);		
 		
+		add_action('posts_search', array( $this, 'search_media_where'),10,2 );
+		
 		// add media url
 		
 		add_filter( 'ltple_urls', array( $this, 'get_panel_url'));
@@ -87,12 +89,72 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	
 	public function add_query_vars( $query_vars ){
 		
-		if(!in_array('media',$query_vars)){
+		if( !in_array('media',$query_vars) ){
 		
 			$query_vars[] = 'media';
 		}
 
 		return $query_vars;	
+	}
+	
+	public function is_media_query($query){
+		
+		if ( $query->get('post_type') == 'attachment' ) {
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public function search_media_where( $where, $query ) {
+		
+		if ( $query->is_search && $this->is_media_query($query) ) {
+
+			global $wpdb;
+			
+			$search_term = $query->get('s');
+			
+			$like = '%' . $wpdb->esc_like( $search_term ) . '%';
+			
+			$where = 'AND (';
+			 
+				//search title
+				
+				$where .= "($wpdb->posts.post_title LIKE %s)";
+
+				//search excerpt
+				
+				$where .= " OR ($wpdb->posts.post_excerpt LIKE %s)";
+			 
+				//search name
+				
+				$where .= " OR ($wpdb->posts.post_name LIKE %s)";
+				
+				//search att file
+				
+				$where .= " OR ($wpdb->postmeta.meta_key = '_wp_attached_file' AND $wpdb->postmeta.meta_value LIKE %s)";
+
+				add_filter('posts_join', array($this,'search_media_join'),10,2);
+				
+			$where .= ')';
+			
+			$where = $wpdb->prepare($where,$like,$like,$like,$like);
+		}
+	 
+		return $where;
+	}
+	
+	public function search_media_join($join,$query){
+		
+		if( $this->is_media_query($query) && empty($join) ){
+			
+			global $wpdb;
+		
+			$join = "LEFT JOIN $wpdb->postmeta ON ($wpdb->postmeta.post_ID = $wpdb->posts.ID)";
+		}
+		
+		return $join;
 	}
 	
 	public function get_panel_url(){
@@ -433,6 +495,11 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),		
 		);
 		
+		if( !empty($_GET['s']) ){
+			
+			$args['s'] = $_GET['s'];
+		}
+		
 		if( !empty($_GET['filter']) ){
 			
 			parse_str($_GET['filter'],$filter);
@@ -501,6 +568,11 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'author' 			=> $user_id,
 			);
 			
+			if( !empty($_GET['s']) ){
+				
+				$args['s'] = $_GET['s'];
+			}
+			
 			$meta_key = $this->parent->_base . 'upload_source';
 			
 			$slug = 'user-images';
@@ -524,7 +596,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			$query_images = new WP_Query( $args );
 
 			$images = array();
-			
+
 			foreach ( $query_images->posts as $image ){
 				
 				if( $image->post_mime_type != 'image/vnd.adobe.photoshop' ){
@@ -558,6 +630,11 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 				'author' 			=> $user_id,
 			);
+				
+			if( !empty($_GET['s']) ){
+				
+				$args['s'] = $_GET['s'];
+			}
 
 			$q = new WP_Query($args);
 			
@@ -852,7 +929,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						apply_filters('ltple_media_' . $type . '_fields',$fields), 
 						$trash		= false,
 						$export		= false,
-						$search		= false,
+						$search		= true,
 						$toggle		= false,
 						$columns	= false,
 						$header		= true,
