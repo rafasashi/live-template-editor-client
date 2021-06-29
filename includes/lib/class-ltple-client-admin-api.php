@@ -300,6 +300,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 						$html .= '<div class="btn-wrapper" style="background:#fbfbfb;padding:120px 0;text-align:center;">';
 							
+							// using <button> triggers post update if page not ready
+							
 							$html .= '<a href="#edit_'.$id.'" class="button button-primary button-hero btn btn-lg btn-primary">Edit ' . strtoupper(($code=='javascript'?'js':$code)) . ' Code</a>';
 						
 						$html .= '</div>';
