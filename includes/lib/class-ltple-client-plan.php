@@ -1132,7 +1132,13 @@ class LTPLE_Client_Plan {
 				$api_url .= '&user=' . $this->parent->ltple_encrypt_uri($user_email);
 			}
 			
-			$response = wp_remote_get( $api_url );
+			$response = wp_remote_get( $api_url, array(
+			
+				'headers' => array(
+					
+					'X-Forwarded-Server' => $_SERVER['HTTP_HOST']
+				)
+			));
 			
 			if( is_array($response) && !empty($response['body']) ){
 				
@@ -1231,7 +1237,13 @@ class LTPLE_Client_Plan {
 				$api_url .= '&user=' . $this->parent->ltple_encrypt_uri($user_email);
 			}
 			
-			$response = wp_remote_get( $api_url );
+			$response = wp_remote_get( $api_url, array(
+			
+				'headers' => array(
+					
+					'X-Forwarded-Server' => $_SERVER['HTTP_HOST']
+				)
+			) );
 			
 			if( is_array($response) && !empty($response['body']) ){
 				

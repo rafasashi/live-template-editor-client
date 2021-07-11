@@ -451,7 +451,9 @@ class LTPLE_Client_Editor {
 				
 				// content based preview
 				
-				$content = $this->parent->layer->render_output();
+				$content = $this->parent->layer->render_output() . PHP_EOL;
+
+				$content .= '<script src="' . $this->parent->request->proto . 'ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>' . PHP_EOL;
 
 				$content .= '<script>
 				
@@ -469,7 +471,7 @@ class LTPLE_Client_Editor {
 								
 					})(jQuery);
 					
-				</script>';	
+				</script>' . PHP_EOL;
 				
 				$js .= ' var layerContent = "' . base64_encode($content) . '";' . PHP_EOL;
 			}

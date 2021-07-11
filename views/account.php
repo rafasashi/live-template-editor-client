@@ -122,7 +122,16 @@
 											
 										$plan_usage = $this->parent->plan->get_user_plan_usage( $this->parent->user->ID );
 
-										if( $this->parent->user->remaining_days < 0 ){
+										$remaining_days = $this->parent->user->remaining_days;
+										
+										if( $remaining_days < 0 ){
+											
+											$this->parent->users->update_periods($this->parent->user->ID);
+										
+											$remaining_days = $this->parent->users->get_user_remaining_days($this->parent->user->ID);
+										}
+
+										if( $remaining_days < 0 ){
 							
 											echo '<div class="alert alert-warning">Your license could not be renewed, please update your card details or contact us...</div>';
 											

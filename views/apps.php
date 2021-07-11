@@ -231,35 +231,6 @@
 					
 				echo'</div>';
 			}
-			elseif( $currentTab == 'embedded' ){
-
-				echo'<div class="tab-content">';
-				
-					echo'<div id="embedded">';
-
-						echo'<div class="bs-callout bs-callout-primary">';
-
-							echo '<h4>Embedded Plugin</h4>';
-
-							echo '<p>Setup your Wordpress Embedded Plugin</p>';
-						
-						echo'</div>';
-
-						echo'<div class="col-xs-12 col-sm-6">';
-							
-							echo'<div class="form-group">';
-							
-								echo'<h3>Customer Key</h3>';
-								
-								echo'<input class="form-control" type="text" value="' . get_option($this->_base . 'embedded_prefix', $this->_base) . $this->ltple_encrypt_str( $this->user->user_email ) . '_' . $this->ltple_encrypt_str( $this->urls->api_embedded, $this->_base ) . '">';
-							
-							echo'</div>';
-						echo'</div>';
-						
-					echo'</div>';
-					
-				echo'</div>';
-			}
 			else{
 				
 				do_action( 'ltple_apps_' . $currentTab );			

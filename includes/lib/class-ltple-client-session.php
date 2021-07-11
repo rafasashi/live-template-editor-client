@@ -387,8 +387,9 @@ class LTPLE_Client_Session {
 							'timeout'     => 5,
 							'user-agent'  => $this->parent->request->user_agent,
 							'headers'     => array(
-							
-								'X-Forwarded-For' => $this->parent->request->ip
+								
+								'X-Forwarded-Server' 	=> $_SERVER['HTTP_HOST'],
+								'X-Forwarded-For' 		=> $this->parent->request->ip
 							),
 						)); 						
 					}
