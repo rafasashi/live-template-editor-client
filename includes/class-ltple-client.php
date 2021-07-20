@@ -755,10 +755,12 @@ class LTPLE_Client {
 			unset( $actions['trash'] );
 			unset( $actions['inline hide-if-no-js'] );
 			
+			if( !isset($actions['duplicate']) ){
 			
-			// duplicate action
+				// duplicate action
 			
-			$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-type="post_type:' . $post->post_type . '" data-target="#duplicateItem" class="duplicate-button" data-id="' . $post->ID . '">Duplicate</a>';
+				$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-type="post_type:' . $post->post_type . '" data-target="#duplicateItem" class="duplicate-button" data-id="' . $post->ID . '">Duplicate</a>';
+			}
 		}
 		
 		// add editor actions
@@ -801,10 +803,13 @@ class LTPLE_Client {
 	}
 	
 	public function filter_taxonomy_row_actions( $actions, $term ){
-
-		// duplicate action
 		
-		$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-type="taxonomy:' . $term->taxonomy . '" data-target="#duplicateItem" class="duplicate-button" data-id="' . $term->term_id . '">Duplicate</a>';
+		if( !isset($actions['duplicate']) ){
+		
+			// duplicate action
+		
+			$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-type="taxonomy:' . $term->taxonomy . '" data-target="#duplicateItem" class="duplicate-button" data-id="' . $term->term_id . '">Duplicate</a>';
+		}
 		
 		return $actions;
 	}		

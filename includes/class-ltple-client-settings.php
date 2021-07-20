@@ -77,15 +77,15 @@ class LTPLE_Client_Settings {
 		
 		//Add Custom API Endpoints
 		
-		add_action( 'rest_api_init', function () {
+		add_action( 'rest_api_init', function() {
 			
 			register_rest_route( 'ltple-email/v1', '/info', array(
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_email_info'),
-			) );			
+			));			
 			
-		} );
+		});
 	}
 	
 	public function get_default_logo_url() {
