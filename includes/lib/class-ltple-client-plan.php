@@ -335,7 +335,7 @@ class LTPLE_Client_Plan {
 
 		//get agreement url				
 		
-		$agreement_url = $this->parent->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->parent->base64_urlencode($plan_data) . '&du=' . $this->parent->urls->primary . '&_=' . $this->parent->_time;
+		$agreement_url = $this->parent->server->url . '/agreement/?pk='.$plan_key.'&pd='.$this->parent->base64_urlencode($plan_data) . '&du=' . parse_url($this->parent->urls->primary,PHP_URL_HOST) . '&_=' . $this->parent->_time;
 		
 		return $agreement_url;
 	}
