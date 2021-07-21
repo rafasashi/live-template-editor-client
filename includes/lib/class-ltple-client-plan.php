@@ -1608,7 +1608,7 @@ class LTPLE_Client_Plan {
 	}
 
 	public function bulk_update_user_range($users,$term_id){
-			
+		
 		if( !empty($users) ){
 			
 			$taxonomy = 'layer-range';
@@ -1617,7 +1617,7 @@ class LTPLE_Client_Plan {
 				
 				// update current user custom taxonomy
 				
-				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, false, array(
+				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, true, array(
 					
 					/*
 					array(
