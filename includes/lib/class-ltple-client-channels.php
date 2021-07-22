@@ -127,17 +127,17 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 			
 			echo '<div class="postbox" style="min-height:45px;">';
 				
-				echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Marketing Channel', 'live-template-editor-client' ) . '</h3>';
+				echo '<h3 style="margin:10px;width:300px;display:block;float:left;">' . __( 'Marketing Channel', 'live-template-editor-client' ) . '</h3>';
 				
 				$tax = get_taxonomy( $this->taxonomy );
 
 				/* Make sure the user can assign terms of the user taxonomy before proceeding. */
 				if ( !current_user_can( $tax->cap->assign_terms ) )
 				return;
-			
-				$terms = wp_get_object_terms( $user->ID, $this->taxonomy );
 
-				echo '<div style="display:inline-block;">';
+				echo '<div style="display:inline-block;padding:5px 0;">';
+				
+					$terms = wp_get_object_terms( $user->ID, $this->taxonomy );
 				
 					echo wp_dropdown_categories(array(
 					
@@ -151,11 +151,26 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 						'class'		   => 'form-control',
 						'hide_empty'   => false
 					));
+								
+					$referredBy = get_user_meta( $user->ID, $this->parent->_base . 'referredBy', true );
 					
+					echo '<div style="margin-top:5px;">';
+						
+						$this->parent->admin->display_field( array(
+							
+							'id' 			=> $this->parent->_base . 'referentId',
+							'label'			=> '',
+							'description'	=> '',
+							'placeholder'	=> 0,
+							'type'			=> 'number',
+							'data'			=> !empty($referredBy) ? key($referredBy) : 0,
+						
+						), false, true );
+						
+					echo '</div>';
+			
 				echo '</div>';
-				
-				do_action('ltple_user_marketing_channel');
-					
+
 			echo'</div>';
 		}	
 	}
@@ -164,11 +179,12 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 		
 		$tax = get_taxonomy( $this->taxonomy );
 
-		/* Make sure the current user can edit the user and assign terms before proceeding. */
 		if ( !current_user_can( 'administrator', $user_id ) && current_user_can( $tax->cap->assign_terms ) )
 			return false;
 		
 		if(isset($_POST)){
+
+			// save channel
 		
 			$terms = [];
 
@@ -180,6 +196,18 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 			$response = wp_set_object_terms( $user_id, $terms, $this->taxonomy);
 
 			clean_object_term_cache( $user_id, $this->taxonomy );
+		
+			// save referent 
+			
+			$field = $this->parent->_base . 'referentId';
+			
+			if( isset($_POST[$field]) && is_numeric($_POST[$field]) ){
+
+				if( $referent = get_user_by('id',$_POST[$field]) ){
+					
+					update_user_meta( $user_id, $this->parent->_base . 'referredBy', [ $referent->ID => $referent->user_login ] );
+				}
+			}
 		}
 	}
 }  

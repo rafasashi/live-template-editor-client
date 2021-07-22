@@ -66,7 +66,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			elseif ( !empty( $item->caps ) ) {
 				
 				// Get saved field data
-				
+
 				$data = get_user_meta( $item->ID, $field['id'], true );
 			} 
 			elseif ( !empty($item->ID) ) {
