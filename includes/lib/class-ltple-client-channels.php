@@ -153,6 +153,8 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 					));
 					
 				echo '</div>';
+				
+				do_action('ltple_user_marketing_channel');
 					
 			echo'</div>';
 		}	

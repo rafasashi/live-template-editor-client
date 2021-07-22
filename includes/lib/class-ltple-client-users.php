@@ -270,14 +270,12 @@
 					}
 					else{
 						
-						add_action('admin_head', array($this, 'custom_newsletter_table_css'));
+						add_action('admin_head', array($this, 'custom_users_table_css'));
 					}
 					
-					if( method_exists($this, 'update_' . $this->view . '_table') ){
+					if( method_exists($this, 'set_' . $this->view . '_table_columns') ){
 						
-						//remove_filter('manage_users_columns');
-						
-						add_filter('manage_users_columns', array($this, 'update_' . $this->view . '_table'), 100, 1);
+						add_filter('manage_users_columns', array($this, 'set_' . $this->view . '_table_columns'), 100, 3);
 					}
 					else{
 						
@@ -777,35 +775,58 @@
 			//$column["name"]		= 'Name';
 			$column["email"]		= 'Email';
 			$column["seen"]			= 'Seen';
-			//$column["role"]		= 'Role';
-			//$column["posts"]		= 'Posts';		
+			$column["channel"]		= 'Channel';
+			$column["stars"]		= 'Stars';
+			$column["notify"]		= 'Notify';
+
+			return $column;
+		}
+		
+		public function set_customers_table_columns($column) {
+			
+			$column=[];
+			$column["cb"]			= '<input type="checkbox" />';
+			$column["username"]		= 'Username';
+			//$column["name"]		= 'Name';
+			$column["email"]		= 'Email';
+			$column["seen"]			= 'Seen';	
 			$column["subscription"]	= 'Subscription';
 			$column["plan"]			= 'Plan';
 			$column["channel"]		= 'Channel';
 			$column["stars"]		= 'Stars';
-			//$column["leads"]		= 'Leads';
+
+			return $column;
+		}
+
+		public function set_newsletter_table_columns($column) {
+			
+			$column=[];
+			$column["cb"]			= '<input type="checkbox" />';
+			$column["username"]		= 'Username';
+			$column["email"]		= 'Email';
+			$column["seen"]			= 'Seen';	
+			$column["channel"]		= 'Channel';
 			$column["notify"]		= 'Notify';
 			$column["sent"]			= 'Last emails sent';
 			
 			return $column;
 		}
 		
-		public function custom_newsletter_table_css() {
+		public function custom_users_table_css() {
 			
 			echo '<style>';
 							
 				echo '.wrap						{margin:0 !important;}';	
 				echo '#wpcontent, #wpfooter 	{margin-left: 150px;}';
-				echo '.column-username img 		{display: inline-table;}';
-				echo '.column-username strong 	{display: inline-table;width: 100%;}';
-				echo '.column-username  		{width: 15%}';
+				echo '.column-username img 	{display: inline-table;}';
+				echo '.column-username strong {display: inline-table;width: 100%;}';
+				//echo '.column-username  		{width: 15%}';
 				echo '.column-email  			{width: 15%}';
 				echo '.column-seen 				{width: 8%}';
-				echo '.column-subscription 		{width: 9%}';
+				echo '.column-subscription 		{width: 8%}';
 				echo '.column-plan 				{width: 10%}';
-				echo '.column-channel 			{width: 10%}';
+				echo '.column-channel 			{width: 8%}';
 				echo '.column-stars 			{width: 5%;text-align:center;}';
-				echo '.column-leads 			{width: 5%;text-align:center;}';
 				echo '.column-notify 			{width: 8%;text-align:center;}';
 				
 		    echo '</style>';
@@ -838,8 +859,109 @@
 				$this->list->{$user_id} = new stdClass();
 				
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
-				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
-				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id);
+				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
+				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
+				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
+				$this->list->{$user_id}->can_spam 	= isset($meta[$this->parent->_base . '_can_spam']) ? $meta[$this->parent->_base . '_can_spam'] : 'false';
+				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : $this->get_user_notification_settings($user_id);
+				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
+
+				// user marketing channel
+				
+				$terms = wp_get_object_terms( $user_id, 'marketing-channel' );		
+				$this->list->{$user_id}->channel = ( ( !isset($terms->errors) && isset($terms[0]->name) ) ? $terms[0]->name : '');
+			}
+			
+			$user_role 	= $this->list->{$user_id}->role;
+			$user_seen 	= $this->list->{$user_id}->last_seen;
+			$user_agent	= $this->list->{$user_id}->last_uagent;
+			$user_stars	= $this->list->{$user_id}->stars;
+			$can_spam  	= $this->list->{$user_id}->can_spam;
+			$notify  	= $this->list->{$user_id}->notify;
+			$referredBy	= $this->list->{$user_id}->referredBy;
+			$channel   	= $this->list->{$user_id}->channel;
+			
+			$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
+			
+			$row='';
+
+			if ($column_name == "seen") {
+				
+				if( !empty($user_agent) ){
+				
+					$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+					
+						$row .= $this->get_browser($user_agent);
+						
+					$row .= '</span>';
+				}
+				
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+				
+					$row .= $this->time_ago( '@' . $user_seen );
+					
+				$row .= '</span>';
+			}
+			elseif ($column_name == "channel") {
+				
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+					
+					if(!empty($referredBy)){
+						
+						$row .= '<a href="'.admin_url( 'user-edit.php' ).'?user_id='.key($referredBy).'">'.reset($referredBy).'</a>';
+					}
+					else{
+						
+						$row .= $channel;
+					}
+				
+				$row .= '</span>';
+			}
+			elseif ($column_name == "stars") {
+				
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+					
+					$row .= $user_stars;
+					
+				$row .= '</span>';
+			}
+			elseif ($column_name == "notify") {
+				
+				$notify = array_merge($this->parent->email->get_notification_settings(),$notify);
+				
+				foreach( $notify as $channel => $can_notify ){
+					
+					$row .= '<div style="font-size:11px;text-align:left;">';
+						
+						$channel_name = ucfirst($channel);
+						
+						if( $can_notify != 'true' ){
+							
+							$text = "<img loading='lazy' class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=15 height=15>" . $channel_name;
+							$row .= "<a title=\"Subscribe to ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "true" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
+						}
+						else{
+							
+							$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/right_arrow.png' width=15 height=15>" . $channel_name;
+							$row .= "<a title=\"Unsubscribe from ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "false" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
+						}
+
+					$row .= '</div>';
+				}
+			}
+			
+			return $row;
+		}
+		
+		public function get_newsletter_table_row($val, $column_name, $user_id) {
+			
+			if(!isset($this->list->{$user_id})){
+				
+				$meta = $this->get_all_user_meta($user_id);
+				
+				$this->list->{$user_id} = new stdClass();
+				
+				$this->list->{$user_id}->role 		= get_userdata($user_id);
 				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
@@ -847,8 +969,133 @@
 				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : $this->get_user_notification_settings($user_id);
 				$this->list->{$user_id}->sent 		= isset($meta[$this->parent->_base . '_email_sent']) ? $meta[$this->parent->_base . '_email_sent'] : '';
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
-				//$this->list->{$user_id}->claimed	= isset($meta[$this->parent->_base . 'profile_claimed']) && $meta[$this->parent->_base . 'profile_claimed'] == 'false' ? false : true;
+
+				// user marketing channel
 				
+				$terms = wp_get_object_terms( $user_id, 'marketing-channel' );		
+				$this->list->{$user_id}->channel = ( ( !isset($terms->errors) && isset($terms[0]->name) ) ? $terms[0]->name : '');
+			}
+			
+			$user_role 	= $this->list->{$user_id}->role;
+			$user_seen 	= $this->list->{$user_id}->last_seen;
+			$user_agent	= $this->list->{$user_id}->last_uagent;
+			$user_stars	= $this->list->{$user_id}->stars;
+			$can_spam  	= $this->list->{$user_id}->can_spam;
+			$notify  	= $this->list->{$user_id}->notify;
+			$last_sent 	= $this->list->{$user_id}->sent;
+			$referredBy	= $this->list->{$user_id}->referredBy;
+			$channel   	= $this->list->{$user_id}->channel;
+			
+			$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
+			
+			$row='';
+
+			if ($column_name == "seen") {
+				
+				if( !empty($user_agent) ){
+				
+					$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+					
+						$row .= $this->get_browser($user_agent);
+						
+					$row .= '</span>';
+				}
+				
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+				
+					$row .= $this->time_ago( '@' . $user_seen );
+					
+				$row .= '</span>';
+			}
+			elseif ($column_name == "channel") {
+				
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+					
+					if(!empty($referredBy)){
+						
+						$row .= '<a href="'.admin_url( 'user-edit.php' ).'?user_id='.key($referredBy).'">'.reset($referredBy).'</a>';
+					}
+					else{
+						
+						$row .= $channel;
+					}
+				
+				$row .= '</span>';
+			}
+			elseif ($column_name == "stars") {
+				
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+					
+					$row .= $user_stars;
+					
+				$row .= '</span>';
+			}
+			elseif ($column_name == "notify") {
+				
+				$notify = array_merge($this->parent->email->get_notification_settings(),$notify);
+				
+				foreach( $notify as $channel => $can_notify ){
+					
+					$row .= '<div style="font-size:11px;text-align:left;">';
+						
+						$channel_name = ucfirst($channel);
+						
+						if( $can_notify != 'true' ){
+							
+							$text = "<img loading='lazy' class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=15 height=15>" . $channel_name;
+							$row .= "<a title=\"Subscribe to ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "true" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
+						}
+						else{
+							
+							$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/right_arrow.png' width=15 height=15>" . $channel_name;
+							$row .= "<a title=\"Unsubscribe from ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "false" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
+						}
+
+					$row .= '</div>';
+				}
+			}
+			elseif ($column_name == "sent") {
+				
+				$emails = json_decode($last_sent,true);
+
+				if( !empty( $emails ) ){
+					
+					$emails = array_slice($emails, 0, 10);					
+					
+					$row .= '<pre style="margin:0px;padding:0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
+
+						foreach($emails as $slug => $date){
+							
+							$row .= ucfirst(substr(str_replace('-',' ',$slug),0,30)).'...'.PHP_EOL;
+						}
+					
+					$row .= '</pre>';
+				}
+				else{
+					
+					$row .= '';
+				}
+			}
+			
+			return $row;
+		}
+
+		public function get_customers_table_row($val, $column_name, $user_id) {
+			
+			if(!isset($this->list->{$user_id})){
+				
+				$meta = $this->get_all_user_meta($user_id);
+				
+				$this->list->{$user_id} = new stdClass();
+				
+				$this->list->{$user_id}->role 		= get_userdata($user_id);
+				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
+				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id);
+				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
+				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
+				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
+				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
+
 				// user marketing channel
 				
 				$terms = wp_get_object_terms( $user_id, 'marketing-channel' );		
@@ -860,9 +1107,6 @@
 			$user_seen 	= $this->list->{$user_id}->last_seen;
 			$user_agent	= $this->list->{$user_id}->last_uagent;
 			$user_stars	= $this->list->{$user_id}->stars;
-			$can_spam  	= $this->list->{$user_id}->can_spam;
-			$notify  	= $this->list->{$user_id}->notify;
-			$last_sent 	= $this->list->{$user_id}->sent;
 			$referredBy	= $this->list->{$user_id}->referredBy;
 			$channel   	= $this->list->{$user_id}->channel;
 			$period_end = $this->list->{$user_id}->period;
@@ -973,123 +1217,8 @@
 					
 				$row .= '</span>';
 			}
-			elseif ($column_name == "leads") {
-				
-				$row .= '<span>';
-						
-					$text = "<img loading='lazy' class='lazy' data-original='" . $this->parent->assets_url . "/images/magnet.png' width=24 height=24>";
-					$row .= "<a title=\"Load leads from Twitter\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_twt_get_leads"), "app" => "twitter", "action" => "importLeads" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_load_leads", $text) . "</a>";
-					
-				$row .= '</span>';
-			}
-			elseif ($column_name == "notify") {
-				
-				$notify = array_merge($this->parent->email->get_notification_settings(),$notify);
-				
-				foreach( $notify as $channel => $can_notify ){
-					
-					$row .= '<div style="font-size:11px;text-align:left;">';
-						
-						$channel_name = ucfirst($channel);
-						
-						if( $can_notify != 'true' ){
-							
-							$text = "<img loading='lazy' class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=15 height=15>" . $channel_name;
-							$row .= "<a title=\"Subscribe to ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "true" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
-						}
-						else{
-							
-							$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/right_arrow.png' width=15 height=15>" . $channel_name;
-							$row .= "<a title=\"Unsubscribe from ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "false" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
-						}
-
-					$row .= '</div>';
-				}
-			}
-			elseif ($column_name == "sent") {
-				
-				$emails = json_decode($last_sent,true);
-
-				if( !empty( $emails ) ){
-					
-					$emails = array_slice($emails, 0, 5);					
-					
-					$row .= '<pre style="margin:0px;padding:0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
-
-						foreach($emails as $slug => $date){
-							
-							$row .= ucfirst(substr(str_replace('-',' ',$slug),0,30)).'...'.PHP_EOL;
-						}
-					
-					$row .= '</pre>';
-				}
-				else{
-					
-					$row .= '';
-				}
-			}
 			
 			return $row;
-		}
-		
-		public function set_unsubscribers_table_columns($column) {
-			
-			return $this->set_users_table_columns($column);
-		}
-
-		public function custom_unsubscribers_table_css($column) {
-			
-			return $this->custom_newsletter_table_css();
-		}
-		
-		public function get_unsubscribers_table_row($val, $column_name, $user_id) {
-			
-			return $this->get_users_table_row($val, $column_name, $user_id);
-		}		
-		
-		public function set_guests_table_columns($column) {
-			
-			return $this->set_users_table_columns($column);
-		}
-
-		public function custom_guests_table_css($column) {
-			
-			return $this->custom_newsletter_table_css();
-		}
-		
-		public function get_guests_table_row($val, $column_name, $user_id) {
-			
-			return $this->get_users_table_row($val, $column_name, $user_id);
-		}	
-		
-		public function set_leads_table_columns($column) {
-			
-			return $this->set_users_table_columns($column);
-		}
-
-		public function custom_leads_table_css($column) {
-			
-			return $this->custom_newsletter_table_css();
-		}
-		
-		public function get_leads_table_row($val, $column_name, $user_id) {
-			
-			return $this->get_users_table_row($val, $column_name, $user_id);
-		}
-		
-		public function set_customers_table_columns($column) {
-			
-			return $this->set_users_table_columns($column);
-		}
-
-		public function custom_customers_table_css($column) {
-			
-			return $this->custom_newsletter_table_css();
-		}
-		
-		public function get_customers_table_row($val, $column_name, $user_id) {
-			
-			return $this->get_users_table_row($val, $column_name, $user_id);
 		}
 		
 		public function get_user_notification_settings( $user_id ){
