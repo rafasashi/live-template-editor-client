@@ -317,7 +317,7 @@ class LTPLE_Client_Login {
 	 */
 	public function enqueue_scripts () {
 		
-		wp_register_script( $this->parent->_token . '-login', esc_url( $this->parent->assets_url ) . 'js/login' . $this->parent->script_suffix . '.js', array( 'jquery' ), $this->parent->_version );
+		wp_register_script( $this->parent->_token . '-login', esc_url( $this->parent->assets_url ) . 'js/login.js', array( 'jquery' ), $this->parent->_version );
 		wp_enqueue_script( $this->parent->_token . '-login' );
 		
 	} // End enqueue_scripts ()	

@@ -544,7 +544,7 @@ class LTPLE_Client_Settings {
     	// If you're not including an image upload then you can leave this function call out
     	wp_enqueue_media();
 		
-    	wp_register_script( $this->parent->_token . '-settings-js', $this->parent->assets_url . 'js/settings' . $this->parent->script_suffix . '.js', array( 'farbtastic', 'jquery' ), $version );
+    	wp_register_script( $this->parent->_token . '-settings-js', $this->parent->assets_url . 'js/settings.js', array( 'farbtastic', 'jquery' ), $version );
     	wp_enqueue_script( $this->parent->_token . '-settings-js' );
 	}
 

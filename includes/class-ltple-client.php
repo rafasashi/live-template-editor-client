@@ -79,7 +79,6 @@ class LTPLE_Client {
 	 * @access  public
 	 * @since   1.0.0
 	 */
-	public $script_suffix;
 
 	public $server;
 	public $theme;
@@ -129,11 +128,9 @@ class LTPLE_Client {
 		$this->inWidget = ( ( isset($_GET['output']) && $_GET['output'] == 'widget' ) ? true : false );
 		
 		$this->modalId  = ( ( $this->inWidget && !empty($_GET['modal']) && is_string($_GET['modal']) ) ? $_GET['modal'] : false );
-		
-		//$this->script_suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-		
-		$this->script_suffix = '';
 
+		add_filter('shutdown',array( $this , 'handle_error' ));
+		
 		register_activation_hook( $this->file, array( $this, 'install' ) );
 		
 		// Handle localisation
@@ -220,6 +217,21 @@ class LTPLE_Client {
 		add_action( 'ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
 	
 	} // End __construct ()
+	
+	public function handle_error(){
+	
+		if( $error = error_get_last() ) {
+			
+			$skip = array(
+				'ftp_chdir(): Failed to change directory.'
+			);
+			
+			if( !in_array($error['message'],$skip) ){
+			
+				wp_mail( get_option('admin_email'),'debugging LTPLE Client error',print_r($error,true));
+			}
+		}
+	}
 	
 	private function ltple_get_secret_iv(){
 		
