@@ -866,7 +866,7 @@ class LTPLE_Client_Profile {
 		
 			$is_unclaimed = false;
 			
-			if( $this->user ){
+			if( !empty($this->user->ID) ){
 			
 				$claimed = get_user_meta( $this->user->ID, $this->parent->_base . 'profile_claimed',true);
 				
