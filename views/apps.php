@@ -181,11 +181,11 @@
 							
 							echo'<ul class="nav nav-pills" role="tablist">';
 							
-								if( $this->parent->inWidget ){
+								if( $this->inWidget ){
 									
 									echo'<li>';
 									
-										echo $this->parent->get_collapse_button();
+										echo $this->get_collapse_button();
 										
 									echo'</li>';
 								}

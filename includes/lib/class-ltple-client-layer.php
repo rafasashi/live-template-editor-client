@@ -3598,7 +3598,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			$layerJs 		= $this->layerJs;
 			
-			$layerMeta 		= $this->layerMeta;
+			$layerMeta 		= !empty($this->layerMeta) ? $this->layerMeta : '';
 		}
 		
 		$defaultCss = sanitize_text_field($defaultCss);
