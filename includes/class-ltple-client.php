@@ -223,7 +223,9 @@ class LTPLE_Client {
 		if( $error = error_get_last() ) {
 			
 			$skip = array(
-				'ftp_chdir(): Failed to change directory.'
+			
+				'ftp_chdir(): Failed to change directory.',
+				'Undefined property: WP_Post::$filter',
 			);
 			
 			if( !in_array($error['message'],$skip) ){
