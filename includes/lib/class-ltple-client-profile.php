@@ -841,13 +841,6 @@ class LTPLE_Client_Profile {
 								$completeness[$slug]['complete'] = true;
 							}
 						}
-						elseif( $slug == $this->parent->_base . 'profile_html' ){
-												
-							if( !empty($meta[0]) && strlen($meta[0]) > 10 ){
-								
-								$completeness[$slug]['complete'] = true;
-							}
-						}
 					}
 					
 					$completeness = apply_filters('ltple_profile_completeness',$completeness,$user,$user_meta);

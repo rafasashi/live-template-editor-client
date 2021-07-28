@@ -236,12 +236,17 @@ class LTPLE_Client_Email {
 	
 	public function has_dns($domain){
 		
-		if( !isset($this->dnsList[$domain]) ){
+		if( !empty($domain) ){
+		
+			if( !isset($this->dnsList[$domain]) ){
+				
+				$this->dnsList[$domain] = checkdnsrr($domain,'A');
+			}
 			
-			$this->dnsList[$domain] = checkdnsrr($domain,'A');
+			return $this->dnsList[$domain];
 		}
 		
-		return $this->dnsList[$domain];
+		return false;
 	}
 	
 	public function get_notification_settings( $field = 'default' ){

@@ -3594,11 +3594,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$layerCss .= $this->parse_css_content($this->layerMenuCss, '.menu-' . $this->layerMenuId);
 			}
 			
-			$defaultJs 		= $this->defaultJs;
+			$defaultJs 	= !empty($this->defaultJs) 	? $this->defaultJs 	: '';
 
-			$layerJs 		= $this->layerJs;
+			$layerJs 	= !empty($this->layerJs) 	? $this->layerJs 	: '';
 			
-			$layerMeta 		= !empty($this->layerMeta) ? $this->layerMeta : '';
+			$layerMeta 	= !empty($this->layerMeta) 	? $this->layerMeta 	: '';
 		}
 		
 		$defaultCss = sanitize_text_field($defaultCss);
