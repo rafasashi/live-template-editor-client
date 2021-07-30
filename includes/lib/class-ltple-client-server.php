@@ -15,14 +15,7 @@ class LTPLE_Client_Server {
 		
 		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		
-		if( is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
-			
-			$this->url 	= WP_SITEURL;
-		}
-		else{
-			
-			$this->url = get_option( $this->parent->_base . 'server_url');
-		}
+		$this->url = 'https://wpas1.recuweb.com';
 		
 		if( !empty($this->url) ){
 			

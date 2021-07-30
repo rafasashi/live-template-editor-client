@@ -572,16 +572,6 @@ class LTPLE_Client_Settings {
 
 			$fields[] = array(
 			
-				'id' 			=> 'server_url',
-				'label'			=> __( 'Server Url' , $this->plugin->slug ),
-				'description'	=> '',
-				'type'			=> 'text',
-				'default'		=> '',
-				'placeholder'	=> __( 'http://', $this->plugin->slug )
-			);
-			
-			$fields[] = array(
-			
 				'id' 			=> 'client_key',
 				'label'			=> __( 'Client key' , $this->plugin->slug ),
 				'description'	=> '',
@@ -601,21 +591,6 @@ class LTPLE_Client_Settings {
 			'default'		=> '',
 			'placeholder'	=> __( 'support@example.com', $this->plugin->slug )
 		);
-		
-		/*
-		$fields[] = array(
-		
-			'id' 			=> 'post_types',
-			'label'			=> __( 'Post Types' , $this->plugin->slug ),
-			'description'	=> '',
-			'type'			=> 'checkbox_multi',
-			'options'		=> array(
-			
-				'post' 			=> 'Post',
-				'page' 			=> 'Page',
-			),
-		);
-		*/
 		
 		$settings['settings'] = array(
 			'title'					=> __( 'General settings', $this->plugin->slug ),

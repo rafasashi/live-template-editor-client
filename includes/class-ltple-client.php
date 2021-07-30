@@ -380,7 +380,8 @@ class LTPLE_Client {
 		
 		add_action( 'login_enqueue_scripts', array( $this, 'get_login_logo' ) );
 		add_filter( 'login_headerurl', array( $this, 'get_login_logo_url' ) );
-		add_filter( 'login_headertitle', array( $this, 'get_login_logo_url_title' ) );
+		
+		add_filter( 'login_headertext', array( $this, 'get_login_header_text' ) );
 
 		// add editor shortcodes
 		
@@ -2860,7 +2861,7 @@ class LTPLE_Client {
 		return home_url();
 	}
 	
-	public function get_login_logo_url_title() {
+	public function get_login_header_text() {
 		
 		return get_bloginfo('name');
 	}
