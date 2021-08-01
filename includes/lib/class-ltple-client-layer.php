@@ -3587,7 +3587,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$defaultCss = $this->parse_css_content($this->defaultCss, '.layer-' . $this->defaultId);
 			
-			$layerCss = $this->layerCss;
+			$layerCss = !empty($this->layerCss) ? $this->layerCss : '';
 		
 			if( !empty($this->layerMenuCss) ){
 				

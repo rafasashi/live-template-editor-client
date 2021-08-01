@@ -176,7 +176,11 @@ class LTPLE_Client_Profile {
 			
 			// profile user
 			
-			$this->user = get_user_by( 'ID', $this->id );
+			$this->user = get_user_by( 'id', $user_id );
+			
+			if( empty($this->user->ID) )
+				
+				include( $this->parent->views . '/profile/restricted.php' );
 			
 			$this->user->period_end = $this->parent->plan->get_license_period_end( $this->user->ID);
 			
