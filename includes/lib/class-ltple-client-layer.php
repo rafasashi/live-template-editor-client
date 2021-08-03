@@ -3585,7 +3585,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		elseif( empty($_POST) ){
 			
-			$defaultCss = $this->parse_css_content($this->defaultCss, '.layer-' . $this->defaultId);
+			$defaultCss = !empty($this->defaultCss) ? $this->parse_css_content($this->defaultCss, '.layer-' . $this->defaultId) : '';
 			
 			$layerCss = !empty($this->layerCss) ? $this->layerCss : '';
 		

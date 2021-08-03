@@ -176,7 +176,7 @@ class LTPLE_Client_Profile {
 			
 			// profile user
 			
-			$this->user = get_user_by( 'id', $user_id );
+			$this->user = get_user_by('id',$user_id);
 			
 			if( empty($this->user->ID) )
 				
