@@ -709,9 +709,13 @@ class LTPLE_Client_Plan {
 									$this->shortcode .='</div>'.PHP_EOL;
 								}
 							}
+							else{
+								
+								$this->shortcode .='via manager account'.PHP_EOL;
+							}
 							
 						$this->shortcode .='</div>'.PHP_EOL;
-					$this->shortcode .='</div>'.PHP_EOL;						
+					$this->shortcode .='</div>'.PHP_EOL;	
 				}
 			}
 		}		

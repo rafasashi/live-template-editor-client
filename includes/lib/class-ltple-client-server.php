@@ -15,7 +15,7 @@ class LTPLE_Client_Server {
 		
 		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		
-		$this->url = 'https://wpas1.recuweb.com';
+		$this->url = 'https://saas.recuweb.com';
 		
 		if( !empty($this->url) ){
 			
