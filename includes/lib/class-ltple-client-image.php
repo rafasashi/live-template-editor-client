@@ -133,6 +133,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 						
 						'methods' 	=> 'GET',
 						'callback' 	=> array($this,'list_user_images'),
+						'permission_callback' => '__return_true',
 					) );
 				}
 				

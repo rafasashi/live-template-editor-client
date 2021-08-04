@@ -19,6 +19,7 @@ class LTPLE_Client_Update {
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'update_layers'),
+				'permission_callback' => '__return_true',
 			) );
 		} );		
 	}

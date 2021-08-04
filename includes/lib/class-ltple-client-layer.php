@@ -2642,24 +2642,28 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_user_layer_rows'),
+				'permission_callback' => '__return_true',
 			));
 
 			register_rest_route( 'ltple-list/v1', '/user-psd/', array(
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_user_psd_rows'),
+				'permission_callback' => '__return_true',
 			));				
 
 			register_rest_route( 'ltple-list/v1', '/user-page/', array(
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_user_page_rows'),
+				'permission_callback' => '__return_true',
 			));
 			
 			register_rest_route( 'ltple-list/v1', '/user-menu/', array(
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_user_menu_rows'),
+				'permission_callback' => '__return_true',
 			));
 		});
 	}

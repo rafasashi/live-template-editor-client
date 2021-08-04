@@ -253,6 +253,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_user_app_rows'),
+				'permission_callback' => '__return_true',
 			));
 		});
 	}

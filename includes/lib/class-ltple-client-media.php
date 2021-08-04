@@ -50,18 +50,21 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_uploaded_images'),
+				'permission_callback' => '__return_true',
 			) );
 			
 			register_rest_route( 'ltple-media/v1', '/external-images', array(
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_external_images'),
+				'permission_callback' => '__return_true',
 			) );
 			
 			register_rest_route( 'ltple-media/v1', '/image-library', array(
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_default_images'),
+				'permission_callback' => '__return_true',
 			) );
 		} );			
 	}

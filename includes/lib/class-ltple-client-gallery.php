@@ -37,6 +37,7 @@ class LTPLE_Client_Gallery {
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_gallery_items'),
+				'permission_callback' => '__return_true',
 			) );
 			
 		} );

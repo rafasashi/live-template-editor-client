@@ -83,6 +83,7 @@ class LTPLE_Client_Settings {
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_email_info'),
+				'permission_callback' => '__return_true',
 			));			
 			
 		});

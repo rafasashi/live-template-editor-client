@@ -77,6 +77,7 @@ class LTPLE_Client_Profile {
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_profile_menu'),
+				'permission_callback' => '__return_true',
 			) );
 			
 		} );

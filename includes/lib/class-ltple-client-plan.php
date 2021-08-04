@@ -101,6 +101,7 @@ class LTPLE_Client_Plan {
 				
 				'methods' 	=> 'POST',
 				'callback' 	=> array($this,'deliver_plans'),
+				'permission_callback' => '__return_true',
 			) );
 		} );
 		

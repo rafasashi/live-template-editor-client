@@ -29,6 +29,7 @@ class LTPLE_Client_Websocket {
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_websocket_info'),
+				'permission_callback' => '__return_true',
 			));
 			
 		});
