@@ -3546,10 +3546,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}
 		else{
-			
-			$layerContent = $this->layerContent;
-			
-			$layerContent = LTPLE_Editor::sanitize_content($layerContent);
+
+			$layerContent = !empty($this->layerContent) ? LTPLE_Editor::sanitize_content($this->layerContent) : '';
 		}
 		
 		// parse content elements
