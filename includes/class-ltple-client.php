@@ -736,25 +736,7 @@ class LTPLE_Client {
 				white-space: nowrap;
 				vertical-align: baseline;
 				border-radius: .25em;
-			}';
-			
-			echo '.pagination-links	{  
-				background: #fff;
-				display: inline-block;
-				padding: 3px;
-			}';
-			
-			echo '.tablenav {  
-				min-height: 34px;
-			}';	
-			
-			echo '.tablenav .tablenav-pages {  
-				margin: 0;
-			}';
-			
-			echo '.tablenav-pages-navspan {
-				height: 100%;
-			}';				
+			}';		
 			
 		echo '</style>';
 	}	

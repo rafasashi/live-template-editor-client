@@ -24,17 +24,24 @@ class LTPLE_Client_Server {
 				// set dev url
 				
 				$this->url = str_replace('.','--',untrailingslashit($this->url)) . '.' . REW_SERVER;				 
-			}
-			
-			// set CORS
-			
-			$url = parse_url($this->url);
-			
-			header('Access-Control-Allow-Origin: ' . $url['scheme']."://".$url['host'], false);
-			header('Access-Control-Allow-Credentials: true', false);			
+			}		
 		}		
 		
+		add_action('send_headers', array($this, 'add_cors_header'),999 );
+		
 		add_filter('ltple_remote_script_url', array( $this, 'get_script_url' ));
+	}
+	
+	public function add_cors_header( $request = null ) {
+		
+		// set CORS
+		
+		$url = parse_url($this->url);
+		
+		header('Access-Control-Allow-Origin: ' . $url['scheme']."://".$url['host'], false);
+		header('Access-Control-Allow-Credentials: true', false);
+		
+		return $request;
 	}
 	
 	public function get_script_url($url){

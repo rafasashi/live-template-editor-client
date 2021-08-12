@@ -318,13 +318,13 @@
 							
 							echo '</div>';
 							
-							echo '<div class="actions" style="display:inline-block;width:100%;">';
+							echo '<div class="alignleft actions">';
 							
 								do_action('ltple_user_filter');
 							
 							echo '</div>';
 							
-							echo '<div class="actions" style="display:inline-block;width:100%;">';
+							echo '<div class="alignleft actions">';
 							
 								do_action('ltple_user_updater');						
 						}
