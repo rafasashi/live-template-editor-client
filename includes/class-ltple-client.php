@@ -141,7 +141,7 @@ class LTPLE_Client {
 
 		// start session
 		
-		if( empty($_GET['doing_wp_cron']) && !session_id() ) {
+		if( !isset($_GET['doing_wp_cron']) && !session_id() ) {
 			
 			session_start();
 		}
