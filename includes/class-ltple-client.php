@@ -137,14 +137,7 @@ class LTPLE_Client {
 		
 		$this->load_plugin_textdomain();
 	
-		add_action('init', array( $this, 'load_localisation' ), 0 );		
-
-		// start session
-		
-		if( !session_id() ) {
-			
-			session_start();
-		}			
+		add_action('init', array( $this, 'load_localisation' ), 0 );
 		
 		$this->client 		= new LTPLE_Client_Client( $this );
 		$this->request 		= new LTPLE_Client_Request( $this );
