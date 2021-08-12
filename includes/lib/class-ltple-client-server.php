@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class LTPLE_Client_Server {
 
-	public $url = '';
+	public $url = 'https://saas.recuweb.com';
 
 	/**
 	 * Constructor function
@@ -13,19 +13,12 @@ class LTPLE_Client_Server {
 		
 		$this->parent = $parent;
 		
-		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		
-		$this->url = 'https://saas.recuweb.com';
-		
-		if( !empty($this->url) ){
+		if( defined('REW_DEV_ENV') && REW_DEV_ENV === true ){
 			
-			if( defined('REW_DEV_ENV') && REW_DEV_ENV === true ){
-				
-				// set dev url
-				
-				$this->url = str_replace('.','--',untrailingslashit($this->url)) . '.' . REW_SERVER;				 
-			}		
-		}		
+			// set dev url
+			
+			$this->url = str_replace('.','--',untrailingslashit($this->url)) . '.' . REW_SERVER;				 
+		}	
 		
 		add_action('send_headers', array($this, 'add_cors_header'),999 );
 		
