@@ -137,7 +137,14 @@ class LTPLE_Client {
 		
 		$this->load_plugin_textdomain();
 	
-		add_action('init', array( $this, 'load_localisation' ), 0 );
+		add_action('init', array( $this, 'load_localisation' ), 0 );		
+
+		// start session
+		
+		if( empty($_GET['doing_wp_cron']) && !session_id() ) {
+			
+			session_start();
+		}
 		
 		$this->client 		= new LTPLE_Client_Client( $this );
 		$this->request 		= new LTPLE_Client_Request( $this );
