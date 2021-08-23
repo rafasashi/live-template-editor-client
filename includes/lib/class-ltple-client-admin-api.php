@@ -154,7 +154,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 					if( !empty($field['script']) ){
 				
-						$html .= '<script>' . $field['script'] . '</script>';
+						wp_register_script( $this->parent->_token . '_file_script_'.$id, '', array('jquery') );
+					
+						wp_enqueue_script( $this->parent->_token . '_file_script_' . $id );
+					
+						wp_add_inline_script( $this->parent->_token . '_file_script_' . $id, $field['script'] );
 					}
 					
 				break;
@@ -1234,7 +1238,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									$class='input-group-row ui-state-default ui-state-disabled';
 								}								
 									
-								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;background:#fff;border:1px solid #eee;border-radius:3px;padding:10px;margin:10px 0;box-shadow:0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);">';
+								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:flex;background:#fff;border:1px solid #eee;border-radius:3px;padding:10px;margin:10px 0;box-shadow:0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);">';
 									
 									$html .= '<div style="width:90%;float:left;">';
 										

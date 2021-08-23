@@ -1024,7 +1024,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'context' 	=> 'advanced'
 						),
 						
-						'id'			=> "layerImageTpl",
+						'id'			=> 'layerImageTpl',
 						'type'			=> 'file',
 						'label'			=> '<b>Upload File</b>',
 						'accept'		=> '.psd,.xfc,.sketch',
