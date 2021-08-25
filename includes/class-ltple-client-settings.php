@@ -505,6 +505,14 @@ class LTPLE_Client_Settings {
 		
 		add_submenu_page(
 			$this->plugin->slug,
+			__( 'Gallery Settings', $this->plugin->slug ),
+			__( 'Gallery Settings', $this->plugin->slug ),
+			'edit_pages',
+			'edit-tags.php?taxonomy=gallery-section&post_type=cb-default-layer'
+		);
+		
+		add_submenu_page(
+			$this->plugin->slug,
 			__( 'Plan Settings', $this->plugin->slug ),
 			__( 'Plan Settings', $this->plugin->slug ),
 			'edit_pages',
@@ -864,14 +872,17 @@ class LTPLE_Client_Settings {
 			
 				'user-contact' 	=> array( 'name' => 'Emails', 'type' => 'taxonomy', 'post-type' => '' ),
 			),
+			'gallery-settings' => array(
+				
+				'gallery-section' 	=> array( 'tab'  => 'Sections', 	'name' => 'Sections', 	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),
+				'layer-type' 		=> array( 'tab'  => 'Categories', 	'name' => 'Categories',	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),
+				'layer-range' 		=> array( 'tab'  => 'Ranges', 		'name' => 'Ranges',   	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),	
+			),
 			'plan-settings' => array(
 				
-				'subscription-plan' => array( 'tab'  => 'Plans', 		'name' => 'Plans' ),
-				'gallery-section' 	=> array( 'tab'  => 'Galleries',	'name' => 'Sections', 	'type' => 'taxonomy' ),
-				'layer-type' 		=> array( 'tab'  => 'Galleries', 	'name' => 'Categories',	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
-				'layer-range' 		=> array( 'tab'  => 'Galleries', 	'name' => 'Ranges',   	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
-				'account-option' 	=> array( 'tab'  => 'Options', 		'name' => 'Options',  	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
-				'addon-service' 	=> array( 'tab'  => 'Options', 		'name' => 'Services', 	'type' => 'taxonomy', 'post-type' => 'subscription-plan' ),	
+				'subscription-plan' => array( 'tab'  => 'Plans', 	'name' => 'Plans' ),	
+				'account-option' 	=> array( 'tab'  => 'Options', 	'name' => 'Options',  	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'addon-service' 	=> array( 'tab'  => 'Options', 	'name' => 'Services', 	'type' => 'taxonomy', 'post-type' => 'subscription-plan' ),
 			),
 			'marketing-settings' => array(
 			
