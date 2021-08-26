@@ -238,6 +238,8 @@ class LTPLE_Client_Settings {
 		}
 		
 		echo'</ul>';
+		
+		do_action('ltple_after_settings_tab');
 	}
 	
 	public function post_type_tabs($views) {
