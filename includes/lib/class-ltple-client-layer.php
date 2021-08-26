@@ -329,6 +329,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		});
 		
+		add_action('restrict_manage_posts', array($this, 'add_manage_layer_filters'),10,2 );
+		
+		add_action( 'current_screen', function ( $screen ) {
+			
+			if( $screen->id == 'edit-cb-default-layer' ){
+				
+				add_filter( 'months_dropdown_results', '__return_empty_array' );
+			}
+			
+		});
+		
+		add_filter('pre_get_posts', array($this, 'pre_get_layers'),9999999);
+		
 		// default layer
 		
 		add_filter('manage_cb-default-layer_posts_columns', array( $this, 'set_default_layer_columns'),99999);
@@ -5163,6 +5176,74 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		return $this->column;
 	}
+
+	public function add_manage_layer_filters($post_type,$which){
+		
+		if( $post_type == 'cb-default-layer' ){
+			
+			$options = array();
+	
+			if( $types = $this->get_layer_types() ){
+				
+				$storages = $this->get_storage_types();
+				
+				foreach( $types as $type ){
+
+					$storage = $storages[$type->storage];
+					
+					$options[$storage][$type->term_id] = $type->name;
+				}
+				
+				echo $this->parent->admin->display_field( array(
+					
+					'id'		=> 'layer_type',
+					'type'		=> 'select',
+					'options'	=> $options,
+					'data'		=> !empty($_GET['layer_type']) ? intval($_GET['layer_type']) : key($types),
+					
+				), false, false ); 					
+			}
+		}
+		
+		return $post_type;
+	}
+
+	public function pre_get_layers($query) {
+
+		if( $query->is_admin ) {
+			
+			if( $query->get('post_type') == 'cb-default-layer' ){
+				
+				if( !isset($_REQUEST['orderby']) ){
+				
+					$query->set('orderby', 'id');
+					$query->set('order', 'DESC');
+				}
+				
+				if( $query->is_main_query() ){
+				
+					$types = $this->get_layer_types();
+				
+					$type_id = !empty($_REQUEST['layer_type']) ? $_REQUEST['layer_type'] : key($types);
+					
+					if( !empty($type_id) ){
+
+						$query->set('tax_query', array(
+						
+							array(
+							
+								'taxonomy' => 'layer-type',
+								'terms'    => array($type_id),
+								'operator' => 'IN'
+							)
+						));
+					}
+				}
+			}
+		}
+		  
+		return $query;
+	}	
 	
 	public function save_layer_taxonomy_fields($term_id){
 			

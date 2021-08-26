@@ -1425,34 +1425,32 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 				
 				case 'select':
+					$html .= '<select class="form-control" name="' . esc_attr( $option_name ) . '" id="' . $id . '"'.$style.'>';
 					
-					$html .= '<span class="form-group" style="margin:7px 0;">';
-					
-						if(isset($field['name'])){
+					foreach ( $field['options'] as $key => $value ) {
+						
+						if( is_array($value) ){
 							
-							$html .= '<select'.$style.' class="form-control" name="' . $field['name'] . '" data-origine="'.$data.'" id="' . $id . '"'.$required.$disabled.'>';
+							$html .= '<optgroup label="'.$key.'">';
+								
+								foreach( $value as $k => $v ){
+									
+									$selected = $k == $data ? true : false;
+								
+									$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $k ) . '">' . $v . '</option>';
+								}
+								
+							$html .= '</optgroup>';
 						}
 						else{
-							
-							$html .= '<select'.$style.' class="form-control" name="' . esc_attr( $option_name ) . '" data-origine="'.$data.'" id="' . $id . '"'.$required.$disabled.'>';
-						}
 
-						foreach ( $field['options'] as $k => $v ) {
-							$selected = false;
-							if ( $k == $data ) {
-								
-								$selected = true;
-							}
-							elseif(isset($field['selected']) && $field['selected'] == $k ){
-								
-								$selected = true;
-							}
-							$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $k ) . '">' . $v . '</option>';
+							$selected = $key == $data ? true : false;
+
+							$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $key ) . '">' . $value . '</option>';
 						}
-						$html .= '</select> ';
-						
-					$html .= '</span>';
+					}
 					
+					$html .= '</select> ';
 				break;
 
 				case 'select_multi':
