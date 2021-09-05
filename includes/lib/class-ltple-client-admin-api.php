@@ -63,17 +63,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				$data = apply_filters('ltple_admin_api_get_' . $field['id'],$item);
 			}
-			elseif ( !empty( $item->caps ) ) {
+			elseif( !empty($item->ID) ){
 				
-				// Get saved field data
+				if ( !empty( $item->user_email ) ) {
+					
+					// Get saved field data
 
-				$data = get_user_meta( $item->ID, $field['id'], true );
-			} 
-			elseif ( !empty($item->ID) ) {
+					$data = get_user_meta( $item->ID, $field['id'], true );
+				} 
+				else{
 
-				// Get saved field data
-				
-				$data = get_post_meta( $item->ID, $field['id'], true );
+					// Get saved field data
+					
+					$data = get_post_meta( $item->ID, $field['id'], true );
+				}
 			}
 			elseif ( !empty($item->term_id) ) {
 

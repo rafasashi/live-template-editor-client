@@ -260,12 +260,6 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 									update_post_meta($element_id,'layerContent',$content);
 									update_post_meta($element_id,'elementType',$elements['type'][$i]);
 									update_post_meta($element_id,'elementDrop',$elements['drop'][$i]);
-									
-									if( REW_SITE == 'himalayas.life' ){
-										
-										wp_set_object_terms($element_id,6750,'css-library',true);
-										wp_set_object_terms($element_id,6782,'font-library',true);
-									}
 								}
 								else{
 									

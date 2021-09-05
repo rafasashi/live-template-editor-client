@@ -668,7 +668,7 @@ class LTPLE_Client_Profile {
 				if( $fields = $this->get_privacy_fields() ){
 					
 					echo '<div style="margin:10px 0 10px 0;display: inline-block;">';
-					
+						
 						foreach( $fields as $field ){
 
 							echo '<div style="width:150px;display:inline-block;font-weight:bold;">'.$field['label'].'</div>';
@@ -678,7 +678,7 @@ class LTPLE_Client_Profile {
 								'id'		=> $field['id'],
 								'type'		=> 'switch',
 								'default'	=> !empty($field['default']) ? $field['default'] : 'off',
-							
+					
 							), $user );
 								
 							echo'<br>';
