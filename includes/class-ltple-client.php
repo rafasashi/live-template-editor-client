@@ -237,10 +237,7 @@ class LTPLE_Client {
 	
 	private function ltple_get_secret_iv(){
 		
-		//$secret_iv = md5( $this->user_agent . $this->user_ip );
-		//$secret_iv = md5( $this->user_ip );
-		
-		$secret_iv = hex2bin(md5('another-secret'));	
+		$secret_iv = substr(hash('sha256', md5('another-secret')), 0, 16);	
 
 		return $secret_iv;
 	}	
