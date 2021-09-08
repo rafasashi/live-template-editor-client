@@ -239,7 +239,8 @@ class LTPLE_Client {
 		
 		//$secret_iv = md5( $this->user_agent . $this->user_ip );
 		//$secret_iv = md5( $this->user_ip );
-		$secret_iv = md5( 'another-secret' );	
+		
+		$secret_iv = hex2bin(md5('another-secret'));	
 
 		return $secret_iv;
 	}	
@@ -255,13 +256,10 @@ class LTPLE_Client {
 			$secret_key = md5( $this->client->key );
 		}
 		
-		$secret_iv = $this->ltple_get_secret_iv();
+		$iv = $this->ltple_get_secret_iv();
 		
 		// hash
 		$key = hash('sha256', $secret_key);
-		
-		// iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
-		$iv = substr(hash('sha256', $secret_iv), 0, 16);
 
 		$output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
 		$output = $this->base64_urlencode($output);
@@ -280,14 +278,11 @@ class LTPLE_Client {
 			$secret_key = md5( $this->client->key );
 		}
 		
-		$secret_iv = $this->ltple_get_secret_iv();
+		$iv = $this->ltple_get_secret_iv();
 
 		// hash
 		$key = hash( 'sha256', $secret_key);
 		
-		// iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
-		$iv = substr( hash( 'sha256', $secret_iv ), 0, 16);
-
 		$output = openssl_decrypt($this->base64_urldecode($string), $encrypt_method, $key, 0, $iv);
 
 		return $output;
