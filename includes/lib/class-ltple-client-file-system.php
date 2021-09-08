@@ -30,8 +30,8 @@
 		
 		private function get_secret_iv(){
 			
-			$secret_iv = hex2bin(md5('another-secret'));	
-			
+			$secret_iv = md5( 'another-secret' );	
+
 			return $secret_iv;
 		}	
 		
@@ -46,11 +46,14 @@
 				$secret_key = md5( $this->parent->key );
 			}
 			
-			$iv = $this->get_secret_iv();
+			$secret_iv = $this->get_secret_iv();
 			
 			// hash
 			$key = hash('sha256', $secret_key);
 			
+			// iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
+			$iv = substr(hash('sha256', $secret_iv), 0, 16);
+
 			$output = openssl_encrypt($string, $encrypt_method, $key, 0, $iv);
 			$output = $this->base64_urlencode($output);
 
@@ -68,11 +71,14 @@
 				$secret_key = md5( $this->parent->key );
 			}
 			
-			$iv = $this->get_secret_iv();
+			$secret_iv = $this->get_secret_iv();
 
 			// hash
-			$key = hash('sha256',$secret_key);
+			$key = hash( 'sha256', $secret_key);
 			
+			// iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
+			$iv = substr( hash( 'sha256', $secret_iv ), 0, 16);
+
 			$output = openssl_decrypt($this->base64_urldecode($string), $encrypt_method, $key, 0, $iv);
 
 			return $output;
