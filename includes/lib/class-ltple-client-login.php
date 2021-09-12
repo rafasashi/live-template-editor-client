@@ -256,14 +256,12 @@ class LTPLE_Client_Login {
 	
 	public function set_login_redirect_url( $redirect_to, $request, $user ) {
 		
-		$url = $this->parent->urls->dashboard;
-		
-		if( !empty($redirect_to) && $redirect_to != admin_url() ){
+		if( $redirect_to == admin_url() ){
 			
-			$url = $redirect_to;
+			$redirect_to = isset( $this->parent->urls->dashboard ) ? $this->parent->urls->dashboard : $this->parent->urls->home;
 		}
 		
-		return $url;
+		return $redirect_to;
 	}
 		
 	public function get_login_shortcode(){

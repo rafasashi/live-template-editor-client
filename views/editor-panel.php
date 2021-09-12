@@ -8,9 +8,9 @@ get_header();
 
 	// get current tab
 
-	$currentTab = $ltple->user->layer->post_type;
+	$currentTab = !empty($ltple->user->layer->post_type) ? $ltple->user->layer->post_type : '';
 
-	$post_type = get_post_type_object( $ltple->user->layer->post_type );
+	$post_type = get_post_type_object( $currentTab );
 
 	$layer_type = $ltple->layer->get_layer_type($ltple->layer->id);
 
