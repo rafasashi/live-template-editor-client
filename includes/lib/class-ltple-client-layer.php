@@ -1522,7 +1522,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$id = $post->ID;
 		}
-		elseif( $this->parent->user->loggedin && !is_admin() && !empty($_GET['p']) && !empty($_GET['preview']) && !empty($_GET['post_type']) ){
+		elseif( is_user_logged_in() && !is_admin() && !empty($_GET['p']) && !empty($_GET['preview']) && !empty($_GET['post_type']) ){
 			
 			// get id from preview url
 			
