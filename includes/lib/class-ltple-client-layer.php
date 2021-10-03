@@ -3436,7 +3436,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return apply_filters('ltple_layer_js',get_post_meta( $layer_id, 'layerJs', true ),$layer_id,$this->is_default($layer_id));
 	}
 	
-	public function parse_hosted_content(){
+	public function parse_hosted_content($layerOutput){
 		
 		// get layer content
 		
@@ -3938,11 +3938,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$js_skip = 'off';
 				
-				if( $this->is_local ){
+				if( $this->is_local && $layerOutput != 'hosted-page' ){
 				
 					$js_skip = $this->get_meta( $term, 'js_skip_local' ) != 'on' ? 'off' : 'on' ;
 				}
-				
+			
 				if( $js_skip != 'on' ){
 					
 					$js_url = $this->get_meta( $term, 'js_url' );
@@ -5370,11 +5370,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					update_term_meta($term->term_id, 'js_content', $js_content);			
 				}
+			
+				// js skip local
+			
+				$skip = isset($_POST['js_skip_local']) ? $_POST['js_skip_local'] : 'off';
 				
-				if(isset($_POST['js_skip_local'])){
-
-					update_term_meta($term->term_id, 'js_skip_local', $_POST['js_skip_local']);			
-				}
+				update_term_meta($term->term_id, 'js_skip_local', $skip);
 			}
 			elseif( $term->taxonomy == 'font-library' ){
 					
@@ -5846,13 +5847,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 	public function render_output(){
 		
-		// parse layer content
-							
-		$this->parse_hosted_content();
-		
 		$content = '';
 
 		if( !empty($this->layerOutput) ){
+			
+			$this->parse_hosted_content($this->layerOutput);
 			
 			ob_start();
 			
