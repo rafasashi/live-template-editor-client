@@ -3436,7 +3436,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return apply_filters('ltple_layer_js',get_post_meta( $layer_id, 'layerJs', true ),$layer_id,$this->is_default($layer_id));
 	}
 	
-	public function parse_hosted_content($layerOutput){
+	public function parse_hosted_content($layerOutput=null){
 		
 		// get layer content
 		
