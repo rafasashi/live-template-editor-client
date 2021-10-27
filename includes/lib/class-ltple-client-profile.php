@@ -13,6 +13,7 @@ class LTPLE_Client_Profile {
 	var $url 		= null;
 	var $tabs 		= array();
 	var $user 		= null;
+	var $name		= null;
 	
 	var $urls 		= array();
 
@@ -179,6 +180,10 @@ class LTPLE_Client_Profile {
 			
 			$this->user = get_user_by('id',$user_id);
 			
+			// profile name
+					
+			$this->name = $this->get_profile_name($this->id);
+		
 			if( empty($this->user->ID) )
 				
 				include( $this->parent->views . '/profile/restricted.php' );
@@ -610,18 +615,31 @@ class LTPLE_Client_Profile {
 		return $description;
 	}
 	
+	public function get_profile_name($user_id){
+		
+		return ucfirst(get_user_meta( $user_id , 'nickname', true ));
+	}
+	
 	public function get_profile_title($title=''){
 
 		if( $this->tab != 'home' ){
 			
 			$tabs = $this->get_profile_tabs();
 			
-			foreach( $tabs as $tab ){
+			if( $this->tab == 'about' ){
 				
-				if( $tab['slug'] == $this->tab){
+				$title = $tabs['about']['name'] . ' ' . $this->name;
+			}
+			else{
+				
+				foreach( $tabs as $tab ){
 					
-					$title = $tab['name'];
-					break;
+					if( $tab['slug'] == $this->tab){
+
+						$title = apply_filters('ltple_profile_' . $tab['slug'] . '_title',$tab['name'],$this->id,$this->name);
+				
+						break;
+					}
 				}
 			}
 		}

@@ -48,7 +48,7 @@ else{
 	else{
 		
 		$layer_type = $ltple->layer->get_layer_type($ltple->layer->id);
-
+		
 		$user_plan 	= $ltple->plan->get_user_plan_info($ltple->user->ID);
 
 		$total_storage 	= isset($user_plan['info']['total_storage'][$layer_type->name]) ? $user_plan['info']['total_storage'][$layer_type->name] : 0;

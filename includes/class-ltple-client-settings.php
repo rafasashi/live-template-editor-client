@@ -36,12 +36,7 @@ class LTPLE_Client_Settings {
 	public function __construct ( $parent ) {
 
 		$this->parent = $parent;
-		
-		$this->plugin 			= new stdClass();
-		$this->plugin->slug  	= 'live-template-editor-client';
-		$this->plugin->title 	= 'Live Template Editor';
-		$this->plugin->short 	= 'Live Editor';
-		
+
 		// get options
 		
 		$this->options 				 	= new stdClass();
@@ -63,14 +58,13 @@ class LTPLE_Client_Settings {
 		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor', '#506988' );
 		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor', '#506988' );	
 
-		// Initialise settings
-		add_action( 'init', array( $this, 'init_settings' ), 11 );
-
 		// Register plugin settings
-		add_action( 'admin_init' , array( $this, 'register_settings' ) );
-
+		
+		add_action( 'admin_init' , array( $this, 'init_tabs' ) );
+		
 		// Add settings page to menu
-		add_action( 'admin_menu' , array( $this, 'add_menu_items' ) );	
+		
+		add_action( 'ltple_admin_menu' , array( $this, 'add_menu_items' ) );	
 		
 		// Add settings link to plugins page
 		add_filter( 'plugin_action_links_' . plugin_basename( $this->parent->file ) , array( $this, 'add_settings_link' ) );
@@ -87,6 +81,12 @@ class LTPLE_Client_Settings {
 			));			
 			
 		});
+		
+		add_filter( 'ltple_general_settings', array( $this, 'register_general_settings' ),10,1 );
+		
+		add_filter( 'ltple_addons_fields' , array( $this, 'register_addons' ),10,1 );		
+		
+		add_filter( 'ltple_settings_fields', array( $this, 'settings_fields' ),10,1 );
 	}
 	
 	public function get_default_logo_url() {
@@ -108,7 +108,7 @@ class LTPLE_Client_Settings {
 		
 			if( !$this->options->profile_header = get_option( $this->parent->_base . 'profileHeader' )){
 				
-				$this->options->profile_header = plugins_url() . '/' . $this->plugin->slug . '/assets/images/profile_header.jpg';
+				$this->options->profile_header = plugins_url() . '/' . 'live-template-editor-client' . '/assets/images/profile_header.jpg';
 			}
 		}
 		
@@ -283,160 +283,67 @@ class LTPLE_Client_Settings {
 	}	
 	
 	/**
-	 * Initialise settings
-	 * @return void
-	 */
-	public function init_settings(){
-		
-		$this->settings = $this->settings_fields();
-		
-		do_action('ltple_plugin_settings');
-
-		$this->schedule_actions();
-		
-		if( is_admin() ){
-			
-			add_action( 'load-edit.php', function() {
-				
-				if( !empty($_GET['post_type']) ){			
-					
-					foreach($this->tabs as $t => $tabs){
-					
-						if(isset($tabs[$_GET['post_type']])){
-							
-							$this->tabIndex = $t;
-							
-							add_filter( 'views_edit-' . $_GET['post_type'], array( $this, 'post_type_tabs') );						
-						}
-					}
-				}
-
-			});
-
-			add_action( 'load-post.php', function() {
-				
-				if( !empty($_GET['post']) ){
-				
-					if( $post = get_post($_GET['post']) ){
-					
-						foreach($this->tabs as $t => $tabs){
-						
-							if( isset($tabs[$post->post_type]) ){
-								
-								$this->tabIndex = $t;
-								
-								add_filter( 'edit_form_top', array( $this, 'post_type_tabs') );						
-								
-								break;
-							}
-						}
-					}
-				}
-			});
-
-			add_action( 'load-edit-tags.php', function() {
-				
-				if( !empty($_GET['taxonomy']) ){
-
-					foreach($this->tabs as $t => $tabs){
-
-						if(isset($tabs[$_GET['taxonomy']])){
-							
-							$this->tabIndex = $t;
-							
-							add_filter( $_GET['taxonomy'].'_pre_add_form', array( $this, 'taxonomy_tabs') );						
-						}
-					}
-				}
-			});	
-			
-			add_action( 'load-term.php', function() {
-				
-				if( !empty($_GET['taxonomy']) ){
-
-					foreach($this->tabs as $t => $tabs){
-
-						if(isset($tabs[$_GET['taxonomy']])){
-							
-							$this->tabIndex = $t;
-							
-							add_filter( $_GET['taxonomy'].'_term_edit_form_top', array( $this, 'taxonomy_tabs') );						
-						}
-					}
-				}
-			});	
-		}
-	}
-	
-	public function schedule_actions(){
-		
-		foreach($this->settings as $settings){
-			
-			if( empty($settings['fields']) ) continue;
-			
-			foreach($settings['fields'] as $fields){
-			
-				if( $fields['type'] == 'action_schedule'){
-					
-					$key = $this->parent->_base . $fields['id'];
-					
-					if( !empty($_POST[$key]['every']) ){
-						
-						// schedule cron event
-						
-						$every = intval($_POST[$key]['every']);
-
-						if( $every > 14 && $every < 60){
-							
-							// get recurrence
-							
-							$event 		= $this->parent->_base . $fields['id'];
-							$recurrence = $every.'min';	
-							
-							// get arguments
-							
-							$args = [];
-
-							if( !empty($_POST[$key]['args']) ){
-								
-								foreach($_POST[$key]['args'] as $arg){
-									
-									if(is_numeric($arg)){
-										
-										$args[] = floatval($arg);
-									}
-								}
-							}
-							
-							//remove existing event
-							
-							$this->parent->cron->remove_event($event);
-
-							//set new event
-							
-							wp_schedule_event( time(), $recurrence, $event, $args);
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	/**
 	 * Add settings page to admin menu
 	 * @return void
 	 */
 	public function add_menu_items () {
+
+		add_submenu_page(
+			'edit.php?post_type=live-editor',
+			__( 'Resources', 'live-template-editor-client' ),
+			__( 'Resources', 'live-template-editor-client' ),
+			'edit_pages',
+			'edit.php?post_type=cb-default-layer'
+		);
 		
-		add_menu_page(
+		add_submenu_page(
+			'edit.php?post_type=live-editor',
+			__( 'User Contents', 'live-template-editor-client' ),
+			__( 'User Contents', 'live-template-editor-client' ),
+			'edit_pages',
+			'edit.php?post_type=user-layer'
+		);
 		
-			$this->plugin->short, 
-			$this->plugin->short, 
-			'edit_pages', 
-			$this->plugin->slug, 
-			array($this, 'settings_page'),
-			'dashicons-layout',
-			2
+		if( $this->parent->user->is_admin ){
+		
+			add_plugins_page( 
+				'Live Editor Addons', 
+				'Live Editor Addons', 
+				'edit_pages',
+				'admin.php?page=live-template-editor-client&tab=addons'
+			);
+		}
+		
+		add_submenu_page(
+			'edit.php?post_type=live-editor',
+			__( 'Gallery', 'live-template-editor-client' ),
+			__( 'Gallery', 'live-template-editor-client' ),
+			'edit_pages',
+			'edit-tags.php?taxonomy=gallery-section&post_type=cb-default-layer'
+		);
+		
+		add_submenu_page(
+			'edit.php?post_type=live-editor',
+			__( 'Plan & Pricing', 'live-template-editor-client' ),
+			__( 'Plan & Pricing', 'live-template-editor-client' ),
+			'edit_pages',
+			'edit.php?post_type=subscription-plan'
+		);
+
+		add_submenu_page(
+			'edit.php?post_type=live-editor',
+			__( 'Email Models', 'live-template-editor-client' ),
+			__( 'Email Models', 'live-template-editor-client' ),
+			'edit_pages',
+			'edit.php?post_type=email-model'
+		);
+
+		add_submenu_page(
+			'edit.php?post_type=live-editor',
+			__( 'Tutorials', 'live-template-editor-client' ),
+			__( 'Tutorials', 'live-template-editor-client' ),
+			'edit_pages',
+			'edit.php?post_type=tutorial'
 		);
 		
 		add_users_page( 
@@ -452,92 +359,6 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'users.php?' . $this->parent->_base .'view=newsletter'
 		);
-		
-		/*
-		add_users_page( 
-			'All Guests', 
-			'All Guests', 
-			'edit_pages',
-			'users.php?' . $this->parent->_base .'view=guests'
-		);		
-
-		add_users_page( 
-			'All Leads', 
-			'All Leads', 
-			'edit_pages',
-			'users.php?' . $this->parent->_base .'view=leads'
-		);
-		*/
-		
-		if( $this->parent->user->is_admin ){
-		
-			add_plugins_page( 
-				'Live Editor Addons', 
-				'Live Editor Addons', 
-				'edit_pages',
-				'admin.php?page=' . $this->plugin->slug . '&tab=addons'
-			);
-		}
-
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Default Resources', $this->plugin->slug ),
-			__( 'Default Resources', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=cb-default-layer'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'User Contents', $this->plugin->slug ),
-			__( 'User Contents', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=user-layer'
-		);
-		
-		/*
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'User Network', $this->plugin->slug ),
-			__( 'User Network', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?taxonomy=user-contact'
-		);
-		*/
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Gallery Settings', $this->plugin->slug ),
-			__( 'Gallery Settings', $this->plugin->slug ),
-			'edit_pages',
-			'edit-tags.php?taxonomy=gallery-section&post_type=cb-default-layer'
-		);
-		
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Plan Settings', $this->plugin->slug ),
-			__( 'Plan Settings', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=subscription-plan'
-		);
-
-		add_submenu_page(
-			$this->plugin->slug,
-			__( 'Email Models', $this->plugin->slug ),
-			__( 'Email Models', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=email-model'
-		);
-
-		add_submenu_page(
-			'live-template-editor-client',
-			__( 'Tutorials', $this->plugin->slug ),
-			__( 'Tutorials', $this->plugin->slug ),
-			'edit_pages',
-			'edit.php?post_type=tutorial'
-		);		
-		
-		do_action('ltple_admin_menu');
 	}
 	
 	/**
@@ -566,113 +387,95 @@ class LTPLE_Client_Settings {
 	 */
 	public function add_settings_link ( $links ) {
 		
-		$settings_link = '<a href="options-general.php?page=' . $this->parent->_token . '_settings">' . __( 'Settings', $this->plugin->slug ) . '</a>';
+		$settings_link = '<a href="options-general.php?page=' . $this->parent->_token . '_settings">' . __( 'Settings', 'live-template-editor-client' ) . '</a>';
   		array_push( $links, $settings_link );
   		return $links;
 	}
+
+	public function register_general_settings ($fields) {
+		
+		$fields[] = array(
+		
+			'id' 			=> 'email_support',
+			'label'			=> __( 'Support email' , 'live-template-editor' ),
+			'type'			=> 'text',
+			'placeholder'	=> __( 'support@example.com', 'live-template-editor' )
+		);
+
+		return $fields;
+	}
+		
 
 	/**
 	 * Build settings fields
 	 * @return array Fields to be displayed on settings page
 	 */
-	private function settings_fields () {
+	public function settings_fields ($settings) {
 		
-		$fields = array();
-		
-		if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
-
-			$fields[] = array(
-			
-				'id' 			=> 'client_key',
-				'label'			=> __( 'Client key' , $this->plugin->slug ),
-				'description'	=> '',
-				'type'			=> 'password',
-				'default'		=> '',
-				'show'			=> true,
-				'placeholder'	=> __( '', $this->plugin->slug )
-			);		
-		}
-		
-		$fields[] = array(
-		
-			'id' 			=> 'email_support',
-			'label'			=> __( 'Support email' , $this->plugin->slug ),
-			'description'	=> '',
-			'type'			=> 'text',
-			'default'		=> '',
-			'placeholder'	=> __( 'support@example.com', $this->plugin->slug )
-		);
-		
-		$settings['settings'] = array(
-			'title'					=> __( 'General settings', $this->plugin->slug ),
-			'description'			=> '',
-			'fields'				=> apply_filters('ltple_general_settings',$fields)
-		);
-	
 		$settings['urls'] = array(
-			'title'					=> __( 'URLs', $this->plugin->slug ),
-			'description'			=> __( '', $this->plugin->slug ),
+			'title'					=> __( 'URLs', 'live-template-editor-client' ),
+			'description'			=> __( '', 'live-template-editor-client' ),
 			'fields'				=> apply_filters('ltple_urls_settings',array(
 
 				array(
 					'id' 			=> 'editorSlug',
-					'label'			=> __( 'Editor' , $this->plugin->slug ),
+					'label'			=> __( 'Editor' , 'live-template-editor-client' ),
 					'description'	=> '[ltple-client-editor]',
 					'type'			=> 'slug',
-					'placeholder'	=> __( 'editor', $this->plugin->slug )
+					'placeholder'	=> __( 'editor', 'live-template-editor-client' )
 				),
 				array(
 					'id' 			=> 'mediaSlug',
-					'label'			=> __( 'Media' , $this->plugin->slug ),
+					'label'			=> __( 'Media' , 'live-template-editor-client' ),
 					'description'	=> '[ltple-client-media]',
 					'type'			=> 'slug',
-					'placeholder'	=> __( 'editor', $this->plugin->slug )
+					'placeholder'	=> __( 'media', 'live-template-editor-client' )
 				),
 				array(
 					'id' 			=> 'accountSlug',
-					'label'			=> __( 'Account' , $this->plugin->slug ),
+					'label'			=> __( 'Account' , 'live-template-editor-client' ),
 					'description'	=> '[ltple-client-account]',
 					'type'			=> 'slug',
-					'placeholder'	=> __( 'editor', $this->plugin->slug )
+					'placeholder'	=> __( 'account', 'live-template-editor-client' )
 				),
 				array(
 					'id' 			=> 'appsSlug',
-					'label'			=> __( 'Apps' , $this->plugin->slug ),
+					'label'			=> __( 'Apps' , 'live-template-editor-client' ),
 					'description'	=> '[ltple-client-apps]',
 					'type'			=> 'slug',
-					'placeholder'	=> __( 'editor', $this->plugin->slug )
+					'placeholder'	=> __( 'apps', 'live-template-editor-client' )
 				),
 				array(
 					'id' 			=> 'loginSlug',
-					'label'			=> __( 'Login' , $this->plugin->slug ),
+					'label'			=> __( 'Login' , 'live-template-editor-client' ),
 					'description'	=> '[ltple-client-login]',
 					'type'			=> 'slug',
-					'placeholder'	=> __( 'login', $this->plugin->slug )
+					'placeholder'	=> __( 'login', 'live-template-editor-client' )
 				),
 				array(
 					'id' 			=> 'plansSlug',
-					'label'			=> __( 'Plans' , $this->plugin->slug ),
+					'label'			=> __( 'Plans' , 'live-template-editor-client' ),
 					'description'	=> 'no shortcode',
 					'type'			=> 'slug',
-					'placeholder'	=> __( 'plans', $this->plugin->slug )
+					'placeholder'	=> __( 'plans', 'live-template-editor-client' )
 				),
 				array(
 					'id' 			=> 'productSlug',
-					'label'			=> __( 'Product' , $this->plugin->slug ),
+					'label'			=> __( 'Product' , 'live-template-editor-client' ),
 					'description'	=> '[ltple-client-product]',
 					'type'			=> 'slug',
-					'placeholder'	=> __( 'product', $this->plugin->slug )
+					'placeholder'	=> __( 'product', 'live-template-editor-client' )
 				)
 			))
 		);
 
 		$settings['style'] = array(
-			'title'					=> __( 'Style', $this->plugin->slug ),
+			'title'					=> __( 'Style', 'live-template-editor-client' ),
 			'description'			=> '',
 			'fields'				=> apply_filters('ltple_style_settings',array(
 				array(
 					'id' 			=> 'homeLogo',
-					'label'			=> __( 'Home Logo' , $this->plugin->slug ),
+					'label'			=> __( 'Home Logo' , 'live-template-editor-client' ),
 					'description'	=> 'Logo url 100 x 50 recommended',
 					'type'			=> 'text',
 					'placeholder'	=> 'https://',
@@ -680,7 +483,7 @@ class LTPLE_Client_Settings {
 				),
 				array(
 					'id' 			=> 'profileHeader',
-					'label'			=> __( 'Profile Header' , $this->plugin->slug ),
+					'label'			=> __( 'Profile Header' , 'live-template-editor-client' ),
 					'description'	=> 'Header url 1920 x 1080 recommended',
 					'type'			=> 'text',
 					'placeholder'	=> 'https://',
@@ -688,7 +491,7 @@ class LTPLE_Client_Settings {
 				),
 				array(
 					'id' 			=> 'socialIcon',
-					'label'			=> __( 'Social Icon' , $this->plugin->slug ),
+					'label'			=> __( 'Social Icon' , 'live-template-editor-client' ),
 					'description'	=> 'Icon url 120 x 120 recommended',
 					'type'			=> 'text',
 					'placeholder'	=> 'https://',
@@ -696,7 +499,7 @@ class LTPLE_Client_Settings {
 				),
 				array(
 					'id' 			=> 'titleBkg',
-					'label'			=> __( 'Title Background' , $this->plugin->slug ),
+					'label'			=> __( 'Title Background' , 'live-template-editor-client' ),
 					'description'	=> 'Header url 2560 x 470 recommended',
 					'type'			=> 'text',
 					'placeholder'	=> 'https://',
@@ -704,7 +507,7 @@ class LTPLE_Client_Settings {
 				),
 				array(
 					'id' 			=> 'navbarColor',
-					'label'			=> __( 'Navbar Color' , $this->plugin->slug ),
+					'label'			=> __( 'Navbar Color' , 'live-template-editor-client' ),
 					'description'	=> '',
 					'type'			=> 'text',
 					'placeholder'	=> '#182f42',
@@ -712,7 +515,7 @@ class LTPLE_Client_Settings {
 				),
 				array(
 					'id' 			=> 'mainColor',
-					'label'			=> __( 'Main Color' , $this->plugin->slug ),
+					'label'			=> __( 'Main Color' , 'live-template-editor-client' ),
 					'description'	=> '',
 					'type'			=> 'text',
 					'placeholder'	=> '#F86D18',
@@ -720,7 +523,7 @@ class LTPLE_Client_Settings {
 				),
 				array(
 					'id' 			=> 'linkColor',
-					'label'			=> __( 'Link Color' , $this->plugin->slug ),
+					'label'			=> __( 'Link Color' , 'live-template-editor-client' ),
 					'description'	=> '',
 					'type'			=> 'text',
 					'placeholder'	=> '#F86D18',
@@ -730,13 +533,13 @@ class LTPLE_Client_Settings {
 		);
 		
 		$settings['plans'] = array(
-			'title'					=> __( 'Plans', $this->plugin->slug ),
+			'title'					=> __( 'Plans', 'live-template-editor-client' ),
 			'description'			=> 'Default settings for products & plans',
 			'fields'				=> apply_filters('ltple_plan_settings',array(				
 				array(
 					'id' 			=> 'main_image',
 					'name' 			=> 'main_image',
-					'label'			=> __( 'Cover image' , $this->plugin->slug ),
+					'label'			=> __( 'Cover image' , 'live-template-editor-client' ),
 					'description'	=> 'Main cover image for plans',
 					'type'			=> 'text',
 					'placeholder'	=> 'https://',
@@ -744,7 +547,7 @@ class LTPLE_Client_Settings {
 				array(
 					'id' 			=> 'main_video',
 					'name' 			=> 'main_video',
-					'label'			=> __( 'HTML editor video' , $this->plugin->slug ),
+					'label'			=> __( 'HTML editor video' , 'live-template-editor-client' ),
 					'description'	=> 'HTML editor video',
 					'type'			=> 'text',
 					'placeholder'	=> 'http://',
@@ -753,12 +556,12 @@ class LTPLE_Client_Settings {
 		);
 		
 		$settings['website'] = array(
-			'title'					=> __( 'Profile', $this->plugin->slug ),
+			'title'					=> __( 'Profile', 'live-template-editor-client' ),
 			'description'			=> 'User profile & website settings ',
 			'fields'				=> apply_filters('ltple_profile_settings',array(
 				array(
 					'id' 			=> 'enable_profile_home_page',
-					'label'			=> __( 'Enable Home Page' , $this->plugin->slug ),
+					'label'			=> __( 'Enable Home Page' , 'live-template-editor-client' ),
 					'description'	=> '',
 					'type'			=> 'switch',
 				),
@@ -766,12 +569,12 @@ class LTPLE_Client_Settings {
 		);
 
 		$settings['stars'] = array(
-			'title'					=> __( 'Ranking', $this->plugin->slug ),
-			'description'			=> __( 'Setting up the stars and ranking system', $this->plugin->slug ),
+			'title'					=> __( 'Ranking', 'live-template-editor-client' ),
+			'description'			=> __( 'Setting up the stars and ranking system', 'live-template-editor-client' ),
 			'fields'				=> apply_filters('ltple_stars_settings',array(
 				array(
 					'id' 			=> 'enable_ranking',
-					'label'			=> __( 'Enable Ranking' , $this->plugin->slug ),
+					'label'			=> __( 'Enable Ranking' , 'live-template-editor-client' ),
 					'description'	=> '',
 					'type'			=> 'switch',
 				),
@@ -790,24 +593,24 @@ class LTPLE_Client_Settings {
 					'label'			=> $data['description'],
 					'description'	=> '['.$key.']',
 					'type'			=> 'number',
-					'placeholder'	=> __( 'stars', $this->plugin->slug )
+					'placeholder'	=> __( 'stars', 'live-template-editor-client' )
 				);				
 			}
 		}
 		
 		$settings['tax'] = array(
-			'title'					=> __( 'Tax', $this->plugin->slug ),
-			'description'			=> __( 'Setting up the tax system', $this->plugin->slug ),
+			'title'					=> __( 'Tax', 'live-template-editor-client' ),
+			'description'			=> __( 'Setting up the tax system', 'live-template-editor-client' ),
 			'fields'				=> apply_filters('ltple_tax_settings',array(
 				array(
 					'id' 			=> 'enable_taxes',
-					'label'			=> __( 'Enable Taxes' , $this->plugin->slug ),
+					'label'			=> __( 'Enable Taxes' , 'live-template-editor-client' ),
 					'description'	=> '',
 					'type'			=> 'switch',
 				),
 				array(
 					'id' 			=> 'vat_rate',
-					'label'			=> __( 'VAT %' , $this->plugin->slug ),
+					'label'			=> __( 'VAT %' , 'live-template-editor-client' ),
 					'description'	=> '',
 					'type'			=> 'number',
 					'style'			=> 'width:50px;'
@@ -816,33 +619,57 @@ class LTPLE_Client_Settings {
 		);
 		
 		$settings['importer'] = array(
-			'title'					=> __( 'Importer', $this->plugin->slug ),
-			'description'			=> __( 'Importer & update remote data', $this->plugin->slug ),
+			'title'					=> __( 'Importer', 'live-template-editor-client' ),
+			'description'			=> __( 'Importer & update remote data', 'live-template-editor-client' ),
 			'fields'				=> apply_filters('ltple_importer_settings',array()),
 		);
-
-		$settings['addons'] = array(
-			'title'					=> __( 'Addons', $this->plugin->slug ),
-			'description'			=> '',
-			'class'					=> 'pull-right',
-			'fields'				=> apply_filters('ltple_addon_settings',array(
-				array(
-					'id' 			=> 'addon_plugins',
-					'type'			=> 'addon_plugins'
-				)				
-			)),
-		);
-
-		$settings = apply_filters( $this->parent->_token . '_settings_fields', $settings );
-
+	
 		return $settings;
 	}
-
+	
+	public function register_addons($addons){
+	
+		$addons['affiliate-program'] = array(
+			
+			'title' 		=> 'Affiliate Program',
+			'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate',
+			'addon_name' 	=> 'live-template-editor-affiliate',
+			'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate/archive/master.zip',
+			'description'	=> 'Affiliate program including click tracking and commissions.',
+			'author' 		=> 'Rafasashi',
+			'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+		);
+		
+		$addons['sponsorship-program'] = array(
+			
+			'title' 		=> 'Sponsorship Program',
+			'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship',
+			'addon_name' 	=> 'live-template-editor-sponsorship',
+			'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship/archive/master.zip',
+			'description'	=> 'Sponsorship program including management and purchase of licenses in bulk.',
+			'author' 		=> 'Rafasashi',
+			'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+		);
+		
+		$addons['directory-plugin'] = array(
+				
+			'title' 		=> 'Directory Plugin',
+			'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-directory',
+			'addon_name' 	=> 'live-template-editor-directory',
+			'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-directory/archive/master.zip',
+			'description'	=> 'This is a directory plugin for live template editor.',
+			'author' 		=> 'Rafasashi',
+			'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+		);	
+		
+		return $addons;
+	}
+	
 	/**
 	 * Register plugin settings
 	 * @return void
 	 */
-	public function register_settings () {
+	public function init_tabs () {
 		
 		// get tabs
 		
@@ -894,117 +721,81 @@ class LTPLE_Client_Settings {
 			
 				'email-model' 		=> array( 'name' => 'Models'),
 				'email-campaign' 	=> array( 'name' => 'Campaigns'),
-				'email-invitation' 	=> array( 'name' => 'Invitations'),
+				//'email-invitation' => array( 'name' => 'Invitations'),
 			),
 		);
+
+		do_action('ltple_admin_tabs');
 		
-		do_action('ltple_admin_tabs'); 
-		
-		//get addons
-	
-		$this->addons = array(
+		add_action( 'load-edit.php', function() {
 			
-			/*
-			'addon-plugin' 		=> array(
-			
-				'title' 		=> 'Addon Plugin',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-addon',
-				'addon_name' 	=> 'live-template-editor-addon',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-addon/archive/master.zip',
-				'description'	=> 'This is a first test of addon plugin for live template editor.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			*/
-			'affiliate-program' => array(
-			
-				'title' 		=> 'Affiliate Program',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate',
-				'addon_name' 	=> 'live-template-editor-affiliate',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-affiliate/archive/master.zip',
-				'description'	=> 'Affiliate program including click tracking and commissions.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			'sponsorship-program' => array(
-			
-				'title' 		=> 'Sponsorship Program',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship',
-				'addon_name' 	=> 'live-template-editor-sponsorship',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-sponsorship/archive/master.zip',
-				'description'	=> 'Sponsorship program including management and purchase of licenses in bulk.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-			'directory-plugin' => array(
+			if( !empty($_GET['post_type']) ){			
 				
-				'title' 		=> 'Directory Plugin',
-				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-directory',
-				'addon_name' 	=> 'live-template-editor-directory',
-				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-directory/archive/master.zip',
-				'description'	=> 'This is a directory plugin for live template editor.',
-				'author' 		=> 'Rafasashi',
-				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
-			),
-		);
-		
-		do_action('ltple_admin_addons');
-		
-		if ( is_array( $this->settings ) ) {
-
-			// Check posted/selected tab
-			
-			$current_section = '';
-			
-			if ( isset( $_POST['tab'] ) && $_POST['tab'] ) {
+				foreach($this->tabs as $t => $tabs){
 				
-				$current_section = $_POST['tab'];
-			} 
-			else {
-				
-				if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {
-					
-					$current_section = $_GET['tab'];
-				}
-			}
-
-			foreach ( $this->settings as $section => $data ) {
-				
-				if( empty($data['fields']) ) continue;
-				
-				if ( $current_section && $current_section != $section ) continue;
-
-				// Add section to page
-				add_settings_section( $section, $data['title'], array( $this, 'settings_section' ), $this->parent->_token . '_settings' );
-
-				foreach ( $data['fields'] as $field ) {
-
-					if(!isset($field['label'])){
+					if(isset($tabs[$_GET['post_type']])){
 						
-						$field['label'] = '';
+						$this->tabIndex = $t;
+						
+						add_filter( 'views_edit-' . $_GET['post_type'], array( $this, 'post_type_tabs') );						
 					}
-				
-					// Validation callback for field
-					$validation = '';
-					if ( isset( $field['callback'] ) ) {
-						$validation = $field['callback'];
-					}
-
-					// Register field
-					// this will save the option in the wp_options table
-					
-					$option_name = $this->parent->_base . $field['id'];
-					register_setting( $this->parent->_token . '_settings', $option_name, $validation );
-
-					// Add field to page
-					
-					add_settings_field( $field['id'], $field['label'], array( $this->parent->admin, 'display_field' ), $this->parent->_token . '_settings', $section, array( 'field' => $field, 'prefix' => $this->parent->_base ) );
-
 				}
-
-				if ( ! $current_section ) break;
 			}
-		}
+
+		});
+
+		add_action( 'load-post.php', function() {
+			
+			if( !empty($_GET['post']) ){
+			
+				if( $post = get_post($_GET['post']) ){
+				
+					foreach($this->tabs as $t => $tabs){
+					
+						if( isset($tabs[$post->post_type]) ){
+							
+							$this->tabIndex = $t;
+							
+							add_filter( 'edit_form_top', array( $this, 'post_type_tabs') );						
+							
+							break;
+						}
+					}
+				}
+			}
+		});
+
+		add_action( 'load-edit-tags.php', function() {
+			
+			if( !empty($_GET['taxonomy']) ){
+
+				foreach($this->tabs as $t => $tabs){
+
+					if(isset($tabs[$_GET['taxonomy']])){
+						
+						$this->tabIndex = $t;
+						
+						add_filter( $_GET['taxonomy'].'_pre_add_form', array( $this, 'taxonomy_tabs') );						
+					}
+				}
+			}
+		});	
+		
+		add_action( 'load-term.php', function() {
+			
+			if( !empty($_GET['taxonomy']) ){
+
+				foreach($this->tabs as $t => $tabs){
+
+					if(isset($tabs[$_GET['taxonomy']])){
+						
+						$this->tabIndex = $t;
+						
+						add_filter( $_GET['taxonomy'].'_term_edit_form_top', array( $this, 'taxonomy_tabs') );						
+					}
+				}
+			}
+		});
 	}
 
 	public function settings_section ( $section ) {
@@ -1022,7 +813,7 @@ class LTPLE_Client_Settings {
 		
 		$html = '<div class="wrap" id="' . $this->parent->_token . '_settings">' . "\n";
 			
-			$html .= '<h1>' . __( $this->plugin->title , $this->plugin->slug ) . '</h1>' . "\n";
+			$html .= '<h1>' . __( 'Live Template Editor' , 'live-template-editor-client' ) . '</h1>' . "\n";
 
 			$tab = '';
 			if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {
@@ -1097,7 +888,7 @@ class LTPLE_Client_Settings {
 					
 						$html .= '<p class="submit">' . "\n";
 							$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
-							$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , $this->plugin->slug ) ) . '" />' . "\n";
+							$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , 'live-template-editor-client' ) ) . '" />' . "\n";
 						$html .= '</p>' . "\n";
 					}
 					
@@ -1114,78 +905,6 @@ class LTPLE_Client_Settings {
 		$html .= '</div>' . "\n";
 
 		echo $html;
-	}
-	
-	public function do_settings_sections($page) {
-		
-		global $wp_settings_sections, $wp_settings_fields;
-
-		if ( !isset($wp_settings_sections) || !isset($wp_settings_sections[$page]) )
-			return;
-
-		foreach( (array) $wp_settings_sections[$page] as $section ) {
-			
-			echo '<h3 style="margin-bottom:25px;">' . $section['title'] . '</h3>'.PHP_EOL;
-			
-			call_user_func($section['callback'], $section);
-			
-			if ( !isset($wp_settings_fields) ||
-				 !isset($wp_settings_fields[$page]) ||
-				 !isset($wp_settings_fields[$page][$section['id']]) )
-					continue;
-					
-			echo '<div class="settings-form-wrapper" style="margin-top:25px;">';
-
-				$this->do_settings_fields($page, $section['id']);
-			
-			echo '</div>';
-		}
-	}
-
-	public function do_settings_fields($page, $section) {
-		
-		global $wp_settings_fields;
-
-		if ( !isset($wp_settings_fields) ||
-			 !isset($wp_settings_fields[$page]) ||
-			 !isset($wp_settings_fields[$page][$section]) )
-			return;
-
-		foreach ( (array) $wp_settings_fields[$page][$section] as $field ) {
-			
-			echo '<div class="settings-form-row row">';
-
-				if ( !empty($field['title']) ){
-			
-					echo '<div class="col-xs-3" style="margin-bottom:15px;">';
-					
-						if ( !empty($field['args']['label_for']) ){
-							
-							echo '<label style="font-weight:bold;" for="' . $field['args']['label_for'] . '">' . $field['title'] . '</label>';
-						}
-						else{
-							
-							echo '<b>' . $field['title'] . '</b>';		
-						}
-					
-					echo '</div>';
-					echo '<div class="col-xs-9" style="margin-bottom:15px;">';
-						
-						call_user_func($field['callback'], $field['args']);
-							
-					echo '</div>';
-				}
-				else{
-					
-					echo '<div class="col-xs-12" style="margin-bottom:15px;">';
-						
-						call_user_func($field['callback'], $field['args']);
-							
-					echo '</div>';					
-				}
-					
-			echo '</div>';
-		}
 	}	
 
 	/**

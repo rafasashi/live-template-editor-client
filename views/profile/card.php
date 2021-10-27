@@ -20,10 +20,6 @@
 	
 	$background_image = $ltple->image->get_banner_url($ltple->profile->id) . '?' . time();
 	
-	// get name
-	
-	$name = ucfirst(get_user_meta( $ltple->profile->id , 'nickname', true ));
-	
 	// get profile picture
 	
 	$picture = $ltple->image->get_avatar_url( $ltple->profile->id );
@@ -39,7 +35,7 @@
 	
 	// get page title
 	
-	$title = $name;
+	$title = $ltple->profile->name;
 	
 	$locale = get_locale();
 	$robots = 'index,follow';
@@ -66,8 +62,8 @@
 		<meta property="og:title" content="<?php echo $title; ?>" />
 		<meta name="twitter:title" content="<?php echo $title; ?>" />
 		
-		<meta name="author" content="<?php echo $name; ?>" />
-		<meta name="creator" content="<?php echo $name; ?>" />
+		<meta name="author" content="<?php echo $ltple->profile->name; ?>" />
+		<meta name="creator" content="<?php echo $ltple->profile->name; ?>" />
 		<meta name="owner" content="<?php echo $title; ?>" />
 		
 		<meta name="language" content="<?php echo $locale; ?>" />
@@ -359,7 +355,7 @@
 				<div id="avatar"></div>
 				<div id="info-box">
 				  <div class="info">
-					<h1><?php echo $name; ?></h1>
+					<h1><?php echo $ltple->profile->name; ?></h1>
 					
 					<h2>
 						

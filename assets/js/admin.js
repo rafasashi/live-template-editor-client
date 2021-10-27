@@ -79,33 +79,6 @@
 			});
 		});
 		
-		// show password
-		
-		if( $(".show-password").length ){
-			
-			$(".show-password").on('click',function(e) {
-				
-				e.preventDefault();
-				
-				var inputId = $(this).data('target');
-
-				if( $(inputId).length ){
-					
-					if( $(this).val() == 'Show' ){
-						
-						$(inputId).attr('type','text');
-						
-						$(this).val('Hide');
-					}
-					else if( $(this).val() == 'Hide' ){
-						
-						$(inputId).attr('type','password');
-						
-						$(this).val('Show');
-					}
-				}		
-			});
-		}		
 	});
 	
 })(jQuery);

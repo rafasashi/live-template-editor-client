@@ -75,6 +75,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			return 'backend';
 		});
+		
+		add_filter('ltple_live-editor_layer_area',function(){ 
+			
+			return 'frontend';
+		});
 
 		$this->parent->register_post_type( 'user-layer', __( 'Templates', 'live-template-editor-client' ), __( 'Template', 'live-template-editor-client' ), '', array(
 
@@ -819,7 +824,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'taxonomy'	=> 'layer-range',
 						'frontend'	=> false,
 					),
-					
 					'type'		=> 'dropdown_categories',
 					'id'		=> 'layer-range',
 					'name'		=> 'tax_input[layer-range][]',
@@ -1252,7 +1256,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $layer_type = $this->get_layer_type($layer) ){
 		
-			$tabs = apply_filters('ltple_' . $layer_type->output . '_project_tabs',$tabs,$layer);
+			$tabs = apply_filters('ltple_' . $layer_type->output . '_project_tabs',$tabs,$layer,$layer_type);
 		
 			$tabs = apply_filters('ltple_project_advance_tabs',$tabs,$layer,$fields);
 		
@@ -1729,7 +1733,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'type'			=> 'select',
 							'id'			=> 'layerMenuId',
 							'label'			=> 'Menu',
-							'description'	=> '',
 							'options'		=> $options,
 							'class'			=> 'col-xs-6',
 						);
@@ -2355,11 +2358,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						if( $post->post_type == 'default-element' ){
 						
+							$term->name 	= 'Hosted Page';
 							$term->output 	= 'hosted-page';
 							$term->storage 	= 'user-element';
 						}
 						elseif( $this->is_media($post) ){
 							
+							$term->name 	= 'Image';
 							$term->output 	= 'image';
 							$term->storage 	= 'attachment';				
 						}
@@ -2468,7 +2473,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function get_type_visibility($term){
-
+		
 		if( !$visibility = get_term_meta( $term->term_id, 'visibility', true ) ){
 			
 			//migrate visibility
@@ -4325,7 +4330,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'none'			=> 'None',
 						),
 						'inline'		=> false,
-						'default'		=> 'anyone',
+						'data'			=> $this->get_type_visibility($term),
 						'description'	=> 'Visibility in the gallery'
 						
 					), false );
@@ -5298,7 +5303,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if(isset($_POST['visibility_'.$term->slug])){
 
-					update_option('visibility_'.$term->slug, $_POST['visibility_'.$term->slug],false);			
+					update_term_meta($term->term_id, 'visibility', $_POST['visibility_'.$term->slug],false);			
 				}
 				
 				if(isset($_POST['gallery_section'])){
