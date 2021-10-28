@@ -247,7 +247,12 @@ class LTPLE_Client_Profile {
 				// in tab
 				
 				$this->in_tab = isset($this->tabs[$this->tab]) ? true : false;
-
+				
+				if( $this->in_tab === true ){
+					
+					do_action('ltple_profile_disclaimer');
+				}
+				
 				if( $this->tab == 'home' && empty($this->tabs['home']['content']) ){
 					
 					include $this->parent->views . '/profile/card.php';
