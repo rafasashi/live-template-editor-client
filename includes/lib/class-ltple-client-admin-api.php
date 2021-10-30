@@ -266,6 +266,53 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
 				
 				break;
+			
+				case 'text_multi':
+					
+					if( !isset($data['text']) ){
+
+						$data = [
+						
+							'text' => [ 0 => '' ]
+						];
+					}
+					
+					$html .= '<div id="'.$field['id'].'" class="sortable">';
+						
+						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
+					
+						$html .= '<ul class="input-group ui-sortable">';
+							
+							foreach( $data['text'] as $e => $text) {
+
+								if($e > 0){
+									
+									$class='input-group-row ui-state-default ui-sortable-handle';
+								}
+								else{
+									
+									$class='input-group-row ui-state-default ui-state-disabled';
+								}
+							
+								$value = str_replace('\\\'','\'',$data['text'][$e]);
+										
+								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
+									
+									$html .= '<input type="text" placeholder="'.( !empty($field['placeholder']) ? $field['placeholder'] : 'value' ).'" name="'.$option_name.'[text][]" style="width:30%;float:left;" value="'.$data['text'][$e].'">';
+						
+									if( $e > 0 ){
+										
+										$html .= '<a class="remove-input-group" href="#">x</a> ';
+									}
+
+								$html .= '</li>';						
+							}
+						
+						$html .= '</ul>';					
+						
+					$html .= '</div>';
+
+				break;				
 				
 				case 'text_editor':
 					
@@ -760,12 +807,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</div>';
 
 				break;
-				
+			
 				case 'key_value':
 					
 					if( !isset($data['key']) || !isset($data['value']) ){
 
-						$data = ['key' => [ 0 => '' ], 'value' => [ 0 => '' ]];
+						$data = [
+						
+							'key' => [ 0 => '' ], 
+							'value' => [ 0 => '' ]
+						];
 					}
 
 					if( !empty($field['inputs']) && is_string($field['inputs']) ){
@@ -902,7 +953,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							$first = key($data);
 
-							foreach( $data[$first] as $e => $v) {
+							foreach( $data[$first] as $e => $v ) {
 
 								if($e > 0){
 									

@@ -42,97 +42,126 @@
 
 							// pagination
 							
-							$page 	= ( !empty($_GET['r']) && is_numeric($_GET['r']) ) ? sanitize_key($_GET['r']) : 1;
-							$limit 	= 100;
-							$offset = ( ( $page -1 ) * $limit );							
+							$page 	= ( !empty($_GET['r']) && is_numeric($_GET['r']) ) ? intval($_GET['r']) : 1;
 							
-							$q = new WP_User_Query( array( 								
-								'role' 			=> 'Subscriber',
-								'number' 		=> $limit,
-								'offset' 		=> $offset,
-								'meta_query' 	=> array(
-								
-									array(
+							$limit 	= 100;
+							
+							$max 	= 1000; // max items
+							
+							$total 	= ceil( $max / $limit ); // total pages
+							
+							$offset = ( ( $page -1 ) * $limit );
+							
+							if( $page <= $total ){
+							
+								$q = new WP_User_Query( array( 								
+									'role' 			=> 'Subscriber',
+									'number' 		=> $limit,
+									'offset' 		=> $offset,
+									'meta_query' 	=> array(
 									
-										'key' 		=> $this->parent->_base . 'stars',
-										'value' 	=> 0,
-										'compare' 		=> '>',
+										array(
+										
+											'key' 		=> $this->parent->_base . 'stars',
+											'value' 	=> 0,
+											'compare' 	=> '>',
+										),
+										array(
+										
+											'key' 		=> $this->parent->_base . '_last_seen',
+											'value' 	=> 0,
+											'compare' 	=> '>',
+										),
+										array(
+											
+											'relation' => 'OR',
+										
+											array(
+											
+												'key' 		=> $this->parent->_base . 'policy_about-me',
+												'compare' 	=> 'NOT EXISTS',
+											),
+											array(
+											
+												'key' 		=> $this->parent->_base . 'policy_about-me',
+												'value' 	=> 'on',
+												'compare' 	=> 'LIKE',
+											),
+										)
 									),
-									array(
-									
-										'key' 		=> $this->parent->_base . '_last_seen',
-										'value' 	=> 0,
-										'compare' 		=> '>',
-									)
-								),
-								'orderby' 		=> 'meta_value_num',
-								'order' 		=> 'DESC',
-							));
-
-							if(!empty($q->results)){
-								
-								$pageLinks = paginate_links( array(
-								
-									'base' 		=> $this->parent->urls->ranking . '?' . remove_query_arg('r', $_SERVER['QUERY_STRING']) . '%_%',
-									'format' 	=> '&r=%#%', // this defines the query parameter that will be used, in this case "p"
-									'prev_text' => __('&laquo; Previous'), // text for previous page
-									'next_text' => __('Next &raquo;'), // text for next page
-									'total' 	=> ceil( $q->get_total() / $limit), // the total number of pages we have
-									'current' 	=> $page, // the current page
-									'end_size' 	=> 1,
-									'mid_size' 	=> 5,
+									'orderby' 		=> 'meta_value_num',
+									'order' 		=> 'DESC',
 								));
 								
-								if($page > 1 ){
+								if(!empty($q->results)){
 									
-									echo'<h2>#'. ( $offset + 1 ) .' - #' . $limit * $page . ' Profiles</h2>';
-								}
-								else{
+									$pageLinks = paginate_links( array(
 									
-									echo'<h2>TOP '.$limit.' Profiles</h2>';
-								}
+										'base' 		=> $this->parent->urls->ranking . '?' . remove_query_arg('r', $_SERVER['QUERY_STRING']) . '%_%',
+										'format' 	=> '&r=%#%', // this defines the query parameter that will be used, in this case "p"
+										'prev_text' => __('&laquo; Previous'), // text for previous page
+										'next_text' => __('Next &raquo;'), // text for next page
+										'total' 	=> $total, // the total number of pages we have
+										'current' 	=> $page, // the current page
+										'end_size' 	=> 1,
+										'mid_size' 	=> 5,
+									));
 									
-								echo $pageLinks;
-								
-								echo'<table class="table table-striped table-bordered">';
-									
-									echo'<thead>';
-										echo'<tr>';
-											
-											echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:6%; text-align:center;">Rank</th>';
-											echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;text-align:left;">Profile</th>';
-											echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:5%;text-align:center;">Site</th>';
-											echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:10%;text-align:center;">Stars</th>';
-											
-										echo'</tr>';
+									if($page > 1 ){
 										
-									echo'</thead>';
-									
-									echo'<tbody>';								
+										echo'<h2>#'. ( $offset + 1 ) .' - #' . $limit * $page . ' Profiles</h2>';
+									}
+									else{
 										
-										foreach( $q->results as $id => $user ){
-
-											$rank 	= $id + 1 + $offset;
-											$stars 	= $user->{$this->parent->_base . 'stars'};
-											
-											$picture = $this->parent->image->get_avatar_url( $user->ID );							
-
+										echo'<h2>TOP '.$limit.' Profiles</h2>';
+									}
+										
+									echo $pageLinks;
+									
+									echo'<table class="table table-striped table-bordered">';
+										
+										echo'<thead>';
 											echo'<tr>';
+												
+												echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:6%; text-align:center;">Rank</th>';
+												echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;text-align:left;">Profile</th>';
+												echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:5%;text-align:center;">Site</th>';
+												echo'<th style="background-color:#fff;font-weight: bold;font-size: 15px;width:10%;text-align:center;">Stars</th>';
+												
+											echo'</tr>';
 											
-												echo'<td style="font-size:16px;font-weight:bold;text-align:center;"># '.$rank.'</td>';
-												echo'<td style="font-size:15px;padding:1px;"><a href="' . $this->parent->urls->profile . $user->ID . '/">' . '<img loading="lazy" src="'.$picture.'" height="35" width="35" /> '. ucfirst( $user->nickname ) . '</a></td>';
-												echo'<td style="text-align:center;">'.( !empty($user->user_url) ? '<a target="_blank" href="'.$user->user_url . '"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>' : '').'</td>';
-												echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;"><span class="fa fa-star" aria-hidden="true"></span> ' . $stars . '</span></td>';
+										echo'</thead>';
+										
+										echo'<tbody>';								
 											
-											echo'</tr>';										
+											foreach( $q->results as $id => $user ){
 
-										}
-											
-									echo'</tbody>';
+												$rank 	= $id + 1 + $offset;
+												$stars 	= $user->{$this->parent->_base . 'stars'};
+												
+												$picture = $this->parent->image->get_avatar_url( $user->ID );							
+
+												echo'<tr>';
+												
+													echo'<td style="font-size:16px;font-weight:bold;text-align:center;"># '.$rank.'</td>';
+													echo'<td style="font-size:15px;padding:1px;"><a href="' . $this->parent->urls->profile . $user->ID . '/">' . '<img loading="lazy" src="'.$picture.'" height="35" width="35" /> '. ucfirst( $user->nickname ) . '</a></td>';
+													echo'<td style="text-align:center;">'.( !empty($user->user_url) ? '<a target="_blank" href="'.$user->user_url . '"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>' : '').'</td>';
+													echo'<td style="text-align:center;"><span class="badge" style="font-size:15px;"><span class="fa fa-star" aria-hidden="true"></span> ' . $stars . '</span></td>';
+												
+												echo'</tr>';										
+
+											}
+												
+										echo'</tbody>';
+										
+									echo'</table>';
 									
-								echo'</table>';
+									echo $pageLinks;
+								}
+							}
+							else{
 								
-								echo $pageLinks;
+								
 							}
 
 						echo'</div>';
