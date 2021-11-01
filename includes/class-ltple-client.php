@@ -229,7 +229,11 @@ class LTPLE_Client {
 			);
 			
 			if( !in_array($error['message'],$skip) ){
-			
+
+				$error['url'] 	= ( is_ssl() ? home_url('','https') : home_url() ) . $_SERVER['REQUEST_URI'];
+				
+				$error['user'] 	= get_current_user_id();
+				
 				wp_mail( get_option('admin_email'),'debugging LTPLE Client error',print_r($error,true));
 			}
 		}
@@ -1986,7 +1990,7 @@ class LTPLE_Client {
 						$this->exit_alert('You don\'t have enough right to perform this action...',404);
 					}
 				}
-				elseif( $_POST['postAction'] == 'save' ){				
+				elseif( isset($_POST['postContent']) && $_POST['postAction'] == 'save' ){				
 
 					//save layer
 					
