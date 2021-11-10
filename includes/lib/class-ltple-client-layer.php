@@ -827,7 +827,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'type'		=> 'dropdown_categories',
 					'id'		=> 'layer-range',
 					'name'		=> 'tax_input[layer-range][]',
-					'label'		=> '',
 					'taxonomy'	=> 'layer-range',
 					'callback' 	=> array($this,'get_layer_range_id'),
 					'description'=>''
@@ -846,8 +845,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					'type'			=> 'gallery',
 					'id'			=> 'layer-gallery',
-					'label'			=> '',
-					'description'	=>''
 				);
 			}
 			
@@ -873,7 +870,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						),
 						
 						'id'			=> "layerContent",
-						'label'			=> "",
 						'type'			=> 'code_editor',
 						'code'			=> 'html',
 						'placeholder'	=> "HTML content",
@@ -897,7 +893,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							),
 							
 							'id'			=> "layerCss",
-							'label'			=> "",
 							'type'			=> 'code_editor',
 							'code'			=> 'css',
 							'stripcslashes'	=> false,
@@ -922,7 +917,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								),
 								
 								'id'			=> "layerJs",
-								'label'			=> "",
 								'type'			=> 'code_editor',
 								'code'			=> 'javascript',
 								'placeholder'	=> "Additional Javascript",
@@ -943,7 +937,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									),
 									
 									'id'			=> "layerMeta",
-									'label'			=> "",
 									'type'			=> 'code_editor',
 									'code'			=> 'json',
 									'placeholder'	=> "JSON",
@@ -965,11 +958,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								),
 								
 								'id'			=> "layerMargin",
-								'label'			=> "",
 								'type'			=> 'text',
 								'placeholder'	=> '0px auto',
 								'default'		=> '',
-								'description'	=> ''
 							);	
 						}
 						
@@ -986,10 +977,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									'frontend' 	=> false,
 								),
 								
-								'id'			=> "layerElements",
-								'name'			=> "layerElements",
-								'type'			=> 'element',
-								'description'	=> '',
+								'id'	=> "layerElements",
+								'name'	=> "layerElements",
+								'type'	=> 'element',
 							);
 						}
 					}
@@ -1025,7 +1015,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'out'	=> 'Out',
 								'in'	=> 'In',
 							),
-							'description'	=> '',
 						);	
 					}
 				}
@@ -1067,7 +1056,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'frontend' 	=> false,
 							),
 							'id'			=> "layerForm",
-							'label'			=> "",
 							'type'			=> 'radio',
 							'options'		=> array(
 							
@@ -1076,7 +1064,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								//'scraper'	=> 'Scraper',
 							),
 							'inline'		=> false,
-							'description'	=> ''
 						);					
 					}
 					
@@ -1091,7 +1078,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'frontend' 	=> false,
 						),	
 						'id'			=> "layerVisibility",
-						'label'			=> "",
 						'type'			=> 'radio',
 						'options'		=> array(
 						
@@ -3000,7 +2986,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						// get default js
 
 						$this->defaultJs = $this->get_layer_js($this->defaultId);
-
+						
 						// get layer js
 						
 						$this->layerJs = $this->get_layer_js($this->id);
