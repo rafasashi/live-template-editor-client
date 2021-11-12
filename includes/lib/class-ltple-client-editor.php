@@ -225,7 +225,7 @@ class LTPLE_Client_Editor {
 						var action 	= $("#savePostForm").attr("action");
 						
 						var data 	= $("#savePostForm").serialize();
-						
+
 						$.ajax({
 							
 							type		: "POST",
@@ -250,7 +250,7 @@ class LTPLE_Client_Editor {
 									if( typeof data.callback != typeof undefined ){
 										
 										eval(data.callback);
-									}							
+									}		
 								}							
 								else{
 									
@@ -282,9 +282,7 @@ class LTPLE_Client_Editor {
 								$("#navLoader").css("display","none");
 							}				
 						});
-						
 					});
-					
 				});
 					
 			})(jQuery);			

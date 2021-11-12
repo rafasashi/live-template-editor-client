@@ -359,18 +359,20 @@ class LTPLE_Client {
 		exit;
 	}
 	
-	public function exit_message($message,$code=200){
+	public function exit_message($message,$code=200,$data=array()){
 		
 		if( is_string($message) ){
 			
-			$message = array('message'=>$message);
+			$data['message'] = $message;
 		}
-		
-		$message = json_encode($message);
+		else{
+			
+			$data = array_merge($data,$message);
+		}
 		
 		http_response_code($code);
 
-		echo $message;
+		echo json_encode($data);
 		
 		exit;
 	}
@@ -1531,12 +1533,16 @@ class LTPLE_Client {
 								}
 							}
 							
-							do_action('ltple_edit_layer',$post_id);
+							do_action('ltple_edit_layer',$post_id,$post);
+						
+							$this->exit_message('Settings successfully updated!', 200, apply_filters('ltple_edit_layer_callback',[],$post));
 						}
+						
+						$this->exit_message('Access to project denied...',404);
 					}
-					
-					$this->exit_message('Settings successfully updated!',200);
 				}
+				
+				$this->exit_message('Error retrieving project...',404);
 			}
 			elseif( isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
 				

@@ -20,7 +20,7 @@
 				
 					echo'<li' . ( $tab == 'my-ref-urls' ? ' class="active"' : '' ) . '><a href="' . $this->parent->urls->ranking . '?tab=my-ref-urls" >My Referral urls</a></li>';
 					
-					echo'<li' . ( $tab == 'invite-contacts' ? ' class="active"' : '' ) . '><a href="' . $this->parent->urls->ranking . '?tab=invite-contacts" >Invite Contacts <span class="label label-success pull-right">new</span></a></li>';
+					echo'<li' . ( $tab == 'invite-contacts' ? ' class="active"' : '' ) . '><a href="' . $this->parent->urls->ranking . '?tab=invite-contacts" >Invite Contacts</a></li>';
 				}
 				
 			echo'</ul>';

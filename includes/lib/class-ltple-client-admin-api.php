@@ -951,6 +951,262 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</div>';
 
 				break;
+
+				case 'form':
+					
+					// used in directory
+					
+					if( !isset($data['name']) || !isset($data['value']) ){
+
+						$data = array(
+						
+							'name' 		=> [ 0 => '' ],
+							'required' 	=> [ 0 => '' ],
+							'value' 	=> [ 0 => '' ],
+						);
+					}
+
+					$inputs 	= ['title','label','checkbox','select','text','textarea','number','password','domain','submit'];
+					$required 	= ['required','optional'];
+					$id 		= ( !empty($field['id']) ? $field['id'] : 'form' );
+					
+					$html .= '<div id="'.$id.'" class="sortable">';
+						
+						if( !isset($field['action']) ){
+						
+							$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
+						
+							$html .= '<ul class="input-group ui-sortable" style="width:100%;">';
+								
+								foreach( $data['name'] as $e => $name) {
+									
+									if($e > 0){
+										
+										$class='input-group-row ui-state-default ui-sortable-handle';
+									}
+									else{
+										
+										$class='input-group-row ui-state-default ui-state-disabled';
+									}								
+									
+									$req_val 	= ( isset($data['required'][$e]) ? str_replace('\\\'','\'',$data['required'][$e]): 'optional');
+									$value 		= ( isset($data['value'][$e]) 	 ? str_replace('\\\'','\'',$data['value'][$e]) 	 : '');
+											
+									$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;border-top:1px solid #eee;padding:15px 0 10px 0;margin:0;">';
+								
+										// inputs
+								
+										$html .= '<select class="form-control" name="'.$field['name'].'[input][]" style="width:20%;height:34px;float:left;">';
+
+											foreach ( $inputs as $input ) {
+												
+												$selected = false;
+												
+												if ( isset($data['input'][$e]) && $data['input'][$e] == $input ) {
+													
+													$selected = true;
+												}
+												
+												$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $input ) . '">' . $input . '</option>';
+											}
+										
+										$html .= '</select> ';
+										
+										// required
+								
+										if ( isset($data['input'][$e]) && in_array($data['input'][$e],['title','label','submit']) ) {
+
+											$disabled = ' disabled="disabled"';
+										}
+										else{
+											
+											$disabled = '';
+										}
+										
+										$html .= '<select class="form-control" name="'.$field['name'].'[required][]" style="width:20%;height:34px;float:left;"'.$disabled.'>';
+
+											foreach ( $required as $r ) {
+												
+												$selected = false;
+												if ( empty($disabled) && isset($data['required'][$e]) && $data['required'][$e] == $r ) {
+													
+													$selected = true;
+												}
+												
+												$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $r ) . '">' . $r . '</option>';
+											}
+										
+										$html .= '</select> ';
+								
+										if( isset($data['input'][$e]) && $data['input'][$e] == 'domain'){
+											
+											$html .= '<input class="form-control" type="text" style="width:25%;float:left;" value="domain_name" disabled="true">';
+											$html .= '<input type="hidden" name="'.$field['name'].'[name][]" value="domain_name">'; 
+										}	
+										else{
+											
+											$html .= '<input class="form-control" type="text" placeholder="name" name="'.$field['name'].'[name][]" style="width:25%;float:left;" value="'.$data['name'][$e].'">';
+										}
+										
+										//$html .= '<span style="float:left;"> => </span>';
+										
+										if(isset($data['input'][$e])){
+											
+											if($data['input'][$e] == 'number'){
+												
+												$html .= '<input class="form-control" type="number" placeholder="number" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+											}
+											elseif($data['input'][$e] == 'password'){
+												
+												$html .= '<input class="form-control" type="password" placeholder="password" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+											}
+											elseif($data['input'][$e] == 'textarea'){
+												
+												$html .= '<textarea class="form-control" placeholder="text" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:100px;">' . $value . '</textarea>';
+											}									
+											elseif($data['input'][$e] == 'text'){
+												
+												$html .= '<input class="form-control" type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+											}
+											else{
+												
+												$html .= '<textarea class="form-control" placeholder="values" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:100px;">' . $value . '</textarea>';
+											}
+										}
+										else{
+											
+											$html .= '<textarea class="form-control" placeholder="values" name="'.$field['name'].'[value][]" style="width:30%;float:left;height:100px;">' . $value . '</textarea>';
+											
+											//$html .= '<input class="form-control" type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;float:left;" value="'.$value.'">';
+										}
+
+										if( $e > 0 ){
+											
+											$html .= '<a class="remove-input-group" href="#">x</a> ';
+										}
+
+									$html .= '</li>';						
+								}
+								
+							$html .= '</ul>';
+						
+						}
+						else{
+							
+							$method = ( ( isset($field['method']) && $field['method'] == 'post' ) ? 'post' : 'get' );
+							
+							$html .= '<form id="formFilters" action="'.$field['action'].'" method="'.$method.'">';
+
+							foreach( $data['name'] as $e => $name) {
+								
+								if(isset($data['input'][$e])){
+
+									$required = ( ( empty($data['required'][$e]) || $data['required'][$e] == 'required' ) ? true : false );
+									
+									if($data['input'][$e] == 'title'){
+										
+										$html .= '<h4 id="'.ucfirst($name).'">'.ucfirst(ucfirst($data['value'][$e])).'</h4>';
+									}
+									elseif($data['input'][$e] == 'label'){
+										
+										$html .= '<label class="label label-default" style="padding:6px;margin:7px 0;text-align:left;display:block;font-weight:bold;font-size:14px;" id="'.ucfirst($name).'">'.ucfirst(ucfirst($data['value'][$e])).'</label>';
+									}
+									elseif($data['input'][$e] == 'submit'){
+										
+										$html .= '<span class="form-group" style="margin: 7px 0 0 0;">';
+										
+											$html .= '<button style="width:100%;" type="'.$data['input'][$e].'" id="'.ucfirst($data['name'][$e]).'" class="control-input pull-right btn btn-sm btn-primary">'.ucfirst(ucfirst($data['value'][$e])).'</button>';
+										
+										$html .= '</span>';
+									}
+									elseif( $data['input'][$e] == 'domain' ){
+
+										$html .= $this->display_field( array(
+								
+											'type'				=> $data['input'][$e],
+											'id'				=> $id.'['.$name.']',
+											'value' 			=> $data['value'][$e],
+											'required' 			=> $required,
+											'placeholder' 		=> '',
+											'description'		=> '',
+											'default'			=> ( isset($_REQUEST[$id][$name]) ? $_REQUEST[$id][$name] : ''),
+											
+										), false, false ); 									
+									}
+									elseif( $data['input'][$e] == 'checkbox' || $data['input'][$e] == 'select' ){
+
+										if( $values = explode(PHP_EOL,$data['value'][$e]) ){
+									
+											$options = [];
+											
+											if( $data['input'][$e] == 'select' ){
+												
+												$options[] = '';
+											}
+									
+											foreach( $values as $value ){
+												
+												$value = trim($value);
+												
+												if( !empty($value) ){
+												
+													$options[strtolower($value)] = ucfirst($value);
+												}
+											}
+									
+											if( $data['input'][$e] == 'checkbox' ){
+									
+												$html .= $this->display_field( array(
+										
+													'type'				=> 'checkbox_multi',
+													'id'				=> $id.'['.$name.']',
+													'options' 			=> $options,
+													'required' 			=> false,
+													'description'		=> '',
+													'style'				=> 'margin:0px 10px;',
+													'default'			=> ( isset($_REQUEST[$id][$name]) ? $_REQUEST[$id][$name] : ''),
+													
+												), false, false ); 
+											}
+											else{
+												
+												$html .= $this->display_field( array(
+										
+													'type'				=> 'select',
+													'id'				=> $id.'['.$name.']',
+													'options' 			=> $options,
+													'required' 			=> $required,
+													'description'		=> '',
+													'style'				=> 'height:30px;padding:0px 5px;',
+													'default'			=> ( isset($_REQUEST[$id][$name]) ? $_REQUEST[$id][$name] : ''),
+													
+												), false, false ); 											
+											}
+										}									
+									}								
+									else{
+										
+										$html .= $this->display_field( array(
+								
+											'type'				=> $data['input'][$e],
+											'id'				=> $id.'['.$name.']',
+											'value' 			=> $data['value'][$e],
+											'required' 			=> $required,
+											'placeholder' 		=> '',
+											'description'		=> '',
+											'default'			=> ( isset($_REQUEST[$id][$name]) ? $_REQUEST[$id][$name] : ''),
+											
+										), false, false ); 
+									}
+								}							
+							}
+							
+							$html .= '</form>';
+						}
+						
+					$html .= '</div>';
+
+				break;
 				
 				case 'element':
 					
