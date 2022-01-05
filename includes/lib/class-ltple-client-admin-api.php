@@ -262,9 +262,215 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							$data = htmlentities($data);
 						}
 					}
+					
+					$maxlength = isset($field['maxlength']) && is_numeric($field['maxlength']) ? ' maxlength="' . $field['maxlength'] . '"' : '';
 				
-					$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
+					$html .= '<textarea'.$style.' class="form-control" id="' . $id . '" style="width:100%;height:300px;" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$maxlength.$required.$disabled.'>' . $data . '</textarea>'. "\n";
 				
+				break;
+				
+				case 'terms':
+				
+					$id = $field['id'].'_input';
+					
+					$script = 'jQuery(document).ready(function($) {' . PHP_EOL;
+
+						$script .= 'let _tag_input_suggestions_data = null;' . PHP_EOL;
+
+						// Handle click of the input area
+						 
+						$script .= '$("#'.$id.'").click(function () {' . PHP_EOL;
+							$script .= '$(this).find("input").focus();' . PHP_EOL;
+						$script .= '});' . PHP_EOL;
+
+						// handle the click of close button on the tags
+
+						$script .= '$(document).on("click", "#'.$id.' .data .tag .close", function() {' . PHP_EOL;
+							
+							$script .= '$(this).parent().remove()' . PHP_EOL;
+
+						$script .= '})' . PHP_EOL;
+
+						// Handle the click of one suggestion
+
+						$script .= '$(document).on("click", "#'.$id.' .autocomplete-items div", function() {' . PHP_EOL;
+							
+							$script .= 'let index=$(this).index()' . PHP_EOL;
+							$script .= 'let data=_tag_input_suggestions_data[index];' . PHP_EOL;
+							$script .= 'let data_holder = $(this).parents().eq(4).find("#'.$id.' .data")' . PHP_EOL;
+							
+							$script .= 'let template="<span class=\"tag button button-default\"><span class=\"text\">"+data.name+"</span><span class=\"close\">&times;</span><input type=\"hidden\" value=\'"+data.id+"\' name=\"tax_input['.$field['taxonomy'].'][]\"/></span>\n";' . PHP_EOL;
+							
+							$script .= '$(data_holder).parents().eq(2).find("#'.$id.' .data").append(template);' . PHP_EOL;
+							$script .= '$(data_holder).val("")' . PHP_EOL;
+							
+							$script .= '$("#'.$id.' .autocomplete-items").html("");' . PHP_EOL;
+
+						$script .= '})' . PHP_EOL;
+
+						// detect enter on the input
+						 
+						$script .= '$("#'.$id.' input").on( "keydown", function(e) {' . PHP_EOL;
+							
+							$script .= 'if(e.which == 13){' . PHP_EOL;
+							
+								$script .= 'e.preventDefault();' . PHP_EOL;
+								
+								$script .= 'return false;' . PHP_EOL;
+								
+							$script .= '}' . PHP_EOL;
+
+						$script .= '});' . PHP_EOL;
+
+						$script .= '$("#'.$id.' input").on( "focusout", function(event) {' . PHP_EOL;
+							
+							$script .= '$(this).val("")' . PHP_EOL;
+							$script .= 'var that = this;' . PHP_EOL;
+							$script .= 'setTimeout(function(){ $(that).parents().eq(2).find(".autocomplete .autocomplete-items").html(""); }, 500);' . PHP_EOL;
+						
+						$script .= '});' . PHP_EOL;
+						
+						$script .= 'var typing;' . PHP_EOL;
+						
+						$script .= '$("#'.$id.' input").on( "keyup", function(event) {' . PHP_EOL;
+							
+							$script .= 'clearTimeout(typing);' . PHP_EOL;
+
+							$script .= 'var query = $(this).val()' . PHP_EOL;
+
+							$script .= 'if(event.which == 8) {' . PHP_EOL;
+								
+								$script .= 'if(query==""){' . PHP_EOL;
+									
+									// clear suggestions
+								
+									$script .= '$("#'.$id.' .autocomplete-items").html("");' . PHP_EOL;
+									
+									$script .= 'return;' . PHP_EOL;
+								
+								$script .= '}' . PHP_EOL;
+							
+							$script .= '}' . PHP_EOL;
+							
+							$script .= 'if( query.length < 3 ){' . PHP_EOL;
+								
+								$script .= 'return false;' . PHP_EOL;
+							
+							$script .= '}' . PHP_EOL;
+							
+							$script .= '$("#'.$id.' .autocomplete-items").html("");' . PHP_EOL;
+
+							$script .= 'var element = $(this);' . PHP_EOL;
+							 
+							$script .= 'let sug_area=$(element).parents().eq(2).find(".autocomplete .autocomplete-items");' . PHP_EOL;
+														
+							$script .= 'typing = setTimeout(function() {' . PHP_EOL;
+
+								// using ajax to populate suggestions
+							 
+								$script .= '$.ajax({' . PHP_EOL;
+									$script .= 'url : ajaxurl,' . PHP_EOL;
+									$script .= 'type: "GET",' . PHP_EOL;
+									$script .= 'dataType : "json",' . PHP_EOL;
+									$script .= 'data : {' . PHP_EOL;
+										$script .= 's : query,' . PHP_EOL;
+										$script .= 'action : "' . $field['action'] . '",' . PHP_EOL;
+									$script .= '},' . PHP_EOL;
+								$script .= '}).done(function( data ) {' . PHP_EOL;
+									
+									$script .= '_tag_input_suggestions_data = data;' . PHP_EOL;
+									
+									$script .= '$.each(data,function (key,value) {' . PHP_EOL;
+										
+										$script .= 'let template = $("<div>"+value.name+"</div>").hide()' . PHP_EOL;
+										$script .= 'sug_area.append(template)' . PHP_EOL;
+										$script .= 'template.show()' . PHP_EOL;
+
+									$script .= '})' . PHP_EOL;
+									
+								$script .= '});' . PHP_EOL;
+	
+							$script .= '}, 800);' . PHP_EOL;
+							
+						$script .= '});' . PHP_EOL;
+						
+					$script .= '})' . PHP_EOL;
+					
+					// tag script
+					
+					wp_register_script( $this->parent->_token . '_tags_'.$id, '', array( 'jquery' ) );
+					
+					wp_enqueue_script( $this->parent->_token . '_tags_' . $id );
+					
+					wp_add_inline_script( $this->parent->_token . '_tags_' . $id, $script );
+					
+					// tag style
+					
+					wp_register_style($this->parent->_token . '-tags', false,array());
+					wp_enqueue_style($this->parent->_token . '-tags');
+					wp_add_inline_style($this->parent->_token . '-tags', '
+						
+						.tags-input .tag{
+							margin:5px;
+						}
+						.tags-input .tag .close{
+							padding-left: 4px;
+							cursor: pointer;
+						}
+						.tags-input .autocomplete {
+							position: relative;
+							display: inline-block;
+						}
+						.tags-input .autocomplete-items {
+							position: absolute;
+							border: 1px solid #d4d4d4;
+							border-bottom: none;
+							border-top: none;
+							z-index: 99;
+							top: 100%;
+							left: 0;
+							right: 0;
+						}
+						.tags-input .autocomplete-items div {
+							padding: 10px;
+							cursor: pointer;
+							background-color: #fff;
+							border-bottom: 1px solid #d4d4d4;
+						}
+						.tags-input .autocomplete-items div:hover {
+							background-color: #e9e9e9;
+						}
+						.tags-input .autocomplete-active {
+							background-color: DodgerBlue !important;
+							color: #ffffff;
+						}
+					' );
+					
+					$html .= '<div class="tags-input" id="'.$id.'">';
+						
+						$html .= '<span class="data">';
+							
+							// default empty value
+							
+							$html .= '<input type="hidden" value="-1" name="tax_input['.$field['taxonomy'].'][]"/>';
+							
+							if( !empty($data) ){
+								
+								foreach($data as $term){
+								
+									$html .= '<span class="tag button button-default"><span class="text">' . $term->name . '</span><span class="close">&times;</span><input type="hidden" value="' . $term->term_id . '" name="tax_input['.$field['taxonomy'].'][]"/></span>';
+								}
+							}
+							
+						$html .= '</span>';
+
+						$html .= '<span class="autocomplete">';
+							$html .= '<input style="border:none;" type="text" placeholder="add item...">';
+							$html .= '<div class="autocomplete-items"></div>';
+						$html .= '</span>';
+						
+					$html .= '</div>';
+					
 				break;
 				
 				case 'input_multi':
@@ -2374,7 +2580,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		 * @return void
 		 */
 		public function save_meta_boxes ( $post_id = 0 ) {
-
+			
 			if ( ! $post_id ) return;
 
 			$post_type = get_post_type( $post_id );
