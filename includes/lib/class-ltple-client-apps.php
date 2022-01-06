@@ -279,6 +279,33 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return $url;
 	}
 	
+	public function get_list($type=''){
+		
+		$apps = array();
+		
+		if( !empty($this->list) ){
+			
+			if( !empty($type) ){
+				
+				//  filter by type
+				
+				foreach( $this->list as $app ){
+					
+					if( in_array($type,$app->types) ){
+						
+						$apps[] = $app;
+					}
+				}
+			}
+			else{
+				
+				$apps = $this->list;
+			}
+		}
+		
+		return $apps;
+	}
+	
 	public function get_list_fields( $fields = array() ) {
 		
 		$fields = array(

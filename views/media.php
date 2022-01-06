@@ -80,9 +80,13 @@
 				}
 				
 				if( empty($section) || $section == 'bookmarks' ){
-				
-					echo'<li class="gallery_type_title">Bookmarks</li>';
-					echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-payment-urls/'.$query_args.'">Payment Urls</a></li>';
+					
+					if( $this->parent->apps->get_list('payment') ){
+					
+						echo'<li class="gallery_type_title">Bookmarks</li>';
+						
+						echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-payment-urls/'.$query_args.'">Payment Urls</a></li>';
+					}
 				}
 				
 			echo'</ul>';
