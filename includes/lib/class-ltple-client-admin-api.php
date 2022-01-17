@@ -420,16 +420,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						.tags-input .autocomplete {
 							position: relative;
 							display: inline-block;
+							margin-top:2px;
 						}
 						.tags-input .autocomplete-items {
 							position: absolute;
+							margin-top:1px;
 							border: 1px solid #d4d4d4;
-							border-bottom: none;
-							border-top: none;
-							z-index: 99;
+							border-top:none;
+							border-bottom:none;
+							z-index: 9999;
 							top: 100%;
 							left: 0;
 							right: 0;
+							max-height: 150px;
+							overflow-y: auto;
 						}
 						.tags-input .autocomplete-items div {
 							padding: 10px;

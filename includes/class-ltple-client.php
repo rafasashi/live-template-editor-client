@@ -1996,7 +1996,7 @@ class LTPLE_Client {
 						$this->exit_alert('You don\'t have enough right to perform this action...',404);
 					}
 				}
-				elseif( isset($_POST['postContent']) && $_POST['postAction'] == 'save' ){				
+				elseif( isset($_POST['postAction']) && $_POST['postAction'] == 'save' ){				
 
 					//save layer
 					
