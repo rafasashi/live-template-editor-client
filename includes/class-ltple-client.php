@@ -226,9 +226,21 @@ class LTPLE_Client {
 			
 				'ftp_chdir(): Failed to change directory.',
 				'Undefined property: WP_Post::$filter',
+				'Incorrect APP1 Exif Identifier Code',
 			);
 			
-			if( !in_array($error['message'],$skip) ){
+			$match = false;
+			
+			foreach( $skip as $s ){
+				
+				if( strpos($error['message'],$s) !== false ){
+					
+					$match = true;
+					break;
+				}
+			}
+			
+			if( !$match ){
 
 				$error['url'] 	= ( is_ssl() ? home_url('','https') : home_url() ) . $_SERVER['REQUEST_URI'];
 				

@@ -244,7 +244,7 @@
 			
 			if( $this->create_folder($dir) ){
 			
-				if( @file_put_contents($filename, $contents, LOCK_EX) ){
+				if( is_writable($filename) && @file_put_contents($filename, $contents, LOCK_EX) ){
 						
 					return true;
 				}
