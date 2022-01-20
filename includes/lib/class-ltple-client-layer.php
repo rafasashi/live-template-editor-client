@@ -1838,7 +1838,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$term_id = $term->term_id;
 		}
 		
-		$addon_range = null;
+		$addon = null;
 		
 		if( $term_id > 0 ){
 		
@@ -1846,11 +1846,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( $id > 0 ){
 				
-				$addon_range = get_term_by('id',$id,'layer-range');
+				$addon = get_term_by('id',$id,'layer-range');
 			}
 		}
 		
-		return $addon_range;
+		return $addon;
 	}
 	
 	public function get_type_gallery_section($term){
@@ -1910,9 +1910,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 						$term->gallery_section = $this->get_type_gallery_section($term);
 						
-						$term->ranges 		= $this->get_type_ranges($term);
+						$term->ranges = $this->get_type_ranges($term);
 
-						$term->addon_range 	= $this->get_type_addon_range($term);
+						$term->addon = $this->get_type_addon_range($term);
 					
 						$current_types[] = $term;
 					}
@@ -1950,9 +1950,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		// get layer ranges
 		
-		$addon_range = !empty( $layer_type->addon )  ? $layer_type->addon : null;
+		$addon = !empty( $layer_type->addon )  ? $layer_type->addon : null;
 		
-		$exclude = !empty($addon_range->term_id) ? $addon_range->term_id : '';
+		$exclude = !empty($addon->term_id) ? $addon->term_id : '';
 		
 		if( $terms = get_terms( array(
 		
@@ -1983,7 +1983,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}
 
-		if( !empty($this->parent->user->user_email) &&  !empty($addon_range) ){
+		if( !empty($this->parent->user->user_email) &&  !empty($addon) ){
 			
 			// get addon range
 
@@ -2020,14 +2020,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 				foreach( $query->posts as $post_id ){
 					
-					$meta = get_term_meta($addon_range->term_id);
+					$meta = get_term_meta($addon->term_id);
 						
-					$ranges[$addon_range->slug]['term_id'] 	= $addon_range->term_id;
-					$ranges[$addon_range->slug]['name'] 	= $addon_range->name;
-					$ranges[$addon_range->slug]['slug'] 	= $addon_range->slug;
-					$ranges[$addon_range->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $addon_range->name;
-					$ranges[$addon_range->slug]['count'] 	= $query->found_posts;
-					$ranges[$addon_range->slug]['taxonomy'] = $range->taxonomy;
+					$ranges[$addon->slug]['term_id'] 	= $addon->term_id;
+					$ranges[$addon->slug]['name'] 	= $addon->name;
+					$ranges[$addon->slug]['slug'] 	= $addon->slug;
+					$ranges[$addon->slug]['short'] 	= !empty($meta['shortname'][0]) ? $meta['shortname'][0] : $addon->name;
+					$ranges[$addon->slug]['count'] 	= $query->found_posts;
+					$ranges[$addon->slug]['taxonomy'] = $range->taxonomy;
 				}
 			}
 		}
@@ -4401,13 +4401,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						'name'			=> 'addon_range',
 						'id'			=> 'addon_range',
-						'label'			=> "",
 						'type'			=> 'select',
 						'options'		=> $options,
 						'inline'		=> false,
-						'description'	=> '',
 						
-					), $term );				
+					), $term );
 					
 				echo'</td>';	
 				
@@ -4949,11 +4947,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->columns['output'] 		= 'Output';
 		$this->columns['section'] 		= 'Section';
 		$this->columns['visibility'] 	= 'Visibility';
-		$this->columns['ranges'] 		= 'Ranges';
-		//$this->columns['slug'] 		= 'Slug';
-		//$this->columns['description'] = 'Description';
-		//$this->columns['posts'] 		= 'Layers';
-		//$this->columns['users'] 		= 'Users';
 		
 		do_action('ltple_layer_type_columns');
 
@@ -4969,12 +4962,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$this->columns['cb'] 			= '<input type="checkbox" />';
 		$this->columns['name'] 			= 'Name';
-		//$this->columns['slug'] 		= 'Slug';
-		//$this->columns['description'] = 'Description';
 		$this->columns['storage'] 		= 'Storage';
 		$this->columns['price'] 		= 'Price';
-		//$this->columns['posts'] 		= 'Layers';
-		//$this->columns['users'] 		= 'Users';
 	
 		do_action('ltple_layer_range_columns');
 	
@@ -4990,12 +4979,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$this->columns['cb'] 			= '<input type="checkbox" />';
 		$this->columns['name'] 			= 'Name';
-		//$this->columns['slug'] 		= 'Slug';
-		//$this->columns['description'] = 'Description';
 		$this->columns['price'] 		= 'Price';
 		$this->columns['storages'] 		= 'Storages';
-		//$this->columns['posts'] 		= 'Layers';
-		//$this->columns['users'] 		= 'Users';
 		
 		do_action('ltple_layer_option_columns');
 
@@ -5028,28 +5013,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					if( !empty($sections[$section_id]) ){
 						
 						$this->column .='<span class="label label-info">' . $sections[$section_id]->name . '</span>';
-					}
-				}
-			}
-			elseif($column_name === 'ranges') {
-
-				if( $ranges = get_terms(array(
-				
-					'taxonomy' 		=> 'layer-range',
-					'meta_query' 	=> array(
-					
-						array(
-						
-							'key'       => 'range_type',
-							'value'     => $term_id,
-							'compare'   => '=',
-						),				
-					),
-				))){
-					
-					foreach( $ranges as $range ){
-						
-						$this->column .='<a style="font-size:11px;" href="' . admin_url() . 'term.php?taxonomy=layer-range&tag_ID=' . $range->term_id . '&post_type=cb-default-layer">' . $range->name . '</a><br>';
 					}
 				}
 			}

@@ -124,13 +124,13 @@ class LTPLE_Client_Gallery {
 							'operator'			=> 'EXISTS'
 						);
 						
-						if( !empty($term->addon_range) ){
+						if( !empty($term->addon) ){
 			
 							$tax_query[] = array(
 							
 								'taxonomy' 			=> 'layer-range',
 								'field' 			=> 'slug',
-								'terms' 			=> $term->addon_range->slug,
+								'terms' 			=> $term->addon->slug,
 								'include_children' 	=> false,
 								'operator'			=> 'NOT IN'
 							);			
@@ -267,12 +267,12 @@ class LTPLE_Client_Gallery {
 	}
 	
 	public function get_range_items($layer_type,$layer_range,$referer){
-		
+
 		$items =[];
 		
 		if( !empty($layer_range) ){
 			
-			$addon_range = !empty($layer_type->addon) ? $layer_type->addon : null; 
+			$addon = !empty($layer_type->addon) ? $layer_type->addon : null; 
 
 			$tax_query = array('relation'=>'AND');
 
@@ -287,7 +287,7 @@ class LTPLE_Client_Gallery {
 			
 			$tax_query[1] = array('relation'=>'OR');
 			
-			$tax_query[1] = array(
+			$tax_query[1][] = array(
 			
 				'taxonomy' 			=> 'layer-range',
 				'field' 			=> 'slug',
@@ -296,9 +296,9 @@ class LTPLE_Client_Gallery {
 				'operator'			=> 'IN'
 			);			
 			
-			if( !empty($addon_range->slug) && $addon_range->slug == $layer_range ){
+			if( !empty($addon->slug) && $addon->slug == $layer_range ){
 
-				$tax_query[1] = array(
+				$tax_query[1][] = array(
 			
 					'taxonomy' 			=> 'user-contact',
 					'field' 			=> 'slug',
@@ -307,11 +307,11 @@ class LTPLE_Client_Gallery {
 					'operator'			=> 'IN'
 				);					
 			}
-
+			
 			$args = array( 
 			
 				'post_type' 	=> 'cb-default-layer', 
-				'tax_query' 	=> $tax_query,
+				'tax_query' 	=> apply_filters('ltple_gallery_' . $layer_type->storage . '_tax_query',$tax_query),
 				'posts_per_page'=> $this->per_page,
 				'paged'			=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 			);
@@ -325,7 +325,7 @@ class LTPLE_Client_Gallery {
 				
 				$this->max_num_pages = $query->max_num_pages;
 				
-				$current_types = $this->get_current_types($addon_range);
+				$current_types = $this->get_current_types($addon);
 			
 				foreach($current_types as $term){
 					
@@ -459,37 +459,24 @@ class LTPLE_Client_Gallery {
 		
 		if( $current_types = $this->get_current_types() ){
 		
-			if( !$slug ){
+			foreach($current_types as $term){
 				
-				foreach($current_types as $term){
-								
+				if( !$slug ){
+				
 					if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
 						
 						$layer_type = $term;
 						
 						break; 
 					}
-				}		
+				}
+				elseif( $slug ==  $term->slug ){
+					
+					$layer_type = $term;
+						
+					break; 
+				}
 			}
-			else{
-				
-				$layer_type = get_term_by('slug',$slug,'layer-type');
-			}
-		}
-		
-		if( !empty($layer_type) ){
-
-			//get addon range
-
-			$layer_type->addon = $this->parent->layer->get_type_addon_range($layer_type);
-
-			//get item ranges
-			
-			$layer_type->ranges = $this->parent->layer->get_type_ranges($layer_type);	
-			
-			//get item output
-			
-			$layer_type->output = $this->parent->layer->get_type_output($layer_type);
 		}
 
 		return 	$layer_type;	

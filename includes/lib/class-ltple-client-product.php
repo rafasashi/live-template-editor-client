@@ -229,9 +229,9 @@ class LTPLE_Client_Product {
 
 			$options = array();
 			
-			if( $addon_range = $this->parent->layer->get_type_addon_range($layer_type) ){
+			if( $addon = $this->parent->layer->get_type_addon_range($layer_type) ){
 				
-				$options[] = $addon_range->slug;
+				$options[] = $addon->slug;
 			}
 
 			$plan_data = array(

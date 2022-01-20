@@ -399,7 +399,7 @@ class LTPLE_Client_Plan {
 						
 						foreach( $type->ranges as $range ){
 							
-							if( empty($type->addon_range) || $type->addon_range->term_id != $range['term_id'] ){
+							if( empty($type->addon) || $type->addon->term_id != $range['term_id'] ){
 								
 								$row .='<tr>';
 								
