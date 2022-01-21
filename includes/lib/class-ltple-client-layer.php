@@ -1910,10 +1910,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 						$term->gallery_section = $this->get_type_gallery_section($term);
 						
-						$term->ranges = $this->get_type_ranges($term);
-
 						$term->addon = $this->get_type_addon_range($term);
-					
+						
+						$term->ranges = $this->get_type_ranges($term,$term->addon);
+
 						$current_types[] = $term;
 					}
 				}
@@ -1944,14 +1944,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->types;
 	}
 	
-	public function get_type_ranges($layer_type){
+	public function get_type_ranges($layer_type,$addon=null){
 		
 		$ranges = [];
 
 		// get layer ranges
-		
-		$addon = !empty( $layer_type->addon )  ? $layer_type->addon : null;
-		
+
 		$exclude = !empty($addon->term_id) ? $addon->term_id : '';
 		
 		if( $terms = get_terms( array(
