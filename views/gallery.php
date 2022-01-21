@@ -125,7 +125,7 @@
 											
 											echo '<div>';
 												
-												$label_style = 'margin-right:8px;padding:2px 0px;font-size:11px;color:#888;';
+												$label_style = 'margin-right:8px;padding:2px 0px;font-size:11px;color:#4276a0;';
 												
 												echo '<i class="pull-left" style="' . $label_style . '">'.$editors[$output].'</i> ';											
 																			
