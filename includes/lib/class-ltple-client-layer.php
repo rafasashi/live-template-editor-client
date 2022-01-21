@@ -1982,7 +1982,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$ranges[$range->slug]['taxonomy'] 	= $range->taxonomy;
 			}
 		}
-
+		
 		if( !empty($this->parent->user->user_email) &&  !empty($addon) ){
 			
 			// get addon range

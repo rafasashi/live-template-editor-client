@@ -371,14 +371,20 @@ class LTPLE_Client_Gallery {
 			
 			$layer_range = ( !empty($_GET['range']) ? $_GET['range'] : key($layer_type->ranges) );
 			
-			//get layer range name
+			// check addon session
 			
-			$layer_range_name = ( !empty($layer_type->ranges[$layer_range]['name']) ? $layer_type->ranges[$layer_range]['name'] : '' );
+			if( !$this->parent->user->loggedin && !empty($layer_type->addon) && $layer_type->addon->slug == $layer_range )
+				
+				return false;
 			
 			// get gallery items 
 
 			if( $range_items = $this->get_range_items($layer_type,$layer_range,$referer) ){
 				
+				//get layer range name
+				
+				$layer_range_name = ( !empty($layer_type->ranges[$layer_range]['name']) ? $layer_type->ranges[$layer_range]['name'] : '' );
+								
 				$options = array(
 					
 					$layer_range

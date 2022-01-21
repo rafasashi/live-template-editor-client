@@ -176,6 +176,9 @@
 									if( $range['count'] < 1 )
 										continue;
 									
+									if( !$this->user->loggedin && !empty($layer_type->addon) && $layer_type->addon->slug == $range['slug'] )
+										continue;
+									
 									$range_url = add_query_arg($_GET,$this->urls->gallery);
 									
 									$range_url = remove_query_arg(array('uri'),$range_url);
