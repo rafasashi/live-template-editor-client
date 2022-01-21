@@ -124,15 +124,16 @@
 											echo '</div>';
 											
 											echo '<div>';
-
 												
-												$label_style = 'margin-right:8px;padding:2px 4px;font-size:10px;';
+												$label_style = 'margin-right:8px;padding:2px 0px;font-size:11px;color:#888;';
 												
-												echo '<span class="label label-primary pull-left hidden-xs" style="' . $label_style . '">'.$editors[$output].'</span> ';											
+												echo '<i class="pull-left" style="' . $label_style . '">'.$editors[$output].'</i> ';											
 																			
 												if( $term->visibility == 'admin' ){
 													
-													echo '<span class="label label-warning pull-left hidden-xs" style="'.$label_style.'"> admin </span> ';
+													$label_style = 'margin-right:8px;padding:3px;font-size:9px;';
+													
+													echo '<div class="hidden-xs" style="display:inline-block;width:100%;"><span class="label label-warning" style="'.$label_style.'"> admin </span></div>';
 												}
 											
 											echo '</div>';

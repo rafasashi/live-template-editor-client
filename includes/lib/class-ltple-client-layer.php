@@ -5143,9 +5143,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				foreach( $types as $type ){
 
-					$storage = $storages[$type->storage];
+					if( isset($storages[$type->storage]) ){
 					
-					$options[$storage][$type->term_id] = $type->name;
+						$storage = $storages[$type->storage];
+					
+						$options[$storage][$type->term_id] = $type->name;
+					}
 				}
 				
 				echo $this->parent->admin->display_field( array(
