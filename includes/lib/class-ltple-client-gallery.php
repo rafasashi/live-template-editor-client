@@ -285,7 +285,7 @@ class LTPLE_Client_Gallery {
 				'operator'			=> 'IN'
 			);
 			
-			$tax_query[1] = array('relation'=>'OR');
+			$tax_query[1] = array('relation'=>'AND'); // important to keep AND for addons
 			
 			$tax_query[1][] = array(
 			
@@ -370,12 +370,6 @@ class LTPLE_Client_Gallery {
 			//get layer range
 			
 			$layer_range = ( !empty($_GET['range']) ? $_GET['range'] : key($layer_type->ranges) );
-			
-			// check addon session
-			
-			if( !$this->parent->user->loggedin && !empty($layer_type->addon) && $layer_type->addon->slug == $layer_range )
-				
-				return false;
 			
 			// get gallery items 
 
