@@ -1175,14 +1175,17 @@ class LTPLE_Client {
 			echo '<meta name="copyright" content="'.$site_name.'" />'.PHP_EOL;
 			echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
 			
-			$canonical_url = get_permalink( $post->ID );
+			if( !empty($post->ID) ){
 			
-			echo '<meta name="url" content="' . $canonical_url . '" />' . PHP_EOL;
-			echo '<meta name="canonical" content="'.$canonical_url.'" />' . PHP_EOL;
-			echo '<meta name="original-source" content="'.$canonical_url.'" />' . PHP_EOL;
-			echo '<link rel="original-source" href="'.$canonical_url.'" />' . PHP_EOL;
-			echo '<meta property="og:url" content="'.$canonical_url.'" />' . PHP_EOL;
-			echo '<meta name="twitter:url" content="'.$canonical_url.'" />' . PHP_EOL;
+				$canonical_url = get_permalink( $post->ID );
+
+				echo '<meta name="url" content="' . $canonical_url . '" />' . PHP_EOL;
+				echo '<meta name="canonical" content="'.$canonical_url.'" />' . PHP_EOL;
+				echo '<meta name="original-source" content="'.$canonical_url.'" />' . PHP_EOL;
+				echo '<link rel="original-source" href="'.$canonical_url.'" />' . PHP_EOL;
+				echo '<meta property="og:url" content="'.$canonical_url.'" />' . PHP_EOL;
+				echo '<meta name="twitter:url" content="'.$canonical_url.'" />' . PHP_EOL;
+			}
 			
 			echo '<meta name="rating" content="General" />' . PHP_EOL;
 			echo '<meta name="directory" content="submission" />' . PHP_EOL;

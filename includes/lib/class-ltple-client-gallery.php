@@ -312,6 +312,7 @@ class LTPLE_Client_Gallery {
 			
 				'post_type' 	=> 'cb-default-layer', 
 				'tax_query' 	=> apply_filters('ltple_gallery_' . $layer_type->storage . '_tax_query',$tax_query),
+				'orderby' 		=> apply_filters('ltple_gallery_' . $layer_type->storage . '_orderby',array('date'=>'DESC')),
 				'posts_per_page'=> $this->per_page,
 				'paged'			=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 			);
@@ -320,6 +321,8 @@ class LTPLE_Client_Gallery {
 				
 				$args['s'] = $_GET['s'];
 			}
+			
+			$args = apply_filters('ltple_gallery_' . $layer_type->storage . '_query',$args);
 			
 			if( $query = new WP_Query($args)){
 				
