@@ -908,46 +908,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									}
 									else{
 										
-										if( !empty($_GET['action']) && !empty($_GET['plugin']) && file_exists( WP_PLUGIN_DIR . '/' . $_GET['plugin'] ) ){
-											
-											// do activation deactivation
-
-											$is_activate = is_plugin_active( $_GET['plugin'] );
-											
-											if( $_GET['action'] == 'activate' && !$is_activate ){
-												
-												activate_plugin($_GET['plugin']);
-											}
-											elseif( $_GET['action'] == 'deactivate' && $is_activate ){
-												
-												deactivate_plugins($_GET['plugin']);
-											}
-										}
-										
-										// output button
-										
-										if( is_plugin_active( $addon['addon_name'] . '/' . $addon['addon_name'] . '.php' ) ){
-
-											//$url = wp_nonce_url( 'http://ltple.recuweb.com/wp-admin/plugins.php?action=deactivate&plugin='.urlencode( $plugin_file ), 'deactivate-plugin_' . $plugin_file );
-										
-											$url = add_query_arg( array(
-												'action' => 'deactivate',
-												'plugin' => urlencode( $plugin_file ),
-											), $this->parent->urls->current );
-												
-											$html .= '<a href="'.$url.'" class="button deactivate-now" aria-label="Deactivate">Deactivate</a>';
-										}
-										else{
-											
-											//$url = wp_nonce_url( 'http://ltple.recuweb.com/wp-admin/plugins.php?action=activate&plugin='.urlencode( $plugin_file ), 'activate-plugin_' . $plugin_file );
-											
-											$url = add_query_arg( array(
-												'action' => 'activate',
-												'plugin' => urlencode( $plugin_file ),
-											), $this->parent->urls->current );									
-											
-											$html .= '<a href="'.$url.'" class="button activate-now" aria-label="Activate">Activate</a>';
-										}
+										$html .= '<span>Installed</span>';
 									}
 								
 								$html .= '</div>';

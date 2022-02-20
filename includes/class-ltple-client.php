@@ -1277,7 +1277,9 @@ class LTPLE_Client {
 	}
 	
 	public function get_apps_shortcode(){
-
+		
+		ob_start();
+		
 		include($this->views . '/navbar.php');
 		
 		if($this->user->loggedin){
@@ -1288,13 +1290,19 @@ class LTPLE_Client {
 			
 			echo $this->login->get_form();
 		}
+		
+		return ob_get_clean();
 	}
 	
 	public function get_gallery_shortcode(){
-
+		
+		ob_start();
+		
 		include($this->views . '/navbar.php');
 			
 		include($this->views . '/gallery.php');
+		
+		return ob_get_clean();
 	}
 
 	public function get_demo_message(){

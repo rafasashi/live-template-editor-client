@@ -25,15 +25,15 @@ class LTPLE_Client_Urls {
 	 */
 	public function __construct ( $parent ) {
 
-		$this->parent 		= $parent;
+		$this->parent 	= $parent;
+	
+		$this->home 	= ( is_ssl() ? home_url('','https') : home_url() );	
 		
-		$this->home 		= ( is_ssl() ? home_url('','https') : home_url() );	
-		
-		$this->current 		= $this->home . $_SERVER['REQUEST_URI'];
+		$this->current 	= $this->home . $_SERVER['REQUEST_URI'];
 
-		$this->primary		= defined('REW_PRIMARY_SITE') && !empty(REW_PRIMARY_SITE) ? REW_PRIMARY_SITE : $this->home;
+		$this->primary	= defined('REW_PRIMARY_SITE') && !empty(REW_PRIMARY_SITE) ? REW_PRIMARY_SITE : $this->home;
 		
-		$this->api 			= $this->home . '/' . rest_get_url_prefix() . '/';
+		$this->api 		= $this->home . '/' . rest_get_url_prefix() . '/';
 				
 		// get edit gallery
 		
@@ -132,6 +132,16 @@ class LTPLE_Client_Urls {
 		
 		return false;
 	}
+	
+	public function is_rest(){
+		
+		if( strpos($this->current,$this->api) === 0 )
+			
+			return true;
+			
+		return false;
+	}
+		
 	
 	public function init_urls(){
 		

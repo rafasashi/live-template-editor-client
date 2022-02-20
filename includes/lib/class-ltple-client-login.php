@@ -266,7 +266,11 @@ class LTPLE_Client_Login {
 		
 	public function get_login_shortcode(){
 		
+		ob_start();
+		
 		include($this->parent->views . '/login.php');
+		
+		return ob_get_clean();
 	}
 	
 	public function add_form_validation(){

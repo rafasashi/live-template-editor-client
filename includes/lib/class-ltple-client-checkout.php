@@ -32,6 +32,8 @@ class LTPLE_Client_Checkout {
 	
 	public function get_shortcode() {
 		
+		ob_start();
+		
 		if( !empty($_GET['template']) && is_numeric($_GET['template']) ){
 			
 			$layer_id = intval($_GET['template']);
@@ -159,6 +161,8 @@ class LTPLE_Client_Checkout {
 			
 			echo'</div>';
 		}
+		
+		return ob_get_clean();
 	}
 	
 	/**

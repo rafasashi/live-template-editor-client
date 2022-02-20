@@ -93,6 +93,7 @@ class LTPLE_Client_Dashboard {
 	
 	public function get_dashboard_shortcode(){
 		
+		ob_start();
 
 		include($this->parent->views . '/navbar.php');
 		
@@ -115,6 +116,8 @@ class LTPLE_Client_Dashboard {
 			
 			echo $this->parent->login->get_form();
 		}
+		
+		return ob_get_clean();
 	}
 	
 	public function get_widget_box($box){
@@ -183,7 +186,7 @@ class LTPLE_Client_Dashboard {
 								
 								if( empty($thumbnail_url) ){
 									
-									$thumbnail_url = '<div class="thumb_wrapper" style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
+									$thumbnail_url = '<div style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
 								}
 								
 								$recent_posts .= $thumbnail_url;

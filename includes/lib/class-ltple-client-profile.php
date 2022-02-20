@@ -725,8 +725,10 @@ class LTPLE_Client_Profile {
 	}	
 	
 	public function get_profile_shortcode(){
-
+		
 		if( empty($this->id) ){
+			
+			ob_start();
 			
 			include($this->parent->views . '/navbar.php');
 			
@@ -749,6 +751,8 @@ class LTPLE_Client_Profile {
 				
 				echo $this->parent->login->get_form();
 			}
+			
+			return ob_get_clean();
 		}
 	}
 	
@@ -986,7 +990,7 @@ class LTPLE_Client_Profile {
 
 						echo'<table class="form-table">';
 							
-							if(!empty($this->parent->profile->fields )){
+							if( !empty($this->parent->profile->fields )){
 								
 								foreach( $this->parent->profile->fields as $field ){
 									

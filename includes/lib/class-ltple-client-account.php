@@ -42,6 +42,8 @@ class LTPLE_Client_Account {
 	
 	public function get_account_shortcode(){
 		
+		ob_start();
+		
 		include($this->parent->views . '/navbar.php');
 		
 		if( $this->parent->user->loggedin ){
@@ -52,6 +54,8 @@ class LTPLE_Client_Account {
 			
 			echo $this->parent->login->get_form();
 		}
+		
+		return ob_get_clean();
 	}
 
 	public function set_notification_fields(){
