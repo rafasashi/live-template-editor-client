@@ -690,6 +690,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$total_fee_period		='once';
 					$total_price_currency	='$';
 					
+					$plan_options = (array) $data;
+													
 					$html .= '<table class="widefat fixed striped" style="border:none;">';
 						
 						foreach ( $field['options'] as $taxonomy => $terms ) {
@@ -718,7 +720,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 												$checked = false;
 												
-												if ( in_array( $term->slug, (array) $data ) ) {
+												if ( in_array( $term->slug, $plan_options ) ) {
 													
 													$checked = true;
 												}
@@ -736,8 +738,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 												// storage column
 												
 												$html .= '<td>';
-													
-													$plan_options = (array) $data;
 														
 													if ( in_array( $term->slug, $plan_options ) ) {
 														
