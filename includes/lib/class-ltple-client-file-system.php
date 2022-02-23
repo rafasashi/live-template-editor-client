@@ -410,12 +410,15 @@
 		 */
 		static private function chmod( $filename, $permission ) {
 			
+			return true;
+			
 			if ( @chmod( $filename, $permission ) )
 				return;
 			
 			if( self::request_filesystem_credentials() ){
 
 				global $wp_filesystem;
+				
 				if ( !$wp_filesystem->chmod( $filename, $permission, true ) ) {
 					
 					return;

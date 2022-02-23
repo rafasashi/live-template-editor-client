@@ -223,7 +223,8 @@ class LTPLE_Client {
 		if( $error = error_get_last() ) {
 			
 			$skip = array(
-			
+				
+				'ftp_chmod(): SITE CHMOD command failed.',
 				'ftp_chdir(): Failed to change directory.',
 				'Undefined property: WP_Post::$filter',
 				'Incorrect APP1 Exif Identifier Code',
@@ -245,7 +246,7 @@ class LTPLE_Client {
 				$error['url'] 	= ( is_ssl() ? home_url('','https') : home_url() ) . $_SERVER['REQUEST_URI'];
 				
 				$error['user'] 	= get_current_user_id();
-				
+
 				wp_mail( get_option('admin_email'),'debugging LTPLE Client error',print_r($error,true));
 			}
 		}
