@@ -54,9 +54,13 @@
 			
 			if( $this->parent->settings->options->enable_ranking == 'on' ){
 			
+				ob_start();
+				
 				include($this->parent->views . '/navbar.php');
 			
 				include($this->parent->views . '/ranking.php');	
+			
+				return ob_get_clean();
 			}
 		}
 		

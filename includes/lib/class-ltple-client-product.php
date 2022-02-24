@@ -202,6 +202,8 @@ class LTPLE_Client_Product {
 	
 	public function get_product_shortcode(){
 	
+		ob_start();
+	
 		echo '<div style="min-height:500px;">';
 		
 			if( !empty($this->ID) ){
@@ -213,7 +215,9 @@ class LTPLE_Client_Product {
 				include($this->parent->views . '/products.php');
 			}
 			
-		echo '</div>'; 
+		echo '</div>';
+		
+		return ob_get_clean();
 	}
 	
 	public function get_agreement_url( $post, $layer_type, $fee=null, $plan=null ){
