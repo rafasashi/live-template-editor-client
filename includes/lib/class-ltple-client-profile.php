@@ -1539,7 +1539,7 @@ class LTPLE_Client_Profile {
 			
 			$fields[$this->parent->_base . 'profile_html'] = array(
 
-				'id' 			=> '',
+				'id' 			=> $this->parent->_base . 'profile_html',
 				'label'			=> 'Home Page (HTML)',
 				'description'	=> 'Customize your profile home page with HTML',
 				'placeholder'	=> 'For paid license only',
@@ -1553,7 +1553,7 @@ class LTPLE_Client_Profile {
 			
 			$fields[$this->parent->_base . 'profile_css'] = array(
 
-				'id' 			=> '',
+				'id' 			=> $this->parent->_base . 'profile_css',
 				'label'			=> 'Home Page (CSS)',
 				'description'	=> 'Customize your profile home page with CSS',
 				'placeholder'	=> 'For paid license only',
