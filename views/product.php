@@ -185,7 +185,7 @@
 								
 								echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
 							}
-							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+							elseif( !empty($this->parent->user->plan) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
 								echo $this->get_checkout_button($this,$layer_type->name);
 							}
