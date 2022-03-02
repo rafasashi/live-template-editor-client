@@ -424,7 +424,7 @@ class LTPLE_Client_Gallery {
 										
 							$item .='<button type="button" class="btn btn-sm" data-toggle="modal" data-target="#upgrade_plan" style="width:100%;font-size:17px;background:' . $this->parent->settings->mainColor . '99;color:#fff;padding: 15px 0;border:1px solid ' . $this->parent->settings->mainColor . ';">';
 							
-								$item .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> ' . ( $this->parent->user->plan['info']['total_price_amount'] > 0 ? 'upgrade' : 'start' );
+								$item .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> ' . ( !empty($this->parent->user->plan) && $this->parent->user->plan['info']['total_price_amount'] > 0 ? 'upgrade' : 'start' );
 								
 								$item .= '<br>';
 								

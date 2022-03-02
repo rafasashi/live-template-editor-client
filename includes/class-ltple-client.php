@@ -224,6 +224,7 @@ class LTPLE_Client {
 			
 			$skip = array(
 				
+				'Unknown: file created in the system',
 				'ftp_chmod(): SITE CHMOD command failed.',
 				'ftp_chdir(): Failed to change directory.',
 				'Undefined property: WP_Post::$filter',

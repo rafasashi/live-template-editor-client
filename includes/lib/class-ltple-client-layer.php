@@ -5517,7 +5517,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( is_admin() ){
 			
-			if( !current_user_can('edit_page', $post_id) ){
+			if( !current_user_can('edit_pages', $post_id) ){
 				
 				return $post_id;
 			}
