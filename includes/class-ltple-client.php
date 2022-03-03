@@ -128,7 +128,7 @@ class LTPLE_Client {
 		$this->inWidget = ( ( isset($_GET['output']) && $_GET['output'] == 'widget' ) ? true : false );
 		
 		$this->modalId  = ( ( $this->inWidget && !empty($_GET['modal']) && is_string($_GET['modal']) ) ? $_GET['modal'] : false );
-
+		
 		add_filter('shutdown',array( $this , 'handle_error' ));
 		
 		register_activation_hook( $this->file, array( $this, 'install' ) );
@@ -137,14 +137,7 @@ class LTPLE_Client {
 		
 		$this->load_plugin_textdomain();
 	
-		add_action('init', array( $this, 'load_localisation' ), 0 );		
-
-		// start session
-		
-		if( !isset($_GET['doing_wp_cron']) && !session_id() ) {
-			
-			session_start();
-		}
+		add_action('init', array( $this, 'load_localisation' ), 0 );
 		
 		$this->client 		= new LTPLE_Client_Client( $this );
 		$this->request 		= new LTPLE_Client_Request( $this );

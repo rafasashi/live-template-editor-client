@@ -134,6 +134,8 @@ class LTPLE_Client_Profile {
 		},1);
 		
 		add_action('ltple_profile_settings_home-page',array($this,'get_home_page_panel'),10,1);
+	
+		do_action('ltple_register_profile');
 	}
 	
 	public function is_enabled($feature){

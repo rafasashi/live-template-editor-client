@@ -13,93 +13,94 @@
 	
 	echo'<div id="layer_detail" class="col-xs-12">';
 		
-		echo'<div class="row">';	
+		echo'<div class="row">';
 			
-			$current_types = $this->parent->gallery->get_current_types();
+			if( $current_types = $this->parent->gallery->get_current_types() ){
 			
-			foreach( $current_types as $term ){
-				
-				if($term->visibility == 'anyone'){
+				foreach( $current_types as $term ){
 					
-					//output related templates
-					
-					$q = get_posts( array(
-					
-						'post_type' 	=> 'cb-default-layer',
-						'numberposts' 	=> 3,
-						'meta_query' 	=> array(
+					if($term->visibility == 'anyone'){
 						
-							array(
-								'key' 			=> 'layerVisibility',
-								'value' 		=> 'assigned',
-								'compare' 		=> '!=',
+						//output related templates
+						
+						$q = get_posts( array(
+						
+							'post_type' 	=> 'cb-default-layer',
+							'numberposts' 	=> 3,
+							'meta_query' 	=> array(
+							
+								array(
+									'key' 			=> 'layerVisibility',
+									'value' 		=> 'assigned',
+									'compare' 		=> '!=',
+								)
+							),
+							'tax_query' 	=> array(
+							
+								array(
+									'taxonomy' 			=> 'layer-type',
+									'field' 			=> 'id',
+									'terms' 			=> $term->term_id,
+									'include_children' 	=> false
+								)
 							)
-						),
-						'tax_query' 	=> array(
+						));			
 						
-							array(
-								'taxonomy' 			=> 'layer-type',
-								'field' 			=> 'id',
-								'terms' 			=> $term->term_id,
-								'include_children' 	=> false
-							)
-						)
-					));			
-					
-					if( !empty($q) ){
-						
-						echo'<div class="col-md-4" style="height:500px;">';
+						if( !empty($q) ){
+							
+							echo'<div class="col-md-4" style="height:500px;">';
 
-							echo'<h2 style="background: #eee;padding: 10px;font-size: 25px;">';
+								echo'<h2 style="background: #eee;padding: 10px;font-size: 25px;">';
+								
+									echo ucfirst($term->name);
+								
+								echo'</h2>';
 							
-								echo ucfirst($term->name);
-							
-							echo'</h2>';
-						
-							foreach( $q as $post){
+								foreach( $q as $post){
 
-								echo '<div class="row">';
-									
-									echo '<div class="col-xs-3">';
-									
-										echo '<a class="thumbnail" href="' . get_permalink($post) . '">';
-					
-											// get image thumb
-					
-											if( !$thumb = get_the_post_thumbnail($post->ID, array(150,150)) ){
-												
-												$thumb = '<div style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width:75px;height:75px;display:block;"></div>';
-											}
-												
-											echo $thumb;
-									
-										echo'</a>';
-									
-									echo'</div>';
-									
-									echo '<div class="col-xs-9">';
-									
-										echo '<a href="' . get_permalink($post) . '" style="font-weight:bold;">';
+									echo '<div class="row">';
 										
-											echo $post->post_title;
+										echo '<div class="col-xs-3">';
 										
-										echo '</a>';
-										
-										echo '<br>';
-										
-										echo $post->post_excerpt;
-									
-									echo'</div>';
-									
-								echo'</div>';
-							}
-							
-							if( count($q) == 3 ){
+											echo '<a class="thumbnail" href="' . get_permalink($post) . '">';
 						
-								echo'<a class="btn btn-xs btn-primary" style="margin:5px;" href="' . $this->parent->urls->gallery . '?gallery=' . $term->slug . '">see more</a>';
-							}
+												// get image thumb
+						
+												if( !$thumb = get_the_post_thumbnail($post->ID, array(150,150)) ){
+													
+													$thumb = '<div style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width:75px;height:75px;display:block;"></div>';
+												}
+													
+												echo $thumb;
+										
+											echo'</a>';
+										
+										echo'</div>';
+										
+										echo '<div class="col-xs-9">';
+										
+											echo '<a href="' . get_permalink($post) . '" style="font-weight:bold;">';
+											
+												echo $post->post_title;
+											
+											echo '</a>';
+											
+											echo '<br>';
+											
+											echo $post->post_excerpt;
+										
+										echo'</div>';
+										
+									echo'</div>';
+								}
+								
+								if( count($q) == 3 ){
 							
-						echo'</div>';
+									echo'<a class="btn btn-xs btn-primary" style="margin:5px;" href="' . $this->parent->urls->gallery . '?gallery=' . $term->slug . '">see more</a>';
+								}
+								
+							echo'</div>';
+						}
 					}
 				}
 			}

@@ -1292,7 +1292,7 @@ class LTPLE_Client_Plan {
 			
 			if(session_status() == PHP_SESSION_NONE) {
 				
-				session_start();
+				//session_start();
 			}			
 			
 			$_SESSION['message'] = '';

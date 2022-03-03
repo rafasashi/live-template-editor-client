@@ -68,14 +68,17 @@ class LTPLE_Client_Account {
 				
 				foreach( $this->parent->user->notify as $key => $value ){
 					
-					$this->notificationSettings[$key] = array(
+					if( !empty($descriptions[$key]) ){
+						
+						$this->notificationSettings[$key] = array(
 
-						'id' 			=> $this->parent->_base . 'notify['.$key.']',
-						'label'			=> ucfirst($key),
-						'description'	=> $descriptions[$key],
-						'type'			=> 'switch',
-						'data'			=> ( $value == 'true' ? 'on' : 'off' ),
-					);				
+							'id' 			=> $this->parent->_base . 'notify['.$key.']',
+							'label'			=> ucfirst($key),
+							'description'	=> $descriptions[$key],
+							'type'			=> 'switch',
+							'data'			=> ( $value == 'true' ? 'on' : 'off' ),
+						);				
+					}
 				}
 			}
 		}
