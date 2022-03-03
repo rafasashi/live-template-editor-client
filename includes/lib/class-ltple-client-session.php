@@ -438,11 +438,11 @@ class LTPLE_Client_Session {
 			
 			$token = sanitize_title($token);
 			
-			$data = get_user_meta($user->ID,$this->parent->_base . 'session_' . $token ,true);
+			$data = get_user_meta($user_id,$this->parent->_base . 'session_' . $token ,true);
 		
 			if( $reset === true && !empty($data) ){
 				
-				delete_user_meta($user->ID,$this->parent->_base . 'session_' . $token);
+				delete_user_meta($user_id,$this->parent->_base . 'session_' . $token);
 			}
 		}
 		
