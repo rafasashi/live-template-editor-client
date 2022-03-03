@@ -233,12 +233,15 @@ class LTPLE_Client {
 			
 			$match = false;
 			
-			foreach( $skip as $s ){
+			if( !empty($error['type']) && $error['type'] != 8192 ){
 				
-				if( strpos($error['message'],$s) !== false ){
+				foreach( $skip as $s ){
 					
-					$match = true;
-					break;
+					if( strpos($error['message'],$s) !== false ){
+						
+						$match = true;
+						break;
+					}
 				}
 			}
 			
