@@ -48,11 +48,18 @@ class LTPLE_Client_Login {
 					
 					$this->reg_tok = wp_kses_normalize_entities($_COOKIE['reg_tok']);
 				}
+				elseif( !empty($_REQUEST['reg_tok']) ){
+					
+					$this->reg_tok = wp_kses_normalize_entities($_REQUEST['reg_tok']);
+				}
 				else{
 					
 					$this->reg_tok = substr( wp_hash( 'reg_token_' . time(), 'nonce' ), -12, 10 );
-
-					setcookie('reg_tok', $this->reg_tok, time()+3600, '/');
+					
+					if( !headers_sent() ){
+					
+						setcookie('reg_tok', $this->reg_tok, time()+3600, '/');
+					}
 				}
 			}
 			
@@ -286,7 +293,8 @@ class LTPLE_Client_Login {
 	public function add_form_validation(){
 		
 		echo'<input type="hidden" name="reg_email_nonce" id="reg_email_nonce" value="' . wp_create_nonce('reg_email_'.$this->reg_tok) . '">';
-	
+		echo'<input type="hidden" name="reg_tok" id="reg_tok" value="' . $this->reg_tok . '">';
+		
 		wp_enqueue_script( 'jquery' );
 		add_action( 'login_footer', array( $this, 'print_honeypot_scripts' ), 25 ); 
 		

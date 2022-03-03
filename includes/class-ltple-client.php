@@ -594,7 +594,7 @@ class LTPLE_Client {
 		}
 		elseif( !$url = $this->session->get_user_data('redirect_to',$user->ID) ){
 			
-			$url = $this->urls->profile . $user->ID . '/';
+			$url = $this->urls->home;
 		}
 		
         wp_redirect( $url );
