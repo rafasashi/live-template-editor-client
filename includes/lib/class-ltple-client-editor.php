@@ -35,7 +35,7 @@ class LTPLE_Client_Editor {
 		}, 1);
 		
 		add_filter( 'ltple_editor_frontend', array( $this, 'get_editor' ),1);
-
+		
 		add_filter( 'ltple_editor_iframe_url', array( $this, 'filter_iframe_url' ),1,2);	
 		
 		add_filter( 'ltple_editor_dashboard_url', array( $this, 'filter_dashboard_url' ),1);	
@@ -53,12 +53,15 @@ class LTPLE_Client_Editor {
 		add_filter( 'ltple_editor_navbar_settings', array( $this, 'filter_navbar_settings' ),1);
 		
 		add_filter( 'ltple_editor_js_settings', array( $this, 'filter_js_settings' ),1,2);	
-		
+
 		add_filter( 'ltple_editor_script', array( $this, 'filter_editor_script' ),1);
-	
-		add_filter('admin_enqueue_scripts',array( $this, 'add_actions_scripts' ) );
 		
-		add_action( 'admin_post_duplicate', array($this, 'duplicate_item') );
+		add_action( 'load-edit.php', function() {
+		
+			add_filter('admin_enqueue_scripts',array( $this, 'add_actions_scripts' ) );
+		
+			add_action( 'admin_post_duplicate', array($this, 'duplicate_item') );
+		});
 	}
 	
 	public function init_editor(){
@@ -570,12 +573,12 @@ class LTPLE_Client_Editor {
 	public function add_actions_scripts(){
 		
 		// add style
-			
+				
 		wp_register_style($this->parent->_token . '-admin-actions', false,array());
 		wp_enqueue_style($this->parent->_token . '-admin-actions');
 
 		wp_add_inline_style($this->parent->_token . '-admin-actions', $this->get_actions_style() );
-			
+				
 		// add script
 			
 		wp_register_script( $this->parent->_token . '-admin-actions', '', array( 'jquery' ) );
@@ -586,6 +589,7 @@ class LTPLE_Client_Editor {
 		// add footer
 
 		add_filter('admin_footer',array( $this, 'add_actions_footer' ) );
+		
 	}
 
 	public function duplicate_item(){
