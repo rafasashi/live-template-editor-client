@@ -6,6 +6,8 @@ class LTPLE_Client_Login {
 	
 	var $parent;
 	
+	var $reg_tok;
+	
 	/**
 	 * Constructor function
 	 */
@@ -14,29 +16,49 @@ class LTPLE_Client_Login {
 		
 		$this->parent = $parent;
 		
-		add_filter( 'login_url', array($this, 'filter_login_url'), 10, 3 );
+		add_filter('login_url', array($this, 'filter_login_url'), 10, 3 );
 	
-		add_filter( 'register_url', array($this, 'set_register_url'), 10, 3 );
+		add_filter('register_url', array($this, 'set_register_url'), 10, 3 );
 		
-		add_filter( 'register_form', array($this, 'add_form_validation'), 10, 3 );
+		add_filter('register_form', array($this, 'add_form_validation'), 10, 3 );
 		
-		add_action( 'template_redirect', array( $this, 'enqueue_login_scripts' ));
+		add_action('template_redirect', array( $this, 'enqueue_login_scripts' ));
 
-		add_filter( 'body_class', function( $classes ) {
+		add_filter('body_class', function( $classes ) {
 			
 			return array_merge( $classes, array( 'login', 'login-action-login', 'login-action-login', 'wp-core-ui' ) );
 		});		
 		
-		add_filter( 'login_redirect', array($this, 'set_login_redirect_url'), 10, 3 );		
+		add_filter('login_redirect', array($this, 'set_login_redirect_url'), 10, 3 );		
 		
-		add_shortcode( 'ltple-client-login', array($this , 'get_login_shortcode' ) );
+		add_shortcode('ltple-client-login', array($this , 'get_login_shortcode' ) );
 
-		add_action( 'register_post',       array( $this, 'check_honeypot' ), 0  );
-		add_action( 'login_form_register', array( $this, 'check_honeypot' ), 0  );
+		add_action('register_post',       array( $this, 'check_honeypot' ), 0  );
+		add_action('login_form_register', array( $this, 'check_honeypot' ), 0  );
 
-		add_action( 'register_post', array($this,'check_email_regitration'), 10, 3 );				
+		add_action('register_post', array($this,'check_email_regitration'), 10, 3 );				
 		
-		add_filter( 'registration_errors', array($this, 'handle_custom_registration'), 9999, 3 );
+		add_filter('registration_errors', array($this, 'handle_custom_registration'), 9999, 3 );
+		
+		add_filter('ltple_current_user', function($user){
+			
+			if( !is_admin() && empty($user->ID) ){
+				
+				if( !empty($_COOKIE['reg_tok']) ){
+					
+					$this->reg_tok = wp_kses_normalize_entities($_COOKIE['reg_tok']);
+				}
+				else{
+					
+					$this->reg_tok = substr( wp_hash( 'reg_token_' . time(), 'nonce' ), -12, 10 );
+
+					setcookie('reg_tok', $this->reg_tok, time()+3600, '/');
+				}
+			}
+			
+			return $user;
+		});
+
 	}
 
 	public function get_form(){
@@ -68,9 +90,9 @@ class LTPLE_Client_Login {
 	
 	public function is_valid_registration($email){
 		
-		if( !empty($_POST['reg_email_nonce']) ){
+		if( !empty($_POST['reg_email_nonce']) && !empty($this->reg_tok) ){
 			
-			if( wp_verify_nonce($_POST['reg_email_nonce'],'reg_email') ){
+			if( wp_verify_nonce($_POST['reg_email_nonce'],'reg_email_'.$this->reg_tok) ){
 
 				return true;
 			}
@@ -92,10 +114,8 @@ class LTPLE_Client_Login {
 	
 	public function handle_custom_registration( $errors = NULL, $sanitized_user_login = NULL, $user_email = NULL ){
 		
-		if( !empty($errors) && !empty($_COOKIE['reg_email']) ){
+		if( !empty($errors) && !empty($this->reg_tok) ){
 
-			$reg_email = wp_kses_normalize_entities($_COOKIE['reg_email']);
-			
 			$success = NULL;
 			
 			// check registration
@@ -173,7 +193,7 @@ class LTPLE_Client_Login {
 				$message['errors'] = $errors->errors;
 			}
 			
-			set_transient('reg_email_' . $reg_email , $message, 60 * 60 );
+			set_transient('reg_email_' . $this->reg_tok , $message, 60 * 60 );
 		}
 		
 		// redirect to login page
@@ -253,9 +273,9 @@ class LTPLE_Client_Login {
 		
 		return $redirect_to;
 	}
-		
+	
 	public function get_login_shortcode(){
-		
+
 		ob_start();
 		
 		include($this->parent->views . '/login.php');
@@ -265,18 +285,7 @@ class LTPLE_Client_Login {
 	
 	public function add_form_validation(){
 		
-		if( !empty($_COOKIE['reg_email']) ){
-			
-			$reg_email = wp_kses_normalize_entities($_COOKIE['reg_email']);
-		}
-		else{
-		
-			$reg_email = wp_create_nonce('reg_email');
-			
-			setcookie('reg_email', $reg_email, time()+3600, '/');
-		}
-		
-		echo'<input type="hidden" name="reg_email_nonce" id="reg_email_nonce" value="'.$reg_email.'">';
+		echo'<input type="hidden" name="reg_email_nonce" id="reg_email_nonce" value="' . wp_create_nonce('reg_email_'.$this->reg_tok) . '">';
 	
 		wp_enqueue_script( 'jquery' );
 		add_action( 'login_footer', array( $this, 'print_honeypot_scripts' ), 25 ); 

@@ -29,11 +29,9 @@
 		
 		$show_form = true;
 			
-		$reg_email = !empty($_COOKIE['reg_email']) ? wp_kses_normalize_entities($_COOKIE['reg_email']) : '';
-
-		if( $message = get_transient('reg_email_' . $reg_email) ){
+		if( $message = get_transient('reg_email_' . $ltple->login->reg_tok) ){
 			
-			delete_transient('reg_email_' . $reg_email);
+			delete_transient('reg_email_' . $ltple->login->reg_tok);
 			
 			echo'<div id="login_errors" style="width:350px;margin:10px auto;">';
 					

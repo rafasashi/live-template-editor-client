@@ -568,7 +568,7 @@ class LTPLE_Client {
 			}
 		}
 		
-		return $this->user;
+		return apply_filters('ltple_current_user',$this->user);
 	}	
 	
 	public function redirect_password_reset($user){
