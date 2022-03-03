@@ -1,10 +1,10 @@
 <?php 
 	
 	$ltple = LTPLE_Client::instance();
-	
+
 	// get pre filled user email
 
-	$user_email = ( !empty($_GET['loe']) ? $this->parent->ltple_decrypt_uri($_GET['loe'])  : '' );
+	$user_email = ( !empty($_GET['loe']) ? $ltple->ltple_decrypt_uri($_GET['loe'])  : '' );
 	
 	$target = $ltple->inWidget ? '_blank' : '_self';
 	
@@ -28,28 +28,31 @@
 		// output message
 		
 		$show_form = true;
-	
-		if( !empty( $_SESSION['errors']->errors ) || !empty($_SESSION['success']) ){
+			
+		$reg_email = !empty($_COOKIE['reg_email']) ? wp_kses_normalize_entities($_COOKIE['reg_email']) : '';
+
+		if( $message = get_transient('reg_email_' . $reg_email) ){
+			
+			delete_transient('reg_email_' . $reg_email);
 			
 			echo'<div id="login_errors" style="width:350px;margin:10px auto;">';
-				
-				if( !empty( $_SESSION['errors']->errors ) ){
-				
+					
+				if( !empty($message['errors']) ){
+
 					echo'<div class="alert alert-warning">';
 						
-						foreach( $_SESSION['errors']->errors as $error ){
+						foreach( $message['errors'] as $error ){
 							
 							echo reset($error) . '<br/>';
 						}
 					
 					echo'</div>';
 				}
-				
-				if( !empty( $_SESSION['success'] ) ){
+				elseif( !empty($message['success']) ){
 				
 					echo'<div class="alert alert-success">';
 
-						echo $_SESSION['success'];
+						echo $message['success'];
 
 					echo'</div>';
 					
@@ -57,11 +60,6 @@
 				}
 			
 			echo'</div>';
-
-			// empty messages
-			
-			$_SESSION['success'] 	= '';
-			$_SESSION['errors'] 	= '';
 		}
 		
 		if($show_form){
@@ -125,7 +123,7 @@
 								
 								'output' => 'widget',
 								
-							),$this->get_register_url( wp_login_url() ));
+							),$ltple->login->get_register_url( wp_login_url() ));
 						
 							$password_url	= add_query_arg( array(
 								
@@ -140,16 +138,16 @@
 								
 								$redirect_to = $_GET['redirect_to'];
 							}
-							elseif( strpos($this->parent->urls->current,$this->parent->urls->login) === false ){
+							elseif( strpos($ltple->urls->current,$ltple->urls->login) === false ){
 								
-								$redirect_to = $this->parent->urls->current;
+								$redirect_to = $ltple->urls->current;
 							}
 							else{
 								
 								$redirect_to = admin_url();
 							}
 							
-							$register_url = $this->get_register_url( wp_login_url() );
+							$register_url = $ltple->login->get_register_url( wp_login_url() );
 						
 							$password_url = wp_lostpassword_url();
 						}

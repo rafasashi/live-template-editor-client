@@ -664,9 +664,12 @@
 			}
 		}
 		
-		public function time_ago($time_ago) {
+		public function time_ago($time_ago=0) {
 			
-			$time_ago =  strtotime($time_ago) ? strtotime($time_ago) : $time_ago;
+			if( !empty($time_ago) && is_string($time_ago) )
+				
+				$time_ago = strtotime($time_ago);
+			
 			$time  = time() - $time_ago;
 
 			switch($time):

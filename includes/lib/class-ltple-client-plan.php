@@ -547,15 +547,14 @@ class LTPLE_Client_Plan {
 
 				$this->shortcode = '';
 				
-				if(!empty($_SESSION['message'])){ 
+				if( $message = $this->parent->session->get_user_data('message') ){ 
 				
 					//output message
 				
-					$this->shortcode .= $_SESSION['message'];
+					$this->shortcode .= $message;
 					
-					$_SESSION['message'] = '';
 				}						
-				elseif(!empty($this->message)){ 
+				elseif( !empty($this->message) ){ 
 				
 					//output message
 				
@@ -1288,14 +1287,9 @@ class LTPLE_Client_Plan {
 			$plan_data = $this->parent->base64_urldecode($plan_data);
 
 			$this->key 			= sanitize_text_field($_GET['pk']);
-			$this->subscribed 	= sanitize_text_field($_GET['pv']);
+			$this->subscribed 	= sanitize_text_field($_GET['pv']);	
 			
-			if(session_status() == PHP_SESSION_NONE) {
-				
-				//session_start();
-			}			
-			
-			$_SESSION['message'] = '';
+			$message = '';
 			
 			// subscribed plan data
 			
@@ -1328,37 +1322,37 @@ class LTPLE_Client_Plan {
 								
 								// store message
 								
-								$_SESSION['message'] .= '<div class="alert alert-success">';
+								$message .= '<div class="alert alert-success">';
 									
-									$_SESSION['message'] .= 'Congratulations, you have successfully subscribed to <b>'.$this->data['name'].'</b>!';
+									$message .= 'Congratulations, you have successfully subscribed to <b>'.$this->data['name'].'</b>!';
 									
 									/*
-									$_SESSION['message'] .= '<div class="pull-right">';
+									$message .= '<div class="pull-right">';
 									
-										$_SESSION['message'] .= '<a class="btn-sm btn-success" href="' . $this->parent->urls->gallery . '" target="_parent">Start editing</a>';
+										$message .= '<a class="btn-sm btn-success" href="' . $this->parent->urls->gallery . '" target="_parent">Start editing</a>';
 								
-									$_SESSION['message'] .= '</div>';
+									$message .= '</div>';
 									*/
 									
-								$_SESSION['message'] .= '</div>';
+								$message .= '</div>';
 							}
 							else{
 								
-								$_SESSION['message'] .= '<div class="alert alert-success">';
+								$message .= '<div class="alert alert-success">';
 									
-									$_SESSION['message'] .= 'Thanks for purchasing the <b>'.$this->data['name'].'</b>!';
+									$message .= 'Thanks for purchasing the <b>'.$this->data['name'].'</b>!';
 
-								$_SESSION['message'] .= '</div>';						
+								$message .= '</div>';						
 							}
 						}
 					}
 					elseif( $this->data['fee'] > 0 ){
 						
-						$_SESSION['message'] .= '<div class="alert alert-success">';
+						$message .= '<div class="alert alert-success">';
 							
-							$_SESSION['message'] .= 'Thanks for your contribution to <b>'.$this->data['name'].'</b>!';
+							$message .= 'Thanks for your contribution to <b>'.$this->data['name'].'</b>!';
 
-						$_SESSION['message'] .= '</div>';								
+						$message .= '</div>';								
 						
 						do_action('ltple_one_time_payment');			
 					}
@@ -1366,12 +1360,14 @@ class LTPLE_Client_Plan {
 			}
 			else{
 				
-				$_SESSION['message'] .= '<div class="alert alert-warning">';
+				$message .= '<div class="alert alert-warning">';
 									
-					$_SESSION['message'] .= 'Wrong plan request...';
+					$message .= 'Wrong plan request...';
 			
-				$_SESSION['message'] .= '</div>';
+				$message .= '</div>';
 			}
+			
+			$this->parent->session->update_user_data('message',$message);
 			
 			wp_redirect($this->parent->urls->gallery);
 			exit;
@@ -2774,12 +2770,14 @@ class LTPLE_Client_Plan {
 
 		if( !empty($reponse['body']) ){
 
-			$_SESSION['message'] = '<div class="alert alert-success"><b>Congratulations</b> you have successfully unlocked the output for '.$for.'</div>';
+			$message = '<div class="alert alert-success"><b>Congratulations</b> you have successfully unlocked the output for '.$for.'</div>';
 		}
 		else{
 			
-			$_SESSION['message'] = '<div class="alert alert-warning">Error unlocking the output...</div>';
+			$message = '<div class="alert alert-warning">Error unlocking the output...</div>';
 		}
+		
+		$this->parent->session->update_user_data('message',$message);
 		
 		if( !empty($_GET['ref']) ){
 			

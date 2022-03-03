@@ -261,21 +261,5 @@
 		}
 	}
 	
-	if(!empty($ltple->message)){ 
-	
-		//output message
-	
-		echo $ltple->message;
-	}
-	
-	if(!empty($_SESSION['message'])){ 
-	
-		//output message
-	
-		echo $_SESSION['message'];
-		
-		//reset message
-		
-		$_SESSION['message'] ='';
-	}
+	echo $ltple->output_message();
 	

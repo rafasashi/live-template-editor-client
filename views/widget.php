@@ -32,12 +32,7 @@
 		
 		wp_body_open();
 
-		if(!empty($_SESSION['message'])){
-			
-			echo $_SESSION['message'].PHP_EOL;
-			
-			$_SESSION['message'] = '';
-		}					
+		echo $this->session->get_user_data('message');				
 		
 		global $post;
 		

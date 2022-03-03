@@ -421,6 +421,58 @@ class LTPLE_Client_Session {
 			}
 		}
 	}
+	
+	public function get_user_data($token,$user_id=null,$reset=true){
+		
+		$data = null;
+		
+		if( is_null($user_id) ){
+		
+			if( $user = wp_get_current_user() ){
+				
+				$user_id = $user->ID;
+			}
+		}
+		
+		if( !empty($user_id) ){
+			
+			$token = sanitize_title($token);
+			
+			$data = get_user_meta($user->ID,$this->parent->_base . 'session_' . $token ,true);
+		
+			if( $reset === true && !empty($data) ){
+				
+				delete_user_meta($user->ID,$this->parent->_base . 'session_' . $token);
+			}
+		}
+		
+		return $data;
+	}
+	
+	public function update_user_data($token,$value,$user_id=null){
+
+		if( is_null($user_id) ){
+		
+			if( $user = wp_get_current_user() ){
+				
+				$user_id = $user->ID;
+			}
+		}
+		
+		if( !empty($user_id) ){
+			
+			$token = sanitize_title($token);
+			
+			$value = wp_kses_normalize_entities($value);
+	
+			if( !empty($value) ){
+				
+				return update_user_meta($user_id,$this->parent->_base . 'session_' . $token,$value);
+			}
+		}
+		
+		return false;
+	}
 
 	public function after_user_register($user_id){
 

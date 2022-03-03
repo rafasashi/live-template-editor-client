@@ -12,7 +12,7 @@ class LTPLE_Client_Login {
 	 
 	public function __construct ( $parent ) {
 		
-		$this->parent 	= $parent;
+		$this->parent = $parent;
 		
 		add_filter( 'login_url', array($this, 'filter_login_url'), 10, 3 );
 	
@@ -37,17 +37,6 @@ class LTPLE_Client_Login {
 		add_action( 'register_post', array($this,'check_email_regitration'), 10, 3 );				
 		
 		add_filter( 'registration_errors', array($this, 'handle_custom_registration'), 9999, 3 );
-
-		if( !is_admin() ){
-			
-			if( !empty($_GET['action']) && $_GET['action'] == 'rp' ){
-				
-				if( !empty($_GET['redirect_to']) ){
-					
-					$_SESSION['redirect_to']= $_GET['redirect_to'];
-				}
-			}
-		}
 	}
 
 	public function get_form(){
@@ -103,8 +92,10 @@ class LTPLE_Client_Login {
 	
 	public function handle_custom_registration( $errors = NULL, $sanitized_user_login = NULL, $user_email = NULL ){
 		
-		if( !empty($errors) ){
-		
+		if( !empty($errors) && !empty($_COOKIE['reg_email']) ){
+
+			$reg_email = wp_kses_normalize_entities($_COOKIE['reg_email']);
+			
 			$success = NULL;
 			
 			// check registration
@@ -171,26 +162,25 @@ class LTPLE_Client_Login {
 			
 			// store message in session 
 			
-			if(!session_id()) {
-				
-				//session_start();
-			}
-	
+			$message = array();
+			
 			if( !empty($success) ){
 				
-				$_SESSION['success'] = $success;
+				$message['success'] = $success;
 			}
 			else{
 				
-				$_SESSION['errors'] = $errors;
+				$message['errors'] = $errors->errors;
 			}
+			
+			set_transient('reg_email_' . $reg_email , $message, 60 * 60 );
 		}
 		
 		// redirect to login page
 		
 		$login_url = add_query_arg( array(
 		
-			'redirect_to' 	=> ( isset($_GET['redirect_to']) ? $_GET['redirect_to'] : ''),
+			'redirect_to' 	=> ( isset($_GET['redirect_to']) ? sanitize_url($_GET['redirect_to']) : ''),
 			'action' 		=> 'register',
 			
 		), $this->parent->urls->login );			
@@ -275,7 +265,18 @@ class LTPLE_Client_Login {
 	
 	public function add_form_validation(){
 		
-		echo'<input type="hidden" name="reg_email_nonce" id="reg_email_nonce" value="'.wp_create_nonce('reg_email').'">';
+		if( !empty($_COOKIE['reg_email']) ){
+			
+			$reg_email = wp_kses_normalize_entities($_COOKIE['reg_email']);
+		}
+		else{
+		
+			$reg_email = wp_create_nonce('reg_email');
+			
+			setcookie('reg_email', $reg_email, time()+3600, '/');
+		}
+		
+		echo'<input type="hidden" name="reg_email_nonce" id="reg_email_nonce" value="'.$reg_email.'">';
 	
 		wp_enqueue_script( 'jquery' );
 		add_action( 'login_footer', array( $this, 'print_honeypot_scripts' ), 25 ); 

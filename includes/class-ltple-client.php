@@ -137,7 +137,7 @@ class LTPLE_Client {
 		
 		$this->load_plugin_textdomain();
 	
-		add_action('init', array( $this, 'load_localisation' ), 0 );
+		add_action('init', array( $this, 'load_localisation' ), 0 );		
 		
 		$this->client 		= new LTPLE_Client_Client( $this );
 		$this->request 		= new LTPLE_Client_Request( $this );
@@ -339,17 +339,8 @@ class LTPLE_Client {
 
 			echo $this->message;
 		}
-
-		if(!empty($_SESSION['message'])){ 
-
-			//output message
-
-			echo $_SESSION['message'];
-			
-			//reset message
-			
-			$_SESSION['message'] ='';
-		}
+		
+		echo $this->session->get_user_data('message');
 	}
 	
 	public function exit_alert($message,$code=200){
@@ -601,13 +592,7 @@ class LTPLE_Client {
 			
 			$url = $_POST['redirect_to'];
 		}
-		elseif( !empty($_SESSION['redirect_to']) ){
-			
-			$url = $_SESSION['redirect_to'];
-			
-			$_SESSION['redirect_to'] = '';
-		}			
-		else{
+		elseif( !$url = $this->session->get_user_data('redirect_to',$user->ID) ){
 			
 			$url = $this->urls->profile . $user->ID . '/';
 		}
@@ -1580,53 +1565,55 @@ class LTPLE_Client {
 					
 						// confirm deletion
 
-						$_SESSION['message'] = '<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+						$message = '<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
 							
-							$_SESSION['message'] .= '<h2>Are you sure you want to delete this  ' . $this->layer->get_storage_name($this->layer->layerStorage) . '?</h2>';
+							$message .= '<h2>Are you sure you want to delete this  ' . $this->layer->get_storage_name($this->layer->layerStorage) . '?</h2>';
 						
 							if( !empty($images) ){
 								
-								$_SESSION['message'] .= '<hr></hr>';
+								$message .= '<hr></hr>';
 
-								$_SESSION['message'] .= '<div style="margin-top:20px;" class="alert alert-warning">The following images will be removed</div>';
+								$message .= '<div style="margin-top:20px;" class="alert alert-warning">The following images will be removed</div>';
 								
-								$_SESSION['message'] .= '<div style="margin-top:20px;">';
+								$message .= '<div style="margin-top:20px;">';
 
 									foreach ($images as $image) {
 										
-										$_SESSION['message'] .= '<div class="row">';
+										$message .= '<div class="row">';
 										
-											$_SESSION['message'] .='<div class="col-xs-3 col-sm-3 col-lg-2">';
+											$message .='<div class="col-xs-3 col-sm-3 col-lg-2">';
 
-												$_SESSION['message'] .='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
+												$message .='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
 													
-											$_SESSION['message'] .='</div>';
+											$message .='</div>';
 
-											$_SESSION['message'] .='<div class="col-xs-9 col-sm-9 col-lg-10">';
+											$message .='<div class="col-xs-9 col-sm-9 col-lg-10">';
 
-												$_SESSION['message'] .='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
-												$_SESSION['message'] .='<br>';
-												$_SESSION['message'] .='<input style="width:100%;padding: 2px;" type="text" value="'. $image_url . basename($image) .'" />';
+												$message .='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
+												$message .='<br>';
+												$message .='<input style="width:100%;padding: 2px;" type="text" value="'. $image_url . basename($image) .'" />';
 
-											$_SESSION['message'] .='</div>';										
+											$message .='</div>';										
 										
-										$_SESSION['message'] .= '</div>';
+										$message .= '</div>';
 									}
 									
-								$_SESSION['message'] .= '</div>';
+								$message .= '</div>';
 							}
 								
-							$_SESSION['message'] .= '<hr></hr>';	
+							$message .= '<hr></hr>';	
 								
-							$_SESSION['message'] .= '<div style="margin-top:10px;text-align:right;">';						
+							$message .= '<div style="margin-top:10px;text-align:right;">';						
 								
-								$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-success" href="' . $this->urls->current . '&confirmed">Yes</a>';
+								$message .= '<a style="margin:10px;" class="btn btn-lg btn-success" href="' . $this->urls->current . '&confirmed">Yes</a>';
 								
-								$_SESSION['message'] .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->edit . '?uri=' . $this->user->layer->ID . '">No</a>';
+								$message .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->edit . '?uri=' . $this->user->layer->ID . '">No</a>';
 
-							$_SESSION['message'] .= '</div>';
+							$message .= '</div>';
 						
-						$_SESSION['message'] .= '</div>';
+						$message .= '</div>';
+						
+						$this->session->update_user_data('message',$message);
 					}
 					else{
 						
@@ -1657,11 +1644,13 @@ class LTPLE_Client {
 						
 						if( $_GET['confirmed'] == 'self' ){
 						
-							$_SESSION['message'] ='<div class="alert alert-success">';
+							$message ='<div class="alert alert-success">';
 									
-								$_SESSION['message'] .= 'Template successfully deleted.';
+								$message .= 'Template successfully deleted.';
 
-							$_SESSION['message'] .='</div>';	
+							$message .='</div>';
+							
+							$this->session->update_user_data('message',$message);
 						
 							wp_redirect($this->urls->dashboard . '?list=' . $layer_type->storage);
 							exit;

@@ -155,9 +155,12 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				}
 			}	
 		}
-		elseif(!empty($_SESSION['app']) && !empty($_SESSION['action']) && empty($_SESSION['file']) ){
+		elseif( $app = $this->parent->session->get_user_data('app') ){
 			
-			$this->app = $_SESSION['app'];
+			if( !empty($this->parent->session->get_user_data('action')) && empty($this->parent->session->get_user_data('file')) ){
+			
+				$this->app = $app;
+			}
 		}
 
 		// get all apps
@@ -413,13 +416,11 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 
 		$redirect_url = '';
 
-		if(!empty($_SESSION['ref'])){
+		if( $ref = $this->parent->session->get_user_data('ref') ){
 			
 			// redirection session
 
-			$redirect_url = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_SESSION['ref']));
-			
-			$_SESSION['ref'] = '';
+			$redirect_url = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($ref));
 		}
 		elseif(!empty($_POST)){
 			
@@ -493,7 +494,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				wp_delete_post( $app->ID, true );
 				
-				$_SESSION['message'] = '<div class="alert alert-success">App successfully deleted</div>';
+				$this->parent->session->update_user_data('message','<div class="alert alert-success">App successfully deleted</div>');
 			}
 		}
 	}

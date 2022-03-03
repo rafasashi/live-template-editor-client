@@ -71,9 +71,9 @@ class LTPLE_Integrator_Scraper {
 				
 				$this->action = $_REQUEST['action'];
 			}
-			elseif(!empty($_SESSION['action'])){
+			elseif( $action = $this->parent->session->get_user_data('action') ){
 				
-				$this->action = $_SESSION['action'];
+				$this->action = $action;
 			}
 			
 			$methodName = 'app'.ucfirst($this->action);
@@ -317,11 +317,13 @@ class LTPLE_Integrator_Scraper {
 					
 					// store success message
 
-					$_SESSION['message'] = '<div class="alert alert-success">';
+					$message = '<div class="alert alert-success">';
 						
-						$_SESSION['message'] .= 'Congratulations, you have successfully connected your ' . $this->term->name . ' account!';
+						$message .= 'Congratulations, you have successfully connected your ' . $this->term->name . ' account!';
 							
-					$_SESSION['message'] .= '</div>';
+					$message .= '</div>';
+				
+					$this->parent->session->update_user_data('message',$message);
 				}				
 			}
 		

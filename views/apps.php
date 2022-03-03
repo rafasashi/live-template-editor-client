@@ -19,9 +19,9 @@
 		
 		$currentApp = $_GET['app'];
 	}
-	elseif( !empty($_SESSION['app']) ){
+	else{
 		
-		$currentApp = $_SESSION['app'];
+		$currentApp = $this->session->get_user_data('app');
 	}
 	
 	$currentTab = ( !empty($_GET['tab']) ? $_GET['tab'] : 'accounts' );

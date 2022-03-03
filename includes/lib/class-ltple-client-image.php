@@ -354,29 +354,28 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 							
 							if( $data = file_get_contents($_FILES[$file]['tmp_name'])){
 								
+								$message = '';
+								
 								// rename file
 								
 								$md5 = md5($data);
 								
 								$_FILES[$file]['name'] = $md5 . '.' . $mime[1];
-
-								// get current app
 								
-								$app = explode(' - ', $app_title );
+								$user_id = $this->parent->user->ID;
 								
 								// set session
 								
-								$_SESSION['app'] 	= $app[0];
-								$_SESSION['app'] 	= 'image';
-								$_SESSION['action'] = 'upload';
-								$_SESSION['file'] 	= $_FILES[$file]['name'];
+								$this->parent->session->update_user_data('app','image',$user_id);
+								$this->parent->session->update_user_data('action','upload',$user_id);
+								$this->parent->session->update_user_data('file',$_FILES[$file]['name'],$user_id);
 																		
 								//check if image exists
 								
 								if( !get_posts(array(
 									
 									's' 			=> $md5,
-									'author' 		=> $this->parent->user->ID,
+									'author' 		=> $user_id,
 									'post_type' 	=> 'attachment',
 									'posts_per_page'=> -1,
 								)) ){
@@ -399,31 +398,36 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 										
 										if( !$this->parent->inWidget ){
 											
-											$_SESSION['message'] ='<div class="alert alert-success">';
+											$message ='<div class="alert alert-success">';
 													
-												$_SESSION['message'] .= 'Image successfully uploaded to your library.';
+												$message .= 'Image successfully uploaded to your library.';
 
-											$_SESSION['message'] .='</div>';	
+											$message .='</div>';	
 										}										
 									}
 									else{
 										
-										$_SESSION['message'] ='<div class="alert alert-danger">';
+										$message ='<div class="alert alert-danger">';
 												
-											$_SESSION['message'] .= 'Error uploading image...';
+											$message .= 'Error uploading image...';
 
-										$_SESSION['message'] .='</div>';										
+										$message .='</div>';										
 									}
 								}
 								else{
 									
 									// output warning message
 									
-									$_SESSION['message'] ='<div class="alert alert-warning">';
+									$message ='<div class="alert alert-warning">';
 											
-										$_SESSION['message'] .= 'This image already exists...';
+										$message .= 'This image already exists...';
 
-									$_SESSION['message'] .='</div>';										
+									$message .='</div>';										
+								}
+								
+								if( !empty($message) ){
+									
+									$this->parent->session->update_user_data('message',$message,$user_id);
 								}
 							}
 							else{
@@ -452,6 +456,8 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 					echo 'Empty image url...';
 					exit;
 				}
+				
+				$message = '';
 				
 				if( $img_title!='' && $img_content!=''){
 					
@@ -507,31 +513,35 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 							
 							if( !$this->parent->inWidget ){
 							
-								$_SESSION['message'] ='<div class="alert alert-success">';
+								$message ='<div class="alert alert-success">';
 									
-									$_SESSION['message'] .= 'Congratulations! Image url successfully added to your library.';
+									$message .= 'Congratulations! Image url successfully added to your library.';
 
-								$_SESSION['message'] .='</div>';	
+								$message .='</div>';	
 							}
 						}						
 					}
 					else{
 
-						$_SESSION['message'] ='<div class="alert alert-danger">';
+						$message ='<div class="alert alert-danger">';
 								
-							$_SESSION['message'] .= 'This image url already exists...';
+							$message .= 'This image url already exists...';
 
-						$_SESSION['message'] .='</div>';
+						$message .='</div>';
 					}
 				}
 				else{
 					
-					$_SESSION['message'] ='<div class="alert alert-danger">';
+					$message ='<div class="alert alert-danger">';
 							
-						$_SESSION['message'] .= 'Error saving user image...';
+						$message .= 'Error saving user image...';
 
-					$_SESSION['message'] .='</div>';
+					$message .='</div>';
 				}
+				
+				if( !empty($message) )
+				
+					$this->parent->session->update_user_data('message',$message);
 			}			
 		}
 	}
