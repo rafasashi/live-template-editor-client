@@ -349,77 +349,80 @@
 		
 		public function update_periods($user_id=null){ 
 			
-			if( $periods = $this->parent->plan->remote_get_periods() ){
-				
-				$args = array( 
+			if( $user = get_user_by('id',$user_id) ){
+			
+				if( $periods = $this->parent->plan->remote_get_periods(strtolower($user->user_email)) ){
 					
-					'fields' => array('id','user_email'),
-				);
-				
-				if( !is_null($user_id) ){
+					$args = array( 
+						
+						'fields' => array('id','user_email'),
+					);
 					
-					$args['include'] = is_numeric($user_id) ? array($user_id) : $user_id;
-				}
-				else{
-					
-					// get users with subscription
-					
-					$args['meta_query'] = array(
+					if( !is_null($user_id) ){
 						
-						'relation' => 'OR',
+						$args['include'] = is_numeric($user_id) ? array($user_id) : $user_id;
+					}
+					else{
 						
-						array(
+						// get users with subscription
 						
-							'key'     	=> 'has_subscription',
-							'compare' 	=> '=',
-							'value'		=> 'true',
-						),	
-						array(
-						
-							'key'     	=> $this->parent->_base . 'period_end',
-							'compare' 	=> 'EXISTS',
-						),
-						/*
-						array(
-					
-							'key'     	=> $this->parent->_base . 'period_end',
-							'compare' 	=> '<',
-							'value'		=> time(), // for debugging
-						)
-						*/
-					);				
-				}
-				
-				if( $users = get_users($args) ){
-					
-					foreach( $users as $user ){
-						
-						$user_email = strtolower($user->user_email);
-						
-						if( intval($user->id) > 1 && isset($periods[$user_email]) ){
+						$args['meta_query'] = array(
 							
-							if( !empty($periods[$user_email]) ){
+							'relation' => 'OR',
 							
-								$this->update_user_period($user->id,$periods[$user_email]);
-							}
-							else{
+							array(
+							
+								'key'     	=> 'has_subscription',
+								'compare' 	=> '=',
+								'value'		=> 'true',
+							),	
+							array(
+							
+								'key'     	=> $this->parent->_base . 'period_end',
+								'compare' 	=> 'EXISTS',
+							),
+							/*
+							array(
+						
+								'key'     	=> $this->parent->_base . 'period_end',
+								'compare' 	=> '<',
+								'value'		=> time(), // for debugging
+							)
+							*/
+						);				
+					}
+					
+					if( $users = get_users($args) ){
+						
+						foreach( $users as $user ){
+							
+							$user_email = strtolower($user->user_email);
+							
+							if( intval($user->id) > 1 && isset($periods[$user_email]) ){
 								
-								$remaining_days = $this->get_user_remaining_days($user->id);
+								if( !empty($periods[$user_email]) ){
 								
-								if( $remaining_days < -30 ){
-								
-									// flush user plan
+									$this->update_user_period($user->id,$periods[$user_email]);
+								}
+								else{
 									
-									$this->parent->plan->flush_user_plan($user->id);
+									$remaining_days = $this->get_user_remaining_days($user->id);
+									
+									if( $remaining_days < -30 ){
+									
+										// flush user plan
+										
+										$this->parent->plan->flush_user_plan($user->id);
+									}
 								}
 							}
 						}
-					}
-				}							
-			}
-			else{
-				
-				wp_mail($this->parent->settings->options->emailSupport, 'Error updating periods', print_r('',true));
+					}							
+				}
+				else{
+					
+					wp_mail($this->parent->settings->options->emailSupport, 'Error updating periods', print_r('',true));
+				}
 			}
 		}
 

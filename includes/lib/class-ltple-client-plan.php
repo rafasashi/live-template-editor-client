@@ -1566,17 +1566,12 @@ class LTPLE_Client_Plan {
 					// deliver plan
 					
 					if( $this->deliver_plan($plan,$user) ) {
-
-						$plan_delivered = true;
+						
+						// update periods
+						
+						$this->parent->users->update_periods($user_id);
 					}
 				}
-			}
-			
-			if( $plan_delivered == true ){
-			
-				// update periods
-						
-				$this->parent->users->update_periods();
 			}
 		}
 	}

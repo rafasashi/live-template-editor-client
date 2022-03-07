@@ -215,7 +215,7 @@ class LTPLE_Client {
 	
 		if( $error = error_get_last() ) {
 			
-			$skip = array(
+			$skip_message = array(
 				
 				'Unknown: file created in the system',
 				'ftp_chmod(): SITE CHMOD command failed.',
@@ -224,27 +224,18 @@ class LTPLE_Client {
 				'Incorrect APP1 Exif Identifier Code',
 			);
 			
-			$match = false;
+			$skip_file = array(
 			
-			if( !empty($error['type']) && $error['type'] != 8192 ){
-				
-				foreach( $skip as $s ){
-					
-					if( strpos($error['message'],$s) !== false ){
-						
-						$match = true;
-						break;
-					}
-				}
-			}
+				WP_PLUGIN_DIR . '/live-template-editor-app-twitter/vendor/abraham/twitteroauth/src/SignatureMethod.php',
+			); 
 			
-			if( !$match ){
+			if( !in_array($error['message'],$skip_message) && !in_array($error['file'],$skip_file) ){
 
 				$error['url'] 	= ( is_ssl() ? home_url('','https') : home_url() ) . $_SERVER['REQUEST_URI'];
 				
 				$error['user'] 	= get_current_user_id();
 
-				wp_mail( get_option('admin_email'),'debugging LTPLE Client error',print_r($error,true));
+				wp_mail( get_option('admin_email'),'debugging LTPLE Client error',print_r($error,true));				
 			}
 		}
 	}
