@@ -422,11 +422,26 @@ class LTPLE_Client_Session {
 		}
 	}
 	
-	public function get_user_data($token,$user_id=null,$reset=true){
+	public function get_user_data($token,$user_id=null){
 		
 		$data = null;
 		
 		$token = sanitize_title($token);
+		
+		if( in_array($token, array(
+		
+			'message',
+			'redirect_to',
+			'ref',
+			
+		)) ){
+			
+			$reset = true;
+		}
+		else{
+			
+			$reset = false;
+		}
 		
 		if( is_null($user_id) ){
 		
@@ -440,7 +455,7 @@ class LTPLE_Client_Session {
 
 			$data = get_user_meta($user_id,$this->parent->_base . 'session_' . $token ,true);
 		
-			if( $reset === true && !empty($data) ){
+			if( $reset === true ){
 				
 				delete_user_meta($user_id,$this->parent->_base . 'session_' . $token);
 			}
@@ -449,7 +464,7 @@ class LTPLE_Client_Session {
 			
 			$data = get_transient($this->parent->_base . 'session_' . $reg_tok . '_' . $token);
 		
-			if( $reset === true && !empty($data) ){
+			if( $reset === true ){
 				
 				delete_transient($this->parent->_base . 'session_' . $reg_tok . '_' . $token);
 			}
