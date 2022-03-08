@@ -426,6 +426,8 @@ class LTPLE_Client_Session {
 		
 		$data = null;
 		
+		$token = sanitize_title($token);
+		
 		if( is_null($user_id) ){
 		
 			if( $user = wp_get_current_user() ){
@@ -435,9 +437,7 @@ class LTPLE_Client_Session {
 		}
 		
 		if( !empty($user_id) ){
-			
-			$token = sanitize_title($token);
-			
+
 			$data = get_user_meta($user_id,$this->parent->_base . 'session_' . $token ,true);
 		
 			if( $reset === true && !empty($data) ){
@@ -445,11 +445,24 @@ class LTPLE_Client_Session {
 				delete_user_meta($user_id,$this->parent->_base . 'session_' . $token);
 			}
 		}
+		elseif( $reg_tok = $this->parent->login->reg_tok ){
+			
+			$data = get_transient($this->parent->_base . 'session_' . $reg_tok . '_' . $token);
+		
+			if( $reset === true && !empty($data) ){
+				
+				delete_transient($this->parent->_base . 'session_' . $reg_tok . '_' . $token);
+			}
+		}
 		
 		return $data;
 	}
 	
 	public function update_user_data($token,$value,$user_id=null){
+
+		$token = sanitize_title($token);
+		
+		$value = wp_kses_normalize_entities($value);
 
 		if( is_null($user_id) ){
 		
@@ -460,15 +473,12 @@ class LTPLE_Client_Session {
 		}
 		
 		if( !empty($user_id) ){
+
+			return update_user_meta($user_id,$this->parent->_base . 'session_' . $token,$value);
+		}
+		elseif( $reg_tok = $this->parent->login->reg_tok ){
 			
-			$token = sanitize_title($token);
-			
-			$value = wp_kses_normalize_entities($value);
-	
-			if( !empty($value) ){
-				
-				return update_user_meta($user_id,$this->parent->_base . 'session_' . $token,$value);
-			}
+			return set_transient($this->parent->_base . 'session_' . $reg_tok . '_' . $token,$value, 60 * 60 );
 		}
 		
 		return false;
