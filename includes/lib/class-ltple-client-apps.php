@@ -422,15 +422,15 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 
 			$redirect_url = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($ref));
 		}
-		elseif(!empty($_POST)){
+		elseif( !empty($_POST) ){
 			
-			if(!empty($_REQUEST['ref'])){
+			if( !empty($_REQUEST['ref']) ){
 				
 				// redirection form
 				
 				$redirect_url = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['ref']));
 			}
-			else{
+			elseif( $this->parent->inWidget ){
 				
 				$redirect_url = remove_query_arg( array(
 				
@@ -438,6 +438,14 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 					'action',
 					
 				), $this->parent->urls->current );
+			}
+			else{
+				
+				$redirect_url = add_query_arg( array(
+				
+					'list' => 'user-app',
+					
+				), $this->parent->urls->dashboard );
 			}
 		}
 
@@ -494,7 +502,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				wp_delete_post( $app->ID, true );
 				
-				$this->parent->session->update_user_data('message','<div class="alert alert-success">App successfully deleted</div>');
+				$this->parent->exit_message('App successfully deleted',200);
 			}
 		}
 	}

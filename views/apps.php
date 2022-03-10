@@ -151,12 +151,12 @@
 					
 					$message = '';
 
-					if(!empty($this->message)){
+					if( !empty($this->message) ){
 						
 						$message = $this->message;
 					}
 					elseif( !empty($this->apps->list) ){
-							
+								
 						foreach( $this->apps->list as $app ){ 
 							
 							if(!empty($this->apps->{$app->slug}->message)){
@@ -165,9 +165,8 @@
 								break;
 							}							
 						}
-					}					
+					}	
 
-					
 					//---------------------- output default apps --------------------------
 					
 					echo'<div id="app-library">';
