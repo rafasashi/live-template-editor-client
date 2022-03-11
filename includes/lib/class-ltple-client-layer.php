@@ -4754,7 +4754,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			echo'</th>';
 			
-			/*
 			echo'<td>';
 					
 				$this->parent->admin->display_field(array(
@@ -4768,9 +4767,27 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				), $term );				
 					
 			echo'</td>';
-			*/
 			
 		echo'</tr>';
+	}
+	
+	public function get_js_parsed_url($term){
+		
+		$attach_id 	= intval($this->get_meta( $term, 'js_attachment' ));		
+
+		if( is_numeric($attach_id) ){
+			
+			$url = wp_get_attachment_url($attach_id);
+			
+			if(!empty($url)){
+						
+				$md5 = $this->get_meta( $term, 'js_md5' );
+		
+				return $url . '?' . $md5;
+			}
+		}
+		
+		return false;
 	}
 	
 	public function get_font_library_fields($term){
@@ -5344,9 +5361,106 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				// js skip local
 			
-				$skip = isset($_POST['js_skip_local']) ? $_POST['js_skip_local'] : 'off';
 				
-				update_term_meta($term->term_id, 'js_skip_local', $skip);
+				//-----------------------------------
+				
+				$js_url = sanitize_url($_POST['js_url']);
+
+				$skip = isset($_POST['js_skip_local']) && $_POST['js_skip_local'] == 'on' ? 'on' : 'off';
+				
+				$js_version = '1.0.7';
+				
+				$js_content = str_replace('\\','\\\\',$_POST['js_content']);
+				
+				$attach_id = get_term_meta($term->term_id, 'js_attachment', true);
+				
+				$js_md5 = get_term_meta($term->term_id, 'js_md5', true);
+									
+				$md5 = md5($js_url.$js_content.$attach_id.$js_version);
+
+				if( $js_md5 != $md5 ){
+					
+					$content = '';
+
+					if( !empty($js_url) ){
+						
+						$response = wp_remote_get($js_url);
+						
+						if ( is_array( $response ) ) {
+							
+							$body = $response['body'];
+							
+							if( !empty($body) ){
+								
+								$content .= $body; // TODO parse JS content
+							}
+						}
+					}
+					
+					if( !empty($js_content) ){
+					
+						$content .= PHP_EOL . $js_content;
+					}
+					
+					if( !empty($content) ){
+						
+						// remove current attachement
+						
+						$js_attachement = get_post($attach_id);
+						
+						if(!empty($js_attachement)){
+							
+							wp_delete_attachment( $js_attachement->ID, true );
+						}				
+					
+						// add style to media
+						
+						if ( !function_exists('media_handle_upload') ) {
+							
+							require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+							require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+							require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+						}
+
+						// create archive
+						
+						$tmp = wp_tempnam($term->slug) . '.js';
+						
+						file_put_contents($tmp,$content);
+						
+						$file_array = array(
+						
+							'name' 		=> $term->slug . '.js',
+							'type' 		=> 'text/javascript ',
+							'tmp_name' 	=> $tmp,
+						);
+						
+						$post_data = array(
+						
+							'post_title' 		=> $term->slug,
+							'post_mime_type' 	=> 'text/javascript ',
+						);
+
+						if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
+						
+						$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
+						
+						if( is_numeric($attach_id) ){
+							
+							update_post_meta($attach_id,'ltple_upload_dest','editor');
+							
+							update_term_meta($term->term_id,'js_attachment',$attach_id);
+						
+							update_term_meta($term->term_id,'js_url',$js_url);			
+
+							update_term_meta($term->term_id,'js_content',$js_content);			
+						
+							update_term_meta($term->term_id,'js_skip_local',$skip);
+
+							update_term_meta($term->term_id,'js_md5',$md5);								
+						}
+					}
+				}
 			}
 			elseif( $term->taxonomy == 'font-library' ){
 					
