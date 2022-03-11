@@ -792,7 +792,7 @@ class LTPLE_Client {
 	}
 	
 	public function filter_taxonomy_row_actions( $actions, $term ){
-		
+	
 		if( !isset($actions['duplicate']) ){
 		
 			// duplicate action

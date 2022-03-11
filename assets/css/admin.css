@@ -39,7 +39,7 @@ html.wp-toolbar{padding-top:50px !important;}
 .sortable .ui-state-disabled { cursor: initial !important; }
 html>body #email_series .ui-sortable li { height: 1.5em; line-height: 1.2em; }
 .sortable .ui-state-highlight { height: 1.5em; line-height: 1.2em; background-color:#fafafa; }
-.nav-tab {margin-left:0px;margin-right:3px;}
+.edit-tags-php .nav-tab {margin:0px;font-size:13px;border:none;}
 #edittag {max-width:100%;}
 #wpbody .form-table{max-width:1000px;}
 #wpbody .form-table input{max-width:600px;}

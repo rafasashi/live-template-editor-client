@@ -260,7 +260,7 @@
 				
 					add_action('admin_head', array($this, 'update_user_manually'));				
 					
-					add_action( 'admin_footer-users.php', array( $this, 'add_bulk_actions') );					
+					add_action('admin_footer-users.php', array( $this, 'add_bulk_actions') );					
 					
 					add_action('load-users.php', array( $this, 'load_bulk_action') );					
 					
