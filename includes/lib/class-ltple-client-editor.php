@@ -56,11 +56,11 @@ class LTPLE_Client_Editor {
 
 		add_filter( 'ltple_editor_script', array( $this, 'filter_editor_script' ),1);
 		
-		add_action( 'load-edit.php', function() {
+		add_action('load-edit.php', function() {
 		
 			add_filter('admin_enqueue_scripts',array( $this, 'add_actions_scripts' ) );
 		
-			add_action( 'admin_post_duplicate', array($this, 'duplicate_item') );
+			add_action('admin_post_duplicate', array($this, 'duplicate_item') );
 		});
 	}
 	
@@ -589,7 +589,6 @@ class LTPLE_Client_Editor {
 		// add footer
 
 		add_filter('admin_footer',array( $this, 'add_actions_footer' ) );
-		
 	}
 
 	public function duplicate_item(){

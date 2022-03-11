@@ -4652,114 +4652,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_css_parsed_url($term){
 		
-		$attach_id 		= intval($this->get_meta( $term, 'css_attachment' ));		
+		$attach_id 	= intval($this->get_meta( $term, 'css_attachment' ));		
 
-		$css_url 		= $this->get_meta( $term, 'css_url' );
-		
-		$css_content 	= $this->get_meta( $term, 'css_content' );
-
-		$css_md5 		= $this->get_meta( $term, 'css_md5' );
-		
-		$css_version 	= '1.0.6';
-		
-		$styleName = $this->get_meta( $term, 'css_parse' ) == 'on' ? 'style-' . $term->term_id : '';
-		
-		$styleClass = !empty($styleName) ? '.' . $styleName : '';
-
-		$md5 = md5($css_url.$css_content.$styleName.$css_version);
-		
-		if( $css_md5 != $md5 ){
-			
-			$content = '';
-
-			if( !empty($css_url) ){
-				
-				$response = wp_remote_get($css_url);
-				
-				if ( is_array( $response ) ) {
-					
-					$body = $response['body'];
-
-					if( !empty($body) ){
-						
-						$content .= $this->parse_css_content($body, $styleClass, $css_url);
-					}
-				}
-			}
-			
-			if( !empty($css_content) ){
-				
-				$content .= $this->parse_css_content($css_content, $styleClass, $css_content);
-			}
-			
-			if( !empty($content) ){
-				
-				// remove current attachement
-				
-				$css_attachement = get_post($attach_id);
-				
-				if(!empty($css_attachement)){
-					
-					wp_delete_attachment( $css_attachement->ID, true );
-				}				
-			
-				// add style to media
-				
-				if ( !function_exists('media_handle_upload') ) {
-					
-					require_once(ABSPATH . "wp-admin" . '/includes/image.php');
-					require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-					require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-				}
-
-				// create archive
-				
-				$tmp = wp_tempnam($term->slug) . '.css';
-				
-				file_put_contents($tmp,$content);
-				
-				$file_array = array(
-				
-					'name' 		=> $term->slug . '.css',
-					'type' 		=> 'text/css',
-					'tmp_name' 	=> $tmp,
-				);
-				
-				$post_data = array(
-				
-					'post_title' 		=> $term->slug,
-					'post_mime_type' 	=> 'text/css',
-				);
-
-				if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
-				
-				$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
-				
-				@unlink($tmp);
-				
-				if( is_numeric($attach_id) ){
-					
-					update_post_meta($attach_id,'ltple_upload_dest','editor');
-					
-					update_term_meta($term->term_id,'css_attachment',$attach_id);
-				}
-				else{
-					
-					dump($attach_id);
-				}
-			}
-			
-			//update md5
-			
-			update_term_meta($term->term_id,'css_md5',$md5);
-		}
-		
 		if( is_numeric($attach_id) ){
 			
 			$url = wp_get_attachment_url($attach_id);
 			
 			if(!empty($url)){
-			
+						
+				$md5 = $this->get_meta( $term, 'css_md5' );
+		
 				return $url . '?' . $md5;
 			}
 		}
@@ -4840,6 +4742,33 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				), $term );				
 					
 			echo'</td>';
+			
+		echo'</tr>';
+		
+
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Source </label>';
+			
+			echo'</th>';
+			
+			/*
+			echo'<td>';
+					
+				$this->parent->admin->display_field(array(
+				
+					'type'		=> 'text',
+					'id'		=> 'js_source',
+					'name'		=> 'js_source',
+					'data'		=> $this->get_js_parsed_url($term),
+					'disabled'	=> true,
+					
+				), $term );				
+					
+			echo'</td>';
+			*/
 			
 		echo'</tr>';
 	}
@@ -5295,24 +5224,111 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( $term->taxonomy == 'css-library' ){
 				
-				if( isset($_POST['css_url']) ){
+				if( isset($_POST['css_url']) && isset($_POST['css_content']) ){
+					
+					$css_url = sanitize_url($_POST['css_url']);
+					
+					$css_parse 	= isset($_POST['css_parse']) && $_POST['css_parse'] == 'on' ? 'on' : 'off';
+				
+					$css_version = '1.0.7';
+					
+					$styleName = $css_parse == 'on' ? 'style-' . $term->term_id : '';
+					
+					$styleClass = !empty($styleName) ? '.' . $styleName : '';
 
-					update_term_meta($term->term_id, 'css_url', $_POST['css_url']);			
+					$css_content = $this->parse_css_content($_POST['css_content'], $styleClass);
+
+					$attach_id = get_term_meta($term->term_id, 'css_attachment', true);
+					
+					$css_md5 = get_term_meta($term->term_id, 'css_md5', true);
+										
+					$md5 = md5($css_url.$css_content.$styleName.$attach_id.$css_version);
+
+					if( $css_md5 != $md5 ){
+						
+						$content = '';
+
+						if( !empty($css_url) ){
+							
+							$response = wp_remote_get($css_url);
+							
+							if ( is_array( $response ) ) {
+								
+								$body = $response['body'];
+								
+								if( !empty($body) ){
+									
+									$content .= $this->parse_css_content($body, $styleClass, $css_url);
+								}
+							}
+						}
+						
+						$content .= $css_content;
+						
+						if( !empty($content) ){
+							
+							// remove current attachement
+							
+							$css_attachement = get_post($attach_id);
+							
+							if(!empty($css_attachement)){
+								
+								wp_delete_attachment( $css_attachement->ID, true );
+							}				
+						
+							// add style to media
+							
+							if ( !function_exists('media_handle_upload') ) {
+								
+								require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+								require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+								require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+							}
+
+							// create archive
+							
+							$tmp = wp_tempnam($term->slug) . '.css';
+							
+							file_put_contents($tmp,$content);
+							
+							$file_array = array(
+							
+								'name' 		=> $term->slug . '.css',
+								'type' 		=> 'text/css',
+								'tmp_name' 	=> $tmp,
+							);
+							
+							$post_data = array(
+							
+								'post_title' 		=> $term->slug,
+								'post_mime_type' 	=> 'text/css',
+							);
+
+							if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
+							
+							$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
+							
+							if( is_numeric($attach_id) ){
+								
+								update_post_meta($attach_id,'ltple_upload_dest','editor');
+								
+								update_term_meta($term->term_id,'css_attachment',$attach_id);
+							
+								update_term_meta($term->term_id,'css_url',$css_url);			
+
+								update_term_meta($term->term_id,'css_content',$css_content);			
+							
+								update_term_meta($term->term_id,'css_parse', $css_parse);
+								
+								update_term_meta($term->term_id,'css_md5',$md5);								
+							}
+						}
+					}
 				}
-				
-				if(isset($_POST['css_content'])){
-
-					update_term_meta($term->term_id, 'css_content', $_POST['css_content']);			
-				}
-				
-				$parse = isset($_POST['css_parse']) ? $_POST['css_parse'] : 'off';
-				
-				update_term_meta($term->term_id, 'css_parse', $parse);			
-
 			}
 			elseif( $term->taxonomy == 'js-library' ){
 				
-				if(isset($_POST['js_url'])){
+				if( isset($_POST['js_url']) ){
 
 					update_term_meta($term->term_id, 'js_url', $_POST['js_url']);			
 				}

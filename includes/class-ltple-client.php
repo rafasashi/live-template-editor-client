@@ -793,13 +793,6 @@ class LTPLE_Client {
 	
 	public function filter_taxonomy_row_actions( $actions, $term ){
 	
-		if( !isset($actions['duplicate']) ){
-		
-			// duplicate action
-		
-			$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-type="taxonomy:' . $term->taxonomy . '" data-target="#duplicateItem" class="duplicate-button" data-id="' . $term->term_id . '">Duplicate</a>';
-		}
-		
 		return $actions;
 	}		
 
