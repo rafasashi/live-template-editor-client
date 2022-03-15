@@ -148,12 +148,12 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		}
 		elseif( $app = $this->parent->session->get_user_data('app') ){
 			
-			if( !empty($this->parent->session->get_user_data('action')) && empty($this->parent->session->get_user_data('file')) ){
+			if( !empty($this->parent->session->get_user_data('action')) ){
 			
 				$this->app = $app;
 			}
 		}
-
+		
 		// get all apps
 		
 		do_action('ltple_list_apps');

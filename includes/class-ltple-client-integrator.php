@@ -73,7 +73,7 @@ class LTPLE_Client_Integrator {
 	
 	public function get_ref_url(){
 		
-		$ref = $this->parent->urls->dashboard;
+		$ref = $this->parent->urls->dashboard . '?list=user-app';
 
 		if( $redirect_url = $this->parent->session->get_user_data('ref') ){
 		
