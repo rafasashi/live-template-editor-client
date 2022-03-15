@@ -71,6 +71,26 @@ class LTPLE_Client_Integrator {
 		return false;
 	}
 	
+	public function get_ref_url(){
+		
+		$ref = $this->parent->urls->dashboard;
+
+		if( $redirect_url = $this->parent->session->get_user_data('ref') ){
+		
+			$ref = $redirect_url;
+		}
+		elseif( !empty($_REQUEST['ref']) ){
+			
+			$ref = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['ref']));
+		}
+		elseif( !empty($_REQUEST['redirect_to']) ){
+			
+			$ref = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['redirect_to']));
+		}
+		
+		return $ref;
+	}
+
 	public function init_app(){
 
 		if( isset($this->parameters['key']) ){
@@ -94,7 +114,7 @@ class LTPLE_Client_Integrator {
 			}
 		}
 	}
-
+	
 	public function appConnect(){
 		
 		// connect here
