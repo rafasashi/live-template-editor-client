@@ -2,43 +2,11 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Integrator_Bookmark {
+class LTPLE_Integrator_Bookmark extends LTPLE_Client_Integrator {
 	
-	var $parent;
-	var $apps;
-	var $term;
-	var $parameters;
-	var $data;
-	var $resourceUrl;
-	var $message;
+	public function init_app() {
 	
-	/**
-	 * Constructor function
-	 */
-	public function __construct ( $app_slug, $parent, $apps ) {
-
-		$this->parent 		= $parent;
-		$this->parent->apps = $apps;
-
-		// get app term
-
-		$this->term = get_term_by('slug',$app_slug,'app-type');
-		
-		// get app parameters
-		
-		$this->parameters = $this->get_parameters($app_slug);
-
 		if( isset($this->parameters['key']) ){
-
-			foreach($this->parameters['key'] as $i => $key){
-				
-				if( $key == 'resource' ){
-					
-					// get app resource
-					
-					$this->resourceUrl = $this->parameters['value'][$i];	
-				}
-			}
 			
 			// get current action
 			
@@ -58,16 +26,6 @@ class LTPLE_Integrator_Bookmark {
 				$this->$methodName();
 			}
 		}
-	}
-	
-	public function get_parameters($app_slug){
-		
-		return get_option( 'parameters_' . $app_slug );
-	}	
-	
-	public function init_app(){
-		
-		return true;
 	}
 	
 	public static function get_url($app,$parameters,$request){

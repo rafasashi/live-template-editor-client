@@ -202,7 +202,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			$app->thumbnail = get_option('thumbnail_'.$app->slug);
 			$app->types 	= get_option('types_'.$app->slug);
-			//$app->parameters= get_option('parameters_'.$app->slug);
 		}
 		
 		// get main apps

@@ -2,92 +2,48 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Integrator_Scraper {
+class LTPLE_Integrator_Scraper extends LTPLE_Client_Integrator {
 	
-	var $parent;
-	var $app_slug;
-	var $apps;
-	var $term;
-	var $parameters;
-	var $data;
-	var $resourceUrl;
 	var $xpath;
 	var $attr;
-	var $message;
+	var $hash;
 	
-	/**
-	 * Constructor function
-	 */
-	public function __construct ( $app_slug, $parent, $apps ) {
+	public function get_resource_url($parameters) {
+		
+		$resourceUrl = false;
+		
+		if( isset($parameters['key']) ){
 
-		$this->parent 		= $parent;
-		$this->parent->apps = $apps;
-		
-		// get app slug
-		
-		$this->app_slug = $app_slug;
-		
-		// get app term
-
-		$this->term = get_term_by('slug',$this->app_slug,'app-type');
-		
-		// get app parameters
-		
-		$this->parameters = get_option('parameters_'.$this->app_slug);
-
-		if( isset($this->parameters['key']) ){
-
-			foreach($this->parameters['key'] as $i => $key){
+			foreach($parameters['key'] as $i => $key){
 				
 				if( $key == 'resource' ){
 					
 					// get app resource
 					
-					$this->resourceUrl = $this->parameters['value'][$i];	
+					$resourceUrl = $parameters['value'][$i];	
 				}
 				elseif( $key == 'xpath' ){
 					
 					// get app resource
 					
-					$this->xpath = $this->parameters['value'][$i];	
+					$this->xpath = $parameters['value'][$i];	
 				}
 				elseif( $key == 'attr' ){
 					
 					// get app resource
 					
-					$this->attr = $this->parameters['value'][$i];	
+					$this->attr = $parameters['value'][$i];	
 				}
 				elseif( $key == 'hash' ){
 					
 					// get resource hash
 					
-					$this->hash = $this->parameters['value'][$i];
+					$this->hash = $parameters['value'][$i];
 				}
 			}
-			
-			// get current action
-			
-			if(!empty($_REQUEST['action'])){
-				
-				$this->action = $_REQUEST['action'];
-			}
-			elseif( $action = $this->parent->session->get_user_data('action') ){
-				
-				$this->action = $action;
-			}
-			
-			$methodName = 'app'.ucfirst($this->action);
-
-			if(method_exists($this,$methodName)){
-				
-				$this->$methodName();
-			}
 		}
-	}
-	
-	public function init_app(){
 		
-		return true;
+		return $resourceUrl;
 	}
 	
 	public static function extractEmails( $string, $first_only = false ){
