@@ -289,7 +289,7 @@ class LTPLE_Client_Settings {
 	public function add_menu_items () {
 
 		add_submenu_page(
-			'edit.php?post_type=live-editor',
+			'ltple-settings',
 			__( 'Resources', 'live-template-editor-client' ),
 			__( 'Resources', 'live-template-editor-client' ),
 			'edit_pages',
@@ -297,7 +297,7 @@ class LTPLE_Client_Settings {
 		);
 		
 		add_submenu_page(
-			'edit.php?post_type=live-editor',
+			'ltple-settings',
 			__( 'User Contents', 'live-template-editor-client' ),
 			__( 'User Contents', 'live-template-editor-client' ),
 			'edit_pages',
@@ -315,7 +315,7 @@ class LTPLE_Client_Settings {
 		}
 		
 		add_submenu_page(
-			'edit.php?post_type=live-editor',
+			'ltple-settings',
 			__( 'Gallery', 'live-template-editor-client' ),
 			__( 'Gallery', 'live-template-editor-client' ),
 			'edit_pages',
@@ -323,7 +323,7 @@ class LTPLE_Client_Settings {
 		);
 		
 		add_submenu_page(
-			'edit.php?post_type=live-editor',
+			'ltple-settings',
 			__( 'Plan & Pricing', 'live-template-editor-client' ),
 			__( 'Plan & Pricing', 'live-template-editor-client' ),
 			'edit_pages',
@@ -331,7 +331,7 @@ class LTPLE_Client_Settings {
 		);
 
 		add_submenu_page(
-			'edit.php?post_type=live-editor',
+			'ltple-settings',
 			__( 'Email Models', 'live-template-editor-client' ),
 			__( 'Email Models', 'live-template-editor-client' ),
 			'edit_pages',
@@ -339,7 +339,7 @@ class LTPLE_Client_Settings {
 		);
 
 		add_submenu_page(
-			'edit.php?post_type=live-editor',
+			'ltple-settings',
 			__( 'Tutorials', 'live-template-editor-client' ),
 			__( 'Tutorials', 'live-template-editor-client' ),
 			'edit_pages',

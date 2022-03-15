@@ -74,15 +74,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				array("user-app"),
 				'advanced'
 			);
-			
-			$this->parent->admin->add_meta_box (
-				
-				'appRequests',
-				__( 'App Requests', 'live-template-editor-client' ), 
-				array("user-app"),
-				'advanced'
-			);
-			
 		});		
 		
 		add_filter( 'wp_loaded', array( $this, 'init_apps'));
