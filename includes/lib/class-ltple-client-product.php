@@ -69,8 +69,17 @@ class LTPLE_Client_Product {
 				if( strpos($permalink,$this->parent->urls->current) !== 0 ){
 					
 					if( !empty($_GET) ){
-					
-						$permalink = add_query_arg($_GET, $permalink );
+						
+						if( !empty($_GET['ref']) ){
+							
+							// prevent infinite loop
+							
+							$permalink = sanitize_url(urldecode($_GET['ref']));
+						}
+						else{
+						
+							$permalink = add_query_arg($_GET, $permalink );
+						}
 					}
 					
 					wp_redirect($permalink);

@@ -304,7 +304,7 @@
 											}
 										}
 										
-										echo '<form style="padding:10px;" target="_self" action="' . $save_url . '" method="get">';
+										echo '<form style="padding:10px;" target="_self" id="importAppImages" action="' . $save_url . '" method="get">';
 											
 											echo '<div style="padding-bottom:10px;display:block;">';
 
@@ -371,7 +371,7 @@
 											}
 										}
 										
-										echo '<form style="padding:10px;" target="_self" action="' . $this->parent->urls->apps . '" method="get">';
+										echo '<form style="padding:10px;" target="_self" id="connectNewApp" action="' . $this->parent->urls->apps . '" method="get">';
 											
 											echo '<div style="padding-bottom:10px;display:block;">';
 
