@@ -2,31 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Integrator_Bookmark extends LTPLE_Client_Integrator {
-	
-	public function init_app() {
-	
-		if( isset($this->parameters['key']) ){
-			
-			// get current action
-			
-			if(!empty($_REQUEST['action'])){
-				
-				$this->action = $_REQUEST['action'];
-			}
-			elseif( $action = $this->parent->session->get_user_data('action') ){
-				
-				$this->action = $action;
-			}
-			
-			$methodName = 'app'.ucfirst($this->action);
-
-			if(method_exists($this,$methodName)){
-				
-				$this->$methodName();
-			}
-		}
-	}
+class LTPLE_Client_Integrator_Bookmark extends LTPLE_Client_Integrator {
 	
 	public static function get_url($app,$parameters,$request){
 		

@@ -95,6 +95,7 @@ class LTPLE_Client_Integrator {
 		
 		$this->parent->session->update_user_data('app','');
 		$this->parent->session->update_user_data('action','');
+		$this->parent->session->update_user_data('access_token','');
 		$this->parent->session->update_user_data('ref',$this->get_ref_url());		
 		
 		return true;
@@ -118,28 +119,22 @@ class LTPLE_Client_Integrator {
 
 		if( isset($this->parameters['key']) ){
 			
-			// get current action
+			// init action
 			
-			if(!empty($_REQUEST['action'])){
-				
-				$this->action = $_REQUEST['action'];
-			}
-			elseif( $action = $this->parent->session->get_user_data('action') ){
-				
-				$this->action = $action;
-			}
+			if( $action = $this->get_current_action() ){
 			
-			$methodName = 'app'.ucfirst($this->action);
-
-			if(method_exists($this,$methodName)){
-				
-				$this->$methodName();
+				$this->init_action($action);
 			}
 		}
 	}
 	
-	public function appConnect(){
-		
-		// connect here
+	public function init_action($action){
+
+		$methodName = 'app'.ucfirst($action);
+
+		if(method_exists($this,$methodName)){
+			
+			$this->$methodName();
+		}
 	}
 } 

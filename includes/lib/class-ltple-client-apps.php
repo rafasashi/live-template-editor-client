@@ -183,7 +183,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 
 			if( !empty($_GET['deleteApp']) && !empty($_GET['confirmed']) && $_GET['confirmed'] == md5($_GET['deleteApp']) ){
 				
-				$this->deleteApp($_GET['deleteApp']);
+				$this->delete_app($_GET['deleteApp']);
 			}
 		}
 
@@ -211,7 +211,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				if( $this->app == $app->slug ){
 					
-					$this->includeApp($this->app);
+					$this->include_app($this->app);
 					
 					$this->{$this->app}->init_app();
 
@@ -219,7 +219,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				}
 			}
 			
-			$this->redirectApp();
+			$this->redirect_app();
 		}
 		elseif( is_admin() && isset($_REQUEST['post']) ){
 			
@@ -229,7 +229,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				$this->app = $terms[0]->slug;
 				
-				$this->includeApp($this->app);
+				$this->include_app($this->app);
 				
 				if( isset($this->{$this->app}->init_app) ){
 					
@@ -357,7 +357,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				$action .= '</div>';				
 
 				$row = [];
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $thumb_url . ');background-size:cover;background-repeat:no-repeat;background-position:top center;width:240px;display:inline-block;"></div>';
+				$row['preview'] 	= '<div style="background:url(' . $thumb_url . ');background-size:contain;background-repeat:no-repeat;background-position:top center;width:100px;height:65px;display:inline-block;"></div>';
 				$row['user'] 		= ucfirst($app->user_name);
 				$row['app'] 		= $app->app_name;
 				$row['action'] 		= $action;
@@ -369,7 +369,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return $app_rows;
 	}
 	
-	public function includeApp( $appSlug ){
+	public function include_app( $appSlug ){
 		
 		if( !isset($this->{$appSlug}) ){
 		
@@ -381,13 +381,13 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 					
 					return '_'.strtoupper($matches[1]);
 				},
-				get_option('api_client_'.$appSlug)
+				$appSlug
 			);
 			
 			// include api client
 
 			$className = 'LTPLE_Integrator_' .  ucfirst( $apiClient );
-			
+
 			if(class_exists($className)){
 				
 				include( $this->parent->vendor . '/autoload.php' );
@@ -402,7 +402,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function redirectApp(){
+	public function redirect_app(){
 
 		$redirect_url = '';
 
@@ -477,7 +477,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		do_action( 'ltple_new_app_connected' );
 	}
 	
-	public function deleteApp($app){
+	public function delete_app($app){
 		
 		if( is_numeric($app) ){
 			
@@ -534,27 +534,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 							list($app->app_slug,$app->user_name) = explode(' - ',$app->post_title);
 							
 							$app->app_name = ucfirst(str_replace('-',' ',$app->app_slug));
-							
-							// get app parameters
-							
-							/*
-							$app->parameters = array();
-							
-							$parameters = get_option('parameters_'.$app->app_slug);
-							
-							if( !empty($parameters['key']) ){
-								
-								foreach($parameters['key'] as $i => $key){
-
-									$app->parameters[$key] = array(
-									
-										'key' 	=> $key,
-										'input' => $parameters['input'][$i],
-										'value' => $parameters['value'][$i],
-									);
-								}
-							}
-							*/
 							
 							// get app type
 							
@@ -787,43 +766,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		echo'</tr>';	
 
 		if($this->parent->user->is_admin){
-
-			echo'<tr class="form-field">';
 			
-				echo'<th valign="top" scope="row">';
-					
-					echo'<label for="category-text">API Client</label>';
-				
-				echo'</th>';
-				
-				echo'<td>';
-					
-					$clients 				= array();
-					$clients['none'] 		= 'None';
-					$clients['scraper']		= 'Scraper';
-					$clients['bookmark']	= 'Bookmark';
-					
-					foreach( $this->list as $app ){
-						
-						$api_client = get_option('api_client_'.$app->slug);
-						
-						$clients[$api_client] = ucfirst( str_replace('-',' ',$api_client) );
-					}
-					
-					$this->parent->admin->display_field( array(
-					
-						'type'				=> 'select',
-						'id'				=> 'api_client_'.$term->slug,
-						'name'				=> 'api_client_'.$term->slug,
-						'options' 			=> $clients,
-						'description'		=> '',
-						
-					), false );
-					
-				echo'</td>';
-				
-			echo'</tr>';
-		
 			echo'<tr class="form-field">';
 			
 				echo'<th valign="top" scope="row">';
@@ -873,11 +816,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			if(isset($_POST['parameters_'.$term->slug])){
 
 				update_option('parameters_'.$term->slug, $_POST['parameters_'.$term->slug],false);			
-			}
-			
-			if(isset($_POST['api_client_'.$term->slug])){
-
-				update_option('api_client_'.$term->slug, $_POST['api_client_'.$term->slug],false);			
 			}
 		}
 	}

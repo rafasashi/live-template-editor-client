@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Integrator_Scraper extends LTPLE_Client_Integrator {
+class LTPLE_Client_Integrator_Scraper extends LTPLE_Client_Integrator {
 	
 	var $xpath;
 	var $attr;
