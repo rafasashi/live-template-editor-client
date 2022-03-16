@@ -218,8 +218,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 					break;
 				}
 			}
-			
-			$this->redirect_app();
 		}
 		elseif( is_admin() && isset($_REQUEST['post']) ){
 			
@@ -400,51 +398,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				exit;
 			}			
 		}
-	}
-	
-	public function redirect_app(){
-
-		$redirect_url = '';
-
-		if( $ref = $this->parent->session->get_user_data('ref') ){
-			
-			// redirection session
-
-			$redirect_url = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($ref));
-		}
-		elseif( !empty($_POST) ){
-			
-			if( !empty($_REQUEST['ref']) ){
-				
-				// redirection form
-				
-				$redirect_url = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['ref']));
-			}
-			elseif( $this->parent->inWidget ){
-				
-				$redirect_url = remove_query_arg( array(
-				
-					'app',
-					'action',
-					
-				), $this->parent->urls->current );
-			}
-			else{
-				
-				$redirect_url = add_query_arg( array(
-				
-					'list' => 'user-app',
-					
-				), $this->parent->urls->dashboard );
-			}
-		}
-
-		if( !empty($redirect_url) ){
-			
-			wp_redirect($redirect_url);
-			echo 'Redirecting app callback...';
-			exit;	
-		}			
 	}
 	
 	public function parse_url_fields($url,$prefix='_'){
