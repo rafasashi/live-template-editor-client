@@ -180,10 +180,10 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			add_filter('ltple_list_user-app_new_url', array( $this, 'get_list_new_url' ),10,3);
 			
 			add_filter('ltple_list_user-app_fields', array( $this, 'get_list_fields' ),10,1);
-
+			
 			if( !empty($_GET['deleteApp']) && !empty($_GET['confirmed']) && $_GET['confirmed'] == md5($_GET['deleteApp']) ){
 				
-				$this->delete_app($_GET['deleteApp']);
+				$this->delete_app(intval($_GET['deleteApp']));
 			}
 		}
 
@@ -437,17 +437,16 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			$app = get_post($app);
 		}
 		
-		if( !empty($app->post_author) ){
+		if( !empty($app->post_author) && intval($app->post_author) == $this->parent->user->ID ){
 		
-			if( !empty($app->post_author) && intval($app->post_author) == $this->parent->user->ID ){
+			//--------delete bookmark--------
 			
-				//--------delete bookmark--------
-				
-				wp_delete_post( $app->ID, true );
-				
-				$this->parent->exit_message('App successfully deleted',200);
-			}
+			wp_delete_post( $app->ID, true );
+			
+			$this->parent->exit_message('App successfully deleted',200);
 		}
+		
+		$this->parent->exit_message('Error deleting app',400);
 	}
 	
 	public function getAppUrl( $appSlug, $action='connect', $tab='image-library' ){
