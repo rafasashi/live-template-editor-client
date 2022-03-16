@@ -90,6 +90,29 @@ class LTPLE_Client_Integrator {
 		
 		return $ref;
 	}
+	
+	public function reset_session(){
+		
+		$this->parent->session->update_user_data('app','');
+		$this->parent->session->update_user_data('action','');
+		$this->parent->session->update_user_data('ref',$this->get_ref_url());		
+		
+		return true;
+	}
+	
+	public function get_current_action(){
+		
+		if(!empty($_REQUEST['action'])){
+			
+			return wp_kses_normalize_entities($_REQUEST['action']);
+		}
+		elseif( $action = $this->parent->session->get_user_data('action') ){
+			
+			return $action;
+		}
+		
+		return false;
+	}
 
 	public function init_app(){
 

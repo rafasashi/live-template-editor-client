@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_App {
 	
 	/**
-	 * The single instance of LTPLE_App_Twitter.
+	 * The single instance of LTPLE_App.
 	 * @var 	object
 	 * @access  private
 	 * @since 	1.0.0
@@ -13,7 +13,10 @@ class LTPLE_Client_App {
 	private static $_instance = null;
 	
 	var $parent;
-	
+	var $_version;
+	var $_token;
+	var $file;
+	var $dir;
 	var $slug = 'app';
 
 	/**
@@ -22,8 +25,14 @@ class LTPLE_Client_App {
 	public function __construct ( $file='', $parent, $version = '1.0.0' ) {
 
 		$this->parent = $parent;
-	}
 		
+		$this->_version = $version;
+		$this->_token	= md5($file);
+
+		$this->file = $file;
+		$this->dir 	= dirname( $this->file );
+	}
+	
 	public function get_header(){
 		
 	}
