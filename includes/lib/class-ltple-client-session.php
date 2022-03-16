@@ -476,8 +476,6 @@ class LTPLE_Client_Session {
 	public function update_user_data($token,$value,$user_id=null){
 
 		$token = sanitize_title($token);
-		
-		$value = wp_kses_normalize_entities($value);
 
 		if( is_null($user_id) ){
 		
