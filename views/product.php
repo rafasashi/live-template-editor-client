@@ -144,12 +144,20 @@
 													
 													echo '<iframe data-src="'.$permalink.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow:hidden;"></iframe>';											
 												}
-												else{
+												elseif( $image = get_the_post_thumbnail($this->ID, 'full') ){
 													
 													echo '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow: auto;">';
 													
-														echo get_the_post_thumbnail($this->ID, 'recentprojects-thumb');
+														echo $image;
 													
+													echo '</div>';
+												}
+												else{
+													
+													echo '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 110px);overflow: auto;">';
+
+														echo '<img loading="lazy" src="' . $this->parent->layer->get_thumbnail_url($this) . '">';
+														
 													echo '</div>';
 												}
 

@@ -160,7 +160,7 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 							
 							'id' 			=> $this->parent->_base . 'referentId',
 							'label'			=> '',
-							'description'	=> '',
+							'description'	=> 'Referent Id',
 							'placeholder'	=> 0,
 							'type'			=> 'number',
 							'data'			=> !empty($referredBy) ? key($referredBy) : 0,

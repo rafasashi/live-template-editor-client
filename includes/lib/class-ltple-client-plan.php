@@ -506,7 +506,7 @@ class LTPLE_Client_Plan {
 			$option_name = 'plan_options';
 			
 			if( $plan = $this->get_plan_info($plan_id) ){
-
+				
 				//get plan options
 				
 				$plan_options = $plan['options'];

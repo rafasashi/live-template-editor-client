@@ -2505,7 +2505,7 @@ class LTPLE_Client {
 			$style .='.wedocs-sidebar .widget-title {';
 			
 				$style .='color:#fff !important;';
-				$style .='background-color: #4276a0 !important;';
+				$style .='background-color: ' . $this->settings->navbarColor . 'b8 !important;';
 				$style .='font-size: 15px !important;';
 				$style .='text-transform:uppercase;';
 				$style .='box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);';
@@ -2604,7 +2604,7 @@ class LTPLE_Client {
 			
 			$style .=' .gallery_type_title {';
 			
-				$style .='color: #4276a0 !important;';
+				$style .='color: ' . $this->settings->linkColor . ' !important;';
 				$style .='border: none !important;';
 				$style .='background-color: #fdfdfd !important;';
 				$style .='font-size:13px !important;';
@@ -2617,7 +2617,7 @@ class LTPLE_Client {
 			
 			$style .='.gallery_head {';
 				
-				$style .='background-color:#4276a0 !important;';
+				$style .='background-color:' . $this->settings->navbarColor . 'b8 !important;';
 				$style .='color:#fff !important;';
 				$style .='margin-bottom:1px!important';
 			
@@ -2631,8 +2631,7 @@ class LTPLE_Client {
 			
 			$style .='#plan_table table th {';
 			
-				//$style .='background-color: '.$this->settings->mainColor . ';';
-				$style .='background-color: #4276a0;';
+				$style .='background-color: ' . $this->settings->navbarColor . 'b8;';
 				$style .='color: #fff;';
 				$style .='font-weight: bold;';
 				
@@ -2647,18 +2646,17 @@ class LTPLE_Client {
 				$style .='margin-top: -2px;';
 				
 			$style .='}';
-		
+			
 			$style .='#plan_table table th .badge{';
 			
-				$style .='background-color: #fff;';
-				//$style .='color: '.$this->settings->mainColor . ';';
-				$style .='color: #4276a0;';
+				$style .='background-color: ' . $this->settings->navbarColor . ';';
+				$style .='color:#fff;';
 				
 			$style .='}';
 			
 			$style .='#plan_table table td .badge{';
 			
-				$style .='background-color: #4276a0;';
+				$style .='background-color: ' . $this->settings->navbarColor . 'b8;';
 				$style .='color: #fff;';
 				
 			$style .='}';
@@ -2666,7 +2664,7 @@ class LTPLE_Client {
 			$style .='#plan_table table td {';
 			
 				$style .='font-size: 19px;';
-				$style .='color: #4276a0;';
+				$style .='color: ' . $this->settings->linkColor . ';';
 				
 			$style .='}';
 			

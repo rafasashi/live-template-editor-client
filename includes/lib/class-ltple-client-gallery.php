@@ -575,7 +575,7 @@ class LTPLE_Client_Gallery {
 											$item.='<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
 										
 										$item.='</div>'.PHP_EOL;
-
+										
 										if( $show_preview === true ){
 											
 											$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 110px);overflow: hidden;"></iframe>';											

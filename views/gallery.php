@@ -125,7 +125,7 @@
 											
 											echo '<div>';
 												
-												$label_style = 'margin-right:8px;padding:2px 0px;font-size:11px;color:#4276a0;';
+												$label_style = 'margin-right:8px;padding:2px 0px;font-size:11px;color:' . $this->settings->linkColor . ';';
 												
 												echo '<i class="pull-left" style="' . $label_style . '">'.$editors[$output].'</i> ';											
 																			

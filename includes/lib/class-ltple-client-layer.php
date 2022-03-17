@@ -1080,9 +1080,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'type'			=> 'radio',
 						'options'		=> array(
 						
-							'subscriber'	=> 'Subscriber',
+							'subscriber'	=> 'Subscriber (plan)',
 							'assigned'		=> 'Assigned (tailored)',
-							'registered'	=> 'Registered',
+							'registered'	=> 'Registered (loggedin)',
 							'anyone'		=> 'Anyone',
 						),
 						'inline'		=> false,
@@ -5078,7 +5078,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $post_type == 'cb-default-layer' ){
 			
-			$options = array();
+			$options = array( 'Default' => array(
+			
+				-1 => 'Unknown'
+				
+			));
 	
 			if( $types = $this->get_layer_types() ){
 				
@@ -5124,9 +5128,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					$types = $this->get_layer_types();
 				
-					$type_id = !empty($_REQUEST['layer_type']) ? $_REQUEST['layer_type'] : key($types);
+					$type_id = !empty($_REQUEST['layer_type']) ? intval($_REQUEST['layer_type']) : key($types);
 					
-					if( !empty($type_id) ){
+					if( $type_id > 0 ){
 
 						$query->set('tax_query', array(
 						
