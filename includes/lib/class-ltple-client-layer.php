@@ -5080,7 +5080,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$options = array( 'Default' => array(
 			
-				-1 => 'Unknown'
+				-1 => 'All Types'
 				
 			));
 	
