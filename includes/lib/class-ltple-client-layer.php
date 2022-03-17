@@ -5080,8 +5080,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$options = array( 'Default' => array(
 			
-				-1 => 'All Types'
-				
+				0 	=> 'All Types',
+				-1 	=> 'Unknown',
 			));
 	
 			if( $types = $this->get_layer_types() ){
@@ -5103,7 +5103,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'id'		=> 'layer_type',
 					'type'		=> 'select',
 					'options'	=> $options,
-					'data'		=> !empty($_GET['layer_type']) ? intval($_GET['layer_type']) : key($types),
+					'data'		=> isset($_REQUEST['layer_type']) ? intval($_REQUEST['layer_type']) : key($types),
 					
 				), false, false ); 					
 			}
@@ -5128,7 +5128,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					$types = $this->get_layer_types();
 				
-					$type_id = !empty($_REQUEST['layer_type']) ? intval($_REQUEST['layer_type']) : key($types);
+					$type_id = isset($_REQUEST['layer_type']) ? intval($_REQUEST['layer_type']) : key($types);
 					
 					if( $type_id > 0 ){
 
@@ -5139,6 +5139,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'taxonomy' => 'layer-type',
 								'terms'    => array($type_id),
 								'operator' => 'IN'
+							)
+						));
+					}
+					elseif( $type_id < 0 ){
+						
+						$query->set('tax_query', array(
+						
+							array(
+							
+								'taxonomy' => 'layer-type',
+								'operator' => 'NOT EXISTS'
 							)
 						));
 					}
