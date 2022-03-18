@@ -71,13 +71,14 @@
 				}
 				
 				// schedule update subscription periods
-				
+				/*
 				add_action( $this->parent->_base . 'update_periods', array( $this, 'update_periods'));
 				
 				if( !wp_next_scheduled( $this->parent->_base . 'update_periods' )) {
 					
 					wp_schedule_event( time(), 'hourly' , $this->parent->_base . 'update_periods' );
 				}
+				*/
 			}
 		}
 	
