@@ -71,10 +71,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		add_filter('ltple_cb-default-layer_layer_area',function(){ 
+		add_filter('ltple_cb-default-layer_layer_area',function($area,$layer){ 
 			
-			return 'backend';
-		});
+			$layer_type = $this->get_layer_type($layer);
+			
+			if( $layer_type->output == 'web-app' ){
+				
+				return 'frontend';
+			}
+			else{
+			
+				return 'backend';
+			}
+			
+		},10,2);
 		
 		add_filter('ltple_live-editor_layer_area',function(){ 
 			
@@ -2357,14 +2367,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( is_numeric($post) ){
 				
-				$post_id = $post;
+				$post_id = intval($post);
 			}
 			elseif( is_object($post) ){
 				
 				$post_id = $post->ID;
 			}
 			
-			if(!empty($post_id)){
+			if( !empty($post_id) ){
 				
 				if( !isset($this->layer_types[$post_id]) ){
 					
