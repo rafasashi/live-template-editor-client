@@ -78,9 +78,10 @@ if( typeof editorCallbacks == typeof undefined )
 				$navItems = $('.library-content .nav > li:not(.more)'),
 				navItemMoreWidth = navItemWidth = $navItemMore.width(),
 				windowWidth = $('.library-content .nav li.more').parent().width(),
-				offset = 0, 
+				offset = -10, 
 				navOverflowWidth,
-				navItemMoreOffsetLeft;
+				navItemMoreOffsetLeft,
+				navItemMoreOffsetRight;
 			  
 			if( windowWidth > 0 ){
 				 
@@ -90,7 +91,7 @@ if( typeof editorCallbacks == typeof undefined )
 					  
 					navItemWidth += $(this).width();
 				});
-				  
+				
 				navItemWidth > windowWidth ? $navItemMore.show() : $navItemMore.hide();
 				
 				while ( navItemWidth > windowWidth) {
@@ -114,10 +115,11 @@ if( typeof editorCallbacks == typeof undefined )
 				$navOverflow =  $('.library-content .nav #overflow');
 
 				navOverflowWidth = $navOverflow.width();  
-					
-				navItemMoreOffsetLeft = $navItemMore.offset() - $navItemMore.parent().offset().left;
-					
-				if ( navItemMoreOffsetLeft > 10 ){
+				
+				navItemMoreOffsetLeft = $navItemMore.offset().left;
+				navItemMoreOffsetRight = windowWidth - $navItemMore.offset().left - navItemMoreWidth;
+				
+				if ( navItemMoreOffsetLeft > 10 || navItemMoreOffsetRight < 10 ){
 						
 					if( $navItems.width() > navOverflowWidth ){
 						
