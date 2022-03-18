@@ -134,7 +134,7 @@ class LTPLE_Client_Settings {
 		
 		$email_info['name']                 = get_bloginfo("name");
 		$email_info['description']          = get_bloginfo("description");
-		$email_info['url']                  = $this->parent->urls->profile . '?tab=billing-info';
+		$email_info['url']                  = $this->parent->urls->account . '?tab=billing-info';
 		$email_info['email_sender']         = get_bloginfo("admin_email");
 		$email_info['charset']              = get_bloginfo("charset");
 		$email_info['version']              = get_bloginfo("version");

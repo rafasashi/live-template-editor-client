@@ -380,49 +380,46 @@ class LTPLE_Client_Editor {
 	
 	public function filter_export_buttons($buttons,$layer){
 		
-		if( empty($_GET['quick']) ){
-
-			// download button
+		// download button
+		
+		if( empty($_GET['action']) || $_GET['action'] != 'edit' ){
 			
-			if( empty($_GET['action']) || $_GET['action'] != 'edit' ){
+			if( $layer->output == 'canvas' || $layer->output == 'image' || $layer->output == 'inline-css' || $layer->output == 'external-css' || $layer->is_element ){
+		
+				if( $layer->output == 'canvas' || $layer->output == 'image' ){
 				
-				if( $layer->post_type == 'cb-default-layer' || $layer->output == 'canvas' || $layer->output == 'image' || $layer->output == 'inline-css' || $layer->output == 'external-css' || $layer->is_element ){
-			
-					if( $layer->output == 'canvas' || $layer->output == 'image' ){
-					
-						$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-export" aria-hidden="true"></span> Download image';
-					}
-					else{
-						
-						$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-camera" aria-hidden="true"></span> Take a screenshot';
-					}					
+					$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-export" aria-hidden="true"></span> Download image';
 				}
+				else{
+					
+					$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-camera" aria-hidden="true"></span> Take a screenshot';
+				}					
 			}
 		}
-		
+
 		return $buttons;
 	}
 	
 	public function filter_navbar_settings($layer){
-
-		if( !$layer->is_media && ( $layer->post_type != 'cb-default-layer' ) ){
-	
-			if( $this->parent->user->can_edit ){
+		
+		if( $permalink = get_permalink($layer) ){
+			
+			echo'<li style="position:relative;">';
+			
+				echo '<a href="'.$permalink.'" target="_blank">Template Info</a>';
+			
+			echo'</li>';
+		}
+		
+		if( $this->parent->user->can_edit ){
+			
+			if( !empty($layer->urls['backend']) ){
 				
 				echo'<li style="position:relative;">';
 					
 					echo '<a target="_blank" href="' . $layer->urls['backend'] . '"> Edit Backend <span class="label label-warning pull-right">admin</span></a>';
 
 				echo'</li>';
-				
-				if( $layer->post_type == 'cb-default-layer' && empty($layer->post_title) ){
-				
-					echo'<li style="position:relative;">';
-						
-						echo '<a target="_self" href="' . $layer->urls['edit'] . '"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
-
-					echo'</li>';
-				}
 			}
 		}
 	}
@@ -453,9 +450,9 @@ class LTPLE_Client_Editor {
 				// content based preview
 				
 				$content = $this->parent->layer->render_output() . PHP_EOL;
-
+				
 				$content .= '<script src="' . $this->parent->request->proto . 'ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>' . PHP_EOL;
-
+				
 				$content .= '<script>
 				
 					;(function($){

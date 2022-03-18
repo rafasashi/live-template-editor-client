@@ -43,7 +43,7 @@ get_header();
 				
 				if( !empty($ltple->user->layer) ){
 					
-					echo '<h2 style="margin-top:15px;">Edit ' . $post_type->labels->singular_name . '</h2>';
+					echo '<h2 style="margin-top:15px;">Edit ' . ( !empty($post_type->labels->singular_name) ? $post_type->labels->singular_name : 'project' ) . '</h2>';
 						
 					$fields = $ltple->layer->get_user_layer_fields(array(),$ltple->user->layer);
 							

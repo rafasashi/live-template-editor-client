@@ -73,19 +73,27 @@ else{
 		}
 		elseif( $ltple->layer->layerOutput == 'inline-css' || $ltple->layer->layerOutput == 'external-css' ){
 			
-			
 			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
 		}
-
+		elseif( $ltple->layer->layerOutput == 'web-app' ){
+			
+			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Launch the app</a>';
+		}
+		
 		get_header();		
 		
 		echo '<div style="min-height:calc( 100vh - ' . ( $ltple->inWidget ? 0 : 145 ) . 'px );overflow:hidden;">';
 			
-			echo'<div class="col-xs-12 col-sm-12 col-lg-6" style="padding:20px;">';
+			echo '<div class="col-xs-12 col-sm-12 col-lg-6" style="padding:20px;">';
 				
-				echo '<h2>Start a new project <a target="_parent" href="' . $ltple->urls->profile . '?tab=billing-info"><span class="pull-right label label-default" style="font-size:18px;"> ' . ( !empty($plan_usage[$layer_type->name]) ? $plan_usage[$layer_type->name] : 0 ) . ' / ' . $total_storage . ' </span></a></h2>';
-
-				echo'<hr>';
+				echo '<h2 class="pull-left">Start a new project</h2>';
+					
+				if( $total_storage > 0 ){
+				
+					echo '<a class="pull-right" target="_parent" href="' . $ltple->urls->profile . '?tab=billing-info"><span class="label label-default" style="font-size:18px;"> ' . ( !empty($plan_usage[$layer_type->name]) ? $plan_usage[$layer_type->name] : 0 ) . ' / ' . $total_storage . ' </span></a>';
+				}
+				
+				echo '<hr class="clearfix">';
 				
 				if( !$ltple->layer->is_media && ( $layer_plan['amount'] === floatval(0) || $ltple->user->remaining_days > 0 ) ){
 					

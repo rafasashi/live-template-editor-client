@@ -476,6 +476,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter( 'preview_post_link', array($this,'filter_preview_layer_link'),99999,2 );
 		
+		add_filter( 'ltple_preview_post_url', array($this,'filter_view_layer_link'),99999,2 );
+		
 		// layer parameters
 		
 		add_filter('ltple_layer_id', array($this,'get_layer_id'),10,1);
@@ -904,7 +906,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( $post->post_type == 'cb-default-layer' ){
 						
-						if( $this->is_hosted_output($layer_type->output) ){		
+						if( $this->is_hosted_output($layer_type->output)  ){		
 												
 							$this->defaultFields[]=array(
 							
@@ -944,7 +946,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								);	
 							}
 						}
-						else{
+						elseif( $layer_type->output == 'inline-css' ){
 							
 							$this->defaultFields[]=array(
 							
@@ -1139,6 +1141,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'external-css',
 			'hosted-page',
 			'canvas',
+			'web-app',
 		));
 		
 		if( in_array($output,$outputs) ){
@@ -1176,6 +1179,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$hosted_output = apply_filters('ltple_layer_hosted_output',array(
 		
 			'hosted-page',
+			'web-app',
 		));
 		
 		if( in_array($output,$hosted_output) ){
@@ -1482,7 +1486,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function filter_preview_layer_link($url,$post){
 		
 		if( $post->post_type == 'cb-default-layer' ){
-			
+
 			$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
 		}
 		elseif( $post->post_status != 'publish' ){
@@ -1498,6 +1502,26 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				),$this->parent->urls->home);
 		}
 
+		return $url;
+	}
+	
+	public function filter_view_layer_link($url,$post){
+		
+		if( is_numeric($post) ){
+			
+			$post = get_post($post);
+		}
+		
+		if( $post->post_type == 'cb-default-layer' ){
+			
+			$layer_type = $this->get_layer_type($post);
+			
+			if( $layer_type->output == 'web-app' ){
+				
+				return false;
+			}
+		}
+		
 		return $url;
 	}
 	
@@ -1752,32 +1776,40 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			$this->editors = apply_filters('ltple_layer_editors',array(
 					
-				'inline-css'		=>'HTML',
-				'external-css'		=>'HTML + CSS',
-				'hosted-page'		=>'Hosted',
-				'canvas'			=>'HTML to PNG',
-				'image'				=>'Image',
+				'inline-css'	=>'HTML',
+				'external-css'	=>'HTML + CSS',
+				'hosted-page'	=>'Hosted',
+				'canvas'		=>'HTML to PNG',
+				'image'			=>'Image',
+				'web-app'		=>'Standalone',
 			));
 		} 
 		
 		return $this->editors;
 	}
 	
-	public function get_output_name($slug){
+	public function get_output_name($output){
 		
 		$editor_name = 'Template';
 		
-		if( !empty($slug) ){
+		if( !empty($output) ){
 			
 			$editors = $this->get_layer_editors();
 			
-			if( !empty($editors[$slug]) ){
+			if( !empty($editors[$output]) ){
 				
-				$editor_name = $editors[$slug];
+				$editor_name = $editors[$output];
 				
-				if( $this->is_html_output($slug) ){
+				if( $this->is_html_output($output) ){
 					
-					$editor_name .= ' template';
+					if( $output == 'web-app' ){
+						
+						$editor_name .= ' application';
+					}
+					else{
+					
+						$editor_name .= ' template';
+					}
 				}
 			}
 		}
@@ -5947,20 +5979,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function render_output(){
 		
 		$content = '';
-
+		
 		if( !empty($this->layerOutput) ){
 			
-			$this->parse_hosted_content($this->layerOutput);
+			$output = $this->layerOutput == 'web-app'  ? 'hosted-page' : $this->layerOutput;
+			
+			$this->parse_hosted_content($output);
 			
 			ob_start();
 			
-			if( file_exists( $this->parent->views . '/layers/' . $this->layerOutput  . '.php' ) ){
+			if( file_exists( $this->parent->views . '/layers/' . $output  . '.php' ) ){
 				
-				include_once( $this->parent->views . '/layers/' . $this->layerOutput  . '.php' );
+				include_once( $this->parent->views . '/layers/' . $output  . '.php' );
 			}
 			else{
 				
-				$layer = apply_filters( 'ltple_' . $this->layerOutput . '_layer', '' );
+				$layer = apply_filters( 'ltple_' . $output . '_layer', '' );
 			}
 			
 			do_action( 'ltple_layer_loaded', $layer );

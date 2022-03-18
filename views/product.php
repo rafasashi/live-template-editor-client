@@ -5,27 +5,27 @@
 		echo $this->message;
 	}
 	
-	$visibility = $this->parent->layer->get_layer_visibility( $this->ID );
+	$layer = LTPLE_Editor::instance()->get_layer($this);
+	
+	$visibility = $this->parent->layer->get_layer_visibility( $layer );
 	
 	if( $visibility != 'assigned' || $this->parent->user->is_admin || $this->parent->user->has_layer ){
 				
-		$permalink 		= $this->parent->urls->home . '/preview/' . $this->post_name . '/';
+		$permalink 		= $layer->urls['view'];
 		
-		$editor_url 	= $this->parent->urls->edit . '?uri=' . $this->ID;
+		$editor_url 	= $this->parent->urls->edit . '?uri=' . $layer->ID;
 		
-		$product_url 	= get_permalink($this->ID);
+		$product_url 	= get_permalink($layer->ID);
 
-		$layer_type 	= $this->parent->layer->get_layer_type($this->ID);
-
-		$layer_range 	= $this->parent->layer->get_layer_range($this->ID);
+		$layer_range 	= $this->parent->layer->get_layer_range($layer->ID);
 			
 		$modal_id='modal_'.md5($permalink);
 		
-		$is_html = $this->parent->layer->is_html_output($layer_type->output);
+		$is_html = $this->parent->layer->is_html_output($layer->output);
 		
-		$is_editable = $this->parent->layer->is_editable_output($layer_type->output);
+		$is_editable = $layer->is_editable;
 				
-		$output_name = $this->parent->layer->get_output_name($layer_type->output);
+		$output_name = $this->parent->layer->get_output_name($layer->output);
 		
 		// get from value
 
@@ -144,7 +144,7 @@
 													
 													echo '<iframe data-src="'.$permalink.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow:hidden;"></iframe>';											
 												}
-												elseif( $image = get_the_post_thumbnail($this->ID, 'full') ){
+												elseif( $image = get_the_post_thumbnail($layer->ID, 'full') ){
 													
 													echo '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow: auto;">';
 													
@@ -188,14 +188,14 @@
 									
 								echo'</div>'.PHP_EOL;
 							}
-						
+							
 							if( $has_layer === true){
 								
 								echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
 							}
-							elseif( !empty($this->parent->user->plan) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+							elseif( empty($this->parent->user->plan) || $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
-								echo $this->get_checkout_button($this,$layer_type->name);
+								echo $this->get_checkout_button($layer);
 							}
 									
 						echo'</div>';
@@ -214,8 +214,8 @@
 						}
 						
 						if( $is_html && $is_editable ){
-						
-							echo'available via our live HTML editing tool. ';
+							
+							echo'available online via our '.( $layer->output == 'web-app' ? 'platform' : 'HTML editing tool' ).'. ';
 						}
 						
 						echo $this->post_excerpt;
@@ -284,7 +284,7 @@
 				
 				do_action('ltple_product_info',$this);
 				
-				if( $is_html && $is_editable ){
+				if( $is_html && $is_editable && $layer->output != 'web-app' ){
 					
 					echo'<div class="clearfix"></div>';
 					
@@ -398,7 +398,7 @@
 					
 					echo'<div class="col-md-4">';
 					
-						if( !empty($layer_range) && !empty($layer_type->name) ){
+						if( !empty($layer_range) && !empty($layer_range->name) ){
 					
 							$q = get_posts( array(
 							
@@ -433,7 +433,7 @@
 							
 								foreach( $q as $post){
 									
-									if( $post->ID != $this->ID ){
+									if( $post->ID != $layer->ID ){
 									
 										echo '<div class="row">';
 											

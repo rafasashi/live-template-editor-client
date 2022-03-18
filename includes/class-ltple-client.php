@@ -2375,7 +2375,7 @@ class LTPLE_Client {
 
 		if( !empty($this->settings->navbarColor) ){
 			
-			$style .=' .navbar, .tinynav {';
+			$style .=' .navbar, .tinynav, .dropdown-menu {';
 				
 				$style .='background:'.$this->settings->navbarColor.' !important;';
 				
@@ -2392,7 +2392,7 @@ class LTPLE_Client {
 	
 			$style .=' .navbar-collapse .nav>li>a:hover, .navbar-nav>.active, #search a, .nav-next a:link, .nav-next a:visited, .nav-previous a:link, .nav-previous a:visited, a.totop, a.totop:hover {';
 
-				$style .='background-color:'.$this->settings->mainColor.' !important;';
+				$style .='background-color:' . $this->settings->mainColor . ' !important;';
 			
 			$style .='}';
 			
@@ -2589,6 +2589,15 @@ class LTPLE_Client {
 				}
 				
 			$style .='}';
+			
+			if( !empty($this->settings->navbarColor) ){
+				
+				$style .= '#ltple-wrapper #sidebar .glyphicon, #ltple-wrapper #sidebar .fa, #ltple-wrapper #sidebar .fab, #ltple-wrapper #sidebar .fas, #ltple-wrapper #sidebar .far{';
+					
+					$style .='color:'.$this->settings->navbarColor . 'b8;';			
+				
+				$style .='}';
+			}
 			
 			$style .= ' .bs-callout-primary h4{';
 			

@@ -282,13 +282,10 @@ class LTPLE_Client_Product {
 		return $checkout_url;
 	}
 	
-	public function get_checkout_button($post,$layer_type,$price=null){
+	public function get_checkout_button($post){
 		
-		if( is_null($price) ){
-			
-			$price = get_post_meta($post->ID,'layerPrice',true);
-		}
-		
+		$price = get_post_meta($post->ID,'layerPrice',true);
+
 		$button = '';					
 
 		if($this->parent->plan->user_has_layer( $post ) === true){
@@ -303,7 +300,7 @@ class LTPLE_Client_Product {
 			
 			//get checkout button
 			
-			$checkout_url = $this->get_checkout_url($post,$layer_type,$price);
+			$checkout_url = $this->get_checkout_url($post);
 			
 			$modal_id='modal_'.md5($checkout_url);
 			
