@@ -100,7 +100,7 @@ class LTPLE_Client_Editor {
 						}
 					}
 					else{
-			
+						
 						LTPLE_Editor::get_remote_script($layer,array(
 							
 							'key'		=> $_GET['lk'],

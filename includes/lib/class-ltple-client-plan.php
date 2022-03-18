@@ -604,7 +604,7 @@ class LTPLE_Client_Plan {
 							
 								$this->shortcode .='</a>'.PHP_EOL;
 							}
-							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+							elseif( !empty($this->parent->user->plan) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
 								// get addon buttons
 								

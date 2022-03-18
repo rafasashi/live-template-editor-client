@@ -553,7 +553,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !empty($post) ){
 				
-				if( $local_types = $this->get_local_types() ){
+				$layer_type = $this->get_layer_type($post);
+				
+				if( $layer_type->output == 'web-app' ){
+					
+					$is_local = false;
+				}
+				elseif( $local_types = $this->get_local_types() ){
 				
 					if( in_array( $post->post_type, $local_types ) ){
 					

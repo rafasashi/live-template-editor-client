@@ -947,8 +947,8 @@ class LTPLE_Client {
 		if( $this->layer->is_default($layer) && empty($_GET['action']) && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
 			
 			if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer->output) ){
-						
-				if( $this->layer->is_html_output($layer->output) ){
+				
+				if( $this->layer->is_html_output($layer->output) && $layer->output != 'web-app' ){
 				
 					$show_layer = false;
 				
@@ -2440,9 +2440,9 @@ class LTPLE_Client {
 				$style .='opacity: 1;';
 			$style .='}';
 
-			$style .='.modal-header {';
+			$style .='.modal-header, .ui-widget-header {';
 				$style .='padding: 4px 10px !important;';
-				$style .='background: #345774 !important;';
+				$style .='background: '. $this->settings->navbarColor .' !important;';
 				$style .='color: #fff;';
 				$style .='border-bottom: none;';
 				$style .='font-size: 16px;';
