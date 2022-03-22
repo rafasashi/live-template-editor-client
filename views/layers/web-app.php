@@ -213,7 +213,7 @@
 	// get layer
 	
 	$layer  = '<!DOCTYPE html>';
-	$layer .= '<html>';
+	$layer .= '<html class="' . $this->get_layer_classes($this->id) . '">';
 	$layer .= $head;
 	
 	$layer .= '<body style="padding:0;margin:0;display:flex !important;width:100%;font-family:sans-serif;">';
