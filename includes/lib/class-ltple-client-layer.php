@@ -5490,32 +5490,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			elseif( $term->taxonomy == 'js-library' ){
 				
-				if( isset($_POST['js_url']) ){
-
-					update_term_meta($term->term_id, 'js_url', $_POST['js_url']);			
-				}
-				
-				if(isset($_POST['js_content'])){
-					
-					// protect backslash
-					
-					$js_content = str_replace('\\','\\\\',$_POST['js_content']);
-					
-					update_term_meta($term->term_id, 'js_content', $js_content);			
-				}
-			
-				// js skip local
-			
-				
-				//-----------------------------------
-				
 				$js_url = sanitize_url($_POST['js_url']);
 
 				$skip = isset($_POST['js_skip_local']) && $_POST['js_skip_local'] == 'on' ? 'on' : 'off';
 				
 				$js_version = '1.0.7';
 				
-				$js_content = str_replace('\\','\\\\',$_POST['js_content']);
+				$js_content = stripslashes($_POST['js_content']);
+				//$js_content = str_replace('\\','\\\\',$js_content);
 				
 				$attach_id = get_term_meta($term->term_id, 'js_attachment', true);
 				
