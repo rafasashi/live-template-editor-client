@@ -137,7 +137,7 @@ else{
 							echo'<div style="font-size:18px;width:100%;display:inline-block;padding:35px 20px 20px 20px;">OR</div>';
 						}
 					}
-					else{
+					elseif( $total_storage > 0 ){
 						
 						echo'<div class="alert alert-warning">';
 							

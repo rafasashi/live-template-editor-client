@@ -307,7 +307,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$this->parent->admin->add_meta_boxes($fields);
 				}
 			}
-			elseif( isset($this->storageTypes[$post->post_type]) || $this->is_local($post) ){
+			elseif( isset($this->storageTypes[$post->post_type]) || $this->is_local($post) || $this->is_default($post) ){
 				
 				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){			
 					
@@ -324,10 +324,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							remove_meta_box( 'element-librarydiv', 'cb-default-layer', 'side' );
 						}
 						
-						if( !$this->is_html_output($layer_type->output) && !$this->is_hosted_output($layer_type->output) ){
+						if( !$this->is_html_output($layer_type->output) || !$this->is_hosted_output($layer_type->output) ){
 												
 							remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
+							
 							remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
+							
 							remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );
 						}
 						
@@ -565,7 +567,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$layer_type = $this->get_layer_type($post);
 				
-				if( $layer_type->output == 'web-app' ){
+				if( !empty($layer_type->output) && $layer_type->output == 'web-app' ){
 					
 					$is_local = false;
 				}
@@ -1170,7 +1172,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function has_html_elements($layer_type){
 		
-		if( $layer_type->storage == 'user-element' )
+		if( $layer_type->storage == 'user-element' || $layer_type->storage == 'web-app' )
 			
 			return false;
 		
@@ -3679,8 +3681,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			foreach($this->layerFontLibraries as $term){
 				
-				$font_url = $this->get_meta( $term, 'font_url' );
-				
+				$font_url = $this->get_meta($term,'font_url');
+					
 				if( !empty($font_url) ){
 					
 					$regex = '`\/\/fonts\.googleapis\.com\/css\?family=([0-9A-Za-z\|\,\+\:]+)`';
@@ -3690,10 +3692,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$googleFonts = array_merge( $googleFonts, explode('|',$match[1]));
 					}
-					else{
-						
-						$fontsLibraries[] = $font_url;
-					}	
+					elseif( $font_url = $this->get_font_parsed_url($term) ){
+					
+						$fontsLibraries[$font_url] = $this->get_font_family($term);
+					}		
 				}
 			}
 		}
@@ -3711,19 +3713,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		if( !empty($fontsLibraries) ){
+			
+			$head .= '<style id="LiveTplEditorFonts">' . PHP_EOL;
+			
+			foreach( $fontsLibraries as $font_url => $font_family ){
 		
-			foreach( $fontsLibraries as $font ){
-		
-				$font = $this->sanitize_url( $font );
+				$font_url =$this->sanitize_url( $font_url );
 				
-				if( !empty($font) && !in_array($font,$headLinks) ){
+				if( !empty($font_url) && !in_array($font_url,$headLinks) ){
 		
-					$head .= '<link href="' . $font . '" rel="stylesheet" />';
+					$head .= '@font-face { font-family: ' . $font_family . '; src: url("' . $font_url . '"); }' . PHP_EOL;
 				
-					$headLinks[] = $font;
+					$headLinks[] = $font_url;
 				}
 			}
-		}	
+			
+			$head .= '</style>' . PHP_EOL;
+		}
 		
 		if( !empty($this->layerCssLibraries) ){
 			
@@ -3981,18 +3987,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				if( $js_skip != 'on' ){
 					
-					$js_url = $this->get_meta( $term, 'js_url' );
+					$js_url = $this->get_js_parsed_url( $term, 'js_url' );
 					
 					if( !empty($js_url) ){
 						
 						$body .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
-					}
-					
-					$js_content = $this->get_meta( $term, 'js_content' );
-					
-					if( !empty($js_content) ){
-					
-						$body .= $js_content .PHP_EOL;	
 					}
 				}
 			}
@@ -4792,7 +4791,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 		echo'</tr>';
 		
-
 		echo'<tr class="form-field">';
 		
 			echo'<th valign="top" scope="row">';
@@ -4845,6 +4843,31 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			echo'<th valign="top" scope="row">';
 				
+				echo'<label for="category-text">Family </label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+				
+				$this->parent->admin->display_field(array(
+				
+					'type'				=> 'text',
+					'id'				=> 'font_family',
+					'name'				=> 'font_family',
+					'placeholder'		=> 'Open Sans',
+					'default'			=> $term->name,
+					'description'		=> 'Font family name used in the CSS rules'
+					
+				), $term );					
+				
+			echo'</td>';
+			
+		echo'</tr>';
+		
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
 				echo'<label for="category-text">Url </label>';
 			
 			echo'</th>';
@@ -4863,7 +4886,60 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 			echo'</td>';
 			
+		echo'</tr>';	
+
+		echo'<tr class="form-field">';
+		
+			echo'<th valign="top" scope="row">';
+				
+				echo'<label for="category-text">Source </label>';
+			
+			echo'</th>';
+			
+			echo'<td>';
+					
+				$this->parent->admin->display_field(array(
+				
+					'type'		=> 'text',
+					'id'		=> 'font_source',
+					'name'		=> 'font_source',
+					'data'		=> $this->get_font_parsed_url($term),
+					'disabled'	=> true,
+					
+				), $term );				
+					
+			echo'</td>';
+			
 		echo'</tr>';
+	}
+	
+	public function get_font_family($term){
+		
+		if( !$font_family = $this->get_meta( $term, 'font_family' )){
+
+			$font_family = $term->name;
+		}
+		
+		return $font_family;
+	}
+	
+	public function get_font_parsed_url($term){
+		
+		$attach_id 	= intval($this->get_meta( $term, 'font_attachment' ));		
+
+		if( is_numeric($attach_id) ){
+			
+			$url = wp_get_attachment_url($attach_id);
+			
+			if(!empty($url)){
+						
+				$md5 = $this->get_meta( $term, 'font_md5' );
+		
+				return $url . '?' . $md5;
+			}
+		}
+		
+		return false;
 	}
 	
 	public function set_default_layer_columns($columns){
@@ -5330,12 +5406,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						if( !empty($css_url) ){
 							
 							$response = wp_remote_get($css_url);
+							$mime = 'text/css';
 							
 							if ( is_array( $response ) ) {
 								
 								$body = $response['body'];
 								
-								if( !empty($body) ){
+								$mime = wp_remote_retrieve_header($response,'content-type');
+								
+								$mime = strtok($mime,';');
+								
+								if( !empty($body) && !empty($mime) ){
 									
 									$content .= $this->parse_css_content($body, $styleClass, $css_url);
 								}
@@ -5366,21 +5447,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 							// create archive
 							
-							$tmp = wp_tempnam($term->slug) . '.css';
+							$ext = 'css';
+							
+							$tmp = wp_tempnam($term->slug) . '.' . $ext;
 							
 							file_put_contents($tmp,$content);
 							
 							$file_array = array(
 							
-								'name' 		=> $term->slug . '.css',
-								'type' 		=> 'text/css',
+								'name' 		=> $term->slug . '.' . $ext,
+								'type' 		=> $mime,
 								'tmp_name' 	=> $tmp,
 							);
 							
 							$post_data = array(
 							
 								'post_title' 		=> $term->slug,
-								'post_mime_type' 	=> 'text/css',
+								'post_mime_type' 	=> $mime,
 							);
 
 							if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
@@ -5439,10 +5522,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$js_md5 = get_term_meta($term->term_id, 'js_md5', true);
 									
 				$md5 = md5($js_url.$js_content.$attach_id.$js_version);
-
+				
 				if( $js_md5 != $md5 ){
 					
 					$content = '';
+					$mime = 'text/javascript';
 
 					if( !empty($js_url) ){
 						
@@ -5452,7 +5536,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 							$body = $response['body'];
 							
-							if( !empty($body) ){
+							if( !empty($body) && !empty($mime) ){
 								
 								$content .= $body; // TODO parse JS content
 							}
@@ -5486,21 +5570,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 						// create archive
 						
-						$tmp = wp_tempnam($term->slug) . '.js';
+						$ext = 'js';
+						
+						$tmp = wp_tempnam($term->slug) . '.' . $ext;
 						
 						file_put_contents($tmp,$content);
 						
 						$file_array = array(
 						
-							'name' 		=> $term->slug . '.js',
-							'type' 		=> 'text/javascript ',
+							'name' 		=> $term->slug . '.' . $ext,
+							'type' 		=> $mime,
 							'tmp_name' 	=> $tmp,
 						);
 						
 						$post_data = array(
 						
 							'post_title' 		=> $term->slug,
-							'post_mime_type' 	=> 'text/javascript ',
+							'post_mime_type' 	=> $mime,
 						);
 
 						if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
@@ -5526,9 +5612,121 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			elseif( $term->taxonomy == 'font-library' ){
 					
-				if(isset($_POST['font_url'])){
+				if( isset($_POST['font_family']) ){
+					
+					$font_family = sanitize_text_field($_POST['font_family']);
+					
+					update_term_meta($term->term_id,'font_family',$font_family);
+				}
+					
+				if( isset($_POST['font_url']) ){
+					
+					$font_url = sanitize_url($_POST['font_url']);
+			
+					$font_version = '1.0.7';
+				
+					$attach_id = get_term_meta($term->term_id, 'font_attachment', true);
+				
+					$font_md5 = get_term_meta($term->term_id, 'font_md5', true);
+									
+					$md5 = md5($font_url.$attach_id.$font_version);
 
-					update_term_meta($term->term_id, 'font_url', $_POST['font_url']);			
+					if( $font_md5 != $md5 ){
+												
+						$fonts = array(
+							
+							'text/css'		=> 'css',
+							
+							'font/otf'		=> 'otf',
+							'font/ttf'		=> 'ttf',
+							'font/woff'		=> 'woff',
+							'font/woff2'	=> 'woff2',
+							
+							'application/font-otf' 	=> 'otf',
+							'application/font-ttf' 	=> 'ttf',
+							'application/font-woff' => 'woff',
+							'application/font-woff2' => 'woff2',
+							
+							'application/vnd.ms-fontobject'	=> 'eot',
+						);	
+						
+						$content = '';
+						$ext = '';
+						
+						if( !empty($font_url) ){
+							
+							$response = wp_remote_get($font_url);
+							
+							if ( is_array( $response ) ) {
+								
+								$body = $response['body'];
+
+								$mime = wp_remote_retrieve_header($response,'content-type');
+								
+								$mime = strtok($mime,';');
+								
+								if( !empty($body) && !empty($mime) && isset($fonts[$mime]) ){
+									
+									$ext = $fonts[$mime];
+									
+									$content .= $body; // TODO parse font content
+								}
+							}
+						}
+						
+						if( !empty($content) && !empty($ext) ){
+							
+							// remove current attachement
+							
+							$font_attachement = get_post($attach_id);
+							
+							if( !empty($font_attachement) ){
+								
+								wp_delete_attachment( $font_attachement->ID, true );
+							}				
+						
+							// add style to media
+							
+							if ( !function_exists('media_handle_upload') ) {
+								
+								require_once(ABSPATH . "wp-admin" . '/includes/image.php');
+								require_once(ABSPATH . "wp-admin" . '/includes/file.php');
+								require_once(ABSPATH . "wp-admin" . '/includes/media.php');
+							}
+
+							// create archive
+							
+							$tmp = wp_tempnam($term->slug) . '.' . $ext;
+							
+							file_put_contents($tmp,$content);
+							
+							$file_array = array(
+							
+								'name' 		=> $term->slug . '.' . $ext,
+								'type' 		=> $mime,
+								'tmp_name' 	=> $tmp,
+							);
+							
+							$post_data = array(
+							
+								'post_title' 		=> $term->slug,
+								'post_mime_type' 	=> $mime,
+							);
+
+							if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
+							
+							$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
+							
+							if( is_numeric($attach_id) ){
+								
+								update_term_meta($term->term_id,'font_attachment',$attach_id);					
+								
+								update_term_meta($term->term_id,'font_url',$font_url);			
+				
+								update_term_meta($term->term_id,'font_md5',$md5);								
+							}
+						}
+					}
 				}
 			}
 		}
@@ -5998,7 +6196,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !empty($this->layerOutput) ){
 			
-			$output = $this->layerOutput == 'web-app'  ? 'hosted-page' : $this->layerOutput;
+			$output = $this->layerOutput;
 			
 			$this->parse_hosted_content($output);
 			
@@ -6017,7 +6215,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$content = ob_get_clean();
 		}
-
+		
 		return $content;
 	}
 	
@@ -6107,7 +6305,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function add_local_layer_scripts( $layer ){
-		
+	
 		if( !isset($_GET['uri']) ){
 			
 			if( $layer->area == 'backend' || $layer->output == 'hosted-page' ){
@@ -6118,7 +6316,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					foreach($this->layerFontLibraries as $term){
 						
-						$font_url = $this->get_meta( $term, 'font_url' );
+						$font_url = $this->get_font_parsed_url($term);
 						
 						if( !empty($font_url) ){
 							

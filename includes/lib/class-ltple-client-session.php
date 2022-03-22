@@ -444,7 +444,12 @@ class LTPLE_Client_Session {
 		}
 		
 		if( is_null($user_id) ){
-		
+			
+			if( !function_exists('wp_get_current_user') ) {
+				
+				include( ABSPATH . 'wp-includes/pluggable.php'); 
+			}
+			
 			if( $user = wp_get_current_user() ){
 				
 				$user_id = $user->ID;

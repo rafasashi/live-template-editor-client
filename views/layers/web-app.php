@@ -6,27 +6,23 @@
 	
 	//get css libraries
 
-	$layerCssLibraries =$this->layerCssLibraries;
+	$layerCssLibraries = $this->layerCssLibraries;
 
 	//get js libraries
 	
-	$layerJsLibraries =$this->layerJsLibraries;
+	$layerJsLibraries = $this->layerJsLibraries;
 	
 	//get font libraries
 	
-	$layerFontLibraries =$this->layerFontLibraries;	
-	
-	//get layer image proxy
-	
-	$layerImgProxy = LTPLE_Editor::get_image_proxy_url();
+	$layerFontLibraries = $this->layerFontLibraries;	
 	
 	//get layer margin
 	
-	$layerMargin =$this->layerMargin;
+	$layerMargin = $this->layerMargin;
 	
 	//get layer Min Width
 	
-	$layerMinWidth =$this->layerMinWidth;
+	$layerMinWidth = $this->layerMinWidth;
 
 	// get layer content
 	
@@ -35,7 +31,7 @@
 	
 	$headStyles = array();
 	$headLinks = array();
-		
+
 	//get layer content
 	
 	if( isset($_POST['importHtml']) ){
@@ -48,6 +44,7 @@
 	}
 	
 	$layerContent =LTPLE_Editor::sanitize_content($layerContent);
+
 	
 	// parse content elements
 	
@@ -74,34 +71,16 @@
 
 	//get style-sheet
 	
-	$defaultCss 	= '';
-	$layerCss 		= '';
-	$defaultJs 		= '';
-	$layerJs 		= '';
-	$layerMeta 		= '';
-	
-	if( isset($_POST['importCss']) ){
+		
+	$defaultCss =$this->defaultCss;
+		
+	$layerCss =$this->layerCss;
+		
+	$defaultJs =$this->defaultJs;
+		
+	$layerJs =$this->layerJs;
 
-		$layerCss = stripcslashes($_POST['importCss']);
-	}
-	elseif( empty($_POST) ){
-		
-		$defaultCss =$this->defaultCss;
-		
-		$layerCss =$this->layerCss;
-		
-		$defaultJs =$this->defaultJs;
-		
-		$layerJs =$this->layerJs;
-
-		$layerMeta =$this->layerMeta;
-	}
-	
-	// normalize canvas content
-	
-	$layerContent = str_replace($layerImgProxy,'',$layerContent);		
-	
-	$layerCss = str_replace($layerImgProxy,'',$layerCss);
+	$layerMeta =$this->layerMeta;
 	
 	$layerContent = str_replace('<?xml encoding="UTF-8">','',$layerContent);
 	
@@ -148,26 +127,27 @@
 
 	// get head
 
-	$head = '<head>';
+	$head = '<head>' . PHP_EOL;
 	
-		$head .= '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->';
-		$head .= '<!--[if lt IE 9]>';
-		$head .= '<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>';
-		$head .= '<![endif]-->';	
+		$head .= '<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->' . PHP_EOL;
+		$head .= '<!--[if lt IE 9]>' . PHP_EOL;
+		$head .= '<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>' . PHP_EOL;
+		$head .= '<![endif]-->' . PHP_EOL;	
 
-		$head .= '<meta charset="UTF-8">';
-		$head .= '<meta name="viewport" content="width=1024, initial-scale=1">';
+		$head .= '<meta charset="UTF-8">' . PHP_EOL;
+		$head .= '<meta name="viewport" content="width=device-width, initial-scale=1">' . PHP_EOL;
 		
-		$head .= '<link rel="profile" href="//gmpg.org/xfn/11">';
+		$head .= '<link rel="profile" href="//gmpg.org/xfn/11">' . PHP_EOL;
 		
-		$head .= '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
-		$head .= '<link rel="dns-prefetch" href="//s.w.org">';
+		$head .= '<link rel="dns-prefetch" href="//fonts.googleapis.com">' . PHP_EOL;
+		$head .= '<link rel="dns-prefetch" href="//s.w.org">' . PHP_EOL;
 	
 		// font library
 		
+		
 		if( !empty($googleFonts) ){
 		
-			$head .= '<link href="//fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
+			$head .= '<link href="//fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />' . PHP_EOL;
 		}
 		
 		if( !empty($fontsLibraries) ){
@@ -195,11 +175,11 @@
 				
 				$css_url = $this->get_css_parsed_url($term);
 				
-				$css_url = $this->sanitize_url( $css_url );
+				$css_url = $this->sanitize_url($css_url);
 				
 				if( !empty($css_url) && !in_array($css_url,$headLinks) ){
 
-					$head .= '<link href="' . $css_url . '" rel="stylesheet" type="text/css" />';
+					$head .= '<link href="' . $css_url . '" rel="stylesheet" type="text/css" />' . PHP_EOL;
 						
 					$headLinks[] = $css_url;
 				}
@@ -210,36 +190,36 @@
 	
 		if( !empty($layerHead) ){
 			
-			$head .= $layerHead;
+			$head .= $layerHead . PHP_EOL;
 		}
 		
 		if(!empty($layerMeta['link'])){
 			
 			foreach($layerMeta['link'] as $url){
 				
-				$url =$this->sanitize_url( $url );
+				$url = $this->sanitize_url( $url );
 				
 				if( !empty($url) && !in_array($url,$headLinks) ){
 				
-					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />';
+					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />' . PHP_EOL;
 			
 					$headLinks[] = $url;
 				}
 			}
-		}
+		}	
 		
-	$head .= '</head>';
+	$head .= '</head>' . PHP_EOL;
 
 	// get layer
 	
 	$layer  = '<!DOCTYPE html>';
 	$layer .= '<html>';
 	$layer .= $head;
-
-	$layer .= '<body style="padding:0;margin:0;display:flex !important;width:1024px !important;font-family:sans-serif;">';
+	
+	$layer .= '<body style="padding:0;margin:0;display:flex !important;width:100%;font-family:sans-serif;">';
 		
 		//include style-sheets
-		
+
 		$layer .= '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
 		
 			if( $layerCss!='' ){
@@ -248,18 +228,18 @@
 			}
 			
 		$layer .= '</style>'.PHP_EOL;		
-		
+
 		$layer .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($layerMargin) ? 'margin:'.$layerMargin.';' : '' ) . '">';
 						
 			$layer .= $layerContent;
 		
-		$layer .= '</ltple-layer>' .PHP_EOL;
-			
+		$layer .= '</ltple-layer>' .PHP_EOL;	
+
 		if( !empty($layerJsLibraries) ){
 			
 			foreach($layerJsLibraries as $term){
 				
-				$js_url = $this->get_js_parsed_url( $term );
+				$js_url = $this->get_js_parsed_url( $term);
 				
 				if( !empty($js_url) ){
 					
@@ -288,4 +268,3 @@
 		$layer .='</script>' .PHP_EOL;
 
 	$layer .='</body></html>' .PHP_EOL;
-	

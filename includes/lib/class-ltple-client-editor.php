@@ -34,33 +34,33 @@ class LTPLE_Client_Editor {
 			
 		}, 1);
 		
-		add_filter( 'ltple_editor_frontend', array( $this, 'get_editor' ),1);
+		add_filter('ltple_editor_frontend', array( $this, 'get_editor' ),1);
 		
-		add_filter( 'ltple_editor_iframe_url', array( $this, 'filter_iframe_url' ),1,2);	
+		add_filter('ltple_editor_iframe_url', array( $this, 'filter_iframe_url' ),1,2);	
 		
-		add_filter( 'ltple_editor_dashboard_url', array( $this, 'filter_dashboard_url' ),1);	
+		add_filter('ltple_editor_dashboard_url', array( $this, 'filter_dashboard_url' ),1);	
 		
-		add_filter( 'ltple_editor_settings_url', array( $this, 'filter_settings_url' ),1);	
+		add_filter('ltple_editor_settings_url', array( $this, 'filter_settings_url' ),1);	
 		
-		add_filter( 'ltple_editor_edit_url', array( $this, 'filter_edit_url' ),1);	
+		add_filter('ltple_editor_edit_url', array( $this, 'filter_edit_url' ),1);	
 				
-		add_filter( 'ltple_editor_elements', array( $this, 'filter_elements' ),1);	
+		add_filter('ltple_editor_elements', array( $this, 'filter_elements' ),1);	
 				
-		add_filter( 'ltple_right_editor_navbar', array( $this, 'filter_right_navbar' ),1);			
+		add_filter('ltple_right_editor_navbar', array( $this, 'filter_right_navbar' ),1);			
 		
-		add_filter( 'ltple_editor_export_buttons', array( $this, 'filter_export_buttons' ),9999,2);
+		add_filter('ltple_editor_export_buttons', array( $this, 'filter_export_buttons' ),9999,2);
 		
-		add_filter( 'ltple_editor_navbar_settings', array( $this, 'filter_navbar_settings' ),1);
+		add_filter('ltple_editor_navbar_settings', array( $this, 'filter_navbar_settings' ),1);
 		
-		add_filter( 'ltple_editor_js_settings', array( $this, 'filter_js_settings' ),1,2);	
+		add_filter('ltple_editor_js_settings', array( $this, 'filter_js_settings' ),1,2);	
 
-		add_filter( 'ltple_editor_script', array( $this, 'filter_editor_script' ),1);
+		add_filter('ltple_editor_script', array( $this, 'filter_editor_script' ),1);
+		
+		add_action('admin_post_duplicate', array($this, 'duplicate_item') );
 		
 		add_action('load-edit.php', function() {
 		
 			add_filter('admin_enqueue_scripts',array( $this, 'add_actions_scripts' ) );
-		
-			add_action('admin_post_duplicate', array($this, 'duplicate_item') );
 		});
 	}
 	

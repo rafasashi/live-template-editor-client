@@ -8,10 +8,6 @@
 
 	$layerCssLibraries = $this->layerCssLibraries;
 
-	//get js libraries
-	
-	$layerJsLibraries = $this->layerJsLibraries;
-	
 	//get font libraries
 	
 	$layerFontLibraries = $this->layerFontLibraries;	
@@ -25,9 +21,8 @@
 	$layerMinWidth = $this->layerMinWidth;
 
 	// get layer content
-	
-	$layerHead 			= '';
-	$layerContent 		= '';
+
+	$layerContent = '';
 	
 	$headStyles = array();
 	$headLinks = array();
@@ -73,10 +68,7 @@
 	
 	$defaultCss 	= '';
 	$layerCss 		= '';
-	$defaultJs 		= '';
-	$layerJs 		= '';
-	$layerMeta 		= '';
-	
+
 	if( isset($_POST['importCss']) ){
 
 		$layerCss = stripcslashes($_POST['importCss']);
@@ -86,16 +78,12 @@
 		$defaultCss =$this->defaultCss;
 		
 		$layerCss =$this->layerCss;
-		
-		$defaultJs =$this->defaultJs;
-		
-		$layerJs =$this->layerJs;
-
-		$layerMeta =$this->layerMeta;
 	}
 	
 	$layerContent = str_replace('<?xml encoding="UTF-8">','',$layerContent);
 	
+	
+	/*
 	// get google fonts
 	
 	$googleFonts = [];
@@ -129,13 +117,14 @@
 					
 					$googleFonts = array_merge( $googleFonts, explode('|',$match[1]));
 				}
-				else{
+				elseif( $font_url = $this->get_font_parsed_url($term) ){
 					
-					$fontsLibraries[] = $font_url;
-				}	
+					$fontsLibraries[$font_url] = $this->get_font_family($term);
+				}
 			}
 		}
 	}
+	*/
 
 	// get head
 
@@ -153,8 +142,11 @@
 		
 		$head .= '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
 		$head .= '<link rel="dns-prefetch" href="//s.w.org">';
-	
+		
+		/*
 		// font library
+		
+		// TODO include in layerCss
 		
 		if( !empty($googleFonts) ){
 		
@@ -174,13 +166,19 @@
 					$headLinks[] = $font;
 				}
 			}
-		}	
+		}
 		
+		// CSS Library
+		
+		// TODO include in layerCss
+			
 		if( !empty($layerCssLibraries) ){
 			
 			foreach($layerCssLibraries as $term){
 				
-				$css_url =$this->sanitize_url( $this->get_meta( $term, 'css_url' ) );
+				$css_url = $this->get_css_parsed_url($term);
+				
+				$css_url = $this->sanitize_url( $css_url );
 				
 				if( !empty($css_url) && !in_array($css_url,$headLinks) ){
 
@@ -188,102 +186,40 @@
 						
 					$headLinks[] = $css_url;
 				}
-				
-				$css_content = $this->get_meta( $term, 'css_content' );
-				
-				if( !empty($css_content) ){
-				
-					$head .= '<style>' . stripcslashes($css_content) . '</style>';
-				}
 			}
 		}
-		
-		$head .= PHP_EOL;
-	
-		if( !empty($layerHead) ){
-			
-			$head .= $layerHead;
-		}
-		
-		if(!empty($layerMeta['link'])){
-			
-			foreach($layerMeta['link'] as $url){
-				
-				$url =$this->sanitize_url( $url );
-				
-				if( !empty($url) && !in_array($url,$headLinks) ){
-				
-					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />';
-			
-					$headLinks[] = $url;
-				}
-			}
-		}	
+		*/
 		
 	$head .= '</head>';
 
 	// get layer
 	
-	$layer  = '<!DOCTYPE html>';
-	$layer .= '<html>';
-	$layer .= $head;
+	$layer  = '<!DOCTYPE html>'.PHP_EOL;
+	$layer .= '<html>'.PHP_EOL;
+	$layer .= $head.PHP_EOL;
 
-	$layer .= '<body style="padding:0;margin:0;display:flex !important;width:100%;font-family:sans-serif;">';
+	$layer .= '<body style="padding:0;margin:0;display:flex !important;width:100%;font-family:sans-serif;">'.PHP_EOL;
 		
 		//include style-sheets
 
 		$layer .= '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
 		
-			if( $layerCss!='' ){
+			if( !empty($layerCss) ){
 
 				$layer .= $layerCss .PHP_EOL;
 			}
 			
 		$layer .= '</style>'.PHP_EOL;		
 
-		$layer .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($layerMargin) ? 'margin:'.$layerMargin.';' : '' ) . '">';
+		$layer .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($layerMargin) ? 'margin:'.$layerMargin.';' : '' ) . '">'.PHP_EOL;
 						
-			$layer .= $layerContent;
+			$layer .= $layerContent.PHP_EOL;
 		
 		$layer .= '</ltple-layer>' .PHP_EOL;	
 
-		if( !empty($layerJsLibraries) ){
-			
-			foreach($layerJsLibraries as $term){
-				
-				$js_url = $this->get_meta( $term, 'js_url' );
-				
-				if( !empty($js_url) ){
-					
-					$layer .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
-				}
-				
-				$js_content = $this->get_meta( $term, 'js_content' );
-				
-				if( !empty($js_content) ){
-				
-					$layer .= $js_content .PHP_EOL;	
-				}
-			}
-		}
-		
-		if( !empty($layerMeta['script']) ){
-			
-			foreach($layerMeta['script'] as $url){
-				
-				$layer .= '<script src="'.$url.'"></script>' .PHP_EOL;
-			}
-		}
-		
 		//include layer script
 		
-		$layer .='<script id="LiveTplEditorScript">' .PHP_EOL;
-		
-			if( $layerJs != '' ){
-
-				$layer .= $layerJs .PHP_EOL;				
-			}				
-			
+		$layer .='<script id="LiveTplEditorScript">'.PHP_EOL;
 		$layer .='</script>' .PHP_EOL;
 
 	$layer .='</body></html>' .PHP_EOL;
