@@ -3019,10 +3019,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->defaultCss = get_post_meta( $this->defaultId, 'layerCss', true );
 						
 						// get layer css
+						
+						$this->layerCss = get_post_meta( $this->id, 'layerCss', true );
 
-						$this->layerCss = $this->parse_css_content(get_post_meta( $this->id, 'layerCss', true ),'');
-
-						if( $this->layerCss == '' && $this->id != $this->defaultId ){
+						if( empty($this->layerCss) && $this->id != $this->defaultId ){
 							
 							if( $this->layerOutput != 'hosted-page' ){
 							
@@ -5415,9 +5415,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$styleName = $css_parse == 'on' ? 'style-' . $term->term_id : '';
 					
 					$styleClass = !empty($styleName) ? '.' . $styleName : '';
-
-					$css_content = $this->parse_css_content($_POST['css_content'], $styleClass);
-
+					
+					$css_content = $_POST['css_content'];
+					
+					if( $css_parse == 'on' ){
+						
+						$css_content = $this->parse_css_content($css_content, $styleClass);
+					}
+					
 					$attach_id = get_term_meta($term->term_id, 'css_attachment', true);
 					
 					$css_md5 = get_term_meta($term->term_id, 'css_md5', true);
@@ -5443,7 +5448,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 								if( !empty($body) && !empty($mime) ){
 									
-									$content .= $this->parse_css_content($body, $styleClass, $css_url);
+									if( $css_parse == 'on' ){
+									
+										$content .= $this->parse_css_content($body, $styleClass, $css_url);
+									}
+									else{
+										
+										$content .= $body . PHP_EOL;
+									}
 								}
 							}
 						}
@@ -6162,32 +6174,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			if( $post->post_type == 'cb-default-layer' || $post->post_type == 'user-layer' ){
 				
 				$layer_type = $this->get_layer_type($post);
-				
-				if( $this->is_hosted_output($layer_type->output) ){
-				
-					$dir = $this->dir . $post_id . '/';
-					
-					if ( is_dir( $dir ) ){
-						
-						$it = new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS );
-						
-						$files = new RecursiveIteratorIterator( $it, RecursiveIteratorIterator::CHILD_FIRST );
-						
-						foreach ( $files as $file ) {
-							
-							if ( $file->isDir() ) {
-								
-								rmdir( $file->getRealPath() );
-							}
-							else {
-								
-								unlink( $file->getRealPath() );
-							}
-						}
-						rmdir( $dir );
-					}
-				}
-				elseif( $layer_type->output == 'image' ){
+
+				if( $layer_type->output == 'image' ){
 					
 					$this->delete_layer_attachments($post->ID,0);
 				}

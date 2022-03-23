@@ -208,6 +208,17 @@
 			}
 		}	
 		
+		//include style-sheets
+
+		$head .= '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
+		
+			if( !empty($layerCss) ){
+
+				$head .= $layerCss .PHP_EOL;
+			}
+			
+		$head .= '</style>'.PHP_EOL;
+		
 	$head .= '</head>' . PHP_EOL;
 
 	// get layer
@@ -216,25 +227,14 @@
 	$layer .= '<html class="' . $this->get_layer_classes($this->id) . '">';
 	$layer .= $head;
 	
-	$layer .= '<body style="padding:0;margin:0;display:flex !important;width:100%;font-family:sans-serif;">';
+	$layer .= '<body>';		
 		
-		//include style-sheets
-
-		$layer .= '<style id="LiveTplEditorStyleSheet">'.PHP_EOL;
+		// include app html
 		
-			if( $layerCss!='' ){
-
-				$layer .= $layerCss .PHP_EOL;
-			}
-			
-		$layer .= '</style>'.PHP_EOL;		
-
-		$layer .= '<ltple-layer class="editable" style="width:100%;' . ( !empty($layerMargin) ? 'margin:'.$layerMargin.';' : '' ) . '">';
-						
-			$layer .= $layerContent;
+		$layer .= $layerContent;
 		
-		$layer .= '</ltple-layer>' .PHP_EOL;	
-
+		// include js
+		
 		if( !empty($layerJsLibraries) ){
 			
 			foreach($layerJsLibraries as $term){
