@@ -3287,20 +3287,45 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}
 		
-		if( !empty($libraries) ){
+		if( !empty($libraries) && ( $type == 'js' || $type == 'css' ) ){
 			
 			// order libraries
+
+			$ordered 	= array();
+			$level 	= 0;
+			$items 	= $libraries;				
 			
-			$libraries = array_reverse($libraries);
-			
-			foreach( $libraries as $library ){
+			while( !empty($items) && $level < 10 ){
 				
-				if( $type == 'css' ){
+				foreach( $items as $i => $item ){
 					
+					if( !isset($libraries[$i]) ){
+						
+						unset($items[$i]);
+					}
+					elseif( $item->parent == 0 || isset($ordered[$item->parent]) ){
+						
+						$ordered[$item->term_id] = $item;
+						unset($items[$i]);
+					}
+				}
+				
+				++$level;
+			}
+			
+			$libraries = $ordered;
+			
+			// add arguments
+			
+			if( $type == 'css' ){
+				
+				foreach( $libraries as $library ){
+
 					$library->url 		= $this->get_css_parsed_url($library);
 					$library->prefix 	= 'style-' . $library->term_id;
 				}
-			}
+			}	
+		
 		}
 		
 		return $libraries;
