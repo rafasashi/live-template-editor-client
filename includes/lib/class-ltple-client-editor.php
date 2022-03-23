@@ -451,25 +451,20 @@ class LTPLE_Client_Editor {
 				
 				$content = $this->parent->layer->render_output() . PHP_EOL;
 				
-				$content .= '<script src="' . $this->parent->request->proto . 'ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>' . PHP_EOL;
+				if( $layer->output != 'web-app' ){
 				
-				$content .= '<script>
-				
-					;(function($){
+					$content .= '<script id="LiveTplEditorClientScript">
 
-						$(document).ready(function(){
-							
-								
-							$(\'a\').click(function(e) {
-								
-								e.preventDefault();
-							});
+						// prevent link navigation
+						
+						document.querySelector(\'a\').addEventListener(\'click\', function(ev){
 
-						});			
-								
-					})(jQuery);
-					
-				</script>' . PHP_EOL;
+							return false;
+						
+						}, false);
+						
+					</script>' . PHP_EOL;
+				}
 				
 				$js .= ' var layerContent = "' . base64_encode($content) . '";' . PHP_EOL;
 			}
