@@ -6,20 +6,30 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit9fc646d97b708fc0d4b60997071195d8
 {
-    public static $prefixesPsr0 = array (
+    public static $prefixLengthsPsr4 = array (
         'S' => 
         array (
-            'Sabberworm\\CSS' => 
-            array (
-                0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/lib',
-            ),
+            'Sabberworm\\CSS\\' => 15,
         ),
+    );
+
+    public static $prefixDirsPsr4 = array (
+        'Sabberworm\\CSS\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
+        ),
+    );
+
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixesPsr0 = ComposerStaticInit9fc646d97b708fc0d4b60997071195d8::$prefixesPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit9fc646d97b708fc0d4b60997071195d8::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit9fc646d97b708fc0d4b60997071195d8::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit9fc646d97b708fc0d4b60997071195d8::$classMap;
 
         }, null, ClassLoader::class);
     }
