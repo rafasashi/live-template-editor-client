@@ -100,8 +100,8 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 						'slug' 			=> str_replace(' ','-',$name),
 					)
 				);
-
-				$term_id = intval($term->term_id);
+				
+				$term_id = intval($term['term_id']);
 			}
 		}
 		

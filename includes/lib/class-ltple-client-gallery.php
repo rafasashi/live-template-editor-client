@@ -275,7 +275,7 @@ class LTPLE_Client_Gallery {
 			$addon = !empty($layer_type->addon) ? $layer_type->addon : null; 
 
 			$tax_query = array('relation'=>'AND');
-
+			
 			$tax_query[0] = array(
 			
 				'taxonomy' 			=> 'layer-type',
@@ -329,7 +329,7 @@ class LTPLE_Client_Gallery {
 				$this->max_num_pages = $query->max_num_pages;
 				
 				$current_types = $this->get_current_types($addon);
-			
+				
 				foreach($current_types as $term){
 					
 					if( $term->slug == $layer_type->slug ){
@@ -337,7 +337,7 @@ class LTPLE_Client_Gallery {
 						while ( $query->have_posts() ) : $query->the_post(); 
 							
 							global $post;
-													
+												
 							if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
 								
 								//get item
@@ -366,16 +366,16 @@ class LTPLE_Client_Gallery {
 		
 		$referer = $rest->get_header( 'referer' );
 		
-		$gallery = (!empty($_GET['gallery']) ? $_GET['gallery'] : false );
+		$gallery = (!empty($_GET['gallery']) ? sanitize_title($_GET['gallery']) : false );
 		
 		if( $layer_type = $this->get_layer_type_info($gallery) ){
 			
 			//get layer range
 			
-			$layer_range = ( !empty($_GET['range']) ? $_GET['range'] : key($layer_type->ranges) );
+			$layer_range = ( !empty($_GET['range']) ? sanitize_title($_GET['range']) : key($layer_type->ranges) );
 			
 			// get gallery items 
-
+			
 			if( $range_items = $this->get_range_items($layer_type,$layer_range,$referer) ){
 				
 				//get layer range name

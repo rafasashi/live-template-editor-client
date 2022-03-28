@@ -5442,9 +5442,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 								$body = $response['body'];
 								
-								$mime = wp_remote_retrieve_header($response,'content-type');
-								
-								$mime = strtok($mime,';');
+								if( $content_type = wp_remote_retrieve_header($response,'content-type') ){
+									
+									if( strpos($content_type,';') !== false ){
+									
+										$mime = strtok($content_type,';');
+									}
+									else{
+										
+										$mime = $content_type;
+									}
+								}
 								
 								if( !empty($body) && !empty($mime) ){
 									
