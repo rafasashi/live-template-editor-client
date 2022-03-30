@@ -310,7 +310,7 @@ class LTPLE_Client_Settings {
 				'Live Editor Addons', 
 				'Live Editor Addons', 
 				'edit_pages',
-				'admin.php?page=live-template-editor-client&tab=addons'
+				'admin.php?page=ltple-settings&tab=addons'
 			);
 		}
 		
@@ -534,7 +534,7 @@ class LTPLE_Client_Settings {
 		
 		$settings['plans'] = array(
 			'title'					=> __( 'Plans', 'live-template-editor-client' ),
-			'description'			=> 'Default settings for products & plans',
+			'description'			=> 'Default settings for plans',
 			'fields'				=> apply_filters('ltple_plan_settings',array(				
 				array(
 					'id' 			=> 'main_image',
@@ -544,6 +544,13 @@ class LTPLE_Client_Settings {
 					'type'			=> 'text',
 					'placeholder'	=> 'https://',
 				),
+			))
+		);
+		
+		$settings['templates'] = array(
+			'title'					=> __( 'Templates', 'live-template-editor-client' ),
+			'description'			=> 'Default settings for templates',
+			'fields'				=> apply_filters('ltple_templates_settings',array(				
 				array(
 					'id' 			=> 'main_video',
 					'name' 			=> 'main_video',

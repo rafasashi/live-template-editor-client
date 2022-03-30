@@ -307,41 +307,41 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$this->parent->admin->add_meta_boxes($fields);
 				}
 			}
-			elseif( isset($this->storageTypes[$post->post_type]) || $this->is_local($post) || $this->is_default($post) ){
+			elseif( $this->is_storage($post) || $this->is_local($post) || $this->is_default($post) ){
 				
-				if( $fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type ) ){			
+				$fields = apply_filters( $post->post_type . '_custom_fields', array(), $post->post_type );
+				
+				// remove metaboxes
+				
+				if( $this->is_default($post) ){
 					
-					// remove metaboxes
+					// remove taxonomy boxes
 					
-					if( $this->is_default($post) ){
-						
-						// remove taxonomy boxes
-						
-						$layer_type = $this->get_layer_type($post);	
-						
-						if( !$this->has_html_elements($layer_type) ){
-						
-							remove_meta_box( 'element-librarydiv', 'cb-default-layer', 'side' );
-						}
-						
-						if( !$this->is_html_output($layer_type->output) || !$this->is_hosted_output($layer_type->output) ){
-												
-							remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
-							
-							remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
-							
-							remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );
-						}
-						
-						do_action('ltple_remove_layer_metaboxes',$post,$layer_type);
+					$layer_type = $this->get_layer_type($post);	
+					
+					if( !$this->has_html_elements($layer_type) ){
+					
+						remove_meta_box( 'element-librarydiv', 'cb-default-layer', 'side' );
 					}
-
-					remove_meta_box( 'tagsdiv-layer-type', $post->post_type, 'side' );
 					
-					// add metaboxes
+					if( !$this->is_html_output($layer_type->output) || !$this->is_hosted_output($layer_type->output) ){
+											
+						remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
+						
+						remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
+						
+						remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );
+					}
 					
-					$this->parent->admin->add_meta_boxes($fields);
+					do_action('ltple_remove_layer_metaboxes',$post,$layer_type);
 				}
+
+				remove_meta_box( 'tagsdiv-layer-type', $post->post_type, 'side' );
+				
+				// add metaboxes
+				
+				$this->parent->admin->add_meta_boxes($fields);
+			
 			}
 
 		});
@@ -1655,33 +1655,35 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !empty($post->ID) ){
 				
-				if( $default_id = $this->get_default_id($post->ID) ){
+				$metabox = array( 
 					
-					$metabox = array( 
-						
-						'name' 		=> 'ltple_settings',
-						'title' 	=> __( 'LTPLE Settings', 'live-template-editor-client' ), 
-						'screen'	=> array($post->post_type),
-						'context' 	=> 'advanced',
-						'frontend'	=> false,
-					);
+					'name' 		=> 'ltple_settings',
+					'title' 	=> __( 'LTPLE Settings', 'live-template-editor-client' ), 
+					'screen'	=> array($post->post_type),
+					'context' 	=> 'advanced',
+					'frontend'	=> false,
+				);		
 
-					$this->userFields[]=array(
+				$default_id = $this->get_default_id($post->ID);
+				
+				$this->userFields[]=array(
+				
+					'metabox' 		=> $metabox,
+					'type'			=> 'text',
+					'id'			=> 'defaultLayerId',
+					'label'			=> 'Default ID',
+					'placeholder'	=> '',
+					'description'	=> '',
+					'disabled'		=> true,
+					'data'			=> $default_id > 0 ? $default_id : 'Error: No default template assigned',
+				);			
+				
+				if( !empty($default_id) ){
 					
-						'metabox' 		=> $metabox,
-						'type'			=> $default_id > 0 ? 'text' : 'hidden',
-						'id'			=> 'defaultLayerId',
-						'label'			=> $default_id > 0 ? 'Default ID' : '',
-						'placeholder'	=> '',
-						'description'	=> '',
-						'disabled'		=> true,
-						'data'			=> $default_id
-					);
-						
 					$layer_type = $this->get_layer_type($post);
 					
 					if( $this->is_html_output($layer_type->output) ){
-						
+
 						$this->userFields[] = array(
 						
 							'metabox' 		=> $metabox,
@@ -1779,9 +1781,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						);
 						*/
 					}
-					
-					do_action('ltple_user_layer_fields',$post,$metabox);
 				}
+				
+				do_action('ltple_user_layer_fields',$post,$metabox);
 			}
 		}
 		

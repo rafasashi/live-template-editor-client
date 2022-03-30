@@ -134,7 +134,7 @@ class LTPLE_Client_Plan {
 			
 			// add subscription-plan
 			
-			add_filter("subscription-plan_custom_fields", array( $this, 'get_subscription_plan_fields' ));	
+			add_filter('subscription-plan_custom_fields', array( $this, 'get_subscription_plan_fields' ));	
 							
 			add_filter('manage_subscription-plan_posts_columns', array( $this, 'set_subscription_plan_columns'));
 			add_action('manage_subscription-plan_posts_custom_column', array( $this, 'add_subscription_plan_column_content'), 10, 2);

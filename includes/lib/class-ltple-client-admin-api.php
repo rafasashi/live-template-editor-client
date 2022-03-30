@@ -2551,7 +2551,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			$post_type = get_post_type( $post_id );
 
 			$fields = apply_filters( $post_type . '_custom_fields', array(), $post_type );
-
+			
 			if ( ! is_array( $fields ) || 0 == count( $fields ) ) return;
 
 			foreach ( $fields as $field ) {

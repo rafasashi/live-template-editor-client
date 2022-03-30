@@ -1435,7 +1435,7 @@ class LTPLE_Client {
 		
 		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
 			
-			if( $this->layer->type == $this->layer->layerStorage && isset($_POST['postAction'])&& $_POST['postAction']=='edit' ){
+			if( isset($_POST['postAction'])&& $_POST['postAction'] == 'edit' ){
 						
 				if( !empty($_POST['id']) ){
 					
