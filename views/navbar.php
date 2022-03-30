@@ -3,7 +3,7 @@
 	$ltple = LTPLE_Client::instance();
 
 	if( $ltple->profile->id === 0 || $ltple->user->loggedin ){
-			
+		
 		// get navbar
 		
 		if( !$ltple->inWidget ){
@@ -64,13 +64,18 @@
 					
 					if( $ltple->user->loggedin === true ){
 						
-						if(  $ltple->layer->id > 0 && isset($_GET['uri']) ){
+						// get layer
+		
+						$layer = LTPLE_Editor::instance()->get_layer($ltple->layer->id);
+													
+						if( !empty($layer) && isset($_GET['uri']) ){
 							
-							if( $ltple->layer->type != 'cb-default-layer' ){
-															
-								if( $ltple->user->has_layer && !$ltple->layer->is_media ){
 
-									if( !empty($_GET['action']) && $_GET['action'] == 'edit' && $ltple->layer->type != 'cb-default-layer' ){
+							if( $layer->post_type != 'cb-default-layer' ){
+															
+								if( $ltple->user->has_layer && !$layer->is_media ){
+
+									if( !empty($_GET['action']) && $_GET['action'] == 'edit' && $layer->post_type != 'cb-default-layer' ){
 										
 										echo'<div id="navLoader" style="margin-right:10px;display:none;"><img src="' . $ltple->assets_url . 'loader.gif" style="height: 20px;"></div>';				
 
@@ -86,27 +91,26 @@
 											
 											echo '<div class="alert alert-danger">Are you sure you want to delete this ' . $ltple->layer->get_storage_name($ltple->layer->layerStorage) . '?</div>';						
 
-											echo '<a target="_self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&postAction=delete&confirmed=self">Delete permanently</a>';
+											echo '<a target="_self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . $ltple->urls->edit . '?uri=' . $layer->ID . '&postAction=delete&confirmed=self">Delete permanently</a>';
 											
 										echo'</div>';						
 									}
 									
 									// view button 
 									
-									if( $ltple->layer->has_preview($ltple->layer->type) ){
+									if( $ltple->layer->has_preview($layer->post_type) ){
 										
-										echo '<a target="_blank" class="btn btn-sm hidden-xs" href="' . get_preview_post_link($ltple->layer->id) . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+										echo '<a target="_blank" class="btn btn-sm hidden-xs" href="' . $layer->urls['view'] . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 									}
 								}
 							}
-					
-							if( $ltple->layer->type == 'cb-default-layer' && $ltple->user->can_edit ){
+							elseif( $ltple->user->can_edit ){
 								
 								// load button
 								
-								$post_title = $ltple->layer->title;
+								$post_title = $layer->post_title;
 								
-								echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '" id="savePostForm" method="post">';
+								echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->edit . '?uri=' . $layer->ID . '" id="savePostForm" method="post">';
 									
 									echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Template Title">';
 									echo'<input type="hidden" name="postContent" id="postContent" value="">';
@@ -137,7 +141,7 @@
 								
 									// view button
 								
-									echo '<a target="_blank" class="btn btn-sm hidden-xs" href="' . get_post_permalink( $ltple->layer->id ) . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+									echo '<a target="_blank" class="btn btn-sm hidden-xs" href="' . $layer->urls['view'] . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 								}
 							}
 						}
@@ -148,7 +152,7 @@
 
 							if( $ltple->layer->defaultId > 0 ){
 								
-								if( !$ltple->layer->is_media && ( $ltple->layer->type != 'cb-default-layer' || $ltple->user->can_edit ) ){
+								if( !$layer->is_media && ( $layer->post_type != 'cb-default-layer' || $ltple->user->can_edit ) ){
 									
 									echo'<div style="margin:0 2px;" class="btn-group">';
 									
@@ -156,18 +160,18 @@
 															
 										echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
 											
-											if( $ltple->layer->layerOutput != 'image' && $ltple->layer->has_preview($ltple->layer->type) ){
+											if( $layer->output != 'image' && $ltple->layer->has_preview($layer->post_type) ){
 											
 												echo'<li style="position:relative;">';
 													
-													echo '<a target="_blank" href="' . get_preview_post_link( $ltple->layer->id ) . '"> Preview Template</a>';
+													echo '<a target="_blank" href="' . get_preview_post_link( $layer->ID ) . '"> Preview Template</a>';
 
 												echo'</li>';
 											}
 												
 											echo'<li style="position:relative;">';
 											
-												echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Template ' . ( $ltple->layer->type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
+												echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Template ' . ( $layer->post_type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
 
 												echo'<div id="duplicateLayer" title="Duplicate Template">';
 													
@@ -200,15 +204,15 @@
 												
 												echo'<li style="position:relative;">';
 													
-													echo '<a target="_blank" href="' . get_edit_post_link( $ltple->layer->id ) . '"> Edit Backend <span class="label label-warning pull-right">admin</span></a>';
+													echo '<a target="_blank" href="' . get_edit_post_link( $layer->ID ) . '"> Edit Backend <span class="label label-warning pull-right">admin</span></a>';
 
 												echo'</li>';
 												
-												if( $ltple->layer->type == 'cb-default-layer' && empty($ltple->user->layer->post_title) ){
+												if( $layer->post_type == 'cb-default-layer' && empty($ltple->user->layer->post_title) ){
 												
 													echo'<li style="position:relative;">';
 														
-														echo '<a target="_self" href="' . $ltple->urls->edit . '?uri=' . $ltple->layer->id . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
+														echo '<a target="_self" href="' . $ltple->urls->edit . '?uri=' . $layer->ID . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
 
 													echo'</li>';
 												}
