@@ -30,6 +30,53 @@ class LTPLE_Client_Update {
 			));
 			
 		} );
+		
+		add_action( 'admin_post_update', array($this,'filter_update_settings'));
+	}
+	
+	public function filter_update_settings(){
+		
+		if( !empty($_REQUEST['ltple_data']) ){
+			
+			if( !empty($_REQUEST['ltple_data']['import']) && !empty($_REQUEST['ltple_data']['key']) ){
+				
+				$source = sanitize_url($_REQUEST['ltple_data']['import']);
+				
+				$key = sanitize_text_field($_REQUEST['ltple_data']['key']);
+				
+				// import data
+				
+				$response = wp_remote_get($source);
+				
+				if ( is_array( $response ) ) {
+								
+					$data = $response['body'];
+					
+					$content_type = wp_remote_retrieve_header($response,'content-type');
+									
+					if( strpos($content_type,';') !== false ){
+					
+						$type = strtok($content_type,';');
+					}
+					else{
+						
+						$type = $content_type;
+					}		
+				}
+				
+				if( $type == 'application/json'){
+					
+					$data = json_decode($data);
+					
+					dump($data);
+				}
+			}
+			
+			$url = admin_url('admin.php?page=ltple-settings&tab=data');
+			
+			wp_redirect($url);
+			exit;
+		}
 	}
 	
 	public function update_layers($rest = NULL){

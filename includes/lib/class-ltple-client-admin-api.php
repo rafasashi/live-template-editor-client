@@ -14,11 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 			$this->parent 	= $parent;
 			
-			add_action( 'save_post', array( $this, 'save_meta_boxes' ), 10, 1 );
+			add_action('save_post', array( $this, 'save_meta_boxes' ), 10, 1 );
 			
 			add_shortcode('ltple-client-admin', array( $this , 'get_admin_frontend' ) );
 						
-			do_action( 'updated_option', array( $this, 'settings_updated' ), 10, 3 );
+			do_action('updated_option', array( $this, 'settings_updated' ), 10, 3 );
 		}
 		
 		public function get_admin_frontend(){
@@ -148,7 +148,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					}
 					
 				break;
-				
+
 				case 'file':
 				
 					$html .= wp_nonce_field( $this->parent->file, $id . '_nonce',true,false);

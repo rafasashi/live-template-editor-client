@@ -48,16 +48,15 @@ class LTPLE_Client_Settings {
 
 		$this->options->social_icon = $this->get_default_social_icon();
 		
-		$this->titleBkg = get_option( $this->parent->_base . 'titleBkg', '' );
-		
 		$this->options->enable_ranking 	= get_option( $this->parent->_base . 'enable_ranking', 'off' );
-		
+
 		// get custom style
 		
 		$this->navbarColor 	= get_option( $this->parent->_base . 'navbarColor', '#182f42' );
 		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor', '#506988' );
 		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor', '#506988' );	
-
+		$this->titleBkg 	= get_option( $this->parent->_base . 'titleBkg', '' );
+		
 		// Register plugin settings
 		
 		add_action( 'admin_init' , array( $this, 'init_tabs' ) );
@@ -605,30 +604,28 @@ class LTPLE_Client_Settings {
 			}
 		}
 		
-		$settings['tax'] = array(
-			'title'					=> __( 'Tax', 'live-template-editor-client' ),
-			'description'			=> __( 'Setting up the tax system', 'live-template-editor-client' ),
-			'fields'				=> apply_filters('ltple_tax_settings',array(
+		$settings['data'] = array(
+			'title'					=> __( 'Data', 'live-template-editor-client' ),
+			'description'			=> __( 'Import, export & update remote data', 'live-template-editor-client' ),
+			'fields'				=> apply_filters('ltple_data_settings',array(
+			
 				array(
-					'id' 			=> 'enable_taxes',
-					'label'			=> __( 'Enable Taxes' , 'live-template-editor-client' ),
-					'description'	=> '',
-					'type'			=> 'switch',
+					'id' 			=> 'data[import]',
+					'label'			=> __( 'Import' , 'live-template-editor-client' ),
+					'placeholder'	=> 'https://',
+					'type'			=> 'url',
 				),
 				array(
-					'id' 			=> 'vat_rate',
-					'label'			=> __( 'VAT %' , 'live-template-editor-client' ),
-					'description'	=> '',
-					'type'			=> 'number',
-					'style'			=> 'width:50px;'
+					'id' 			=> 'data[key]',
+					'placeholder'	=> 'decryption key',
+					'type'			=> 'text',
+				),
+				array(
+					'id'	=> 'import',
+					'type'	=> 'submit',
+					'data'	=> 'Import',
 				),
 			)),
-		);
-		
-		$settings['importer'] = array(
-			'title'					=> __( 'Importer', 'live-template-editor-client' ),
-			'description'			=> __( 'Importer & update remote data', 'live-template-editor-client' ),
-			'fields'				=> apply_filters('ltple_importer_settings',array()),
 		);
 	
 		return $settings;
@@ -809,7 +806,7 @@ class LTPLE_Client_Settings {
 		$html = '<p> ' . $this->settings[ $section['id'] ]['description'] . '</p>' . "\n";
 		echo $html;
 	}
-
+	
 	/**
 	 * Load settings page content
 	 * @return void
@@ -825,9 +822,9 @@ class LTPLE_Client_Settings {
 			$tab = '';
 			if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {
 				
-				$tab .= $_GET['tab'];
+				$tab .= sanitize_title($_GET['tab']);
 			}
-
+			dump($tab);
 			// Show page tabs
 			if ( is_array( $this->settings ) && 1 < count( $this->settings ) ) {
 
@@ -877,7 +874,7 @@ class LTPLE_Client_Settings {
 			
 			$html .= '<div class="col-xs-12 col-md-9">' . "\n";
 
-				$html .= '<form style="margin:15px;" method="post" action="options.php" enctype="multipart/form-data">' . "\n";
+				$html .= '<form style="margin:15px;" method="post" action="'.( $tab == 'data' ? '' : 'options.php' ).'" enctype="multipart/form-data">' . "\n";
 
 					// Get settings fields
 					

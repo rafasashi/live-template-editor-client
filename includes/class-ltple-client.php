@@ -161,7 +161,6 @@ class LTPLE_Client {
 		$this->api 		= new LTPLE_Client_Json_API( $this );
 		$this->server 	= new LTPLE_Client_Server( $this );
 		
-		$this->tax 		= new LTPLE_Client_Tax( $this );
 		$this->checkout = new LTPLE_Client_Checkout( $this );
 		
 		$this->dashboard = new LTPLE_Client_Dashboard( $this );
@@ -197,6 +196,8 @@ class LTPLE_Client {
 		$this->profile 	= new LTPLE_Client_Profile( $this );
 		
 		$this->extension = new LTPLE_Client_Extension( $this );
+					
+		$this->update = new LTPLE_Client_Update( $this );
 		
 		if( is_admin() ) {		
 		
@@ -461,7 +462,7 @@ class LTPLE_Client {
 			}
 			
 			$this->user->loggedin = is_user_logged_in();		
-
+			
 			if( $this->user->loggedin ){
 
 				// get is admin
@@ -550,8 +551,6 @@ class LTPLE_Client {
 				}			
 			
 				do_action('ltple_user_loaded');
-				
-				$this->update = new LTPLE_Client_Update( $this );
 			}
 			else{
 
