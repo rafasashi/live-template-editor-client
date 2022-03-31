@@ -2866,16 +2866,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			foreach( $posts as $i => $post ){
 				
 				$layer_type = $this->get_layer_type($post);
-
-				$row = [];
 				
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
-				$row['name'] 		= ucfirst($post->post_title);
-				$row['type'] 		= $layer_type->name;
-				$row['status'] 		= $this->parse_layer_status($post->post_status);
-				$row['action'] 		= $this->get_action_buttons($post,$layer_type);
+				if( !empty($layer_type->name) ){
 				
-				$page_rows[] = $row;
+					$row = [];
+				
+					$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
+					$row['name'] 		= ucfirst($post->post_title);
+					$row['type'] 		= $layer_type->name;
+					$row['status'] 		= $this->parse_layer_status($post->post_status);
+					$row['action'] 		= $this->get_action_buttons($post,$layer_type);
+					
+					$page_rows[] = $row;
+				}
 			}
 		}
 		

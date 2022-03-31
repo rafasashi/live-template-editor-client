@@ -21,7 +21,15 @@ class LTPLE_Client_Update {
 				'callback' 	=> array($this,'update_layers'),
 				'permission_callback' => '__return_true',
 			) );
-		} );		
+			
+			register_rest_route( 'rew-export/v1', '/post_type/(?P<type>[\S]+)/(?P<key>[\S]+)', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'export_post_type'),
+				'permission_callback' => '__return_true',
+			));
+			
+		} );
 	}
 	
 	public function update_layers($rest = NULL){
@@ -54,6 +62,65 @@ class LTPLE_Client_Update {
 		
 		return $layers;
 	}
+	
+	public function export_post_type($rest=null){
+		
+		//$referer = $rest->get_header('referer');
+		
+		$type = sanitize_title($rest['type']);
+		$key = sanitize_title($rest['key']);
+		
+		$export = array();
+		
+		if( $post_type = get_post_type_object($type) ){
+			
+			if( $posts = get_posts(array(
+			
+				'post_type'		=> $post_type->name,
+				'numberposts'	=> 1000,
+			
+			))){
+				
+				$taxonomies = get_object_taxonomies($post_type->name);
+	
+				foreach( $posts as $post ){
+					
+					$post_id = $post->ID;
+					
+					$export['posts'][$post_id] = $post;
+					
+					if( !isset($export['posts_meta'][$post_id]) ){
+						
+						$export['posts_meta'][$post_id] = get_post_meta($post_id);
+					}
+					
+					if( !empty($taxonomies) ){
+					
+						foreach( $taxonomies as $taxonomy ){
+						
+							if( $terms = wp_get_post_terms($post_id,$taxonomy) ){
+								
+								foreach( $terms as $term ){
+									
+									$term_id = $term->term_id;
+									
+									$terms['terms'][$term_id] = $term;
+									
+									if( !isset($export['terms_meta'][$term_id]) ){
+									
+										$export['terms_meta'][$term_id] = get_term_meta($term_id);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return array( 'data' => $this->parent->ltple_encrypt_str(json_encode($export),$key) );
+	}
+	
 	
 	/**
 	 * Main LTPLE_Client_Update Instance
