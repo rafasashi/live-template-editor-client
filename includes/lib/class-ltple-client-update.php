@@ -66,7 +66,20 @@ class LTPLE_Client_Update {
 				
 				if( $type == 'application/json'){
 					
-					$data = json_decode($data);
+					$data = json_decode($data,true);
+					
+					if( isset($data['data']) ){
+						
+						if( $data = $this->parent->ltple_decrypt_str($data['data'],$key) ){
+							
+							$data = json_decode($data,true);
+							
+							if( !empty($data['terms']) ){
+								
+								dump($data['terms']);
+							}
+						}
+					}
 					
 					dump($data);
 				}
@@ -151,7 +164,7 @@ class LTPLE_Client_Update {
 									
 									$term_id = $term->term_id;
 									
-									$terms['terms'][$term_id] = $term;
+									$export['terms'][$term_id] = $term;
 									
 									if( !isset($export['terms_meta'][$term_id]) ){
 									
