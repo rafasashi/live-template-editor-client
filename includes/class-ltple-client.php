@@ -1055,16 +1055,25 @@ class LTPLE_Client {
 			$post = get_post();
 		}
 		
-		if( !empty($post) ){
-		
-			$service_name = get_bloginfo('name');
-		
-			$site_name = apply_filters('ltple_site_name',$service_name);
-		
-			// output default meta tags
+		$service_name = get_bloginfo('name');
+	
+		$site_name = apply_filters('ltple_site_name',$service_name);
+
+		if( !empty($post->post_title) ){
 			
-			$title = apply_filters('ltple_header_title',ucfirst($post->post_title));
+			$title = ucfirst($post->post_title);
+		}
+		else{
+			
+			$title = $site_name;
+		}
 		
+		$title = apply_filters('ltple_header_title',$title);
+		
+		if( !empty($title) ){
+
+			// output default meta tags
+
 			echo '<title>' . $title .  ' • ' . $site_name . '</title>'.PHP_EOL;
 			
 			echo '<meta property="og:site_name" content="' . $site_name . '" />'.PHP_EOL;
@@ -1072,7 +1081,10 @@ class LTPLE_Client {
 			echo '<meta name="subject" content="'.$title.'" />'.PHP_EOL;
 			echo '<meta property="og:title" content="'.$title.'" />'.PHP_EOL;
 			echo '<meta name="twitter:title" content="'.$title.'" />'.PHP_EOL;
-			
+		}
+		
+		if( !empty($post->post_author) ){
+
 			$author_name = get_the_author_meta('display_name', $post->post_author );
 			$author_mail = get_the_author_meta('user_email', $post->post_author );
 			
@@ -1080,114 +1092,124 @@ class LTPLE_Client {
 			echo '<meta name="creator" content="'.$author_name.', '.$author_mail.'" />' . PHP_EOL;
 			echo '<meta name="owner" content="' . $author_name . '" />' . PHP_EOL;
 			echo '<meta name="reply-to" content="'.$author_mail.'" />' . PHP_EOL;
-			
-			$locale = get_locale();
+		}
+		
+		if( $locale = get_locale() ){
 			
 			echo '<meta name="language" content="' . $locale . '" />'.PHP_EOL;
+		}
+		
+		$robots = 'index,follow';
 			
-			$robots = 'index,follow';
+		echo '<meta name="robots" content="'.$robots.'" />' . PHP_EOL;
 			
-			echo '<meta name="robots" content="'.$robots.'" />' . PHP_EOL;
+		if( !empty($post->post_date) ){
 			
 			$revised = $post->post_date;
 			
 			echo '<meta name="revised" content="' . $revised . '" />' . PHP_EOL;
+		}
+		
+		//get description
+		
+		if( !empty($post->post_excerpt) ){
 			
-			//get description
+			$content = ucfirst($post->post_excerpt);
+		}
+		elseif( !empty($post->post_content) ){
 			
-			if( !empty($post->post_excerpt) ){
-				
-				$content = ucfirst($post->post_excerpt);
-			}
-			elseif( !empty($post->post_content) ){
-				
-				$content = ucfirst($post->post_content);
-			}
-			else{
-				
-				$content = ucfirst($post->post_title);
-			}
+			$content = ucfirst($post->post_content);
+		}
+		elseif( !empty($post->post_title) ){
 			
-			//normalize description
+			$content = ucfirst($post->post_title);
+		}
+		else{
 			
-			$content = strip_tags(strip_shortcodes($content));
-			$content = preg_replace( '/\r|\n/', '', $content);
-			$content = preg_replace('/\s+/', ' ',$content);
-			
-			//shorten description
-			
-			$length = 35;
-			
-			$words = explode(' ', $content, $length + 1);
+			$content = $title;
+		}
+		
+		//normalize description
+		
+		$content = strip_tags(strip_shortcodes($content));
+		$content = preg_replace( '/\r|\n/', '', $content);
+		$content = preg_replace('/\s+/', ' ',$content);
+		
+		//shorten description
+		
+		$length = 35;
+		
+		$words = explode(' ', $content, $length + 1);
 
-			if(count($words) > $length) :
+		if(count($words) > $length) :
+		
+			array_pop($words);
+			array_push($words, '…');
 			
-				array_pop($words);
-				array_push($words, '…');
-				
-				$content = implode(' ', $words);
-				
-			endif;
+			$content = implode(' ', $words);
 			
-			echo '<meta name="description" content="'.$content.'" />'.PHP_EOL;
-			echo '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
-			echo '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
-			echo '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
-			echo '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
-			
-			echo '<meta name="classification" content="Business" />' . PHP_EOL;
-			//echo '<meta name="classification" content="products, product classifications, company classification, company type, industry" />' . PHP_EOL;
-			
-			echo '<meta name="copyright" content="'.$site_name.'" />'.PHP_EOL;
-			echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
-			
-			if( !empty($post->ID) ){
-			
-				$canonical_url = get_permalink( $post->ID );
+		endif;
+		
+		echo '<meta name="description" content="'.$content.'" />'.PHP_EOL;
+		echo '<meta name="abstract" content="'.$content.'" />' . PHP_EOL;
+		echo '<meta name="summary" content="'.$content.'" />' . PHP_EOL;
+		echo '<meta property="og:description" content="'.$content.'" />' . PHP_EOL;
+		echo '<meta name="twitter:description" content="'.$content.'" />'.PHP_EOL;
+		
+		echo '<meta name="classification" content="Business" />' . PHP_EOL;
+		//echo '<meta name="classification" content="products, product classifications, company classification, company type, industry" />' . PHP_EOL;
+		
+		echo '<meta name="copyright" content="'.$site_name.'" />'.PHP_EOL;
+		echo '<meta name="designer" content="'.$service_name.' team" />' . PHP_EOL;
+		
+		if( !empty($post->ID) ){
+		
+			$canonical_url = get_permalink( $post->ID );
 
-				echo '<meta name="url" content="' . $canonical_url . '" />' . PHP_EOL;
-				echo '<meta name="canonical" content="'.$canonical_url.'" />' . PHP_EOL;
-				echo '<meta name="original-source" content="'.$canonical_url.'" />' . PHP_EOL;
-				echo '<link rel="original-source" href="'.$canonical_url.'" />' . PHP_EOL;
-				echo '<meta property="og:url" content="'.$canonical_url.'" />' . PHP_EOL;
-				echo '<meta name="twitter:url" content="'.$canonical_url.'" />' . PHP_EOL;
-			}
-			
-			echo '<meta name="rating" content="General" />' . PHP_EOL;
-			echo '<meta name="directory" content="submission" />' . PHP_EOL;
-			echo '<meta name="coverage" content="Worldwide" />' . PHP_EOL;
-			echo '<meta name="distribution" content="Global" />' . PHP_EOL;
-			echo '<meta name="target" content="all" />' . PHP_EOL;
-			
-			$og_type = apply_filters('ltple_meta_og_type','article',$post);
-			
+			echo '<meta name="url" content="' . $canonical_url . '" />' . PHP_EOL;
+			echo '<meta name="canonical" content="'.$canonical_url.'" />' . PHP_EOL;
+			echo '<meta name="original-source" content="'.$canonical_url.'" />' . PHP_EOL;
+			echo '<link rel="original-source" href="'.$canonical_url.'" />' . PHP_EOL;
+			echo '<meta property="og:url" content="'.$canonical_url.'" />' . PHP_EOL;
+			echo '<meta name="twitter:url" content="'.$canonical_url.'" />' . PHP_EOL;
+		}
+		
+		echo '<meta name="rating" content="General" />' . PHP_EOL;
+		echo '<meta name="directory" content="submission" />' . PHP_EOL;
+		echo '<meta name="coverage" content="Worldwide" />' . PHP_EOL;
+		echo '<meta name="distribution" content="Global" />' . PHP_EOL;
+		echo '<meta name="target" content="all" />' . PHP_EOL;
+		
+		if( $og_type = apply_filters('ltple_meta_og_type','article',$post) ){
+		
 			if( $og_type == 'article' ){
 				
 				echo '<meta name="medium" content="blog" />' . PHP_EOL;
 			}
 			
 			echo '<meta property="og:type" content="'.$og_type.'" />' . PHP_EOL;
-			
-			$twitter_card = 'summary';
-			
-			if( $thumb_id = get_post_thumbnail_id($post) ){
-				
-				$twitter_card = 'summary_large_image';
-				$image = wp_get_attachment_image_src( $thumb_id, 'full', false );
-				
-				echo '<meta property="og:image" content="'.$image[0].'" />' . PHP_EOL;
-				echo '<meta property="og:image:width" content="'.$image[1].'" />' . PHP_EOL;
-				echo '<meta property="og:image:height" content="'.$image[2].'" />' . PHP_EOL;
-			
-				echo '<meta property="twitter:image" content="'.$image[0].'" />' . PHP_EOL;
-				echo '<meta property="twitter:image:width" content="'.$image[1].'" />' . PHP_EOL;
-				echo '<meta property="twitter:image:height" content="'.$image[2].'" />' . PHP_EOL;			
-			}
-			
-			echo '<meta name="twitter:card" content="'.$twitter_card.'" />' . PHP_EOL;
-		
-			// TODO application/ld+json
 		}
+		
+		$twitter_card = 'summary';
+		
+		if( $thumb_id = get_post_thumbnail_id($post) ){
+			
+			$twitter_card = 'summary_large_image';
+			$image = wp_get_attachment_image_src( $thumb_id, 'full', false );
+			
+			echo '<meta property="og:image" content="'.$image[0].'" />' . PHP_EOL;
+			echo '<meta property="og:image:width" content="'.$image[1].'" />' . PHP_EOL;
+			echo '<meta property="og:image:height" content="'.$image[2].'" />' . PHP_EOL;
+		
+			echo '<meta property="twitter:image" content="'.$image[0].'" />' . PHP_EOL;
+			echo '<meta property="twitter:image:width" content="'.$image[1].'" />' . PHP_EOL;
+			echo '<meta property="twitter:image:height" content="'.$image[2].'" />' . PHP_EOL;			
+		}
+		
+		echo '<meta name="twitter:card" content="'.$twitter_card.'" />' . PHP_EOL;
+	
+		// TODO application/ld+json
+	
 	}
 	
 	public function get_menu( $items, $args ){

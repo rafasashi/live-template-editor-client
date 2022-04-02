@@ -588,22 +588,23 @@ class LTPLE_Client_Profile {
 					$post = get_page_by_path( 'profile', OBJECT, 'page' );
 				}
 				
-				$this->post = apply_filters('ltple_post',$post);
-				
-				// get post content
-				
-				if( $this->post->post_type == 'page' ){
+				if( $this->post = apply_filters('ltple_post',$post) ){
 					
-					$post->post_content = apply_filters('ltple_profile_page_description',$this->get_profile_description());
+					// get post content
+					
+					if( $this->post->post_type == 'page' ){
+						
+						$post->post_content = apply_filters('ltple_profile_page_description',$this->get_profile_description());
+					}
+					elseif( $this->parent->layer->is_hosted($this->post->post_type) ){
+					
+						$this->post->post_content = $this->parent->layer->get_layer_description($this->post->ID);
+					}
+					
+					// get post excerpt
+					
+					$this->post->post_excerpt = $this->post->post_content;
 				}
-				elseif( $this->parent->layer->is_hosted($this->post->post_type) ){
-				
-					$this->post->post_content = $this->parent->layer->get_layer_description($this->post->ID);
-				}
-				
-				// get post excerpt
-				
-				$this->post->post_excerpt = $this->post->post_content;
 			}
 		}
 		

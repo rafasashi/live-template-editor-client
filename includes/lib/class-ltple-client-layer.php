@@ -2172,6 +2172,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->cssLibraries = $this->get_terms( 'css-library', array(
 			
+			/*
 			'jquery-ui-1-12-1' => array(
 			
 				'name' 		=> 'Jquery UI 1.12.1',
@@ -2220,6 +2221,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'css_content' => '',
 				),
 			),
+			*/
 			/*
 			'elementor-2-2-7' => array(
 			
@@ -5477,13 +5479,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						if( !empty($content) ){
 							
-							// remove current attachement
+							// remove current attachment
 							
-							$css_attachement = get_post($attach_id);
+							$css_attachment = get_post($attach_id);
 							
-							if(!empty($css_attachement)){
+							if(!empty($css_attachment)){
 								
-								wp_delete_attachment( $css_attachement->ID, true );
+								wp_delete_attachment( $css_attachment->ID, true );
 							}				
 						
 							// add style to media
@@ -5582,13 +5584,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( !empty($content) ){
 						
-						// remove current attachement
+						// remove current attachment
 						
-						$js_attachement = get_post($attach_id);
+						$js_attachment = get_post($attach_id);
 						
-						if(!empty($js_attachement)){
+						if(!empty($js_attachment)){
 							
-							wp_delete_attachment( $js_attachement->ID, true );
+							wp_delete_attachment( $js_attachment->ID, true );
 						}				
 					
 						// add style to media
@@ -5708,13 +5710,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						if( !empty($content) && !empty($ext) ){
 							
-							// remove current attachement
+							// remove current attachment
 							
-							$font_attachement = get_post($attach_id);
+							$font_attachment = get_post($attach_id);
 							
-							if( !empty($font_attachement) ){
+							if( !empty($font_attachment) ){
 								
-								wp_delete_attachment( $font_attachement->ID, true );
+								wp_delete_attachment( $font_attachment->ID, true );
 							}				
 						
 							// add style to media

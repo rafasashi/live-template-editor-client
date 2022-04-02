@@ -74,20 +74,100 @@ class LTPLE_Client_Update {
 							
 							$data = json_decode($data,true);
 							
+							$prefix = !empty($data['prefix']) ? $data['prefix'] : 'himl_';
+							
 							if( !empty($data['terms']) ){
+								
+								$ids = array();
+								$level = 0;
+								
+								while( $level < 3 ){
+									
+									++$level;
+									
+									if( empty($data['terms']) ) break;
+									
+									foreach( $data['terms'] as $i => $term ){
+											
+										$exid 	= $term['term_id'];
+										$uuid 	= $prefix . $exid;
+										$slug 	= $uuid . '-' . $term['slug'];
+										$taxo 	= $term['taxonomy'];
+											
+										// get parent id
+										
+										$parent = null;
+										
+										if( $term['parent'] == 0 ){
+											
+											$parent = $term['parent'];
+										}
+										elseif( isset($ids[$exid]) ){
+											
+											$parent = $ids[$exid];
+										}
+										
+										if( !is_null($parent) ){
+
+											if( $t = get_term_by('slug',$slug,$taxo) ){
+												
+												$term_id = $t->term_id;
+											}
+											else{
+												
+												// insert term
+												
+												$t = wp_insert_term(
+													
+													$term['name'],
+													$taxo,
+													array(
+														
+														'alias_of' 		=> $term['term_group'],
+														'description' 	=> $term['description'],
+														'parent' 		=> $parent,
+														'slug' 			=> $slug,
+													),
+												);
+												
+												if( !is_wp_error($t) ){
+													
+													$term_id = $t['term_id'];
+												
+													if( !empty($data['terms_meta'][$exid]) ){
+														
+														foreach( $data['terms_meta'][$exid] as $key => $meta ){
+															
+															update_term_meta($term_id,$key,maybe_unserialize($meta[0]));
+														}
+													}
+												}
+												else{
+													
+													dump($t);
+												}
+											}
+											
+											$ids[$exid] = $term_id;
+											
+											unset($data['terms'][$i]);
+										}
+									}
+								}
 								
 								dump($data['terms']);
 							}
 						}
 					}
 					
-					dump($data);
+					
 				}
 			}
 			
 			$url = admin_url('admin.php?page=ltple-settings&tab=data');
 			
-			wp_redirect($url);
+			//wp_redirect($url);
+			die('redirecting to: ' . $url);
 			exit;
 		}
 	}
@@ -130,7 +210,12 @@ class LTPLE_Client_Update {
 		$type = sanitize_title($rest['type']);
 		$key = sanitize_title($rest['key']);
 		
-		$export = array();
+		global $wpdb;
+		
+		$export = array(
+		
+			'prefix' => $wpdb->prefix,
+		);
 		
 		if( $post_type = get_post_type_object($type) ){
 			
@@ -157,18 +242,58 @@ class LTPLE_Client_Update {
 					if( !empty($taxonomies) ){
 					
 						foreach( $taxonomies as $taxonomy ){
-						
+							
 							if( $terms = wp_get_post_terms($post_id,$taxonomy) ){
 								
+								$all_terms = $terms;
+								
 								foreach( $terms as $term ){
+									
+									if( $term->parent > 0 ){
+										
+										if( $ancestors = get_ancestors($term->term_id,$term->taxonomy,'taxonomy')){
+											
+											$ancestors = get_terms(array(
+											
+												'taxonomy' 		=> $term->taxonomy,
+												'hide_empty' 	=> false,
+												'include'		=> $ancestors,
+											
+											));
+											
+											if( !is_wp_error($ancestors) && !empty($ancestors) ){
+												
+												$all_terms = array_merge($all_terms,$ancestors);
+											}
+										}
+									}
+								}
+								
+								foreach( $all_terms as $term ){
 									
 									$term_id = $term->term_id;
 									
 									$export['terms'][$term_id] = $term;
 									
 									if( !isset($export['terms_meta'][$term_id]) ){
-									
-										$export['terms_meta'][$term_id] = get_term_meta($term_id);
+										
+										$meta = get_term_meta($term_id);
+										
+										foreach( $meta as $k => $m ){
+											
+											if( in_array($k,array(
+											
+												'font_attachment',
+												'css_attachment',
+												'js_attachment',
+											
+											)) ){
+												
+												unset($meta[$k]);
+											}
+										}
+										
+										$export['terms_meta'][$term_id] = $meta;
 									}
 								}
 							}
