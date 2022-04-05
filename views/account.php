@@ -138,12 +138,6 @@
 											echo '<hr>';
 										}
 										
-										echo '<div style="margin-bottom:20px;background: rgb(248, 248, 248);display:block;padding:20px;text-align:left;border-left: 5px solid #888;">';
-												
-											echo'<b>Price</b>: ' . $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].' / '.$user_plan['info']['total_price_period'] . '<br/>';
-												
-										echo '</div>';
-										
 										echo $this->parent->plan->get_plan_table($user_plan,$plan_usage);
 									}
 								}
