@@ -22,7 +22,7 @@ class LTPLE_Client_Update {
 				'permission_callback' => '__return_true',
 			) );
 			
-			register_rest_route( 'rew-export/v1', '/post_type/(?P<type>[\S]+)/(?P<key>[\S]+)', array(
+			register_rest_route( 'ltple-export/v1', '/post_type/(?P<type>[\S]+)/(?P<key>[\S]+)', array(
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'export_post_type'),
@@ -76,9 +76,10 @@ class LTPLE_Client_Update {
 							
 							$prefix = !empty($data['prefix']) ? $data['prefix'] : 'himl_';
 							
+							$ids = array();
+							
 							if( !empty($data['terms']) ){
 								
-								$ids = array();
 								$level = 0;
 								
 								while( $level < 3 ){
@@ -102,9 +103,9 @@ class LTPLE_Client_Update {
 											
 											$parent = $term['parent'];
 										}
-										elseif( isset($ids[$exid]) ){
-											
-											$parent = $ids[$exid];
+										elseif( isset($ids['terms'][$term['parent']]) ){
+												
+											$parent = $ids['terms'][$term['parent']];
 										}
 										
 										if( !is_null($parent) ){
@@ -148,19 +149,96 @@ class LTPLE_Client_Update {
 												}
 											}
 											
-											$ids[$exid] = $term_id;
+											$ids['terms'][$exid] = $term_id;
 											
 											unset($data['terms'][$i]);
 										}
 									}
 								}
+							}
+							
+							if( !empty($data['posts']) ){
 								
-								dump($data['terms']);
+								$level = 0;
+								
+								while( $level < 3 ){
+									
+									++$level;
+									
+									if( empty($data['posts']) ) break;
+									
+									foreach( $data['posts'] as $i => $post ){
+										
+										$exid 	= $post['ID'];
+										$uuid 	= $prefix . $exid;
+										$slug 	= $uuid . '-' . $post['post_name'];
+										$type 	= $post['post_type'];
+											
+										// get parent id
+										
+										$parent = null;
+										
+										if( $post['post_parent'] == 0 ){
+											
+											$parent = $post['post_parent'];
+										}
+										elseif( isset($ids['posts'][$post['post_parent']]) ){
+												
+											$parent = $ids['posts'][$post['post_parent']];
+										}
+										
+										if( !is_null($parent) ){
+											
+											$q = new WP_Query([
+											
+												'post_type' => $type,
+												'name' 		=> $slug
+											]);
+
+											$p = $q->have_posts() ? reset($q->posts) : null;
+											
+											if( !empty($p) ){
+												
+												$post_id = $p->ID;
+											}
+											else{
+												
+												// insert post
+												
+												unset($post['ID'],$post['post_author']);
+												
+												$post['post_name'] 		= $slug;
+												$post['post_parent'] 	= $parent;
+												
+												$post_id = wp_insert_post($post);
+												
+												if( !is_wp_error($post_id) ){
+													
+													if( !empty($data['posts_meta'][$exid]) ){
+														
+														foreach( $data['posts_meta'][$exid] as $key => $meta ){
+															
+															update_post_meta($post_id,$key,maybe_unserialize($meta[0]));
+														}
+													}
+												}
+												else{
+													
+													dump($post_id);
+												}
+											}
+											
+											//dump($data);
+											
+											$ids['posts'][$exid] = $post_id;
+											
+											unset($data['posts'][$i]);
+										}
+									}
+								}
 							}
 						}
 					}
-					
-					
 				}
 			}
 			
@@ -272,6 +350,8 @@ class LTPLE_Client_Update {
 								foreach( $all_terms as $term ){
 									
 									$term_id = $term->term_id;
+									
+									$export['posts_terms'][$post_id][] = $term_id;
 									
 									$export['terms'][$term_id] = $term;
 									
