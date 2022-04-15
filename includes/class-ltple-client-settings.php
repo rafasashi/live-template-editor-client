@@ -614,11 +614,13 @@ class LTPLE_Client_Settings {
 					'label'			=> __( 'Import' , 'live-template-editor-client' ),
 					'placeholder'	=> 'https://',
 					'type'			=> 'url',
+					'description'	=> '.../api/ltple-export/v1/post_type/{post_type}/{key}',
 				),
 				array(
 					'id' 			=> 'data[key]',
 					'placeholder'	=> 'decryption key',
 					'type'			=> 'text',
+					'description'	=> 'key used in the export url',
 				),
 				array(
 					'id'	=> 'import',

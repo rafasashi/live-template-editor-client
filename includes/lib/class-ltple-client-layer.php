@@ -5423,11 +5423,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$styleClass = !empty($styleName) ? '.' . $styleName : '';
 					
-					$css_content = $_POST['css_content'];
+					$css_content_input = $_POST['css_content']; // sanitize input
 					
 					if( $css_parse == 'on' ){
 						
-						$css_content = $this->parse_css_content($css_content, $styleClass);
+						$css_content = $this->parse_css_content($css_content_input, $styleClass);
+					}
+					else{
+						
+						$css_content = $css_content_input;
 					}
 					
 					$attach_id = get_term_meta($term->term_id, 'css_attachment', true);
@@ -5439,12 +5443,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					if( $css_md5 != $md5 ){
 						
 						$content = '';
-
+						$mime = 'text/css';
+						
 						if( !empty($css_url) ){
 							
 							$response = wp_remote_get($css_url);
-							$mime = 'text/css';
-							
+
 							if ( is_array( $response ) ) {
 								
 								$body = $response['body'];
@@ -5477,7 +5481,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$content .= $css_content;
 						
-						if( !empty($content) ){
+						if( !empty($mime) && !empty($content) ){
 							
 							// remove current attachment
 							
@@ -5530,7 +5534,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 								update_term_meta($term->term_id,'css_url',$css_url);			
 
-								update_term_meta($term->term_id,'css_content',$css_content);			
+								update_term_meta($term->term_id,'css_content',$css_content_input);			
 							
 								update_term_meta($term->term_id,'css_parse', $css_parse);
 								

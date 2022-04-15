@@ -228,7 +228,29 @@ class LTPLE_Client_Update {
 												}
 											}
 											
-											//dump($data);
+											if( !empty($data['posts_terms'][$exid]) ){
+												
+												$terms = array();
+												
+												foreach( $data['posts_terms'][$exid] as $term_id ){
+													
+													if( isset($ids['terms'][$term_id]) ){
+														
+														if( $term = get_term($ids['terms'][$term_id]) ){
+													
+															$terms[$term->taxonomy][] = $ids['terms'][$term_id];
+														}
+													}
+												}
+												
+												if(!empty($terms)){
+													
+													foreach ( $terms as $taxonomy => $term_ids ) {
+														
+														wp_set_post_terms( $post_id, $term_ids, $taxonomy, true );
+													}
+												}
+											}
 											
 											$ids['posts'][$exid] = $post_id;
 											
@@ -244,7 +266,7 @@ class LTPLE_Client_Update {
 			
 			$url = admin_url('admin.php?page=ltple-settings&tab=data');
 			
-			//wp_redirect($url);
+			wp_redirect($url);
 			die('redirecting to: ' . $url);
 			exit;
 		}
@@ -287,6 +309,15 @@ class LTPLE_Client_Update {
 		
 		$type = sanitize_title($rest['type']);
 		$key = sanitize_title($rest['key']);
+		
+		if( !in_array($type,array(
+		
+			'default-element',
+			
+		)) ){
+			
+			return 'restricted type: ' . $type;
+		}
 		
 		global $wpdb;
 		
