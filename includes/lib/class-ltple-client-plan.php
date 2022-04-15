@@ -2216,13 +2216,16 @@ class LTPLE_Client_Plan {
 					
 					$project->type = $this->parent->layer->get_layer_type($project);
 					
-					if( !isset($this->user_usage[$user_id][$project->type->name]) ){
-						
-						$this->user_usage[$user_id][$project->type->name] = 1;
-					}
-					else{
-						
-						++$this->user_usage[$user_id][$project->type->name];
+					if( !empty($project->type->name) ){
+					
+						if( !isset($this->user_usage[$user_id][$project->type->name]) ){
+							
+							$this->user_usage[$user_id][$project->type->name] = 1;
+						}
+						else{
+							
+							++$this->user_usage[$user_id][$project->type->name];
+						}
 					}
 				}
 			}
