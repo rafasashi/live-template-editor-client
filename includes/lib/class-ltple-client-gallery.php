@@ -629,7 +629,7 @@ class LTPLE_Client_Gallery {
 								
 								$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_parent" title="Start editing this template">Start</a>';
 							}
-							elseif( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+							elseif( empty($this->parent->user->ID) || ( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
 								
 								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 							

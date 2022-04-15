@@ -3501,6 +3501,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $content;
 	}
 	
+	public function parse_font_content($content,$font_url=null){
+		
+		if( !empty($font_url) ){
+			
+			$url = parse_url($font_url);
+			
+			$content = str_replace( array(
+				
+				'url(../',
+				'url (../',
+			
+			),'url('.$url['scheme'].'://'.$url['host'].dirname($url['path'],2).'/',$content);
+		}
+		
+		return $content;
+	}
+	
 	public function get_layer_js($layer_id){
 		
 		return apply_filters('ltple_layer_js',get_post_meta( $layer_id, 'layerJs', true ),$layer_id,$this->is_default($layer_id));
@@ -3725,8 +3742,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$googleFonts = array_merge( $googleFonts, explode('|',$match[1]));
 					}
 					elseif( $font_url = $this->get_font_parsed_url($term) ){
-					
-						$fontsLibraries[$font_url] = $this->get_font_family($term);
+						
+						if( pathinfo(parse_url($font_url,PHP_URL_PATH),PATHINFO_EXTENSION) == 'css' ){
+							
+							$type = 'css';
+						}
+						else{
+							
+							$type = 'web';
+						}
+						
+						$fontsLibraries[$type][$font_url] = $this->get_font_family($term);
 					}		
 				}
 			}
@@ -3741,19 +3767,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !empty($googleFonts) ){
 		
-			$head .= '<link href="//fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
+			$head .= '<link href="//fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />' . PHP_EOL;
 		}
 		
-		if( !empty($fontsLibraries) ){
+		if( !empty($fontsLibraries['web']) ){
 			
 			$head .= '<style id="LiveTplEditorFonts">' . PHP_EOL;
 			
-			foreach( $fontsLibraries as $font_url => $font_family ){
+			foreach( $fontsLibraries['web'] as $font_url => $font_family ){
 		
-				$font_url =$this->sanitize_url( $font_url );
-				
-				if( !empty($font_url) && !in_array($font_url,$headLinks) ){
-		
+				if( !in_array($font_url,$headLinks) ){
+					
 					$head .= '@font-face { font-family: ' . $font_family . '; src: url("' . $font_url . '"); }' . PHP_EOL;
 				
 					$headLinks[] = $font_url;
@@ -3763,16 +3787,27 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$head .= '</style>' . PHP_EOL;
 		}
 		
+		if( !empty($fontsLibraries['css']) ){
+			
+			foreach( $fontsLibraries['css'] as $font_url => $font_family ){
+		
+				if( !in_array($font_url,$headLinks) ){
+					
+					$head .=  '<link rel="stylesheet" id="'.sanitize_title($font_family).'" href="'.$font_url.'" type="text/css" media="all" />' . PHP_EOL;
+				
+					$headLinks[] = $font_url;
+				}
+			}
+		}
+		
 		if( !empty($this->layerCssLibraries) ){
 			
 			foreach($this->layerCssLibraries as $library){
 				
-				$head .= '<link href="' . $library->url . '" rel="stylesheet" type="text/css" />';
+				$head .= '<link href="' . $library->url . '" rel="stylesheet" type="text/css" />' . PHP_EOL;
 			}
 		}
 		
-		$head .= PHP_EOL;
-	
 		if( !empty($layerHead) ){
 			
 			$head .= $layerHead;
@@ -3786,7 +3821,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( !empty($url) && !in_array($url,$headLinks) ){
 				
-					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />';
+					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />' . PHP_EOL;
 			
 					$headLinks[] = $url;
 				}
@@ -3801,7 +3836,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !empty($this->defaultStaticCssUrl) && !in_array($this->defaultStaticCssUrl,$headLinks) ){
 			
-				$head .= '<link href="' . $this->defaultStaticCssUrl . '" rel="stylesheet" />';
+				$head .= '<link href="' . $this->defaultStaticCssUrl . '" rel="stylesheet" />' . PHP_EOL;
 			
 				$headLinks[] = $this->defaultStaticCssUrl;
 			}
@@ -3813,7 +3848,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !empty($this->layerStaticCssUrl) && !in_array($this->layerStaticCssUrl,$headLinks) ){
 			
-				$head .= '<link href="' . $this->layerStaticCssUrl . '" rel="stylesheet" />';
+				$head .= '<link href="' . $this->layerStaticCssUrl . '" rel="stylesheet" />' . PHP_EOL;
 			
 				$headLinks[] = $this->layerStaticCssUrl;
 			}
@@ -4919,7 +4954,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			echo'</td>';
 			
 		echo'</tr>';	
-
+		
 		echo'<tr class="form-field">';
 		
 			echo'<th valign="top" scope="row">';
@@ -5707,7 +5742,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									
 									$ext = $fonts[$mime];
 									
-									$content .= $body; // TODO parse font content
+									$content .= $this->parse_font_content($body,$font_url);
 								}
 							}
 						}

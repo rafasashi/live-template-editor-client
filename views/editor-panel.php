@@ -67,7 +67,12 @@ get_header();
 
 									echo'<div class="panel-heading">';
 										
-										echo $post_type->labels->singular_name . ' Title';
+										if( !empty($post_type->labels->singular_name) ){
+											
+											echo $post_type->labels->singular_name . ' ';
+										}
+										
+										echo 'Title';
 										
 									echo'</div>';
 									
