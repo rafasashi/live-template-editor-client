@@ -1466,6 +1466,7 @@ th input, th select {
     border: none;
     border-radius: 0 !important;
     color: #ffffff;
+	background: #345774;
     font-size: 16px;
     font-weight: bold;
     padding: 3px 8px !important;
