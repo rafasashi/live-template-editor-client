@@ -34,7 +34,7 @@ class LTPLE_Client_Urls {
 		$this->primary	= defined('REW_PRIMARY_SITE') && !empty(REW_PRIMARY_SITE) ? REW_PRIMARY_SITE : $this->home;
 		
 		$this->api 		= $this->home . '/' . rest_get_url_prefix() . '/';
-				
+		
 		// get edit gallery
 		
 		$this->edit = $this->home . '/edit/';

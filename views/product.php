@@ -259,10 +259,8 @@
 				echo'</div>';
 				
 			echo'</div>';
-			
 
 			echo'<hr>';
-
 			
 			echo'<div class="row">';
 			

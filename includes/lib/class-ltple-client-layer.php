@@ -1399,7 +1399,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 				foreach( $steps as $title => $content ){
 					
-					$slug = sanitize_title($title);
+					$slug = sanitize_title('step_'.$title);
 					
 					$install .= '<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" role="tab" id="heading_'.$slug.'">';
 						
@@ -1428,7 +1428,98 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $install;
 	}
 		
-	
+	public function get_blocks_info($layer){
+		
+		$html = '';
+		
+		if( $libraries = $this->get_libraries($layer->ID,'element') ){
+			
+			$blocks = array();
+			$added	= array();
+			
+			foreach( $libraries as $library ){
+				
+				$elements = $this->parent->element->get_library_elements($library);
+				
+				if( !empty($elements['name']) ){
+
+					foreach( $elements['name'] as $i => $name ){
+						
+						$image 	= $elements['image'][$i];
+						
+						if( !isset($added[$name]) ){
+						
+							$title 	= ucfirst($elements['type'][$i]);
+							
+							if( !isset($blocks[$title]) ){
+								
+								$blocks[$title] = '';
+							}
+								
+							$blocks[$title] .= '<div class="col-xs-6 col-sm-4 col-md-3">';
+								
+								$blocks[$title] .= '<div class="panel-body" style="padding:15px 0 15px 15px;">';
+									
+									$blocks[$title] .= '<b>' . $name . '</b>';
+								
+								$blocks[$title] .= '</div>';								
+								
+								$blocks[$title] .= '<div class="media_wrapper">';
+									
+									$blocks[$title] .= '<img loading="lazy" class="lazy" data-original="'.$image.'" src="'.$image.'">';
+								
+								$blocks[$title] .= '</div>';
+
+							$blocks[$title] .= '</div>';
+
+							$added[$name] = true;
+						}
+					}
+				}
+			}
+
+			if( !empty($blocks) ){
+				
+				$expanded 	= 'true';
+				
+				$html .= '<div id="blocks_info">';
+
+					foreach( $blocks as $title => $content ){
+						
+						$slug = sanitize_title('blocks_'.$title);
+						
+						$html .= '<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" role="tab" id="heading_'.$slug.'">';
+							
+							$html .= '<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
+							  
+								$html .= '<i class="fa fa-cube" aria-hidden="true" style="margin-right:10px;"></i> ';
+							  
+								$html .= $title;
+							
+							$html .= '</button>';
+						
+						$html .= '</div>';
+						
+						$html .= '<div id="collapse_'.$slug.'" class="panel-collapse collapse'.( $expanded === 'true' ? ' in' : '' ).'" role="tabpanel" aria-labelledby="heading_'.$slug.'">';
+							
+							$html .='<div class="row" style="margin-top:10px;">';
+							
+								$html .= $content;
+								
+							$html .='</div>';
+							
+						$html .='</div>';
+						
+						$expanded = 'false';
+					}
+					
+				$html .= '</div>';
+			}
+		}
+		
+		return $html;
+	}
+			
 	public function get_hosted_layer_tabs($tabs,$layer){
 		
 		$tabs = $this->get_editable_layer_tabs($tabs,$layer);
@@ -2669,7 +2760,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$this->uri = intval($_GET['uri']);
 			}
-			elseif( strpos($this->parent->urls->current, $this->parent->urls->edit) === false && strpos($this->parent->urls->current, $this->parent->urls->gallery) === false && strpos($this->parent->urls->current, $this->parent->urls->dashboard) === false ){
+			elseif( 
+				
+				strpos($this->parent->urls->current, $this->parent->urls->edit) === false && 
+				strpos($this->parent->urls->current, $this->parent->urls->gallery) === false && 
+				strpos($this->parent->urls->current, $this->parent->urls->dashboard) === false &&
+				strpos($this->parent->urls->current, $this->parent->urls->home . '/plan/') === false 
+			){
 				
 				$this->uri = apply_filters('ltple_layer_set_uri',url_to_postid($this->parent->urls->current));
 			}

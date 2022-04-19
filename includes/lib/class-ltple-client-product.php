@@ -51,7 +51,7 @@ class LTPLE_Client_Product {
 		
 		add_filter('template_redirect', array( $this, 'get_url_parameters' ));
 	
-		add_action( 'ltple_product_info', array($this,'get_product_info'),10,1 );
+		add_action('ltple_product_info', array($this,'get_product_info'),10,1 );
 		
 		add_filter('post_type_link', array( $this, 'get_permalink'),1,2);
 	}
@@ -357,6 +357,16 @@ class LTPLE_Client_Product {
 				'content'	=> $this->get_product_description($product),
 			);
 		}
+		
+		if( $blocks = $this->parent->layer->get_blocks_info($product)){
+			
+			$tabs[] = array(
+				
+				'slug'		=> 'blocks',
+				'name'		=> '<i class="fa fa-cubes" aria-hidden="true"></i> Blocks',
+				'content'	=> $blocks,
+			);				
+		}		
 		
 		if( $installation = $this->parent->layer->get_installation_info($product)){
 			

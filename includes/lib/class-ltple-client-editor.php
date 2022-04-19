@@ -402,7 +402,9 @@ class LTPLE_Client_Editor {
 	
 	public function filter_navbar_settings($layer){
 		
-		if( $permalink = get_permalink($layer) ){
+		$default_id = $this->parent->layer->get_default_id($layer->ID);
+		
+		if( $permalink = get_permalink($default_id) ){
 			
 			echo'<li style="position:relative;">';
 			
