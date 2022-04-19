@@ -1464,7 +1464,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 								$blocks[$title] .= '</div>';								
 								
-								$blocks[$title] .= '<div class="media_wrapper">';
+								$blocks[$title] .= '<div class="media_wrapper" style="max-height:150px;">';
 									
 									$blocks[$title] .= '<img loading="lazy" class="lazy" data-original="'.$image.'" src="'.$image.'">';
 								
