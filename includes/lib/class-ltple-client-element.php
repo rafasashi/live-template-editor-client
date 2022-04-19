@@ -143,7 +143,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		});
 	}
 	
-	public function get_library_elements($term){
+	public function get_library_elements($term,$size='thumbnail'){
 		
 		if( is_numeric($term) ){
 			
@@ -186,7 +186,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 						$content 	= isset($meta['layerContent'][0]) ? $meta['layerContent'][0] : '';
 						$type 		= isset($meta['elementType'][0])  ? $meta['elementType'][0]	 : 'sections';
 						$drop 		= isset($meta['elementDrop'][0])  ? $meta['elementDrop'][0]  : 'out';
-						$image 	 	= $this->parent->layer->get_preview_image_url($elem->ID,'post-thumbnail');
+						$image 	 	= $this->parent->layer->get_preview_image_url($elem->ID,$size);
 						
 						$elements['name'][] 	= $elem->post_title;
 						$elements['content'][] 	= $content;

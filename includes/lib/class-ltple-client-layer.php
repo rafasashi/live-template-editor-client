@@ -1456,7 +1456,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								$blocks[$title] = '';
 							}
 								
-							$blocks[$title] .= '<div class="col-xs-6 col-sm-4 col-md-3">';
+							$blocks[$title] .= '<div class="col-xs-6 col-sm-4 col-md-2">';
 								
 								$blocks[$title] .= '<div class="panel-body" style="padding:15px 0 15px 15px;">';
 									
@@ -1480,7 +1480,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			if( !empty($blocks) ){
 				
-				$expanded 	= 'true';
+				$expanded = 'true';
 				
 				$html .= '<div id="blocks_info">';
 
