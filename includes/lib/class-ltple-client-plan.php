@@ -455,7 +455,7 @@ class LTPLE_Client_Plan {
 					
 					$table .= '<a data-toggle="collapse" data-target="#section_'.$md5.'" class="plan_section">';
 					
-						$table .= $section . ' <i class="glyphicon glyphicon-chevron-down pull-right"></i>';
+						$table .= $section . ' <i class="fas fa-angle-down pull-right" style="font-size:25px;"></i>';
 					
 					$table .= '</a>';
 					

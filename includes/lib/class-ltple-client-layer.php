@@ -1446,33 +1446,37 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					foreach( $elements['name'] as $i => $name ){
 						
 						$image 	= $elements['image'][$i];
+						$type 	= $elements['type'][$i]; 
 						
-						if( !isset($added[$name]) ){
-						
-							$title 	= ucfirst($elements['type'][$i]);
+						if( !isset($added[$type]) ){
 							
-							if( !isset($blocks[$title]) ){
+							$added[$type] = array();
+						}
+						
+						if( !in_array($name,$added[$type]) ){
+						
+							if( !isset($blocks[$type]) ){
 								
-								$blocks[$title] = '';
+								$blocks[$type] = '';
 							}
 								
-							$blocks[$title] .= '<div class="col-xs-6 col-sm-4 col-md-2">';
+							$blocks[$type] .= '<div class="col-xs-6 col-sm-4 col-md-2">';
 								
-								$blocks[$title] .= '<div class="panel-body" style="padding:15px 0 15px 15px;">';
+								$blocks[$type] .= '<div class="panel-body" style="padding:15px 0 15px 15px;">';
 									
-									$blocks[$title] .= '<b>' . $name . '</b>';
+									$blocks[$type] .= '<b>' . $name . '</b>';
 								
-								$blocks[$title] .= '</div>';								
+								$blocks[$type] .= '</div>';								
 								
-								$blocks[$title] .= '<div class="media_wrapper" style="max-height:150px;">';
+								$blocks[$type] .= '<div class="media_wrapper" style="max-height:150px;">';
 									
-									$blocks[$title] .= '<img loading="lazy" class="lazy" data-original="'.$image.'" src="'.$image.'">';
+									$blocks[$type] .= '<img loading="lazy" class="lazy" data-original="'.$image.'" src="'.$image.'">';
 								
-								$blocks[$title] .= '</div>';
+								$blocks[$type] .= '</div>';
 
-							$blocks[$title] .= '</div>';
+							$blocks[$type] .= '</div>';
 
-							$added[$name] = true;
+							$added[$type][] = $name;
 						}
 					}
 				}
@@ -1480,23 +1484,29 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			if( !empty($blocks) ){
 				
-				$expanded = 'true';
+				$expanded = 'false'; // keep all collapsed
 				
 				$html .= '<div id="blocks_info">';
 
-					foreach( $blocks as $title => $content ){
+					foreach( $blocks as $type => $content ){
 						
-						$slug = sanitize_title('blocks_'.$title);
+						$slug = sanitize_title('blocks_'.$type);
 						
-						$html .= '<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" role="tab" id="heading_'.$slug.'">';
+						$html .= '<div class="panel panel-default" role="tab" id="heading_'.$slug.'">';
 							
-							$html .= '<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
+							$html .= '<a style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
 							  
-								$html .= '<i class="fa fa-cube" aria-hidden="true" style="margin-right:10px;"></i> ';
-							  
-								$html .= $title;
+								$html .= '<div style="width:40px;display:inline-block;">';
+								
+									$html .= '<span class="badge" style="margin-left:5px;font-size:11px;">'.count($added[$type]).'</span> ';
+								
+								$html .= '</div>';
+								
+								$html .= ' ' . ucfirst($type) . '</span> ';
+								
+								$html .= '<i class="fas fa-angle-down pull-right" style="font-size:25px;"></i>';
 							
-							$html .= '</button>';
+							$html .= '</a>';
 						
 						$html .= '</div>';
 						
