@@ -338,7 +338,6 @@ th input, th select {
     background: rgb(242, 242, 242);
     padding: 0px;
     font-size: 12px;
-    overflow: hidden !important;
     height: 41px;
     border-bottom: 1px solid #ddd;
 	text-transform: uppercase;

@@ -353,9 +353,19 @@ class LTPLE_Client_Product {
 			$tabs[] = array(
 				
 				'slug'		=> 'description',
-				'name'		=> 'Description',
+				'name'		=> '<i class="far fa-window-maximize"></i> Description',
 				'content'	=> $this->get_product_description($product),
 			);
+		}
+		
+		if( $installation = $this->parent->layer->get_installation_info($product)){
+			
+			$tabs[] = array(
+				
+				'slug'		=> 'installation',
+				'name'		=> '<i class="fa fa-cloud-download-alt" aria-hidden="true"></i> Installation',
+				'content'	=> $installation,
+			);				
 		}
 		
 		if( $blocks = $this->parent->layer->get_blocks_info($product)){
@@ -367,16 +377,6 @@ class LTPLE_Client_Product {
 				'content'	=> $blocks,
 			);				
 		}		
-		
-		if( $installation = $this->parent->layer->get_installation_info($product)){
-			
-			$tabs[] = array(
-				
-				'slug'		=> 'installation',
-				'name'		=> 'Installation',
-				'content'	=> $installation,
-			);				
-		}
 
 		return apply_filters('ltple_product_tabs',$tabs,$product);
 	}

@@ -1390,42 +1390,44 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		// get content
 				
-		$install 	= '';
+		$html 	= '';
 		$expanded 	= 'true';
 		
 		if( !empty($steps) ){
 			
-			$install .= '<div id="install_info">';
+			$html .= '<div id="install_info">';
 
 				foreach( $steps as $title => $content ){
 					
 					$slug = sanitize_title('step_'.$title);
 					
-					$install .= '<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" role="tab" id="heading_'.$slug.'">';
+					$html .= '<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" role="tab" id="heading_'.$slug.'">';
 						
-						$install .= '<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
+						$html .= '<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
 						  
-							$install .= '<i class="fa fa-cloud-download-alt" aria-hidden="true"></i> ';
+							//$html .= '<i class="fa fa-cloud-download-alt" aria-hidden="true"></i> ';
 						  
-							$install .= $title;
+							$html .= $title . ' ';
+							
+							$html .= '<i class="fas fa-angle-down pull-right" style="font-size:25px;"></i>';
 						
-						$install .= '</button>';
+						$html .= '</button>';
 					
-					$install .= '</div>';
+					$html .= '</div>';
 					
-					$install .= '<div style="margin:10px;" id="collapse_'.$slug.'" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_'.$slug.'">';
+					$html .= '<div style="margin:10px;" id="collapse_'.$slug.'" class="panel-collapse collapse'.( $expanded === 'true' ? ' in' : '' ).'" role="tabpanel" aria-labelledby="heading_'.$slug.'">';
 						
-						$install .= $content;
+						$html .= $content;
 						
-					$install .='</div>';
+					$html .='</div>';
+					
+					$expanded = 'false';
 				}
 				
-			$install .= '</div>';
-			
-			$expanded = 'false';
+			$html .= '</div>';
 		}
 		
-		return $install;
+		return $html;
 	}
 		
 	public function get_blocks_info($layer){
