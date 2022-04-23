@@ -25,7 +25,7 @@
 		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;min-height:10vh;">';
 			
 			echo'<div class="tab-content">';
-
+				
 				if( $post_type = get_post_type_object( $currentTab ) ){
 					
 					echo'<ul class="nav nav-pills" role="tablist">';

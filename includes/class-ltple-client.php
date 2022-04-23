@@ -1195,15 +1195,17 @@ class LTPLE_Client {
 		if( $thumb_id = get_post_thumbnail_id($post) ){
 			
 			$twitter_card = 'summary_large_image';
-			$image = wp_get_attachment_image_src( $thumb_id, 'full', false );
 			
-			echo '<meta property="og:image" content="'.$image[0].'" />' . PHP_EOL;
-			echo '<meta property="og:image:width" content="'.$image[1].'" />' . PHP_EOL;
-			echo '<meta property="og:image:height" content="'.$image[2].'" />' . PHP_EOL;
+			if( $image = wp_get_attachment_image_src( $thumb_id, 'full', false ) ){
+			
+				echo '<meta property="og:image" content="'.$image[0].'" />' . PHP_EOL;
+				echo '<meta property="og:image:width" content="'.$image[1].'" />' . PHP_EOL;
+				echo '<meta property="og:image:height" content="'.$image[2].'" />' . PHP_EOL;
 		
-			echo '<meta property="twitter:image" content="'.$image[0].'" />' . PHP_EOL;
-			echo '<meta property="twitter:image:width" content="'.$image[1].'" />' . PHP_EOL;
-			echo '<meta property="twitter:image:height" content="'.$image[2].'" />' . PHP_EOL;			
+				echo '<meta property="twitter:image" content="'.$image[0].'" />' . PHP_EOL;
+				echo '<meta property="twitter:image:width" content="'.$image[1].'" />' . PHP_EOL;
+				echo '<meta property="twitter:image:height" content="'.$image[2].'" />' . PHP_EOL;			
+			}
 		}
 		
 		echo '<meta name="twitter:card" content="'.$twitter_card.'" />' . PHP_EOL;
