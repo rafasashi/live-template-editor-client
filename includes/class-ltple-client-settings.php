@@ -59,13 +59,14 @@ class LTPLE_Client_Settings {
 		
 		// Register plugin settings
 		
-		add_action( 'admin_init' , array( $this, 'init_tabs' ) );
+		add_action( 'init' , array( $this, 'init_tabs' ) );
 		
 		// Add settings page to menu
 		
 		add_action( 'ltple_admin_menu' , array( $this, 'add_menu_items' ) );	
 		
 		// Add settings link to plugins page
+		
 		add_filter( 'plugin_action_links_' . plugin_basename( $this->parent->file ) , array( $this, 'add_settings_link' ) );
 		
 		//Add Custom API Endpoints
@@ -287,20 +288,14 @@ class LTPLE_Client_Settings {
 	 */
 	public function add_menu_items () {
 
+		// settings
+
 		add_submenu_page(
 			'ltple-settings',
 			__( 'Resources', 'live-template-editor-client' ),
 			__( 'Resources', 'live-template-editor-client' ),
 			'edit_pages',
 			'edit.php?post_type=cb-default-layer'
-		);
-		
-		add_submenu_page(
-			'ltple-settings',
-			__( 'User Contents', 'live-template-editor-client' ),
-			__( 'User Contents', 'live-template-editor-client' ),
-			'edit_pages',
-			'edit.php?post_type=user-layer'
 		);
 		
 		if( $this->parent->user->is_admin ){
@@ -345,6 +340,38 @@ class LTPLE_Client_Settings {
 			'edit.php?post_type=tutorial'
 		);
 		
+		// storage
+
+		if( !empty($this->tabs['user-contents']) ){
+			
+			add_menu_page( 
+		
+				'ltple-storage', 
+				'Storage', 
+				'edit_pages', 
+				'ltple-storage', 
+				array($this, 'storage_page'), 
+				'dashicons-database', 
+				3
+			);
+
+			foreach( $this->tabs['user-contents'] as $slug => $tab ){
+				
+				if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
+					
+					add_submenu_page(
+						'ltple-storage',
+						$tab['name'],
+						$tab['name'],
+						'edit_pages',
+						'edit.php?post_type='.$slug
+					);
+				}
+			}
+		}
+		
+		// users
+		
 		add_users_page( 
 			'All Customers', 
 			'All Customers', 
@@ -358,6 +385,8 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'users.php?' . $this->parent->_base .'view=newsletter'
 		);
+		
+		
 	}
 	
 	/**
@@ -701,7 +730,7 @@ class LTPLE_Client_Settings {
 				'user-image' 	=> array( 'tab'  => 'Images',		'name' => 'Images'),				
 				'user-psd' 		=> array( 'tab'  => 'Images',		'name' => 'PSDs'),
 				'user-bookmark' => array( 'tab'  => 'Bookmarks',	'name' => 'Bookmarks'),
-				'user-app' 		=> array( 'tab'  => 'Apps',			'name' => 'Applications'),
+				'user-app' 		=> array( 'tab'  => 'APIs',			'name' => 'APIs'),
 			),
 			'user-network' => array(
 			
@@ -826,7 +855,7 @@ class LTPLE_Client_Settings {
 				
 				$tab .= sanitize_title($_GET['tab']);
 			}
-			dump($tab);
+			
 			// Show page tabs
 			if ( is_array( $this->settings ) && 1 < count( $this->settings ) ) {
 
@@ -911,7 +940,65 @@ class LTPLE_Client_Settings {
 		$html .= '</div>' . "\n";
 
 		echo $html;
-	}	
+	}
+
+	public function storage_page () {
+
+		// Build page HTML
+		
+		echo '<div class="wrap" id="' . $this->parent->_token . '_storage">' . "\n";
+			
+			echo '<h1>' . __( 'Storage' , 'live-template-editor-client' ) . '</h1>' . "\n";
+		
+			echo '<div id="dashboard-widgets-wrap">';
+				
+				echo '<div id="dashboard-widgets" class="metabox-holder">';
+					
+					echo '<div class="postbox-container">';
+					echo '<div id="side-sortables" class="meta-box-sortables ui-sortable">';
+						
+						echo '<div id="dashboard_right_now" class="postbox ">';
+							
+							/*
+							echo '<div class="postbox-header">';
+								
+								echo '<h2 class="hndle ui-sortable-handle">' . __( 'Storage types' , 'live-template-editor-client' ) . '</h2>';
+							
+							echo '</div>';
+							*/
+							
+							echo '<div class="inside">';
+							
+								echo '<div class="main">';
+								
+									echo '<ul>';
+										
+										foreach( $this->tabs['user-contents'] as $slug => $tab ){
+											
+											if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
+												
+												echo '<li><a href="'.get_admin_url(null,'edit.php?post_type=' . $slug ).'">' . $tab['name'] . '</a></li>';
+											}
+										}
+										
+									echo '</ul>';
+
+								echo '</div>';
+							
+							echo '</div>';
+						
+						echo '</div>';
+						
+					echo '</div>';
+					echo '</div>';
+					
+				echo '</div>';
+
+			echo '</div>' . "\n";
+			
+		echo '</div>' . "\n";
+	}
+		
 
 	/**
 	 * Main LTPLE_Client_Settings Instance
