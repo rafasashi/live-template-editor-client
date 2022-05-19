@@ -757,6 +757,8 @@ if( typeof editorCallbacks == typeof undefined )
 
 		if( $("#loadMore").length > 0  ){
 			
+			var loadingMore = false;
+			
 			$( window ).on('scroll touchstart', function() {
 					
 				if( $("#loadMore").length > 0 ){
@@ -767,17 +769,24 @@ if( typeof editorCallbacks == typeof undefined )
 
 					if( typeof url != typeof undefined && typeof page != typeof undefined ){
 					
-						if( $(window).scrollTop() >= ( $(document).height() - $(window).height() - 200 ) ) {
-
+						if( loadingMore == false && $(window).scrollTop() >= ( $(document).height() - $(window).height() - 200 ) ) {
+							
+							loadingMore = true;
+							
 							$.ajax({
 								
-								type	: "get",
+								type	: "GET",
 								url		: url,
 								data	: {
 									
 									page: page + 1
 								},
+								complete: function() {
+									
+									loadingMore = false;
+								},
 								error: function(response) {
+									
 									
 								},
 								success: function(data) {
@@ -787,11 +796,14 @@ if( typeof editorCallbacks == typeof undefined )
 									// append items
 									
 									html.find(".hentry").each(function(i) {
-									 
-										$("#loadMore").before($(this));
-									});
+										
+										var elemId = $(this).attr("id");
+										
+										if( $( "#" + elemId ).length == 0 ){
 									
-									// replace loadMore
+											$("#loadMore").before($(this));
+										}
+									});
 									
 									var loadMore = html.find("#loadMore");
 							

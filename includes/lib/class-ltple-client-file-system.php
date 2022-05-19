@@ -394,7 +394,6 @@
 					$form = str_replace( $matches[0], '', $form );
 				}				
 				
-				$this->parent->notices->add_error($error);
 				return false;
 			}
 

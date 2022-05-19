@@ -342,7 +342,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			foreach( $apps as $i => $app ){
 				
-				$thumb_url = get_option('thumbnail_' . $app->app_type->slug);
+				$thumb_url = !empty($app->app_type->slug) ? get_option('thumbnail_' . $app->app_type->slug) : $this->parent->assets_url . 'images/default_item.png';
 				
 				$action = '<button data-toggle="dialog" data-target="#quickRemoveApp' . ( $i + 1 ) . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</button>';
 
