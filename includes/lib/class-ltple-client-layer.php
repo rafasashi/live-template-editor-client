@@ -2850,30 +2850,28 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_action_buttons($post,$layer_type,$target='_self'){
 		
-		$edit_url = add_query_arg(array(
+		$action = '';
+		
+		if( $layer = LTPLE_Editor::instance()->get_layer($post->ID) ){
 			
-			'uri' 		=> $post->ID,
-			'action' 	=> 'edit',
+			$action  .= '<a target="'.$target.'" href="' . $layer->urls['settings'] . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
 			
-		), $this->parent->urls->edit );		
+			if( $this->is_html_output($layer_type->output) && $layer_type->storage != 'user-menu' ){
+			
+				$action .= '<a target="_blank" href="' . $layer->urls['view'] . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
+			}
+			
+			$action .= '<button data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</button>';
+	 
+			$action .= '<div style="display:none;text-align:center;" id="quickRemoveTpl' . $post->ID . '" title="Remove Project #' . $post->ID . '">';
+				
+				$action .=  '<div class="alert alert-danger">Are you sure you want to delete this project?</div>';						
 
-		$action  = '<a target="'.$target.'" href="' . $edit_url . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
-		
-		if( $this->is_html_output($layer_type->output) && $layer_type->storage != 'user-menu' ){
-		
-			$action .= '<a target="_blank" href="' . get_permalink($post->ID) . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
+				$action .=  '<a data-toggle="action" data-refresh="self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . $this->parent->urls->edit . '?uri=' . $post->ID . '&postAction=delete&confirmed">Delete permanently</a>';
+				
+			$action .= '</div>';
 		}
 		
-		$action .= '<button data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</button>';
- 
-		$action .= '<div style="display:none;text-align:center;" id="quickRemoveTpl' . $post->ID . '" title="Remove Project #' . $post->ID . '">';
-			
-			$action .=  '<div class="alert alert-danger">Are you sure you want to delete this project?</div>';						
-
-			$action .=  '<a data-toggle="action" data-refresh="self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . $this->parent->urls->edit . '?uri=' . $post->ID . '&postAction=delete&confirmed">Delete permanently</a>';
-			
-		$action .= '</div>';
-
 		return $action;
 	}	
 	
