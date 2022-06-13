@@ -1413,7 +1413,7 @@ class LTPLE_Client_Profile {
 		$this->parent->urls->profile = apply_filters('ltple_profile_url',$this->parent->urls->primary . '/' . $this->slug . '/');
 		
 		// add rewrite rules
-
+		
 		add_rewrite_rule(
 		
 			$this->slug . '/([0-9]+)/?$',
