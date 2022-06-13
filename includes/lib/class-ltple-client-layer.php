@@ -2786,7 +2786,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function init_layer(){
-		
+
 		// set layer
 		
 		$this->set_uri();
@@ -3622,6 +3622,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'url (../',
 			
 			),'url('.$url['scheme'].'://'.$url['host'].dirname($url['path'],2).'/',$content);
+		
+			$content = str_replace( array(
+				
+				"url('../",
+				"url ('../",
+			
+			),"url('".$url['scheme'].'://'.$url['host'].dirname($url['path'],2).'/',$content);
+		
 		}
 		
 		return $content;
