@@ -416,6 +416,7 @@ class LTPLE_Client_Json_API {
 			$table .=  ( $show_toolbar ? 'data-toolbar="#'.$toolbar.'" ' : '' );
 		
 		$table .=  '>';
+		$table .=  '<tbody>';
 		
 			$table .=  '<thead>';
 			$table .=  '<tr>';
@@ -437,7 +438,8 @@ class LTPLE_Client_Json_API {
 
 			$table .=  '</tr>';
 			$table .=  '</thead>';
-			
+		
+		$table .=  '</tbody>';
 		$table .=  '</table>';
 
 		if($form){	
@@ -515,21 +517,28 @@ class LTPLE_Client_Json_API {
 						
 						$('#" . $tableId . " .tableLoader').remove();
 						
-						if( data.length > 0 ){
+						if( typeof data != typeof undefined ){
 							
-							$('.no-records-found').remove();
-						
-							$.each(data, function(i,item) {
+							if( data.length > 0 ){
 								
-								$('.table tbody').append('<tr><td>' + item.item + '</td></tr>');
-							});
+								$('.no-records-found').remove();
 							
-							$('.table').trigger('page-change.bs.table');
-						}
-						
-						if( data.length < $('#".$tableId."').data('page-size') ){
+								$.each(data, function(i,item) {
+									
+									$('.table tbody').append('<tr><td>' + item.item + '</td></tr>');
+								});
+								
+								$('.table').trigger('page-change.bs.table');
+							}
 							
-							tableLoading = 'stopped';
+							if( data.length < $('#".$tableId."').data('page-size') ){
+								
+								tableLoading = 'stopped';
+							}
+							else{
+								
+								tableLoading = false;
+							}
 						}
 						else{
 							

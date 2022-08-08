@@ -393,7 +393,7 @@ class LTPLE_Client_Gallery {
 				
 				$plans = $this->parent->plan->get_plans_by_options( $options );
 				
-				if( !$is_addon && !$has_options && !empty($plans) && !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+				if( !$is_addon && !$has_options && !empty($plans) && ( empty($this->parent->user->plan['holder']) || $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
 
 					$item ='<div class="panel panel-default bs-callout bs-callout-primary" style="min-height:315px;margin:0px;padding:7%;border:none !important;">';
 						

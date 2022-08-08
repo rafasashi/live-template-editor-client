@@ -710,7 +710,7 @@ class LTPLE_Client_Settings {
 		
 		$this->tabs = array (
 		
-			'default-contents' => array(
+			'default-contents' => apply_filters('ltple_admin_tabs_default-contents',array(
 			
 				'cb-default-layer' 	=> array( 'tab'  => 'Templates','name' => 'Templates'),
 				'default-element' 	=> array( 'tab'  => 'HTML',		'name' => 'Elements'),
@@ -721,8 +721,8 @@ class LTPLE_Client_Settings {
 				'default-image' 	=> array( 'tab'  => 'Images',	'name' => 'Images'),
 				'image-type' 		=> array( 'tab'  => 'Images',	'name' => 'Sections', 	'type' => 'taxonomy', 'post-type' => 'default-image' ),	
 				'app-type' 			=> array( 'tab'  => 'Apps',		'name' => 'Apps', 		'type' => 'taxonomy', 'post-type' => 'user-app' ),	
-			),
-			'user-contents' => array(
+			)),
+			'user-contents' => apply_filters('ltple_admin_tabs_user-contents',array(
 			  
 				'user-layer' 	=> array( 'tab'  => 'HTML', 		'name' => 'HTML'),
 				'user-page' 	=> array( 'tab'  => 'Pages', 		'name' => 'Pages'),
@@ -730,34 +730,34 @@ class LTPLE_Client_Settings {
 				'user-image' 	=> array( 'tab'  => 'Images',		'name' => 'Images'),				
 				'user-psd' 		=> array( 'tab'  => 'Images',		'name' => 'PSDs'),
 				'user-bookmark' => array( 'tab'  => 'Bookmarks',	'name' => 'Bookmarks'),
-				'user-app' 		=> array( 'tab'  => 'APIs',			'name' => 'APIs'),
-			),
-			'user-network' => array(
+				'user-app' 		=> array( 'tab'  => 'Apps',			'name' => 'Apps'),
+			)),
+			'user-network' => apply_filters('ltple_admin_tabs_user-network',array(
 			
 				'user-contact' 	=> array( 'name' => 'Emails', 'type' => 'taxonomy', 'post-type' => '' ),
-			),
-			'gallery-settings' => array(
+			)),
+			'gallery-settings' => apply_filters('ltple_admin_tabs_gallery-settings',array(
 				
 				'gallery-section' 	=> array( 'tab'  => 'Sections', 	'name' => 'Sections', 	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),
 				'layer-type' 		=> array( 'tab'  => 'Categories', 	'name' => 'Categories',	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),
 				'layer-range' 		=> array( 'tab'  => 'Ranges', 		'name' => 'Ranges',   	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),	
-			),
-			'plan-settings' => array(
+			)),
+			'plan-settings' => apply_filters('ltple_admin_tabs_plan-settings',array(
 				
 				'subscription-plan' => array( 'tab'  => 'Plans', 	'name' => 'Plans' ),	
 				'account-option' 	=> array( 'tab'  => 'Options', 	'name' => 'Options',  	'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
 				'addon-service' 	=> array( 'tab'  => 'Options', 	'name' => 'Services', 	'type' => 'taxonomy', 'post-type' => 'subscription-plan' ),
-			),
-			'marketing-settings' => array(
+			)),
+			'marketing-settings' => apply_filters('ltple_admin_tabs_marketing-settings',array(
 			
 				'marketing-channel' => array( 'name' => 'Channels', 'type' => 'taxonomy', 'post-type' => 'post' ),
-			),
-			'email-campaigns' => array(
+			)),
+			'email-campaigns' => apply_filters('ltple_admin_tabs_email-campaigns',array(
 			
 				'email-model' 		=> array( 'name' => 'Models'),
 				'email-campaign' 	=> array( 'name' => 'Campaigns'),
 				//'email-invitation' => array( 'name' => 'Invitations'),
-			),
+			)),
 		);
 
 		do_action('ltple_admin_tabs');
