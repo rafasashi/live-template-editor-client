@@ -107,15 +107,9 @@ class LTPLE_Client_Object {
 			
 			if( $key == 'js_content' ){
 				
-				$meta = trim($meta);
+				$b64 = base64_decode($meta,true);
 				
-				$meta = ltrim($meta,'<script>');
-				
-				$meta = rtrim($meta,'</script>');
-				
-				$meta = stripcslashes($meta);
-				
-				$meta = '<script>' . $meta . '</script>';
+				$meta = ( base64_encode($b64) === $meta ) ? $b64 : $meta;
 			}
 		}
 		

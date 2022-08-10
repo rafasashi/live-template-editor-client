@@ -893,7 +893,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'type'			=> 'code_editor',
 						'code'			=> 'html',
 						'placeholder'	=> "HTML content",
-						'htmlentities'	=> true,
 						//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>',
 					);			
 
@@ -940,7 +939,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'type'			=> 'code_editor',
 								'code'			=> 'javascript',
 								'placeholder'	=> "Additional Javascript",
-								'htmlentities'	=> false,
+								'stripcslashes'	=> false,
 								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 							);
 							
@@ -1795,7 +1794,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'id'			=> 'layerContent',
 							'label'			=> 'HTML',
 							'placeholder'	=> "HTML content",
-							'htmlentities'	=> true,
 							'description'	=>''
 						);
 												
@@ -1831,7 +1829,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'id'			=> 'layerDescription',
 								'label'			=> 'Short Description',
 								'placeholder'	=> 'Short text description',
-								'htmlentities'	=> true,
 								'description'	=> '<span style="float:right;font-size:10px;">max 500 words</span>',
 								'style'			=> 'height:100px;',
 							);
@@ -4934,7 +4931,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			echo'</th>';
 			
 			echo'<td>';
-					
+				
 				$this->parent->admin->display_field(array(
 				
 					'type'				=> 'code_editor',
@@ -4942,9 +4939,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'id'				=> 'js_content',
 					'name'				=> 'js_content',
 					'placeholder'		=> 'javascript',
-					'description'		=> '<i>without '.htmlentities('<script></script>').'</i>'
+					'description'		=> '<i>without '.htmlentities('<script></script>').'</i>',
+					'stripcslashes'		=> false,
+					'data'				=> $this->get_meta($term,'js_content'),
 					
-				), $term );				
+				), $term );
 					
 			echo'</td>';
 			
@@ -5702,8 +5701,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$js_version = '1.0.7';
 				
-				$js_content = stripslashes($_POST['js_content']);
-				//$js_content = str_replace('\\','\\\\',$js_content);
+				$js_content = isset($_POST['js_content']) ? stripslashes($_POST['js_content']) : '';
 				
 				$attach_id = get_term_meta($term->term_id, 'js_attachment', true);
 				
@@ -5789,7 +5787,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 							update_term_meta($term->term_id,'js_url',$js_url);			
 
-							update_term_meta($term->term_id,'js_content',$js_content);			
+							update_term_meta($term->term_id,'js_content',base64_encode($js_content));			
 						
 							update_term_meta($term->term_id,'js_skip_local',$skip);
 
