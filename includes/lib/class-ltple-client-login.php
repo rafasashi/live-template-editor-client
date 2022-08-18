@@ -315,6 +315,11 @@ class LTPLE_Client_Login {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ), 10 );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 10 );
 		}
+		elseif( is_front_page() && $this->parent->user->loggedin  ){
+			
+			wp_redirect($this->parent->urls->dashboard);
+			exit;
+		}
 	}
 	
 	/**
