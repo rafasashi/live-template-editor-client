@@ -71,11 +71,15 @@ else{
 			
 			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit image ( without saving )</a>';
 		}
+		elseif( $ltple->layer->layerOutput == 'vector' ){
+			
+			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit vector ( without saving )</a>';
+		}
 		elseif( $ltple->layer->layerOutput == 'inline-css' || $ltple->layer->layerOutput == 'external-css' ){
 			
 			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
 		}
-		elseif( $ltple->layer->layerOutput == 'web-app' ){
+		else{
 			
 			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Launch the app</a>';
 		}

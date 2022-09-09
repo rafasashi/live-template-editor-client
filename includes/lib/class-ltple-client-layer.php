@@ -73,22 +73,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('ltple_cb-default-layer_layer_area',function($area,$layer){ 
 			
-			$layer_type = $this->get_layer_type($layer);
-			
-			if( $layer_type->output == 'web-app' ){
-				
-				return 'frontend';
-			}
-			else{
-			
-				return 'backend';
-			}
+			return 'backend';
 			
 		},10,2);
 		
 		add_filter('ltple_live-editor_layer_area',function(){ 
 			
 			return 'frontend';
+			
 		});
 
 		$this->parent->register_post_type( 'user-layer', __( 'Templates', 'live-template-editor-client' ), __( 'Template', 'live-template-editor-client' ), '', array(
@@ -408,7 +400,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		// layer type fields
 		
 		add_action('layer-type_edit_form_fields', array( $this, 'add_edit_layer_fields' ) );
-	
+		
 		add_filter('manage_edit-layer-type_columns', array( $this, 'set_layer_type_columns' ),99999 );
 		add_filter('manage_layer-type_custom_column', array( $this, 'add_layer_tax_column_content' ),10,3);		
 		
@@ -567,7 +559,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$layer_type = $this->get_layer_type($post);
 				
-				if( !empty($layer_type->output) && $layer_type->output == 'web-app' ){
+				if( !empty($layer_type->output) && $this->is_app_output($layer_type->output) ){
 					
 					$is_local = false;
 				}
@@ -1059,6 +1051,28 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'description'	=> "Upload an image template ( Photoshop, GIMP, Sketch )",
 					);						
 				}
+				elseif( $this->is_vector_output($layer_type->output) ){
+				
+					// get layer content
+					
+					$this->defaultFields[]=array(
+					
+						'metabox' => array(
+						
+							'name' 		=> 'layer-json',
+							'title' 	=> __( 'Vector Graphics', 'live-template-editor-client' ), 
+							'screen'	=> array($post->post_type),
+							'context' 	=> 'advanced',
+							'add_new'	=> false,
+						),
+						
+						'id'			=> "layerJson",
+						'type'			=> 'code_editor',
+						'code'			=> 'json',
+						'placeholder'	=> "JSON content",
+					);
+				}
+
 				
 				if( $post->post_type == 'cb-default-layer' ){
 					
@@ -1144,6 +1158,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$is_editable = true;
 		}
+		elseif( $this->is_vector_output($output) ){
+			
+			$is_editable = true;
+		}
 		
 		return apply_filters('ltple_editable_' . $output,$is_editable);
 	}
@@ -1159,6 +1177,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'hosted-page',
 			'canvas',
 			'web-app',
+		));
+		
+		if( in_array($output,$outputs) ){
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public function is_vector_output($output){
+		
+		$outputs = apply_filters('ltple_layer_html_output',array(
+			
+			'vector',
 		));
 		
 		if( in_array($output,$outputs) ){
@@ -1192,21 +1225,45 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function is_hosted_output($output){
-					
-		$hosted_output = apply_filters('ltple_layer_hosted_output',array(
 		
-			'hosted-page',
+		if( $this->is_app_output($output) ){
+			
+			return true;
+		}
+		else{
+			
+			$hosted_output = apply_filters('ltple_layer_hosted_output',array(
+			
+				'hosted-page',
+				
+			));
+			
+			if( in_array($output,$hosted_output) ){
+				
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public function is_app_output($output){
+		
+		$app_output = apply_filters('ltple_layer_app_output',array(
+		
 			'web-app',
+			'vector',
+			
 		));
 		
-		if( in_array($output,$hosted_output) ){
+		if( in_array($output,$app_output) ){
 			
 			return true;
 		}
 		
 		return false;
 	}
-
+	
 	public function is_public_output($output){
 					
 		$public_output = apply_filters('ltple_layer_public_output',array(
@@ -1248,7 +1305,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$has_preview = false;
 		
-		if( $this->is_html_output($output) || $this->is_image_output($output) || $this->is_public($output) ){
+		if( 	$this->is_html_output($output)
+			|| 	$this->is_image_output($output)
+			|| 	$this->is_vector_output($output) 
+			|| 	$this->is_public($output)
+		){
 			
 			$has_preview = true;
 		}
@@ -1636,7 +1697,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$layer_type = $this->get_layer_type($post);
 			
-			if( $layer_type->output == 'web-app' ){
+			if( $this->is_app_output($layer_type->output) ){
 				
 				return false;
 			}
@@ -1901,6 +1962,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'hosted-page'	=>'Hosted',
 				'canvas'		=>'HTML to PNG',
 				'image'			=>'Image',
+				'vector'		=>'Vector',
 				'web-app'		=>'Standalone',
 			));
 		} 
@@ -3125,6 +3187,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$this->layerContent = get_post_meta( $this->defaultId, 'layerContent', true );
 						}
 						
+						// get layer json
+						
+						$this->layerJson = get_post_meta( $this->id, 'layerJson', true );
+						
+						if( $this->layerJson == '' && $this->id != $this->defaultId ){
+							
+							$this->layerJson = get_post_meta( $this->defaultId, 'layerJson', true );
+						}
+					
 						// get default css
 
 						$this->defaultCss = get_post_meta( $this->defaultId, 'layerCss', true );

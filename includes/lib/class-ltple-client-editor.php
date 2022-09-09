@@ -453,7 +453,7 @@ class LTPLE_Client_Editor {
 				
 				$content = $this->parent->layer->render_output() . PHP_EOL;
 				
-				if( $layer->output != 'web-app' ){
+				if( !$this->parent->layer->is_app_output($layer->output) ){
 				
 					$content .= '<script id="LiveTplEditorClientScript">
 
@@ -476,6 +476,8 @@ class LTPLE_Client_Editor {
 
 				$js .= ' var layerUrl	= "' . $layer->urls['preview'] . '";' . PHP_EOL;
 			}
+			
+			$js .= ' var layerJson = "' . base64_encode($this->parent->layer->layerJson) . '";' . PHP_EOL;
 
 			//include quick edit
 			 

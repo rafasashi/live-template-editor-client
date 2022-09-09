@@ -290,14 +290,6 @@ class LTPLE_Client_Settings {
 
 		// settings
 
-		add_submenu_page(
-			'ltple-settings',
-			__( 'Resources', 'live-template-editor-client' ),
-			__( 'Resources', 'live-template-editor-client' ),
-			'edit_pages',
-			'edit.php?post_type=cb-default-layer'
-		);
-		
 		if( $this->parent->user->is_admin ){
 		
 			add_plugins_page( 
@@ -340,10 +332,53 @@ class LTPLE_Client_Settings {
 			'edit.php?post_type=tutorial'
 		);
 		
+		// resources
+
+		if( !empty($this->tabs['default-contents']) ){
+			
+			add_menu_page(
+		
+				'ltple-resources', 
+				'Resources', 
+				'edit_pages', 
+				'ltple-resources', 
+				array($this, 'resources_page'), 
+				'dashicons-block-default', 
+				3
+			);
+			
+			foreach( $this->tabs['default-contents'] as $slug => $tab ){
+				
+				if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
+					
+					if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
+						
+						add_submenu_page(
+							'ltple-resources',
+							$tab['name'],
+							$tab['name'],
+							'edit_pages',
+							'edit-tags.php?taxonomy='.$slug.( !empty($tab['post-type']) ? '&post_type=' . $tab['post-type'] : '' ),
+						);						
+					}
+					else{
+						
+						add_submenu_page(
+							'ltple-resources',
+							$tab['name'],
+							$tab['name'],
+							'edit_pages',
+							'edit.php?post_type='.$slug
+						);
+					}
+				}
+			}
+		}
+		
 		// storage
 
 		if( !empty($this->tabs['user-contents']) ){
-			
+
 			add_menu_page( 
 		
 				'ltple-storage', 
@@ -359,13 +394,26 @@ class LTPLE_Client_Settings {
 				
 				if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
 					
-					add_submenu_page(
-						'ltple-storage',
-						$tab['name'],
-						$tab['name'],
-						'edit_pages',
-						'edit.php?post_type='.$slug
-					);
+					if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
+						
+						add_submenu_page(
+							'ltple-storage',
+							$tab['name'],
+							$tab['name'],
+							'edit_pages',
+							'edit-tags.php?taxonomy='.$slug.( !empty($tab['post_type']) ? '&post_type=' . $tab['post_type'] : '' ),
+						);						
+					}
+					else{
+						
+						add_submenu_page(
+							'ltple-storage',
+							$tab['name'],
+							$tab['name'],
+							'edit_pages',
+							'edit.php?post_type='.$slug
+						);
+					}
 				}
 			}
 		}
@@ -720,7 +768,7 @@ class LTPLE_Client_Settings {
 				'font-library' 		=> array( 'tab'  => 'Fonts',	'name' => 'Fonts', 		'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
 				'default-image' 	=> array( 'tab'  => 'Images',	'name' => 'Images'),
 				'image-type' 		=> array( 'tab'  => 'Images',	'name' => 'Sections', 	'type' => 'taxonomy', 'post-type' => 'default-image' ),	
-				'app-type' 			=> array( 'tab'  => 'Apps',		'name' => 'Apps', 		'type' => 'taxonomy', 'post-type' => 'user-app' ),	
+				'app-type' 			=> array( 'tab'  => 'APIs',		'name' => 'APIs', 		'type' => 'taxonomy', 'post-type' => 'user-app' ),	
 			)),
 			'user-contents' => apply_filters('ltple_admin_tabs_user-contents',array(
 			  
@@ -941,7 +989,65 @@ class LTPLE_Client_Settings {
 
 		echo $html;
 	}
+	
+	public function resources_page () {
 
+		// Build page HTML
+		
+		echo '<div class="wrap" id="' . $this->parent->_token . '_resources">' . "\n";
+			
+			echo '<h1>' . __( 'Resources' , 'live-template-editor-client' ) . '</h1>' . "\n";
+		
+			echo '<div id="dashboard-widgets-wrap">';
+				
+				echo '<div id="dashboard-widgets" class="metabox-holder">';
+					
+					echo '<div class="postbox-container">';
+					echo '<div id="side-sortables" class="meta-box-sortables ui-sortable">';
+						
+						echo '<div id="dashboard_right_now" class="postbox ">';
+							
+							echo '<div class="inside">';
+							
+								echo '<div class="main">';
+								
+									echo '<ul>';
+										
+										foreach( $this->tabs['default-contents'] as $slug => $tab ){
+											
+											if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
+												
+												if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
+													
+													$path = 'edit-tags.php?taxonomy='.$slug.( !empty($tab['post-type']) ? '&post_type=' . $tab['post-type'] : '' );						
+												}
+												else{
+													
+													$path = 'edit.php?post_type='.$slug;
+												}
+												
+												echo '<li><a href="'.get_admin_url(null,$path).'">' . $tab['name'] . '</a></li>';
+											}
+										}
+										
+									echo '</ul>';
+
+								echo '</div>';
+							
+							echo '</div>';
+						
+						echo '</div>';
+						
+					echo '</div>';
+					echo '</div>';
+					
+				echo '</div>';
+
+			echo '</div>' . "\n";
+			
+		echo '</div>' . "\n";
+	}
+	
 	public function storage_page () {
 
 		// Build page HTML
@@ -977,7 +1083,16 @@ class LTPLE_Client_Settings {
 											
 											if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
 												
-												echo '<li><a href="'.get_admin_url(null,'edit.php?post_type=' . $slug ).'">' . $tab['name'] . '</a></li>';
+												if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
+													
+													$path = 'edit-tags.php?taxonomy='.$slug.( !empty($tab['post-type']) ? '&post_type=' . $tab['post-type'] : '' );						
+												}
+												else{
+													
+													$path = 'edit.php?post_type='.$slug;
+												}
+												
+												echo '<li><a href="'.get_admin_url(null,$path).'">' . $tab['name'] . '</a></li>';
 											}
 										}
 										

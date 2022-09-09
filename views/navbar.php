@@ -75,7 +75,7 @@
 															
 								if( $ltple->user->has_layer && !$layer->is_media ){
 
-									if( !empty($_GET['action']) && $_GET['action'] == 'edit' && $layer->post_type != 'cb-default-layer' ){
+									if( !empty($_GET['action']) && $_GET['action'] == 'edit' ){
 										
 										echo'<div id="navLoader" style="margin-right:10px;display:none;"><img src="' . $ltple->assets_url . 'loader.gif" style="height: 20px;"></div>';				
 
@@ -114,6 +114,7 @@
 									
 									echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Template Title">';
 									echo'<input type="hidden" name="postContent" id="postContent" value="">';
+									echo'<input type="hidden" name="postJson" id="postJson" value="">';
 									echo'<input type="hidden" name="postCss" id="postCss" value="">';
 									echo'<input type="hidden" name="postJs" id="postJs" value="">';
 									echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
@@ -180,6 +181,7 @@
 														echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;" required>';
 														echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
 														echo'<input type="hidden" name="postContent" value="">';
+														echo'<input type="hidden" name="postJson" value="">';
 														echo'<input type="hidden" name="postCss" value="">'; 
 														echo'<input type="hidden" name="postJs" value="">'; 									
 														echo'<input type="hidden" name="postSettings" id="postSettings" value="">';

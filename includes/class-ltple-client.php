@@ -944,7 +944,7 @@ class LTPLE_Client {
 	}
 	
 	public function filter_template_path( $path, $layer ){
-	
+		
 		if( $this->layer->is_default($layer) && empty($_GET['action']) && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
 			
 			if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer->output) ){
@@ -1680,18 +1680,14 @@ class LTPLE_Client {
 				
 				// get post content
 				
-				$post_content 	= $_POST['postContent'];
+				$post_content 	= LTPLE_Editor::sanitize_content( $_POST['postContent'] );
 				
-				//$post_content = base64_decode($post_content); // why b64?
-				
-				//$post_content 	= urldecode($post_content); // why url decode?
-				
-				$post_content 	= LTPLE_Editor::sanitize_content( $post_content );
+				$post_json 		= LTPLE_Editor::sanitize_json( $_POST['postJson'] );
 				
 				$post_css 		= ( !empty($_POST['postCss']) ? sanitize_meta('layerCss',$_POST['postCss'],'post') : '' ); // unslash breaks unicode char
 				$post_js 		= ( !empty($_POST['postJs'])  ? sanitize_meta('layerJs',stripcslashes( $_POST['postJs'] ),'post') : '' );
 
-				$post_title 	= ( !empty($_POST['postTitle']) 	? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
+				$post_title 	= ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
 				$post_name 		= $post_title;			
 				
 				if( $_POST['postAction'] == 'update' ){
@@ -2114,6 +2110,8 @@ class LTPLE_Client {
 							update_post_meta($post_id, 'defaultLayerId', $defaultLayerId);
 							
 							update_post_meta($post_id, 'layerContent', $post_content);
+							
+							update_post_meta($post_id, 'layerJson', $post_json);
 							
 							update_post_meta($post_id, 'layerCss', $post_css);
 							
