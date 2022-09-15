@@ -54,34 +54,37 @@ else{
 		$total_storage 	= isset($user_plan['info']['total_storage'][$layer_type->name]) ? $user_plan['info']['total_storage'][$layer_type->name] : 0;
 		
 		$plan_usage = $ltple->plan->get_user_plan_usage( $ltple->user->ID );
-
-		// get download url
 		
-		$download_url = add_query_arg( array(
-		
-			'quick' 	=> '',
+		if( $ltple->layer->is_editable_output($ltple->layer->layerOutput) ){
 			
-		), remove_query_arg('output',$ltple->urls->current) );
-		
-		// get download button
-		
-		$download_button = '';
-		
-		if( $ltple->layer->layerOutput == 'image' ){
+			// get download url
 			
-			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit image ( without saving )</a>';
-		}
-		elseif( $ltple->layer->layerOutput == 'vector' ){
+			$download_url = add_query_arg( array(
 			
-			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit vector ( without saving )</a>';
-		}
-		elseif( $ltple->layer->layerOutput == 'inline-css' || $ltple->layer->layerOutput == 'external-css' ){
+				'quick' 	=> '',
+				
+			), remove_query_arg('output',$ltple->urls->current) );
 			
-			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
-		}
-		else{
+			// get download button
 			
-			$download_button = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Launch the app</a>';
+			$quick_start = '';
+			
+			if( $ltple->layer->layerOutput == 'image' ){
+				
+				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit image ( without saving )</a>';
+			}
+			elseif( $ltple->layer->layerOutput == 'vector' ){
+				
+				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit vector ( without saving )</a>';
+			}
+			elseif( $ltple->layer->layerOutput == 'inline-css' || $ltple->layer->layerOutput == 'external-css' ){
+				
+				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
+			}
+			else{
+				
+				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Launch the app</a>';
+			}
 		}
 		
 		get_header();		
@@ -128,7 +131,7 @@ else{
 
 									echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 										
-									echo'<input formtarget="_parent" class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="border-radius: 0 3px 3px 0;padding: 8px 15px;" value="Start" />';
+									echo'<input formtarget="_parent" class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="border-radius:0 3px 3px 0;padding:11px 15px;height:42px;" value="Start" />';
 								
 								echo'</span>';
 								
@@ -136,7 +139,7 @@ else{
 							
 						echo'</form>';
 						
-						if( !empty($download_button) ){
+						if( !empty($quick_start) ){
 						
 							echo'<div style="font-size:18px;width:100%;display:inline-block;padding:35px 20px 20px 20px;">OR</div>';
 						}
@@ -151,7 +154,10 @@ else{
 					}
 				}
 				
-				echo $download_button;
+				if( !empty($quick_start) ){
+					
+					echo $quick_start;
+				}
 
 			echo'</div>';
 			
