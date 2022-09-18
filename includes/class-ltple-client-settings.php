@@ -389,7 +389,7 @@ class LTPLE_Client_Settings {
 				'dashicons-database', 
 				3
 			);
-
+			
 			foreach( $this->tabs['user-contents'] as $slug => $tab ){
 				
 				if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
@@ -401,7 +401,7 @@ class LTPLE_Client_Settings {
 							$tab['name'],
 							$tab['name'],
 							'edit_pages',
-							'edit-tags.php?taxonomy='.$slug.( !empty($tab['post_type']) ? '&post_type=' . $tab['post_type'] : '' ),
+							'edit-tags.php?taxonomy='.$slug.( !empty($tab['post-type']) ? '&post_type=' . $tab['post-type'] : '' ),
 						);						
 					}
 					else{
@@ -807,7 +807,7 @@ class LTPLE_Client_Settings {
 				//'email-invitation' => array( 'name' => 'Invitations'),
 			)),
 		);
-
+		
 		do_action('ltple_admin_tabs');
 		
 		add_action( 'load-edit.php', function() {

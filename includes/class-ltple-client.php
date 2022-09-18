@@ -1682,7 +1682,7 @@ class LTPLE_Client {
 				
 				$post_content 	= LTPLE_Editor::sanitize_content( $_POST['postContent'] );
 				
-				$post_json 		= LTPLE_Editor::sanitize_json( $_POST['postJson'] );
+				$post_json 		= ( !empty($_POST['postJson']) ? LTPLE_Editor::sanitize_json( $_POST['postJson'] ) : '' );
 				
 				$post_css 		= ( !empty($_POST['postCss']) ? sanitize_meta('layerCss',$_POST['postCss'],'post') : '' ); // unslash breaks unicode char
 				$post_js 		= ( !empty($_POST['postJs'])  ? sanitize_meta('layerJs',stripcslashes( $_POST['postJs'] ),'post') : '' );
