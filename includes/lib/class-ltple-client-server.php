@@ -13,12 +13,7 @@ class LTPLE_Client_Server {
 		
 		$this->parent = $parent;
 		
-		if( defined('REW_DEV_ENV') && REW_DEV_ENV === true ){
-			
-			// set dev url
-			
-			$this->url = str_replace('.','--',untrailingslashit($this->url)) . '.' . REW_SERVER;				 
-		}	
+		$this->url = apply_filters('rew_server_url',$this->url);
 		
 		add_action('send_headers', array($this, 'add_cors_header'),999 );
 	
@@ -27,14 +22,7 @@ class LTPLE_Client_Server {
 	
 	public function get_script_url($url){
 		
-		if( defined('REW_DEV_ENV') && REW_DEV_ENV === true ){
-			
-			$args = parse_url($url);
-
-			$url = $args['scheme'] . '://' .  str_replace('.','--',$args['host']) . '.' . REW_SERVER . $args['path'];
-		}
-		
-		return $url;
+		return apply_filters('rew_server_url',$url);
 	}
 	
 	public function add_cors_header( $request = null ) {

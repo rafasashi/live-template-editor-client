@@ -499,6 +499,40 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		return $apps;		
 	}
 	
+	public function get_image_counts(){
+		
+		global $wpdb;
+		
+		$post_types = array(
+			
+			'default-image',
+			'user-image',
+		);
+		
+		$where = '';
+		$where .= ' AND ' .$wpdb->posts . ".post_type IN('".implode("','",$post_types)."')";
+		//$where .= ' AND ' .$wpdb->posts . ".post_status IN ('publish','closed')";
+		
+		// sql
+		
+		$sql  = ' SELECT SQL_CALC_FOUND_ROWS COUNT(ID) as count, post_type';
+		$sql .= ' FROM ' . $wpdb->posts;
+		$sql .= ' WHERE 1=1 ' . $where;
+		$sql .= ' GROUP BY post_type';
+		
+		$counts = array();
+		
+		if( $results = $wpdb->get_results($sql) ){
+			
+			foreach( $results as $result ){
+				
+				$counts[$result->post_type] = intval($result->count);
+			}
+		}
+		
+		return $counts;
+	}
+	
 	public function get_default_images($rest = NULL){
 		
 		$default_images = [];

@@ -219,6 +219,8 @@
 						}
 						
 						echo $this->post_excerpt;
+						
+						edit_post_link( __( 'Edit', 'templatemela' ), '<span class="edit-link"><i class="fa fa-pencil"></i>', '</span>', $this->ID );
 					
 					echo'</p>';
 					

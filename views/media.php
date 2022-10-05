@@ -63,7 +63,9 @@
 			echo'<ul id="gallery_sidebar" class="nav nav-tabs tabs-left">';
 
 				if( empty($section) || $section == 'images' || $section == $this->type ){
-
+					
+					$counts = $this->get_image_counts();
+					
 					echo'<li class="gallery_type_title">Images</li>';
 					
 					if( empty($section) || $section == 'images' || $section == 'user-images' )
@@ -74,9 +76,12 @@
 					
 						echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'external-images/'.$query_args.'">External Images</a></li>';
 					
-					if( empty($section) || $section == 'images' || $section == 'image-library' )
+					if( !empty($counts['default-image']) ){
 					
-						echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/'.$query_args.'">Default Images</a></li>';
+						if( empty($section) || $section == 'images' || $section == 'image-library' )
+					
+							echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/'.$query_args.'">Default Images</a></li>';
+					}
 				}
 				
 				if( empty($section) || $section == 'bookmarks' ){

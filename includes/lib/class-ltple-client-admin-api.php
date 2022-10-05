@@ -555,7 +555,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$code = !empty($field['code']) ? $field['code'] : 'html';
 			
 					$type = ( $code == 'json' ? 'application' : 'text' ) . '/' . $code;
-	
+					
+					$action = !empty($field['action']) ? $field['action'] : 'edit';
+					
 					if( !empty($data) ){
 						
 						if( is_array($data) ){
@@ -580,7 +582,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							// using <button> triggers post update if page not ready
 							
-							$html .= '<a href="#edit_'.$id.'" class="button button-primary button-hero btn btn-lg btn-primary">Edit ' . strtoupper(($code=='javascript'?'js':$code)) . ' Code</a>';
+							$html .= '<a href="#edit_'.$id.'" class="button button-primary button-hero btn btn-lg btn-primary">';
+								
+								$html .= ucfirst($action) . ' ' . strtoupper(($code=='javascript'?'js':$code)) . ' ' . ( $code == 'ssh' ? 'Key' : 'Code' );
+							
+							$html .= '</a>';
 						
 						$html .= '</div>';
 						
