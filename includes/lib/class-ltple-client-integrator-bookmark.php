@@ -104,7 +104,7 @@ class LTPLE_Client_Integrator_Bookmark extends LTPLE_Client_Integrator {
 					
 					'_' => time(),
 					
-				),$this->urls->current);
+				),$this->parent->urls->current);
 				
 				wp_redirect($redirect_url);
 				exit;
@@ -260,7 +260,7 @@ class LTPLE_Client_Integrator_Bookmark extends LTPLE_Client_Integrator {
 					
 					'_' => time(),
 					
-				),$this->urls->current);
+				),$this->parent->urls->current);
 				
 				wp_redirect($redirect_url);
 				exit;
