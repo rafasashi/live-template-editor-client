@@ -99,6 +99,15 @@ class LTPLE_Client_Integrator_Bookmark extends LTPLE_Client_Integrator {
 					
 					wp_set_object_terms( $bookmark_id, $this->term->term_id, 'app-type' );
 				}
+				
+				$redirect_url = add_query_arg(array(
+					
+					'_' => time(),
+					
+				),$this->urls->current);
+				
+				wp_redirect($redirect_url);
+				exit;
 			}
 		}
 	}
@@ -246,6 +255,15 @@ class LTPLE_Client_Integrator_Bookmark extends LTPLE_Client_Integrator {
 				// update app item
 					
 				update_post_meta( $app_id, 'appData', json_encode($this->data,JSON_PRETTY_PRINT));
+				
+				$redirect_url = add_query_arg(array(
+					
+					'_' => time(),
+					
+				),$this->urls->current);
+				
+				wp_redirect($redirect_url);
+				exit;
 			}				
 		}
 		

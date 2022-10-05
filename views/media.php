@@ -94,6 +94,8 @@
 					}
 				}
 				
+				do_action('ltple_media_gallery_sidebar',$this->type,$section);
+				
 			echo'</ul>';
 			
 		echo'</div>';
@@ -293,7 +295,7 @@
 
 										//get options
 										
-										$options = array( -1 => 'none' );
+										$options = array();
 										
 										foreach($apps as $app){
 											
@@ -309,47 +311,50 @@
 											}
 										}
 										
-										echo '<form style="padding:10px;" target="_self" id="importAppImages" action="' . $save_url . '" method="get">';
-											
-											echo '<div style="padding-bottom:10px;display:block;">';
-
-												echo'<label>From a connected accounts</label>';
+										if( !empty($options) ){
+										
+											echo '<form style="padding:10px;" target="_self" id="importAppImages" action="' . $save_url . '" method="get">';
 												
-												echo '<div class="input-group">';
+												echo '<div style="padding-bottom:10px;display:block;">';
+
+													echo'<label>From a connected account</label>';
 													
-													echo $this->parent->admin->display_field( array(
-											
-														'type'				=> 'select',
-														'id'				=> 'id',
-														'options' 			=> $options,
-														'required' 			=> true,
-														'description'		=> '',
-														'style'				=> '',
+													echo '<div class="input-group">';
 														
-													),false,false);
-													
-													echo '<div class="input-group-btn">';
+														echo $this->parent->admin->display_field( array(
+												
+															'type'				=> 'select',
+															'id'				=> 'id',
+															'options' 			=> $options,
+															'required' 			=> true,
+															'description'		=> '',
+															'style'				=> '',
+															
+														),false,false);
 														
-														echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Import</button>';
-														
-														echo '<input type="hidden" name="app" value="autoDetect" />';
-														
-														echo '<input type="hidden" name="action" value="importImg" />';
-														
-														echo '<input type="hidden" name="ref" value="' . urlencode(str_replace($this->parent->request->proto,'',$this->parent->urls->current)) .'" />';
-														
-														echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
-														
-														echo '<input type="hidden" name="output" value="'.$output.'" />';
+														echo '<div class="input-group-btn">';
+															
+															echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Import</button>';
+															
+															echo '<input type="hidden" name="app" value="autoDetect" />';
+															
+															echo '<input type="hidden" name="action" value="importImg" />';
+															
+															echo '<input type="hidden" name="ref" value="' . urlencode(str_replace($this->parent->request->proto,'',$this->parent->urls->current)) .'" />';
+															
+															echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
+															
+															echo '<input type="hidden" name="output" value="'.$output.'" />';
+															
+														echo '</div>';
 														
 													echo '</div>';
 													
 												echo '</div>';
 												
-											echo '</div>';
-											
-											
-										echo '</form>';
+												
+											echo '</form>';
+										}
 									}									
 									
 								echo '</div>';						
@@ -569,7 +574,7 @@
 														$options[$user_app->ID] = $user_app->post_title;
 													}
 												}
-
+												
 												if(!empty($options)){
 
 													echo '<form style="padding:10px;" target="_self" action="' . $this->parent->urls->current . '#' . $app->slug . '" class="saveBookmarkForm" method="post">';
@@ -751,6 +756,10 @@
 						}
 						
 					echo'</div>';//user-payment-urls
+				}
+				else{
+					
+					do_action('ltple_media_tab_' . $this->type);
 				}
 
 			echo'</div>';
