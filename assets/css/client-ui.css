@@ -273,12 +273,16 @@ th input, th select {
 
 @media (min-width: 768px){
 	
-	.thumb_wrapper {
+	.table-grid .thumb_wrapper {
 		
 		height: 200px;
 		width: 100%;
 	}
 
+	.table-list .thumb_wrapper {
+		min-height: 100px;
+	}
+	
 	.thumb_wrapper img {
 		
 		max-height: 100%;

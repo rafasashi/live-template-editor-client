@@ -71,7 +71,7 @@ class LTPLE_Client_Json_API {
 				overflow-x: hidden;
 				display:block;
 			}
-			
+							
 			.bs-bars, .fixed-table-footer, .no-records-found {
 				
 				display:none;
@@ -320,7 +320,12 @@ class LTPLE_Client_Json_API {
 					width:100%;
 					table-layout:fixed;/* even columns width , fix width of table too*/
 				}
-				
+			
+				tr th:first-child, tr td:first-child {
+					
+					width:120px;
+				}
+			
 				td {
 					
 					overflow: hidden;
@@ -376,7 +381,7 @@ class LTPLE_Client_Json_API {
 			
 		$table .=  '</div>';
 		
-		$table .=  '<table id="'.$tableId.'" class="table table-striped" style="border:none;background:transparent;" ';
+		$table .=  '<table id="'.$tableId.'" class="table table-striped table-' . ( $card !== false ? 'grid' : 'list' ) . '" style="border:none;background:transparent;" ';
 			
 			$table .=  'data-toggle="table" ';
 			//$table .=  'data-height="400" ';
