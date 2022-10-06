@@ -506,7 +506,7 @@
 					//output user-payment-urls
 					
 					echo '<div id="user-payment-urls">';
-					
+						
 						if( !empty($_GET['app']) && !empty($this->parent->apps->{$_GET['app']}->message) ){
 							
 							echo $this->parent->apps->{$_GET['app']}->message;
