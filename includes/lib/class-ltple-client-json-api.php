@@ -516,7 +516,7 @@ class LTPLE_Client_Json_API {
 						
 						++tableData.page;
 						
-						$('#".$tableId." tbody').css('height','calc( 100vh - ' + $('#".$tableId." tbody').offset().top + 'px )');
+						$('#".$tableId." tbody').css('height','calc( 100vh - ' + ( $('#".$tableId." tbody').offset().top + 50 ) + 'px )');
 						
 						$('.fixed-table-loading').hide();
 						
