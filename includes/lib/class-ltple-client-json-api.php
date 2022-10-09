@@ -492,6 +492,8 @@ class LTPLE_Client_Json_API {
 			
 			$json = str_replace('"[JS_PAGE_VAR]"','1',$json);
 			
+			$heightMargin = $this->parent->inWidget ? 0 : 50; // mobile height adjustment
+			
 			$script .=  "
 
 			var tableLoading 	= false;
@@ -516,7 +518,7 @@ class LTPLE_Client_Json_API {
 						
 						++tableData.page;
 						
-						$('#".$tableId." tbody').css('height','calc( 100vh - ' + ( $('#".$tableId." tbody').offset().top + 50 ) + 'px )');
+						$('#".$tableId." tbody').css('height','calc( 100vh - ' + ( $('#".$tableId." tbody').offset().top + ".$heightMargin." ) + 'px )');
 						
 						$('.fixed-table-loading').hide();
 						
