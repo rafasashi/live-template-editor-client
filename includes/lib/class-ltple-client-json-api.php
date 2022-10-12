@@ -492,8 +492,6 @@ class LTPLE_Client_Json_API {
 			
 			$json = str_replace('"[JS_PAGE_VAR]"','1',$json);
 			
-			$heightMargin = $this->parent->inWidget ? 0 : 50; // mobile height adjustment
-			
 			$script .=  "
 
 			var tableLoading 	= false;
@@ -517,8 +515,6 @@ class LTPLE_Client_Json_API {
 					success: function(data) {
 						
 						++tableData.page;
-						
-						$('#".$tableId." tbody').css('height','calc( 100vh - ' + ( $('#".$tableId." tbody').offset().top + ".$heightMargin." ) + 'px )');
 						
 						$('.fixed-table-loading').hide();
 						
@@ -584,6 +580,17 @@ class LTPLE_Client_Json_API {
 					tableRequest();								
 				});
 				
+				// table height
+
+				const observer = new ResizeObserver(entries => {
+					
+					var topHeight = " . ( $this->parent->inWidget ? 45 : 135 ) . ";
+
+					$('#".$tableId." tbody').css('height',window.innerHeight - topHeight + 'px');
+				})
+				
+				observer.observe(document.querySelector('body'))
+
 				// table search
 				
 				$('#".$tableId."').on('search.bs.table',function(e,text){
