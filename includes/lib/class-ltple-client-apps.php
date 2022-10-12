@@ -70,7 +70,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			$this->parent->admin->add_meta_box (
 				
 				'appSettings',
-				__( 'App Settings', 'live-template-editor-client' ), 
+				__( 'User Settings', 'live-template-editor-client' ), 
 				array("user-app"),
 				'advanced'
 			);
@@ -664,7 +664,9 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			foreach($types as $type => $app){
 				
 				echo'<div class="input-group">';
+					
 					echo'<input type="checkbox" name="'.$taxonomy_name.'-types[]" id="'.$taxonomy_name.'-types" value="'.$type.'"/> '.ucfirst($type);
+				
 				echo'</div>';				
 			}
 				

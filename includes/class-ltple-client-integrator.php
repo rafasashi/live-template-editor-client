@@ -50,18 +50,22 @@ class LTPLE_Client_Integrator {
 	
 	public function get_app_parameters($app_slug){
 		
+		//TODO move to meta
+		
 		return get_option( 'parameters_' . $app_slug );
 	}
 	
-	public function get_resource_url($parameters){
+	public function get_parameter($key,$parameters=null){
 		
-		if( !empty($parameters['key']) ){
+		if( is_null($parameters) )
+			
+			$parameters = $this->parameters;
+			
+		if( !empty($key) && !empty($parameters['key']) ){
 
-			foreach($parameters['key'] as $i => $key){
+			foreach($parameters['key'] as $i => $k){
 				
-				if( $key == 'resource' ){
-					
-					// get app resource
+				if( $k == $key ){
 					
 					return $parameters['value'][$i];	
 				}
@@ -69,6 +73,11 @@ class LTPLE_Client_Integrator {
 		}
 		
 		return false;
+	}
+	
+	public function get_resource_url($parameters){
+		
+		return $this->get_parameter('resource',$parameters);
 	}
 	
 	public function get_ref_url(){
