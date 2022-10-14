@@ -525,7 +525,7 @@ class LTPLE_Client_Editor {
 			
 			$modal_css = 'position:absolute;top:0;left:0;right:0;width:100%!important;margin:0;bottom:0;';
 					
-			$iframe_css = 'margin-top:-64px;position:relative;width:100%;top:0;bottom:0;border:0;height:calc( 100vh - 55px);'; 
+			$iframe_css = 'margin-top:-64px;position:relative;width:100%;top:0;bottom:0;border:0;height:calc( 100vh - 48px);'; 
 			
 			$editor .= '<div class="modal fade" id="media_library_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">';
 				$editor .= '<div class="modal-dialog modal-lg" role="document" style="' . $modal_css . '">';

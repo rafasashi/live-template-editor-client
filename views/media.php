@@ -57,12 +57,12 @@
 	echo'<div id="media_library" class="wrapper">';
 
 		echo '<div id="sidebar">';
-						
-			echo'<div class="gallery_type_title gallery_head">Media Library</div>';
-				
+			
+			echo'<div class="gallery_type_title gallery_head">' . ( $this->parent->inWidget ? 'Directory' : 'Media Library' ) . '</div>';
+			
 			echo'<ul id="gallery_sidebar" class="nav nav-tabs tabs-left">';
 
-				if( empty($section) || $section == 'images' || $section == $this->type ){
+				if( empty($section) || $section == 'images' ){
 					
 					$counts = $this->get_image_counts();
 					
@@ -94,7 +94,7 @@
 					}
 				}
 				
-				do_action('ltple_media_gallery_sidebar',$this->type,$section);
+				do_action('ltple_media_gallery_sidebar',$this->type,$section,$query_args);
 				
 			echo'</ul>';
 			

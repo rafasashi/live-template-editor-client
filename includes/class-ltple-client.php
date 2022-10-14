@@ -2463,15 +2463,6 @@ class LTPLE_Client {
 				$style .='opacity: 1;';
 			$style .='}';
 
-			$style .='.modal-header, .ui-widget-header {';
-				$style .='padding: 4px 10px !important;';
-				$style .='background: '. $this->settings->navbarColor .' !important;';
-				$style .='color: #fff;';
-				$style .='border-bottom: none;';
-				$style .='font-size: 16px;';
-				$style .='display: block;';
-			$style .='}';
-
 			$style .='.modal-header .close span {';
 				$style .='color: #fff;';
 				$style .='opacity: 1;';
@@ -2483,8 +2474,8 @@ class LTPLE_Client {
 
 			$style .='.modal-title {';
 				$style .='margin: 0;';
-				$style .='line-height: 40px;';
-				$style .='font-size: 20px;';
+				$style .='line-height: 33px;';
+				$style .='font-size: 18px;';
 				$style .='color: #fff;';
 				$style .='display:inline-block;';
 			$style .='}';
@@ -2522,7 +2513,7 @@ class LTPLE_Client {
 					$style .='width: 1050px !important;';
 				$style .='}';
 			$style .='}';
-
+			
 			// wedocs
 			
 			$style .='.wedocs-sidebar .widget-title {';
