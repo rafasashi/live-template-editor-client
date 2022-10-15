@@ -515,7 +515,7 @@ if( typeof editorCallbacks == typeof undefined )
 												
 												// get media src
 												
-												var mediaSrc = window.location.origin + '/image-proxy.php?url=' + encodeURIComponent( $(this).attr("data-src") );
+												var mediaSrc = imgProxy + encodeURIComponent( $(this).attr("data-src") );
 
 												// get editor iframe
 												
@@ -541,7 +541,7 @@ if( typeof editorCallbacks == typeof undefined )
 													
 													// get media src
 													 
-													var mediaSrc = window.location.origin + '/image-proxy.php?url=' + encodeURIComponent( $(this).attr("data-src") );
+													var mediaSrc = imgProxy + encodeURIComponent( $(this).attr("data-src") );
 
 													// get editor iframe
 													

@@ -453,7 +453,16 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		$ref_url = urlencode( $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] );
 		
-		$url = $this->parent->urls->media . $tab . '/?app='.$appSlug.'&action='.$action.'&ref='.str_replace(urlencode('output=widget'), urlencode('output=default'),$ref_url);
+		if( $action == 'login' ){
+			
+			$ref_url = add_query_arg(array(
+			
+				'output' => 'default',
+			
+			),$ref_url);
+		}
+		
+		$url = $this->parent->urls->media . $tab . '/?app='.$appSlug.'&action=' . $action . '&ref=' . $ref_url;
 		
 		return $url;
 	}

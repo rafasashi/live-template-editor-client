@@ -2299,7 +2299,7 @@ class LTPLE_Client {
 		global $post;
 		
 		if( empty($post->post_type) || $post->post_type != 'default-element' ){
-		
+			
 			wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css','theme-style',$this->_token . '-client-ui'));
 			wp_enqueue_style( $this->_token . '-client' );
 		
@@ -2812,15 +2812,22 @@ class LTPLE_Client {
 	
 	public function editor_enqueue_styles(){
 		
+		$deps = array();
+		
 		if( $this->in_ui() ){
 			
 			wp_enqueue_style( 'jquery-ui-dialog' );
 	
 			wp_register_style( $this->_token . '-jquery-ui', esc_url( $this->assets_url ) . 'css/jquery-ui.css', array(), $this->_version );
 			wp_enqueue_style( $this->_token . '-jquery-ui' );
+		
+			wp_register_style( $this->_token . '-client-ui', esc_url( $this->assets_url ) . 'css/client-ui.css', array($this->_token . '-jquery-ui'), $this->_version );
+			wp_enqueue_style( $this->_token . '-client-ui' );
+		
+			$deps[] = $this->_token . '-jquery-ui';
 		}
 		
-		wp_register_style( $this->_token . '-client-ui', esc_url( $this->assets_url ) . 'css/client-ui.css', array(), $this->_version );
+		wp_register_style( $this->_token . '-client-ui', esc_url( $this->assets_url ) . 'css/client-ui.css', $deps, $this->_version );
 		wp_enqueue_style( $this->_token . '-client-ui' );
 	}
 	

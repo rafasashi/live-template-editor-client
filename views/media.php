@@ -151,7 +151,7 @@
 									echo'<li role="presentation"'.$active.'><a href="' . add_query_arg('tab',$app->slug,$this->parent->urls->current) . '">' . ( $this->parent->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . strtoupper($app->name) . '</a></li>';
 								}
 							}
-						
+							
 							echo '<li role="presentation">';
 								
 								echo '<button data-toggle="dialog" data-target="#uploadImage" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ Upload</button>';
@@ -759,7 +759,7 @@
 				}
 				else{
 					
-					do_action('ltple_media_tab_' . $this->type);
+					do_action('ltple_media_tab_' . $this->type,$section,$query_args);
 				}
 
 			echo'</div>';

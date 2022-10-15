@@ -83,18 +83,23 @@ class LTPLE_Client_Integrator {
 	public function get_ref_url(){
 		
 		$ref = $this->parent->urls->dashboard . '?list=user-app';
-
-		if( $redirect_url = $this->parent->session->get_user_data('ref') ){
 		
-			$ref = $redirect_url;
-		}
-		elseif( !empty($_REQUEST['ref']) ){
+		/**
+		* Note: prioritize query refs over session
+		* 		for clearer app redirections 
+		**/
+		
+		if( !empty($_REQUEST['ref']) ){
 			
 			$ref = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['ref']));
 		}
 		elseif( !empty($_REQUEST['redirect_to']) ){
 			
 			$ref = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['redirect_to']));
+		}
+		elseif( $redirect_url = $this->parent->session->get_user_data('ref') ){
+		
+			$ref = $redirect_url;
 		}
 		
 		return $ref;
@@ -105,6 +110,9 @@ class LTPLE_Client_Integrator {
 		$this->parent->session->update_user_data('app','');
 		$this->parent->session->update_user_data('action','');
 		$this->parent->session->update_user_data('access_token','');
+		
+		$ref_url =
+		
 		$this->parent->session->update_user_data('ref',$this->get_ref_url());		
 		
 		return true;
@@ -120,7 +128,7 @@ class LTPLE_Client_Integrator {
 			
 			return $action;
 		}
-		
+
 		return false;
 	}
 

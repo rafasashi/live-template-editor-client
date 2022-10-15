@@ -1392,6 +1392,7 @@ th input, th select {
 .navbar .navbar-nav > li > a.btn {
   padding: 5px 12px;
   font-size: 11px;
+  border-radius:0;
 }
 .btn.btn-xs, .btn-group-xs .btn,
 .navbar .navbar-nav > li > a.btn.btn-xs, .btn-group-xs
