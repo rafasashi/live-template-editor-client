@@ -43,7 +43,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		// add media shortcode
 		
 		add_shortcode('ltple-client-media', array( $this , 'get_media_shortcode' ) );
-
+		
 		add_action( 'rest_api_init', function () {
 			
 			register_rest_route( 'ltple-media/v1', '/user-images', array(
@@ -596,7 +596,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		return $default_images;
 	}
-	
+
 	public function get_uploaded_images($rest = NULL){
 		
 		//get user images
@@ -975,7 +975,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					// get table of results
 
 					$this->parent->api->get_table(
-					
+						
 						$this->parent->urls->api . 'ltple-media/v1/' . $type . '?' . http_build_query($_REQUEST, '', '&amp;'), 
 						apply_filters('ltple_media_' . $type . '_fields',$fields), 
 						$trash		= false,

@@ -63,9 +63,9 @@ jQuery(document).ready(function($) {
     });
 
     jQuery('.image_delete_button').click(function() {
-        jQuery(this).closest('td').find( '.image_data_field' ).val( '' );
-        jQuery(this).closest('td').find( '.image_preview' ).remove();
-        return false;
+		jQuery(this).closest('td').find( '.image_data_field' ).val( '' );
+		jQuery(this).closest('td').find( '.image_preview' ).remove();
+		return false;
     });
 
 });

@@ -15,7 +15,7 @@ class LTPLE_Client_Json_API {
 	}
 
 	public function get_table( $api_url, $fields=array(), $trash=false, $export=true, $search=true, $toggle=true, $columns=true, $header=true, $pagination=true, $form=true, $toolbar = 'toolbar', $card=false, $itemHeight=235, $fixedHeight=true, $echo=true, $pageSize=20 ){
-		
+
 		// bootstrap table css
 		
 		wp_register_style( 'ltple-bootstrap-table', esc_url( $this->parent->assets_url ) . 'css/bootstrap-table.min.css', array(), $this->parent->_version );
@@ -46,10 +46,12 @@ class LTPLE_Client_Json_API {
 		
 		$show_toolbar = ( ( $search || $export || $toggle || $columns ) ? true : false );
 		
-		$responsive = ( $card ? false : true );
+		$responsive = ( $card || $pagination == 'scroll' ? false : true );
 		
 		//$pagination = false;
 		
+		// normalize fields
+
 		$table = '<style>';
 			
 			if(!$show_toolbar){
@@ -318,7 +320,7 @@ class LTPLE_Client_Json_API {
 					
 					display:table;
 					width:100%;
-					table-layout:fixed;/* even columns width , fix width of table too*/
+					table-layout:fixed; /* even columns width , fix width of table too*/
 				}
 			
 				tr th:first-child, tr td:first-child {
@@ -416,35 +418,38 @@ class LTPLE_Client_Json_API {
 			$table .=  'data-buttons-class="primary" ';
 			$table .=  'data-card-view="'.( $card ? 'true' : 'false' ).'" ';
 			$table .=  'data-mobile-responsive="'.( $responsive ? 'true' : 'false' ).'" ';
+			
 			//$table .=  'data-sort-order="desc" ';   
 			//$table .=  'data-sort-name="description" ';
 			$table .=  ( $show_toolbar ? 'data-toolbar="#'.$toolbar.'" ' : '' );
 		
 		$table .=  '>';
-		$table .=  '<tbody>';
 		
 			$table .=  '<thead>';
-			$table .=  '<tr>';
 			
-				foreach($fields as $field){
-					
-					$table .=  '<th ';
-					
-						foreach($field as $key => $value){
-							
-							if( $key!= 'content' ){
-								
-								$table .=  'data-'.$key.'="'.$value.'" ';
-							}
-						}
+				$table .=  '<tr>';
+				
+					foreach($fields as $field){
 						
-					$table .=  '>'.(!empty($field['content']) ? $field['content'] : '').'</th>';				
-				}
+						$table .=  '<th ';
+						
+							foreach($field as $key => $value){
+								
+								if( $key!= 'content' ){
+									
+									$table .=  'data-'.$key.'="'.$value.'" ';
+								}
+							}
+							
+						$table .=  '>'.(!empty($field['content']) ? $field['content'] : '').'</th>';				
+					}
 
-			$table .=  '</tr>';
+				$table .=  '</tr>';
+			
 			$table .=  '</thead>';
-		
-		$table .=  '</tbody>';
+			
+			$table .=  '<tbody></tbody>';
+			
 		$table .=  '</table>';
 
 		if($form){	
@@ -528,7 +533,14 @@ class LTPLE_Client_Json_API {
 							
 								$.each(data, function(i,item) {
 									
-									$('.table tbody').append('<tr><td>' + item.item + '</td></tr>');
+									var content = 'item field missing';
+									
+									if( typeof item.item != typeof undefined){
+										
+										content = item.item;
+									}
+									
+									$('.table tbody').append('<tr><td>' + content + '</td></tr>');
 								});
 								
 								$('.table').trigger('page-change.bs.table');
