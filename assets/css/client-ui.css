@@ -1476,6 +1476,15 @@ th input, th select {
     padding: 3px 8px !important;
 }
 
+.modal-header {
+	
+    padding: 4px 10px !important;
+    background: #345774 !important;
+    color: #fff;
+    border-bottom: none;
+    font-size: 16px;
+}
+
 /* ---------------------------------------------------
     MEDIA LIBRARY
 ----------------------------------------------------- */
