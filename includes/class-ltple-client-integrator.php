@@ -85,21 +85,21 @@ class LTPLE_Client_Integrator {
 		$ref = $this->parent->urls->dashboard . '?list=user-app';
 		
 		/**
-		* Note: prioritize query refs over session
-		* 		for clearer app redirections 
+		* Note: prioritize session over query refs
+		* 		to prevent infinit redirections 
 		**/
+
+		if( $redirect_url = $this->parent->session->get_user_data('ref') ){
 		
-		if( !empty($_REQUEST['ref']) ){
-			
-			$ref = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['ref']));
+			$ref = $redirect_url;
 		}
 		elseif( !empty($_REQUEST['redirect_to']) ){
 			
 			$ref = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['redirect_to']));
-		}
-		elseif( $redirect_url = $this->parent->session->get_user_data('ref') ){
-		
-			$ref = $redirect_url;
+		}		
+		elseif( !empty($_REQUEST['ref']) ){
+			
+			$ref = $this->parent->request->proto . str_replace(array('https://','http://'),'',urldecode($_REQUEST['ref']));
 		}
 		
 		return $ref;

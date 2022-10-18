@@ -193,7 +193,7 @@
 							
 							foreach($app_types as $app_type => $apps){
 								
-								if($app_type != ''){
+								if( $app_type != '' ){
 									
 									$count = count($app_types[$app_type]);
 									

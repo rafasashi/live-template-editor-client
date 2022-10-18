@@ -86,6 +86,10 @@ else{
 				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Launch the app</a>';
 			}
 		}
+		else{
+			
+			$quick_start = apply_filters('ltple_quick_start_action','');
+		}
 		
 		get_header();		
 		

@@ -326,11 +326,6 @@ class LTPLE_Client_Json_API {
 				tr th:first-child, tr td:first-child {
 					
 					width:120px;
-				}
-			
-				td {
-					
-					overflow: hidden;
 				}';
 				
 				if( $header === false && $fixedHeight === true ){

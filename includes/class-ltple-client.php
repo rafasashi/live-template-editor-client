@@ -2329,7 +2329,7 @@ class LTPLE_Client {
 			
 			$style .='border-radius: 3px;';
 			//$style .='-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);';
-			$style .='background-color: rgb(229, 229, 229);';
+			$style .='background-color:' . $this->settings->navbarColor . '38;';
 	
 		$style .='}';
 		

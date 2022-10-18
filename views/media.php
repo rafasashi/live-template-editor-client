@@ -70,17 +70,17 @@
 					
 					if( empty($section) || $section == 'images' || $section == 'user-images' )
 						
-						echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-images/'.$query_args.'">Uploaded Images</a></li>';
+						echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-images/'.$query_args.'"><i class="far fa-file-image"></i> Uploaded Images</a></li>';
 					
 					if( empty($section) || $section == 'images' || $section == 'external-images' )
 					
-						echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'external-images/'.$query_args.'">External Images</a></li>';
+						echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'external-images/'.$query_args.'"><i class="far fa-file-image"></i> External Images</a></li>';
 					
 					if( !empty($counts['default-image']) ){
 					
 						if( empty($section) || $section == 'images' || $section == 'image-library' )
 					
-							echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/'.$query_args.'">Default Images</a></li>';
+							echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'image-library/'.$query_args.'"><i class="far fa-file-image"></i> Default Images</a></li>';
 					}
 				}
 				
@@ -90,7 +90,7 @@
 					
 						echo'<li class="gallery_type_title">Bookmarks</li>';
 						
-						echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-payment-urls/'.$query_args.'">Payment Urls</a></li>';
+						echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->media . 'user-payment-urls/'.$query_args.'"><i class="fas fa-credit-card"></i> Payment Urls</a></li>';
 					}
 				}
 				

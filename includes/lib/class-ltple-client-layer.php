@@ -2014,6 +2014,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $this->storageTypes;
+	}	
+	
+	public function is_layer_part($storage){
+		
+		return in_array($storage,apply_filters('ltple_layer_parts',array(
+			
+			'user-menu',
+		)));
 	}
 	
 	public function get_gallery_sections(){
@@ -2967,23 +2975,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_user_storage_types($user_id){
 		
-		$user_storage_types = array();
+		$user_types = array();
 		
-		if( $storage_count = $this->count_layers_by_storage() ){
+		if( $count = $this->count_layers_by_storage() ){
 			
-			if( $storage_types = $this->get_storage_types() ){
-
-				foreach( $storage_types as $slug => $name ){
+			if( $types = $this->get_storage_types() ){
+				
+				foreach( $types as $slug => $name ){
 					
-					if( $slug != 'user-menu' && !empty($storage_count[$slug]) ){
+					if( !empty($count[$slug]) && !$this->is_layer_part($slug) ){
 						
-						$user_storage_types[$slug] = $name;
+						$user_types[$slug] = $name;
 					}
 				}
 			}
 		}
 		
-		return $user_storage_types;
+		return $user_types;
 	}
 	
 	public function get_user_psd_rows($request) {
