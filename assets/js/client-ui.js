@@ -332,12 +332,30 @@ if( typeof editorCallbacks == typeof undefined )
 					
 					$('#' + dialogId + 'ActionText').hide();
 					
-					var refresh  = $(this).attr('data-refresh');
-
+					var refresh = $(this).attr('data-refresh');
+					
+					var tagName = $(this).prop('tagName');
+					var method 	= 'get';
+					var url 	= $(this).attr('href');
+					var data;
+						
+					if( tagName == 'INPUT' || tagName == 'BUTTON' ){
+						
+						var $form = $(this).closest('form');
+						
+						if( $form.length > 0 ){
+						
+							url 	= $form.attr('action');
+							method 	= $form.attr('method');
+							data 	= $form.serialize();
+						}
+					}
+					
 					$.ajaxQueue({
 									
-						type 		: "GET",
-						url  		: $(this).attr('href'),
+						type 		: method,
+						url  		: url,
+						data		: data,
 						cache		: false,
 						beforeSend	: function(){
 							
@@ -355,7 +373,33 @@ if( typeof editorCallbacks == typeof undefined )
 							}
 							else if( jqXHR.status == 404 ){
 								
-								$.notify( jqXHR.responseText, {
+								data = jqXHR.responseText;
+								
+								if (typeof data === 'string' || data instanceof String){
+							
+									try{
+									
+										data = JSON.parse(data);
+									} 
+									catch (error) {
+										
+									}
+								}
+							
+								if( typeof data.message != typeof undefined ){
+									
+									// object response
+									
+									var message = data.message;						
+								}							
+								else{
+									
+									// text response
+									
+									var message = data;
+								}
+							
+								$.notify( message, {
 									
 									className: 'warning',
 									position: 'top center'
@@ -372,7 +416,16 @@ if( typeof editorCallbacks == typeof undefined )
 						},
 						success: function(data) {
 							
-							data = JSON.parse(data);
+							if (typeof data === 'string' || data instanceof String){
+								
+								try{
+									
+									data = JSON.parse(data);
+								} 
+								catch (error) {
+									
+								}
+							}
 							
 							if( typeof data.message != typeof undefined ){
 								

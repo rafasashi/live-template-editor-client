@@ -2398,11 +2398,18 @@ class LTPLE_Client {
 
 		if( !empty($this->settings->navbarColor) ){
 			
-			$style .=' .navbar, .tinynav, .dropdown-menu {';
+			$style .=' .navbar, .tinynav, #main-menu .dropdown-menu, #avatar-menu.dropdown-menu {';
 				
 				$style .='background:'.$this->settings->navbarColor.' !important;';
 				
 			$style .='}';
+			
+			$style .='#main-menu .dropdown-menu li a, #avatar-menu.dropdown-menu li a {';
+				
+				$style .='color:#fff;';
+				$style .='border-bottom: 1px solid rgb(24 47 66);';
+				
+			$style .='}';			
 		}
 		
 		if( !empty($this->settings->mainColor) ){

@@ -5,21 +5,22 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Integrator {
 	
 	var $parent;
-	var $apps;
+
 	var $term;
 	var $app_slug;
+	
 	var $parameters;
+	
 	var $resourceUrl;
 	var $action;
-	var $data;
 	var $message;
 	
 	/**
 	 * Constructor function
 	 */
 	public function __construct (  $app_slug, $parent, $apps  ) {
-
-		$this->parent 		= $parent;
+		
+		$this->parent = $parent;
 		$this->parent->apps = $apps;
 
 		// get app slug
@@ -37,10 +38,19 @@ class LTPLE_Client_Integrator {
 		// get resource url
 		
 		$this->resourceUrl = $this->get_resource_url($this->parameters);
-		
-		// init app
-		
+
 		do_action('init_app');
+	}
+	
+	public function __debugInfo(){
+		
+		$vars = get_object_vars($this);
+		
+		// hide variables using var_dump
+		
+		unset($vars['parent'],$vars['parameters']);
+
+		return $vars;
 	}
 	
 	public function get_app_info($app_slug){
@@ -133,25 +143,25 @@ class LTPLE_Client_Integrator {
 	}
 
 	public function init_app(){
-
+		
 		if( isset($this->parameters['key']) ){
 			
 			// init action
 			
 			if( $action = $this->get_current_action() ){
-			
+				
 				$this->init_action($action);
 			}
 		}
 	}
-	
+
 	public function init_action($action){
-
+		
 		$methodName = 'app'.ucfirst($action);
-
+		
 		if(method_exists($this,$methodName)){
-			
-			$this->$methodName();
+
+			$response = $this->$methodName();
 		}
 	}
 } 

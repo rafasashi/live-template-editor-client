@@ -57,7 +57,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			'sort'					=> '',
 		));
 		
-		add_action( 'add_meta_boxes', function(){
+		add_action('add_meta_boxes', function(){
 			
 			$this->parent->admin->add_meta_box (
 				
@@ -75,12 +75,22 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				'advanced'
 			);
 		});		
-		
-		add_filter( 'wp_loaded', array( $this, 'init_apps'));
-		
-		add_filter( 'user-app_custom_fields', array( $this, 'get_fields' ));
 
-		add_filter( 'ltple_dashboard_manage_sidebar', array( $this, 'get_sidebar_content' ),1,3);
+		add_action('rest_api_init', function(){
+			
+			register_rest_route( 'ltple-list/v1', '/user-app/', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_user_app_rows'),
+				'permission_callback' => '__return_true',
+			));
+		});
+		
+		add_filter('wp_loaded', array( $this, 'register_apps'));
+		
+		add_filter('user-app_custom_fields', array( $this, 'get_fields' ));
+
+		add_filter('ltple_dashboard_manage_sidebar', array( $this, 'get_sidebar_content' ),1,3);
 	}
 
 	// Add app data custom fields
@@ -115,44 +125,8 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		return $fields;
 	}
-	
-	public function get_sidebar_content($sidebar,$currentTab,$output){
 
-		if( !empty($this->list) ){
-		
-			$sidebar .= '<li'.( $currentTab == 'user-app' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-app"><span class="fa fa-plug"></span> Applications</a></li>';
-		}
-		
-		return $sidebar;
-	}
-	
-	public function init_apps(){
-		
-		// get current app
-
-		if(!empty($_REQUEST['app'])){
-			
-			if( $_REQUEST['app'] != 'autoDetect' ){
-			
-				$this->app = $_REQUEST['app'];
-			}
-			elseif( !empty($_REQUEST['id'])){
-				
-				$terms = wp_get_object_terms($_REQUEST['id'],'app-type');
-				
-				if( isset($terms[0]->slug) ){
-					
-					$this->app = $terms[0]->slug;
-				}
-			}	
-		}
-		elseif( $app = $this->parent->session->get_user_data('app') ){
-			
-			if( !empty($this->parent->session->get_user_data('action')) ){
-			
-				$this->app = $app;
-			}
-		}
+	public function register_apps(){
 		
 		// get all apps
 		
@@ -204,19 +178,40 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			'post__in' 		=> array( get_option( $this->parent->_base . 'wpcom_main_account' ), get_option( $this->parent->_base . 'twt_main_account' ) ),
 			'numberposts' 	=> -1
 		));
-
-		if(!empty($this->app)){
+		
+		if( $app_slug = $this->get_current_app_slug() ){
 			
-			foreach($this->list as $app){
+			$this->init_app($app_slug);
+		}
+	}
+	
+	public function get_current_app_slug(){
+		
+		$app_slug = false;
+		
+		if(!empty($_REQUEST['app'])){
+			
+			if( $_REQUEST['app'] != 'autoDetect' ){
+			
+				$app_slug = sanitize_title($_REQUEST['app']);
+			}
+			elseif( !empty($_REQUEST['id'])){
 				
-				if( $this->app == $app->slug ){
+				$term_id = intval($_REQUEST['id']);
+				
+				$terms = wp_get_object_terms($term_id,'app-type');
+				
+				if( isset($terms[0]->slug) ){
 					
-					$this->include_app($this->app);
-					
-					$this->{$this->app}->init_app();
-
-					break;
+					$app_slug = $terms[0]->slug;
 				}
+			}	
+		}
+		elseif( $app = $this->parent->session->get_user_data('app') ){
+			
+			if( !empty($this->parent->session->get_user_data('action')) ){
+			
+				$app_slug = $app;
 			}
 		}
 		elseif( is_admin() && isset($_REQUEST['post']) ){
@@ -225,28 +220,54 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			if(isset($terms[0]->slug)){
 				
-				$this->app = $terms[0]->slug;
-				
-				$this->include_app($this->app);
-				
-				if( isset($this->{$this->app}->init_app) ){
-					
-					$this->{$this->app}->init_app();
-				}
+				$app_slug = $terms[0]->slug;
 			}
 		}
 		
-		//Add Custom API Endpoints
+		return $app_slug;
+	}
+	
+	public function init_app($app_slug){
 		
-		add_action('rest_api_init', function(){
+		$this->app = $app_slug;
+		
+		$this->include_app_integrator($this->app);
+		
+		$this->{$this->app}->init_app();
+	}
+
+	public function include_app_integrator( $app_slug ){
+		
+		if( !isset($this->{$app_slug}) ){
+		
+			// get api client
 			
-			register_rest_route( 'ltple-list/v1', '/user-app/', array(
+			$apiClient = preg_replace_callback(
+				'/[-_](.)/', 
+				function ($matches) {
+					
+					return '_'.strtoupper($matches[1]);
+				},
+				$app_slug
+			);
+			
+			// include api client
+
+			$className = 'LTPLE_Integrator_' .  ucfirst( $apiClient );
+			
+			if(class_exists($className)){
 				
-				'methods' 	=> 'GET',
-				'callback' 	=> array($this,'get_user_app_rows'),
-				'permission_callback' => '__return_true',
-			));
-		});
+				include( $this->parent->vendor . '/autoload.php' );
+				
+				$this->{$app_slug} = new $className($app_slug, $this->parent, $this);
+				
+			}
+			else{
+
+				echo 'Could not found API Client: "'.$apiClient.'"';
+				exit;
+			}			
+		}
 	}
 	
 	public function get_app_type($app_id){
@@ -332,6 +353,16 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return $fields;
 	}
 	
+	public function get_sidebar_content($sidebar,$currentTab,$output){
+
+		if( !empty($this->list) ){
+		
+			$sidebar .= '<li'.( $currentTab == 'user-app' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-app"><span class="fa fa-plug"></span> Applications</a></li>';
+		}
+		
+		return $sidebar;
+	}
+	
 	public function get_user_app_rows($request) {
 		
 		$referer = $request->get_header( 'referer' );
@@ -365,39 +396,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		}
 		
 		return $app_rows;
-	}
-	
-	public function include_app( $appSlug ){
-		
-		if( !isset($this->{$appSlug}) ){
-		
-			// get api client
-			
-			$apiClient = preg_replace_callback(
-				'/[-_](.)/', 
-				function ($matches) {
-					
-					return '_'.strtoupper($matches[1]);
-				},
-				$appSlug
-			);
-			
-			// include api client
-
-			$className = 'LTPLE_Integrator_' .  ucfirst( $apiClient );
-
-			if(class_exists($className)){
-				
-				include( $this->parent->vendor . '/autoload.php' );
-
-				$this->{$appSlug} = new $className($appSlug, $this->parent, $this);
-			}
-			else{
-
-				echo 'Could not found API Client: "'.$apiClient.'"';
-				exit;
-			}			
-		}
 	}
 	
 	public function parse_url_fields($url,$prefix='_'){
@@ -728,7 +726,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 		echo'</tr>';	
 
-		if($this->parent->user->is_admin){
+		if( $this->parent->user->is_admin ){
 			
 			echo'<tr class="form-field">';
 			

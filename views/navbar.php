@@ -163,14 +163,14 @@
 											
 											if( $layer->output != 'image' && $ltple->layer->has_preview($layer->post_type) ){
 											
-												echo'<li style="position:relative;">';
+												echo'<li>';
 													
 													echo '<a target="_blank" href="' . get_preview_post_link( $layer->ID ) . '"> Preview Template</a>';
 
 												echo'</li>';
 											}
 												
-											echo'<li style="position:relative;">';
+											echo'<li>';
 											
 												echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Template ' . ( $layer->post_type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
 
@@ -204,7 +204,7 @@
 
 											if( $ltple->user->can_edit ){
 												
-												echo'<li style="position:relative;">';
+												echo'<li>';
 													
 													echo '<a target="_blank" href="' . get_edit_post_link( $layer->ID ) . '"> Edit Backend <span class="label label-warning pull-right">admin</span></a>';
 
@@ -212,7 +212,7 @@
 												
 												if( $layer->post_type == 'cb-default-layer' && empty($ltple->user->layer->post_title) ){
 												
-													echo'<li style="position:relative;">';
+													echo'<li>';
 														
 														echo '<a target="_self" href="' . $ltple->urls->edit . '?uri=' . $layer->ID . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
 
@@ -231,7 +231,7 @@
 									
 									echo'<button style="background:#42bcf5;font-weight:bold;color:#fff;font-size:11px;padding: 4px 8px;text-align: center;" type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Project</button>';
 									
-									echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
+									echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;margin-top:11px;">';
 										
 										foreach( $user_storage_types as $slug => $name ){
 											

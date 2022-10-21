@@ -12,7 +12,7 @@ $ltple = LTPLE_Client::instance();
 			
 			echo '<div class="footerbottom px-2">';
 			
-				echo '<div class="row">';
+				echo '<div class="row no-gutters">';
 		}
 		else{
 			

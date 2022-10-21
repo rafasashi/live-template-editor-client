@@ -178,7 +178,7 @@
 										
 										$media_url = $this->parent->urls->media . 'user-images/' . $query_args;
 
-										echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" method="post" enctype="multipart/form-data">';
+										echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" class="dynamic-form" method="post" enctype="multipart/form-data">';
 											
 											echo '<label>Image File</label>';
 											
@@ -190,7 +190,7 @@
 											
 											echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
 
-											echo '<button id="uploadBtn" class="btn btn-primary" type="button">Upload</button>';
+											echo '<button id="uploadBtn" class="btn btn-sm btn-primary" type="button">Upload</button>';
 
 										echo '</form>';
 									}									
@@ -324,7 +324,7 @@
 										
 										$save_url = '';
 							
-										echo '<form style="padding:10px;" target="_self" action="' . $save_url . '" id="saveImageForm" method="post">';
+										echo '<form style="padding:10px;" target="_self" action="' . $save_url . '" id="saveImageForm" class="dynamic-form" method="post">';
 											
 											echo '<div style="padding-bottom:10px;display:block;">';
 
