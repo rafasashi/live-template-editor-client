@@ -231,14 +231,14 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		$this->app = $app_slug;
 		
-		if( empty($this->{$this->app}) ){
-		
-			$this->include_app_integrator($this->app);
+		if( $this->include_app_integrator($this->app) ){
 			
 			$this->{$this->app}->init_app();
+			
+			return true;
 		}
 		
-		return true;
+		return false;
 	}
 
 	public function include_app_integrator( $app_slug ){
@@ -262,17 +262,19 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			if(class_exists($className)){
 				
-				include( $this->parent->vendor . '/autoload.php' );
+				// TODO move autoloader to integrator
+				
+				include_once( $this->parent->vendor . '/autoload.php' );
 				
 				$this->{$app_slug} = new $className($app_slug, $this->parent, $this);
 				
+				return true;
 			}
-			else{
-
-				echo 'Could not found API Client: "'.$apiClient.'"';
-				exit;
-			}			
+			
+			return false;
 		}
+		
+		return true;
 	}
 	
 	public function get_app_type($app_id){
