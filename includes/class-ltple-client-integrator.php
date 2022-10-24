@@ -11,7 +11,7 @@ class LTPLE_Client_Integrator {
 	
 	var $prefix = '';
 	
-	private $parameters;
+	var $parameters;
 	
 	var $resourceUrl;
 	var $action;
@@ -30,7 +30,7 @@ class LTPLE_Client_Integrator {
 		$this->app_slug = $app_slug;
 		
 		// get app term
-
+		
 		$this->term = $this->get_app_info($this->app_slug);
 		
 		if( defined('REW_DEV_ENV') && REW_DEV_ENV === true ){
