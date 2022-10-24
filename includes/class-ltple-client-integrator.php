@@ -9,7 +9,9 @@ class LTPLE_Client_Integrator {
 	var $term;
 	var $app_slug;
 	
-	var $parameters;
+	var $prefix = '';
+	
+	private $parameters;
 	
 	var $resourceUrl;
 	var $action;
@@ -31,6 +33,11 @@ class LTPLE_Client_Integrator {
 
 		$this->term = $this->get_app_info($this->app_slug);
 		
+		if( defined('REW_DEV_ENV') && REW_DEV_ENV === true ){
+			
+			$this->prefix = 'test_';
+		}
+		
 		// get app parameters
 		
 		$this->parameters = $this->get_app_parameters($this->app_slug);
@@ -47,7 +54,7 @@ class LTPLE_Client_Integrator {
 		$vars = get_object_vars($this);
 		
 		// hide variables using var_dump
-		
+
 		unset($vars['parent'],$vars['parameters']);
 
 		return $vars;

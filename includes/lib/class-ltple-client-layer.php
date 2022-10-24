@@ -305,12 +305,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				// remove metaboxes
 				
+				$layer_type = $this->get_layer_type($post);	
+				
 				if( $this->is_default($post) ){
 					
 					// remove taxonomy boxes
-					
-					$layer_type = $this->get_layer_type($post);	
-					
+
 					if( !$this->has_html_elements($layer_type) ){
 					
 						remove_meta_box( 'element-librarydiv', 'cb-default-layer', 'side' );
@@ -324,18 +324,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						remove_meta_box( 'font-librarydiv', 'cb-default-layer', 'side' );
 					}
-					
-					do_action('ltple_remove_layer_metaboxes',$post,$layer_type);
 				}
-
+				
+				do_action('ltple_remove_layer_metaboxes',$post,$layer_type);
+				
 				remove_meta_box( 'tagsdiv-layer-type', $post->post_type, 'side' );
 				
 				// add metaboxes
 				
 				$this->parent->admin->add_meta_boxes($fields);
-			
 			}
-
 		});
 		
 		add_action('restrict_manage_posts', array($this, 'add_manage_layer_filters'),10,2 );

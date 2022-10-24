@@ -231,9 +231,14 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		$this->app = $app_slug;
 		
-		$this->include_app_integrator($this->app);
+		if( empty($this->{$this->app}) ){
 		
-		$this->{$this->app}->init_app();
+			$this->include_app_integrator($this->app);
+			
+			$this->{$this->app}->init_app();
+		}
+		
+		return true;
 	}
 
 	public function include_app_integrator( $app_slug ){
@@ -447,20 +452,23 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		$this->parent->exit_message('Error deleting app',400);
 	}
 	
-	public function getAppUrl( $appSlug, $action='connect', $tab='image-library' ){
+	public function getAppUrl( $appSlug, $action='connect', $tab='image-library', $ref_url=null ){
 		
-		$ref_url = urlencode( $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] );
+		if( is_null($ref_url) ){
 		
-		if( $action == 'login' ){
-			
-			$ref_url = add_query_arg(array(
-			
-				'output' => 'default',
-			
-			),$ref_url);
+			$ref_url = $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+		
+			if( $action == 'login' ){
+				
+				$ref_url = add_query_arg(array(
+				
+					'output' => 'default',
+				
+				),$ref_url);
+			}		
 		}
-		
-		$url = $this->parent->urls->media . $tab . '/?app='.$appSlug.'&action=' . $action . '&ref=' . $ref_url;
+
+		$url = $this->parent->urls->media . $tab . '/?app='.$appSlug.'&action=' . $action . '&ref=' . urlencode($ref_url);
 		
 		return $url;
 	}

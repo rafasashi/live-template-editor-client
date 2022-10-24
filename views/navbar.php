@@ -159,7 +159,7 @@
 									
 										echo'<button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size: 15px;height:28px;background: none;border: none;color: #a5a5a5;box-shadow: none;"><span class="glyphicon glyphicon-cog icon-cog" aria-hidden="true"></span></button>';
 															
-										echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;">';
+										echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;margin-top:9px;">';
 											
 											if( $layer->output != 'image' && $ltple->layer->has_preview($layer->post_type) ){
 											
@@ -237,7 +237,7 @@
 											
 											echo'<li style="position:relative;">';
 											
-												echo '<a href="' . $ltple->urls->gallery . '?layer[default_storage]='.$slug.'">' . $name . '</a>';
+												echo '<a href="' . $ltple->urls->gallery . '?layer[default_storage]='.$slug.'">+ ' . $name . '</a>';
 										
 											echo'</li>';
 										}
