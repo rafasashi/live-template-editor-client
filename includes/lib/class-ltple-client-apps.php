@@ -6,10 +6,13 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 	
 	var $parent;
 	var $app;
-	var $mainApps;
+	
 	var $taxonomy;
 	var $list = array();
+	
+	var $mainApps;
 	var $userApps = array();
+	var $appClasses = array();
 	
 	/**
 	 * Constructor function
@@ -227,11 +230,21 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return $app_slug;
 	}
 	
+	public function get_app($app_slug){
+		
+		if( isset($this->apps->appClasses[$app_slug]) ){
+			
+			return $this->apps->appClasses[$app_slug];
+		}
+		
+		return false;
+	}
+	
 	public function init_app($app_slug){
 		
 		$this->app = $app_slug;
 		
-		if( $integrator = $this->include_app_integrator($this->app) ){
+		if( $integrator = $this->include_app_integrator($app_slug) ){
 			
 			$integrator->init_app();
 		}
@@ -241,9 +254,9 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 
 	public function include_app_integrator( $app_slug ){
 		
-		if( isset($this->{$app_slug}) && !is_null($this->{$app_slug}) ){
+		if( isset($this->appClasses[$app_slug]) && !is_null($this->appClasses[$app_slug]) ){
 			
-			return $this->{$app_slug};
+			return $this->appClasses[$app_slug];
 		}
 		else{
 		
@@ -268,9 +281,12 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				include_once( $this->parent->vendor . '/autoload.php' );
 				
-				$this->{$app_slug} = new $className($app_slug, $this->parent, $this);
-				
-				return $this->{$app_slug};
+				if( $class = new $className($app_slug, $this->parent, $this) ){
+					
+					$this->appClasses[$app_slug] = $class;
+					
+					return $this->appClasses[$app_slug];
+				}
 			}
 		}
 		

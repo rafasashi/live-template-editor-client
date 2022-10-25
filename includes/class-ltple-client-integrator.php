@@ -150,15 +150,12 @@ class LTPLE_Client_Integrator {
 	}
 
 	public function init_app(){
+
+		// init action
 		
-		if( isset($this->parameters['key']) ){
+		if( $action = $this->get_current_action() ){
 			
-			// init action
-			
-			if( $action = $this->get_current_action() ){
-				
-				$this->init_action($action);
-			}
+			$this->init_action($action);
 		}
 	}
 

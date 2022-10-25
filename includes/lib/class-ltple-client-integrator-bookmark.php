@@ -113,7 +113,7 @@ class LTPLE_Client_Integrator_Bookmark extends LTPLE_Client_Integrator {
 	}
 	
 	public function appConnect(){
-
+		
 		$fields = $this->parent->apps->parse_url_fields($this->resourceUrl,'bookmark_' . $this->term->slug . '_');
 		
 		if( isset($_POST['bookmark_is_admin']) && $_POST['bookmark_is_admin'] == 'on' ){

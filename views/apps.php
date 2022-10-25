@@ -150,7 +150,7 @@
 					// get message
 					
 					$message = '';
-
+					
 					if( !empty($this->message) ){
 						
 						$message = $this->message;
@@ -159,9 +159,9 @@
 								
 						foreach( $this->apps->list as $app ){ 
 							
-							if(!empty($this->apps->{$app->slug}->message)){
+							if(!empty($this->apps->appClasses[$app->slug]->message)){
 								
-								$message = $this->apps->{$app->slug}->message;
+								$message = $this->apps->appClasses[$app->slug]->message;
 								break;
 							}							
 						}
