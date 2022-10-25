@@ -231,19 +231,21 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		$this->app = $app_slug;
 		
-		if( $this->include_app_integrator($this->app) ){
+		if( $integrator = $this->include_app_integrator($this->app) ){
 			
-			$this->{$this->app}->init_app();
-			
-			return true;
+			$integrator->init_app();
 		}
 		
-		return false;
+		return $integrator;
 	}
 
 	public function include_app_integrator( $app_slug ){
 		
-		if( !isset($this->{$app_slug}) ){
+		if( isset($this->{$app_slug}) && !is_null($this->{$app_slug}) ){
+			
+			return $this->{$app_slug};
+		}
+		else{
 		
 			// get api client
 			
@@ -268,13 +270,11 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 				
 				$this->{$app_slug} = new $className($app_slug, $this->parent, $this);
 				
-				return true;
+				return $this->{$app_slug};
 			}
-			
-			return false;
 		}
 		
-		return true;
+		return false;
 	}
 	
 	public function get_app_type($app_id){
