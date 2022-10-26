@@ -589,7 +589,7 @@ class LTPLE_Client {
 		
         wp_redirect( $url );
         exit;		
-	}	
+	}
 
 	public function init_backend(){	
 	

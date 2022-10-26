@@ -30,7 +30,9 @@ class LTPLE_Client_Urls {
 		$this->home 	= ( is_ssl() ? home_url('','https') : home_url() );	
 		
 		$this->current 	= $this->home . $_SERVER['REQUEST_URI'];
-
+		
+		$this->screen	= strtok(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+		
 		$this->primary	= defined('REW_PRIMARY_SITE') && !empty(REW_PRIMARY_SITE) ? REW_PRIMARY_SITE : $this->home;
 		
 		$this->api 		= $this->home . '/' . rest_get_url_prefix() . '/';

@@ -184,7 +184,13 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		if( $app_slug = $this->get_current_app_slug() ){
 			
-			$this->init_app($app_slug);
+			if( $integrator = $this->init_integrator($app_slug) ){
+			
+				if( $action = $integrator->get_current_action() ){
+					
+					$integrator->init_action($action);
+				}
+			}
 		}
 	}
 	
@@ -192,29 +198,37 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		
 		$app_slug = false;
 		
-		if(!empty($_REQUEST['app'])){
+		if( in_array($this->parent->urls->screen,array(
 			
-			if( $_REQUEST['app'] != 'autoDetect' ){
+			'media',
+			'apps',
+		
+		))){
 			
-				$app_slug = sanitize_title($_REQUEST['app']);
-			}
-			elseif( !empty($_REQUEST['id'])){
+			if(!empty($_REQUEST['app'])){
 				
-				$term_id = intval($_REQUEST['id']);
+				if( $_REQUEST['app'] != 'autoDetect' ){
 				
-				$terms = wp_get_object_terms($term_id,'app-type');
-				
-				if( isset($terms[0]->slug) ){
-					
-					$app_slug = $terms[0]->slug;
+					$app_slug = sanitize_title($_REQUEST['app']);
 				}
-			}	
-		}
-		elseif( $app = $this->parent->session->get_user_data('app') ){
-			
-			if( !empty($this->parent->session->get_user_data('action')) ){
-			
-				$app_slug = $app;
+				elseif( !empty($_REQUEST['id'])){
+					
+					$term_id = intval($_REQUEST['id']);
+					
+					$terms = wp_get_object_terms($term_id,'app-type');
+					
+					if( isset($terms[0]->slug) ){
+						
+						$app_slug = $terms[0]->slug;
+					}
+				}	
+			}
+			elseif( $app = $this->parent->session->get_user_data('app') ){
+				
+				if( !empty($this->parent->session->get_user_data('action')) ){
+				
+					$app_slug = $app;
+				}
 			}
 		}
 		elseif( is_admin() && isset($_REQUEST['post']) ){
@@ -230,7 +244,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return $app_slug;
 	}
 	
-	public function get_app($app_slug){
+	public function get_integrator($app_slug){
 		
 		if( isset($this->apps->appClasses[$app_slug]) ){
 			
@@ -240,16 +254,11 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return false;
 	}
 	
-	public function init_app($app_slug){
+	public function init_integrator($app_slug){
 		
 		$this->app = $app_slug;
 		
-		if( $integrator = $this->include_app_integrator($app_slug) ){
-			
-			$integrator->init_app();
-		}
-		
-		return $integrator;
+		return $this->include_app_integrator($app_slug);
 	}
 
 	public function include_app_integrator( $app_slug ){

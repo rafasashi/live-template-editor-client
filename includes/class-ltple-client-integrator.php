@@ -20,7 +20,7 @@ class LTPLE_Client_Integrator {
 	/**
 	 * Constructor function
 	 */
-	public function __construct (  $app_slug, $parent, $apps  ) {
+	public function __construct ( $app_slug, $parent, $apps  ) {
 		
 		$this->parent = $parent;
 		$this->parent->apps = $apps;
@@ -45,8 +45,8 @@ class LTPLE_Client_Integrator {
 		// get resource url
 		
 		$this->resourceUrl = $this->get_resource_url($this->parameters);
-
-		do_action('init_app');
+	
+		$this->init_app();
 	}
 	
 	public function __debugInfo(){
@@ -84,7 +84,14 @@ class LTPLE_Client_Integrator {
 				
 				if( $k == $key ){
 					
-					return $parameters['value'][$i];	
+					$value = $parameters['value'][$i];
+					
+					if( $parameters['input'][$i] == 'number' ){
+						
+						$value = intval($value);
+					}
+					
+					return $value;	
 				}
 			}
 		}
@@ -137,26 +144,31 @@ class LTPLE_Client_Integrator {
 	
 	public function get_current_action(){
 		
-		if(!empty($_REQUEST['action'])){
+		$action = false;
+		
+		if( in_array($this->parent->urls->screen,array(
 			
-			return wp_kses_normalize_entities($_REQUEST['action']);
+			'media',
+			'apps',
+		
+		))){
+		
+			if(!empty($_REQUEST['action'])){
+				
+				$action = wp_kses_normalize_entities($_REQUEST['action']);
+			}
+			else{
+				
+				$action = $this->parent->session->get_user_data('action');
+			}
 		}
-		elseif( $action = $this->parent->session->get_user_data('action') ){
-			
-			return $action;
-		}
-
-		return false;
+		
+		return $action;
 	}
 
 	public function init_app(){
-
-		// init action
 		
-		if( $action = $this->get_current_action() ){
-			
-			$this->init_action($action);
-		}
+		
 	}
 
 	public function init_action($action){
