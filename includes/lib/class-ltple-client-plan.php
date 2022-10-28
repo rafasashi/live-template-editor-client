@@ -589,10 +589,8 @@ class LTPLE_Client_Plan {
 				if( !is_null($atts['widget']) && $atts['widget']==='true' ){
 					
 					$this->shortcode .= '<div class="modal-body" style="padding:0px;">'.PHP_EOL;
-						
-						// sandbox without value allow all restrictions
-						
-						$this->shortcode .= '<iframe sandbox src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
+					
+						$this->shortcode .= '<iframe sandbox="allow-scripts allow-top-navigation allow-top-navigation-by-user-activation allow-forms allow-same-origin" src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
 				
 					$this->shortcode .= '</div>';
 				}
