@@ -1350,22 +1350,14 @@ class LTPLE_Client_Plan {
 								$message .= '<div class="alert alert-success">';
 									
 									$message .= 'Congratulations, you have successfully subscribed to <b>'.$this->data['name'].'</b>!';
-									
-									/*
-									$message .= '<div class="pull-right">';
-									
-										$message .= '<a class="btn-sm btn-success" href="' . $this->parent->urls->gallery . '" target="_parent">Start editing</a>';
-								
-									$message .= '</div>';
-									*/
-									
+
 								$message .= '</div>';
 							}
 							else{
 								
 								$message .= '<div class="alert alert-success">';
 									
-									$message .= 'Thanks for purchasing the <b>'.$this->data['name'].'</b>!';
+									$message .= 'Congratulations, you have successfully upgraded to <b>'.$this->data['name'].'</b>!';
 
 								$message .= '</div>';						
 							}
@@ -1396,14 +1388,7 @@ class LTPLE_Client_Plan {
 			
 			// bypass iframe redirection issue
 			
-			echo'Loading...';
-			
-			echo'<script>'; 
-				
-				echo'top.location="'.$this->parent->urls->dashboard.'";';
-				
-			echo'</script>';
-			
+			echo'<script>top.location="'.$this->parent->urls->dashboard.'";</script>';
 			exit;
 		}
 	}
