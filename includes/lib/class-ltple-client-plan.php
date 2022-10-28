@@ -1400,7 +1400,7 @@ class LTPLE_Client_Plan {
 			
 			echo'<script>'; 
 				
-				echo'window.location="'.$this->parent->urls->dashboard.'";';
+				echo'top.location="'.$this->parent->urls->dashboard.'";';
 				
 			echo'</script>';
 			
