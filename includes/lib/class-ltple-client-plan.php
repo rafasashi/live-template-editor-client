@@ -1394,7 +1394,16 @@ class LTPLE_Client_Plan {
 			
 			$this->parent->session->update_user_data('message',$message);
 			
-			wp_redirect($this->parent->urls->gallery);
+			// bypass iframe redirection issue
+			
+			echo'Loading...';
+			
+			echo'<script>'; 
+				
+				echo'window.location="'.$this->parent->urls->dashboard.'";';
+				
+			echo'</script>';
+			
 			exit;
 		}
 	}
