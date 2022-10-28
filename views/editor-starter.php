@@ -16,9 +16,7 @@ if( !$ltple->inWidget ){
 		
 		echo '<div style="min-height:calc( 100vh - 145px );overflow:hidden;">';
 		
-			echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position:50% center;background-repeat: no-repeat;background-image:url(\''. $ltple->assets_url .'/loader.gif\');height:64px;"></div>';
-				
-			echo'<iframe src="' . $url . '" style="position: absolute;width:100%;top:95px;bottom:0;border:0;height:calc(100vh - 145px);overflow:hidden;"></iframe>';
+			echo'<iframe data-src="' . $url . '" style="width:100%;border:0;height:calc(100vh - 153px);overflow:hidden;"></iframe>';
 		
 		echo '</div>';
 		
@@ -101,7 +99,7 @@ else{
 					
 				if( $total_storage > 0 ){
 				
-					echo '<a class="pull-right" target="_parent" href="' . $ltple->urls->profile . '?tab=billing-info"><span class="label label-default" style="font-size:18px;"> ' . ( !empty($plan_usage[$layer_type->name]) ? $plan_usage[$layer_type->name] : 0 ) . ' / ' . $total_storage . ' </span></a>';
+					echo '<a class="pull-right" target="_parent" href="' . $ltple->urls->account . '?tab=billing-info"><span class="label label-default" style="font-size:18px;"> ' . ( !empty($plan_usage[$layer_type->name]) ? $plan_usage[$layer_type->name] : 0 ) . ' / ' . $total_storage . ' </span></a>';
 				}
 				
 				echo '<hr class="clearfix">';
@@ -112,7 +110,7 @@ else{
 						
 						// get editor url
 						
-						$editor_url = $ltple->urls->edit . '?uri=' . $ltple->layer->id;			
+						$editor_url = remove_query_arg('output',$this->parent->urls->current);			
 						
 						echo'<form target="_parent" class="col-xs-6" action="' . $editor_url . '" id="savePostForm" method="post">';
 							
@@ -135,7 +133,7 @@ else{
 
 									echo'<input type="hidden" name="postAction" id="postAction" value="save">';
 										
-									echo'<input formtarget="_parent" class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="border-radius:0 3px 3px 0;padding:11px 15px;height:42px;" value="Start" />';
+									echo'<input formtarget="_parent" class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="padding:11px 15px;height:42px;" value="Start" />';
 								
 								echo'</span>';
 								

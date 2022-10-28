@@ -4377,15 +4377,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $taxonomy == 'layer-range' ){
 			
-			if( $type_id = get_term_meta($term_id,'range_type',true)){
-				
-				if( $type = get_term($type_id) ){
+			if( $range = $this->get_range_type($term_id) ){
 					
-					$storage_amount = $this->get_plan_amount($term_id,'storage');
+				$storage_amount = $this->get_plan_amount($term_id,'storage');
 
-					$storage[$type->name] = $storage_amount;
-				}
-			}			
+				$storage[$range->name] = $storage_amount;
+			}		
 		}
 		elseif( $taxonomy == 'account-option' ){
 			

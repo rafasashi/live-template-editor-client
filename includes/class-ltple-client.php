@@ -2078,7 +2078,7 @@ class LTPLE_Client {
 						$gmt 	= get_gmt_from_date($time);
 						
 						if( $post_id > 0 ){
-						
+							
 							$post_id = wp_update_post(array(
 								
 								'ID' 			=> $post_id,
@@ -2090,6 +2090,8 @@ class LTPLE_Client {
 								'post_date' 	=> $time,
 								'post_date_gmt' => $gmt,
 							));
+							
+							$status = 'updated';
 						}
 						else{
 							
@@ -2102,7 +2104,9 @@ class LTPLE_Client {
 								'post_status' 	=> $post_status,
 								'post_date' 	=> $time,
 								'post_date_gmt' => $gmt,
-							));							
+							));
+							
+							$status = 'created';
 						}
 						
 						if( is_numeric($post_id) ){
@@ -2116,6 +2120,8 @@ class LTPLE_Client {
 							update_post_meta($post_id, 'layerCss', $post_css);
 							
 							update_post_meta($post_id, 'layerJs', $post_js);
+							
+							do_action('ltple_user_layer_' . $status,$post_id,$defaultLayerId);
 							
 							if( $this->layer->type == 'cb-default-layer' ){
 								
@@ -2138,7 +2144,7 @@ class LTPLE_Client {
 							}
 							else{
 								
-								$this->exit_message('Template successfully saved!',200);
+								$this->exit_message('Template successfully '.$status,200);
 							}
 						}
 					}
@@ -2708,7 +2714,7 @@ class LTPLE_Client {
 			$style .='#plan_table .plan_section {';
 				
 				$style .='color: '.$this->settings->mainColor . ';';
-				$style .='font-size: 22px;';
+				$style .='font-size: 19px;';
 				$style .='font-weight: normal;';
 				$style .='display: block;';
 				$style .='cursor: pointer;';

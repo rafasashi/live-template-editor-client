@@ -625,7 +625,7 @@ class LTPLE_Client_Settings {
 		
 		$settings['templates'] = array(
 			'title'					=> __( 'Templates', 'live-template-editor-client' ),
-			'description'			=> 'Default settings for templates',
+			'description'			=> 'Default template settings',
 			'fields'				=> apply_filters('ltple_templates_settings',array(				
 				array(
 					'id' 			=> 'main_video',

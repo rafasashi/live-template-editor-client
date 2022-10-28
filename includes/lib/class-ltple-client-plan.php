@@ -354,9 +354,17 @@ class LTPLE_Client_Plan {
 		
 		$layer_types = $this->parent->layer->get_layer_types();
 		
-		//get sections
+		// get headers
 		
-		$sections = array();
+		$headers = array(
+		
+			'resources'	=> '<i class="fas fa-cubes"></i> Resources',
+		
+		);
+		
+		// get sections
+		
+		$services = array();
 		
 		if( !empty($plan['info']['total_storage']) ){
 			
@@ -372,35 +380,35 @@ class LTPLE_Client_Plan {
 						
 						// get header
 						
-						$row ='<tr>';
+						$res_row ='<tr>';
 						
-							$row .='<th>';
+							$res_row .='<th>';
 							
-								$row .= $storage_unit;
+								$res_row .= $storage_unit;
 
-							$row .='</th>';
+							$res_row .='</th>';
 							
-							$row .='<th>';
+							$res_row .='<th>';
 								
 								if( is_array($usage) ){
 									
 									$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
 									
-									$row .= '<span class="badge">'. $storage_usage .' / ' . $total_storage_amount.'</span>';
+									$res_row .= '<span class="badge">'. $storage_usage .' / ' . $total_storage_amount.'</span>';
 								}
 								else{
 									
-									$row .= 'Unlimited resources';
+									$res_row .= 'Unlimited resources';
 									
 									if( $total_storage_amount > 0 ){
 										
-										$row .= ' <span class="badge">+' . $total_storage_amount . '</span> saved ' . $this->parent->layer->get_storage_name($type->storage) . ( $total_storage_amount == 1 ? '' : 's' );
+										$res_row .= ' <span class="badge">+' . $total_storage_amount . '</span> saved ' . $this->parent->layer->get_storage_name($type->storage) . ( $total_storage_amount == 1 ? '' : 's' );
 									}
 								}
 								
-							$row .='</th>';
+							$res_row .='</th>';
 							
-						$row .='</tr>';						
+						$res_row .='</tr>';						
 						
 						// get ranges
 						
@@ -408,36 +416,36 @@ class LTPLE_Client_Plan {
 							
 							if( empty($type->addon) || $type->addon->term_id != $range['term_id'] ){
 								
-								$row .='<tr>';
+								$res_row .='<tr>';
 								
-									$row .='<td>';
+									$res_row .='<td>';
 									
-										$row .= $range['name'];
+										$res_row .= $range['name'];
 
-									$row .='</td>';
+									$res_row .='</td>';
 									
-									$row .='<td style="text-align:center;">';
+									$res_row .='<td style="text-align:center;">';
 										
 										if( isset($plan['options'][0]) && in_array( $range['slug'], $plan['options'] ) ){
 											
 											// plan view
 											
-											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+											$res_row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
 										}
 										elseif( isset( $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] ) && $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] === true ){
 											
 											// billing info view
 											
-											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+											$res_row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
 										}											
 										else{
 											
-											$row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
+											$res_row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
 										}
 
-									$row .='</td>';
+									$res_row .='</td>';
 									
-								$row .='</tr>';
+								$res_row .='</tr>';
 							}
 						}
 					}
@@ -445,7 +453,7 @@ class LTPLE_Client_Plan {
 				
 				if( !empty($section) ){
 				
-					$sections[$section][] = $row;
+					$services['resources'][$section][] = $res_row;
 				}
 			}
 		}
@@ -456,34 +464,44 @@ class LTPLE_Client_Plan {
 			
 			$table .= '<div id="plan_storage" style="display:block;">';				
 				
-				foreach( $sections as $section => $rows ){
+				foreach( $services as $service => $sections ){
 					
-					$md5 = md5($section);
-					
-					$table .= '<a data-toggle="collapse" data-target="#section_'.$md5.'" class="plan_section">';
-					
-						$table .= $section . ' <i class="fas fa-angle-down pull-right" style="font-size:25px;"></i>';
-					
-					$table .= '</a>';
-					
-					$table .= '<div id="section_'.$md5.'" class="panel-collapse collapse">';
+					$table .= '<h2>' . $headers[$service] . '</h2>';
+				
+					foreach( $sections as $section => $rows ){
+						
+						$md5 = md5($section);
+						
+						$table .= '<a data-toggle="collapse" data-target="#section_'.$md5.'" class="plan_section">';
+						
+							$table .= $section . ' <i class="fas fa-angle-down pull-right" style="font-size:25px;"></i>';
+						
+						$table .= '</a>';
+						
+						$table .= '<div id="section_'.$md5.'" class="panel-collapse collapse">';
+				
+							$table .='<table class="table-striped">';
+							
+							foreach( $rows as $row ){
 			
-						$table .='<table class="table-striped">';
-						
-						foreach( $rows as $row ){
-		
-							$table .= $row;
-						}
-						
-						$table .='</table>';
-						
-					$table .= '</div>';
+								$table .= $row;
+							}
+							
+							$table .='</table>';
+							
+						$table .= '</div>';
+					}
 				}
 
 			$table .= '</div>';
 			
-			$table = apply_filters('ltple_plan_table',$table,$plan);
-			
+			if( $extra = apply_filters('ltple_plan_table','',$plan) ){
+				
+				$table .= '<h2><i class="far fa-gem"></i> Extra Features</h2>';
+
+				$table .= $extra;
+			}
+
 		$table .= '</div>'.PHP_EOL;
 
 		return $table;
@@ -572,7 +590,7 @@ class LTPLE_Client_Plan {
 					
 					$this->shortcode .= '<div class="modal-body" style="padding:0px;">'.PHP_EOL;
 					
-						$this->shortcode .= '<iframe src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
+						$this->shortcode .= '<iframe sandbox="allow-top-navigation" src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
 				
 					$this->shortcode .= '</div>';
 				}

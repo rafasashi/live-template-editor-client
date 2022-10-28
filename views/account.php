@@ -95,18 +95,20 @@
 				elseif( $currentTab == 'billing-info' ){
 					
 					echo'<div class="tab-pane active" id="billing-info">';
-					
-						echo'<form action="' . $this->parent->urls->current . '" method="post" class="tab-content" style="margin-top:20px;">';
-
-							echo'<div class="col-xs-12">';
 						
-								echo'<h3>Billing Information</h3>';
-								
-								echo'<hr></hr>';
-								
-							echo'</div>';
+						echo'<ul class="nav nav-pills" role="tablist" style="overflow: visible;">';
+						
+							echo'<li role="presentation" class="active">';
+							
+								echo'<a href="' . $this->parent->urls->current . '" role="tab">Current Plan</a></li>';
+							
+							echo'</li>';
 
-							echo'<div class="col-xs-12">';
+						echo'</ul>';
+						
+						echo '<div class="container">';
+							
+							echo'<form action="' . $this->parent->urls->current . '" method="post" class="tab-content" style="margin-top:20px;">';
 
 								$user_plan = $this->parent->plan->get_user_plan_info( $this->parent->user->ID );
 			
@@ -130,7 +132,7 @@
 										
 											$remaining_days = $this->parent->users->get_user_remaining_days($this->parent->user->ID);
 										}
-
+	
 										if( $remaining_days < 0 ){
 							
 											echo '<div class="alert alert-warning">Your license could not be renewed, please update your card details or contact us...</div>';
@@ -151,36 +153,23 @@
 										
 									echo '</div>';									
 								}
+							
+								echo'<h2><i class="fas fa-file-invoice"></i> License & Payment</h2>';
 
 								echo '<div class="panel panel-default">';
 							
-									echo '<div class="panel-heading"><b>License & Payment</b></div>';
-									
 									echo '<div class="panel-body">';								
 			
-										echo'<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\''. $this->parent->assets_url . '/loader.gif\');height:64px;"></div>';
-			
-										echo '<iframe src="' . $this->parent->server->url . '/agreement/?overview=' . $this->parent->ltple_encrypt_uri($this->parent->user->user_email) . '&du=' . parse_url($this->parent->urls->primary,PHP_URL_HOST) . '&_='.time().'" style="margin-top: -65px;position:relative;top:0;bottom:0;width:100%;height:500px;overflow:hidden;border:0;"></iframe>';
+										echo '<iframe data-src="' . $this->parent->server->url . '/agreement/?overview=' . $this->parent->ltple_encrypt_uri($this->parent->user->user_email) . '&du=' . parse_url($this->parent->urls->primary,PHP_URL_HOST) . '&_='.time().'" style="position:relative;top:0;bottom:0;width:100%;height:500px;overflow:hidden;border:0;"></iframe>';
 										
 									echo '</div>';
 									
 								echo '</div>';
 								
-							echo'</div>';
-							
-							echo'<div class="clearfix"></div>';
-							
-							echo'<div class="col-xs-12 col-sm-6"></div>';
-							
-							echo'<div class="col-xs-12 col-sm-2 text-right">';
-						
-								//echo'<button class="btn btn-sm btn-warning" style="width:100%;margin-top: 10px;">Save</button>';
-								
-							echo'</div>';
 
-							echo'<div class="col-xs-12 col-sm-4"></div>';
-								
-						echo'</form>';
+							echo'</form>';
+							
+						echo'</div>';	
 						
 					echo'</div>';					
 				}
