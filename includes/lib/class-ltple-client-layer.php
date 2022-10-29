@@ -2669,9 +2669,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$visibility = 'registered';
 		}
-		elseif( !$visibility = get_post_meta( $layer->ID, 'layerVisibility', true ) ){
+		else{
 			
-			$visibility = 'anyone';
+			$layer_type = $this->get_layer_type($layer);
+			
+			$visibility = $this->get_type_visibility($layer_type);
+			
+			if( $visibility == 'admin' || $visibility == 'none' ){
+				
+				$visibility = 'assigned';
+			}
+			elseif( !$visibility = get_post_meta( $layer->ID, 'layerVisibility', true ) ){
+					
+				$visibility = 'anyone';
+			}
 		}
 		
 		return $visibility;
