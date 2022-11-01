@@ -1,5 +1,6 @@
 <?php
 
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 	class LTPLE_Client_Admin_API {
@@ -124,7 +125,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			$html = '';
 
 			switch( $field['type'] ) {
-
+				
+				case 'html':
+					
+					$html .= $data;
+					
+				break;
 				case 'text':
 				case 'url':
 				case 'email':

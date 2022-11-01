@@ -349,14 +349,14 @@ class LTPLE_Client_Settings {
 			
 			foreach( $this->tabs['default-contents'] as $slug => $tab ){
 				
-				if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
+				if( !empty($tab['tab']) && !empty($tab['in_menu']) ){
 					
 					if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
 						
 						add_submenu_page(
 							'ltple-resources',
-							$tab['name'],
-							$tab['name'],
+							$tab['tab'],
+							$tab['tab'],
 							'edit_pages',
 							'edit-tags.php?taxonomy='.$slug.( !empty($tab['post-type']) ? '&post_type=' . $tab['post-type'] : '' ),
 						);						
@@ -365,8 +365,8 @@ class LTPLE_Client_Settings {
 						
 						add_submenu_page(
 							'ltple-resources',
-							$tab['name'],
-							$tab['name'],
+							$tab['tab'],
+							$tab['tab'],
 							'edit_pages',
 							'edit.php?post_type='.$slug
 						);
@@ -624,9 +624,26 @@ class LTPLE_Client_Settings {
 		);
 		
 		$settings['templates'] = array(
+		
 			'title'					=> __( 'Templates', 'live-template-editor-client' ),
 			'description'			=> 'Default template settings',
-			'fields'				=> apply_filters('ltple_templates_settings',array(				
+			'fields'				=> apply_filters('ltple_templates_settings',array(
+				array(
+					'id' 			=> 'default_hosted_page_template',
+					'name' 			=> 'default_hosted_page_template',
+					'label'			=> __( 'Default Page Template' , 'live-template-editor-client' ),
+					'description'	=> 'Hosted Page template id',
+					'type'			=> 'number',
+					'data'			=> $this->get_default_page_template_id(),
+				),				
+			))
+		);
+		
+		$settings['videos'] = array(
+		
+			'title'					=> __( 'Videos', 'live-template-editor-client' ),
+			'description'			=> 'Default explainer videos',
+			'fields'				=> apply_filters('ltple_videos_settings',array(				
 				array(
 					'id' 			=> 'main_video',
 					'name' 			=> 'main_video',
@@ -635,6 +652,7 @@ class LTPLE_Client_Settings {
 					'type'			=> 'text',
 					'placeholder'	=> 'http://',
 				),
+				
 			))
 		);
 		
@@ -710,6 +728,25 @@ class LTPLE_Client_Settings {
 		return $settings;
 	}
 	
+	public function get_default_page_template_id(){
+		
+		$default_id = intval(get_option($this->parent->_base . 'default_hosted_page_template',0));
+		
+		if( $default_id > 0){
+		
+			$layer_type = $this->parent->layer->get_layer_type($default_id);
+			
+			if( empty($layer_type) || $layer_type->storage != 'user-page' ){
+				
+				$default_id = 0;
+
+				update_option($this->parent->_base . 'default_hosted_page_template',$default_id,false);
+			}
+		}
+		
+		return $default_id;
+	}
+	
 	public function register_addons($addons){
 	
 		$addons['affiliate-program'] = array(
@@ -760,25 +797,25 @@ class LTPLE_Client_Settings {
 		
 			'default-contents' => apply_filters('ltple_admin_tabs_default-contents',array(
 			
-				'cb-default-layer' 	=> array( 'tab'  => 'Templates','name' => 'Templates'),
-				'default-element' 	=> array( 'tab'  => 'HTML',		'name' => 'Elements'),
-				'element-library' 	=> array( 'tab'  => 'HTML',		'name' => 'Libraries',	'type' => 'taxonomy', 'post-type' => 'default-element' ),
-				'css-library' 		=> array( 'tab'  => 'CSS',		'name' => 'CSS', 		'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
-				'js-library' 		=> array( 'tab'  => 'JS',		'name' => 'JS', 		'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
-				'font-library' 		=> array( 'tab'  => 'Fonts',	'name' => 'Fonts', 		'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
-				'default-image' 	=> array( 'tab'  => 'Images',	'name' => 'Images'),
-				'image-type' 		=> array( 'tab'  => 'Images',	'name' => 'Sections', 	'type' => 'taxonomy', 'post-type' => 'default-image' ),	
-				'app-type' 			=> array( 'tab'  => 'APIs',		'name' => 'APIs', 		'type' => 'taxonomy', 'post-type' => 'user-app' ),	
+				'cb-default-layer' 	=> array( 'tab'  => 'Templates','name' => 'Templates', 	'in_menu' => true ),
+				'default-element' 	=> array( 'tab'  => 'HTML',		'name' => 'Elements', 	'in_menu' => true ),
+				'element-library' 	=> array( 'tab'  => 'HTML',		'name' => 'Libraries', 	'in_menu' => false,		'type' => 'taxonomy', 'post-type' => 'default-element' ),
+				'css-library' 		=> array( 'tab'  => 'CSS',		'name' => 'CSS', 		'in_menu' => true, 		'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'js-library' 		=> array( 'tab'  => 'JS',		'name' => 'JS', 		'in_menu' => true, 		'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'font-library' 		=> array( 'tab'  => 'Fonts',	'name' => 'Fonts', 		'in_menu' => true, 		'type' => 'taxonomy', 'post-type' => 'cb-default-layer' ),
+				'default-image' 	=> array( 'tab'  => 'Images',	'name' => 'Images', 	'in_menu' => true ),
+				'image-type' 		=> array( 'tab'  => 'Images',	'name' => 'Sections', 	'in_menu' => false, 	'type' => 'taxonomy', 'post-type' => 'default-image' ),	
+				'app-type' 			=> array( 'tab'  => 'APIs',		'name' => 'APIs', 		'in_menu' => true, 		'type' => 'taxonomy', 'post-type' => 'user-app' ),	
 			)),
 			'user-contents' => apply_filters('ltple_admin_tabs_user-contents',array(
 			  
-				'user-layer' 	=> array( 'tab'  => 'HTML', 		'name' => 'HTML'),
-				'user-page' 	=> array( 'tab'  => 'Pages', 		'name' => 'Pages'),
-				'user-menu' 	=> array( 'tab'  => 'Pages',		'name' => 'Menus'),
-				'user-image' 	=> array( 'tab'  => 'Images',		'name' => 'Images'),				
-				'user-psd' 		=> array( 'tab'  => 'Images',		'name' => 'PSDs'),
-				'user-bookmark' => array( 'tab'  => 'Bookmarks',	'name' => 'Bookmarks'),
-				'user-app' 		=> array( 'tab'  => 'Apps',			'name' => 'Apps'),
+				'user-layer' 	=> array( 'tab'  => 'HTML', 		'name' => 'HTML', 		'in_menu' => true),
+				'user-page' 	=> array( 'tab'  => 'Pages', 		'name' => 'Pages', 		'in_menu' => true),
+				'user-menu' 	=> array( 'tab'  => 'Pages',		'name' => 'Menus', 		'in_menu' => false),
+				'user-image' 	=> array( 'tab'  => 'Images',		'name' => 'Images', 	'in_menu' => true),				
+				'user-psd' 		=> array( 'tab'  => 'Images',		'name' => 'PSDs', 		'in_menu' => false),
+				'user-bookmark' => array( 'tab'  => 'Bookmarks',	'name' => 'Bookmarks', 	'in_menu' => true),
+				'user-app' 		=> array( 'tab'  => 'Apps',			'name' => 'Apps', 		'in_menu' => true),
 			)),
 			'user-network' => apply_filters('ltple_admin_tabs_user-network',array(
 			
@@ -1015,7 +1052,7 @@ class LTPLE_Client_Settings {
 										
 										foreach( $this->tabs['default-contents'] as $slug => $tab ){
 											
-											if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
+											if( !empty($tab['tab']) && !empty($tab['in_menu']) ){
 												
 												if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
 													
@@ -1026,7 +1063,7 @@ class LTPLE_Client_Settings {
 													$path = 'edit.php?post_type='.$slug;
 												}
 												
-												echo '<li><a href="'.get_admin_url(null,$path).'">' . $tab['name'] . '</a></li>';
+												echo '<li><a href="'.get_admin_url(null,$path).'">' . $tab['tab'] . '</a></li>';
 											}
 										}
 										

@@ -812,15 +812,30 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				return false;
 			
-			$storage_name = 'Template';
-			
-			if( $post->post_type == 'default-element' ){
-				
-				$storage_name = 'Element';
-			}
+			$storage_name = $post->post_type == 'default-element' ? 'Element' : 'Template';
 			
 			if( $post->post_type == 'cb-default-layer' ){
+			
+				if( $buttons = LTPLE_Editor::instance()->get_edit_buttons($post) ){
 				
+					$this->defaultFields[]=array(
+					
+						'metabox' 		=> array( 
+				
+							'name' 		=> 'ltple-actions',
+							'title' 	=> __('Editor', 'live-template-editor-client' ), 
+							'screen'	=> array($post->post_type),
+							'context' 	=> 'advanced',
+							'frontend'	=> false,
+						),
+						'type'			=> 'html',
+						'id'			=> 'templateActions',
+						'label'			=> '',
+						'description'	=> '',
+						'data'			=> '<div class="btn-wrapper" style="background:#fbfbfb;padding:120px 0;text-align:center;">' . $buttons . '</div>',
+					);
+				}				
+			
 				//get current layer range
 				
 				$this->defaultFields[] = array(
@@ -1805,6 +1820,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 	public function get_user_layer_fields($fields,$post=null){
 		
+		// TODO move to LTPLE plugin
+		
 		if( empty($this->userFields) ){
 			
 			//get post
@@ -1816,53 +1833,68 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !empty($post->ID) ){
 				
-				$metabox = array( 
-					
-					'name' 		=> 'ltple_settings',
-					'title' 	=> __( 'LTPLE Settings', 'live-template-editor-client' ), 
-					'screen'	=> array($post->post_type),
-					'context' 	=> 'advanced',
-					'frontend'	=> false,
-				);		
+				$post_type = get_post_type_object($post->post_type);
+				
+				$storage_name = $post_type->labels->singular_name;
 
-				$default_id = $this->get_default_id($post->ID);
-				
-				$this->userFields[]=array(
-				
-					'metabox' 		=> $metabox,
-					'type'			=> 'text',
-					'id'			=> 'defaultLayerId',
-					'label'			=> 'Default ID',
-					'placeholder'	=> '',
-					'description'	=> '',
-					'disabled'		=> true,
-					'data'			=> $default_id > 0 ? $default_id : 'Error: No default template assigned',
-				);			
-				
-				if( !empty($default_id) ){
+				if( $default_id = $this->get_default_id($post->ID) ){
 					
+					if( $buttons = LTPLE_Editor::instance()->get_edit_buttons($post) ){
+					
+						$this->userFields[]=array(
+						
+							'metabox' 		=> array( 
+					
+								'name' 		=> 'ltple-actions',
+								'title' 	=> __('Editor', 'live-template-editor-client' ), 
+								'screen'	=> array($post->post_type),
+								'context' 	=> 'advanced',
+								'frontend'	=> false,
+							),
+							'type'			=> 'html',
+							'id'			=> 'templateActions',
+							'label'			=> '',
+							'description'	=> '<i>default ID: ' . $default_id . '</i>',
+							'data'			=> '<div class="btn-wrapper" style="background:#fbfbfb;padding:120px 0;text-align:center;">' . $buttons . '</div>',
+						);
+					}
+				
 					$layer_type = $this->get_layer_type($post);
 					
 					if( $this->is_html_output($layer_type->output) ){
 
 						$this->userFields[] = array(
 						
-							'metabox' 		=> $metabox,
+							'metabox' 		=> array( 
+					
+								'name' 		=> 'layer-content',
+								'title' 	=> __( $storage_name . ' HTML', 'live-template-editor-client' ),
+								'screen'	=> array($post->post_type),
+								'context' 	=> 'advanced',
+								'frontend'	=> false,
+							),
 							'type'			=> 'code_editor',
 							'code'			=> 'html',
 							'id'			=> 'layerContent',
-							'label'			=> 'HTML',
+							'label'			=> '',
 							'placeholder'	=> "HTML content",
 							'description'	=>''
 						);
 												
 						$this->userFields[] = array(
 						
-							'metabox' 		=> $metabox,
+							'metabox' 		=> array( 
+					
+								'name' 		=> 'layer-css',
+								'title' 	=> __( $storage_name . ' CSS', 'live-template-editor-client' ),
+								'screen'	=> array($post->post_type),
+								'context' 	=> 'advanced',
+								'frontend'	=> false,
+							),
 							'type'			=> 'code_editor',
 							'code'			=> 'css',
 							'id'			=> 'layerCss',
-							'label'			=> 'CSS',
+							'label'			=> '',
 							'placeholder'	=> "Internal CSS style sheet",
 							'stripcslashes'	=> false,
 							'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
@@ -1870,10 +1902,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->userFields[] = array(
 						
-							'metabox' 		=> $metabox,
+							'metabox' 		=> array( 
+					
+								'name' 		=> 'layer-js',
+								'title' 	=> __( $storage_name . ' JS', 'live-template-editor-client' ),
+								'screen'	=> array($post->post_type),
+								'context' 	=> 'advanced',
+								'frontend'	=> false,
+							),
 							'type'			=> 'code_editor',
+							'code'			=> 'js',
 							'id'			=> 'layerJs',
-							'label'			=> 'Javascript',
+							'label'			=> '',
 							'placeholder'	=> "Additional Javascript",
 							'stripcslashes'	=> false,
 							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
@@ -1883,10 +1923,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 							$this->userFields[] = array(
 							
-								'metabox' 		=> $metabox,
+								'metabox' 		=> array( 
+						
+									'name' 		=> 'layer-description',
+									'title' 	=> __( 'Short Description', 'live-template-editor-client' ),
+									'screen'	=> array($post->post_type),
+									'context' 	=> 'side',
+									'frontend'	=> false,
+								),
 								'type'			=> 'textarea',
 								'id'			=> 'layerDescription',
-								'label'			=> 'Short Description',
+								'label'			=> '',
 								'placeholder'	=> 'Short text description',
 								'description'	=> '<span style="float:right;font-size:10px;">max 500 words</span>',
 								'style'			=> 'height:100px;',
@@ -1924,25 +1971,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'options'		=> $options,
 							'class'			=> 'col-xs-6',
 						);
-						
-						/*
-						$this->userFields[]=array(
-						
-							'metabox' 		=> $metabox,,
-							'type'			=> 'select',
-							'id'			=> 'layerFooter',
-							'label'			=> 'Footer',
-							'description'	=> '',
-							'options'		=> array(
-							
-								'-1' => 'None'
-							),
-						);
-						*/
 					}
 				}
 				
-				do_action('ltple_user_layer_fields',$post,$metabox);
+				do_action('ltple_user_layer_fields',$post,array( 
+					
+					'name' 		=> 'ltple-settings',
+					'title' 	=> __( $storage_name . ' Editor Settings', 'live-template-editor-client' ), 
+					'screen'	=> array($post->post_type),
+					'context' 	=> 'advanced',
+					'frontend'	=> false,
+				));
 			}
 		}
 		
@@ -3106,7 +3145,40 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !isset($this->default_ids[$id]) ){
 			
-			$this->default_ids[$id] = intval(get_post_meta( $id, 'defaultLayerId', true ));
+			if( !$default_id = intval(get_post_meta( $id, 'defaultLayerId', true )) ){
+				
+				if( is_admin() ){
+					
+					$post_type = false;
+					
+					if( strpos($_SERVER['SCRIPT_NAME'],'post.php') > 0 ){
+						
+						if( !empty($_GET['post']) ){
+							
+							$post_id = intval($_GET['post']);
+							
+							if( $post = get_post($post_id) ){
+								
+								$post_type = $post->post_type;
+							}
+						}
+					}
+					elseif( strpos($_SERVER['SCRIPT_NAME'],'post-new.php') > 0 ){
+						
+						if( !empty($_GET['post_type']) ){
+							
+							$post_type = sanitize_title($_GET['post_type']);
+						}
+					}
+
+					if( $post_type == 'page' || $post_type == 'user-page' ){
+						
+						$default_id = $this->parent->settings->get_default_page_template_id();
+					}
+				}
+			}
+			
+			$this->default_ids[$id] = $default_id;
 		}
 		
 		return $this->default_ids[$id];

@@ -2844,7 +2844,6 @@ class LTPLE_Client {
 		wp_enqueue_style( $this->_token . '-client-ui' );
 	}
 	
-
 	/**
 	 * Load admin Javascript.
 	 * @access  public
@@ -2868,7 +2867,7 @@ class LTPLE_Client {
 		wp_enqueue_style( $this->_token . '-toggle-switch' );
 
 	} // End admin_enqueue_scripts ()
-
+	
 	public function get_login_logo(){
 		
 		echo'<style type="text/css">';
