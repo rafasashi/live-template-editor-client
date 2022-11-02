@@ -402,7 +402,7 @@ class LTPLE_Client_Plan {
 									
 									if( $total_storage_amount > 0 ){
 										
-										$res_row .= ' <span class="badge">+' . $total_storage_amount . '</span> saved ' . $this->parent->layer->get_storage_name($type->storage) . ( $total_storage_amount == 1 ? '' : 's' );
+										$res_row .= ' <span class="badge">x' . $total_storage_amount . '</span> saved ' . $this->parent->layer->get_storage_name($type->storage) . ( $total_storage_amount == 1 ? '' : 's' );
 									}
 								}
 								

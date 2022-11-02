@@ -709,7 +709,7 @@ class LTPLE_Client_Settings {
 					'label'			=> __( 'Import' , 'live-template-editor-client' ),
 					'placeholder'	=> 'https://',
 					'type'			=> 'url',
-					'description'	=> '.../api/ltple-export/v1/post_type/{post_type}/{key}',
+					'description'	=> '.../api/ltple-export/v1/post_type/{post_type}/{key} <br> (generate resource local urls after importing)',
 				),
 				array(
 					'id' 			=> 'data[key]',

@@ -476,6 +476,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_action( 'ltple_local_layer_head', array( $this, 'filter_local_layer_head'),99999,1 );
 		
+		add_action( 'ltple_local_layer_saved', array( $this, 'save_default_id'),10,1);
+		
 		add_filter( 'preview_post_link', array($this,'filter_preview_layer_link'),99999,2 );
 		
 		add_filter( 'ltple_preview_post_url', array($this,'filter_view_layer_link'),99999,2 );
@@ -2336,7 +2338,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 				// get default layer id
 				
-				$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+				$default_id = $this->get_default_id($post->ID);
 				
 				$post = get_post($default_id);
 			}
@@ -2622,7 +2624,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 									// get default layer id
 									
-									$default_id = intval(get_post_meta( $post->ID, 'defaultLayerId', true ));
+									$default_id = $this->get_default_id($post->ID);
 									
 									$default_post = get_post($default_id);
 								
@@ -2806,7 +2808,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( $post->post_type != 'cb-default-layer' ){
 				
-				$defaultLayerId = intval(get_post_meta( $post_id, 'defaultLayerId', true ));
+				$defaultLayerId = $this->get_default_id($post_id);
 			
 				if( $defaultLayerId > 0 ){
 					
@@ -3147,9 +3149,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !$default_id = intval(get_post_meta( $id, 'defaultLayerId', true )) ){
 				
+				$post_type = false;
+				
 				if( is_admin() ){
-					
-					$post_type = false;
 					
 					if( strpos($_SERVER['SCRIPT_NAME'],'post.php') > 0 ){
 						
@@ -3170,11 +3172,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$post_type = sanitize_title($_GET['post_type']);
 						}
 					}
-
-					if( $post_type == 'page' || $post_type == 'user-page' ){
-						
-						$default_id = $this->parent->settings->get_default_page_template_id();
+				}
+				elseif( !empty($_GET['page_id']) && !empty($_GET['preview']) ){
+				
+					// preview in editor
+					
+					$post_id = intval($_GET['page_id']);
+					
+					if( $post = get_post($post_id) ){
+					
+						$post_type = $post->post_type;
 					}
+				}
+				
+				if( $post_type == 'page' || $post_type == 'user-page' ){
+					
+					$default_id = $this->parent->settings->get_default_page_template_id();
 				}
 			}
 			
@@ -3182,6 +3195,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $this->default_ids[$id];
+	}
+	
+	public function save_default_id( $layer, $default_id = null ){
+		
+		if( is_null($default_id) ){
+			
+			$default_id = $this->get_default_id($layer->ID);
+		}
+		
+		if( !empty($default_id) ){
+			
+			update_post_meta($layer->ID, 'defaultLayerId', $default_id);
+		}
 	}
 	
 	public function get_layer($layer){
@@ -5965,7 +5991,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				if( isset($_POST['font_url']) ){
 					
 					$font_url = sanitize_url($_POST['font_url']);
-			
+					
 					$font_version = '1.0.7';
 				
 					$attach_id = get_term_meta($term->term_id, 'font_attachment', true);
@@ -5973,7 +5999,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$font_md5 = get_term_meta($term->term_id, 'font_md5', true);
 									
 					$md5 = md5($font_url.$attach_id.$font_version);
-
+					
 					if( $font_md5 != $md5 ){
 												
 						$fonts = array(

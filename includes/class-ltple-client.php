@@ -421,7 +421,6 @@ class LTPLE_Client {
 			
 			return false;
 
-		
 		return apply_filters('ltple_in_ui',true);
 	}
 	
@@ -2031,7 +2030,7 @@ class LTPLE_Client {
 						$post_status 	= $this->user->layer->post_status;
 						$post_type		= $this->layer->type; // user-layer, post, page...
 						
-						$defaultLayerId	= intval(get_post_meta( $post_id, 'defaultLayerId', true));
+						$defaultLayerId	= $this->layer->get_default_id($post_id);
 					}
 					else{
 						
@@ -2111,7 +2110,7 @@ class LTPLE_Client {
 						
 						if( is_numeric($post_id) ){
 							
-							update_post_meta($post_id, 'defaultLayerId', $defaultLayerId);
+							$this->layer->save_default_id($post_id,$defaultLayerId);
 							
 							update_post_meta($post_id, 'layerContent', $post_content);
 							
