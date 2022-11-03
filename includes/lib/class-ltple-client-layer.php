@@ -2889,15 +2889,25 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$this->uri = intval($_GET['uri']);
 			}
-			elseif( 
+			elseif( $post_id = url_to_postid($this->parent->urls->current) ){
 				
-				strpos($this->parent->urls->current, $this->parent->urls->edit) === false && 
-				strpos($this->parent->urls->current, $this->parent->urls->gallery) === false && 
-				strpos($this->parent->urls->current, $this->parent->urls->dashboard) === false &&
-				strpos($this->parent->urls->current, $this->parent->urls->home . '/plan/') === false 
-			){
+				$front_id = intval(get_option('page_on_front'));
 				
-				$this->uri = apply_filters('ltple_layer_set_uri',url_to_postid($this->parent->urls->current));
+				if( $front_id == $post_id ){
+					
+					if( parse_url($this->parent->urls->current,PHP_URL_PATH) == '/' ){
+						
+						$this->uri = $front_id;
+					}
+					else{
+						
+						// unknown path (wedocs...)
+					}
+				}
+				else{
+				
+					$this->uri = apply_filters('ltple_layer_set_uri',$post_id);
+				}
 			}
 		}
 	}
@@ -3318,7 +3328,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						// get layer css
 						
 						$this->layerCss = get_post_meta( $this->id, 'layerCss', true );
-
+						
 						if( empty($this->layerCss) && $this->id != $this->defaultId ){
 							
 							if( $this->layerOutput != 'hosted-page' ){
