@@ -3209,14 +3209,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function save_default_id( $layer, $default_id = null ){
 		
-		if( is_null($default_id) ){
+		if( is_numeric($layer) ){
 			
-			$default_id = $this->get_default_id($layer->ID);
+			$layer = get_post($layer);
 		}
 		
-		if( !empty($default_id) ){
+		if( !empty($layer->ID) ){
 			
-			update_post_meta($layer->ID, 'defaultLayerId', $default_id);
+			if( is_null($default_id) ){
+				
+				$default_id = $this->get_default_id($layer->ID);
+			}
+			
+			if( !empty($default_id) ){
+				
+				update_post_meta($layer->ID, 'defaultLayerId', $default_id);
+			}
 		}
 	}
 	
