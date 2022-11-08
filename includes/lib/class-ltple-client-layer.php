@@ -1357,7 +1357,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$tabs['install'] = array(
 				
-					'name' 		=> 'Install',
+					'name' 		=> '<i class="fa fa-cloud-download-alt" aria-hidden="true"></i> Install',
 					'slug'		=> 'install',
 					'content'	=> $installation,
 				

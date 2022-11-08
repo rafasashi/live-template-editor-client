@@ -418,7 +418,7 @@ class LTPLE_Client_Product {
 
 				echo'<div class="panel panel-default">';								
 				
-					echo'<div class="panel-body tab-content" style="min-height:380px;">';
+					echo'<div class="panel-body tab-content" style="min-height:380px;font-size:16px;line-height:2em;">';
 						
 						$class = ' class="tab-pane active"';
 						
