@@ -1496,9 +1496,9 @@ class LTPLE_Client {
 								
 								$time = current_time('mysql');
 								
-								$args['ID'] 			= $post_id;
-								$args['post_date'] 		= $time;
-								$args['post_date_gmt'] 	= get_gmt_from_date( $time );
+								$args['ID'] 				= $post_id;
+								$args['post_modified'] 		= $time;
+								$args['post_modified_gmt'] 	= get_gmt_from_date( $time );
 							
 								wp_update_post($args);
 							}
@@ -1795,7 +1795,7 @@ class LTPLE_Client {
 								
 								//redirect to user layer
 
-								$layer_url = $this->urls->edit . '?uri=' . $post_id . '&action=edit';
+								$layer_url = $this->urls->get_edit_url($post_id);
 
 								wp_redirect($layer_url);
 								echo 'Redirecting editor...';
@@ -2086,8 +2086,8 @@ class LTPLE_Client {
 								'post_name' 	=> $post_name,
 								'post_type' 	=> $post_type,
 								'post_status' 	=> $post_status,
-								'post_date' 	=> $time,
-								'post_date_gmt' => $gmt,
+								'post_modified' 	=> $time,
+								'post_modified_gmt' => $gmt,
 							));
 							
 							$status = 'updated';
@@ -2135,7 +2135,7 @@ class LTPLE_Client {
 								
 								//redirect to user layer
 
-								$user_layer_url = $this->urls->edit . '?action=edit&uri=' . $post_id;
+								$user_layer_url = $this->urls->get_edit_url($post_id);
 								
 								wp_redirect($user_layer_url);
 								echo 'Redirecting editor...';
@@ -2373,7 +2373,7 @@ class LTPLE_Client {
 		
 		$style .='#main-menu {';
 		
-			$style .='padding-left:72px;';
+			$style .='padding-left:79px;';
 		
 		$style .='}';	
 		

@@ -84,9 +84,9 @@
 					}
 				}
 				
-				if( empty($section) || $section == 'bookmarks' ){
-					
-					if( $this->parent->apps->get_list('payment') ){
+				if( $this->parent->apps->has_bookmarks() ){
+
+					if( empty($section) || $section == 'bookmarks' ){
 					
 						echo'<li class="gallery_type_title">Bookmarks</li>';
 						

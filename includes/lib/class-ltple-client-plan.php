@@ -2709,7 +2709,7 @@ class LTPLE_Client_Plan {
 			
 				$storage_field.='<span class="input-group-addon" style="color:#fff;padding:6px 10px;background:#9E9E9E;">+</span>';
 				
-				$storage_field.='<input type="number" step="1" min="-1000" max="1000" placeholder="0" name="account_storages['.$storage_id.']" style="width:50px;" value="'.$storage_amount.'"/>';
+				$storage_field.='<input type="number" step="1" min="-1000" max="1000" placeholder="0" name="account_storages['.$storage_id.']" style="width:80px;" value="'.$storage_amount.'"/>';
 				
 				$storage_field.='<span class="input-group-addon" style="padding:6px 10px;">'.$storage_unit.'</span>';
 		

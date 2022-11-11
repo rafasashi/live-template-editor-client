@@ -385,6 +385,16 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		return $fields;
 	}
 	
+	public function has_bookmarks(){
+	
+		if( $this->get_list('payment') ){
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public function get_sidebar_content($sidebar,$currentTab,$output){
 
 		if( !empty($this->list) ){

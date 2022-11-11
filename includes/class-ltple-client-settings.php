@@ -392,14 +392,14 @@ class LTPLE_Client_Settings {
 			
 			foreach( $this->tabs['user-contents'] as $slug => $tab ){
 				
-				if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
+				if( !empty($tab['tab']) && !empty($tab['in_menu']) ){
 					
 					if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
 						
 						add_submenu_page(
 							'ltple-storage',
-							$tab['name'],
-							$tab['name'],
+							$tab['tab'],
+							$tab['tab'],
 							'edit_pages',
 							'edit-tags.php?taxonomy='.$slug.( !empty($tab['post-type']) ? '&post_type=' . $tab['post-type'] : '' ),
 						);						
@@ -408,8 +408,8 @@ class LTPLE_Client_Settings {
 						
 						add_submenu_page(
 							'ltple-storage',
-							$tab['name'],
-							$tab['name'],
+							$tab['tab'],
+							$tab['tab'],
 							'edit_pages',
 							'edit.php?post_type='.$slug
 						);
@@ -853,7 +853,7 @@ class LTPLE_Client_Settings {
 				
 				foreach($this->tabs as $t => $tabs){
 				
-					if(isset($tabs[$_GET['post_type']])){
+					if( isset($tabs[$_GET['post_type']]) ){
 						
 						$this->tabIndex = $t;
 						
@@ -891,11 +891,11 @@ class LTPLE_Client_Settings {
 
 				foreach($this->tabs as $t => $tabs){
 
-					if(isset($tabs[$_GET['taxonomy']])){
+					if( isset($tabs[$_GET['taxonomy']]) ){
 						
-						$this->tabIndex = $t;
+						$this->tabIndex = !empty($_GET['post_type']) && $_GET['post_type'] == 'cb-default-layer' ? 'default-contents' : $t;
 						
-						add_filter( $_GET['taxonomy'].'_pre_add_form', array( $this, 'taxonomy_tabs') );						
+						add_filter( $_GET['taxonomy'].'_pre_add_form', array( $this, 'taxonomy_tabs') );
 					}
 				}
 			}
@@ -1102,14 +1102,6 @@ class LTPLE_Client_Settings {
 						
 						echo '<div id="dashboard_right_now" class="postbox ">';
 							
-							/*
-							echo '<div class="postbox-header">';
-								
-								echo '<h2 class="hndle ui-sortable-handle">' . __( 'Storage types' , 'live-template-editor-client' ) . '</h2>';
-							
-							echo '</div>';
-							*/
-							
 							echo '<div class="inside">';
 							
 								echo '<div class="main">';
@@ -1118,7 +1110,7 @@ class LTPLE_Client_Settings {
 										
 										foreach( $this->tabs['user-contents'] as $slug => $tab ){
 											
-											if( empty($tab['tab']) || $tab['tab'] == $tab['name'] ){
+											if( !empty($tab['tab']) && !empty($tab['in_menu']) ){
 												
 												if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
 													
@@ -1129,7 +1121,7 @@ class LTPLE_Client_Settings {
 													$path = 'edit.php?post_type='.$slug;
 												}
 												
-												echo '<li><a href="'.get_admin_url(null,$path).'">' . $tab['name'] . '</a></li>';
+												echo '<li><a href="'.get_admin_url(null,$path).'">' . $tab['tab'] . '</a></li>';
 											}
 										}
 										

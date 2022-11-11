@@ -1360,8 +1360,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'name' 		=> '<i class="fa fa-cloud-download-alt" aria-hidden="true"></i> Install',
 					'slug'		=> 'install',
 					'content'	=> $installation,
-				
-				);				
+				);			
 			}		
 		}
 		

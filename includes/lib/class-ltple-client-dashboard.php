@@ -157,7 +157,7 @@ class LTPLE_Client_Dashboard {
 			'post_type' 	=> 'post',
 			'numberposts' 	=> 5,
 			'post_status' 	=> 'publish',
-			'orderby' 		=> 'post_date',
+			'orderby' 		=> 'post_modified',
 			'order' 		=> 'DESC',
 		);
 		
@@ -243,7 +243,7 @@ class LTPLE_Client_Dashboard {
 			'post_type' 	=> 'cb-default-layer',
 			'post_status' 	=> array('publish'),
 			'numberposts' 	=> $number,
-			'orderby' 		=> 'post_date',
+			'orderby' 		=> 'post_modified',
 			'order' 		=> 'DESC',
 			'meta_query' 	=> array(
 			
@@ -329,11 +329,11 @@ class LTPLE_Client_Dashboard {
 		
 		if( $posts = get_posts(array(
 			
-			'post_type' 	=> array_keys($this->parent->layer->get_storage_types()),
+			'post_type' 	=> array_keys($this->parent->layer->get_user_storage_types($this->parent->user->ID)),
 			'author' 		=> $this->parent->user->ID,
 			'numberposts' 	=> $number,
 			'post_status' 	=> array('publish','draft'),
-			'orderby' 		=> 'post_date',
+			'orderby' 		=> 'post_modified',
 			'order' 		=> 'DESC',
 		))){
 		
@@ -341,7 +341,7 @@ class LTPLE_Client_Dashboard {
 				
 				// get edit url
 				
-				$edit_url = $this->parent->urls->edit . '?uri=' . $post->ID . '&action=edit';
+				$edit_url = $this->parent->urls->get_edit_url($post->ID);
 				
 				// get default id
 				

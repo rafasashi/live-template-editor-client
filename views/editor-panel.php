@@ -63,28 +63,37 @@ get_header();
 								
 								// title
 								
-								echo'<div class="panel panel-default">';
+								$post_title = !empty($ltple->user->layer->post_title) ? $ltple->user->layer->post_title : '' ;
+								
+								if( post_type_supports($post_type->name,'title') ){
+									
+									echo'<div class="panel panel-default">';
 
-									echo'<div class="panel-heading">';
-										
-										if( !empty($post_type->labels->singular_name) ){
+										echo'<div class="panel-heading">';
 											
-											echo $post_type->labels->singular_name . ' ';
-										}
+											if( !empty($post_type->labels->singular_name) ){
+												
+												echo $post_type->labels->singular_name . ' ';
+											}
+											
+											echo 'Title';
+											
+										echo'</div>';
 										
-										echo 'Title';
+										echo'<div class="panel-body">';
+											
+											echo'<input type="text" placeholder="Title" name="post_title" value="' . $post_title . '" style="width:100%;padding:10px;font-size:20px;border-radius:2px;" required="required"/>';
+											
+											do_action('ltple_edit_layer_title',$ltple->user->layer);								
 										
-									echo'</div>';
+										echo'</div>';
 									
-									echo'<div class="panel-body">';
-									
-										echo'<input type="text" placeholder="Title" name="post_title" value="' . ( !empty($ltple->user->layer->post_title) ? $ltple->user->layer->post_title : '' ) . '" style="width:100%;padding:10px;font-size:20px;border-radius:2px;" required="required"/>';
-										
-										do_action('ltple_edit_layer_title',$ltple->user->layer);								
-								
 									echo'</div>';
-								
-								echo'</div>';						
+								}
+								else{
+									
+									echo'<input type="hidden" name="post_title" value="' . $post_title . '" />';
+								}
 								
 							echo'</div>';
 

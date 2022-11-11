@@ -144,7 +144,6 @@ class LTPLE_Client_Urls {
 		return false;
 	}
 		
-	
 	public function init_urls(){
 		
 		if( get_option('permalink_structure') == '' ){
@@ -316,6 +315,11 @@ class LTPLE_Client_Urls {
 			return $value;
 			
 		},99999,3);
+	}
+	
+	public function get_edit_url($layer_id){
+		
+		return $this->edit . '?uri=' . $layer_id . '&action=edit';
 	}
 
 	/**

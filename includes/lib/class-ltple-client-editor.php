@@ -311,12 +311,12 @@ class LTPLE_Client_Editor {
 	
 	public function filter_settings_url($post_id){
 		
-		return $this->parent->urls->edit . '?uri=' . $post_id . '&action=edit';
+		return $this->parent->urls->get_edit_url($post_id);
 	}
 	
 	public function filter_edit_url($post_id){
 		
-		return $this->parent->urls->edit . '?uri=' . $post_id;
+		return $this->parent->urls->get_edit_url($post_id);
 	}	
 	
 	public function filter_elements($elemLibraries){
