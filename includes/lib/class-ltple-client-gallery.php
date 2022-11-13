@@ -512,8 +512,8 @@ class LTPLE_Client_Gallery {
 			$item.='<div class="' . implode( ' ', get_post_class('',$post->ID) ) . '" id="post-' . $post->ID . '">';
 				
 				$item.='<div class="panel panel-default">';
-
-					$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
+					
+					$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb') . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
 					
 					$item.='<div class="panel-body" style="padding-bottom:0;position:relative;">';
 						

@@ -2780,7 +2780,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $storage;
 	}
 	
-	public function get_thumbnail_url($post){
+	public function get_thumbnail_url($post,$size='medium_large'){
 		
 		$post_id = 0;
 		
@@ -2799,7 +2799,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( $image_id = get_post_thumbnail_id( $post_id ) ){
 				
-				if ($src = wp_get_attachment_image_src( $image_id, 'medium_large' )){
+				if ($src = wp_get_attachment_image_src( $image_id,$size)){
 					
 					return $src[0];
 				}
