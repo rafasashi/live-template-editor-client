@@ -200,10 +200,10 @@
 									if($count > 0){
 									
 										echo'<li role="presentation"'.$active.'><a href="#'.$app_type.'" aria-controls="'.$app_type.'" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$app_type)).'<span class="badge">'.$count.'</span></a></li>';
+										
+										$active='';
 									}
 								}
-								
-								$active='';
 							}
 							
 							echo'</ul>';
