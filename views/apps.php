@@ -195,9 +195,7 @@
 								
 								if( $app_type != '' ){
 									
-									$count = count($app_types[$app_type]);
-									
-									if($count > 0){
+									if( $count = count($app_types[$app_type]) ){
 									
 										echo'<li role="presentation"'.$active.'><a href="#'.$app_type.'" aria-controls="'.$app_type.'" role="tab" data-toggle="tab">'.strtoupper(str_replace(array('-','_'),' ',$app_type)).'<span class="badge">'.$count.'</span></a></li>';
 										
@@ -216,16 +214,19 @@
 								
 								foreach( $app_types as $app_type => $apps ){
 									
-									echo'<div role="tabpanel" class="tab-pane'.$active.'" id="'.$app_type.'">';
-										
-										foreach($apps as $slug => $app){									
-										
-											echo $items[$slug];
-										}
-										
-									echo'</div>';
+									if( $count = count($app_types[$app_type]) ){
 									
-									$active='';
+										echo'<div role="tabpanel" class="tab-pane'.$active.'" id="'.$app_type.'">';
+											
+											foreach($apps as $slug => $app){									
+											
+												echo $items[$slug];
+											}
+											
+										echo'</div>';
+										
+										$active='';
+									}
 								}
 								
 							echo'</div>';					
