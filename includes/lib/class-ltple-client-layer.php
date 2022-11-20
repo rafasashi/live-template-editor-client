@@ -1965,10 +1965,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 						$this->userFields[]=array(
 						
-							'metabox' 		=> $metabox,
+							'metabox' 		=> array( 
+					
+								'name' 		=> $post->post_type . '-settings',
+								'title' 	=> __('Settings', 'live-template-editor-client' ),
+								'screen'	=> array($post->post_type),
+								'context' 	=> 'advanced',
+								'frontend'	=> true,
+							),
 							'type'			=> 'select',
 							'id'			=> 'layerMenuId',
-							'label'			=> 'Menu',
+							'label'			=> $storage_name . ' Menu',
 							'options'		=> $options,
 							'class'			=> 'col-xs-6',
 						);

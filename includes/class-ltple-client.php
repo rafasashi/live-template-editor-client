@@ -252,6 +252,8 @@ class LTPLE_Client {
 	
 	public function ltple_encrypt_str($string, $secret_key = ''){
 		
+		$string = is_array($string) ? json_encode($string) : $string;
+		
 		$output = false;
 
 		$encrypt_method = "AES-256-CBC";
