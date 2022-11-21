@@ -10,7 +10,7 @@
 	
 	// get layer type
 
-	if( $layer_type = $this->gallery->get_layer_type_info((!empty($_GET['gallery']) ? $_GET['gallery'] : false )) ){
+	if( $layer_type = $this->gallery->get_layer_type_info((!empty($_GET['gallery']) ? sanitize_title($_GET['gallery']) : false )) ){
 		
 		//get layer range
 		
@@ -36,9 +36,9 @@
 							
 							echo 'All Categories';
 						}
-						elseif( !empty($_GET['layer']['default_storage']) ){
+						elseif( is_array($_GET['layer']) && !empty($_GET['layer']['default_storage']) ){
 							
-							echo $this->layer->get_storage_name($_GET['layer']['default_storage']);
+							echo $this->layer->get_storage_name(sanitize_title($_GET['layer']['default_storage']));
 						}
 						else{
 							
@@ -109,6 +109,7 @@
 									}
 									
 									if( $layer_count < 1 )
+										
 										continue;
 									
 									echo '<li'.$class.'>';

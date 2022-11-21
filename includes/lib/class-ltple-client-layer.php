@@ -740,7 +740,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				foreach( $types as $type ){
 					
-					if( empty($type->ranges) )
+					if( empty($type->ranges) || $type->visibility != 'anyone' )
+						
 						continue;
 					
 					foreach( $type->ranges as $range ){

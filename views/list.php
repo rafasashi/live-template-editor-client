@@ -54,7 +54,7 @@
 							
 							echo '<li role="presentation"><a href="' . apply_filters( 'ltple_list_'.$currentTab.'_new_url', $this->parent->urls->gallery . '?layer[default_storage]=' . $currentTab, $currentTab, $output ) . '" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ New</a></li>';						
 						}
-						else{
+						elseif( apply_filters('ltple_list_'.$currentTab.'_new_modal',true) ){
 							
 							echo '<li role="presentation">';
 								

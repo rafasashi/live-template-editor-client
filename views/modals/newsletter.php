@@ -2,11 +2,11 @@
 
 <div id="newsletterPreferences" class="collect-info modal fade in" tabindex="-1" role="dialog" aria-labelledby="channelModal" style="display:block;">
 	
-	<div class="modal-dialog modal-lg" role="document">
+	<div style="margin-top: 15vh;" class="modal-dialog modal-lg" role="document">
 		
 		<div class="modal-content">
 		
-			<div class="modal-header">
+			<div style="border-radius:0;" class="modal-header">
 
 				<h4 class="modal-title" id="channelModal">Newsletter Preferences</h4>
 			
@@ -26,7 +26,11 @@
 								
 								'id' 		=> 'can_spam',
 								'type' 		=> 'radio',
-								'options' 	=> array('true'=>'YES','false'=>'NO'),
+								'options' 	=> array(
+								
+									'true'	=>'YES',
+									'false'	=>'NO',
+								),
 							));							
 						?>
 						
@@ -34,11 +38,11 @@
 						
 						<input type="hidden" name="submitted" id="submitted" value="true">
 						
-						<span class="input-group-btn">
+						<div style="width:100%;margin-top:15px;">
 							
-							<button class="btn btn-primary" type="button" id="submitNewsletterPreferences">Submit</button>
+							<button class="btn btn-primary btn-sm" type="button" id="submitNewsletterPreferences">Submit</button>
 							
-						</span>
+						</div>
 						
 					</div>
 				</form>
