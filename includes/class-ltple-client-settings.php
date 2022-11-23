@@ -851,13 +851,15 @@ class LTPLE_Client_Settings {
 			
 			if( !empty($_GET['post_type']) ){			
 				
+				$post_type = sanitize_title($_GET['post_type']);
+				
 				foreach($this->tabs as $t => $tabs){
 				
-					if( isset($tabs[$_GET['post_type']]) ){
+					if( isset($tabs[$post_type]) ){
 						
 						$this->tabIndex = $t;
 						
-						add_filter( 'views_edit-' . $_GET['post_type'], array( $this, 'post_type_tabs') );						
+						add_filter( 'views_edit-' . $post_type, array( $this, 'post_type_tabs') );						
 					}
 				}
 			}
@@ -866,10 +868,12 @@ class LTPLE_Client_Settings {
 
 		add_action( 'load-post.php', function() {
 			
-			if( !empty($_GET['post']) ){
-			
-				if( $post = get_post($_GET['post']) ){
+			if( !empty($_GET['post']) && is_numeric($_GET['post']) ){
 				
+				$post_id = intval($_GET['post']);
+				
+				if( $post = get_post($post_id) ){
+					
 					foreach($this->tabs as $t => $tabs){
 					
 						if( isset($tabs[$post->post_type]) ){
@@ -888,14 +892,35 @@ class LTPLE_Client_Settings {
 		add_action( 'load-edit-tags.php', function() {
 			
 			if( !empty($_GET['taxonomy']) ){
+				
+				$post_type = !empty($_GET['post_type']) ? sanitize_title($_GET['post_type']) : '';
+				
+				$taxonomy = !empty($_GET['taxonomy']) ? sanitize_title($_GET['taxonomy']) : '';
 
 				foreach($this->tabs as $t => $tabs){
-
-					if( isset($tabs[$_GET['taxonomy']]) ){
+	
+					if( isset($tabs[$taxonomy]) ){
 						
-						$this->tabIndex = !empty($_GET['post_type']) && $_GET['post_type'] == 'cb-default-layer' ? 'default-contents' : $t;
+						if( !empty($taxonomy) && in_array($taxonomy,array(
+							
+							'gallery-section',
+							'layer-type',
+							'layer-range',
 						
-						add_filter( $_GET['taxonomy'].'_pre_add_form', array( $this, 'taxonomy_tabs') );
+						))){
+							
+							$this->tabIndex = 'gallery-settings';
+						}
+						elseif( $post_type == 'cb-default-layer' ){
+						
+							$this->tabIndex =  'default-contents';
+						}
+						else{
+							
+							$this->tabIndex =  $t;
+						}
+						
+						add_filter( $taxonomy.'_pre_add_form', array( $this, 'taxonomy_tabs') );
 					}
 				}
 			}

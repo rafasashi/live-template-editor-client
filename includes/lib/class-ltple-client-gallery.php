@@ -366,7 +366,7 @@ class LTPLE_Client_Gallery {
 		
 		$referer = $rest->get_header( 'referer' );
 		
-		$gallery = (!empty($_GET['gallery']) ? sanitize_title($_GET['gallery']) : false );
+		$gallery = !empty($_GET['gallery']) ? sanitize_title($_GET['gallery']) : false;
 		
 		if( $layer_type = $this->get_layer_type_info($gallery) ){
 			
