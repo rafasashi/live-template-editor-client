@@ -55,14 +55,14 @@ class LTPLE_Client_Dashboard {
 			
 			if( $articles = $this->get_recent_posts( array(
 
-				'post_type' 	=> 'post',
+				'post_type' 	=> array('post','docs'),
 				'numberposts' 	=> 10,
 						
 			))){
 				
 				$boxes['last_articles'] = array(
 				
-					'title' 	=> 'Last Articles',
+					'title' 	=> 'Articles & Docs',
 					'content' 	=> $articles,
 				);
 			}
@@ -199,7 +199,15 @@ class LTPLE_Client_Dashboard {
 					
 					$recent_posts .= '<div class="media-body">';
 				
-						$recent_posts .= '<a href="'.$permalink.'">' . $post->post_title . '</a>';
+						$recent_posts .= '<a href="'.$permalink.'">';
+						
+							$recent_posts .= wp_trim_words($post->post_title,5,'...');
+							
+							$recent_posts .= '<br>';
+							
+							$recent_posts .= '<span class="label" style="color:' . $this->parent->settings->mainColor . ';border:1px solid ' . $this->parent->settings->mainColor . ';font-size:10px;">'.ucfirst($post->post_type).'</span>';
+						
+						$recent_posts .= '</a>';
 					
 					$recent_posts .= '</div>';
 					
@@ -308,7 +316,7 @@ class LTPLE_Client_Dashboard {
 				
 						$new_templates .= '<a href="'.$permalink.'">';
 						
-							$new_templates .= '' . $post->post_title . '';
+							$new_templates .= wp_trim_words($post->post_title,5,'...');
 							
 							$new_templates .= '<br><span class="label" style="color:' . $this->parent->settings->mainColor . ';border:1px solid ' . $this->parent->settings->mainColor . ';font-size:10px;">' . $layer_type->name . '</span>';
 						
@@ -387,7 +395,7 @@ class LTPLE_Client_Dashboard {
 				
 						$saved_projects .= '<a href="'.$edit_url.'">';
 						
-							$saved_projects .= $post->post_title . ( $post->post_status == 'draft' ? ' <span class="label" style="background:#d8d6d6;padding:2px 5px;font-size:10px;border-radius:20px;">draft</span>' : '' );
+							$saved_projects .= wp_trim_words($post->post_title,5,'...') . ( $post->post_status == 'draft' ? ' <span class="label" style="background:#d8d6d6;padding:2px 5px;font-size:10px;border-radius:20px;">draft</span>' : '' );
 							
 							if( !empty($layer_type->name) ){
 							
