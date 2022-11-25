@@ -2601,6 +2601,13 @@ class LTPLE_Client {
 				
 			$style .='}';
 			
+			$style .= '#content.library-content{';
+				
+				$style .='border-left: 1px solid #ddd;';
+				$style .='background:#fbfbfb;';
+			
+			$style .='}';
+			
 			$style .= '#content.library-content a:hover{';
 				
 				$style .='text-decoration:none !important;';

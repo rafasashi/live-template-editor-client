@@ -429,7 +429,7 @@ class LTPLE_Client_Dashboard {
 			$manage_section .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->account .'/?tab=home-page"><span class="fa fa-globe"></span> Hosted Pages</a></li>';
 		}
 		
-		$manage_section .= '<li><a href="' . $this->parent->urls->media .'user-images/"><span class="glyphicon glyphicon-folder-close"></span> Media Library</a></li>';
+		$manage_section .= '<li><a href="' . $this->parent->urls->media .'user-images/"><span class="fas fa-icons"></span> Media Library</a></li>';
 		
 		$manage_section = apply_filters('ltple_dashboard_manage_sidebar',$manage_section,$currentTab,$output);
 		

@@ -18,7 +18,7 @@
 			
 		echo '</div>';
 		
-		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;">';
+		echo'<div id="content" class="library-content">';
 			
 			echo'<div class="tab-content">';
 			

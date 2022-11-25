@@ -32,7 +32,7 @@ get_header();
 		
 		echo'<div id="content" class="library-content" style="border-left:1px solid #ddd;background:#fbfbfb;padding-bottom:15px;min-height:calc( 100vh - ' . ( $ltple->inWidget ?  0 : 190 ) . 'px);">';
 			
-			echo'<div class="tab-content col-xs-12">';
+			echo'<div id="editor-panel" class="col-xs-12">';
 			
 				if(!empty($ltple->parent->message)){ 
 				
@@ -113,18 +113,10 @@ get_header();
 						
 						echo'<div class="row gutter-20">';
 							
-							echo'<div class="col-md-3 col-md-push-9">';
-								
-								// side metaboxes
-								
-								//$ltple->admin->display_frontend_metaboxes($fields,$ltple->user->layer,'side');
-								
-							echo'</div>';
-							
-							echo'<div class="col-md-9 col-md-pull-3">';
-								
-								if( $tabs = $ltple->layer->get_project_tabs($ltple->user->layer,$fields) ){
+							if( $tabs = $ltple->layer->get_project_tabs($ltple->user->layer,$fields) ){
 									
+								echo'<div class="col-md-9">';
+
 									echo'<ul class="nav nav-tabs" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;overflow:visible !important;height:47px;font-size:13px;font-weight:bold;">';
 										
 										$class=' class="active"';
@@ -137,34 +129,47 @@ get_header();
 										}
 										
 									echo'</ul>';
-
-									echo'<div class="panel panel-default">';								
 									
-										echo'<div class="panel-body tab-content" style="min-height:380px;">';
+								echo'</div>';
+							
+								echo'<div class="col-xs-12">';
+	
+									echo'<div class="editor-tab-content tab-content">';
+										
+										$active = ' active';
+										
+										foreach( $tabs as $i => $tab ){
 											
-											$class = ' class="tab-pane active"';
-											
-											foreach( $tabs as $tab ){
+											echo '<div role="tabpanel" class="editor-tab-pane tab-pane'.$active.'" id="'.$tab['slug'].'">';
 												
-												echo '<div role="tabpanel"'.$class.' id="'.$tab['slug'].'">';
-												
-													echo $tab['content'];
+												echo'<div class="col-md-9 panel panel-default">';
 													
-												echo '</div>';
+													echo'<div class="editor-tab-panel-body">';
+													
+														echo $tab['content'];
+														
+													echo'</div>';
+													
+												echo'</div>';
 												
-												$class = ' class="tab-pane"';
-											}
+												echo'<div class="col-md-3">';
+													
+													if( !empty($tab['tips']) ){
+														
+														echo $tab['tips'];
+													}
+													
+												echo'</div>';
+												
+											echo '</div>';
 											
-										echo'</div>';
+											$active = '';
+										}
 										
 									echo'</div>';
-								}
 								
-								// advanced metaboxes
-								
-								//$ltple->admin->display_frontend_metaboxes($fields,$ltple->user->layer,'advanced');
-								
-							echo'</div>';
+								echo'</div>';
+							}
 							
 						echo'</div>';
 						

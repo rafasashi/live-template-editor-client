@@ -151,7 +151,7 @@
 				
 			echo'</div>';
 
-			echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;padding-bottom:15px;padding-top:0px;min-height:calc( 100vh - ' . ( $this->inWidget ?  0 : 190 ) . 'px);">';
+			echo'<div id="content" class="library-content" style="padding-bottom:15px;padding-top:0px;min-height:calc( 100vh - ' . ( $this->inWidget ?  0 : 190 ) . 'px);">';
 				
 				echo'<div class="tab-content">';
 				

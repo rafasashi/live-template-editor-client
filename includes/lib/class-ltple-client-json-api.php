@@ -50,16 +50,16 @@ class LTPLE_Client_Json_API {
 		
 		//$pagination = false;
 		
-		// normalize fields
+		// get table style
 
-		$table = '<style>';
+		$style = '';
 			
 			if(!$show_toolbar){
 				
-				$table .= '#'.$toolbar.'{display:none;}';
+				$style .= '#'.$toolbar.'{display:none;}';
 			}
 			
-			$table .= '
+			$style .= '
 			
 			.table, .fixed-table-loading {
 				
@@ -110,7 +110,7 @@ class LTPLE_Client_Json_API {
 			
 			if( $pagination === 'scroll' ){
 				
-				$table .= '
+				$style .= '
 				
 				html, #ltple-wrapper{
 					
@@ -153,7 +153,7 @@ class LTPLE_Client_Json_API {
 			}
 			elseif( $pagination === true ){
 
-				$table .= '
+				$style .= '
 				
 				.bootstrap-table{
 					
@@ -200,13 +200,13 @@ class LTPLE_Client_Json_API {
 				
 				if( $pagination != 'scroll' ){
 						
-					$table .= 'tbody {
+					$style .= 'tbody {
 						
 						height:calc( 100vh - 240px);
 					}';					
 				}
 
-				$table .= 'tr {
+				$style .= 'tr {
 					
 					float: left;
 					margin: 0;
@@ -223,77 +223,77 @@ class LTPLE_Client_Json_API {
 					display:inline-block !important;
 				}';
 				
-				$table .= '@media (min-width: 768px) {';
+				$style .= '@media (min-width: 768px) {';
 
 					if( $pagination != 'scroll' ){
 						
-						$table .= 'tbody {
+						$style .= 'tbody {
 							
 							height:calc( 100vh - ' . ( $this->parent->inWidget ?  100 : 190 ) . 'px);				
 						}';					
 					}
 					
-					$table .= 'tr {';
+					$style .= 'tr {';
 					
 						if( $card === true || $card == 2 || $card == 4 ){
 							
-							$table .= 'width: 50%; /*sm-6*/';
+							$style .= 'width: 50%; /*sm-6*/';
 						}
 						elseif( $card == 1 ){
 							
-							$table .= 'width: 100%; /*lg-12*/';
+							$style .= 'width: 100%; /*lg-12*/';
 						}
 						
-					$table .= '}';
+					$style .= '}';
 					
-				$table .= '}';
+				$style .= '}';
 				
-				$table .= '@media (min-width: 992px) {';
+				$style .= '@media (min-width: 992px) {';
 					
-					$table .= 'tr {';
+					$style .= 'tr {';
 						
 						if( $card === true || $card == 4 ){
 						
-							$table .= 'width: 33.33333333%; /*md-4*/';
+							$style .= 'width: 33.33333333%; /*md-4*/';
 						
 						}
 						elseif( $card == 2 ){
 						
-							$table .= 'width: 50%; /*md-6*/';
+							$style .= 'width: 50%; /*md-6*/';
 						
 						}
 						elseif( $card == 1 ){
 							
-							$table .= 'width: 100%; /*lg-12*/';
+							$style .= 'width: 100%; /*lg-12*/';
 						}
 						
-					$table .= '}';
+					$style .= '}';
 					
-				$table .= '}';
+				$style .= '}';
 				
-				$table .= '@media (min-width: 1200px) {';
+				$style .= '@media (min-width: 1200px) {';
 					
-					$table .= 'tr {';
+					$style .= 'tr {';
 						
 						if( $card === true || $card == 4 ){
 						
-							$table .= 'width: 33.33333333%; /*lg-4*/';
+							$style .= 'width: 33.33333333%; /*lg-4*/';
 						}
 						elseif( $card == 2 ){
 						
-							$table .= 'width: 50%; /*md-6*/';
+							$style .= 'width: 50%; /*md-6*/';
 						
 						}
 						elseif( $card == 1 ){
 							
-							$table .= 'width: 100%; /*lg-12*/';
+							$style .= 'width: 100%; /*lg-12*/';
 						}
 						
-					$table .= '}';
+					$style .= '}';
 					
-				$table .= '}';
+				$style .= '}';
 
-				$table .= 'td {
+				$style .= 'td {
 					
 					border:none !important;
 					left: 0;
@@ -305,7 +305,7 @@ class LTPLE_Client_Json_API {
 					
 				}';
 			
-				$table .= '.card-view .title {
+				$style .= '.card-view .title {
 					
 					display:none !important;
 					
@@ -314,7 +314,7 @@ class LTPLE_Client_Json_API {
 			}
 			else{
 				
-				$table .= '
+				$style .= '
 				
 				thead, tbody tr {
 					
@@ -330,7 +330,7 @@ class LTPLE_Client_Json_API {
 				
 				if( $header === false && $fixedHeight === true ){
 					
-					$table .= '
+					$style .= '
 					
 					thead {
 						width: calc( 100% - 6px );
@@ -351,7 +351,13 @@ class LTPLE_Client_Json_API {
 				}
 			}
 			
-		$table .= '</style>';
+		wp_register_style( 'ltple-table-' . $tableId, false, array());
+		wp_enqueue_style(  'ltple-table-' . $tableId );
+		wp_add_inline_style( 'ltple-table-' . $tableId, $style);
+		
+		// get table content
+		
+		$table =  '';
 		
 		if($form){
 		

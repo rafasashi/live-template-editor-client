@@ -120,7 +120,11 @@ class LTPLE_Client_Editor {
 						wp_register_script( $this->parent->_token . '-editor-panel', '', array( 'jquery', $this->parent->_token . '-notify' ) );
 						wp_enqueue_script( $this->parent->_token . '-editor-panel' );
 						wp_add_inline_script( $this->parent->_token . '-editor-panel', $this->get_editor_panel_script());
-						
+								
+						wp_register_style( $this->parent->_token . '-editor-panel', false, array());
+						wp_enqueue_style(  $this->parent->_token . '-editor-panel' );
+						wp_add_inline_style( $this->parent->_token . '-editor-panel', $this->get_editor_panel_style());
+		
 						$layer_type = $this->parent->layer->get_layer_type($_REQUEST['uri']);
 
 						if( $layer_type->output == 'hosted-page' ){
@@ -293,6 +297,69 @@ class LTPLE_Client_Editor {
 		
 		
 		return $script;
+	}
+
+	public function get_editor_panel_style(){
+		
+		$css = '';
+		
+		$css .= '.editor-tab-panel-body {';
+			
+			$css .= 'min-height:380px;';
+			$css .= 'padding:10px 0;';
+			$css .= 'width:100%;';
+			$css .= 'display:inline-block;';
+			
+		$css .= '}';
+		
+		$css .= '.editor-tab-panel-body #toolbar {';
+			
+			$css .= 'position:absolute;';
+			
+		$css .= '}';
+		
+		$css .= '.editor-tab-panel-body tr {
+			
+			background-color:#fff !important;
+		}';
+		
+		$css .= '.editor-tab-panel-body td {
+			
+			border:none !important;
+		}';
+		
+		$css .= '.editor-tab-panel-body .fixed-table-toolbar {
+			
+			margin:0 10px -7px 0 !important;
+		}';
+		
+		$css .= '.editor-tab-panel-body th, .editor-tab-panel-body .fixed-table-pagination {
+			
+			display:none;
+		}';
+		
+		$css .= '.editor-tab-actions  {
+			
+			position:absolute;
+			margin:8px;
+		}';
+		
+		$css .= '.editor-tab-actions .dropdown-menu li .label {
+			
+			font-size:11px;
+			margin:0;
+		}';
+		
+		$css .= '.editor-tab-actions .btn {
+		
+			border: 1px solid ' . $this->parent->settings->mainColor . ' !important;
+			color:' . $this->parent->settings->mainColor . ' !important;
+			background:#fff !important;
+			margin-right:5px;
+			box-shadow:none;
+		}';
+
+		return $css;		
 	}
 
 	public function filter_iframe_url($url,$layer){

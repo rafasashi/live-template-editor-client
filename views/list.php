@@ -22,7 +22,7 @@
 			
 		echo '</div>';
 		
-		echo'<div id="content" class="library-content" style="border-left: 1px solid #ddd;background:#fbfbfb;min-height:10vh;">';
+		echo'<div id="content" class="library-content" style="min-height:10vh;">';
 			
 			echo'<div class="tab-content">';
 				
