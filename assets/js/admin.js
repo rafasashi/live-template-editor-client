@@ -18,15 +18,25 @@
 			
 			e.preventDefault();
 
-			//var clone = $(".input-group-row").eq(0).clone().removeClass('ui-state-disabled');
+			var target 	= "." + $(this).data("target");
 			
-			var target = "." + $(this).data("target");
+			var $clone 	= $(target).eq(0).clone().removeClass('ui-state-disabled');
 			
-			var clone = $(target).eq(0).clone().removeClass('ui-state-disabled');
+			$clone.find('input,textarea,select,radio').val('');
 			
-			clone.append('<a class="remove-input-group" href="#">x</a>');
+			var $rands	= $clone.find('input[data-value="random"]');
 			
-			$(this).next(".input-group").append(clone);
+			if( $rands.length > 0 ){
+				
+				$rands.val(Math.floor(Math.random()*1000000000));
+			}
+			
+			if( $clone.find('a.remove-input-group').length < 1 ){
+			
+				$clone.append('<a class="remove-input-group" href="#">x</a>');
+			}
+			
+			$(this).next(".input-group").append($clone);
 			
 		});
 		

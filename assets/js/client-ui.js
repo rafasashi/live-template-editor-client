@@ -305,15 +305,62 @@ if( typeof editorCallbacks == typeof undefined )
 		
 		function set_actionables(){
 			
-			if( $('[data-toggle="action"]').length > 0 ){
+			if( $('[data-toggle="copy"]').length > 0 ){
+				
+				$('[data-toggle="copy"]').on('click', function(e) {
+					
+					e.preventDefault();
+					
+					var tagName = $(this).prop('tagName');
+					
+					if( tagName == 'INPUT' || tagName == 'BUTTON' ){
+						
+						var input = $(this).data('id');
+						
+						if( $(input).length > 0 ){
+							
+							var iTag = $(input).prop('tagName');
+							
+							var iValue = false;
+							
+							if( iTag == 'INPUT' ){
+								
+								iValue = $(input).val();
+							}
+							else if( iTag == 'TEXTAREA' ){
+								
+								iValue = $(input).text();
+							}
+							
+							if( iValue !== false ){
+								
+								var $temp = $("<input>");
+							
+								$("body").append($temp);
+							
+								$temp.val(iValue).select();
+								
+								document.execCommand("copy");
+								
+								$temp.remove();
+														
+								$.notify( 'Copied to clipboard', {
+									
+									className: 'info',
+									position: 'top center'
+								});
+							}
+						}
+					}
+				});
+			}
+			else if( $('[data-toggle="action"]').length > 0 ){
 			
 				$('[data-toggle="action"]').unbind().on('click', function(e) {
 					
 					e.preventDefault();
 					
 					var dialogId = $(this).closest('.ui-dialog-content').attr('id');
-					
-					$( '#' + dialogId ).dialog('close');
 					
 					var $btn = $('[data-target="\\#'  + dialogId + '"]');
 					
@@ -334,63 +381,135 @@ if( typeof editorCallbacks == typeof undefined )
 					
 					var refresh = $(this).attr('data-refresh');
 					
-					var tagName = $(this).prop('tagName');
-					var method 	= 'get';
-					var url 	= $(this).attr('href');
+					var tagName 	= $(this).prop('tagName');
+					var method 		= 'get';
+					var url 		= $(this).attr('href');
+					var validity 	= true;
 					var data;
 						
 					if( tagName == 'INPUT' || tagName == 'BUTTON' ){
 						
+						var $dform = $(this).closest('div[data-action]');
+						
+						if( $dform.length > 0 ){
+							
+							durl 	= $dform.data('action');
+							dmethod = $dform.attr('data-method') || method;							
+							
+							$dform.wrap('<form action="'+durl+'" method="'+dmethod+'"></form>');
+							
+							$dform.removeAttr('data-action');
+							$dform.removeAttr('data-method');
+						}
+						
 						var $form = $(this).closest('form');
 						
 						if( $form.length > 0 ){
-						
-							url 	= $form.attr('action');
-							method 	= $form.attr('method');
-							data 	= $form.serialize();
+							
+							if( $form[0].reportValidity() ){
+								
+								url 	= $form.attr('action') || url;
+								method 	= $form.attr('method') || method;
+								
+								data 	= $form.serialize();
+							}
+							else{
+								
+								validity = false;
+							}
 						}
 					}
 					
-					$.ajaxQueue({
-									
-						type 		: method,
-						url  		: url,
-						data		: data,
-						cache		: false,
-						beforeSend	: function(){
-							
-							
-						},
-						error: function(jqXHR,textStatus,errorThrown) {
-							
-							if( typeof textStatus !== typeof undefined && textStatus != 'error' ){
+					if( validity === true ){
+						
+						$( '#' + dialogId ).dialog('close');
+					
+						$.ajaxQueue({
+										
+							type 		: method,
+							url  		: url,
+							data		: data,
+							cache		: false,
+							beforeSend	: function(){
 								
-								$.notify( textStatus, {
-									
-									className: 'error',
-									position: 'top center'
-								});
-							}
-							else if( jqXHR.status == 404 ){
 								
-								data = jqXHR.responseText;
+							},
+							error: function(jqXHR,textStatus,errorThrown) {
+								
+								if( typeof textStatus !== typeof undefined && textStatus != 'error' ){
+									
+									$.notify( textStatus, {
+										
+										className: 'error',
+										position: 'top center'
+									});
+								}
+								else if( jqXHR.status == 404 ){
+									
+									data = jqXHR.responseText;
+									
+									if (typeof data === 'string' || data instanceof String){
+								
+										try{
+										
+											data = JSON.parse(data);
+										} 
+										catch (error) {
+											
+										}
+									}
+								
+									if( typeof data.message != typeof undefined ){
+										
+										// object response
+										
+										var message = data.message;						
+									}							
+									else{
+										
+										// text response
+										
+										var message = data;
+									}
+								
+									$.notify( message, {
+										
+										className: 'warning',
+										position: 'top center'
+									});
+								}
+								else{
+									
+									$.notify( 'Error ' + jqXHR.status, {
+										
+										className: 'error',
+										position: 'top center'
+									});
+								}
+							},
+							success: function(data) {
 								
 								if (typeof data === 'string' || data instanceof String){
-							
-									try{
 									
+									try{
+										
 										data = JSON.parse(data);
 									} 
 									catch (error) {
 										
 									}
 								}
-							
+								
 								if( typeof data.message != typeof undefined ){
 									
 									// object response
 									
-									var message = data.message;						
+									var message = data.message;
+									
+									if( typeof data.callback != typeof undefined ){
+										
+										eval(data.callback);
+									}							
 								}							
 								else{
 									
@@ -398,80 +517,42 @@ if( typeof editorCallbacks == typeof undefined )
 									
 									var message = data;
 								}
-							
+
 								$.notify( message, {
 									
-									className: 'warning',
+									className: 'success',
 									position: 'top center'
 								});
-							}
-							else{
-								
-								$.notify( 'Error ' + jqXHR.status, {
+
+								if( refresh == 'self' ){
 									
-									className: 'error',
-									position: 'top center'
-								});
-							}
-						},
-						success: function(data) {
-							
-							if (typeof data === 'string' || data instanceof String){
-								
-								try{
-									
-									data = JSON.parse(data);
-								} 
-								catch (error) {
-									
+									$('.table').bootstrapTable('refresh');
 								}
-							}
-							
-							if( typeof data.message != typeof undefined ){
-								
-								// object response
-								
-								var message = data.message;
-								
-								if( typeof data.callback != typeof undefined ){
+								else if( refresh == 'parent' ){
 									
-									eval(data.callback);
-								}							
-							}							
-							else{
+									// TODO FIX
+									
+									//$('button[name="refresh"]',parent.document).trigger('click'); // refresh modal iframe
+									
+									$('.table',parent.document).bootstrapTable('refresh'); // not working
+								}
+							},
+							complete: function(){
 								
-								// text response
+								$btn.removeAttr('disabled');
 								
-								var message = data;
+								$('#' + dialogId + 'ActionLoader').hide();
+								$('#' + dialogId + 'ActionText').show();
 							}
-
-							$.notify( message, {
+						});
+					}
+					else {
+						
+						$btn.removeAttr('disabled');
 								
-								className: 'success',
-								position: 'top center'
-							});
-
-							if( refresh == 'self' ){
-								
-								$('.table').bootstrapTable('refresh');
-							}
-							else if( refresh == 'parent' ){
-								
-								// TODO FIX
-								
-								//$('button[name="refresh"]',parent.document).trigger('click'); // refresh modal iframe
-								
-								$('.table',parent.document).bootstrapTable('refresh'); // not working
-							}
-						},
-						complete: function(){
-							
-							$btn.removeAttr('disabled');
-							
-							$('#' + dialogId + 'ActionLoader').hide();
-							$('#' + dialogId + 'ActionText').show();
-						}
-					});
+						$('#' + dialogId + 'ActionLoader').hide();
+						$('#' + dialogId + 'ActionText').show();
+					}
 				});
 			}
 		}

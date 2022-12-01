@@ -29,9 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		
 		public function sanitize_id($id){
 			
-			$id = esc_attr( str_replace(array('[',']'),array('_',''),$id) );
-			
-			return $id;
+			return str_replace(array('[',']'),array('_',''),$id);
 		}
 
 		/**
@@ -45,10 +43,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			// Get field info
 			
 			$field = ( isset( $data['field'] ) ? $data['field'] : $data );
-
+			
+			// Get field id
+			
 			// Check for prefix on option name
 			
-			$option_name = ( isset( $data['prefix'] ) ? $data['prefix'] : '' ) . $field['id'];
+			$option_name = ( isset( $data['prefix'] ) ? $data['prefix'] : '' ) . ( !empty($field['name']) ? $field['name'] : $field['id']);
 
 			// Get saved data
 			
@@ -105,7 +105,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 			// get field id
 			
-			$id = $this->sanitize_id($field['id']);
+			$id = !empty($field['id']) ? $this->sanitize_id($field['id']) : ( !empty($field['name']) ? $this->sanitize_id($field['name']) : 'f_' . rand(1000,9999) );
 			
 			// get field style
 			
@@ -154,7 +154,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					}
 					
 				break;
-
 				case 'file':
 				
 					$html .= wp_nonce_field( $this->parent->file, $id . '_nonce',true,false);
@@ -207,7 +206,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						$html .= '<div class="input-group">';
 					}
 					
-					$html .= '<input class="form-control" id="' . $this->sanitize_id( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
+					$html .= '<input class="form-control" id="' . esc_attr($id) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
 					
 					if ( isset( $field['show'] ) && $field['show'] === true ) {
 						
@@ -221,11 +220,19 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					}
 					
 				break;
-				
 				case 'hidden':
-					$html .= '<input class="form-control" id="' . $this->sanitize_id( $field['id'] ) . '" type="hidden" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
+					$html .= '<input class="form-control" id="' . esc_attr($id) . '" type="hidden" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
 				break;
+				case 'random':
+					
+					if( empty($data) ){
+						
+						$data = floor( mt_rand() * 1000000000 / ( mt_getrandmax() + 1) );
+					}
+					
+					$html .= '<input data-random="number" class="form-control" id="' . esc_attr($id) . '" type="hidden" name="' . esc_attr( $option_name ) . '" value="' . esc_attr( $data ) . '"' . '/>' . "\n";
 				
+				break;
 				case 'number':
 					$min = '';
 					if ( isset( $field['min'] ) ) {
@@ -239,7 +246,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$html .= '<span class="form-group" style="margin:7px 0;">';
 					
-						$html .= '<input'.$style.' class="form-control" id="' . $this->sanitize_id( $field['id'] ) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
+						$html .= '<input'.$style.' class="form-control" id="' . esc_attr($id) . '" type="' . esc_attr( $field['type'] ) . '" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '" value="' . esc_attr( $data ) . '" data-origine="' . esc_attr( $data ) . '"' . $min . '' . $max . '/>' . "\n";
 				
 					$html .= '</span>';
 					
@@ -484,7 +491,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 				
 				case 'input_multi':
-
+					
+					// prepare inputs
+					
 					$inputs = !empty($field['fields']) ? $field['fields'] : array([
 						
 						'type' 			=> 'text',
@@ -492,7 +501,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						'style' 		=> '',
 					]);
 					
-					$f = key($inputs);
+					// prepare data
+					
+					$f = !empty($inputs[0]['id']) ? sanitize_title($inputs[0]['id']) : key($inputs);
 					
 					if( !isset($data[$f]) ){
 
@@ -501,6 +512,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							$f => [ 0 => '' ]
 						];
 					}
+					
+					// render html
 					
 					$html .= '<div id="'.$field['id'].'" class="sortable">';
 						
@@ -521,13 +534,31 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
 									
+									
 									foreach( $inputs as $i => $input ){
 										
-										$input['id'] 	= $option_name.'['.$i.'][]';
+										$key = !empty($input['id']) ? sanitize_title($input['id']) : $i;
 										
-										$input['data'] 	= isset($data[$i][$e]) ? str_replace('\\\'','\'',$data[$i][$e]) : '';
+										$input['id'] 	= $option_name.'['.$key.'][]';
+										
+										$input['data'] 	= isset($data[$key][$e]) ? str_replace('\\\'','\'',$data[$key][$e]) : '';
+										
+										if( !empty($input['before']) ){
+										
+											$html .= $input['before'];
+										}
+										
+										if( !empty($input['label']) ){
+											
+											$html .= '<div style="font-weight:600;">'.ucfirst($input['label']).'</div>';
+										}
 										
 										$html .= $this->display_field( $input, $item, false ) . PHP_EOL;
+						
+										if( !empty($input['after']) ){
+											
+											$html .= $input['after'];
+										}
 									}
 									
 									if( $e > 0 ){
@@ -1004,14 +1035,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</div>';
 
 				break;
-			
+				
 				case 'key_value':
 					
 					if( !isset($data['key']) || !isset($data['value']) ){
 
 						$data = [
 						
-							'key' => [ 0 => '' ], 
+							'key' 	=> [ 0 => '' ], 
 							'value' => [ 0 => '' ]
 						];
 					}
@@ -1020,7 +1051,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 						$inputs = $field['inputs'];
 					}
-					elseif(empty($field['inputs'])||!is_array($field['inputs'])) {
+					elseif( empty($field['inputs']) || !is_array($field['inputs']) ) {
 						
 						$inputs = ['string','text','number','password','url','parameter','xpath','attribute','folder','filename'];
 					}				
@@ -1134,7 +1165,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</div>';
 
 				break;
-
+				
 				case 'form':
 					
 					// used in directory
@@ -1161,7 +1192,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 							$html .= '<ul class="input-group ui-sortable" style="width:100%;">';
 								
-								foreach( $data['name'] as $e => $name) {
+								foreach( $data['name'] as $e => $name ){
 									
 									if($e > 0){
 										

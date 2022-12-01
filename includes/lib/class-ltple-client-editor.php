@@ -350,13 +350,12 @@ class LTPLE_Client_Editor {
 			margin:0;
 		}';
 		
-		$css .= '.editor-tab-actions .btn {
+		$css .= '.editor-tab-actions .btn, .editor-tab-actions .btn:hover, .editor-tab-actions .btn:active, .editor-tab-actions .btn:visited {
 		
 			border: 1px solid ' . $this->parent->settings->mainColor . ' !important;
 			color:' . $this->parent->settings->mainColor . ' !important;
 			background:#fff !important;
 			margin-right:5px;
-			box-shadow:none;
 		}';
 
 		return $css;		
