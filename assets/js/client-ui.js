@@ -354,7 +354,8 @@ if( typeof editorCallbacks == typeof undefined )
 					}
 				});
 			}
-			else if( $('[data-toggle="action"]').length > 0 ){
+			
+			if( $('[data-toggle="action"]').length > 0 ){
 			
 				$('[data-toggle="action"]').unbind().on('click', function(e) {
 					
