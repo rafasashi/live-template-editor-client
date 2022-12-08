@@ -2597,13 +2597,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 			if ( ! is_array( $fields ) || 0 == count( $fields ) ) return;
 
-			foreach ( $fields as $field ) {
+			foreach($fields as $field) {
 				
 				if ( isset( $_REQUEST[ $field['id'] ] ) ) {
 					
 					update_post_meta( $post_id, $field['id'], $this->validate_field( $_REQUEST[ $field['id'] ], $field['type'] ) );
 				} 
-				else {
+				elseif( empty($field['disabled']) ){
 					
 					update_post_meta( $post_id, $field['id'], '' );
 				}

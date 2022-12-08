@@ -410,6 +410,10 @@ class LTPLE_Client_Dashboard {
 				$saved_projects .= '</div>';
 			}
 		}
+		else{
+			
+			$saved_projects .= '<i style="color:#bbb;">No projects saved yet</i>';
+		}
 
 		return $saved_projects;
 	}

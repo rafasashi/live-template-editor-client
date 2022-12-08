@@ -2019,9 +2019,9 @@ class LTPLE_Client_Plan {
 		return $period_end;
 	}
 	
-	public function get_license_key($user_email){
+	public function get_license_key($str){
 		
-		return implode('-', str_split(strtoupper(md5($user_email)), 4));
+		return implode('-', str_split(strtoupper(md5($str)), 4));
 	}
 	
 	public function get_license_remaining_days($period_end){

@@ -307,7 +307,7 @@ if( typeof editorCallbacks == typeof undefined )
 			
 			if( $('[data-toggle="copy"]').length > 0 ){
 				
-				$('[data-toggle="copy"]').on('click', function(e) {
+				$('[data-toggle="copy"]').unbind().on('click', function(e) {
 					
 					e.preventDefault();
 					
