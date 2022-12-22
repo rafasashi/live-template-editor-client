@@ -71,7 +71,7 @@ class LTPLE_Client_Dashboard {
 				
 				$boxes['new_templates'] = array(
 				
-					'title' 	=> 'New templates',
+					'title' 	=> 'New resources',
 					'content' 	=> $templates,
 				);
 			}

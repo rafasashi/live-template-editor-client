@@ -531,11 +531,9 @@ if( typeof editorCallbacks == typeof undefined )
 								}
 								else if( refresh == 'parent' ){
 									
-									// TODO FIX
+									$('button[name="refresh"]:not(iframe button[name="refresh"])',window.top.document).trigger('click'); // refresh modal iframe
+								
 									
-									//$('button[name="refresh"]',parent.document).trigger('click'); // refresh modal iframe
-									
-									$('.table',parent.document).bootstrapTable('refresh'); // not working
 								}
 							},
 							complete: function(){
