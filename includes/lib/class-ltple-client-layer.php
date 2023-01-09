@@ -6714,13 +6714,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					wp_add_inline_style( $this->parent->_token . '-layer-default-css',$defaultCss);
 				}
-				
+
 				if( !empty($this->layerCss) ){
-								
-					wp_register_style( $this->parent->_token . '-layer-custom-css', false, array());
-					wp_enqueue_style( $this->parent->_token . '-layer-custom-css' );
-				
-					wp_add_inline_style( $this->parent->_token . '-layer-custom-css',$this->layerCss);
+
+					add_action('wp_head',function(){
+						
+						// css editor
+						
+						echo '<style id="LiveTplEditorStyleSheet">'.$this->layerCss.'</style>'.PHP_EOL;
+					});
 				}
 				
 				// TODO JS scripts
