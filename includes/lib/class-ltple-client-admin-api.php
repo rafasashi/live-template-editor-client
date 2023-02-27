@@ -1,6 +1,5 @@
 <?php
 
-
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 	class LTPLE_Client_Admin_API {
@@ -49,7 +48,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			// Check for prefix on option name
 			
 			$option_name = ( isset( $data['prefix'] ) ? $data['prefix'] : '' ) . ( !empty($field['name']) ? $field['name'] : $field['id']);
-
+			
+			// Get default
+			
+			$default = isset($field['default']) ? $field['default'] : null;
+			
 			// Get saved data
 			
 			$data = '';
@@ -89,16 +92,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 				// Get saved option
 				
-				$data = get_option( $option_name );
+				$data = get_option($option_name,$default);
 			}
 			
 			// Show default data if no option saved and default is supplied
-			
-			if( $data === '' && isset( $field['default'] ) ) {
+
+			if( $data === '' && !is_null($default) ) {
 				
-				$data = $field['default'];
+				$data = $default;
 			} 
-			elseif ( $data === false ) {
+			elseif( $data === false ) {
 				
 				$data = '';
 			}
@@ -123,13 +126,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			$placeholder = ( isset($field['placeholder']) ? $field['placeholder'] : '' );
 			
 			$html = '';
-
+			
 			switch( $field['type'] ) {
 				
 				case 'html':
-					
 					$html .= $data;
-					
 				break;
 				case 'text':
 				case 'url':

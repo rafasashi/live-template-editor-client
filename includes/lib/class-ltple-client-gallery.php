@@ -30,7 +30,7 @@ class LTPLE_Client_Gallery {
 			'rewrite' 				=> false,
 			'sort' 					=> '',
 		));
-		
+
 		add_action( 'rest_api_init', function () {
 			
 			register_rest_route( 'ltple-template/v1', '/list', array(
@@ -41,7 +41,9 @@ class LTPLE_Client_Gallery {
 			) );
 			
 		} );
-		
+				
+		add_action( 'ltple_urls', array( $this, 'init_navbar'));
+
 		add_filter( 'ltple_gallery_item_title', array( $this, 'filter_gallery_item_title' ),10,2);
 	}
 	
@@ -708,6 +710,56 @@ class LTPLE_Client_Gallery {
 		echo'</div>';		
 	}
 	
+	public function init_navbar(){
+		
+		$menu_name = __( 'Navigation Bar', 'live-template-editor-client' );
+		
+		$location = 'ltple_navbar';
+		
+		register_nav_menus( array(
+		
+			$location => $menu_name,
+		));
+		
+		if( !wp_get_nav_menu_object($menu_name) ){
+			
+			$menu_id = wp_create_nav_menu($menu_name);
+			
+			wp_update_nav_menu_item($menu_id, 0, array(
+				
+				'menu-item-title'	=>  __('Dashboard'),
+				'menu-item-classes' => '',
+				'menu-item-url' 	=> apply_filters('rew_prod_url',$this->parent->urls->dashboard), 
+				'menu-item-status' 	=> 'publish',
+			));
+			
+			wp_update_nav_menu_item($menu_id, 0, array(
+				
+				'menu-item-title'	=>  __('Templates'),
+				'menu-item-classes' => '',
+				'menu-item-url' 	=> apply_filters('rew_prod_url',$this->parent->urls->gallery), 
+				'menu-item-status' 	=> 'publish',
+			));
+			
+			wp_update_nav_menu_item($menu_id, 0, array(
+				
+				'menu-item-title'	=>  __('Media'),
+				'menu-item-classes' => '',
+				'menu-item-url' 	=> apply_filters('rew_prod_url',$this->parent->urls->media), 
+				'menu-item-status' 	=> 'publish',
+			));
+					
+			if( !has_nav_menu($location) ){
+				
+				$locations = get_theme_mod('nav_menu_locations');
+				
+				$locations[$location] = $menu_id;
+				
+				set_theme_mod( 'nav_menu_locations', $locations );
+			}
+		}
+	}
+	
 	public function filter_gallery_item_title($content,$post){
 		
 		$nickname = get_the_author_meta( 'nickname', $post->post_author );
@@ -782,3 +834,38 @@ class LTPLE_Client_Gallery {
 		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->parent->_version );
 	} // End __wakeup()
 }
+
+class LTPLE_Client_Menu_Navbar extends Walker_Nav_Menu {
+
+	function display_element ($element, &$children_elements, $max_depth, $depth = 0, $args, &$output) {
+		
+		// check, whether there are children for the given ID and append it to the element with a (new) ID
+		
+		$element->hasChildren = isset($children_elements[$element->ID]) && !empty($children_elements[$element->ID]);
+ 
+		return parent::display_element($element, $children_elements, $max_depth, $depth, $args, $output);
+	}
+ 
+	function start_lvl(&$output, $depth = 0, $args = array()) {
+	  
+		$indent = str_repeat("\t", $depth);
+	  
+		$output .= "\n$indent<ul class=\"dropdown-menu\">\n";
+	}
+ 
+	function start_el(&$output, $item, $depth = 0, $args = array(), $id = 0) {
+	  
+		$item_html = '';
+		
+		array_push($item->classes,'pull-left','hidden-xs');
+		
+		parent::start_el($item_html, $item, $depth, $args);
+		
+		$item_html = str_replace('<li', '<li style="list-style:none;"', $item_html);
+		
+		$item_html = str_replace('<a', '<a style="color:#566674;background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm"', $item_html);
+	 
+		$output .= $item_html;
+	}
+}
+  

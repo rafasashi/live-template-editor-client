@@ -15,9 +15,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	public function __construct ( $parent ) {
 		
 		$this->parent 	= $parent;
-	
-		add_action( 'init', array($this,'init_media'));
-		
+
 		// add query vars
 		
 		add_filter('query_vars', array( $this, 'add_query_vars'), 1);		
@@ -67,27 +65,6 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'permission_callback' => '__return_true',
 			) );
 		} );			
-	}
-	
-	public function init_media(){
-		
-		if( empty( $this->slug ) ){
-			
-			$post_id = wp_insert_post( array(
-			
-				'post_title' 		=> 'Media',
-				'post_type'     	=> 'page',
-				'comment_status' 	=> 'closed',
-				'ping_status' 		=> 'closed',
-				'post_content' 		=> '[ltple-client-media]',
-				'post_status' 		=> 'publish',
-				'menu_order' 		=> 0
-			));
-			
-			$this->slug = update_option( $this->parent->_base . 'mediaSlug', get_post($post_id)->post_name );
-		}
-		
-		$this->parent->urls->media = $this->parent->urls->home . '/' . $this->slug . '/';		
 	}
 	
 	public function add_query_vars( $query_vars ){

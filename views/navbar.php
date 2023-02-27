@@ -2,7 +2,7 @@
 	
 	$ltple = LTPLE_Client::instance();
 
-	if( $ltple->profile->id === 0 || $ltple->user->loggedin ){
+	if( empty($ltple->profile->id) || $ltple->user->loggedin ){
 		
 		// get navbar
 		
@@ -14,45 +14,28 @@
 			
 				echo'<div class="col-xs-6 col-sm-4" style="z-index:10;padding:0 8px;">';			
 					
-					echo'<div class="pull-left">';
+					echo'<div class="pull-left" style="margin-right:-6px;">';
 					
 						echo $ltple->get_collapse_button();
 						
 					echo'</div>';
 					
-					echo'<div class="pull-left hidden-xs">';
+					if( has_nav_menu('ltple_navbar') ) {
 						
-						echo'<a style="color:' . $ltple->settings->linkColor . ';background: #f5f5f5;border: none;" class="btn btn-sm" href="'. $ltple->urls->dashboard .'" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Dashboard" data-content="The dashboard is where you can manage all your projects and services. New things are added every weeks.">';
+						wp_nav_menu(array(
 						
-							echo'Dashboard';
-						
-						echo'</a>';	
-						
-					echo'</div>';
-					
-					if( !empty($user_storage_types) ){
-					
-						echo'<div class="pull-left hidden-xs">';
-
-							echo'<a style="color:' . $ltple->settings->linkColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->gallery . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Template Gallery" data-content="The template gallery is where you can start, edit and deploy a new project. Check the plans to unlock more ranges.">';
-								
-								echo'Templates';
-							
-							echo'</a>';
-						
-						echo'</div>';
+							'theme_location'  	=> 'ltple_navbar',
+							'container'       	=> 'div',
+							'container_id'    	=> 'ltple_navbar',
+							'container_class' 	=> '',
+							'menu_id'         	=> false,
+							'menu_class'     	=> '',
+							'depth'           	=> 1,
+							'fallback_cb'		=> false,
+							'walker'			=> new LTPLE_Client_Menu_Navbar()
+						));
 					}
 
-					echo'<div class="pull-left hidden-xs">';
-
-						echo'<a style="color:' . $ltple->settings->linkColor . ';background:#f5f5f5;border:none;margin-left:6px;" class="btn btn-sm" href="' . $ltple->urls->media . 'user-images/" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Media Library" data-content="The media library allows you to import and manage all your media, a good way to centralize everything.">';
-							
-							echo'Media';
-						
-						echo'</a>';
-					
-					echo'</div>';				
-					
 					if( $ltple->user->loggedin === true ){
 											
 						do_action('ltple_left_navbar');
@@ -70,7 +53,6 @@
 													
 						if( !empty($layer) && isset($_GET['uri']) ){
 							
-
 							if( $layer->post_type != 'cb-default-layer' ){
 															
 								if( $ltple->user->has_layer && !$layer->is_media ){
@@ -225,7 +207,7 @@
 									echo'</div>';
 								}
 							}
-							elseif( !empty($user_storage_types) ){
+							elseif( !empty($user_storage_types) && get_option('ltple_show_starter_button') == 'on' ){
 								
 								echo'<div style="margin:0 2px;" class="btn-group">';
 									

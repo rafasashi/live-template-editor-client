@@ -155,6 +155,17 @@ class LTPLE_Client_Urls {
 			$wp_rewrite->set_permalink_structure('/%postname%/');
 		}
 		
+		$this->register_url('media',array(
+			
+			'post_title' 		=> 'Media',
+			'post_type'     	=> 'page',
+			'comment_status' 	=> 'closed',
+			'ping_status' 		=> 'closed',
+			'post_content' 		=> '[ltple-client-media]',
+			'post_status' 		=> 'publish',
+			'menu_order' 		=> 0
+		));
+		
 		$this->register_url('editor',array(
 			
 			'post_title' 		=> 'Editor',
