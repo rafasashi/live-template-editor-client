@@ -207,7 +207,7 @@
 									echo'</div>';
 								}
 							}
-							elseif( !empty($user_storage_types) && get_option('ltple_show_starter_button') == 'on' ){
+							elseif( !empty($user_storage_types) ){
 								
 								echo'<div style="margin:0 2px;" class="btn-group">';
 									
