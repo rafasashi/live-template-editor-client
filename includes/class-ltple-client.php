@@ -635,17 +635,6 @@ class LTPLE_Client {
 			$this->user->can_edit = current_user_can( 'editor', $this->user->ID );
 		}
 		
-		if( !$this->user->is_admin || !$this->user->can_edit ){
-			
-			if(!WP_DEBUG){
-			
-				$url = $this->urls->profile;
-				
-				wp_redirect($url);
-				exit;
-			}
-		}
-		
 		// get user rights
 		
 		$this->user->rights = json_decode( get_user_meta( $this->user->ID, $this->_base . 'user-rights',true) );
@@ -859,23 +848,25 @@ class LTPLE_Client {
 		
 		$terms = wp_get_post_terms( $post_id, 'campaign-trigger' );
 		
-		$default='';
+		$data = '';
 
 		if(isset($terms[0]->slug)){
 			
-			$default = $terms[0]->slug;
+			$data = $terms[0]->slug;
 		}
 		
 		$fields[]=array(
+		
 			"metabox" =>
+			
 				array('name'=>"tagsdiv-campaign-trigger"),
-				'id'=>"new-tag-campaign-trigger",
-				'name'=>'tax_input[campaign-trigger]',
-				'label'=>"",
-				'type'=>'select',
-				'options'=>$options,
-				'selected'=>$default,
-				'description'=>''
+				'id'			=> "new-tag-campaign-trigger",
+				'name'			=> 'tax_input[campaign-trigger]',
+				'label'			=> "",
+				'type'			=> 'select',
+				'options'		=> $options,
+				'data'			=> $data,
+				'description'	=> ''
 		);
 		
 		// get email models
