@@ -40,7 +40,7 @@
 .login #backtoblog a,.login #nav a{text-decoration:none;color:#555d66}
 .login #backtoblog a:hover,.login #nav a:hover,.login h1 a:hover{color:#00a0d2}
 .login #backtoblog a:focus,.login #nav a:focus,.login h1 a:focus{color:#124964}
-.login form .input,.login input[type=text]{font-size:24px;width:100%;padding:3px;margin:2px 6px 16px 0}
+.login form .input,.login input[type=text]{font-size:24px;width:100%;padding:3px;margin:2px 6px 2px 0}
 .login form .input,.login form input[type=checkbox],.login input[type=text]{background:#fbfbfb}.ie7.login form .input,.ie8.login form .input{font-family:sans-serif}
 .login-action-rp input[type=text]{-webkit-box-shadow:none;box-shadow:none;margin:0}
 .login #pass-strength-result{font-weight:600;margin:-1px 5px 16px 0;padding:6px 5px;text-align:center;width:100%}
