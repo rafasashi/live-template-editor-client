@@ -127,6 +127,8 @@ class LTPLE_Client_Login {
 			
 			// check registration
 			
+			if( !empty($errors->errors['empty_username']) ) unset($errors->errors['empty_username']);
+			
 			if( empty($errors->errors['bad_registration']) ){
 			
 				if( !$this->is_valid_registration($user_email) ) {
@@ -164,7 +166,7 @@ class LTPLE_Client_Login {
 								}
 							}
 						}
-						elseif( !empty( $errors->errors['empty_username'] ) ){
+						elseif( empty($errors->errors) ){
 							
 							// add new user
 							
@@ -181,11 +183,7 @@ class LTPLE_Client_Login {
 						}
 					}
 				}
-			}			
-
-			// unset empty username message
-			
-			unset($errors->errors['empty_username']);			
+			}					
 			
 			// store message in session 
 			
