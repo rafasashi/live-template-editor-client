@@ -1577,45 +1577,6 @@
 			return $query;
 		}
 		
-		/*
-		public function bulk_send_email_model() {
-			
-			$post_type = 'email-model';
-			$model_id=null;
-			
-			if ( isset( $_REQUEST[$post_type.'1'] ) && is_numeric( $_REQUEST[$post_type.'1'] ) && $_REQUEST[$post_type.'1'] != '-1' ) {
-				
-				$model_id=intval($_REQUEST[$post_type.'1']);
-			}
-			elseif ( isset( $_REQUEST[$post_type.'2'] ) && is_numeric( $_REQUEST[$post_type.'2'] ) && $_REQUEST[$post_type.'2'] != '-1' ) {
-				
-				$model_id=intval($_REQUEST[$post_type.'2']);
-			}
-			
-			if( !is_null( $model_id ) && !empty($_REQUEST['users']) && is_array($_REQUEST['users'])){
-				
-				$this->email_sent	  = 0;
-				$this->email_not_sent = 0;
-				
-				foreach( $_REQUEST['users'] as $user_id){
-					
-					$user = get_userdata($user_id);
-				
-					if($this->parent->email->send_model( $model_id, $user)){
-						
-						++$this->email_sent;	
-					}
-					else{
-						
-						++$this->email_not_sent;
-					}
-				}
-
-				add_action( 'admin_notices', array( $this, 'output_send_email_admin_notice'));				
-			}
-		}
-		*/
-		
 		public function get_all_selected_users( $field, $s = '', $meta_query = array() ) {
 			
 			$selected_users = array();

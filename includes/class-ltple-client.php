@@ -155,9 +155,7 @@ class LTPLE_Client {
 		
 		$this->admin 	= new LTPLE_Client_Admin_API( $this );
 		$this->cron 	= new LTPLE_Client_Cron( $this );
-		
-		$this->campaign = new LTPLE_Client_Campaign( $this );
-		
+
 		$this->api 		= new LTPLE_Client_Json_API( $this );
 		$this->server 	= new LTPLE_Client_Server( $this );
 		
@@ -607,10 +605,6 @@ class LTPLE_Client {
 		add_filter('post_row_actions', array($this, 'filter_post_type_row_actions'), 10, 2 );
 		add_filter('tag_row_actions', array($this, 'filter_taxonomy_row_actions'), 10, 2 );
 		
-		// add email-campaign
-		
-		add_filter("email-campaign_custom_fields", array( $this, 'add_campaign_trigger_custom_fields' ));
-		
 		// add user-image
 	
 		add_filter('manage_user-image_posts_columns', array( $this, 'set_user_image_columns'));
@@ -817,95 +811,6 @@ class LTPLE_Client {
 			'payment' 	=> [],
 			'streaming' => [],
 		));
-	}
-	
-	// Add campaign trigger custom fields
-
-	public function add_campaign_trigger_custom_fields(){
-		
-		$fields=[];
-		
-		//get post id
-		
-		$post_id=get_the_ID();
-		
-		//get image types
-
-		$terms=get_terms( array(
-				
-			'taxonomy' => 'campaign-trigger',
-			'hide_empty' => false,
-		));
-		
-		$options=[];
-		
-		foreach($terms as $term){
-			
-			$options[$term->slug]=$term->name;
-		}
-		
-		//get current email campaign
-		
-		$terms = wp_get_post_terms( $post_id, 'campaign-trigger' );
-		
-		$data = '';
-
-		if(isset($terms[0]->slug)){
-			
-			$data = $terms[0]->slug;
-		}
-		
-		$fields[]=array(
-		
-			"metabox" =>
-			
-				array('name'=>"tagsdiv-campaign-trigger"),
-				'id'			=> "new-tag-campaign-trigger",
-				'name'			=> 'tax_input[campaign-trigger]',
-				'label'			=> "",
-				'type'			=> 'select',
-				'options'		=> $options,
-				'data'			=> $data,
-				'description'	=> ''
-		);
-		
-		// get email models
-		
-		$q = get_posts(array(
-		
-			'post_type'   => 'email-model',
-			'post_status' => 'publish',
-			'numberposts' => -1,
-			'orderby' 	  => 'title',
-			'order' 	  => 'ASC'
-		));
-		
-		$email_models=['' => 'no email model selected'];
-		
-		if(!empty($q)){
-			
-			foreach( $q as $model ){
-				
-				$email_models[$model->ID] = $model->post_title;
-			}
-		}
-		
-		//var_dump($email_models);exit;
-		
-		$fields[]=array(
-		
-			"metabox" =>
-				array('name'=> "email_series"),
-				'type'				=> 'email_series',
-				'id'				=> 'email_series',
-				'label'				=> '',
-				'email-models' 		=> $email_models,
-				'model-selected'	=> '',
-				'days-from-sub' 	=> 0,
-				'description'		=> ''
-		);
-		
-		return $fields;
 	}
 	
 	public function set_user_image_columns($columns){

@@ -40,13 +40,11 @@ class LTPLE_Client_Triggers {
 				
 				// schedule user registration emails
 
-				$this->parent->email->schedule_trigger( 'user-registration',  $this->parent->user);
-			
-				do_action( 'ltple_first_log_ever' );
+				do_action('ltple_first_log_ever',$this->parent->user);
 			}
 			elseif(( date('Y.m.d',$this->parent->user->last_seen) != date('Y.m.d') )){
 
-				do_action( 'ltple_first_log_today' );
+				do_action('ltple_first_log_today');
 				
 				if( !empty($this->parent->user->referredBy) && is_array($this->parent->user->referredBy) ){
 					

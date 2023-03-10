@@ -318,14 +318,6 @@ class LTPLE_Client_Settings {
 
 		add_submenu_page(
 			'ltple-settings',
-			__( 'Email Models', 'live-template-editor-client' ),
-			__( 'Email Models', 'live-template-editor-client' ),
-			'edit_pages',
-			'edit.php?post_type=email-model'
-		);
-
-		add_submenu_page(
-			'ltple-settings',
 			__( 'Tutorials', 'live-template-editor-client' ),
 			__( 'Tutorials', 'live-template-editor-client' ),
 			'edit_pages',
@@ -836,12 +828,6 @@ class LTPLE_Client_Settings {
 			'marketing-settings' => apply_filters('ltple_admin_tabs_marketing-settings',array(
 			
 				'marketing-channel' => array( 'name' => 'Channels', 'type' => 'taxonomy', 'post-type' => 'post' ),
-			)),
-			'email-campaigns' => apply_filters('ltple_admin_tabs_email-campaigns',array(
-			
-				'email-model' 		=> array( 'name' => 'Models'),
-				'email-campaign' 	=> array( 'name' => 'Campaigns'),
-				//'email-invitation' => array( 'name' => 'Invitations'),
 			)),
 		);
 		

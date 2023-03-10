@@ -10,7 +10,6 @@ class LTPLE_Client_Plan {
 	var $data;
 	var $options;
 	var $message;
-	var $fields;
 	
 	var $subscription_plans	= array();
 	
@@ -82,7 +81,7 @@ class LTPLE_Client_Plan {
 			
 				'plan_options',
 				__( 'Plan options', 'live-template-editor-client' ), 
-				array("subscription-plan"),
+				array('subscription-plan'),
 				'advanced'
 			);
 			
@@ -90,10 +89,18 @@ class LTPLE_Client_Plan {
 				
 				'userPlanValue',
 				__( 'Plan Info', 'live-template-editor-client' ), 
-				array("user-plan"),
+				array('user-plan'),
 				'advanced'
 			);
 		});
+		
+		add_action( 'ltple_newsletter_meta_box_email_series',function($post_types){
+			
+			$post_types[] = 'subscription-plan';
+			
+			return $post_types;
+			
+		},10,1);
 		
 		add_action( 'rest_api_init', function () {
 			 
@@ -786,62 +793,20 @@ class LTPLE_Client_Plan {
 		return 	$this->layerOptions;	
 	}
 	
-	public function get_subscription_plan_fields(){
-			
-		$this->fields = [];
-		
-		//get options
-		
-		$options = $this->get_layer_taxonomies_options();
-		
-		$this->fields[]=array(
-		
-			"metabox" =>
+	public function get_subscription_plan_fields($fields){
+
+		$fields[] = array(
+
+			'metabox' =>
 				array('name'	=> 'plan_options'),
 				'type'			=> 'checkbox_multi_plan_options',
 				'id'			=> 'plan_options',
 				'label'			=> '',
-				'options'		=> $options,
+				'options'		=> $this->get_layer_taxonomies_options(),
 				'description'	=> ''
 		);
-		
-		// get email models
-		
-		$q = get_posts(array(
-		
-			'post_type'   => 'email-model',
-			'post_status' => 'publish',
-			'numberposts' => -1,
-			'orderby' 	  => 'title',
-			'order' 	  => 'ASC'
-		));
-		
-		$email_models=['' => 'no email model selected'];
-		
-		if(!empty($q)){
-			
-			foreach( $q as $model ){
-				
-				$email_models[$model->ID] = $model->post_title;
-			}
-		}
-		
-		$this->fields[]=array(
-		
-			"metabox" =>
-				array('name'=> "email_series"),
-				'type'				=> 'email_series',
-				'id'				=> 'email_series',
-				'label'				=> '',
-				'email-models' 		=> $email_models,
-				'model-selected'	=> '',
-				'days-from-sub' 	=> 0,
-				'description'		=> ''
-		);
-		
-		do_action("add_subscription_plan_fields");
-		
-		return $this->fields;
+	
+		return $fields;
 	}
 	
 	
@@ -1554,13 +1519,9 @@ class LTPLE_Client_Plan {
 		
 		if( !empty($plan['id']) ){
 		
-			// send subscription summary email
-		
-			//$this->parent->email->send_subscription_summary( $user, $plan['id'] );
-
 			// schedule email series
-		
-			$this->parent->email->schedule_campaign( $plan['id'], $user );
+
+			do_action('ltple_schedule_plan_emails',$plan['id'],$user);
 		}		
 	}
 

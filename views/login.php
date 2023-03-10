@@ -20,7 +20,7 @@
 			}	
 			else{
 				
-				echo'Login Now';
+				echo'Email Login';
 			}
 			
 		echo'</p>';
@@ -104,14 +104,8 @@
 					echo'</form>';			
 				}
 				else{
-					
-					echo'<button style="border-radius:5px;width:100%;" class="btn-lg btn-primary" type="button" data-toggle="collapse" data-target="#emailLogin" aria-expanded="false" aria-controls="emailLogin">';
-						
-						echo'Email Login';
-					
-					echo'</button>';				
-					
-					echo'<div id="emailLogin" class="collapse in" style="margin-top: 25px;">';
+
+					echo'<div id="emailLogin">';
 						
 						if( $ltple->inWidget ){
 						

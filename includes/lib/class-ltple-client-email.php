@@ -20,48 +20,6 @@ class LTPLE_Client_Email {
 		
 		$this->parent = $parent;
 		
-		$this->parent->register_post_type( 'email-model', __( 'Email models', 'live-template-editor-client' ), __( 'Email model', 'live-template-editor-client' ), '', array(
-
-			'public' 				=> true,
-			'publicly_queryable' 	=> true,
-			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
-			'show_in_menu' 			=> 'email-model',
-			'show_in_nav_menus' 	=> false,
-			'query_var' 			=> true,
-			'can_export' 			=> true,
-			'rewrite' 				=> array('slug'=>'email-model'),
-			'capability_type' 		=> 'post',
-			'has_archive' 			=> false,
-			'hierarchical' 			=> false,
-			'show_in_rest' 			=> false,
-			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array('title', 'editor'),
-			'menu_position' 		=> 5,
-			'menu_icon' 			=> 'dashicons-admin-post',
-		));	
-		
-		$this->parent->register_post_type( 'email-campaign', __( 'Email Campaigns', 'live-template-editor-client' ), __( 'Email Campaign', 'live-template-editor-client' ), '', array(
-
-			'public' 				=> false,
-			'publicly_queryable' 	=> false,
-			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
-			'show_in_menu' 			=> 'email-campaign',
-			'show_in_nav_menus' 	=> false,
-			'query_var' 			=> true,
-			'can_export' 			=> true,
-			'rewrite' 				=> false,
-			'capability_type' 		=> 'post',
-			'has_archive' 			=> false,
-			'hierarchical' 			=> false,
-			'show_in_rest' 			=> false,
-			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array('title'),
-			'menu_position' 		=> 5,
-			'menu_icon' 			=> 'dashicons-admin-post',
-		));		
-		
 		$this->parent->register_post_type( 'email-invitation', __( 'User Invitations', 'live-template-editor-client' ), __( 'User Invitation', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
@@ -83,35 +41,22 @@ class LTPLE_Client_Email {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));	
 
-		add_action( 'add_meta_boxes', function(){
-		
-			$this->parent->admin->add_meta_box (
+		add_action('ltple_newsletter_campaign_triggers', function($triggers){
 			
-				'email_series',
-				__( 'Email series', 'live-template-editor-client' ), 
-				array("subscription-plan", "email-campaign"),
-				'advanced'
-			);
-				
-			$this->parent->admin->add_meta_box (
+			unset($triggers['user_registration']);
 			
-				'tagsdiv-campaign-trigger',
-				__( 'Campaign Trigger', 'live-template-editor-client' ), 
-				array("email-campaign"),
-				'advanced'
-			);
+			$triggers['ltple_first_log_ever'] = 'User Registration';
+			
+			//$triggers['ltple_offline_reminder'] = 'Offline Reminder';
+			
+			return $triggers;
 		});
-
-		// admin user panel 
 		
-		add_action( 'show_user_profile', array( $this, 'show_email_sent' ),99,1 );
-		add_action( 'edit_user_profile', array( $this, 'show_email_sent' ),99,1 );
-					
-		// add cron events
+		add_action('ltple_newsletter_unsubscribe_url', function($url,$user,$channel){
 			
-		add_action( $this->parent->_base . 'send_email_event', array( $this, 'send_model'),1,2);
-		
-		add_action( $this->parent->_base . 'bulk_send_email_event', array( $this, 'bulk_send_model'),1,2);
+			return $this->parent->urls->gallery . '?unsubscribe=' . $this->parent->ltple_encrypt_uri($user->ID) . '&channel=' . $this->parent->ltple_encrypt_uri($channel);
+			
+		},10,3);
 
 		// setup phpmailer
 		
@@ -158,36 +103,12 @@ class LTPLE_Client_Email {
 		add_action( 'ltple_users_bulk_imported', array( $this, 'schedule_invitations' ));
 	}
 	
-	public function show_email_sent( $user ) {
+	public function send_model($model_id,$user){
 		
-		if( current_user_can( 'administrator' ) ){
-			
-			$emails = get_user_meta($user->ID, $this->parent->_base . '_email_sent', true);
-
-			if( !empty($emails) ){
-					
-				$emails = json_decode($emails,true);
-					
-				echo '<div class="postbox" style="min-height:45px;">';
-					
-					echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Emails sent', 'live-template-editor-client' ) . '</h3>';
-
-					echo '<ul style="padding-left:10px;">';
-					
-						foreach($emails as $slug => $time){
-							
-							echo '<li>';
-							
-								echo date( 'd/m/y', $time) . ' - ' . ucfirst(str_replace('-',' ',$slug));
-							
-							echo '</li>';
-						}
-					
-					echo '</ul>';
-
-				echo'</div>';
-			}
-		}	
+		if( class_exists('Live_Template_Editor_Newsletter') ){
+		
+			Live_Template_Editor_Newsletter::instance()->send_model($model_id,$user);
+		}
 	}
 	
 	public function is_email($email){
@@ -501,166 +422,6 @@ class LTPLE_Client_Email {
 		return true;
 	}
 	
-	public function do_shortcodes( $str, $user=null){
-		
-		$shortcodes 	= [];
-		$shortcodes[] 	= '*|DAY|*'; 		// today
-		$shortcodes[] 	= '*|DATE:d/m/y|*'; // date
-		$shortcodes[] 	= '*|DATE:y|*'; 	// year
-		
-		if( !is_null($user) ){
-			
-			$shortcodes[] 	= '*|NAME|*';
-			$shortcodes[] 	= '*|FNAME|*';
-			$shortcodes[] 	= '*|LNAME|*';
-			$shortcodes[] 	= '*|EMAIL|*';			
-		}
-		
-		$data 			= [];
-		$data[]			= date( 'l', time());
-		$data[]			= date( 'd/m/y', time());
-		$data[]			= date( 'y'	 , time());
-		
-		if( !is_null($user) ){
-			
-			$data[] 		= ( $user->nickname 	!='' ? ucfirst($user->nickname) : ucfirst($user->user_nicename) );
-			$data[] 		= ( $user->first_name 	!='' ? ucfirst($user->first_name) : ucfirst($user->user_nicename) );
-			$data[]			= ( $user->last_name  	!='' ? ucfirst($user->last_name ) : '' );
-			$data[]			= 	$user->user_email;
-		}
-		
-		$str = str_replace($shortcodes,$data,$str);
-		
-		return $str;
-	}
-	
-	public function get_title( $title, $user=null ){
-		
-		$title = str_replace(array('–'),'-',$title);
-		$title = explode('-',$title,2);
-
-		if(isset($title[1])){
-			
-			$title = $title[1];
-		}
-		else{
-			
-			$title = $title[0];
-		}
-		
-		$title = $this->do_shortcodes($title, $user);
-
-		return $title;
-	}
-	
-	public function get_footer($user,$channel='series'){
-		
-		$unsubscribe_url = $this->parent->urls->gallery . '?unsubscribe=' . $this->parent->ltple_encrypt_uri($user->ID) . '&channel=' . $this->parent->ltple_encrypt_uri($channel);
-		
-		$footer = '<div style="text-align:center;"><a style="font-size: 11px;" href="' . $unsubscribe_url . '">Unsubscribe from this Newsletter</a></div>';
-		
-		return $footer;
-	}
-	
-	public function send_model( $model_id, $user){
-		
-		if(is_numeric( $user )){
-			
-			$user = get_user_by( 'id', $user);
-		}
-		elseif(is_string($user)){
-			
-			$user = get_user_by( 'email', $user);
-		}
-		
-		$can_spam = get_user_meta( $user->ID, $this->parent->_base . '_can_spam',true);
-
-		if( $can_spam == 'true' && is_numeric($model_id)){
-			
-			if($model = get_post($model_id)){
-				
-				$urlparts = parse_url(site_url());
-				$domain = $urlparts ['host'];				
-				
-				$Email_title = $this->get_title($model->post_title, $user);
-
-				// get email slug
-				
-				$email_slug = sanitize_title($Email_title);
-				
-				// get email sent
-				
-				$emails_sent = get_user_meta($user->ID, $this->parent->_base . '_email_sent', true);
-				
-				if( empty($emails_sent) ){
-					
-					$emails_sent=[];
-				}
-				else{
-					
-					$emails_sent=json_decode($emails_sent,true);
-				}
-				
-				if( !isset($emails_sent[$email_slug]) ){
-					
-					$sender_email 	= 'please-reply@'.$domain;
-					
-					$message 		= $model->post_content;
-					$message	 	= $this->do_shortcodes($message, $user);
-					
-					$headers   = [];
-					$headers[] = 'From: ' . get_bloginfo('name') . ' <'.$sender_email.'>';
-					//$headers[] = 'MIME-Version: 1.0';
-					$headers[] = 'Content-type: text/html';
-					
-					$preMessage = "<html><body><div style='width:100%;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$this->get_footer($user,'series')."<div style='clear:both'></div></div></body></html>";
-			
-					if(!wp_mail($user->user_email, $Email_title, $preMessage, $headers)){
-						
-						global $phpmailer;
-						
-						wp_mail($this->parent->settings->options->emailSupport, 'Error sending email model id ' . $model_id . ' to ' . $user->user_email, print_r($phpmailer->ErrorInfo,true));
-						
-						//var_dump($phpmailer->ErrorInfo);exit;				
-					}
-					else{
-						
-						// update email sent
-						
-						$emails_sent[$email_slug]=time();
-						
-						if( is_array($emails_sent) && !empty($emails_sent) ){
-							
-							arsort($emails_sent);
-							$emails_sent = json_encode($emails_sent);
-
-							update_user_meta($user->ID, $this->parent->_base . '_email_sent', $emails_sent);
-						}
-						else{
-							
-							echo 'Error storing email sent info...';
-							exit;
-						}
-						
-						return true;
-					}				
-				}
-			}
-		}
-		
-		return false;
-	}
-	
-	public function bulk_send_model( $model_id, $user_ids ){
-		
-		foreach( $user_ids as $user_id ){
-			
-			$this->send_model($model_id,$user_id);
-		}
-		
-		return true;
-	}
-	
 	public function send_subscription_summary( $user, $plan_id = null ){
 		
 		if( is_numeric($user) ){
@@ -719,6 +480,8 @@ class LTPLE_Client_Email {
 			
 			$editor_url = $this->parent->urls->gallery; 
 			
+			$user_name = !empty($user->nickname) ? ucfirst($user->nickname) : ucfirst($user->user_nicename);
+			
 			$message = '<table style="width: 100%; max-width: 100%; min-width: 320px; background-color: #f1f1f1;margin:0;padding:40px 0 45px 0;margin:0 auto;text-align:center;border:0;">';
 						
 				$message .= '<tr>';
@@ -751,7 +514,7 @@ class LTPLE_Client_Email {
 
 								$message .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:20px;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
 									
-									$message .= 'Hello *|FNAME|*,' . PHP_EOL . PHP_EOL;
+									$message .= 'Hello '.$user_name.',' . PHP_EOL . PHP_EOL;
 										
 										if( !empty($plan->post_title) ){
 										
@@ -837,10 +600,6 @@ class LTPLE_Client_Email {
 			$message .=  '</table>';
 			
 			$message = str_replace(PHP_EOL,'<br/>',$message);
-							
-			// do shortcode
-			
-			$message = $this->do_shortcodes($message, $user);
 			
 			// get sender
 			
@@ -856,7 +615,7 @@ class LTPLE_Client_Email {
 			//$headers[] = 'MIME-Version: 1.0';
 			$headers[] = 'Content-type: text/html';
 
-			$preMessage = "<html><body><div style='width:700px;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div>".$this->get_footer($user,'series')."<div style='clear:both'></div></div></body></html>";
+			$preMessage = "<html><body><div style='width:700px;padding:5px;margin:auto;font-size:14px;line-height:18px'>" . apply_filters('the_content', $message) . "<div style='clear:both'></div><div style='clear:both'></div></div></body></html>";
 			
 			if(!wp_mail($user->user_email, $Email_title, $preMessage, $headers)){
 				
@@ -866,89 +625,6 @@ class LTPLE_Client_Email {
 				
 				var_dump($phpmailer->ErrorInfo);exit;				
 			}			
-		}
-	}
-	
-	public function schedule_trigger( $trigger_slug, $user){
-
-		if( is_numeric($user) ){
-			
-			$user = get_user_by( 'id', $user );
-			
-			$user->user_email = $user->data->user_email;
-		}	
-	
-		// schedule all campaigns linked to a trigger
-	
-		$q = get_posts(array(
-		
-			'post_type'   => 'email-campaign',
-			'post_status' => 'publish',
-			'numberposts' => -1,
-
-			'tax_query' => array(
-				array(
-					'taxonomy' => 'campaign-trigger',
-					'field' => 'slug',
-					'terms' => $trigger_slug
-			))
-		));
-		
-		foreach( $q as $campaign){
-			
-			$this->schedule_campaign( $campaign->ID,  $user);					
-		}	
-	}
-	
-	public function schedule_campaign( $series_id, $user){
-		
-		if( is_numeric($user) ){
-			
-			$user = get_user_by( 'id', $user );
-			
-			$user->user_email = $user->data->user_email;
-		}
-			
-		// schedule a campaign by id
-			
-		$email_series = get_post_meta( $series_id, 'email_series',true);
-
-		// trigger register email
-
-		if( isset( $email_series['model'] ) && isset( $email_series['days'] ) ){
-			
-			/*
-			$emails_sent = get_user_meta($user->ID, $this->parent->_base . '_email_sent', true);
-			
-			if( empty($emails_sent) ){
-				
-				$emails_sent=[];
-			}
-			else{
-				
-				$emails_sent=json_decode($emails_sent,true);
-			}
-			*/
-
-			foreach($email_series['model'] as $e => $model_id){
-				
-				if( is_numeric($model_id) ){
-					
-					$model_id = intval($model_id);
-					
-					if( $model_id > 0 ){
-						
-						if( intval($email_series['days'][$e]) == 0){
-							
-							wp_schedule_single_event( ( time() + ( 60 * 1 ) ) , $this->parent->_base . 'send_email_event' , [$model_id,$user->user_email] );
-						}
-						else{
-							
-							wp_schedule_single_event( ( time() + ( intval( $email_series['days'][$e] ) * 3600 * 24 ) ), $this->parent->_base . 'send_email_event', [$model_id,$user->user_email] );
-						}									
-					}
-				}
-			}
 		}
 	}
 	
@@ -1208,7 +884,7 @@ class LTPLE_Client_Email {
 
 												$invitation_content .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:20px;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
 													
-													$invitation_content .= 'Hello *|FNAME|*,' . PHP_EOL . PHP_EOL;
+													$invitation_content .= 'Hello '.$user_name.',' . PHP_EOL . PHP_EOL;
 													
 													$invitation_content .= ucfirst($this->parent->user->nickname) . ' is currently using <b>' . $company . '</b> and is inviting you to try it!' . PHP_EOL . PHP_EOL;
 													
@@ -1268,14 +944,7 @@ class LTPLE_Client_Email {
 								
 								update_post_meta($invitation_id,'invited_user_email',$user['email']);
 								
-								if( $i == 0 ){
-								
-									$this->send_model($invitation_id,$user['email']);
-								}
-								else{
-									
-									wp_schedule_single_event( ( time() + ( 60 * $m ) ) , $this->parent->_base . 'send_email_event' , [$invitation_id,$user['email']] );
-								}
+								wp_schedule_single_event( ( time() + ( 60 * $m ) ) , 'ltple_send_email_event' , [$invitation_id,$user['email']] );
 								
 								if ($i % 10 == 0) {
 									
