@@ -55,7 +55,7 @@
 		
 		echo'<div class="panel-header">';
 		
-			echo'<h1><i class="far fa-window-restore"></i> ' . $this->post_title . '</h1>';
+			echo'<h1 class="page-title"><i class="far fa-window-restore"></i> ' . $this->post_title . '</h1>';
 		
 		echo'</div>';
 		

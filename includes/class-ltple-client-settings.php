@@ -59,19 +59,19 @@ class LTPLE_Client_Settings {
 		
 		// Register plugin settings
 		
-		add_action( 'init' , array( $this, 'init_tabs' ) );
+		add_action('init' , array( $this, 'init_tabs' ) );
 		
 		// Add settings page to menu
 		
-		add_action( 'ltple_admin_menu' , array( $this, 'add_menu_items' ) );	
+		add_action('ltple_admin_menu' , array( $this, 'add_menu_items' ) );	
 		
 		// Add settings link to plugins page
 		
-		add_filter( 'plugin_action_links_' . plugin_basename( $this->parent->file ) , array( $this, 'add_settings_link' ) );
+		add_filter('plugin_action_links_' . plugin_basename( $this->parent->file ) , array( $this, 'add_settings_link' ) );
 		
 		//Add Custom API Endpoints
 		
-		add_action( 'rest_api_init', function() {
+		add_action('rest_api_init', function() {
 			
 			register_rest_route( 'ltple-email/v1', '/info', array(
 				
@@ -82,11 +82,11 @@ class LTPLE_Client_Settings {
 			
 		});
 		
-		add_filter( 'ltple_general_settings', array( $this, 'register_general_settings' ),10,1 );
+		add_filter('ltple_general_settings', array( $this, 'register_general_settings' ),10,1 );
 		
-		add_filter( 'ltple_addons_fields' , array( $this, 'register_addons' ),10,1 );		
+		add_filter('ltple_addons_fields' , array( $this, 'register_addons' ),10,1 );		
 		
-		add_filter( 'ltple_settings_fields', array( $this, 'settings_fields' ),10,1 );
+		add_filter('ltple_settings_fields', array( $this, 'settings_fields' ),10,1 );
 	}
 	
 	public function get_default_logo_url() {
@@ -418,15 +418,6 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'users.php?' . $this->parent->_base .'view=customers'
 		);
-		
-		add_users_page( 
-			'Newsletter', 
-			'Newsletter', 
-			'edit_pages',
-			'users.php?' . $this->parent->_base .'view=newsletter'
-		);
-		
-		
 	}
 	
 	/**

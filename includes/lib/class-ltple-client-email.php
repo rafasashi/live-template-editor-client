@@ -39,24 +39,7 @@ class LTPLE_Client_Email {
 			'supports' 				=> array( 'title', 'editor', 'author' ),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post',
-		));	
-
-		add_action('ltple_newsletter_campaign_triggers', function($triggers){
-			
-			unset($triggers['user_registration']);
-			
-			$triggers['ltple_first_log_ever'] = 'User Registration';
-			
-			//$triggers['ltple_offline_reminder'] = 'Offline Reminder';
-			
-			return $triggers;
-		});
-		
-		add_action('ltple_newsletter_unsubscribe_url', function($url,$user,$channel){
-			
-			return $this->parent->urls->gallery . '?unsubscribe=' . $this->parent->ltple_encrypt_uri($user->ID) . '&channel=' . $this->parent->ltple_encrypt_uri($channel);
-			
-		},10,3);
+		));
 
 		// setup phpmailer
 		
@@ -91,12 +74,52 @@ class LTPLE_Client_Email {
 			return 'please-reply@'.$domain;
 		});
 		
-		/*
-		add_filter('wp_mail_from_name', function($old) {
+		// newsletter
+		
+		add_action('ltple_newsletter_campaign_triggers', function($triggers){
 			
-			return 'Live Editor';
+			unset($triggers['user_registration']);
+			
+			$triggers['ltple_first_log_ever'] = 'User Registration';
+			
+			//$triggers['ltple_offline_reminder'] = 'Offline Reminder';
+			
+			return $triggers;
 		});
-		*/
+		
+		add_action('ltple_newsletter_unsubscribe_url', function($url,$user,$channel){
+			
+			return $this->parent->urls->gallery . '?unsubscribe=' . $this->parent->ltple_encrypt_uri($user->ID) . '&channel=' . $this->parent->ltple_encrypt_uri($channel);
+			
+		},10,3);
+		
+		add_action('ltple_newsletter_generator_logo_url', function($url){
+			
+			return $this->parent->settings->options->logo_url;
+			
+		},10,3);		
+		
+		add_filter('ltple_newsletter_generator_post_types',function($post_types){
+			
+			$post_types['cb-default-layer'] = 'Templates';
+			
+			return $post_types;
+		});
+		
+		add_filter('ltple_newsletter_generator_color_1',function($color){
+			
+			return $this->parent->settings->mainColor;
+		});
+		
+		add_filter('ltple_newsletter_generator_background_1',function($color){
+			
+			return $this->parent->settings->navbarColor;
+		});
+		
+		add_filter('ltple_newsletter_generator_text_1',function($color){
+			
+			return $color;
+		});	
 		
 		add_filter('ltple_loaded', array( $this, 'init_email' ));
 		

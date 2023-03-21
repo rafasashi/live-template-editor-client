@@ -7,7 +7,7 @@
 	
 	echo'<div class="panel-header">';
 	
-		echo'<h1><i class="fa fa-shopping-cart" aria-hidden="true"></i> Newly added Products</h1>';
+		echo'<h1 class="page-title"><i class="fa fa-shopping-cart" aria-hidden="true"></i> Newly added Products</h1>';
 	
 	echo'</div>';
 	

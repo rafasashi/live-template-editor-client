@@ -2342,12 +2342,10 @@ class LTPLE_Client {
 			
 			$style .='}';
 			
-			$style .='.panel-header .page-title, .entry-content .page-title {';
-
-				$style .='font-size: 24px;';
-			
-				if( $this->settings->titleBkg ){
-						
+			if( $this->settings->titleBkg ){
+				
+				$style .='h1.page-title {';		
+				
 					$style .='font-weight: normal !important;';
 					$style .='text-transform: uppercase !important;';
 					$style .='padding: 45px 30px !important;';						
@@ -2359,13 +2357,11 @@ class LTPLE_Client {
 					$style .='background-position: center center !important;';
 					$style .='background-repeat: no-repeat !important;';
 					$style .='background-repeat: no-repeat !important;';
-				}
-				else{
-					
-					$style .='color:' . $this->settings->mainColor . ' !important;';
-				}
 				
-			$style .='}';
+				$style .='}';
+			}
+				
+			
 			
 			// bs modals
 

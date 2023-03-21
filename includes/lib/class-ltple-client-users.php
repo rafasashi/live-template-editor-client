@@ -1316,7 +1316,7 @@
 								
 								var items = jQuery('.displaying-num').first().text();
 								
-								jQuery('<caption id="cb-select-all-3" style="text-align:left;margin-top:-47px;padding:15px 5px;">').html('<input type="checkbox" name="selectAll" /> Select <b>' + items + '</b>' ).prependTo(".wp-list-table");
+								jQuery('<caption id="cb-select-all-3" style="text-align:left;margin-top:-20px;padding:15px 5px;">').html('<input type="checkbox" name="selectAll" /> Select <b>' + items + '</b>' ).prependTo(".wp-list-table");
 							}
 							else{
 								
@@ -1710,7 +1710,7 @@
 				
 					foreach( $users as $i => $user_ids){
 
-						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , $this->parent->_base . 'bulk_send_email_event' , [$model_id,$user_ids] );
+						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , 'ltple_bulk_send_email_event' , [$model_id,$user_ids] );
 					
 						if ($i % 10 == 0) {
 							

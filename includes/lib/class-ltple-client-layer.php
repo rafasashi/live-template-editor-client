@@ -32,6 +32,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $form			= '';
 	public $embedded		= '';
 	
+	public $layerJson;
+	public $pageDef;
+	
 	public $is_default		= false;
 	public $is_local		= false;
 	public $is_storage		= false;
@@ -537,7 +540,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'post',
 				'cb-default-layer',
 				'default-element',
-				'email-model',
 			));
 		}
 
