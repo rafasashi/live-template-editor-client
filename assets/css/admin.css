@@ -32,7 +32,6 @@ html.wp-toolbar{padding-top:50px !important;}
 #adminmenu .wp-not-current-submenu li>a, .folded #adminmenu .wp-has-current-submenu li>a { color: #a0a5aa !important;}
 #adminmenu .wp-has-current-submenu ul>li>a, .folded #adminmenu li.menu-top .wp-submenu>li>a { color: #787a7b !important;}
 #message.fade {opacity:initial;}
-.wrap { margin: 10px 10px 0 2px !important;}
 .tablenav-pages{ height: 40px !important;display: inline-block !important;}
 .sortable .ui-sortable { list-style-type: none; margin: 0; padding: 0; }
 .sortable .ui-sortable li { margin: 0 5px 5px 5px; padding: 5px; font-size: 13px; cursor: move; }

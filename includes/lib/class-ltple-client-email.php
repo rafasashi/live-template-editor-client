@@ -120,10 +120,10 @@ class LTPLE_Client_Email {
 			
 			return $color;
 		});	
-		
+
 		add_filter('ltple_loaded', array( $this, 'init_email' ));
 		
-		add_action( 'ltple_users_bulk_imported', array( $this, 'schedule_invitations' ));
+		add_action('ltple_users_bulk_imported', array( $this, 'schedule_invitations' ));
 	}
 	
 	public function send_model($model_id,$user){
@@ -246,13 +246,13 @@ class LTPLE_Client_Email {
 				$can_spam = $_POST["can_spam"];
 			}
 			
-			update_user_meta($this->parent->user->ID, $this->parent->_base . '_can_spam', $can_spam);
+			update_user_meta($this->parent->user->ID, 'ltple__can_spam', $can_spam);
 			
 			$notify = $this->parent->users->get_user_notification_settings($this->parent->user->ID);
 			
 			$notify['series'] = $can_spam;
 			
-			update_user_meta($this->parent->user->ID, $this->parent->_base . 'notify', $notify);			
+			update_user_meta($this->parent->user->ID, 'ltple_notify', $notify);			
 		}
 		
 		// newsletter unsubscription
@@ -276,7 +276,7 @@ class LTPLE_Client_Email {
 						
 						// update can_spam parameter
 						
-						update_user_meta(intval($unsubscriber_id), $this->parent->_base . '_can_spam', 'false');
+						update_user_meta(intval($unsubscriber_id), 'ltple__can_spam', 'false');
 					}
 					
 					// update notify settings
@@ -848,7 +848,7 @@ class LTPLE_Client_Email {
 						
 					), $this->parent->urls->gallery ); 
 					
-					$can_spam = get_user_meta( $user['id'], $this->parent->_base . '_can_spam',true);
+					$can_spam = get_user_meta( $user['id'], 'ltple__can_spam',true);
 
 					if( $can_spam == 'true' ){
 					

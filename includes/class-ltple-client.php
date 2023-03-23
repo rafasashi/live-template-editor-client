@@ -488,7 +488,7 @@ class LTPLE_Client {
 				
 				$this->user->notify 		= $this->users->get_user_notification_settings( $this->user->ID );
 				$this->user->can_spam 		= $this->user->notify['series'];
-				$this->user->can_spam_set 	= ( !empty(get_user_meta($this->user->ID, $this->_base . '_can_spam',true)) ? true : false );
+				$this->user->can_spam_set 	= ( !empty(get_user_meta($this->user->ID, 'ltple__can_spam',true)) ? true : false );
 				
 				// get user last user agent
 				

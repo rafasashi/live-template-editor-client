@@ -26,6 +26,8 @@
 						
 			add_filter('ltple_loaded', array( $this, 'init_users' ));
 			
+			add_filter('load-users.php', array( $this, 'admin_init_users'),99);
+
 			add_filter('author_link', array($this, 'get_author_url'),9999,2);
 			
 			add_filter('bbp_suppress_private_author_link', array($this, 'get_bbp_author_link'),9999);
@@ -244,110 +246,114 @@
 				
 				add_action( 'ltple_users_bulk_imported', array( $this, 'ref_users_bulk_register' ));
 			}
-			else{
-				
-				global $pagenow;
-
-				if( is_admin() && $pagenow == 'users.php' ){
-					
-					if(isset($_REQUEST[$this->parent->_base .'view'])){
-					
-						$this->view = $_REQUEST[$this->parent->_base .'view'];
-					}
-					
-					add_filter('admin_footer-users.php', array($this, 'add_users_table_view'));
-					
-					add_filter('get_avatar', array($this, 'get_user_avatar'),9999,5);			
-				
-					add_action('admin_head', array($this, 'update_user_manually'));				
-					
-					add_action('admin_footer-users.php', array( $this, 'add_bulk_actions') );					
-					
-					add_action('load-users.php', array( $this, 'load_bulk_action') );					
-					
-					if( method_exists($this, 'custom_' . $this->view . '_table_css') ){
-						
-						add_action('admin_head', array($this, 'custom_' . $this->view . '_table_css'));
-					}
-					else{
-						
-						add_action('admin_head', array($this, 'custom_users_table_css'));
-					}
-					
-					if( method_exists($this, 'set_' . $this->view . '_table_columns') ){
-						
-						add_filter('manage_users_columns', array($this, 'set_' . $this->view . '_table_columns'), 100, 3);
-					}
-					else{
-						
-						add_filter('manage_users_columns', array($this, 'set_users_table_columns'), 100, 3);
-					}
-
-					if( method_exists($this, 'get_' . $this->view . '_table_row') ){
-						
-						add_filter('manage_users_custom_column', array($this, 'get_' . $this->view . '_table_row'), 100, 3);	
-					}
-					else{
-						
-						add_filter('manage_users_custom_column', array($this, 'get_users_table_row'), 100, 3);
-					}
-					
-					// custom bulk actions
-
-					add_action( 'restrict_manage_users', function(){
-						
-						static $instance = 0;
-						
-						do_action( 'ltple_restrict_manage_users', 1 === ++$instance ? 'top' : 'bottom'  );
-					});
-
-					add_action( 'ltple_restrict_manage_users', function( $which ){
-						
-						if( $which == 'top' && empty($GLOBALS['ltple_user_tab_added']) ){
-							
-							$GLOBALS['ltple_user_tab_added'] = true;
-							
-							echo '</div>'; //close previous actions div
-							
-							echo '<div style="width:100%;display: inline-block;">';
-							
-								echo '<h2 class="nav-tab-wrapper" style="margin-bottom: 7px;margin-top: 15px;">';
-									
-									do_action('ltple_user_tab');
-								
-								echo '</h2>';				
-							
-							echo '</div>';
-							
-							echo '<div class="alignleft actions">';
-							
-								do_action('ltple_user_filter');
-							
-							echo '</div>';
-							
-							echo '<div class="alignleft actions">';
-							
-								do_action('ltple_user_updater');						
-						}
-					} );
-					
-					add_filter( 'ltple_user_tab', array( $this, 'display_user_tab') );
-					
-					add_filter( 'ltple_user_filter', array( $this, 'display_user_filter') );
-					
-					add_filter( 'ltple_user_updater', array( $this, 'display_user_updater') );
-					
-					// query filters
-					
-					add_filter( 'pre_get_users', array( $this, 'filter_users_by_email_subscription') );					
-					add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
-					add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
-
-					//add_filter( 'pre_get_users', array( $this, 'filter_users_by_role') );
-				}				
-			}
 		}
 		
+		public function admin_init_users(){
+
+			$this->view = !empty($_REQUEST['ltple_view']) ? sanitize_title($_REQUEST['ltple_view']) : 'users';
+			
+			if( !empty($this->view) && $this->view != 'newsletter' ){
+			
+				remove_all_actions('restrict_manage_users');
+				
+				if( method_exists($this, 'add_' . $this->view . '_updater') ){
+				
+					add_filter('ltple_'.$this->view.'_updater', array( $this, 'add_'.$this->view.'_updater') );
+			
+					add_action('admin_footer-users.php', array( $this, 'add_select_all_script') );
+				
+					$this->handle_bulk_action();
+				}
+				
+				if( $this->view == 'users' ){
+					
+					add_action('admin_footer-users.php', array( $this, 'add_export_emails_script') );
+				}
+			}
+			
+			add_action( 'restrict_manage_users', function(){
+				
+				static $instance = 0;
+				
+				do_action( 'ltple_restrict_manage_users', 1 === ++$instance ? 'top' : 'bottom'  );
+			
+			},9999);
+			
+			add_filter('admin_footer-users.php', array($this, 'add_table_view_script'));
+			
+			add_filter('get_avatar', array($this, 'get_user_avatar'),9999,5);			
+		
+			add_action('admin_head', array($this, 'update_user_manually'));				
+			
+			if( method_exists($this, 'custom_' . $this->view . '_table_css') ){
+				
+				add_action('admin_head', array($this, 'custom_' . $this->view . '_table_css'));
+			}
+			else{
+				
+				add_action('admin_head', array($this, 'custom_users_table_css'));
+			}
+			
+			if( method_exists($this, 'set_' . $this->view . '_table_columns') ){
+				
+				add_filter('manage_users_columns', array($this, 'set_' . $this->view . '_table_columns'), 100, 3);
+			}
+			else{
+				
+				add_filter('manage_users_columns', array($this, 'set_users_table_columns'), 100, 3);
+			}
+
+			if( method_exists($this, 'get_' . $this->view . '_table_row') ){
+				
+				add_filter('manage_users_custom_column', array($this, 'get_' . $this->view . '_table_row'), 100, 3);	
+			}
+			else{
+				
+				add_filter('manage_users_custom_column', array($this, 'get_users_table_row'), 100, 3);
+			}
+			
+			// custom bulk actions
+
+			add_action('ltple_restrict_manage_users', function( $which ){
+				
+				if( $which == 'top' ){
+					
+					do_action('ltple_'.$this->view.'_updater');
+					
+					echo '</div>'; //close previous actions div
+					
+					echo '<div style="width:100%;display: inline-block;">';
+					
+						echo '<h2 class="nav-tab-wrapper" style="margin-bottom: 7px;margin-top: 15px;">';
+							
+							do_action('ltple_users_tabs',$this->view,array(
+							
+								's' => !empty($_REQUEST['s']) ? urlencode($_REQUEST['s']) : '',
+								'marketing-channel1' => !empty($_REQUEST['marketing-channel1']) ? intval($_REQUEST['marketing-channel1']) : '',
+							
+							));
+						
+						echo '</h2>';				
+					
+					echo '</div>';
+					
+					echo '<div class="alignleft actions" style="width:100%;margin-bottom:10px;">';
+					
+						do_action('ltple_users_filters');
+				}
+			} );
+			
+			add_filter('ltple_users_tabs', array( $this, 'add_users_tabs'),0,2);
+			
+			add_filter('ltple_users_filters', array( $this, 'add_users_filters') );
+
+			// query filters
+			
+			add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
+			add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
+			//add_filter( 'pre_get_users', array( $this, 'filter_users_by_role') );			
+		}
+	
 		public function update_periods($user_id=null){ 
 			
 			if( $user = get_user_by('id',$user_id) ){
@@ -454,27 +460,16 @@
 			return false;
 		}
 		
-		public function display_user_tab() {
+		public function add_users_tabs($tab,$args) {
 			
-			$s 	= ( !empty($_REQUEST['s']) ? urlencode($_REQUEST['s']) : '' );
-			$mc = ( !empty($_REQUEST['marketing-channel1']) ? intval($_REQUEST['marketing-channel1']) : '' );
+			echo '<a class="nav-tab ' . ( empty($tab) || $tab == 'users' ? 'nav-tab-active' : '' ) . '" href="'.add_query_arg($args,'users.php').'">Users</a>';
 			
-			echo '<a class="nav-tab ' . ( empty($this->view) ? 'nav-tab-active' : '' ) . '" href="users.php?s='.$s.'&marketing-channel1='.$mc.'">Users</a>';
+			$args['ltple_view'] = 'customers';
 			
-			echo '<a class="nav-tab ' . ( $this->view == 'customers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=customers&s='.$s.'&marketing-channel1='.$mc.'">Customers</a>';
-			
-			echo '<a class="nav-tab ' . ( $this->view == 'newsletter' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=newsletter&s='.$s.'&marketing-channel1='.$mc.'">Newsletter</a>';
-			
-			/*
-			echo '<a class="nav-tab ' . ( $this->view == 'guests' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=guests&s='.$s.'&marketing-channel1='.$mc.'">Guests</a>';
-											
-			echo '<a class="nav-tab ' . ( $this->view == 'unsubscribers' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=unsubscribers&s='.$s.'&marketing-channel1='.$mc.'">Unsubscribers</a>';
-			
-			echo '<a class="nav-tab ' . ( $this->view == 'leads' ? 'nav-tab-active' : '' ) . '" href="users.php?ltple_view=leads&s='.$s.'&marketing-channel1='.$mc.'">Leads</a>';
-			*/
+			echo '<a class="nav-tab ' . ( $tab == 'customers' ? 'nav-tab-active' : '' ) . '" href="'.add_query_arg($args,'users.php').'">Customers</a>';
 		}
 		
-		public function display_user_filter() {
+		public function add_users_filters() {
 			
 			// add marketing-channel filter
 			
@@ -530,50 +525,9 @@
 			
 		}
 		
-		public function display_user_updater() {
-
-			if( $this->view == 'newsletter' ){
+		public function add_customers_updater() {
 			
-				// add bulk email sender
-				
-				$post_type = 'email-model';
-				
-				$name = $post_type.'1';
-
-				echo '<span>';
-				
-					echo $this->parent->get_dropdown_posts(array(
-					
-						'show_option_none'  => 'Select an email',
-						'post_type'     	=> $post_type,
-						'name'    	  		=> $name,
-						'style'    	  		=> 'width:130px;',
-						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-						'echo'		   		=> false
-					));
-
-					echo '<input id="post-query-submit" type="submit" class="button" value="Send" name="" style="float:left;">';
-				
-				echo '</span>';
-			}
-			else{
-
-				// add bulk stars
-				
-				echo '<span>';
-					
-					echo '<label style="padding:7px;float:left;">';
-						echo ' Stars';
-					echo '</label>';
-
-					$filter = 'addStars';
-					$name = $filter.'1';
-
-					echo '<input name="'.$name.'" type="number" value="0" style="width:55px;float:left;">';
-
-					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-				
-				echo '</span>';
+			echo'<div style="display:inline-block;margin-left:5px;line-height:2.15384615;min-height:30px;">';
 				
 				// add plan
 				
@@ -581,22 +535,19 @@
 				
 				$name = $post_type.'1';
 
-				echo '<span>';
+				echo $this->parent->get_dropdown_posts(array(
 				
-					echo $this->parent->get_dropdown_posts(array(
-					
-						'show_option_none'  => 'Select a plan',
-						'post_type'     	=> $post_type,
-						'name'    	  		=> $name,
-						'style'    	  		=> 'width:130px;',
-						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-						'echo'		   		=> false
-					));
+					'show_option_none'  => 'Select a plan',
+					'post_type'     	=> $post_type,
+					'name'    	  		=> $name,
+					'style'    	  		=> 'width:130px;',
+					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+					'echo'		   		=> false
+				));
 
-					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-				
-				echo '</span>';
-				
+				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+			
+
 				// add layer type
 				
 				/*
@@ -605,21 +556,18 @@
 				
 				$name = $taxonomy.'1';
 
-				echo '<span>';
+				echo $this->parent->get_dropdown_terms(array(
 				
-					echo $this->parent->get_dropdown_terms(array(
-					
-						'show_option_none'  => 'Select a type',
-						'taxonomy'     		=> $taxonomy,
-						'name'    	  		=> $name,
-						'style'    	  		=> 'width:130px;',
-						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-						'echo'		   		=> false
-					));
+					'show_option_none'  => 'Select a type',
+					'taxonomy'     		=> $taxonomy,
+					'name'    	  		=> $name,
+					'style'    	  		=> 'width:130px;',
+					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+					'echo'		   		=> false
+				));
 
-					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-				
-				echo '</span>';
+				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+
 				*/
 				
 				// add layer range
@@ -628,44 +576,37 @@
 				
 				$name = $taxonomy.'1';
 
-				echo '<span>';
+				echo $this->parent->get_dropdown_terms(array(
 				
-					echo $this->parent->get_dropdown_terms(array(
-					
-						'show_option_none'  => 'Select a range',
-						'taxonomy'     		=> $taxonomy,
-						'name'    	  		=> $name,
-						'style'    	  		=> 'width:130px;',
-						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
-						'echo'		   		=> false
-					));
+					'show_option_none'  => 'Select a range',
+					'taxonomy'     		=> $taxonomy,
+					'name'    	  		=> $name,
+					'style'    	  		=> 'width:130px;',
+					'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
+					'echo'		   		=> false
+				));
 
-					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-				
-				echo '</span>';
-				
+				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+
 				// add layer option
 				
 				$taxonomy = 'account-option';
 				
 				$name = $taxonomy.'1';
 
-				echo '<span>';
+				echo $this->parent->get_dropdown_terms(array(
 				
-					echo $this->parent->get_dropdown_terms(array(
-					
-						'show_option_none'  => 'Select an option',
-						'taxonomy'     		=> $taxonomy,
-						'name'    	  		=> $name,
+					'show_option_none'  => 'Select an option',
+					'taxonomy'     		=> $taxonomy,
+					'name'    	  		=> $name,
 						'style'    	  		=> 'width:130px;',
 						'selected'     		=> ( isset($_REQUEST[$name]) ? $_REQUEST[$name] : ''),
 						'echo'		   		=> false
 					));
 
-					echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
-				
-				echo '</span>';
-			}
+				echo '<input id="post-query-submit" type="submit" class="button" value="Add" name="" style="float:left;">';
+			
+			echo '</div>';
 		}
 		
 		public function time_ago($time_ago=0) {
@@ -751,7 +692,7 @@
 			return $browser;
 		}		
 		
-		public function add_users_table_view() {
+		public function add_table_view_script() {
 		 
 			?>
 			<script type="text/javascript">
@@ -823,7 +764,6 @@
 			
 			echo '<style>';
 							
-				echo '.wrap						{margin:0 !important;}';	
 				echo '#wpcontent, #wpfooter 	{margin-left: 150px;}';
 				echo '.column-username img 	{display: inline-table;}';
 				echo '.column-username strong {display: inline-table;width: 100%;}';
@@ -869,7 +809,7 @@
 				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
-				$this->list->{$user_id}->can_spam 	= isset($meta[$this->parent->_base . '_can_spam']) ? $meta[$this->parent->_base . '_can_spam'] : 'false';
+				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
 				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : $this->get_user_notification_settings($user_id);
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
 
@@ -972,7 +912,7 @@
 				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
-				$this->list->{$user_id}->can_spam 	= isset($meta[$this->parent->_base . '_can_spam']) ? $meta[$this->parent->_base . '_can_spam'] : 'false';
+				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
 				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : $this->get_user_notification_settings($user_id);
 				$this->list->{$user_id}->sent 		= isset($meta[$this->parent->_base . '_email_sent']) ? $meta[$this->parent->_base . '_email_sent'] : '';
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
@@ -1236,7 +1176,7 @@
 					
 					$can_spam = 'false';
 				}
-				elseif ( !$can_spam = get_user_meta($user_id, $this->parent->_base . '_can_spam',true) ){
+				elseif ( !$can_spam = get_user_meta($user_id, 'ltple__can_spam',true) ){
 					
 					$can_spam = 'false';
 				}
@@ -1283,15 +1223,15 @@
 				
 				if( !empty($notify) ){
 					
-					update_user_meta($_REQUEST["user_id"], $this->parent->_base . '_can_spam', $notify['series']);
+					update_user_meta($_REQUEST["user_id"], 'ltple__can_spam', $notify['series']);
 					
 					update_user_meta($_REQUEST["user_id"], $this->parent->_base . 'notify', $notify);					
 				}
 			}
 		}
 		
-		public function add_bulk_actions() {
-		 
+		public function add_export_emails_script() {
+			
 			?>
 			
 			<script type="text/javascript">
@@ -1303,7 +1243,20 @@
 					
 					// append to bottom dropdown
 					jQuery('<option>').val('export-emails').text('<?php _e('Export emails')?>').appendTo("select[name='action2']");
-				
+				});
+			
+			</script>
+			<?php
+		}
+		
+		public function add_select_all_script() {
+		 
+			?>
+			
+			<script type="text/javascript">
+			
+				jQuery(document).ready(function() {
+					  					
 					// switch method to get
 					jQuery('form').attr('method','get');  
 					 
@@ -1316,7 +1269,7 @@
 								
 								var items = jQuery('.displaying-num').first().text();
 								
-								jQuery('<caption id="cb-select-all-3" style="text-align:left;margin-top:-20px;padding:15px 5px;">').html('<input type="checkbox" name="selectAll" /> Select <b>' + items + '</b>' ).prependTo(".wp-list-table");
+								jQuery('<caption id="cb-select-all-3" style="padding:10px 5px;float:left;clear: both;">').html('<input type="checkbox" name="selectAll" /> Select <b>' + items + '</b>' ).insertBefore(".tablenav-pages:first");
 							}
 							else{
 								
@@ -1338,18 +1291,13 @@
 			</script>
 			<?php
 		}
-
-		public function load_bulk_action() {
-		 
+		
+		public function handle_bulk_action() {
+			
 			// get the action
 			$wp_list_table = _get_list_table('WP_Posts_List_Table');
 			$action = $wp_list_table->current_action();
 			$sendback = '';
-			
-			// security check
-			//check_admin_referer('bulk-users');
-			
-			//echo'<pre>';var_dump($_POST);exit;
 			
 			switch($action) {
 			
@@ -1403,13 +1351,12 @@
 				default:
 					
 					// custom bulk actions
-					
-					$this->bulk_schedule_email_model();
+
 					$this->bulk_add_plan();
 					//$this->bulk_add_type();
 					$this->bulk_add_range();
 					$this->bulk_add_option();
-					$this->bulk_add_stars();					
+					//$this->bulk_add_stars();					
 					
 					if( !empty($_GET['users']) ){
 
@@ -1428,11 +1375,6 @@
 					
 				return;
 			}
-		 
-			// redirect client
-			//wp_redirect($sendback);
-		 
-			exit();
 		}
 		
 		public function get_filter_value($filter) {
@@ -1456,36 +1398,6 @@
 			if( !empty($_REQUEST['role']) ){
 				
 				$query->set( 'role', $_REQUEST['role']);
-			}
-			
-			return $query;
-		}
-		
-		public function filter_users_by_email_subscription( $query ) {
-			
-			if( $this->view == 'newsletter' ){
-				
-				$meta_query = array (
-					
-					array(
-					
-						'key' 		=> $this->parent->_base . '_last_seen',
-						'compare'	=> 'EXISTS', 
-					),
-					array(
-					
-						'key'     	=> $this->parent->_base . '_can_spam',
-						'compare' 	=> '=',
-						'value'		=> 'true'
-					),
-				);
-					
-				if( !empty($query->query_vars['meta_query']) ){
-					
-					$meta_query = array_merge($meta_query,$query->query_vars['meta_query']);
-				}
-				
-				$query->set( 'meta_query', $meta_query);
 			}
 			
 			return $query;
@@ -1642,88 +1554,6 @@
 				$wpdb->get_results('DELETE FROM ' . $wpdb->prefix . 'users WHERE ID in('. $user_id . ')');
 
 				$wpdb->get_results('DELETE FROM ' . $wpdb->prefix . 'usermeta WHERE user_id in('. $user_id . ')');
-			}
-		}
-			
-		public function bulk_schedule_email_model() {
-			
-			$post_type 	= 'email-model';
-			$model_id 	= null;
-			
-			if ( isset( $_REQUEST[$post_type.'1'] ) && is_numeric( $_REQUEST[$post_type.'1'] ) && $_REQUEST[$post_type.'1'] != '-1' ) {
-				
-				$model_id = intval($_REQUEST[$post_type.'1']);
-			}
-			elseif ( isset( $_REQUEST[$post_type.'2'] ) && is_numeric( $_REQUEST[$post_type.'2'] ) && $_REQUEST[$post_type.'2'] != '-1' ) {
-				
-				$model_id = intval($_REQUEST[$post_type.'2']);
-			}
-			
-			if( $model_title = get_post_field( 'post_title', $model_id ) ){
-
-				//get email title
-				
-				$model_title = $this->parent->email->get_title($model_title);
-				
-				// get email slug
-				
-				$model_slug = sanitize_title($model_title);
-				
-				$users 	= array();
-
-				if( !empty($_REQUEST['selectAll']) ){
-					
-					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
-
-					$users = $this->get_all_selected_users('id',$s,array(
-					
-						array(
-						
-							'key' 		=> $this->parent->_base . '_email_sent',
-							'value' 	=> $model_slug,
-							'compare' 	=> 'NOT LIKE',
-						),
-					));
-				}
-				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
-					
-					$users = $_REQUEST['users'];
-				}
-				
-				if( !empty($users) ){
-					
-					$max_users = 10;
-
-					// prepare user list
-
-					$users = array_chunk($users,$max_users);
-		
-					//get time limit
-					
-					$max_execution_time = ini_get('max_execution_time'); 
-					
-					//remove time limit
-
-					set_time_limit(0);				
-				
-					$m = 0;
-				
-					foreach( $users as $i => $user_ids){
-
-						wp_schedule_single_event( ( time() + ( 60 * $m ) ) , 'ltple_bulk_send_email_event' , [$model_id,$user_ids] );
-					
-						if ($i % 10 == 0) {
-							
-							++$m;
-						}
-					}
-					
-					//reset time limit
-					
-					set_time_limit($max_execution_time);
-				}
-				
-				add_action( 'admin_notices', array( $this, 'output_schedule_email_admin_notice'));
 			}
 		}
 		
@@ -1959,19 +1789,6 @@
 				echo'</div>';					
 			}			
 		}
-		
-		public function output_schedule_email_admin_notice(){
-			
-			echo'<div class="notice notice-success">';
-			
-				echo'<p>';
-				
-					echo 'Email(s) have been succesfully scheduled';
-					
-				echo'</p>';
-				
-			echo'</div>';
-		}	
 
 		public function output_add_plan_notice(){
 			

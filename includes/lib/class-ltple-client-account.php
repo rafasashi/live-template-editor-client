@@ -112,7 +112,7 @@ class LTPLE_Client_Account {
 					}
 				}
 				
-				update_user_meta($this->parent->user->ID, $this->parent->_base . '_can_spam', $notify['series']);
+				update_user_meta($this->parent->user->ID, 'ltple__can_spam', $notify['series']);
 					
 				update_user_meta($this->parent->user->ID, $this->parent->_base . 'notify', $notify);					
 			
