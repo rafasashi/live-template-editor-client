@@ -262,7 +262,7 @@
 			
 					add_action('admin_footer-users.php', array( $this, 'add_select_all_script') );
 				
-					$this->handle_bulk_action();
+					$this->handle_bulk_actions();
 				}
 				
 				if( $this->view == 'users' ){
@@ -477,7 +477,7 @@
 			
 			$name = $taxonomy.'1';
 			
-			echo '<input type="hidden" name="ltple_view" value="newsletter">';
+			echo '<input type="hidden" name="ltple_view" value="'.$this->view.'">';
 			
 			echo '<span>';
 				
@@ -714,7 +714,7 @@
 			</script>
 			<?php
 		}		
-
+		
 		public function set_users_table_columns($column) {
 			
 			$column=[];
@@ -746,18 +746,12 @@
 			return $column;
 		}
 
-		public function set_newsletter_table_columns($column) {
+		public function set_newsletter_table_columns($columns) {
 			
-			$column=[];
-			$column["cb"]			= '<input type="checkbox" />';
-			$column["username"]		= 'Username';
-			$column["email"]		= 'Email';
-			$column["seen"]			= 'Seen';	
-			$column["channel"]		= 'Channel';
-			$column["notify"]		= 'Notify';
-			$column["sent"]			= 'Last emails sent';
-			
-			return $column;
+			$columns['seen']	= 'Seen';	
+			$columns['channel']	= 'Channel';
+
+			return $columns;
 		}
 		
 		public function custom_users_table_css() {
@@ -797,7 +791,7 @@
 			return $meta;
 		}
 
-		public function get_users_table_row($val, $column_name, $user_id) {
+		public function get_users_table_row($row, $column_name, $user_id) {
 			
 			if(!isset($this->list->{$user_id})){
 				
@@ -810,7 +804,7 @@
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
 				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
-				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : $this->get_user_notification_settings($user_id);
+				$this->list->{$user_id}->notify 	= isset($meta['ltple_notify']) ? $meta['ltple_notify'] : $this->get_user_notification_settings($user_id);
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
 
 				// user marketing channel
@@ -828,10 +822,6 @@
 			$referredBy	= $this->list->{$user_id}->referredBy;
 			$channel   	= $this->list->{$user_id}->channel;
 			
-			$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
-			
-			$row='';
-
 			if ($column_name == "seen") {
 				
 				if( !empty($user_agent) ){
@@ -878,19 +868,21 @@
 				
 				foreach( $notify as $channel => $can_notify ){
 					
+					if( $channel == 'series' ) continue;
+					
 					$row .= '<div style="font-size:11px;text-align:left;">';
 						
 						$channel_name = ucfirst($channel);
 						
 						if( $can_notify != 'true' ){
 							
-							$text = "<img loading='lazy' class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=15 height=15>" . $channel_name;
-							$row .= "<a title=\"Subscribe to ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "true" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
+							$text = '<svg style="width:10px;height:10px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" enable-background="new 0 0 64 64"><path d="M32,2C15.432,2,2,15.432,2,32.001C2,48.567,15.432,62,32,62s30-13.433,30-29.999C62,15.432,48.568,2,32,2z M54,32.001 c0,4.629-1.433,8.922-3.876,12.465l-30.591-30.59C23.077,11.433,27.37,10,32,10C44.15,10,54,19.851,54,32.001z M10,32.001 c0-4.63,1.434-8.924,3.876-12.468l30.591,30.591C40.924,52.567,36.63,54.001,32,54.001C19.85,54.001,10,44.149,10,32.001z" fill="#e53935"/></svg> ' . $channel_name;
+							$row .= "<a title=\"Subscribe to ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "true" , "ltple_view" => $this->view )) . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
 						}
 						else{
 							
-							$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/right_arrow.png' width=15 height=15>" . $channel_name;
-							$row .= "<a title=\"Unsubscribe from ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "false" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
+							$text = '<svg style="width:10px;height:10px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" enable-background="new 0 0 64 64"><path d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z" fill="#43a047"/></svg> ' . $channel_name;
+							$row .= "<a title=\"Unsubscribe from ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "false" , "ltple_view" => $this->view )) . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
 						}
 
 					$row .= '</div>';
@@ -900,7 +892,7 @@
 			return $row;
 		}
 		
-		public function get_newsletter_table_row($val, $column_name, $user_id) {
+		public function get_newsletter_table_row($row, $column_name, $user_id) {
 			
 			if(!isset($this->list->{$user_id})){
 				
@@ -913,8 +905,7 @@
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
 				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
-				$this->list->{$user_id}->notify 	= isset($meta[$this->parent->_base . 'notify']) ? $meta[$this->parent->_base . 'notify'] : $this->get_user_notification_settings($user_id);
-				$this->list->{$user_id}->sent 		= isset($meta[$this->parent->_base . '_email_sent']) ? $meta[$this->parent->_base . '_email_sent'] : '';
+				$this->list->{$user_id}->notify 	= isset($meta['ltple_notify']) ? $meta['ltple_notify'] : $this->get_user_notification_settings($user_id);
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
 
 				// user marketing channel
@@ -929,14 +920,9 @@
 			$user_stars	= $this->list->{$user_id}->stars;
 			$can_spam  	= $this->list->{$user_id}->can_spam;
 			$notify  	= $this->list->{$user_id}->notify;
-			$last_sent 	= $this->list->{$user_id}->sent;
 			$referredBy	= $this->list->{$user_id}->referredBy;
 			$channel   	= $this->list->{$user_id}->channel;
 			
-			$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
-			
-			$row='';
-
 			if ($column_name == "seen") {
 				
 				if( !empty($user_agent) ){
@@ -983,44 +969,24 @@
 				
 				foreach( $notify as $channel => $can_notify ){
 					
+					if( $channel == 'series' ) continue;
+					
 					$row .= '<div style="font-size:11px;text-align:left;">';
 						
 						$channel_name = ucfirst($channel);
 						
 						if( $can_notify != 'true' ){
 							
-							$text = "<img loading='lazy' class='lazy' data-original='" . $this->parent->assets_url . "/images/wrong_arrow.png' width=15 height=15>" . $channel_name;
-							$row .= "<a title=\"Subscribe to ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "true" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
+							$text = '<svg style="width:10px;height:10px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" enable-background="new 0 0 64 64"><path d="M32,2C15.432,2,2,15.432,2,32.001C2,48.567,15.432,62,32,62s30-13.433,30-29.999C62,15.432,48.568,2,32,2z M54,32.001 c0,4.629-1.433,8.922-3.876,12.465l-30.591-30.59C23.077,11.433,27.37,10,32,10C44.15,10,54,19.851,54,32.001z M10,32.001 c0-4.63,1.434-8.924,3.876-12.468l30.591,30.591C40.924,52.567,36.63,54.001,32,54.001C19.85,54.001,10,44.149,10,32.001z" fill="#e53935"/></svg> ' . $channel_name;
+							$row .= "<a title=\"Subscribe to ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "true" , "ltple_view" => $this->view)) . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
 						}
 						else{
 							
-							$text = "<img class='lazy' data-original='" . $this->parent->assets_url . "/images/right_arrow.png' width=15 height=15>" . $channel_name;
-							$row .= "<a title=\"Unsubscribe from ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "false" , "ltple_view" => $this->view, "s" => $search_terms ), get_admin_url() . "users.php") . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
+							$text = '<svg style="width:10px;height:10px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" enable-background="new 0 0 64 64"><path d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z" fill="#43a047"/></svg> ' . $channel_name;
+							$row .= "<a title=\"Unsubscribe from ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "false" , "ltple_view" => $this->view)) . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
 						}
 
 					$row .= '</div>';
-				}
-			}
-			elseif ($column_name == "sent") {
-				
-				$emails = json_decode($last_sent,true);
-
-				if( !empty( $emails ) ){
-					
-					$emails = array_slice($emails, 0, 10);					
-					
-					$row .= '<pre style="margin:0px;padding:0px;font-size: 10px;line-height: 14px;overflow:hidden;background:transparent;border:none;">';
-
-						foreach($emails as $slug => $date){
-							
-							$row .= ucfirst(substr(str_replace('-',' ',$slug),0,30)).'...'.PHP_EOL;
-						}
-					
-					$row .= '</pre>';
-				}
-				else{
-					
-					$row .= '';
 				}
 			}
 			
@@ -1058,7 +1024,7 @@
 			$channel   	= $this->list->{$user_id}->channel;
 			$period_end = $this->list->{$user_id}->period;
 			
-			$search_terms = ( !empty($_REQUEST['s']) ? $_REQUEST['s'] : '' );
+			$search_terms = $this->get_search_query();
 			
 			$row='';
 			
@@ -1170,9 +1136,9 @@
 		
 		public function get_user_notification_settings( $user_id ){
 			
-			if( !$notify = get_user_meta($user_id, $this->parent->_base . 'notify',true) ){
+			if( !$notify = get_user_meta($user_id, 'ltple_notify',true) ){
 				
-				if( !$last_seen = get_user_meta($user_id, $this->parent->_base . '_last_seen',true)){
+				if( !$last_seen = get_user_meta($user_id, 'ltple__last_seen',true)){
 					
 					$can_spam = 'false';
 				}
@@ -1203,29 +1169,32 @@
 			
 			if( isset($_REQUEST["user_id"]) && isset($_REQUEST["wp_nonce"]) ) {
 				
+				$user_id = intval($_REQUEST["user_id"]);
+			
+				$wp_nonce = sanitize_text_field($_REQUEST["wp_nonce"]);
+			
 				$notify = array();
 				
-				if( wp_verify_nonce($_REQUEST["wp_nonce"], "ltple_can_spam") && isset($_REQUEST["ltple_can_spam"]) ){
+				if( wp_verify_nonce($wp_nonce, "ltple_can_spam") && isset($_REQUEST["ltple_can_spam"]) ){
 					
-					if($_REQUEST["ltple_can_spam"] === 'true' || $_REQUEST["ltple_can_spam"] === 'false'){
+					$can_spam = $_REQUEST["ltple_can_spam"] == 'true' ? 'true' : 'false';
+			
+					$notify = $this->get_user_notification_settings($user_id);				
 						
-						$notify = $this->get_user_notification_settings($_REQUEST["user_id"]);				
-						
-						$notify['series'] = $_REQUEST["ltple_can_spam"];
-					}
+					$notify['series'] = $can_spam;
 				}
-				elseif( wp_verify_nonce($_REQUEST["wp_nonce"], "ltple_notify") && isset($_REQUEST["ltple_notify"]) && is_array($_REQUEST["ltple_notify"]) ){
+				elseif( wp_verify_nonce($wp_nonce, "ltple_notify") && isset($_REQUEST["ltple_notify"]) && is_array($_REQUEST["ltple_notify"]) ){
 					
-					$notify = $this->get_user_notification_settings($_REQUEST["user_id"]);
+					$notify = $this->get_user_notification_settings($user_id);
 					
 					$notify = array_merge($notify,$_REQUEST["ltple_notify"]);
 				}
 				
 				if( !empty($notify) ){
 					
-					update_user_meta($_REQUEST["user_id"], 'ltple__can_spam', $notify['series']);
+					update_user_meta($user_id, 'ltple__can_spam', $notify);
 					
-					update_user_meta($_REQUEST["user_id"], $this->parent->_base . 'notify', $notify);					
+					update_user_meta($user_id, 'ltple_notify', $notify);					
 				}
 			}
 		}
@@ -1292,7 +1261,30 @@
 			<?php
 		}
 		
-		public function handle_bulk_action() {
+		public function get_search_query(){
+			
+			return !empty($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
+		}
+
+		public function get_requested_users(){
+			
+			$users = array();
+			
+			if( !empty($_REQUEST['selectAll']) ){
+				
+				$s = $this->get_search_query();
+				
+				$users = $this->get_all_selected_users('id',$s);
+			}
+			elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
+				
+				$users = $_REQUEST['users'];
+			}
+			
+			return $users;
+		}
+		
+		public function handle_bulk_actions(){
 			
 			// get the action
 			$wp_list_table = _get_list_table('WP_Posts_List_Table');
@@ -1572,20 +1564,7 @@
 
 			if( !empty($plan_id) ){
 				
-				$users 	= array();
-
-				if( !empty($_REQUEST['selectAll']) ){
-					
-					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
-					
-					$users = $this->get_all_selected_users('id',$s);
-				}
-				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
-					
-					$users = $_REQUEST['users'];
-				}
-
-				if(  !empty($users) ){
+				if( $users = $this->get_requested_users() ){
 		
 					//get time limit
 					
@@ -1623,20 +1602,7 @@
 
 			if( !empty($term_id) ){
 				
-				$users 	= array();
-
-				if( !empty($_REQUEST['selectAll']) ){
-					
-					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
-					
-					$users = $this->get_all_selected_users('id',$s);
-				}
-				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
-					
-					$users = $_REQUEST['users'];
-				}
-
-				if( !empty($users) ){
+				if( $users = $this->get_requested_users() ){
 					
 					//get time limit
 					
@@ -1674,20 +1640,7 @@
 
 			if( !empty($term_id) ){
 				
-				$users 	= array();
-
-				if( !empty($_REQUEST['selectAll']) ){
-					
-					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
-					
-					$users = $this->get_all_selected_users('id',$s);;
-				}
-				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
-					
-					$users = $_REQUEST['users'];
-				}
-
-				if( !empty($users) ){
+				if( $users = $this->get_requested_users() ){
 		
 					//get time limit
 					
@@ -1725,20 +1678,7 @@
 
 			if( !empty($term_id) ){
 				
-				$users 	= array();
-
-				if( !empty($_REQUEST['selectAll']) ){
-					
-					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
-					
-					$users = $this->get_all_selected_users('id',$s);
-				}
-				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
-					
-					$users = $_REQUEST['users'];
-				}
-
-				if( !empty($users) ){
+				if( $users = $this->get_requested_users() ){
 		
 					//get time limit
 					
@@ -1858,27 +1798,17 @@
 			
 			if( is_numeric( $addStars ) && !empty($_REQUEST['users']) && is_array($_REQUEST['users'])){
 				
-				$users = array();
-				
-				if( !empty($_REQUEST['selectAll']) ){
+				if( $users = $this->get_requested_users() ){
 					
-					$s = !empty($_REQUEST['s']) ? $_REQUEST['s'] : '';
+					$this->stars_added = $addStars;
 					
-					$users = $this->get_all_selected_users('id',$s);
-				}
-				elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
-					
-					$users = $_REQUEST['users'];
-				}
-				
-				$this->stars_added = $addStars;
-				
-				foreach( $users as $user_id){
-					
-					$this->parent->stars->add_stars( $user_id, $addStars );
-				}
+					foreach( $users as $user_id){
+						
+						$this->parent->stars->add_stars( $user_id, $addStars );
+					}
 
-				add_action( 'admin_notices', array( $this, 'output_stars_added_notice'));						
+					add_action( 'admin_notices', array( $this, 'output_stars_added_notice'));						
+				}
 			}
 		}
 		

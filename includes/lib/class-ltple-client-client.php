@@ -40,5 +40,11 @@ class LTPLE_Client_Client {
 			
 			$this->key = get_option( $this->parent->_base . 'client_key' );
 		}
+		
+		add_filter('ltple_newsletter_secret_key',function($key){
+
+			return $this->key;
+			
+		},9999,1);
 	}
 }

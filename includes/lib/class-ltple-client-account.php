@@ -98,7 +98,7 @@ class LTPLE_Client_Account {
 				
 				foreach( $notify as $key => $value ){
 				
-					if( !empty($_POST[$this->parent->_base . 'notify'][$key]) && $_POST[$this->parent->_base . 'notify'][$key] == 'on' ){
+					if( !empty($_POST['ltple_notify'][$key]) && $_POST['ltple_notify'][$key] == 'on' ){
 						
 						$notify[$key] = 'true';
 						
@@ -114,7 +114,7 @@ class LTPLE_Client_Account {
 				
 				update_user_meta($this->parent->user->ID, 'ltple__can_spam', $notify['series']);
 					
-				update_user_meta($this->parent->user->ID, $this->parent->_base . 'notify', $notify);					
+				update_user_meta($this->parent->user->ID, 'ltple_notify', $notify);					
 			
 				$this->parent->user->notify = $notify;
 			}

@@ -78,7 +78,7 @@ class LTPLE_Client_Email {
 		
 		add_action('ltple_newsletter_campaign_triggers', function($triggers){
 			
-			unset($triggers['user_registration']);
+			unset($triggers['user_register']);
 			
 			$triggers['ltple_first_log_ever'] = 'User Registration';
 			
@@ -86,13 +86,7 @@ class LTPLE_Client_Email {
 			
 			return $triggers;
 		});
-		
-		add_action('ltple_newsletter_unsubscribe_url', function($url,$user,$channel){
-			
-			return $this->parent->urls->gallery . '?unsubscribe=' . $this->parent->ltple_encrypt_uri($user->ID) . '&channel=' . $this->parent->ltple_encrypt_uri($channel);
-			
-		},10,3);
-		
+
 		add_action('ltple_newsletter_generator_logo_url', function($url){
 			
 			return $this->parent->settings->options->logo_url;
@@ -198,17 +192,8 @@ class LTPLE_Client_Email {
 		// get notification settings
 		
 		if( is_null($this->notification_settings) ){
-			
-			$this->notification_settings = array( 
-			
-				'series' => array(
-				
-					'default' 		=> 'false',
-					'description' 	=> 'Receive news about the platform and stay informed',
-				)
-			);
-			
-			do_action('ltple_notification_settings');
+
+			$this->notification_settings = apply_filters('ltple_notification_settings',[]);
 		}
 		
 		// output notification settings
@@ -234,79 +219,17 @@ class LTPLE_Client_Email {
 	}
 	
 	public function init_email(){
-		
-		// newsletter subscription
-		
-		if( isset($_POST["can_spam"]) && isset($_POST["can_spam_nonce_field"]) && wp_verify_nonce($_POST["can_spam_nonce_field"], "can_spam_nonce")){
+
+		add_action('ltple_newsletter_unsubscribe_user_channel',function($user_id,$channel){
 			
-			$can_spam = 'false';
+			if( $notify = $this->parent->users->get_user_notification_settings($user_id)){
 			
-			if( $_POST["can_spam"] === 'true'){
-				
-				$can_spam = $_POST["can_spam"];
+				$notify[$channel] = 'false';
+			
+				update_user_meta($user_id, 'ltple_notify', $notify);					
 			}
 			
-			update_user_meta($this->parent->user->ID, 'ltple__can_spam', $can_spam);
-			
-			$notify = $this->parent->users->get_user_notification_settings($this->parent->user->ID);
-			
-			$notify['series'] = $can_spam;
-			
-			update_user_meta($this->parent->user->ID, 'ltple_notify', $notify);			
-		}
-		
-		// newsletter unsubscription
-		
-		if(!empty($_GET['unsubscribe'])){
-		
-			$unsubscriber_id = $this->parent->ltple_decrypt_uri(sanitize_text_field($_GET['unsubscribe']));
-			
-			if(is_numeric($unsubscriber_id)){
-				
-				$channel = 'series';
-				
-				if( !empty($_GET['channel']) ){
-					
-					$channel = $this->parent->ltple_decrypt_uri(sanitize_text_field($_GET['channel']));
-				}
-				
-				if( !empty($channel) ){
-				
-					if( $channel == 'series' ){
-						
-						// update can_spam parameter
-						
-						update_user_meta(intval($unsubscriber_id), 'ltple__can_spam', 'false');
-					}
-					
-					// update notify settings
-					
-					$notify = $this->parent->users->get_user_notification_settings($unsubscriber_id);
-					
-					$notify[$channel] = 'false';
-					
-					update_user_meta($unsubscriber_id, $this->parent->_base . 'notify', $notify);					
-						
-					// output message
-						
-					$this->parent->message ='<div class="alert alert-success">';
-
-						$this->parent->message .= '<b>Congratulations</b>! You successfully unsbuscribed from the newsletter';
-
-					$this->parent->message .='</div>';
-				}
-				else{
-					
-					// output error message
-						
-					$this->parent->message ='<div class="alert alert-warning">';
-
-						$this->parent->message .= 'This subscription channel could not be found...';
-
-					$this->parent->message .='</div>';					
-				}
-			}
-		}		
+		},10,2);	
 		
 		if( !is_admin() ){
 			
@@ -324,7 +247,7 @@ class LTPLE_Client_Email {
 			}
 		}
 	}
-
+	
 	public function insert_user($email, $check_exists = true ){
 
 		if( $this->is_email($email) && ( !$check_exists || !email_exists( $email ) ) ){
