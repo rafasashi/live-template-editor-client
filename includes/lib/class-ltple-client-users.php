@@ -1265,16 +1265,19 @@
 			
 			return !empty($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '';
 		}
-
+		
+		public function get_role_query(){
+			
+			return !empty($_REQUEST['role']) ? sanitize_text_field($_REQUEST['role']) : '';
+		}
+		
 		public function get_requested_users(){
 			
 			$users = array();
 			
 			if( !empty($_REQUEST['selectAll']) ){
-				
-				$s = $this->get_search_query();
-				
-				$users = $this->get_all_selected_users('id',$s);
+
+				$users = $this->get_all_selected_users('id');
 			}
 			elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 				
@@ -1480,16 +1483,20 @@
 			
 			return $query;
 		}
-		
-		public function get_all_selected_users( $field, $s = '', $meta_query = array() ) {
+			
+		public function get_all_selected_users( $field ) {
 			
 			$selected_users = array();
 			
+			$meta_query = array();
+				
 			$args = array( 
 				
 				'fields' 		=> array($field),
 				'meta_query' 	=> $meta_query,
 			);
+			
+			$s = $this->get_search_query();
 			
 			if( !empty($s) ){
 				
@@ -1503,6 +1510,13 @@
 				);
 			}
 			
+			$role = $this->get_role_query();
+			
+			if( !empty($role) ){
+			
+				$args['role__in'] = array($role);
+			}
+			
 			if( $users = new WP_User_Query($args)){
 				
 				if( !empty($users->results) ){
@@ -1513,7 +1527,7 @@
 					}
 				}
 			}
-
+			
 			return $selected_users;
 		}
 		
