@@ -81,9 +81,7 @@ class LTPLE_Client_Email {
 			unset($triggers['user_register']);
 			
 			$triggers['ltple_first_log_ever'] = 'User Registration';
-			
-			//$triggers['ltple_offline_reminder'] = 'Offline Reminder';
-			
+
 			return $triggers;
 		});
 

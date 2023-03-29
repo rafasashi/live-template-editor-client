@@ -63,7 +63,7 @@ class LTPLE_Client_Settings {
 		
 		// Add settings page to menu
 		
-		add_action('ltple_admin_menu' , array( $this, 'add_menu_items' ) );	
+		add_action('admin_menu' , array( $this, 'add_menu_items' ) );	
 		
 		// Add settings link to plugins page
 		
@@ -288,6 +288,26 @@ class LTPLE_Client_Settings {
 	 */
 	public function add_menu_items () {
 
+		add_menu_page( 
+		
+			'ltple-settings', 
+			'SaaS', 
+			'edit_pages', 
+			'ltple-settings', 
+			NULL, 
+			'dashicons-cloud', 
+			2 
+		);	
+		
+		add_submenu_page( 
+			'ltple-settings', 
+			'Settings', 
+			'Settings', 
+			'edit_pages', 
+			'ltple-settings', 
+			array($this, 'settings_page')
+		);
+
 		// settings
 
 		if( $this->parent->user->is_admin ){
@@ -323,6 +343,8 @@ class LTPLE_Client_Settings {
 			'edit_pages',
 			'edit.php?post_type=tutorial'
 		);
+
+		do_action('ltple_admin_menu');
 		
 		// resources
 
