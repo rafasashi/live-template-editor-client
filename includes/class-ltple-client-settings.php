@@ -83,10 +83,15 @@ class LTPLE_Client_Settings {
 		});
 		
 		add_filter('ltple_general_settings', array( $this, 'register_general_settings' ),10,1 );
+
+		add_filter('ltple_addons_fields', array( $this, 'register_addons' ),10,1 );		
 		
-		add_filter('ltple_addons_fields' , array( $this, 'register_addons' ),10,1 );		
-		
-		add_filter('ltple_settings_fields', array( $this, 'settings_fields' ),10,1 );
+		add_action( 'admin_init' , array( $this, 'register_settings' ) );
+
+		add_filter('init',function(){
+			
+			$this->settings = $this->get_fields();
+		});
 	}
 	
 	public function get_default_logo_url() {
@@ -158,7 +163,253 @@ class LTPLE_Client_Settings {
 		
 		return $email_info;
 	}
+
+
+	/**
+	 * Register plugin settings
+	 * @return void
+	 */
+	public function register_settings () {
+
+		// Check posted/selected tab
+		
+		$current_section = '';
+		
+		if ( isset( $_POST['tab'] ) && $_POST['tab'] ) {
+			
+			$current_section = $_POST['tab'];
+		} 
+		else {
+			
+			if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {
+				
+				$current_section = $_GET['tab'];
+			}
+		}
+
+		foreach ( $this->settings as $section => $data ) {
+			
+			if( empty($data['fields']) ) continue;
+			
+			if ( $current_section && $current_section != $section ) continue;
+
+			// Add section to page
+			add_settings_section( $section, $data['title'], array( $this, 'settings_section' ), 'ltple_settings' );
+
+			foreach ( $data['fields'] as $field ) {
+
+				if(!isset($field['label'])){
+					
+					$field['label'] = '';
+				}
+			
+				// Validation callback for field
+				$validation = '';
+				if ( isset( $field['callback'] ) ) {
+					$validation = $field['callback'];
+				}
+
+				// Register field
+				// this will save the option in the wp_options table
+				
+				$option_name = 'ltple_' . $field['id'];
+				register_setting( 'ltple_settings', $option_name, $validation );
+
+				// Add field to page
+				
+				add_settings_field( $field['id'], $field['label'], array( $this->parent->admin, 'display_field' ), 'ltple_settings', $section, array( 'field' => $field, 'prefix' => 'ltple_' ) );
+
+			}
+
+			if ( ! $current_section ) break;
+		}
+	}
+
+	public function settings_section ( $section ) {
+		
+		if( !empty($this->settings[ $section['id'] ]['description'] ) )
+		
+			echo '<p> ' . $this->settings[ $section['id'] ]['description'] . '</p>' . "\n";
+	}
 	
+	/**
+	 * Load settings page content
+	 * @return void
+	 */
+	public function settings_page () {
+
+		// Build page HTML
+		
+		$html = '<div class="wrap" id="' . 'ltple_settings">' . "\n";
+			
+			$html .= '<h1>' . __( 'SaaS' , 'live-template-editor' ) . '</h1>' . "\n";
+
+			$tab = '';
+			
+			if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {
+				
+				$tab .= sanitize_title($_GET['tab']);
+			}
+
+			// Show page tabs
+			
+			if ( is_array( $this->settings ) && 1 < count( $this->settings ) ) {
+
+				$html .= '<h2 class="nav-tab-wrapper">' . "\n";
+
+				$c = 0;
+				foreach ( $this->settings as $section => $data ) {
+
+					if( empty($data['fields']) ) continue;
+
+					// Set tab class
+					
+					$class = 'nav-tab';
+					
+					if( !empty($data['class']) ){
+						
+						$class .= ' '.$data['class'];
+					}
+					
+					if ( ! isset( $_GET['tab'] ) ) {
+						if ( 0 == $c ) {
+							$class .= ' nav-tab-active';
+						}
+					} else {
+						if ( isset( $_GET['tab'] ) && $section == $_GET['tab'] ) {
+							$class .= ' nav-tab-active';
+						}
+					}
+
+					// Set tab link
+					
+					$tab_link = add_query_arg( array( 'tab' => $section ) );
+					
+					if ( isset( $_GET['settings-updated'] ) ) {
+						
+						$tab_link = remove_query_arg( 'settings-updated', $tab_link );
+					}
+
+					// Output tab
+					$html .= '<a href="' . $tab_link . '" class="' . esc_attr( $class ) . '">' . esc_html( $data['title'] ) . '</a>' . "\n";
+
+					++$c;
+				}
+
+				$html .= '</h2>' . "\n";
+			}
+			
+			$html .= '<div class="col-xs-12 col-md-9">' . "\n";
+				
+				$html .= '<form style="margin:15px;" method="post" action="' . ( $tab == 'data' ? 'admin-post.php' : 'options.php' ) . '" enctype="multipart/form-data">' . "\n";
+
+					// Get settings fields
+					
+					ob_start();
+					
+					settings_fields( 'ltple_settings' );
+					
+					//do_settings_sections( 'ltple_settings' );
+
+					$this->do_settings_sections( 'ltple_settings' );
+					
+					$html .= ob_get_clean();
+
+					if( empty($tab) || !in_array($tab,array('editors','addons','data')) ){
+					
+						$html .= '<p class="submit">' . "\n";
+							$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
+							$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , 'live-template-editor' ) ) . '" />' . "\n";
+						$html .= '</p>' . "\n";
+					}
+					
+				$html .= '</form>' . "\n";
+				
+			$html .= '</div>' . "\n";
+			
+			$html .= '<div class="col-xs-12 col-md-3">' . "\n";
+			
+				
+			
+			$html .= '</div>' . "\n";
+			
+		$html .= '</div>' . "\n";
+		
+		echo $html;
+	}
+	
+	public function do_settings_sections($page) {
+		
+		global $wp_settings_sections, $wp_settings_fields;
+
+		if ( !isset($wp_settings_sections) || !isset($wp_settings_sections[$page]) )
+			return;
+
+		foreach( (array) $wp_settings_sections[$page] as $section ) {
+			
+			echo '<h3 style="margin-bottom:25px;">' . $section['title'] . '</h3>'.PHP_EOL;
+			
+			call_user_func($section['callback'], $section);
+			
+			if ( !isset($wp_settings_fields) ||
+				 !isset($wp_settings_fields[$page]) ||
+				 !isset($wp_settings_fields[$page][$section['id']]) )
+					continue;
+					
+			echo '<div class="settings-form-wrapper" style="margin-top:25px;">';
+
+				$this->do_settings_fields($page, $section['id']);
+			
+			echo '</div>';
+		}
+	}
+
+	public function do_settings_fields($page, $section) {
+		
+		global $wp_settings_fields;
+
+		if ( !isset($wp_settings_fields) ||
+			 !isset($wp_settings_fields[$page]) ||
+			 !isset($wp_settings_fields[$page][$section]) )
+			return;
+
+		foreach ( (array) $wp_settings_fields[$page][$section] as $field ) {
+			
+			echo '<div class="settings-form-row row">';
+
+				if ( !empty($field['title']) ){
+			
+					echo '<div class="col-xs-3" style="margin-bottom:15px;">';
+					
+						if ( !empty($field['args']['label_for']) ){
+							
+							echo '<label style="font-weight:bold;" for="' . $field['args']['label_for'] . '">' . $field['title'] . '</label>';
+						}
+						else{
+							
+							echo '<b>' . $field['title'] . '</b>';		
+						}
+					
+					echo '</div>';
+					echo '<div class="col-xs-9" style="margin-bottom:15px;">';
+						
+						call_user_func($field['callback'], $field['args']);
+							
+					echo '</div>';
+				}
+				else{
+					
+					echo '<div class="col-xs-12" style="margin-bottom:15px;">';
+						
+						call_user_func($field['callback'], $field['args']);
+							
+					echo '</div>';					
+				}
+					
+			echo '</div>';
+		}
+	}
+
 	public function do_settings_tabs($current){
 
 		$tabs = array();
@@ -491,7 +742,24 @@ class LTPLE_Client_Settings {
 	 * Build settings fields
 	 * @return array Fields to be displayed on settings page
 	 */
-	public function settings_fields ($settings) {
+
+	public function get_fields(){
+
+		$settings = array(
+			
+			'settings' => array(
+			
+				'title'			=> __( 'Settings', 'live-template-editor' ),
+				'fields'		=> apply_filters('ltple_general_settings',array( array(
+				
+					'id' 			=> 'client_key',
+					'label'			=> __( 'Client key' , 'live-template-editor' ),
+					'type'			=> 'password',
+					'show'			=> true
+				)))
+			)
+		);
+
 		
 		$settings['urls'] = array(
 			'title'					=> __( 'URLs', 'live-template-editor-client' ),
@@ -729,10 +997,48 @@ class LTPLE_Client_Settings {
 				),
 			)),
 		);
+		
+		// get addons
+		
+		$this->addons = $this->addons_fields();
+		
+		if( !empty($this->addons) ){
+		
+			$settings['addons'] = array(
+				'title'					=> __( 'Addons', 'live-template-editor-client' ),
+				'description'			=> '',
+				'class'					=> 'pull-right',
+				'fields'				=> apply_filters('ltple_addon_settings',array(
+					array(
+						'id' 			=> 'addon_plugins',
+						'type'			=> 'addon_plugins'
+					)				
+				)),
+			);
+		}
 	
-		return $settings;
+		return apply_filters('ltple_settings_fields',$settings);
 	}
-	
+
+	public function addons_fields () {
+		
+		return apply_filters('ltple_addons_fields',array(
+			
+			/*
+			'addon-plugin' 		=> array(
+			
+				'title' 		=> 'Addon Plugin',
+				'addon_link' 	=> 'https://github.com/rafasashi/live-template-editor-addon',
+				'addon_name' 	=> 'live-template-editor-addon',
+				'source_url' 	=> 'https://github.com/rafasashi/live-template-editor-addon/archive/master.zip',
+				'description'	=> 'This is a first test of addon plugin for live template editor.',
+				'author' 		=> 'Rafasashi',
+				'author_link' 	=> 'https://profiles.wordpress.org/rafasashi/',
+			),
+			*/
+		));
+	}
+
 	public function get_default_page_template_id(){
 		
 		$default_id = intval(get_option($this->parent->_base . 'default_hosted_page_template',0));
@@ -941,115 +1247,8 @@ class LTPLE_Client_Settings {
 			}
 		});
 	}
-
-	public function settings_section ( $section ) {
-		$html = '<p> ' . $this->settings[ $section['id'] ]['description'] . '</p>' . "\n";
-		echo $html;
-	}
 	
-	/**
-	 * Load settings page content
-	 * @return void
-	 */
-	public function settings_page () {
 
-		// Build page HTML
-		
-		$html = '<div class="wrap" id="' . $this->parent->_token . '_settings">' . "\n";
-			
-			$html .= '<h1>' . __( 'Live Template Editor' , 'live-template-editor-client' ) . '</h1>' . "\n";
-
-			$tab = '';
-			if ( isset( $_GET['tab'] ) && $_GET['tab'] ) {
-				
-				$tab .= sanitize_title($_GET['tab']);
-			}
-			
-			// Show page tabs
-			if ( is_array( $this->settings ) && 1 < count( $this->settings ) ) {
-
-				$html .= '<h2 class="nav-tab-wrapper">' . "\n";
-
-				$c = 0;
-				foreach ( $this->settings as $section => $data ) {
-
-					if( empty($data['fields']) ) continue;
-
-					// Set tab class
-					
-					$class = 'nav-tab';
-					
-					if( !empty($data['class']) ){
-						
-						$class .= ' '.$data['class'];
-					}
-					
-					if ( ! isset( $_GET['tab'] ) ) {
-						if ( 0 == $c ) {
-							$class .= ' nav-tab-active';
-						}
-					} else {
-						if ( isset( $_GET['tab'] ) && $section == $_GET['tab'] ) {
-							$class .= ' nav-tab-active';
-						}
-					}
-
-					// Set tab link
-					
-					$tab_link = add_query_arg( array( 'tab' => $section ) );
-					
-					if ( isset( $_GET['settings-updated'] ) ) {
-						
-						$tab_link = remove_query_arg( 'settings-updated', $tab_link );
-					}
-
-					// Output tab
-					$html .= '<a href="' . $tab_link . '" class="' . esc_attr( $class ) . '">' . esc_html( $data['title'] ) . '</a>' . "\n";
-
-					++$c;
-				}
-
-				$html .= '</h2>' . "\n";
-			}
-			
-			$html .= '<div class="col-xs-12 col-md-9">' . "\n";
-
-				$html .= '<form style="margin:15px;" method="post" action="'.( $tab == 'data' ? '' : 'options.php' ).'" enctype="multipart/form-data">' . "\n";
-
-					// Get settings fields
-					
-					ob_start();
-					
-					settings_fields( $this->parent->_token . '_settings' );
-					
-					//do_settings_sections( $this->parent->_token . '_settings' );
-
-					$this->do_settings_sections( $this->parent->_token . '_settings' );
-					
-					$html .= ob_get_clean();
-
-					if( !isset($_GET['tab']) || !in_array($_GET['tab'],array('addons','importer')) ){
-					
-						$html .= '<p class="submit">' . "\n";
-							$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
-							$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , 'live-template-editor-client' ) ) . '" />' . "\n";
-						$html .= '</p>' . "\n";
-					}
-					
-				$html .= '</form>' . "\n";
-				
-			$html .= '</div>' . "\n";
-			
-			$html .= '<div class="col-xs-12 col-md-3">' . "\n";
-			
-				
-			
-			$html .= '</div>' . "\n";
-			
-		$html .= '</div>' . "\n";
-
-		echo $html;
-	}
 	
 	public function resources_page () {
 
