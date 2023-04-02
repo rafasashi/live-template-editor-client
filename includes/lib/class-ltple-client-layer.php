@@ -5588,7 +5588,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		return $this->column;
 	}
-
+	
 	public function add_manage_layer_filters($post_type,$which){
 		
 		if( $post_type == 'cb-default-layer' ){
@@ -5613,12 +5613,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					}
 				}
 				
+				$layer_type = isset($_REQUEST['layer_type']) ? intval($_REQUEST['layer_type']) : key($types);
+				
 				echo $this->parent->admin->display_field( array(
 					
 					'id'		=> 'layer_type',
 					'type'		=> 'select',
 					'options'	=> $options,
-					'data'		=> isset($_REQUEST['layer_type']) ? intval($_REQUEST['layer_type']) : key($types),
+					'data'		=> $layer_type,
 					
 				), false, false ); 					
 			}

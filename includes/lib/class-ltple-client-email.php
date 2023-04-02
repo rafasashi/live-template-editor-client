@@ -215,7 +215,7 @@ class LTPLE_Client_Email {
 		
 		return $notification_settings;
 	}
-	
+
 	public function init_email(){
 
 		add_action('ltple_newsletter_unsubscribe_user_channel',function($user_id,$channel){

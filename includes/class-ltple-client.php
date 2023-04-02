@@ -1299,21 +1299,21 @@ class LTPLE_Client {
 			'style' 			=> '', 
 			'echo' 				=> true, 
 			'orderby' 			=> 'title', 
-			'order' 			=> 'ASC' 
+			'order' 			=> 'ASC', 
 		);
 
 		$args = array_merge($defaults, $args);
-		
 		$terms = get_terms(
 			array(
 			
 				'taxonomy'  	=> $args['taxonomy'],
 				'numberposts' 	=> -1,
 				'orderby'		=> $args['orderby'], 
-				'order' 		=> $args['order']
+				'order' 		=> $args['order'],
+				'hide_empty' 	=> false,
 			)
 		);
-		 
+		
 		$dropdown = '';
 		
 		if( $terms ){

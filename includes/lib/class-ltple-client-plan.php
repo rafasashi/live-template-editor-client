@@ -112,13 +112,15 @@ class LTPLE_Client_Plan {
 			) );
 		} );
 		
-		// add user-plan
+		add_action('restrict_manage_posts', array($this, 'add_manage_plan_actions'),10,2 );
 		
 		add_filter('user-plan_custom_fields', array( $this, 'add_user_plan_fields' ));		
 		
-		add_action( 'init', array( $this, 'init_plan' ));
+		add_action('init', array( $this, 'init_plan' ));
 		
-		add_action( 'ltple_plan_delivered', array( $this, 'schedule_plan_emails' ),10,2);
+		add_action('ltple_plan_delivered', array( $this, 'schedule_plan_emails' ),10,2);
+	
+		add_action('admin_init', array( $this, 'handle_bulk_actions' ));
 	}
 
 	public function init_plan(){
@@ -176,6 +178,110 @@ class LTPLE_Client_Plan {
 		
 		return $fields;
 	}
+	
+	public function add_manage_plan_actions($post_type,$which){
+		
+		if( $post_type == 'subscription-plan' ){
+			
+			$options = array( -1 => 'Select a range' );
+			
+			if( $types = $this->parent->layer->get_layer_types() ){
+
+				foreach( $types as $type ){
+					
+					if( !empty($type->ranges) ){
+						
+						foreach( $type->ranges as $range ){
+							
+							$options[$type->name][$range['slug']] = $range['name'];
+						}
+					}
+				}
+				
+				$layer_range = isset($_REQUEST['layer_range']) ? sanitize_title($_REQUEST['layer_range']) : '';
+				
+				echo'<div style="float:right;">';
+				
+					echo $this->parent->admin->display_field( array(
+						
+						'id'		=> 'layer_range',
+						'type'		=> 'select',
+						'options'	=> $options,
+						'data'		=> $layer_range,
+						
+					), false, false ); 
+					
+					echo '<input type="submit" name="layer_range_action" id="post-query-submit" class="button" value="Add">';
+				
+				echo '</div>';
+			}
+		}
+		
+		return $post_type;
+	}	
+	
+	public function handle_bulk_actions(){
+		
+		// get the action
+		
+		$wp_list_table = _get_list_table('WP_Posts_List_Table');
+		$action = $wp_list_table->current_action();
+		$sendback = '';
+
+		switch($action){
+		
+			default:
+				
+				if( !empty($_REQUEST['post']) && !empty($_REQUEST['layer_range_action']) && !empty($_REQUEST['layer_range']) ){
+					
+					$posts = $_REQUEST['post'];
+					
+					if( $layer_range = sanitize_title($_REQUEST['layer_range']) ){
+						
+						$action = sanitize_title($_REQUEST['layer_range_action']);
+						
+						if( $action == 'add' ){
+							
+							foreach( $posts as $post_id ){
+								
+								$post_id = intval($post_id);
+								
+								if( !$options = get_post_meta($post_id,'plan_options',true) ){
+									
+									$options = array();
+								}
+								
+								if( is_array($options) && !in_array($layer_range,$options) ){
+									
+									$options[] = $layer_range;
+									
+									update_post_meta($post_id,'plan_options',$options);
+								}
+							}
+							
+							add_action('admin_notices',function(){
+
+								echo'<div class="notice notice-success">';
+								
+									echo'<p>';
+									
+										echo'Range succesfully added';
+										
+									echo'</p>';
+									
+								echo'</div>';
+							});
+						}
+						elseif( $action == 'remove' ){
+							
+							// TODO
+						}
+					}
+				}
+				
+			return;
+		}
+	}	
 	
 	public function set_subscription_plan_columns($columns){
 

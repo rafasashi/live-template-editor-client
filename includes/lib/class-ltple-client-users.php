@@ -312,6 +312,8 @@
 				add_filter('manage_users_custom_column', array($this, 'get_users_table_row'), 100, 3);
 			}
 			
+			add_filter('manage_users_custom_column', array($this, 'filter_notify_column'), 100, 3);
+			
 			// custom bulk actions
 
 			add_action('ltple_restrict_manage_users', function( $which ){
@@ -725,7 +727,7 @@
 			$column["seen"]			= 'Seen';
 			$column["channel"]		= 'Channel';
 			$column["stars"]		= 'Stars';
-			$column["notify"]		= 'Notify';
+			$column['notify']		= 'Notify';
 
 			return $column;
 		}
@@ -790,79 +792,15 @@
 		
 			return $meta;
 		}
+		
+		public function filter_notify_column($row, $column_name, $user_id){
 
-		public function get_users_table_row($row, $column_name, $user_id) {
-			
-			if(!isset($this->list->{$user_id})){
+			if( $column_name == 'notify' ){
 				
-				$meta = $this->get_all_user_meta($user_id);
-				
-				$this->list->{$user_id} = new stdClass();
-				
-				$this->list->{$user_id}->role 		= get_userdata($user_id);
-				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
-				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
-				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
-				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
-				$this->list->{$user_id}->notify 	= isset($meta['ltple_notify']) ? $meta['ltple_notify'] : $this->get_user_notification_settings($user_id);
-				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
-
-				// user marketing channel
-				
-				$terms = wp_get_object_terms( $user_id, 'marketing-channel' );		
-				$this->list->{$user_id}->channel = ( ( !isset($terms->errors) && isset($terms[0]->name) ) ? $terms[0]->name : '');
-			}
-			
-			$user_role 	= $this->list->{$user_id}->role;
-			$user_seen 	= $this->list->{$user_id}->last_seen;
-			$user_agent	= $this->list->{$user_id}->last_uagent;
-			$user_stars	= $this->list->{$user_id}->stars;
-			$can_spam  	= $this->list->{$user_id}->can_spam;
-			$notify  	= $this->list->{$user_id}->notify;
-			$referredBy	= $this->list->{$user_id}->referredBy;
-			$channel   	= $this->list->{$user_id}->channel;
-			
-			if ($column_name == "seen") {
-				
-				if( !empty($user_agent) ){
-				
-					$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
+				if( !$notify = get_user_meta($user_id,'ltple_notify',true) ){
 					
-						$row .= $this->get_browser($user_agent);
-						
-					$row .= '</span>';
+					$notify = array();
 				}
-				
-				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
-				
-					$row .= $this->time_ago( '@' . $user_seen );
-					
-				$row .= '</span>';
-			}
-			elseif ($column_name == "channel") {
-				
-				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
-					
-					if(!empty($referredBy)){
-						
-						$row .= '<a href="'.admin_url( 'user-edit.php' ).'?user_id='.key($referredBy).'">'.reset($referredBy).'</a>';
-					}
-					else{
-						
-						$row .= $channel;
-					}
-				
-				$row .= '</span>';
-			}
-			elseif ($column_name == "stars") {
-				
-				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';
-					
-					$row .= $user_stars;
-					
-				$row .= '</span>';
-			}
-			elseif ($column_name == "notify") {
 				
 				$notify = array_merge($this->parent->email->get_notification_settings(),$notify);
 				
@@ -891,8 +829,8 @@
 			
 			return $row;
 		}
-		
-		public function get_newsletter_table_row($row, $column_name, $user_id) {
+
+		public function get_users_table_row($row, $column_name, $user_id) {
 			
 			if(!isset($this->list->{$user_id})){
 				
@@ -905,7 +843,6 @@
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
 				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
-				$this->list->{$user_id}->notify 	= isset($meta['ltple_notify']) ? $meta['ltple_notify'] : $this->get_user_notification_settings($user_id);
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
 
 				// user marketing channel
@@ -919,7 +856,6 @@
 			$user_agent	= $this->list->{$user_id}->last_uagent;
 			$user_stars	= $this->list->{$user_id}->stars;
 			$can_spam  	= $this->list->{$user_id}->can_spam;
-			$notify  	= $this->list->{$user_id}->notify;
 			$referredBy	= $this->list->{$user_id}->referredBy;
 			$channel   	= $this->list->{$user_id}->channel;
 			
@@ -962,32 +898,6 @@
 					$row .= $user_stars;
 					
 				$row .= '</span>';
-			}
-			elseif ($column_name == "notify") {
-				
-				$notify = array_merge($this->parent->email->get_notification_settings(),$notify);
-				
-				foreach( $notify as $channel => $can_notify ){
-					
-					if( $channel == 'series' ) continue;
-					
-					$row .= '<div style="font-size:11px;text-align:left;">';
-						
-						$channel_name = ucfirst($channel);
-						
-						if( $can_notify != 'true' ){
-							
-							$text = '<svg style="width:10px;height:10px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" enable-background="new 0 0 64 64"><path d="M32,2C15.432,2,2,15.432,2,32.001C2,48.567,15.432,62,32,62s30-13.433,30-29.999C62,15.432,48.568,2,32,2z M54,32.001 c0,4.629-1.433,8.922-3.876,12.465l-30.591-30.59C23.077,11.433,27.37,10,32,10C44.15,10,54,19.851,54,32.001z M10,32.001 c0-4.63,1.434-8.924,3.876-12.468l30.591,30.591C40.924,52.567,36.63,54.001,32,54.001C19.85,54.001,10,44.149,10,32.001z" fill="#e53935"/></svg> ' . $channel_name;
-							$row .= "<a title=\"Subscribe to ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "true" , "ltple_view" => $this->view)) . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
-						}
-						else{
-							
-							$text = '<svg style="width:10px;height:10px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" enable-background="new 0 0 64 64"><path d="M32,2C15.431,2,2,15.432,2,32c0,16.568,13.432,30,30,30c16.568,0,30-13.432,30-30C62,15.432,48.568,2,32,2z M25.025,50l-0.02-0.02L24.988,50L11,35.6l7.029-7.164l6.977,7.184l21-21.619L53,21.199L25.025,50z" fill="#43a047"/></svg> ' . $channel_name;
-							$row .= "<a title=\"Unsubscribe from ".$channel_name."\" href=\"" . add_query_arg(array("user_id" => $user_id, "wp_nonce" => wp_create_nonce("ltple_notify"), "ltple_notify[".$channel."]" => "false" , "ltple_view" => $this->view)) . "\">" . apply_filters("ltple_manual_notify", $text) . "</a>";
-						}
-
-					$row .= '</div>';
-				}
 			}
 			
 			return $row;
