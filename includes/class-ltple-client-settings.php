@@ -1122,7 +1122,6 @@ class LTPLE_Client_Settings {
 			  
 				'user-layer' 	=> array( 'tab'  => 'HTML', 		'name' => 'HTML', 		'in_menu' => true),
 				'user-page' 	=> array( 'tab'  => 'Pages', 		'name' => 'Pages', 		'in_menu' => true),
-				'user-menu' 	=> array( 'tab'  => 'Pages',		'name' => 'Menus', 		'in_menu' => false),
 				'user-image' 	=> array( 'tab'  => 'Images',		'name' => 'Images', 	'in_menu' => true),				
 				'user-psd' 		=> array( 'tab'  => 'Images',		'name' => 'PSDs', 		'in_menu' => false),
 				'user-bookmark' => array( 'tab'  => 'Bookmarks',	'name' => 'Bookmarks', 	'in_menu' => true),

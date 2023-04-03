@@ -163,34 +163,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			return 'frontend';
 		});
-		
-		$this->parent->register_post_type( 'user-menu', __( 'Menus', 'live-template-editor-client' ), __( 'Menu', 'live-template-editor-client' ), '', array(
 
-			'public' 				=> false,
-			'publicly_queryable' 	=> false,
-			'exclude_from_search' 	=> true,
-			'show_ui' 				=> true,
-			'show_in_menu' 			=> false,
-			'show_in_nav_menus' 	=> false,
-			'query_var' 			=> true,
-			'can_export' 			=> true,
-			'rewrite' 				=> false,
-			'capability_type' 		=> 'post',
-			'has_archive' 			=> false,
-			'hierarchical' 			=> false,
-			'show_in_rest' 			=> false,
-			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array('title','author'),
-			'menu_position' 		=> 5,
-			'menu_icon' 			=> 'dashicons-admin-post',
-		));
-		
-		add_filter('ltple_user-menu_layer_area',function(){ 
-			
-			return 'frontend';
-		});
-
-		$this->parent->register_taxonomy( 'layer-type', __( 'Template Gallery', 'live-template-editor-client' ), __( 'Template Gallery', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd','user-page','user-menu'), array(
+		$this->parent->register_taxonomy( 'layer-type', __( 'Template Gallery', 'live-template-editor-client' ), __( 'Template Gallery', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd','user-page'), array(
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -377,11 +351,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('manage_user-page_posts_columns', array( $this, 'set_user_layer_columns'),99999);
 		add_action('manage_user-page_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);		
-		
-		// user menu
-		
-		add_filter('manage_user-menu_posts_columns', array( $this, 'set_user_layer_columns'),99999);
-		add_action('manage_user-menu_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);		
 		
 		// user psd
 		
@@ -711,7 +680,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			'user-layer',
 			'user-psd',
-			'user-menu',
 		)) ){
 			
 			$is_hosted = true;
@@ -1944,45 +1912,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							);
 						}
 					}
-					
-					if( $post->post_type == 'user-page' ){
-						
-						$options = array(
-							
-							'-1' => 'None'
-						);						
-						
-						if( $menus = get_posts( array(
-							
-							'post_type' 	=> 'user-menu',
-							'post_status' 	=> 'publish',
-							'author' 		=> $post->post_author,
-							
-						))){
-
-							foreach( $menus as $menu ){
-								
-								$options[$menu->ID] = ucfirst($menu->post_title);
-							}
-						}
-							
-						$this->userFields[]=array(
-						
-							'metabox' 		=> array( 
-					
-								'name' 		=> $post->post_type . '-settings',
-								'title' 	=> __('Settings', 'live-template-editor-client' ),
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend'	=> true,
-							),
-							'type'			=> 'select',
-							'id'			=> 'layerMenuId',
-							'label'			=> $storage_name . ' Menu',
-							'options'		=> $options,
-							'class'			=> 'col-xs-6',
-						);
-					}
 				}
 				
 				do_action('ltple_user_layer_fields',$post,array( 
@@ -2057,7 +1986,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'user-element'	=>'HTML Element',
 				'user-psd'		=>'Graphic Design',
 				'user-page'		=>'Web Page',
-				'user-menu'		=>'Menu',
 			));
 		}
 		
@@ -2066,10 +1994,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function is_layer_part($storage){
 		
-		return in_array($storage,apply_filters('ltple_layer_parts',array(
-			
-			'user-menu',
-		)));
+		return in_array($storage,apply_filters('ltple_layer_parts',[]));
 	}
 	
 	public function get_gallery_sections(){
@@ -2958,13 +2883,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'callback' 	=> array($this,'get_user_page_rows'),
 				'permission_callback' => '__return_true',
 			));
-			
-			register_rest_route( 'ltple-list/v1', '/user-menu/', array(
-				
-				'methods' 	=> 'GET',
-				'callback' 	=> array($this,'get_user_menu_rows'),
-				'permission_callback' => '__return_true',
-			));
 		});
 	}
 	
@@ -2992,7 +2910,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$action  .= '<a target="'.$target.'" href="' . $layer->urls['settings'] . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
 			
-			if( $this->is_html_output($layer_type->output) && $layer_type->storage != 'user-menu' ){
+			if( $this->is_html_output($layer_type->output) ){
 			
 				$action .= '<a target="_blank" href="' . $layer->urls['view'] . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
 			}
@@ -3124,38 +3042,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$page_rows[] = $row;
 				}
-			}
-		}
-		
-		return $page_rows;
-	}
-	
-	public function get_user_menu_rows($request) {
-		
-		$page_rows = [];
-		
-		if( $posts = get_posts(array(
-		
-			'post_type' 		=> 'user-menu',
-			'post_status' 		=> array('publish','draft'),
-			'author' 			=> $this->parent->user->ID,
-			'posts_per_page'	=> -1,
-			
-		))){
-
-			foreach( $posts as $i => $post ){
-				
-				$layer_type = $this->get_layer_type($post);
-
-				$row = [];
-				
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
-				$row['name'] 		= ucfirst($post->post_title);
-				$row['type'] 		= $layer_type->name;
-				$row['status'] 		= $this->parse_layer_status($post->post_status);
-				$row['action'] 		= $this->get_action_buttons($post,$layer_type);
-				
-				$page_rows[] = $row;
 			}
 		}
 		

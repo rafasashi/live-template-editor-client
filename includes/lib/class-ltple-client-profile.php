@@ -785,7 +785,7 @@ class LTPLE_Client_Profile {
 		
 		if( !empty($storage_count['user-page']) ){
 		
-			$website .=  '<li'.( ( $currentTab == 'user-page' || $currentTab == 'user-menu' ) ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?list=user-page"><span class="fa fa-layer-group"></span> Web Pages</a></li>';
+			$website .=  '<li'.( $currentTab == 'user-page' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?list=user-page"><span class="fa fa-layer-group"></span> Web Pages</a></li>';
 		}
 		
 		$website .= apply_filters('ltple_website_settings_sidebar','',$currentTab,$storage_count);

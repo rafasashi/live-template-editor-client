@@ -39,11 +39,9 @@
 							echo'</li>';
 						}
 							
-						if( $currentTab == 'user-page' || $currentTab == 'user-menu' ){
+						if( $currentTab == 'user-page' ){
 							
-							echo '<li role="presentation"'.( $currentTab == 'user-page' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->profile . '?list=user-page" role="tab">Pages</a></li>';
-						
-							echo '<li role="presentation"'.( $currentTab == 'user-menu' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->profile . '?list=user-menu" role="tab">Menus</a></li>';							
+							echo '<li role="presentation"'.( $currentTab == 'user-page' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->profile . '?list=user-page" role="tab">Pages</a></li>';						
 						}
 						else{ 
 							

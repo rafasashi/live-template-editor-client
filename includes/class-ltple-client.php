@@ -1934,14 +1934,7 @@ class LTPLE_Client {
 						
 						$post_type = $this->layer->layerStorage;
 						
-						if( $post_type == 'user-menu' ){
-							
-							$post_status = 'publish';
-						}
-						else{
-							
-							$post_status = ( $this->layer->layerOutput == 'hosted-page' ? 'draft' : 'publish' );
-						}
+						$post_status = $this->layer->layerOutput == 'hosted-page' ? 'draft' : 'publish';
 						
 						$defaultLayer 	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 						
