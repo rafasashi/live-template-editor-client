@@ -157,7 +157,7 @@ class LTPLE_Client_Dashboard {
 			'post_type' 	=> 'post',
 			'numberposts' 	=> 5,
 			'post_status' 	=> 'publish',
-			'orderby' 		=> 'post_date',
+			'orderby' 		=> 'date',
 			'order' 		=> 'DESC',
 		);
 		
@@ -251,7 +251,7 @@ class LTPLE_Client_Dashboard {
 			'post_type' 	=> 'cb-default-layer',
 			'post_status' 	=> array('publish'),
 			'numberposts' 	=> $number,
-			'orderby' 		=> 'post_date',
+			'orderby' 		=> 'date',
 			'order' 		=> 'DESC',
 			'meta_query' 	=> array(
 			
