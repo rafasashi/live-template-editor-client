@@ -59,7 +59,7 @@
 
 									if( !empty($_GET['action']) && $_GET['action'] == 'edit' ){
 										
-										echo'<div id="navLoader" style="margin-right:10px;display:none;"><img src="' . $ltple->assets_url . 'loader.gif" style="height: 20px;"></div>';				
+										echo'<div id="navLoader" style="position:absolute;left:-15px;top:2px;margin-right:10px;display:none;"><img src="' . $ltple->assets_url . 'loader.gif" style="height: 20px;"></div>';				
 
 										// save button
 										
@@ -105,7 +105,7 @@
 									
 									echo'<input type="hidden" name="submitted" id="submitted" value="true">';
 									
-									echo'<div id="navLoader" style="margin-right:10px;display:none;"><img src="' . $ltple->assets_url . 'loader.gif" style="height: 20px;"></div>';				
+									echo'<div id="navLoader" style="position:absolute;left:-15px;top:2px;margin-right:10px;display:none;"><img src="' . $ltple->assets_url . 'loader.gif" style="height: 20px;"></div>';				
 
 									if( isset($_GET['edit']) ){
 										
