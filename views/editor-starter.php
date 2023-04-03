@@ -53,7 +53,7 @@ else{
 		
 		$plan_usage = $ltple->plan->get_user_plan_usage( $ltple->user->ID );
 		
-		if( $ltple->layer->is_editable_output($ltple->layer->layerOutput) ){
+		if( $ltple->layer->is_editable_output($layer_type->output) ){
 			
 			// get download url
 			
@@ -67,19 +67,19 @@ else{
 			
 			$quick_start = '';
 			
-			if( $ltple->layer->layerOutput == 'image' ){
+			if( $layer_type->output == 'image' ){
 				
 				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit image ( without saving )</a>';
 			}
-			elseif( $ltple->layer->layerOutput == 'vector' ){
+			elseif( $layer_type->output == 'vector' ){
 				
 				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit vector ( without saving )</a>';
 			}
-			elseif( $ltple->layer->layerOutput == 'inline-css' || $ltple->layer->layerOutput == 'external-css' ){
+			elseif( $layer_type->output == 'inline-css' || $ltple->layer->layerOutput == 'external-css' ){
 				
 				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
 			}
-			else{
+			elseif( $layer_type->output == 'web-app' ){
 				
 				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Launch the app</a>';
 			}

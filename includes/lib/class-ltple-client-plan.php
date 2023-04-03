@@ -70,7 +70,7 @@ class LTPLE_Client_Plan {
 			'hierarchical' 			=> false,
 			'show_in_rest' 			=> false,
 			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-			'supports' 				=> array( 'title'),
+			'supports' 				=> array('title'),
 			'menu_position' 		=> 5,
 			'menu_icon' 			=> 'dashicons-admin-post'
 		));
@@ -1698,7 +1698,7 @@ class LTPLE_Client_Plan {
 			foreach( $users as $user_id ){
 				
 				// update current user custom taxonomy
-				
+
 				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, true, array(
 					
 					/*
