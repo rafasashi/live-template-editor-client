@@ -2665,13 +2665,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_type_visibility($term){
 		
-		if( !$visibility = get_term_meta( $term->term_id, 'visibility', true ) ){
-			
-			//migrate visibility
-			
-			$visibility = get_option('visibility_'.$term->slug,'anyone');
+		$visibility = 'none';
 		
-			update_term_meta( $term->term_id, 'visibility', $visibility );
+		if( !empty($term->term_id) ){
+		
+			if( !$visibility = get_term_meta( $term->term_id, 'visibility', true ) ){
+				
+				//migrate visibility
+				
+				$visibility = get_option('visibility_'.$term->slug,'anyone');
+			
+				update_term_meta( $term->term_id, 'visibility', $visibility );
+			}
 		}
 		
 		return $visibility;
