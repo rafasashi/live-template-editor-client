@@ -199,15 +199,15 @@ class LTPLE_Client {
 		
 		if( is_admin() ) {		
 		
-			add_action( 'init', array( $this, 'init_backend' ));
+			add_action('init', array( $this, 'init_backend' ));
 		}
 		else{
 			
-			add_action( 'init', array( $this, 'init_frontend' ));
+			add_action('init', array( $this, 'init_frontend' ));
 		}
 		
-		add_action( 'ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
-	
+		add_action('ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
+
 	} // End __construct ()
 	
 	public function handle_error(){
@@ -1154,12 +1154,14 @@ class LTPLE_Client {
 			
 			// collect usr information
 
-			if( empty( $this->user->can_spam_set ) && !isset($_POST['can_spam']) ){
+			if( empty( $this->user->can_spam_set ) && !isset($_POST['ltple_can_spam']) ){
 				
 				include($this->views . '/modals/newsletter.php');
 			}
-			
-			do_action('ltple_collect_user_information');
+			else{
+				
+				do_action('ltple_collect_user_information');
+			}
 		}
 		
 		do_action('ltple_footer');

@@ -12,18 +12,15 @@
 	
 	echo'<div id="login-wrap">';
 
-		echo'<p style="width:350px;padding:10px;font-size:20px;margin:10px auto;" class="register">';
-		
-			if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'register' ){
-				
-				echo'New Registration';
-			}	
-			else{
-				
-				echo'Email Login';
-			}
+		if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'register' ){
 			
-		echo'</p>';
+			echo'<p style="width:350px;padding:10px;font-size:20px;margin:10px auto;" class="register">';
+	
+				echo'New Registration';
+				
+			echo'</p>';
+		}
+	
 	
 		// output message
 		

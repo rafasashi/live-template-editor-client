@@ -24,7 +24,7 @@
 						
 							$this->admin->display_field( array(
 								
-								'id' 		=> 'can_spam',
+								'id' 		=> 'ltple_can_spam',
 								'type' 		=> 'radio',
 								'options' 	=> array(
 								
@@ -34,7 +34,7 @@
 							));							
 						?>
 						
-						<?php wp_nonce_field( 'can_spam_nonce', 'can_spam_nonce_field' ); ?>
+						<?php wp_nonce_field('can_spam_nonce','ltple_can_spam'); ?>
 						
 						<input type="hidden" name="submitted" id="submitted" value="true">
 						

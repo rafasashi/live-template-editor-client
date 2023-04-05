@@ -1088,7 +1088,7 @@
 				if( wp_verify_nonce($wp_nonce, "ltple_can_spam") && isset($_REQUEST["ltple_can_spam"]) ){
 					
 					$can_spam = $_REQUEST["ltple_can_spam"] == 'true' ? 'true' : 'false';
-			
+
 					$notify = $this->get_user_notification_settings($user_id);				
 						
 					$notify['series'] = $can_spam;
@@ -1101,8 +1101,6 @@
 				}
 				
 				if( !empty($notify) ){
-					
-					update_user_meta($user_id, 'ltple__can_spam', $notify);
 					
 					update_user_meta($user_id, 'ltple_notify', $notify);					
 				}

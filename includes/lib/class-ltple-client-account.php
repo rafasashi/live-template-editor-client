@@ -87,39 +87,62 @@ class LTPLE_Client_Account {
 	}
 
 	public function handle_update_account(){
+		
+		if( !empty($this->parent->user->ID) ){
 			
-		if(!empty($_POST['settings'])){
-			
-			if( $_POST['settings'] == 'email-notifications' && !empty($this->parent->user->notify) ){
+			$user_id 	= $this->parent->user->ID;
+			$notify 	= $this->parent->user->notify;
+
+			if( !empty($_POST['settings']) ){
 				
-				// save notification settings			
-				
-				$notify = $this->parent->user->notify;
-				
-				foreach( $notify as $key => $value ){
-				
-					if( !empty($_POST['ltple_notify'][$key]) && $_POST['ltple_notify'][$key] == 'on' ){
-						
-						$notify[$key] = 'true';
-						
-						$this->notificationSettings[$key]['data'] = 'on';
+				if( $_POST['settings'] == 'email-notifications' && !empty($this->parent->user->notify) ){
+					
+					// save notification settings			
+					
+					foreach( $notify as $key => $value ){
+					
+						if( !empty($_POST['ltple_notify'][$key]) && $_POST['ltple_notify'][$key] == 'on' ){
+							
+							$notify[$key] = 'true';
+							
+							$this->notificationSettings[$key]['data'] = 'on';
+						}
+						else{
+							
+							$notify[$key] = 'false';
+							
+							$this->notificationSettings[$key]['data'] = 'off';
+						}
 					}
-					else{
+					
+					update_user_meta($user_id, 'ltple__can_spam', $notify['series']);
 						
-						$notify[$key] = 'false';
-						
-						$this->notificationSettings[$key]['data'] = 'off';
-					}
+					update_user_meta($user_id, 'ltple_notify', $notify);					
+				
+					$this->parent->user->notify = $notify;
 				}
 				
-				update_user_meta($this->parent->user->ID, 'ltple__can_spam', $notify['series']);
-					
-				update_user_meta($this->parent->user->ID, 'ltple_notify', $notify);					
-			
-				$this->parent->user->notify = $notify;
+				do_action('ltple_update_account');
 			}
-			
-			do_action('ltple_update_account');
+			elseif( !empty($_POST['ltple_can_spam']) && !empty($_REQUEST['submitted']) ){
+				
+				// collected from popup
+				
+				$wp_nonce = sanitize_title($_POST['ltple_can_spam']);
+				
+				$can_spam = $_REQUEST['submitted'] == 'true' ? 'true' : 'false';
+				
+				if( wp_verify_nonce($wp_nonce,'can_spam_nonce') ){
+				
+					$notify['series'] = $can_spam;
+					
+					update_user_meta($user_id,'ltple__can_spam',$can_spam);
+						
+					update_user_meta($user_id,'ltple_notify',$notify);
+				
+					$this->parent->user->notify = $notify;
+				}
+			}
 		}
 	}
 
