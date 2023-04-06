@@ -1,49 +1,47 @@
 <?php 
 
-	// get current tab
-	
-	$currentTab = !empty($_GET['tab']) ? $_GET['tab'] : 'home';
-	
-	$output = $this->parent->inWidget  ? 'widget' : '';
-	
-	// ------------- output panel --------------------
+$ltple = LTPLE_Client::instance();
 
-	echo'<div id="media_library" class="wrapper">';
+$currentTab = $ltple->get_current_tab('home');
+
+$output = $ltple->inWidget  ? 'widget' : '';
+
+// ------------- output panel --------------------
+
+echo'<div id="media_library" class="wrapper">';
+	
+	echo '<div id="sidebar">';
+			
+		echo '<div class="gallery_type_title gallery_head">Dashboard</div>';
+
+		echo '<ul class="nav nav-tabs tabs-left">';
+			
+			echo apply_filters('ltple_dashboard_sidebar','',$currentTab);
+			
+		echo '</ul>';
 		
-		echo '<div id="sidebar">';
-				
-			echo '<div class="gallery_type_title gallery_head">Dashboard</div>';
+	echo '</div>';
 
-			echo '<ul class="nav nav-tabs tabs-left">';
-				
-				echo apply_filters('ltple_dashboard_sidebar','',$currentTab);
-				
-			echo '</ul>';
+	echo'<div id="content" class="library-content" style="padding-bottom:15px;min-height:700px;">';
+		
+		if( $currentTab == 'home' ){
 			
-		echo '</div>';
-
-		echo'<div id="content" class="library-content" style="padding-bottom:15px;min-height:700px;">';
+			$boxes = $this->get_all_boxes();
 			
-			if( $currentTab == 'home' ){
+			echo'<div id="dashboard" class="tab-content gutter-20" style="padding-top:15px;">';
 				
-				$boxes = $this->get_all_boxes();
-				
-				echo'<div id="dashboard" class="tab-content gutter-20" style="padding-top:15px;">';
+				foreach( $boxes as $box ){
 					
-					foreach( $boxes as $box ){
-						
-						echo $this->get_widget_box($box);
-					}
+					echo $this->get_widget_box($box);
+				}
 
-				echo'</div>';
-			}
-			else{
-				
-				do_action( 'ltple_dashboard_' . $currentTab );			
-			}
+			echo'</div>';
+		}
+		else{
+			
+			do_action( 'ltple_dashboard_' . $currentTab );			
+		}
 
-		echo'</div>	';
+	echo'</div>	';
 
-	echo'</div>';
-	
-	?>
+echo'</div>';

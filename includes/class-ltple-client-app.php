@@ -196,24 +196,4 @@ class LTPLE_Client_App {
 	public function __wakeup () {
 		_doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?' ), $this->_version );
 	} // End __wakeup ()
-
-	/**
-	 * Installation. Runs on activation.
-	 * @access  public
-	 * @since   1.0.0
-	 * @return  void
-	 */
-	public function install () {
-		$this->_log_version_number();
-	} // End install ()
-
-	/**
-	 * Log the plugin version number.
-	 * @access  public
-	 * @since   1.0.0
-	 * @return  void
-	 */
-	private function _log_version_number () {
-		update_option( $this->_token . '_version', $this->_version );
-	} // End _log_version_number ()
 } 

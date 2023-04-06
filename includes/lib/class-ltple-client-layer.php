@@ -1715,7 +1715,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		else{
 			
 			$id = get_the_ID();
-			
 		}
 		
 		return $id;
@@ -3097,7 +3096,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( $post_type == 'page' || $post_type == 'user-page' ){
 					
-					$default_id = $this->parent->settings->get_default_page_template_id();
+					$default_id = $this->parent->settings->get_default_home_page_gallery_id();
 				}
 			}
 			

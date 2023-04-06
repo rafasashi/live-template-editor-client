@@ -904,8 +904,8 @@ class LTPLE_Client_Settings {
 				array(
 					'id' 			=> 'default_hosted_page_template',
 					'name' 			=> 'default_hosted_page_template',
-					'label'			=> __( 'Default Page Template' , 'live-template-editor-client' ),
-					'description'	=> 'Hosted Page template id',
+					'label'			=> __( 'Hosted Page Template' , 'live-template-editor-client' ),
+					'description'	=> 'Default Hosted Page template id',
 					'type'			=> 'number',
 					'data'			=> $this->get_default_page_template_id(),
 				),				

@@ -2144,6 +2144,24 @@ class LTPLE_Client {
 		return $u;		
 	}
 	
+	public function get_current_tab($default=''){
+		
+		if( isset($_REQUEST['tab']) ){
+			
+			$tab = sanitize_title($_REQUEST['tab']);
+		}
+		elseif( isset($_REQUEST['list']) ){
+			
+			$tab = sanitize_title($_REQUEST['list']);
+		}
+		else{
+			
+			$tab = $default;
+		}
+		
+		return $tab;
+	}
+	
 	/**
 	 * Wrapper function to register a new post type
 	 * @param  string $post_type   Post type name

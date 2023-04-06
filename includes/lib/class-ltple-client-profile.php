@@ -956,9 +956,15 @@ class LTPLE_Client_Profile {
 	}
 	
 	public function get_home_page_panel(){
-
+		
 		if( $this->is_enabled('home_page') ){
-
+			
+			if( $layer = $this->get_main_user_layer('user-page') ){
+				
+				wp_redirect($layer->urls['edit']);
+				exit;
+			}
+			
 			echo'<div class="tab-pane active" id="home-page">';
 			
 				echo'<form method="post" enctype="multipart/form-data" class="tab-content row" style="margin:10px 10px 50px 10px;">';
@@ -1036,7 +1042,45 @@ class LTPLE_Client_Profile {
 				
 			echo'</div>';
 		}
-	}		
+	}
+	
+	public function get_main_user_layer($post_type){
+		
+		if( $post_id = get_option('ltple_main_' . $post_type,false)){
+			
+			$post = get_post($post_id);
+			
+			if( !empty($post->post_type) && $post->post_type == $post_type ){
+				
+				return $layer = LTPLE_Editor::instance()->get_layer($post);
+			}
+		}
+		
+		/*
+		if( empty($layer) ){
+			
+			if( $post_id = wp_insert_post( array(
+				
+				'post_title' 	=> apply_filters('ltple_main_'.$post_type.'_title','Home Page'),
+				'post_type' 	=> $post_type,
+				'post_status' 	=> 'draft',
+				'author' 		=> $this->parent->user->ID,
+			))){
+				
+				update_option('ltple_main_' . $post_type,$post_id,false);
+			}
+			
+			$layer = get_post($post_id);
+		}
+		
+		if( !empty($layer) ){
+			
+			return $layer = LTPLE_Editor::instance()->get_layer($layer);
+		}
+		*/
+		
+		return false;
+	}
 	
 	public function handle_update_profile(){
 			
@@ -1054,7 +1098,7 @@ class LTPLE_Client_Profile {
 						
 						$content = wp_kses_post($_POST[$field_id]);
 						
-						if( in_array( $field_id, array( $this->parent->_base . 'profile_html', $this->parent->_base . 'profile_css' )) ){
+						if( in_array( $field_id, array( 'ltple_profile_html', 'ltple_profile_css' )) ){
 
 							update_user_meta($this->parent->user->ID,$field_id,$content);
 						}
@@ -1165,13 +1209,13 @@ class LTPLE_Client_Profile {
 
 			if( $this->tab == 'home' ){
 				
-				if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , $this->parent->_base . 'profile_html', true ) : '' ){
+				if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , 'ltple_profile_html', true ) : '' ){
 				
 					$this->tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
 					
 					// get home css
 					
-					$this->profile_css = get_user_meta( $this->user->ID , $this->parent->_base . 'profile_css', true );
+					$this->profile_css = get_user_meta( $this->user->ID , 'ltple_profile_css', true );
 					
 					if( !empty($this->profile_css) ){
 
@@ -1239,7 +1283,7 @@ class LTPLE_Client_Profile {
 
 				foreach( $fields as $field ){
 					
-					if( !empty($field['id']) && !in_array($field['id'],array( 'nickname', $this->parent->_base . 'profile_html', $this->parent->_base . 'profile_css')) ){
+					if( !empty($field['id']) && !in_array($field['id'],array( 'nickname', 'ltple_profile_html', 'ltple_profile_css')) ){
 
 						if( isset($this->user->{$field['id']}) ){
 							
@@ -1511,9 +1555,9 @@ class LTPLE_Client_Profile {
 		
 		if( $this->parent->user->remaining_days > 0 ){
 			
-			$fields[$this->parent->_base . 'profile_html'] = array(
+			$fields['ltple_profile_html'] = array(
 
-				'id' 			=> $this->parent->_base . 'profile_html',
+				'id' 			=> 'ltple_profile_html',
 				'label'			=> 'Home Page (HTML)',
 				'description'	=> 'Customize your profile home page with HTML',
 				'placeholder'	=> '',
@@ -1524,9 +1568,9 @@ class LTPLE_Client_Profile {
 				
 			);
 			
-			$fields[$this->parent->_base . 'profile_css'] = array(
+			$fields['ltple_profile_css'] = array(
 
-				'id' 			=> $this->parent->_base . 'profile_css',
+				'id' 			=> 'ltple_profile_css',
 				'label'			=> 'Home Page (CSS)',
 				'description'	=> 'Customize your profile home page with CSS',
 				'placeholder'	=> '',
@@ -1538,9 +1582,9 @@ class LTPLE_Client_Profile {
 		}
 		else{
 			
-			$fields[$this->parent->_base . 'profile_html'] = array(
+			$fields['ltple_profile_html'] = array(
 
-				'id' 			=> $this->parent->_base . 'profile_html',
+				'id' 			=> 'ltple_profile_html',
 				'label'			=> 'Home Page (HTML)',
 				'description'	=> 'Customize your profile home page with HTML',
 				'placeholder'	=> 'For paid license only',
@@ -1552,9 +1596,9 @@ class LTPLE_Client_Profile {
 				
 			);
 			
-			$fields[$this->parent->_base . 'profile_css'] = array(
+			$fields['ltple_profile_css'] = array(
 
-				'id' 			=> $this->parent->_base . 'profile_css',
+				'id' 			=> 'ltple_profile_css',
 				'label'			=> 'Home Page (CSS)',
 				'description'	=> 'Customize your profile home page with CSS',
 				'placeholder'	=> 'For paid license only',
@@ -1563,7 +1607,7 @@ class LTPLE_Client_Profile {
 				'location'		=> 'home-page',
 				'disabled'		=> true,
 				'data'			=> '',
-			);			
+			);
 		}
 
 		return $fields;

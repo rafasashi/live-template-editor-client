@@ -12,7 +12,7 @@ if( !$ltple->inWidget ){
 	
 	get_header();
 	
-		include( $ltple->views . '/navbar.php' );
+		include('navbar.php');
 		
 		echo '<div style="min-height:calc( 100vh - 145px );overflow:hidden;">';
 		

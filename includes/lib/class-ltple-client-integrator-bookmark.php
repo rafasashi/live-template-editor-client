@@ -256,11 +256,18 @@ class LTPLE_Client_Integrator_Bookmark extends LTPLE_Client_Integrator {
 					
 				update_post_meta( $app_id, 'appData', json_encode($this->data,JSON_PRETTY_PRINT));
 				
-				$redirect_url = add_query_arg(array(
+				if( !empty($_REQUEST['ref']) ){
 					
-					'_' => time(),
+					$redirect_url = sanitize_url($_REQUEST['ref']);
+				}
+				else{
 					
-				),$this->parent->urls->current);
+					$redirect_url = add_query_arg(array(
+						
+						'_' => time(),
+						
+					),$this->parent->urls->current);
+				}
 				
 				wp_redirect($redirect_url);
 				exit;

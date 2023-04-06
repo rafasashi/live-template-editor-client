@@ -505,7 +505,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			}		
 		}
 
-		$url = $this->parent->urls->media . $tab . '/?app='.$appSlug.'&action=' . $action . '&ref=' . urlencode($ref_url);
+		$url = $this->parent->urls->apps . '?app='.$appSlug.'&action=' . $action . '&ref=' . urlencode($ref_url);
 		
 		return $url;
 	}

@@ -124,7 +124,7 @@ class LTPLE_Client_Editor {
 						wp_register_style( $this->parent->_token . '-editor-panel', false, array());
 						wp_enqueue_style(  $this->parent->_token . '-editor-panel' );
 						wp_add_inline_style( $this->parent->_token . '-editor-panel', $this->get_editor_panel_style());
-		
+						
 						$layer_type = $this->parent->layer->get_layer_type($_REQUEST['uri']);
 
 						if( $layer_type->output == 'hosted-page' ){
@@ -135,7 +135,7 @@ class LTPLE_Client_Editor {
 							
 							add_action('ltple_list_sidebar',array($this->parent->dashboard,'get_sidebar'),10,3);
 						}
-						
+
 						include( $this->parent->views . '/editor-panel.php' );
 					}
 					elseif( ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $this->parent->layer->type == 'cb-default-layer' || $this->parent->layer->is_media ) ){
