@@ -2,6 +2,8 @@
 
 $ltple = LTPLE_Client::instance();
 
+$currentTab = $ltple->get_current_tab('accounts');
+
 $inWidget = false;
 $output='default';
 $target='_self';
@@ -15,18 +17,14 @@ if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
 
 // get current tab
 
-$currentApp = '';
-
 if( !empty($_GET['app']) ){
 	
-	$currentApp = $_GET['app'];
+	$currentApp = sanitize_title($_GET['app']);
 }
 else{
 	
 	$currentApp = $ltple->session->get_user_data('app');
 }
-
-$currentTab = $ltple->get_current_tab('accounts');
 
 // ------------- output panel --------------------
 

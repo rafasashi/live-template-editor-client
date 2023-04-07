@@ -1120,12 +1120,12 @@ class LTPLE_Client_Settings {
 			)),
 			'user-contents' => apply_filters('ltple_admin_tabs_user-contents',array(
 			  
-				'user-layer' 	=> array( 'tab'  => 'HTML', 		'name' => 'HTML', 		'in_menu' => true),
-				'user-page' 	=> array( 'tab'  => 'Pages', 		'name' => 'Pages', 		'in_menu' => true),
-				'user-image' 	=> array( 'tab'  => 'Images',		'name' => 'Images', 	'in_menu' => true),				
-				'user-psd' 		=> array( 'tab'  => 'Images',		'name' => 'PSDs', 		'in_menu' => false),
-				'user-bookmark' => array( 'tab'  => 'Bookmarks',	'name' => 'Bookmarks', 	'in_menu' => true),
-				'user-app' 		=> array( 'tab'  => 'Apps',			'name' => 'Apps', 		'in_menu' => true),
+				'user-layer' 	=> array( 'tab'  => 'HTML', 	'name' => 'HTML', 	'in_menu' => true),
+				'user-page' 	=> array( 'tab'  => 'Pages', 	'name' => 'Pages', 	'in_menu' => true),
+				'user-image' 	=> array( 'tab'  => 'Images',	'name' => 'Images', 'in_menu' => true),				
+				'user-psd' 		=> array( 'tab'  => 'Images',	'name' => 'PSDs', 	'in_menu' => false),
+				'user-bookmark' => array( 'tab'  => 'Links',	'name' => 'Links', 	'in_menu' => true),
+				'user-app' 		=> array( 'tab'  => 'Apps',		'name' => 'Apps', 	'in_menu' => true),
 			)),
 			'user-network' => apply_filters('ltple_admin_tabs_user-network',array(
 			

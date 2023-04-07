@@ -892,7 +892,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				$item.='<div class="col-xs-2 col-sm-2 col-lg-1">';
 
-					$item.='<img loading="lazy" class="lazy" data-original="' . $this->parent->assets_url . '/images/payment.png" />';
+					$item.='<img style="max-width:45px;margin:10px auto;" loading="lazy" class="lazy" data-original="' . $this->parent->assets_url . '/images/payment.png" />';
 						
 				$item.='</div>';
 
