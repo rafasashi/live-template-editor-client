@@ -69,8 +69,11 @@ if( typeof editorCallbacks == typeof undefined )
 
 			if( $('.library-content .nav li.more').length == 0 ){
 			
-				$(".library-content .nav").append('<li class="more dropdown" style="display:none;margin-left:8px;margin-bottom:0;"><button style="padding:3px 8px;margin:8px 0px;height:25px;z-index:9999;background:#f5f5f5;color:#566674;" class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button><ul id="overflow" class="dropdown-menu dropdown-menu-right"></ul></li>').css('overflow','visible !important');
+				$(".library-content .nav").append('<li class="more resizable dropdown" style="display:none;margin-left:8px;margin-bottom:0;"><button style="padding:3px 8px;margin:8px 0px;height:25px;z-index:9999;background:#f5f5f5;color:#566674;" class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button><ul id="overflow" class="dropdown-menu dropdown-menu-right"></ul></li>').css('overflow','visible !important');
+			}
 			
+			if( $('.library-content .nav li.resizable').length > 0 ){
+				
 				$('.library-content .nav li.more').before($('.library-content .nav #overflow > li'));
 
 				var $navItemMore = $('.library-content .nav > li.more'),

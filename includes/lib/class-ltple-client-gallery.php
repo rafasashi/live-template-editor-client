@@ -859,7 +859,9 @@ class LTPLE_Client_Menu_Navbar extends Walker_Nav_Menu {
 		
 		array_push($item->classes,'pull-left','hidden-xs');
 		
-		parent::start_el($item_html, $item, $depth, $args);
+		$item->url = apply_filters('rew_server_url',$item->url);
+		
+		parent::start_el($item_html,$item,$depth,$args);
 		
 		$item_html = str_replace('<li', '<li style="list-style:none;"', $item_html);
 		
