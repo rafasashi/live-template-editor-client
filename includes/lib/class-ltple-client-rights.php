@@ -43,8 +43,6 @@ class LTPLE_Client_Rights {
 		if( current_user_can('administrator') ){
 			
 			//dump($this->parent->user);
-			
-			//dump( $this->parent->user->has_cap('edit_user-page') );
 		}
 	}
 	
@@ -53,29 +51,10 @@ class LTPLE_Client_Rights {
 		// set administrator capabilities 
 		
 		if( $role = get_role('administrator') ){
-		
-			empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;	
-			empty($role->capabilities['edit_user-pages']) ? $role->add_cap('edit_user-pages') : true;
-			empty($role->capabilities['edit_other_user-pages']) ? $role->add_cap('edit_other_user-pages') : true;				
 			
-			/*
-			empty($role->capabilities['edit_published_user-page']) ? $role->add_cap('edit_published_user-page') : true;
-			empty($role->capabilities['publish_user-page']) ? $role->add_cap('publish_user-page') : true;
-			empty($role->capabilities['delete_user-page']) ? $role->add_cap('delete_user-page') : true;
-			empty($role->capabilities['delete_others_user-page']) ? $role->add_cap('delete_others_user-page') : true;
-			empty($role->capabilities['delete_published_user-page']) ? $role->add_cap('delete_published_user-page') : true;
-			empty($role->capabilities['delete_private_user-page']) ? $role->add_cap('delete_private_user-page') : true;
-			empty($role->capabilities['edit_private_user-page']) ? $role->add_cap('edit_private_user-page') : true;
-			empty($role->capabilities['read_private_user-page']  ) ? $role->add_cap('read_private_user-page') : true;
-			*/
-		}
-
-
-		// set subscriber capabilities 
-		
-		if( $role = get_role('subscriber') ){
-		
-			empty($role->capabilities['edit_user-page']) ? $role->add_cap('edit_user-page') : true;
+			empty($role->capabilities['edit_user-plan']) ? $role->add_cap('edit_user-plan') : true;	
+			empty($role->capabilities['edit_user-plans']) ? $role->add_cap('edit_user-plans') : true;
+			empty($role->capabilities['edit_other_user-plans']) ? $role->add_cap('edit_other_user-plans') : true;				
 		}
 	}
 	

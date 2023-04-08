@@ -1449,7 +1449,13 @@ class LTPLE_Client {
 							
 							do_action('ltple_edit_layer',$post_id,$post);
 						
-							$this->exit_message('Settings successfully updated!', 200, apply_filters('ltple_edit_layer_callback',[],$post));
+							$layer = LTPLE_Editor::instance()->get_layer($post);
+							
+							$this->exit_message('Settings successfully updated!', 200, apply_filters('ltple_edit_layer_callback',array(
+								
+								'callback' =>'$("#viewBtn").attr("href","'.$layer->urls['view'].'");',
+							
+							),$post));
 						}
 						
 						$this->exit_message('Access to project denied...',404);
@@ -1936,7 +1942,7 @@ class LTPLE_Client {
 						
 						$post_type = $this->layer->layerStorage;
 						
-						$post_status = $this->layer->layerOutput == 'hosted-page' ? 'draft' : 'publish';
+						$post_status = 'publish';
 						
 						$defaultLayer 	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 						
@@ -2673,8 +2679,8 @@ class LTPLE_Client {
 
 		if( $this->in_ui() ){
 
-			wp_register_script($this->_token . '-notify', esc_url( $this->assets_url ) . 'js/notify.js', array( 'jquery' ), $this->_version);
-			wp_enqueue_script( $this->_token . '-notify' );
+			wp_register_script('jquery-notify', esc_url( $this->assets_url ) . 'js/notify.js', array( 'jquery' ), $this->_version);
+			wp_enqueue_script('jquery-notify' );
 		}
 		
 		wp_register_script($this->_token . '-client-ui', esc_url( $this->assets_url ) . 'js/client-ui.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-dialog' ), $this->_version);

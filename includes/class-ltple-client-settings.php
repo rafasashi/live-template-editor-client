@@ -900,16 +900,7 @@ class LTPLE_Client_Settings {
 		
 			'title'					=> __( 'Templates', 'live-template-editor-client' ),
 			'description'			=> 'Default template settings',
-			'fields'				=> apply_filters('ltple_templates_settings',array(
-				array(
-					'id' 			=> 'default_hosted_page_template',
-					'name' 			=> 'default_hosted_page_template',
-					'label'			=> __( 'Hosted Page Template' , 'live-template-editor-client' ),
-					'description'	=> 'Default Hosted Page template id',
-					'type'			=> 'number',
-					'data'			=> $this->get_default_page_template_id(),
-				),				
-			))
+			'fields'				=> apply_filters('ltple_templates_settings',array())
 		);
 		
 		$settings['videos'] = array(
@@ -935,7 +926,7 @@ class LTPLE_Client_Settings {
 			'fields'				=> apply_filters('ltple_profile_settings',array(
 				array(
 					'id' 			=> 'enable_profile_home_page',
-					'label'			=> __( 'Enable Home Page' , 'live-template-editor-client' ),
+					'label'			=> __( 'Enable Profile' , 'live-template-editor-client' ),
 					'description'	=> '',
 					'type'			=> 'switch',
 				),
@@ -1038,25 +1029,6 @@ class LTPLE_Client_Settings {
 			*/
 		));
 	}
-
-	public function get_default_page_template_id(){
-		
-		$default_id = intval(get_option($this->parent->_base . 'default_hosted_page_template',0));
-		
-		if( $default_id > 0){
-		
-			$layer_type = $this->parent->layer->get_layer_type($default_id);
-			
-			if( empty($layer_type) || $layer_type->storage != 'user-page' ){
-				
-				$default_id = 0;
-
-				update_option($this->parent->_base . 'default_hosted_page_template',$default_id,false);
-			}
-		}
-		
-		return $default_id;
-	}
 	
 	public function register_addons($addons){
 	
@@ -1121,7 +1093,6 @@ class LTPLE_Client_Settings {
 			'user-contents' => apply_filters('ltple_admin_tabs_user-contents',array(
 			  
 				'user-layer' 	=> array( 'tab'  => 'HTML', 	'name' => 'HTML', 	'in_menu' => true),
-				'user-page' 	=> array( 'tab'  => 'Pages', 	'name' => 'Pages', 	'in_menu' => true),
 				'user-image' 	=> array( 'tab'  => 'Images',	'name' => 'Images', 'in_menu' => true),				
 				'user-psd' 		=> array( 'tab'  => 'Images',	'name' => 'PSDs', 	'in_menu' => false),
 				'user-bookmark' => array( 'tab'  => 'Links',	'name' => 'Links', 	'in_menu' => true),

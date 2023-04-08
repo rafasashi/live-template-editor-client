@@ -29,15 +29,8 @@ echo'<div id="panel" class="wrapper">';
 						echo'</li>';
 					}
 						
-					if( $currentTab == 'user-page' ){
-						
-						echo '<li role="presentation"'.( $currentTab == 'user-page' ? ' class="active"' : '' ).'><a href="' . $ltple->urls->profile . '?list=user-page" role="tab">Pages</a></li>';						
-					}
-					else{ 
-						
-						echo apply_filters('ltple_list_'.$currentTab.'_menu','<li role="presentation" class="active"><a href="' . $ltple->urls->current . '" role="tab">' . $post_type->label . '</a></li>',$currentTab,$post_type);
-					}
-
+					echo apply_filters('ltple_list_'.$currentTab.'_menu','<li role="presentation" class="active"><a href="' . $ltple->urls->current . '" role="tab">' . $post_type->label . '</a></li>',$currentTab,$post_type);
+					
 					if( $currentTab == 'user-app' ){
 						
 						echo '<li role="presentation"><a href="' . apply_filters( 'ltple_list_'.$currentTab.'_new_url', $ltple->urls->gallery . '?layer[default_storage]=' . $currentTab, $currentTab, $output ) . '" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ New</a></li>';						

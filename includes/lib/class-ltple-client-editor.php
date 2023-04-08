@@ -117,7 +117,10 @@ class LTPLE_Client_Editor {
 					
 					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
 						
-						wp_register_script( $this->parent->_token . '-editor-panel', '', array( 'jquery', $this->parent->_token . '-notify' ) );
+						wp_register_script('jquery-validate', esc_url( $this->parent->assets_url ) . 'js/jquery.validate.js', array( 'jquery' ), $this->parent->_version );
+						wp_enqueue_script('jquery-validate');
+						
+						wp_register_script( $this->parent->_token . '-editor-panel', '', array( 'jquery','jquery-notify','jquery-validate' ) );
 						wp_enqueue_script( $this->parent->_token . '-editor-panel' );
 						wp_add_inline_script( $this->parent->_token . '-editor-panel', $this->get_editor_panel_script());
 								
@@ -127,7 +130,12 @@ class LTPLE_Client_Editor {
 						
 						$layer_type = $this->parent->layer->get_layer_type($_REQUEST['uri']);
 
-						if( $layer_type->output == 'hosted-page' ){
+						if( in_array($layer_type->output,array(
+						
+							'hosted-page',
+							'profile-page',
+						
+						))){
 							
 							add_action('ltple_list_sidebar',array($this->parent->profile,'get_sidebar'),10,3);
 						}
@@ -222,73 +230,89 @@ class LTPLE_Client_Editor {
 			;(function($){
 			
 				$(document).ready(function(){
-
+					
 					$("#saveBtn").on("click",function(e){
 						
 						e.preventDefault();
 						
-						$("#navLoader").css("display","inline-block");
+						$("#savePostForm").trigger("submit");
+					});
+					
+					$("#savePostForm").validate({
 						
-						var action 	= $("#savePostForm").attr("action");
-						
-						var data 	= $("#savePostForm").serialize();
+						invalidHandler: function(event, validator){
+							
+							$.notify("Missing field",{
+								
+								className: "error",
+								position: "top center"
+							});
+						},
+						submitHandler: function(form){
 
-						$.ajax({
+							$("#navLoader").css("display","inline-block");
 							
-							type		: "POST",
-							url			: action,
-							cache		: false,
-							data		: data,
-							asych		: false,
-							xhrFields	: {
+							var action 	= $(form).attr("action");
+							
+							var data 	= $(form).serialize();
+
+							$.ajax({
 								
-								withCredentials: true
-							},
-							success	: function(data){
-								
-								data = JSON.parse(data);
-								
-								if( typeof data.message != typeof undefined ){
+								type		: "POST",
+								url			: action,
+								cache		: false,
+								data		: data,
+								asych		: false,
+								xhrFields	: {
 									
-									// object response
+									withCredentials: true
+								},
+								success	: function(data){
 									
-									var message = data.message;
-									
-									if( typeof data.callback != typeof undefined ){
+									data = JSON.parse(data);
+
+									if( typeof data.message != typeof undefined ){
 										
-										eval(data.callback);
-									}		
-								}							
-								else{
+										// object response
+										
+										var message = data.message;
+										
+										if( typeof data.callback != typeof undefined ){
+											
+											eval(data.callback);
+										}		
+									}							
+									else{
+										
+										// text response
+										
+										var message = data;
+									}
 									
-									// text response
+									$.notify( message, {
+										
+										className: "success",
+										position: "top center"
+									});
 									
-									var message = data;
-								}
-							
-								$.notify( message, {
+									$("#navLoader").css("display","none");
+								},
+								error : function (request, status, error) {
 									
-									className: "success",
-									position: "top center"
-								});
-								
-								$("#navLoader").css("display","none");
-							},
-							error : function (request, status, error) {
-								
-								//console.log(request);
-								
-								// display message
-								
-								$.notify( "Error saving settings...", {
+									//console.log(request);
 									
-									className: "danger",
-									position: "top center"
-								});
-								
-								$("#navLoader").css("display","none");
-							}				
-						});
+									// display message
+									
+									$.notify( "Error saving settings...", {
+										
+										className: "danger",
+										position: "top center"
+									});
+									
+									$("#navLoader").css("display","none");
+								}				
+							});
+						}
 					});
 				});
 					
@@ -357,6 +381,25 @@ class LTPLE_Client_Editor {
 			background:#fff !important;
 			margin-right:5px;
 		}';
+
+		// validation errors
+		
+		$css .= 'label.error{
+			color: #D95C5C;
+			padding: 0 10px;
+		}';
+		
+		$css .= 'input.error,select.error,textarea.error{
+			color: #D95C5C !important;
+			border-color: #D95C5C !important;
+		}';
+		
+		$css .= 'input.error:focus,select.error:focus,textarea.error:focus{
+			outline: auto !important;
+			border-color: inherit;
+			-webkit-box-shadow: none;
+			box-shadow: none;
+		}';		
 
 		return $css;		
 	}

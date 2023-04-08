@@ -89,7 +89,7 @@ echo'<div id="panel" class="wrapper">';
 					
 							echo'<div class="panel panel-default">';
 								
-								do_action('ltple_edit_layer_status',$ltple->user->layer,$post_type);
+								do_action('ltple_edit_layer_options',$ltple->user->layer,$post_type);
 
 							echo'</div>';
 						

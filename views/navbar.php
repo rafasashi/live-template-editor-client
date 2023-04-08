@@ -63,7 +63,7 @@
 
 										// save button
 										
-										echo '<button style="border:none;" class="btn btn-sm btn-success" type="button" id="saveBtn">Save</button>';
+										echo '<input style="border:none;" class="btn btn-sm btn-success" type="submit" id="saveBtn" value="Save" />';
 
 										// delete button
 										
@@ -82,7 +82,7 @@
 									
 									if( $ltple->layer->has_preview($layer->post_type) ){
 										
-										echo '<a target="_blank" class="btn btn-sm hidden-xs" href="' . $layer->urls['view'] . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+										echo '<a id="viewBtn" target="_blank" class="btn btn-sm hidden-xs" href="' . $layer->urls['view'] . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 									}
 								}
 							}
@@ -111,7 +111,7 @@
 										
 										echo'<input type="hidden" name="postAction" id="postAction" value="update">';
 										
-										echo'<button style="border:none;" class="btn btn-sm btn-success" type="button" id="saveBtn">Update</button>';
+										echo'<input style="border:none;" class="btn btn-sm btn-success" type="submit" id="saveBtn" value="Update" />';
 									}
 									else{
 										
@@ -124,7 +124,7 @@
 								
 									// view button
 								
-									echo '<a target="_blank" class="btn btn-sm hidden-xs" href="' . $layer->urls['view'] . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
+									echo '<a id="viewBtn" target="_blank" class="btn btn-sm hidden-xs" href="' . $layer->urls['view'] . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 								}
 							}
 						}
@@ -213,13 +213,13 @@
 									
 									echo'<button style="background:#42bcf5;font-weight:bold;color:#fff;font-size:11px;padding: 4px 8px;text-align: center;" type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Project</button>';
 									
-									echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;margin-top:11px;">';
+									echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;margin-top:11px;text-transform:uppercase;">';
 										
 										foreach( $user_storage_types as $slug => $name ){
 											
 											echo'<li style="position:relative;">';
 											
-												echo '<a href="' . $ltple->urls->gallery . '?layer[default_storage]='.$slug.'">+ ' . $name . '</a>';
+												echo '<a href="' . $ltple->urls->gallery . '?layer[default_storage]='.$slug.'">' . $name . '</a>';
 										
 											echo'</li>';
 										}
