@@ -750,6 +750,22 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 								$item.='<ul class="dropdown-menu dropdown-menu-right" style="background:#fff;">';
 									
+									// TODO effects 
+									
+									/*
+									$item.='<li style="position:relative;">';
+
+										$item.='<a>'.PHP_EOL;
+											
+											$item.='<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> '.PHP_EOL;
+											
+											$item.='Effects'.PHP_EOL;
+										
+										$item.='</a>'.PHP_EOL;
+
+									$item.='</li>';
+									*/
+									
 									$item.='<li style="position:relative;">';
 									
 										$item.='<a href="' . $this->parent->urls->edit . '?uri=' . $image->ID . '&quick"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit <span class="label label-primary" style="top:8px;position:absolute;right:15px;">advanced</span></a>';
