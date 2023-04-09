@@ -133,7 +133,7 @@ class LTPLE_Client_Editor {
 						if( in_array($layer_type->output,array(
 						
 							'hosted-page',
-							'profile-page',
+							'home-page',
 						
 						))){
 							

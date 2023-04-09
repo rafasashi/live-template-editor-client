@@ -133,7 +133,7 @@ class LTPLE_Client_Profile {
 			
 		},1);
 		
-		add_action('ltple_profile_settings_profile-page',array($this,'get_home_page_panel'),10,1);
+		add_action('ltple_profile_settings_home-page',array($this,'get_home_page_panel'),10,1);
 	}
 	
 	public function is_enabled($feature){
@@ -780,7 +780,7 @@ class LTPLE_Client_Profile {
 		
 		if( $this->is_enabled('home_page') ){
 
-			$website .= '<li'.( $currentTab == 'profile-page' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=profile-page"><span class="fa fa-house-user"></span> Profile Page</a></li>';
+			$website .= '<li'.( $currentTab == 'home-page' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=home-page"><span class="fa fa-house-user"></span> Home Page</a></li>';
 		}
 		
 		$website .= apply_filters('ltple_website_settings_sidebar','',$currentTab,$storage_count);
@@ -960,7 +960,7 @@ class LTPLE_Client_Profile {
 				exit;
 			}
 			
-			echo'<div class="tab-pane active" id="profile-page">';
+			echo'<div class="tab-pane active" id="home-page">';
 			
 				echo'<form method="post" enctype="multipart/form-data" class="tab-content row" style="margin:10px 10px 50px 10px;">';
 					
@@ -968,7 +968,7 @@ class LTPLE_Client_Profile {
 					
 					echo'<div class="col-xs-8">';
 				
-						echo'<h3>Profile Page</h3>';
+						echo'<h3>Home Page</h3>';
 						
 					echo'</div>';
 					
@@ -996,7 +996,7 @@ class LTPLE_Client_Profile {
 								
 								foreach( $this->parent->profile->fields as $field ){
 									
-									if( $field['location'] == 'profile-page' ){
+									if( $field['location'] == 'home-page' ){
 										
 										$field_id = $field['id'];
 										
@@ -1056,7 +1056,7 @@ class LTPLE_Client_Profile {
 			
 			if( $post_id = wp_insert_post( array(
 				
-				'post_title' 	=> apply_filters('ltple_main_'.$post_type.'_title','Profile Page'),
+				'post_title' 	=> apply_filters('ltple_main_'.$post_type.'_title','Home Page'),
 				'post_type' 	=> $post_type,
 				'post_status' 	=> 'draft',
 				'author' 		=> $this->parent->user->ID,
@@ -1553,12 +1553,12 @@ class LTPLE_Client_Profile {
 			$fields['ltple_profile_html'] = array(
 
 				'id' 			=> 'ltple_profile_html',
-				'label'			=> 'Profile Page (HTML)',
+				'label'			=> 'Home Page (HTML)',
 				'description'	=> 'Customize your profile page with HTML',
 				'placeholder'	=> '',
 				'type'			=> 'code_editor',
 				'code'			=> 'html',
-				'location'		=> 'profile-page',
+				'location'		=> 'home-page',
 				'disabled'		=> false,
 				
 			);
@@ -1566,12 +1566,12 @@ class LTPLE_Client_Profile {
 			$fields['ltple_profile_css'] = array(
 
 				'id' 			=> 'ltple_profile_css',
-				'label'			=> 'Profile Page (CSS)',
+				'label'			=> 'Home Page (CSS)',
 				'description'	=> 'Customize your profile page with CSS',
 				'placeholder'	=> '',
 				'type'			=> 'code_editor',
 				'code'			=> 'css',
-				'location'		=> 'profile-page',
+				'location'		=> 'home-page',
 				'disabled'		=> false,
 			);			
 		}
@@ -1580,12 +1580,12 @@ class LTPLE_Client_Profile {
 			$fields['ltple_profile_html'] = array(
 
 				'id' 			=> 'ltple_profile_html',
-				'label'			=> 'Profile Page (HTML)',
+				'label'			=> 'Home Page (HTML)',
 				'description'	=> 'Customize your profile page with HTML',
 				'placeholder'	=> 'For paid license only',
 				'type'			=> 'code_editor',
 				'code'			=> 'html',
-				'location'		=> 'profile-page',
+				'location'		=> 'home-page',
 				'disabled'		=> true,
 				'data'			=> '',
 				
@@ -1594,12 +1594,12 @@ class LTPLE_Client_Profile {
 			$fields['ltple_profile_css'] = array(
 
 				'id' 			=> 'ltple_profile_css',
-				'label'			=> 'Profile Page (CSS)',
+				'label'			=> 'Home Page (CSS)',
 				'description'	=> 'Customize your profile page with CSS',
 				'placeholder'	=> 'For paid license only',
 				'type'			=> 'code_editor',
 				'code'			=> 'css',
-				'location'		=> 'profile-page',
+				'location'		=> 'home-page',
 				'disabled'		=> true,
 				'data'			=> '',
 			);

@@ -154,7 +154,7 @@
 												
 											echo'<li>';
 											
-												echo '<a href="#duplicateLayer" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Template ' . ( $layer->post_type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
+												echo '<a href="#" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Template ' . ( $layer->post_type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
 
 												echo'<div id="duplicateLayer" title="Duplicate Template">';
 													
