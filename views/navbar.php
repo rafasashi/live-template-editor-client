@@ -1,8 +1,8 @@
 <?php 
 	
 	$ltple = LTPLE_Client::instance();
-
-	if( empty($ltple->profile->id) || $ltple->user->loggedin ){
+	
+	if( !$ltple->layer->in_editor('gutenberg') && (empty($ltple->profile->id) || $ltple->user->loggedin) ){
 		
 		// get navbar
 		

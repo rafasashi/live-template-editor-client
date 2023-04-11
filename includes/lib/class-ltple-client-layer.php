@@ -2957,10 +2957,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					}
 				}
 				
+				/*
 				if( $post_type == 'page' ){
 					
-					$default_id = $this->parent->settings->get_default_home_page_gallery_id();
+					$default_id = $this->parent->settings->get_default_page_template_id();
 				}
+				*/
 			}
 			
 			$this->default_ids[$id] = $default_id;
@@ -4179,26 +4181,44 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->layerBodyContent = $body;
 	}
-	
-	public function in_editor(){
+
+	public function in_editor($editor='ltple'){
 		
-		if( !empty($_GET['preview']) && $_GET['preview'] == 'ltple' )
+		if( $editor == 'gutenberg' ){
+
+			if( function_exists('get_current_screen') ){
+
+				$current_screen = get_current_screen();
+				
+				if( method_exists( $current_screen, 'is_block_editor' ) &&
+					
+					$current_screen->is_block_editor()
+				){
+					
+					return true;
+				}
+			}
+		}
+		else{
 			
-			// layer url
-			
-			return true;
-			
-		if( !empty($_GET['uri']) )
-						
-			// inline content
-			
-			return true;
-			
-		if( is_admin() && !empty($_GET['action']) && $_GET['action'] == 'ltple' )
-			
-			// admin editor
-			
-			return true;
+			if( !empty($_GET['preview']) && $_GET['preview'] == 'ltple' )
+				
+				// layer url
+				
+				return true;
+				
+			if( !empty($_GET['uri']) )
+							
+				// inline content
+				
+				return true;
+				
+			if( is_admin() && !empty($_GET['action']) && $_GET['action'] == 'ltple' )
+				
+				// admin editor
+				
+				return true;
+		}
 			
 		return false;
 	}
