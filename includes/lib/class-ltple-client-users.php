@@ -1325,11 +1325,11 @@
 				
 				if( !empty($users) ){
 					
-					$query->set( 'include', $users);
+					$query->set('include',$users);
 				}
 				else{
 					
-					$query->set( 'meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
+					$query->set('meta_key', 'something-that-doesnt-exists' ); //to return NULL instead of all
 				}
 			}
 			

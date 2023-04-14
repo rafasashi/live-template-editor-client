@@ -427,12 +427,7 @@ class LTPLE_Client_Dashboard {
 		$manage_section = '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '"><span class="glyphicon glyphicon-dashboard"></span> Overview</a></li>';
 		
 		$manage_section .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->profile .'"><span class="fa fa-user-cog"></span> Profile Settings</a></li>';
-		
-		if( $this->parent->profile->is_enabled('home_page') ){
-		
-			$manage_section .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->account .'?tab=home-page"><span class="fa fa-globe"></span> Hosted Pages</a></li>';
-		}
-		
+
 		$manage_section .= '<li><a href="' . $this->parent->urls->media .'user-images/"><span class="fas fa-icons"></span> Media Library</a></li>';
 		
 		$manage_section = apply_filters('ltple_dashboard_manage_sidebar',$manage_section,$currentTab,$output);

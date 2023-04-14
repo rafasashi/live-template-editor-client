@@ -919,19 +919,6 @@ class LTPLE_Client_Settings {
 				
 			))
 		);
-		
-		$settings['website'] = array(
-			'title'					=> __( 'Profile', 'live-template-editor-client' ),
-			'description'			=> 'User profile & website settings ',
-			'fields'				=> apply_filters('ltple_profile_settings',array(
-				array(
-					'id' 			=> 'enable_profile_home_page',
-					'label'			=> __( 'Enable Profile' , 'live-template-editor-client' ),
-					'description'	=> '',
-					'type'			=> 'switch',
-				),
-			))
-		);
 
 		$settings['stars'] = array(
 			'title'					=> __( 'Ranking', 'live-template-editor-client' ),

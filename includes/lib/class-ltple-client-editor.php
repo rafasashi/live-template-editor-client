@@ -134,7 +134,7 @@ class LTPLE_Client_Editor {
 						
 							'hosted-page',
 							'home-page',
-						
+							
 						))){
 							
 							add_action('ltple_list_sidebar',array($this->parent->profile,'get_sidebar'),10,3);

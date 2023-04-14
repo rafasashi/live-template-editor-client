@@ -32,9 +32,7 @@ class LTPLE_Client_Profile {
 	
 	var $is_pro			= false;
 	var $is_editable 	= false;
-	
-	var $is_enabled 	= array();
-	
+
 	var $completeness 	= array();
 	
 	var $post = null;
@@ -132,20 +130,6 @@ class LTPLE_Client_Profile {
 			}
 			
 		},1);
-		
-		add_action('ltple_profile_settings_home-page',array($this,'get_home_page_panel'),10,1);
-	}
-	
-	public function is_enabled($feature){
-		
-		if( !isset($this->is_enabled[$feature])){
-			
-			$enabled = get_option($this->parent->_base . 'enable_profile_' . $feature);
-			
-			$this->is_enabled[$feature] = $enabled == 'on' ? true : false;
-		}
-		
-		return $this->is_enabled[$feature];
 	}
 	
 	public function get_current_parameters(){
@@ -775,21 +759,14 @@ class LTPLE_Client_Profile {
 		$sidebar .= apply_filters('ltple_profile_settings_sidebar','',$currentTab,$storage_count);
 		
 		// website settings
-		
-		$website = '';
-		
-		if( $this->is_enabled('home_page') ){
 
-			$website .= '<li'.( $currentTab == 'home-page' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=home-page"><span class="fa fa-house-user"></span> Home Page</a></li>';
-		}
-		
-		$website .= apply_filters('ltple_website_settings_sidebar','',$currentTab,$storage_count);
+		$section = apply_filters('ltple_website_settings_sidebar','',$currentTab,$storage_count);
 				
-		if( !empty($website) ){
+		if( !empty($section) ){
 
 			$sidebar .= '<li class="gallery_type_title">Hosted Pages</li>';
 			
-			$sidebar .= $website;
+			$sidebar .= $section;
 		}
 			
 		return $sidebar;
@@ -950,133 +927,6 @@ class LTPLE_Client_Profile {
 		return $this->is_self;
 	}
 	
-	public function get_home_page_panel(){
-		
-		if( $this->is_enabled('home_page') ){
-			
-			if( $layer = $this->get_main_user_layer('user-profile') ){
-				
-				wp_redirect($layer->urls['edit']);
-				exit;
-			}
-			
-			echo'<div class="tab-pane active" id="home-page">';
-			
-				echo'<form method="post" enctype="multipart/form-data" class="tab-content row" style="margin:10px 10px 50px 10px;">';
-					
-					echo'<input type="hidden" name="settings" value="general-info" />';
-					
-					echo'<div class="col-xs-8">';
-				
-						echo'<h3>Home Page</h3>';
-						
-					echo'</div>';
-					
-					echo'<div class="col-xs-4 text-right">';
-						
-						echo'<a target="_blank" class="label label-primary" style="font-size: 13px;" href="'.$this->parent->urls->profile . $this->parent->user->ID . '/">view home</a>';
-						
-					echo'</div>';
-					
-					echo'<div class="col-xs-12 col-sm-2"></div>';
-					
-					echo'<div class="clearfix"></div>';
-					
-					echo'<div class="col-xs-12 col-sm-4 pull-right">';
-						
-						// TODO show template suggestions
-						
-					echo'</div>';
-					
-					echo'<div class="col-xs-12 col-sm-8">';
-
-						echo'<table class="form-table">';
-							
-							if( !empty($this->parent->profile->fields )){
-								
-								foreach( $this->parent->profile->fields as $field ){
-									
-									if( $field['location'] == 'home-page' ){
-										
-										$field_id = $field['id'];
-										
-										$field['data'] = isset($this->parent->user->{$field_id}) ? $this->parent->user->{$field_id} : '';
-										
-										echo'<tr>';
-										
-											echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
-											
-											echo'<td style="padding:20px;">';
-												
-												$this->parent->admin->display_field( $field );
-											
-											echo'</td>';
-											
-										echo'</tr>';
-									}
-								}
-							}
-							
-						echo'</table>';
-						
-					echo'</div>';
-					
-					echo'<div class="clearfix"></div>';
-					
-					echo'<div class="col-xs-12 col-sm-6"></div>';
-					
-					echo'<div class="col-xs-12 col-sm-2 text-right">';
-				
-						echo'<button class="btn btn-sm btn-primary" style="width:100%;margin-top: 10px;">Save</button>';
-						
-					echo'</div>';
-
-					echo'<div class="col-xs-12 col-sm-4"></div>';
-						
-				echo'</form>';
-				
-			echo'</div>';
-		}
-	}
-	
-	public function get_main_user_layer($post_type){
-		
-		if( $post_id = get_option('ltple_main_' . $post_type,false)){
-			
-			$post = get_post($post_id);
-			
-			if( !empty($post->post_type) && $post->post_type == $post_type ){
-				
-				return $layer = LTPLE_Editor::instance()->get_layer($post);
-			}
-		}
-		
-		/*
-		if( empty($layer) ){
-			
-			if( $post_id = wp_insert_post( array(
-				
-				'post_title' 	=> apply_filters('ltple_main_'.$post_type.'_title','Home Page'),
-				'post_type' 	=> $post_type,
-				'post_status' 	=> 'draft',
-				'author' 		=> $this->parent->user->ID,
-			))){
-				
-				update_option('ltple_main_' . $post_type,$post_id,false);
-			}
-			
-			$layer = get_post($post_id);
-		}
-		
-		if( !empty($layer) ){
-			
-			return $layer = LTPLE_Editor::instance()->get_layer($layer);
-		}
-		*/
-		
-		return false;
-	}
-	
 	public function handle_update_profile(){
 			
 		if(!empty($_POST['settings'])){
@@ -1204,13 +1054,13 @@ class LTPLE_Client_Profile {
 
 			if( $this->tab == 'home' ){
 				
-				if( $profile_html = $this->user->remaining_days > 0 ? get_user_meta( $this->user->ID , 'ltple_profile_html', true ) : '' ){
+				if( $profile_html = $this->user->remaining_days > 0 ? apply_filters('ltple_user_profile_html','',$this->user->ID) : '' ){
 				
 					$this->tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
 					
 					// get home css
 					
-					$this->profile_css = get_user_meta( $this->user->ID , 'ltple_profile_css', true );
+					$this->profile_css = apply_filters('ltple_user_profile_css','',$this->user->ID);
 					
 					if( !empty($this->profile_css) ){
 

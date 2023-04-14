@@ -68,15 +68,15 @@ class LTPLE_Client_Urls {
 	}
 	
 	public function filter_post_type_link( $post_link, $post ){
-			
-		// replace rewrite params
-		
-		$post_link = str_replace('%author%', $post->post_author, $post_link);
 		
 		// apply filters
 		
 		$post_link = apply_filters('ltple_' . $post->post_type . '_link',$post_link,$post);
-
+		
+		// replace rewrite params
+		
+		$post_link = str_replace('%author%', $post->post_author, $post_link);
+		
 		$url = parse_url($post_link);
 		
 		if( !empty($url['query']) ){

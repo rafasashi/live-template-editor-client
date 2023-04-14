@@ -47,7 +47,7 @@ echo'<div id="panel" class="wrapper">';
 							
 							$modal_id='modal_'.md5($gallery_url);
 							
-							echo'<a href="#new" style="margin:7px 3px;padding:5px 10px !important;" type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+							echo'<a href="#" style="margin:7px 3px;padding:5px 10px !important;" type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 								
 								echo'+ New'.PHP_EOL;
 							

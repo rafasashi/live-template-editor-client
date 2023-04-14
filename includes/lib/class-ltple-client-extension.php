@@ -55,7 +55,11 @@ class LTPLE_Client_Extension {
 			}
 			else{
 				
-				echo '<a href="' . add_query_arg( array('output' => 'widget'),wp_login_url($this->parent->urls->current)) . '" target="_self">Login</a>';
+				$login_url = add_query_arg( array('output' => 'widget'),wp_login_url($this->parent->urls->current));
+				
+				//echo '<a href="' . $login_url . '" target="_self">Login</a>';
+
+				wp_redirect($login_url);
 			}
 			 
 			exit;

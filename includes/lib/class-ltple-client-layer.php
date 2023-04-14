@@ -1685,7 +1685,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$project->type = $this->get_layer_type($project);
 				
-				if( $project->type->slug == $layer_type->slug ){
+				if( !empty($project->type->slug) && $project->type->slug == $layer_type->slug ){
 				
 					$user_projects[] = $project;
 				}
@@ -2413,7 +2413,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 
 	public function get_layer_type($post){
-		 
+		
 		if( !empty($post) ){
 		
 			$post_id = 0;
@@ -2463,7 +2463,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									// get default layer id
 									
 									$default_id = $this->get_default_id($post->ID);
-									
+									 
 									$default_post = get_post($default_id);
 								
 									if( !is_null($default_post) && $default_post->post_type == 'cb-default-layer' ){

@@ -158,7 +158,7 @@
 					echo'<div class="tab-pane active" id="' . $layer_type->slug . '">';
 						
 						//output Nav tabs
-						
+
 						echo'<ul class="nav nav-pills" role="tablist">';
 							
 							if( $ltple->inWidget ){
@@ -171,9 +171,9 @@
 							}
 							
 							if( !empty($layer_type->ranges) ){
-								
-								$active = null;
-								
+
+								$ranges = array();
+
 								foreach( $layer_type->ranges as $range ){
 									
 									if( $range['count'] < 1 )
@@ -181,21 +181,30 @@
 									
 									if( !$this->user->loggedin && !empty($layer_type->addon) && $layer_type->addon->slug == $range['slug'] )
 										continue;
+
+									$range_url = add_query_arg($_GET,$this->urls->gallery);
 									
+									$range_url = remove_query_arg(array('uri'),$range_url);
+									
+									$range_url = add_query_arg( array(
+									
+										'gallery' 	=> $layer_type->slug,
+										'range' 	=> $range['slug'],
+										
+									), $range_url );
+									
+									$range['url'] = $range_url;
+									
+									$ranges[] = $range;
+								}
+						
+								$active = null;
+								
+								foreach( $ranges as $range ){
+
 									if( empty($layer_range) || $layer_range == $range['slug'] ){
 										
-										$range_url = add_query_arg($_GET,$this->urls->gallery);
-										
-										$range_url = remove_query_arg(array('uri'),$range_url);
-										
-										$range_url = add_query_arg( array(
-										
-											'gallery' 	=> $layer_type->slug,
-											'range' 	=> $range['slug'],
-											
-										), $range_url );
-										
-										echo'<li role="presentation" class="active"><a href="' . $range_url . '" aria-controls="' . $range['slug'] . '" role="tab" title="'.ucfirst($range['name']).'">'.strtoupper($range['short']).' <span class="badge" style="font-size:10px !important;">'.$this->gallery->get_badge_count($range['count']).'</span></a></li>';
+										echo'<li role="presentation" class="active"><a href="' . $range['url'] . '" aria-controls="' . $range['slug'] . '" role="tab" title="'.ucfirst($range['name']).'">'.strtoupper($range['short']).' <span class="badge" style="font-size:10px !important;">'.$this->gallery->get_badge_count($range['count']).'</span></a></li>';
 									
 										$active = $range['slug'];
 										
@@ -203,42 +212,28 @@
 									}
 								}
 								
-								// switch range
-								
-								echo '<li class="more dropdown" style="margin-left: 8px; margin-bottom: 0px;">';
+								if( count($ranges) > 1 ){
 									
-									echo '<button style="padding:3px 5px;margin:8px 0px;height:25px;background:#f2f2f2;border:0;font-size:14px;" class="glyphicon glyphicon-option-vertical dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"></button>';
+									// switch range
 									
-									echo '<ul class="dropdown-menu dropdown-menu-left" style="margin-left:-8px;">';
+									echo '<li class="more dropdown" style="margin-left: 8px; margin-bottom: 0px;">';
 										
-									foreach( $layer_type->ranges as $range ){
+										echo '<button style="padding:3px 5px;margin:8px 0px;height:25px;background:#f2f2f2;border:0;font-size:14px;" class="glyphicon glyphicon-option-vertical dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"></button>';
 										
-										if( $range['count'] < 1 )
-											continue;
-										
-										if( !$this->user->loggedin && !empty($layer_type->addon) && $layer_type->addon->slug == $range['slug'] )
-											continue;
-										
-										if( $active != $range['slug'] ){
+										echo '<ul class="dropdown-menu dropdown-menu-left" style="margin-left:-8px;">';
 											
-											$range_url = add_query_arg($_GET,$this->urls->gallery);
-											
-											$range_url = remove_query_arg(array('uri'),$range_url);
-											
-											$range_url = add_query_arg( array(
-											
-												'gallery' 	=> $layer_type->slug,
-												'range' 	=> $range['slug'],
+										foreach( $ranges as $range ){
+
+											if( $active != $range['slug'] ){
 												
-											), $range_url );
-											
-											echo'<li role="presentation"><a href="' . $range_url . '" aria-controls="' . $range['slug'] . '" role="tab" title="'.ucfirst($range['name']).'"><span class="badge" style="font-size:10px !important;margin-right:10px;">'.$this->gallery->get_badge_count($range['count']).'</span>'.strtoupper($range['short']).'</a></li>';
+												echo'<li role="presentation"><a href="' . $range['url'] . '" aria-controls="' . $range['slug'] . '" role="tab" title="'.ucfirst($range['name']).'"><span class="badge" style="font-size:10px !important;margin-right:10px;">'.$this->gallery->get_badge_count($range['count']).'</span>'.strtoupper($range['short']).'</a></li>';
+											}
 										}
-									}
-									
-									echo '</ul>';
-							
-								echo '</li>';									
+										
+										echo '</ul>';
+								
+									echo '</li>';
+								}
 							}
 							
 							do_action('ltple_gallery_tab',$layer_type->slug,$layer_range);

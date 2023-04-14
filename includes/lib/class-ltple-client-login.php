@@ -73,7 +73,7 @@ class LTPLE_Client_Login {
 		$form = '';
 		
 		$form .= '<style>';
-		
+
 			$form .= file_get_contents( $this->parent->assets_dir . '/css/login.css' );
 		
 		$form .= '</style>';
