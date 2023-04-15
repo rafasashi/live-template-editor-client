@@ -112,24 +112,23 @@ class LTPLE_Client_Email {
 			
 			return $color;
 		});	
-
+		
+		add_action('ltple_newsletter_subscription',function($user_id){
+		
+			update_user_meta($user_id, $this->parent->_base . '_last_seen',time());
+		});
+		
 		add_filter('ltple_loaded', array( $this, 'init_email' ));
 		
 		add_action('ltple_users_bulk_imported', array( $this, 'schedule_invitations' ));
 		
 		add_action('ltple_newsletter_list_meta_query',function($meta_query){
 			
-			/*
-			
-			// TODO handle email sub via shortcode
-			// by marking confirmed subs as last_seen
-			
 			$meta_query[] = array(
 				
 				'key' 		=> 'ltple__last_seen',
 				'compare'	=> 'EXISTS', 
 			);
-			*/
 			
 			return $meta_query;	
 			
