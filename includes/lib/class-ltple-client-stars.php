@@ -240,7 +240,7 @@
 			
 			if( current_user_can( 'administrator' ) ){
 				
-				echo '<div class="postbox" style="min-height:45px;">';
+				echo '<div style="margin:10px auto;min-height:45px;">';
 					
 					echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Stars', 'live-template-editor-client' ) . '</h3>';
 					

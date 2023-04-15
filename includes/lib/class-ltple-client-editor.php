@@ -269,7 +269,14 @@ class LTPLE_Client_Editor {
 								},
 								success	: function(data){
 									
-									data = JSON.parse(data);
+									try {
+					
+										data = JSON.parse(data);
+									}
+									catch(e){
+										
+										data = JSON.parse(JSON.stringify(data));
+									}
 
 									if( typeof data.message != typeof undefined ){
 										

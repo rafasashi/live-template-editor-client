@@ -567,7 +567,7 @@ class LTPLE_Client_Profile {
 				
 				if( is_null($post) || $post->post_type != 'cb-default-layer' ){
 					
-					$post = get_page_by_path( 'profile', OBJECT, 'page' );
+					$post = get_page_by_path('profile',OBJECT,'page');
 				}
 				
 				if( $this->post = apply_filters('ltple_post',$post) ){
@@ -669,7 +669,7 @@ class LTPLE_Client_Profile {
 		
 		if( current_user_can( 'administrator' ) ){
 			
-			echo '<div class="postbox" style="min-height:45px;">';
+			echo '<div style="margin:10px auto;min-height:45px;">';
 				
 				echo '<h3 style="float:left;margin:10px;width:300px;display:inline-block;">' . __( 'Privacy Settings', 'live-template-editor-client' ) . '</h3>';
 				

@@ -42,7 +42,7 @@
 
 				if( !empty($this->list) ){
 
-					echo '<div class="postbox" style="min-height:45px;">';
+					echo '<div style="margin:10px auto;min-height:45px;">';
 						
 						echo '<h3 style="margin:10px;width:300px;display: inline-block;float: left;">' . __( 'Programs', 'live-template-editor-client' ) . '</h3>';
 

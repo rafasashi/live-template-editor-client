@@ -1009,7 +1009,7 @@ class LTPLE_Client_Plan {
 				}
 			}			
 
-			echo '<div class="postbox">';
+			echo '<div style="margin:10px auto;min-height:45px;">';
 				
 				echo '<h3 style="margin:10px;">' . __( 'Plan & Pricing', 'live-template-editor-client' ) . '</h3>';
 			

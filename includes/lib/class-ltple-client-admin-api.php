@@ -736,17 +736,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$plan_options = (array) $data;
 													
-					$html .= '<table class="widefat fixed striped" style="border:none;">';
+					$html .= '<table class="form-table striped">';
 						
 						foreach ( $field['options'] as $taxonomy => $terms ) {
 							
 							$html .= '<tr>';
 							
-								$html .= '<th style="width:100%;font-weight:bold;">';
+								$html .= '<td style="width:100%;font-weight:bold;">';
 									
 									$html .= '<div for="' . $taxonomy . '">'.$taxonomy.'</div> ';
 										
-								$html .= '</th>';
+								$html .= '</td>';
 
 							$html .= '</tr>';
 							
@@ -852,7 +852,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 						$html .= '<tr>';
 							
-							$html .= '<table style="width:100%;margin:10px;">';
+							$html .= '<table class="form-table" style="width:100%;margin:10px;">';
 							
 								$html .= '<tr>';
 							

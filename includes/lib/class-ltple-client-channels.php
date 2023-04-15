@@ -125,7 +125,7 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 		
 		if( current_user_can( 'administrator' ) ){
 			
-			echo '<div class="postbox" style="min-height:45px;">';
+			echo '<div style="margin:10px auto;min-height:45px;">';
 				
 				echo '<h3 style="margin:10px;width:300px;display:block;float:left;">' . __( 'Marketing Channel', 'live-template-editor-client' ) . '</h3>';
 				

@@ -458,12 +458,13 @@ if( typeof editorCallbacks == typeof undefined )
 									
 									if (typeof data === 'string' || data instanceof String){
 								
-										try{
-										
-											data = JSON.parse(data);
-										} 
-										catch (error) {
+										try {
 											
+											data = JSON.parse(data);
+										}
+										catch(e){
+											
+											data = JSON.parse(JSON.stringify(data));
 										}
 									}
 								
@@ -499,12 +500,13 @@ if( typeof editorCallbacks == typeof undefined )
 								
 								if (typeof data === 'string' || data instanceof String){
 									
-									try{
+									try {
 										
 										data = JSON.parse(data);
-									} 
-									catch (error) {
+									}
+									catch(e){
 										
+										data = JSON.parse(JSON.stringify(data));
 									}
 								}
 								

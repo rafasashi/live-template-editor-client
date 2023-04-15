@@ -4,7 +4,7 @@ html.wp-toolbar{padding-top:50px !important;}
 #wp-admin-bar-notes #wpnt-notes-unread-count.wpn-read {padding:5px !important;}
 #wpcontent, #wpwrap,#wp-content-editor-tools {background-color:#fff !important;}
 #wpcontent, #wp-content-editor-tools {border-left: 1px solid #ddd;}
-#wpcontent, #wpfooter {margin-left: 200px !important;padding-left: 10px !important;}
+#wpcontent, #wpfooter {margin-left: 200px !important;padding-left: 10px !important;position:relative !important;}
 #adminmenu, #adminmenu .wp-submenu, #adminmenuback, #adminmenuwrap {width: 200px !important; background-color: rgb(249,249,249) !important;}
 #adminmenu {margin-top: 0px !important;}
 #adminmenu .wp-submenu {left: 200px !important;}

@@ -945,14 +945,7 @@ class LTPLE_Client {
 
 	public function get_header(){
 		
-		if( $this->profile->id > 0 ){
-		
-			$post = $this->profile->get_profile_post();
-		}
-		else{
-			
-			$post = get_post();
-		}
+		$post = $this->profile->id > 0 ? $this->profile->get_profile_post() : get_post();
 		
 		$service_name = get_bloginfo('name');
 	
@@ -967,7 +960,7 @@ class LTPLE_Client {
 			$title = $site_name;
 		}
 		
-		$title = apply_filters('ltple_header_title',$title);
+		$title = apply_filters('ltple_header_title',$title,$post);
 		
 		if( !empty($title) ){
 
