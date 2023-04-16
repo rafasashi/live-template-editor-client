@@ -483,6 +483,8 @@ class LTPLE_Client_Plan {
 			
 			foreach( $plan['info']['total_storage'] as $storage_unit => $total_storage_amount){
 				
+				$row ='';
+					
 				foreach( $layer_types as $type ){
 					
 					$ranges = array();
@@ -506,35 +508,35 @@ class LTPLE_Client_Plan {
 						
 						// get header
 						
-						$res_row ='<tr>';
+						$row .='<tr>';
 						
-							$res_row .='<th>';
+							$row .='<th>';
 							
-								$res_row .= $storage_unit;
+								$row .= $storage_unit;
 
-							$res_row .='</th>';
+							$row .='</th>';
 							
-							$res_row .='<th>';
+							$row .='<th>';
 								
 								if( is_array($usage) ){
 									
 									$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
 									
-									$res_row .= '<span class="badge">'. $storage_usage .' / ' . $total_storage_amount.'</span>';
+									$row .= '<span class="badge">'. $storage_usage .' / ' . $total_storage_amount.'</span>';
 								}
 								else{
 									
-									$res_row .= 'Unlimited resources';
+									$row .= 'Unlimited resources';
 									
 									if( $total_storage_amount > 0 ){
 										
-										$res_row .= ' <span class="badge">x' . $total_storage_amount . '</span> saved ' . $this->parent->layer->get_storage_name($type->storage) . ( $total_storage_amount == 1 ? '' : 's' );
+										$row .= ' <span class="badge">x' . $total_storage_amount . '</span> saved ' . $this->parent->layer->get_storage_name($type->storage) . ( $total_storage_amount == 1 ? '' : 's' );
 									}
 								}
 								
-							$res_row .='</th>';
+							$row .='</th>';
 							
-						$res_row .='</tr>';						
+						$row .='</tr>';						
 						
 						// get ranges
 						
@@ -542,44 +544,44 @@ class LTPLE_Client_Plan {
 							
 							if( empty($type->addon) || $type->addon->term_id != $range['term_id'] ){
 								
-								$res_row .='<tr>';
+								$row .='<tr>';
 								
-									$res_row .='<td>';
+									$row .='<td>';
 									
-										$res_row .= $range['name'];
+										$row .= $range['name'];
 
-									$res_row .='</td>';
+									$row .='</td>';
 									
-									$res_row .='<td style="text-align:center;">';
+									$row .='<td style="text-align:center;">';
 										
 										if( isset($plan['options'][0]) && in_array( $range['slug'], $plan['options'] ) ){
 											
 											// plan view
 											
-											$res_row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
 										}
 										elseif( isset( $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] ) && $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] === true ){
 											
 											// billing info view
 											
-											$res_row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
 										}											
 										else{
 											
-											$res_row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
+											$row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
 										}
 
-									$res_row .='</td>';
+									$row .='</td>';
 									
-								$res_row .='</tr>';
+								$row .='</tr>';
 							}
 						}
 					}
 				}
 				
-				if( !empty($section) ){
+				if( !empty($section) && !empty($row) ){
 				
-					$services['resources'][$section][] = $res_row;
+					$services['resources'][$section][] = $row;
 				}
 			}
 		}
