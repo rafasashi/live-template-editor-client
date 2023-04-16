@@ -485,7 +485,20 @@ class LTPLE_Client_Plan {
 				
 				foreach( $layer_types as $type ){
 					
-					if( $type->name == $storage_unit && !empty($type->ranges) ){
+					$ranges = array();
+					
+					if( !empty($type->ranges) ){
+						
+						foreach( $type->ranges as $range ){
+							
+							if( $range['count'] > 0 ){
+								
+								$ranges[] = $range;
+							}
+						}
+					}
+					
+					if( $type->name == $storage_unit && !empty($ranges) ){
 						
 						// get section
 						
@@ -525,7 +538,7 @@ class LTPLE_Client_Plan {
 						
 						// get ranges
 						
-						foreach( $type->ranges as $range ){
+						foreach( $ranges as $range ){
 							
 							if( empty($type->addon) || $type->addon->term_id != $range['term_id'] ){
 								
