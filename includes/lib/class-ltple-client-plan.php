@@ -513,25 +513,25 @@ class LTPLE_Client_Plan {
 						
 						$row .='<tr>';
 						
-							$row .='<th>';
+							$row .='<th style="width:40%;">';
 							
 								$row .= $storage_unit;
 
 							$row .='</th>';
 							
-							$row .='<th style="text-align:center;">';
+							$row .='<th style="width:20%;text-align:center;">';
 							
 								$row .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Access" data-content="Access to the range of resources within the ' . $storage_unit . ' gallery">';
 									
 									$row .= 'Access';
 								
-									$row .= ' <i class="fas fa-question-circle"></i>';
+									$row .= ' <i class="fas fa-question-circle" style="font-size:13px;"></i>';
 								
 								$row .='</div>';
 
 							$row .='</th>';	
 							
-							$row .='<th style="text-align:center;">';
+							$row .='<th style="width:20%;text-align:center;">';
 								
 								$row .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Resources" data-content="The amount of ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' included in the range of resources">';
 									
@@ -539,19 +539,19 @@ class LTPLE_Client_Plan {
 									
 									$row .= 'Resources';
 									
-									$row .= ' <i class="fas fa-question-circle"></i>';
+									$row .= ' <i class="fas fa-question-circle" style="font-size:13px;"></i>';
 								
 								$row .='</div>';
 
 							$row .='</th>';
 
-							$row .='<th style="text-align:center;">';
+							$row .='<th style="width:20%;text-align:center;">';
 								
 								$row .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Storage" data-content="The amount of saved ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' allowed by the plan">';
 								
 									$row .= 'Storage';
 									
-									$row .= ' <i class="fas fa-question-circle"></i>';
+									$row .= ' <i class="fas fa-question-circle" style="font-size:13px;"></i>';
 								
 								$row .='</div>';
 							
@@ -627,7 +627,7 @@ class LTPLE_Client_Plan {
 											}
 											else{
 												
-												$row .= '<i class="fas fa-infinity"></i>';
+												$row .= '<i class="fas fa-infinity" style="font-size:14px;"></i>';
 											}
 											
 										$row .= '</span>';
