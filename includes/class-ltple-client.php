@@ -2580,7 +2580,20 @@ class LTPLE_Client {
 			
 			$style .='#plan_table table {';
 				
+				$style .='font-size: 16px;';
 				$style .='width: 100%;';
+				
+			$style .='}';
+			
+			$style .='#plan_table table .popover-title, #plan_table table .popover-content {';
+				
+				$style .='color:#444;';
+				
+			$style .='}';
+			
+			$style .='#plan_table td {';
+				
+				$style .='padding:10px;';
 				
 			$style .='}';
 			
@@ -2618,7 +2631,6 @@ class LTPLE_Client {
 			
 			$style .='#plan_table table td {';
 			
-				$style .='font-size: 19px;';
 				$style .='color: ' . $this->settings->linkColor . ';';
 				
 			$style .='}';

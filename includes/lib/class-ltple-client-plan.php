@@ -481,11 +481,11 @@ class LTPLE_Client_Plan {
 		
 		if( !empty($plan['info']['total_storage']) ){
 			
-			foreach( $plan['info']['total_storage'] as $storage_unit => $total_storage_amount){
-				
+			foreach( $layer_types as $type ){
+
 				$row ='';
-					
-				foreach( $layer_types as $type ){
+
+				foreach( $plan['info']['total_storage'] as $storage_unit => $total_storage_amount ){
 					
 					$ranges = array();
 					
@@ -495,7 +495,10 @@ class LTPLE_Client_Plan {
 							
 							if( $range['count'] > 0 ){
 								
-								$ranges[] = $range;
+								if( empty($type->addon) || $type->addon->term_id != $range['term_id'] ){
+								
+									$ranges[] = $range;
+								}
 							}
 						}
 					}
@@ -516,65 +519,123 @@ class LTPLE_Client_Plan {
 
 							$row .='</th>';
 							
-							$row .='<th>';
+							$row .='<th style="text-align:center;">';
+							
+								$row .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Access" data-content="Access to the range of resources within the ' . $storage_unit . ' gallery">';
+									
+									$row .= 'Access';
 								
-								if( is_array($usage) ){
-									
-									$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
-									
-									$row .= '<span class="badge">'. $storage_usage .' / ' . $total_storage_amount.'</span>';
-								}
-								else{
-									
-									$row .= 'Unlimited resources';
-									
-									if( $total_storage_amount > 0 ){
-										
-										$row .= ' <span class="badge">x' . $total_storage_amount . '</span> saved ' . $this->parent->layer->get_storage_name($type->storage) . ( $total_storage_amount == 1 ? '' : 's' );
-									}
-								}
+									$row .= ' <i class="fas fa-question-circle"></i>';
 								
+								$row .='</div>';
+
+							$row .='</th>';	
+							
+							$row .='<th style="text-align:center;">';
+								
+								$row .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Resources" data-content="The amount of ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' included in the range of resources">';
+									
+									//$row .= $this->parent->layer->get_storage_name($type->storage) . 's';
+									
+									$row .= 'Resources';
+									
+									$row .= ' <i class="fas fa-question-circle"></i>';
+								
+								$row .='</div>';
+
+							$row .='</th>';
+
+							$row .='<th style="text-align:center;">';
+								
+								$row .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Storage" data-content="The amount of saved ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' allowed by the plan">';
+								
+									$row .= 'Storage';
+									
+									$row .= ' <i class="fas fa-question-circle"></i>';
+								
+								$row .='</div>';
+							
 							$row .='</th>';
 							
 						$row .='</tr>';						
 						
 						// get ranges
 						
-						foreach( $ranges as $range ){
+						foreach( $ranges as $i => $range ){
 							
-							if( empty($type->addon) || $type->addon->term_id != $range['term_id'] ){
-								
-								$row .='<tr>';
-								
-									$row .='<td>';
+							$row .='<tr>';
+
+								$row .='<td>';
+									
+									$row .='<b>';
 									
 										$row .= $range['name'];
-
-									$row .='</td>';
 									
-									$row .='<td style="text-align:center;">';
+									$row .='</b>';
+									
+								$row .='</td>';
+								
+								$row .='<td style="text-align:center;">';
+									
+									if( isset($plan['options'][0]) && in_array( $range['slug'], $plan['options'] ) ){
 										
-										if( isset($plan['options'][0]) && in_array( $range['slug'], $plan['options'] ) ){
+										// plan view
+										
+										$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+									}
+									elseif( isset( $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] ) && $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] === true ){
+										
+										// billing info view
+										
+										$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+									}											
+									else{
+										
+										$row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
+									}
+
+								$row .='</td>';
+								
+								$row .='<td style="text-align:center;">';
+
+									$row .='<span class="badge">';
+									
+										$row .= $this->parent->gallery->get_badge_count($range['count']);
+									
+									$row .= '</span>';
+									
+								$row .='</td>';
+								
+								if( $i == 0 ){
+									
+									$row .='<td rowspan="' . count($ranges) . '" style="text-align:center;background:#efefef;">';
+										
+										if( $total_storage_amount > 0 ){
 											
-											// plan view
+											$row .= '<span class="badge">';
 											
-											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+											if( is_array($usage) ){
+												
+												$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
+												
+												$row .= $storage_usage .' / ' . $total_storage_amount;
+											}
+											else{
+											
+												$row .= $total_storage_amount;
+											}
+											
+											$row .= '</span>';
 										}
-										elseif( isset( $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] ) && $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] === true ){
-											
-											// billing info view
-											
-											$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
-										}											
 										else{
 											
-											$row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
+											$row .= 'Unlimited';
 										}
-
-									$row .='</td>';
 									
-								$row .='</tr>';
-							}
+									$row .='</td>';
+								}
+							
+							$row .='</tr>';
 						}
 					}
 				}

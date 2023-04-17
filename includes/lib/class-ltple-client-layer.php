@@ -2012,6 +2012,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$term->ranges = $this->get_type_ranges($term,$term->addon);
 
+						$term->count = 0;
+						
+						foreach( $term->ranges as $range ){
+							
+							$term->count += $range['count'];
+						}
+
 						$current_types[] = $term;
 					}
 				}
