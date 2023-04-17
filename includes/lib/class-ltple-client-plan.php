@@ -609,28 +609,28 @@ class LTPLE_Client_Plan {
 								if( $i == 0 ){
 									
 									$row .='<td rowspan="' . count($ranges) . '" style="text-align:center;background:#efefef;">';
-										
-										if( $total_storage_amount > 0 ){
 											
-											$row .= '<span class="badge">';
+										$row .= '<span class="badge">';
 											
-											if( is_array($usage) ){
+											if( $total_storage_amount > 0 ){
 												
-												$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
+												if( is_array($usage) ){
+													
+													$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
+													
+													$row .= $storage_usage .' / ' . $total_storage_amount;
+												}
+												else{
 												
-												$row .= $storage_usage .' / ' . $total_storage_amount;
+													$row .= $total_storage_amount;
+												}
 											}
 											else{
-											
-												$row .= $total_storage_amount;
+												
+												$row .= '<i class="fas fa-infinity"></i>';
 											}
 											
-											$row .= '</span>';
-										}
-										else{
-											
-											$row .= 'Unlimited';
-										}
+										$row .= '</span>';
 									
 									$row .='</td>';
 								}
