@@ -18,7 +18,7 @@ echo'<div id="panel" class="wrapper">';
 			
 			if( $post_type = get_post_type_object( $currentTab ) ){
 				
-				echo'<ul class="nav nav-pills" role="tablist">';
+				echo'<ul class="nav nav-pills nav-resizable" role="tablist">';
 						
 					if( $ltple->inWidget ){
 						

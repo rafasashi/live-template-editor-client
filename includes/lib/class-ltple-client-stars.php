@@ -42,7 +42,7 @@
 	
 			if( $this->parent->settings->options->enable_ranking == 'on' ){
 
-				echo'<a style="margin-left:5px;height:29px;display:inline-block;" class="popover-btn" href="' . $this->parent->urls->ranking . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Stars" data-content="Your stars determine your rank in our World Ranking, give you visibility and drive traffic.">';
+				echo'<a style="margin:5px 5px 0;height:29px;display:inline-block;" class="popover-btn" href="' . $this->parent->urls->ranking . '" role="button" data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Stars" data-content="Your stars determine your rank in our World Ranking, give you visibility and drive traffic.">';
 	  
 					echo'<span class="badge" style="background-color: #fcfeff;color: #182f42;font-size: 11px;box-shadow: inset 0px 0px 1px #182f42;"><span class="fa fa-star" aria-hidden="true"></span>  ' . ( is_numeric($this->parent->user->stars) ? $this->parent->user->stars : 0 )  . '</span>';
 				

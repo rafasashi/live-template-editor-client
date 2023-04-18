@@ -108,7 +108,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 				echo '<div id="user-images">';
 
-					echo'<ul class="nav nav-pills" role="tablist">';
+					echo'<ul class="nav nav-pills nav-resizable" role="tablist">';
 			
 						if( $ltple->inWidget ){
 							
@@ -216,7 +216,7 @@ echo'<div id="media_library" class="wrapper">';
 						echo $ltple->apps->{$_GET['app']}->message;
 					}
 
-					echo'<ul class="nav nav-pills" role="tablist">';
+					echo'<ul class="nav nav-pills nav-resizable" role="tablist">';
 						
 						if( $ltple->inWidget ){
 							
@@ -440,7 +440,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 				echo'<div id="image-library">';
 				
-					echo'<ul class="nav nav-pills" role="tablist">';
+					echo'<ul class="nav nav-pills nav-resizable" role="tablist">';
 						
 						if( $ltple->inWidget ){
 							
@@ -517,7 +517,7 @@ echo'<div id="media_library" class="wrapper">';
 					}
 					else{			
 					
-						echo'<ul class="nav nav-pills" role="tablist">';
+						echo'<ul class="nav nav-pills nav-resizable" role="tablist">';
 							
 							if( $ltple->inWidget ){
 								

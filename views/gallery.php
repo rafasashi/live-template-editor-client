@@ -159,7 +159,7 @@
 						
 						//output Nav tabs
 
-						echo'<ul class="nav nav-pills" role="tablist">';
+						echo'<ul class="nav nav-pills nav-resizable" role="tablist">';
 							
 							if( $ltple->inWidget ){
 								

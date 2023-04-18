@@ -76,7 +76,7 @@
 
 					echo'<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="padding:0;border-left:1px solid #ddd;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 150px );">';
 					
-						echo'<ul id="profile_nav" class="nav nav-pills" role="tablist">';
+						echo'<ul id="profile_nav" class="nav nav-pills nav-resizable" role="tablist">';
 							
 							if( $this->parent->inWidget ){
 								
@@ -183,7 +183,7 @@
 						
 						if( !$ltple->inWidget ){
 							
-							echo'<ul id="profile_nav" class="nav nav-pills" role="tablist">';
+							echo'<ul id="profile_nav" class="nav nav-pills nav-resizable" role="tablist">';
 								
 								foreach( $ltple->profile->tabs as $tab){
 									

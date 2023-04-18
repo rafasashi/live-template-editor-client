@@ -96,7 +96,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 				echo'<div class="tab-pane active" id="billing-info">';
 					
-					echo'<ul class="nav nav-pills" role="tablist" style="overflow: visible;">';
+					echo'<ul class="nav nav-pills nav-resizable" role="tablist" style="overflow: visible;">';
 					
 						echo'<li role="presentation" class="active">';
 						

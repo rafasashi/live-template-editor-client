@@ -343,11 +343,7 @@ class LTPLE_Client_Profile {
 					
 					echo'</div>';
 					
-					echo'<div style="
-						width: 70%;
-						float: left;
-						padding: 8px 6px 2px 6px;
-					">';
+					echo'<div style="width:70%;float:left;line-height:20px;padding:14px 6px 2px 6px;">';
 							
 						echo'<div style="color:#eee;font-weight:bold;max-width:100%;overflow:hidden;">';
 						
@@ -1073,6 +1069,8 @@ class LTPLE_Client_Profile {
 					wp_add_inline_style( $this->parent->_token . '-home', '
 					
 						html {
+							
+							font-size: 100% !important;
 							scroll-behavior: smooth !important;
 						}
 

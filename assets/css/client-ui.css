@@ -15,7 +15,25 @@
 
 .ltple-widget {
 
-overflow-x: hidden;
+	overflow-x: hidden;
+}
+
+/* ---------------------------------------------------
+    DASHBOARD
+----------------------------------------------------- */
+
+#dashboard .media-body a{
+	
+	line-height:22px;
+}
+
+/* ---------------------------------------------------
+    TEMPLATE
+----------------------------------------------------- */
+
+#layer_detail {
+	
+	line-height: 22px;
 }
 
 /* ---------------------------------------------------
@@ -349,10 +367,15 @@ th input, th select {
     background: rgb(242, 242, 242);
     padding: 0px;
     font-size: 12px;
-    overflow: hidden;
     height: 41px;
     border-bottom: 1px solid #ddd;
 	text-transform: uppercase;
+	line-height:25px;
+}
+
+.library-resizable {
+	
+	overflow: hidden;
 }
 
 .library-content .nav-tabs {

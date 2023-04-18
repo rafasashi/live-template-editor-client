@@ -67,19 +67,19 @@ if( typeof editorCallbacks == typeof undefined )
 		
 		function navigationResize() {
 
-			if( $('.library-content .nav li.more').length == 0 ){
+			if( $('.nav-resizable li.more').length == 0 ){
 			
-				$(".library-content .nav").append('<li class="more resizable dropdown" style="display:none;margin-left:8px;margin-bottom:0;"><button style="padding:3px 8px;margin:8px 0px;height:25px;z-index:9999;background:#f5f5f5;color:#566674;" class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button><ul id="overflow" class="dropdown-menu dropdown-menu-right"></ul></li>').css('overflow','visible !important');
+				$(".nav-resizable").append('<li class="more resizable dropdown" style="display:none;margin-left:8px;margin-bottom:0;"><button style="padding:3px 8px;margin:8px 0px;height:25px;z-index:9999;background:#f5f5f5;color:#566674;" class="btn dropdown-toggle" type="button" data-toggle="dropdown"><span class="caret"></span></button><ul id="overflow" class="dropdown-menu dropdown-menu-right"></ul></li>').css('overflow','visible !important');
 			}
 			
-			if( $('.library-content .nav li.resizable').length > 0 ){
+			if( $('.nav-resizable li.resizable').length > 0 ){
 				
-				$('.library-content .nav li.more').before($('.library-content .nav #overflow > li'));
+				$('.nav-resizable li.more').before($('.nav-resizable #overflow > li'));
 
-				var $navItemMore = $('.library-content .nav > li.more'),
-					$navItems = $('.library-content .nav > li:not(.more)'),
+				var $navItemMore = $('.nav-resizable > li.more'),
+					$navItems = $('.nav-resizable > li:not(.more)'),
 					navItemMoreWidth = navItemWidth = $navItemMore.width(),
-					windowWidth = $('.library-content .nav li.more').parent().width(),
+					windowWidth = $('.nav-resizable li.more').parent().width(),
 					offset = -10, 
 					navOverflowWidth,
 					navItemMoreOffsetLeft,
@@ -87,7 +87,7 @@ if( typeof editorCallbacks == typeof undefined )
 				
 				if( windowWidth > 0 ){
 					 
-					$('.library-content .nav').css('overflow','hidden');
+					$('.nav-resizable').css('overflow','hidden');
 					 
 					$navItems.each(function() {
 						  
@@ -104,7 +104,7 @@ if( typeof editorCallbacks == typeof undefined )
 						
 							navItemWidth -= $lastItem.width() - 20;
 							
-							$lastItem.prependTo('.library-content .nav #overflow');
+							$lastItem.prependTo('.nav-resizable #overflow');
 						}
 						else{
 							
@@ -114,7 +114,7 @@ if( typeof editorCallbacks == typeof undefined )
 						$navItems.splice(-1,1);
 					}
 			
-					$navOverflow =  $('.library-content .nav #overflow');
+					$navOverflow =  $('.nav-resizable #overflow');
 
 					navOverflowWidth = $navOverflow.width();  
 					
@@ -133,14 +133,14 @@ if( typeof editorCallbacks == typeof undefined )
 						}
 					}
 					
-					$('.library-content .nav').css('overflow','visible');
+					$('.nav-resizable').css('overflow','visible');
 						
-					$('.library-content .nav #overflow').css('left',offset);
+					$('.nav-resizable #overflow').css('left',offset);
 				}
 			}
 			else{
 				
-				$('.library-content .nav').css('overflow','visible');
+				$('.nav-resizable').css('overflow','visible');
 			}
 		}
 		
@@ -609,7 +609,7 @@ if( typeof editorCallbacks == typeof undefined )
 						
 						$dialog.dialog('open');
 						
-						if( $dialog.find('.library-content .nav').length ){
+						if( $dialog.find('.nav-resizable').length ){
 							
 							navigationResize();
 						}
@@ -733,11 +733,11 @@ if( typeof editorCallbacks == typeof undefined )
 			}
 		}
 		
-		if( $(".library-content .nav").length ){
+		if( $(".nav-resizable").length ){
 
 			if( typeof ResizeObserver != typeof undefined ){
 
-				new ResizeObserver(navigationResize).observe(document.querySelector('.library-content .nav'));
+				new ResizeObserver(navigationResize).observe(document.querySelector('.nav-resizable'));
 			}
 			else{
 				
