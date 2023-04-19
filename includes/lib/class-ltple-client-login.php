@@ -151,7 +151,7 @@ class LTPLE_Client_Login {
 								
 									// check if email imported
 
-									$user->last_seen = intval( get_user_meta( $user->ID, $this->parent->_base . '_last_seen',true) );
+									$user->last_seen = intval( get_user_meta( $user->ID, 'ltple__last_seen',true) );
 									
 									if( $user->last_seen === 0 ){
 

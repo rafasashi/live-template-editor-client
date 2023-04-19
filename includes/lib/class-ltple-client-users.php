@@ -351,9 +351,9 @@
 
 			// query filters
 			
-			add_filter( 'pre_get_users', array( $this, 'filter_users_by_marketing_channel') );
-			add_filter( 'pre_get_users', array( $this, 'filter_users_by_plan_value') );
-			//add_filter( 'pre_get_users', array( $this, 'filter_users_by_role') );			
+			add_filter('pre_get_users', array( $this, 'filter_users_by_marketing_channel'),9999999 );
+			add_filter('pre_get_users', array( $this, 'filter_users_by_plan_value') );
+			//add_filter('pre_get_users', array( $this, 'filter_users_by_role') );			
 		}
 	
 		public function update_periods($user_id=null){ 
@@ -839,7 +839,7 @@
 				$this->list->{$user_id} = new stdClass();
 				
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
-				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
+				$this->list->{$user_id}->last_seen 	= isset($meta['ltple__last_seen']) ? $meta['ltple__last_seen'] : '';
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
 				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
@@ -914,7 +914,7 @@
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
 				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
 				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id);
-				$this->list->{$user_id}->last_seen 	= isset($meta[$this->parent->_base . '_last_seen']) ? $meta[$this->parent->_base . '_last_seen'] : '';
+				$this->list->{$user_id}->last_seen 	= isset($meta['ltple__last_seen']) ? $meta['ltple__last_seen'] : '';
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
@@ -1309,7 +1309,7 @@
 		public function filter_users_by_marketing_channel( $query ) {
 			
 			$taxonomy = 'marketing-channel';
-
+			
 			if( $term_id = $this->get_filter_value($taxonomy) ){
 				
 				// alter the user query to add my meta_query

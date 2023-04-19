@@ -115,7 +115,7 @@ class LTPLE_Client_Email {
 		
 		add_action('ltple_newsletter_subscription',function($user_id){
 		
-			update_user_meta($user_id, $this->parent->_base . '_last_seen',time());
+			update_user_meta($user_id, 'ltple__last_seen',time());
 		});
 		
 		add_filter('ltple_loaded', array( $this, 'init_email' ));

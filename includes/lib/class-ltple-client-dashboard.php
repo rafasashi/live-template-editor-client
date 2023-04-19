@@ -27,9 +27,29 @@ class LTPLE_Client_Dashboard {
 			// add dashboard shortcodes
 		
 			add_shortcode('ltple-client-dashboard', array( $this , 'get_dashboard_shortcode' ) );
+			
+			add_filter('body_class',array($this,'filter_dashboard_classes'),99999,2);
+			add_filter('post_class',array($this,'filter_dashboard_classes'),99999,2);
 		}		
 	}
+	
+	public function filter_dashboard_classes($classes,$css_class){
+				
+		if( $this->parent->urls->current_url_in('dashboard') ){
 			
+			foreach( $classes as $i => $class ){
+				
+				if( $class == 'page' ){
+					
+					unset($classes[$i]);
+					break;
+				}
+			}
+		}
+		
+		return $classes;
+	}
+	
 	public function enqueue_styles () {
 		
 		/*

@@ -886,7 +886,7 @@ class LTPLE_Client_Profile {
 				
 				$skip_unclaimed = false;
 				
-				if( !$last_seen = intval( get_user_meta( $this->parent->plan->get_license_holder_id($this->user->ID), $this->parent->_base . '_last_seen',true) ) ){
+				if( !$last_seen = intval( get_user_meta( $this->parent->plan->get_license_holder_id($this->user->ID), 'ltple__last_seen',true) ) ){
 					
 					if( $this->is_unclaimed() ){
 						

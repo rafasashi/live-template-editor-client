@@ -61,7 +61,7 @@ class LTPLE_Client_Triggers {
 			
 			$this->parent->user->last_seen = $this->parent->_time;
 			
-			update_user_meta( $this->parent->user->ID, $this->parent->_base . '_last_seen', $this->parent->user->last_seen);
+			update_user_meta( $this->parent->user->ID, 'ltple__last_seen', $this->parent->user->last_seen);
 			
 			// update last user agent
 		
@@ -78,7 +78,7 @@ class LTPLE_Client_Triggers {
 
 		// the new user just registered but never logged in yet
 		
-		add_user_meta($user_id, $this->parent->_base . '_last_seen', 'false');
+		add_user_meta($user_id, 'ltple__last_seen', 'false');
 	}
 	
 	/**

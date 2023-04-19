@@ -68,7 +68,7 @@
 										),
 										array(
 										
-											'key' 		=> $this->parent->_base . '_last_seen',
+											'key' 		=> 'ltple__last_seen',
 											'value' 	=> 0,
 											'compare' 	=> '>',
 										),

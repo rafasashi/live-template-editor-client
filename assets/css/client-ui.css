@@ -19,26 +19,29 @@
 }
 
 /* ---------------------------------------------------
-    DASHBOARD
+    DASHBOARD & PRODUCTS
 ----------------------------------------------------- */
 
-#dashboard .media-body a{
-	
+#dashboard .media-body a, #layer_detail{
 	line-height:22px;
 }
 
 /* ---------------------------------------------------
-    TEMPLATE
+    PROFILE
 ----------------------------------------------------- */
 
-#layer_detail {
-	
-	line-height: 22px;
+#profile_page #about.tab-pane, #profile_page #sponsor.tab-pane {
+	line-height: 30px;
 }
 
 /* ---------------------------------------------------
     SIDEBAR STYLE
 ----------------------------------------------------- */
+
+#ltple-wrapper #gallery_sidebar{
+	
+	font-size:14px;
+}
 
 #ltple-wrapper .wrapper {
     display: flex !important;

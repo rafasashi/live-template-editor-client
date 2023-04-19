@@ -481,7 +481,7 @@ class LTPLE_Client {
 				
 				// get user last seen
 				
-				$this->user->last_seen = intval( get_user_meta( $this->user->ID, $this->_base . '_last_seen',true) );
+				$this->user->last_seen = intval( get_user_meta( $this->user->ID, 'ltple__last_seen',true) );
 								
 				
 				// get user notification settings
