@@ -760,7 +760,7 @@ class LTPLE_Client_Profile {
 				
 		if( !empty($section) ){
 
-			$sidebar .= '<li class="gallery_type_title">Hosted Pages</li>';
+			$sidebar .= '<li class="gallery_type_title">Web Pages</li>';
 			
 			$sidebar .= $section;
 		}

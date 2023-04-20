@@ -38,16 +38,16 @@
     SIDEBAR STYLE
 ----------------------------------------------------- */
 
-#ltple-wrapper #gallery_sidebar{
-	
-	font-size:14px;
-}
-
 #ltple-wrapper .wrapper {
     display: flex !important;
     align-items: stretch !important;
 	position: relative !important;
 	overflow: hidden !important;
+}
+
+#ltple-wrapper #sidebar, #ltple-wrapper #gallery_sidebar{
+	
+	font-size:14px;
 }
 
 #ltple-wrapper #sidebar {

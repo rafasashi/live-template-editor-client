@@ -563,15 +563,50 @@ class LTPLE_Client_Plan {
 						
 						foreach( $ranges as $i => $range ){
 							
+							$preview_url = add_query_arg(array(
+								
+								'layer[default_storage]' => $type->storage,
+								'gallery' 	=> $type->slug,
+								'range' 	=> $range['slug'],
+								'output' 	=> 'widget',
+							
+							),$this->parent->urls->editor);
+
+							$modal_id='modal_'.md5($preview_url);
+							
 							$row .='<tr>';
 
-								$row .='<td>';
-									
+								$row .='<td style="cursor:pointer;" type="button" data-toggle="modal" data-target="#'.$modal_id.'">';
+
 									$row .='<b>';
-									
+										
 										$row .= $range['name'];
-									
+										
 									$row .='</b>';
+
+									$row.='<i class="fas fa-eye pull-right"></i>'.PHP_EOL;
+
+									$row.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+										
+										$row.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
+											
+											$row.='<div class="modal-content">'.PHP_EOL;
+											
+												$row.='<div class="modal-header">'.PHP_EOL;
+													
+													$row.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+													
+													$row.='<h4 class="modal-title text-left" id="myModalLabel">Gallery</h4>'.PHP_EOL;
+												
+												$row.='</div>'.PHP_EOL;
+												
+												$row.= '<iframe data-src="'.$preview_url.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 40px);overflow:hidden;"></iframe>';											
+												
+											$row.='</div>'.PHP_EOL;
+											
+										$row.='</div>'.PHP_EOL;
+										
+									$row.='</div>'.PHP_EOL;
 									
 								$row .='</td>';
 								
