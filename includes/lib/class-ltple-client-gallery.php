@@ -580,21 +580,29 @@ class LTPLE_Client_Gallery {
 										
 										if( $show_preview === true ){
 											
-											$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 110px);overflow: hidden;"></iframe>';											
+											$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 100px);overflow: hidden;"></iframe>';											
+										}
+										elseif( $image = $this->parent->layer->get_preview_image_url($post->ID) ){
+											
+											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 100px);overflow:auto;background:#555;text-align:center;">';
+
+												$item.= '<img loading="lazy" src="' . $image . '">';
+												
+											$item.= '</div>';
 										}
 										elseif( $image = get_the_post_thumbnail($post->ID, 'full') ){
 											
-											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 110px);overflow: auto;">';
+											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 100px);overflow:auto;background:#555;text-align:center;">';
 											
 												$item.= $image;
 											
 											$item.= '</div>';
 										}
-										else{
+										elseif( $image = $this->parent->layer->get_thumbnail_url($post) ){
 											
-											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 110px);overflow: auto;">';
+											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 100px);overflow:auto;background:#555;text-align:center;">';
 
-												$item.= '<img loading="lazy" src="' . $this->parent->layer->get_thumbnail_url($post) . '">';
+												$item.= '<img loading="lazy" src="' . $image . '">';
 												
 											$item.= '</div>';
 										}
