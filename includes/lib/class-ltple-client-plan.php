@@ -584,7 +584,7 @@ class LTPLE_Client_Plan {
 										
 									$row .='</b>';
 
-									$row.='<i class="fas fa-eye pull-right"></i>'.PHP_EOL;
+									$row.='<i class="fas fa-eye pull-right hidden-xs"></i>'.PHP_EOL;
 
 									$row.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 										

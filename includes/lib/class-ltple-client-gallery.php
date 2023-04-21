@@ -490,20 +490,16 @@ class LTPLE_Client_Gallery {
 	public function get_item($post,$layer_type,$referer=null){
 		
 		$item = '';
-		
-		if( !empty($post) ){
+
+		if( $layer = LTPLE_Editor::instance()->get_layer($post) ){
 			
 			// get info url
 			
 			$info_url = get_permalink($post);
-			
-			// get preview url
-			
-			$preview_url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
-			
-			//get editor_url
 
-			$editor_url = $this->parent->urls->edit . '?uri='.$post->ID;
+			//get start url
+
+			$start_url = $this->parent->urls->edit . '?uri='.$post->ID;
 		
 			//get post_title
 			
@@ -529,7 +525,7 @@ class LTPLE_Client_Gallery {
 							
 							if( $this->parent->plan->user_has_layer( $post ) === true ){
 								
-								$action = '<a target="_parent" class="btn btn-sm btn-success" href="'. $editor_url .'" title="Start editing this template">Start</a>';
+								$action = '<a target="_parent" class="btn btn-sm btn-success" href="'. $start_url .'" title="Start editing this template">Start</a>';
 							}
 							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
@@ -543,98 +539,20 @@ class LTPLE_Client_Gallery {
 							$item.= apply_filters('ltple_widget_gallery_item_action',$action,$post,$referer);
 						}
 						else{
-							
-							// get visibility
-			
-							$visibility = $this->parent->layer->get_layer_visibility($post);
-							
-							$show_preview = ( $visibility == 'anyone' || $visibility == 'registered' || ( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $post ) === true )) ? true : false;
-							
-							// info button
-							
+
 							$item.='<a target="_parent" class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $info_url . '" title="More info about '. $post_title .' template">Info</a>';
 							
-							// preview button
-							
-							$modal_id='modal_'.md5($preview_url);
-							
-							$item.='<button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+							if( $modal = $this->parent->layer->get_preview_modal($layer) ){
 								
-								$item.='Preview'.PHP_EOL;
+								$item.='<button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#'.$modal['id'].'">'.PHP_EOL;
+									
+									$item.='Preview'.PHP_EOL;
+								
+								$item.='</button>'.PHP_EOL;
+								
+								$item.=$modal['content'].PHP_EOL;
+							}
 							
-							$item.='</button>'.PHP_EOL;
-
-							$item.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
-								
-								$item.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
-									
-									$item.='<div class="modal-content">'.PHP_EOL;
-									
-										$item.='<div class="modal-header">'.PHP_EOL;
-											
-											$item.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-											
-											$item.='<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
-										
-										$item.='</div>'.PHP_EOL;
-										
-										if( $show_preview === true ){
-											
-											$item.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 100px);overflow: hidden;"></iframe>';											
-										}
-										elseif( $image = $this->parent->layer->get_preview_image_url($post->ID) ){
-											
-											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 100px);overflow:auto;background:#555;text-align:center;">';
-
-												$item.= '<img loading="lazy" src="' . $image . '">';
-												
-											$item.= '</div>';
-										}
-										elseif( $image = get_the_post_thumbnail($post->ID, 'full') ){
-											
-											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 100px);overflow:auto;background:#555;text-align:center;">';
-											
-												$item.= $image;
-											
-											$item.= '</div>';
-										}
-										elseif( $image = $this->parent->layer->get_thumbnail_url($post) ){
-											
-											$item.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 100px);overflow:auto;background:#555;text-align:center;">';
-
-												$item.= '<img loading="lazy" src="' . $image . '">';
-												
-											$item.= '</div>';
-										}
-
-
-										$item.='<div class="modal-footer">'.PHP_EOL;
-										
-											// get actions
-			
-											if( $this->parent->user->loggedin ){
-
-												$actions ='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
-											}
-											else{
-												
-												$actions ='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
-												
-													$actions.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
-											
-												$actions.='</button>'.PHP_EOL;								
-											}
-											
-											$item.= apply_filters('ltple_layer_preview_actions',$actions,$post,$show_preview);
-										
-										$item.='</div>'.PHP_EOL;
-									  
-									$item.='</div>'.PHP_EOL;
-									
-								$item.='</div>'.PHP_EOL;
-								
-							$item.='</div>'.PHP_EOL;
-
 							if($this->parent->plan->user_has_layer( $post ) === true){
 								
 								$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_parent" title="Start editing this template">Start</a>';

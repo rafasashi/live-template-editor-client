@@ -2700,6 +2700,93 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return $this->parent->assets_url . 'images/default-element.jpg';
 	}
+	
+	public function get_preview_modal($layer){
+		
+		if( !empty($layer->urls['view']) ){
+			
+			$preview_url = $layer->urls['view'];
+
+			$visibility = $this->get_layer_visibility($layer);
+			
+			$show_preview = ( $visibility == 'anyone' || $visibility == 'registered' || ( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $layer ) === true )) ? true : false;
+
+			$modal_id='modal_'.md5($preview_url);
+
+			$content='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+				
+				$content.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
+					
+					$content.='<div class="modal-content">'.PHP_EOL;
+					
+						$content.='<div class="modal-header">'.PHP_EOL;
+							
+							$content.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+							
+							$content.='<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
+						
+						$content.='</div>'.PHP_EOL;
+						
+						if( $show_preview === true ){
+							
+							$content.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 100px);overflow: hidden;"></iframe>';											
+						}
+						else{
+							
+							$content.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 100px);overflow:auto;background:#555;text-align:center;">';
+								
+								if( $image = $this->get_preview_image_url($layer->ID) ){
+
+									$content.= '<img loading="lazy" src="' . $image . '">';
+								}
+								elseif( $image = get_the_post_thumbnail($layer->ID, 'full') ){
+									
+									$content.= $image;
+								}
+								elseif( $image = $this->get_thumbnail_url($layer) ){
+									
+									$content.= '<img loading="lazy" src="' . $image . '">';
+								}
+							
+							$content.= '</div>';
+						}
+
+						$content.='<div class="modal-footer">'.PHP_EOL;
+						
+							// get actions
+
+							if( $this->parent->user->loggedin ){
+
+								$actions ='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
+							}
+							else{
+								
+								$actions ='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+								
+									$actions.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
+							
+								$actions.='</button>'.PHP_EOL;								
+							}
+							
+							$content.= apply_filters('ltple_layer_preview_actions',$actions,$layer,$show_preview);
+						
+						$content.='</div>'.PHP_EOL;
+					  
+					$content.='</div>'.PHP_EOL;
+					
+				$content.='</div>'.PHP_EOL;
+				
+			$content.='</div>'.PHP_EOL;
+			
+			return array(
+				
+				'id' 		=> $modal_id,
+				'content' 	=> $content,
+			);
+		}
+		
+		return false;
+	}
 			
 	public function init_layer_backend(){
 		

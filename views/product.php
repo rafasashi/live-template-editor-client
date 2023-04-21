@@ -11,16 +11,12 @@
 	
 	if( $visibility != 'assigned' || $this->parent->user->is_admin || $this->parent->user->has_layer ){
 				
-		$permalink 		= $layer->urls['view'];
-		
-		$editor_url 	= $this->parent->urls->edit . '?uri=' . $layer->ID;
+		$start_url 	= $this->parent->urls->edit . '?uri=' . $layer->ID;
 		
 		$product_url 	= get_permalink($layer->ID);
 
 		$layer_range 	= $this->parent->layer->get_layer_range($layer->ID);
 			
-		$modal_id='modal_'.md5($permalink);
-		
 		$is_html = $this->parent->layer->is_html_output($layer->output);
 		
 		$is_editable = $layer->is_editable;
@@ -39,11 +35,11 @@
 			}
 		}
 		
-		$has_layer 		= $this->parent->plan->user_has_layer( $this );
+		$has_layer 	 	= $this->parent->plan->user_has_layer( $this );
 		
-		$show_preview 	= ( $visibility == 'anyone' || $visibility == 'registered' || ( $this->parent->user->loggedin && $has_layer === true ) ) ? true : false;
-	
-		$from_amount = null;
+		$preview_modal 	= $this->parent->layer->get_preview_modal($layer);
+		
+		$from_amount 	= null;
 		
 		if( !$has_layer ){
 		
@@ -55,7 +51,7 @@
 		
 		echo'<div class="panel-header">';
 		
-			echo'<h1 class="page-title"><i class="far fa-window-restore"></i> ' . $this->post_title . '</h1>';
+			echo'<h1 class="page-title" style="font-size:30px;"><i class="far fa-window-restore"></i> ' . $this->post_title . '</h1>';
 		
 		echo'</div>';
 		
@@ -70,13 +66,21 @@
 				
 				echo'<div class="col-xs-12 col-sm-6 col-lg-8">';
 					
-					//echo'<div class="thumb_wrapper" style="background:url(' . $this->image . ');height:300px;background-size:cover;background-repeat:no-repeat;background-position:center center;border-radius:10px;"></div>';
+					echo '<div style="display:block;max-height:350px;background:#555;overflow:hidden;border-radius:15px;box-shadow: rgb(50 50 93 / 25%) 0px 13px 27px -5px, rgb(0 0 0 / 30%) 0px 8px 16px -8px;}">';
 					
-					//echo'<div style="max-height:300px;overflow:hidden;border-radius:10px;">';
+					if( !empty($preview_modal) ){
+						
+						echo '<a href="#" type="button" data-toggle="modal" data-target="#'.$preview_modal['id'].'">';
+					}
 					
-						echo'<img style="border-radius:15px;" class="img-responsive" src="' . $this->image . '" alt="">';
+					echo'<img style="margin:0 auto;" class="img-responsive" src="' . $this->image . '" alt="">';
 					
-					//echo'</div>';
+					if( !empty($preview_modal) ){
+						
+						echo '</a>';
+					}
+					
+					echo '</div>';
 					
 				echo'</div>';
 				
@@ -115,83 +119,21 @@
 						echo'</div>';
 						
 						echo'<div class="col-xs-8 text-right" style="padding:5px 0;">';
+
+							if( !empty($preview_modal) ){
+
+								echo '<button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#'.$preview_modal['id'].'">'.PHP_EOL;
+									
+									echo 'Preview'.PHP_EOL;
+								
+								echo '</button>'.PHP_EOL;
 							
-							if( !empty($permalink) ){
-								
-								echo'<button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
-									
-									echo'Preview'.PHP_EOL;
-								
-								echo'</button>'.PHP_EOL;
-								
-								echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
-									
-									echo'<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
-										
-										echo'<div class="modal-content">'.PHP_EOL;
-										
-											echo'<div class="modal-header">'.PHP_EOL;
-												
-												echo'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-												
-												echo'<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
-											
-											echo'</div>'.PHP_EOL;
-										  
-											echo'<div class="modal-body">'.PHP_EOL;
-												
-												if( $show_preview === true ){
-													
-													echo '<iframe data-src="'.$permalink.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow:hidden;"></iframe>';											
-												}
-												elseif( $image = get_the_post_thumbnail($layer->ID, 'full') ){
-													
-													echo '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 145px);overflow: auto;">';
-													
-														echo $image;
-													
-													echo '</div>';
-												}
-												else{
-													
-													echo '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 110px);overflow: auto;">';
-
-														echo '<img loading="lazy" src="' . $this->parent->layer->get_thumbnail_url($this) . '">';
-														
-													echo '</div>';
-												}
-
-											echo'</div>'.PHP_EOL;
-
-											echo'<div class="modal-footer">'.PHP_EOL;
-											
-												if( $this->parent->user->loggedin  && $has_layer === true ){
-
-													$actions = '<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
-												}
-												else{
-													
-													$actions =  '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
-							
-														$actions .=  '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
-											
-													$actions .=  '</button>'.PHP_EOL;
-												}
-												
-												echo apply_filters('ltple_layer_preview_actions',$actions,$this,$show_preview);
-												
-											echo'</div>'.PHP_EOL;
-										  
-										echo'</div>'.PHP_EOL;
-										
-									echo'</div>'.PHP_EOL;
-									
-								echo'</div>'.PHP_EOL;
+								echo $preview_modal['content'].PHP_EOL;
 							}
 							
 							if( $has_layer === true){
 								
-								echo'<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
+								echo'<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
 							}
 							elseif( empty($this->parent->user->plan) || $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
