@@ -2677,23 +2677,26 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_preview_image_url($post,$size='post-thumbnail',$alt_url=false){
 		
-		$post_id = is_numeric($post) ? $post : $post->ID;
+		$post_id = is_numeric($post) ? $post : ( !empty($post->ID) ? $post->ID : 0 );
 		
-		// preview screenshot
-		
-		if( $att_id = get_post_meta($post_id,'ltple_screenshot_att_id',true) ){
+		if( !empty($post_id) ){
 			
-			if( $src = wp_get_attachment_image_src( $att_id,$size ) ){
+			// preview screenshot
+			
+			if( $att_id = get_post_meta($post_id,'ltple_screenshot_att_id',true) ){
 				
-				return $src[0];
+				if( $src = wp_get_attachment_image_src( $att_id,$size ) ){
+					
+					return $src[0];
+				}
 			}
-		}
-		
-		// featured image
-		
-		if( $url = get_the_post_thumbnail_url($post_id,$size)){
+			
+			// featured image
+			
+			if( $url = get_the_post_thumbnail_url($post_id,$size)){
 
-			return $url;
+				return $url;
+			}
 		}
 		
 		// alternative image
