@@ -303,7 +303,9 @@ class LTPLE_Client_Dashboard {
 
 				// get image url
 				
-				$image_url = $this->parent->layer->get_preview_image_url($post->ID,'thumbnail');
+				$alt_url = $this->parent->layer->get_thumbnail_url($post->ID,'thumbnail');
+				
+				$image_url = $this->parent->layer->get_preview_image_url($post->ID,'thumbnail',$alt_url);
 				
 				// get layer type
 				
