@@ -103,9 +103,7 @@ class LTPLE_Client_Product {
 					$this->{$key} = $value;
 				}
 				
-				$image = get_the_post_thumbnail_url($post->ID);
-				
-				$this->image = !empty($image) ? $image : $this->parent->assets_url . 'images/default_item.png';
+				$this->image = $this->parent->layer->get_preview_image_url($post->ID);
 				
 				$layer_plan = $this->parent->plan->get_layer_options($post->ID);
 
@@ -292,9 +290,9 @@ class LTPLE_Client_Product {
 			
 			//get editor_url
 
-			$editor_url = $this->parent->urls->edit . '?uri='.$post->ID;
+			$start_url = $this->parent->urls->edit . '?uri='.$post->ID;
 							
-			$button.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
+			$button.='<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_self" title="Start editing this template">Start</a>';
 		}
 		else{
 			

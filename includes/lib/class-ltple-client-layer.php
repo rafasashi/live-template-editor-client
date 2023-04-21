@@ -2706,6 +2706,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( !empty($layer->urls['view']) ){
 			
 			$preview_url = $layer->urls['view'];
+			
+			$start_url = $this->parent->urls->edit . '?uri='.$layer->ID;
 
 			$visibility = $this->get_layer_visibility($layer);
 			
@@ -2757,7 +2759,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 							if( $this->parent->user->loggedin ){
 
-								$actions ='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_self" title="Start editing this template">Start</a>';
+								$actions ='<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_self" title="Start editing this template">Start</a>';
 							}
 							else{
 								

@@ -110,9 +110,9 @@ else{
 						
 						// get editor url
 						
-						$editor_url = remove_query_arg('output',$this->parent->urls->current);			
+						$start_url = remove_query_arg('output',$this->parent->urls->current);			
 						
-						echo'<form target="_parent" class="col-xs-6" action="' . $editor_url . '" id="savePostForm" method="post">';
+						echo'<form target="_parent" class="col-xs-6" action="' . $start_url . '" id="savePostForm" method="post">';
 							
 							echo'<div class="input-group">';					
 								

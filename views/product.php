@@ -66,7 +66,7 @@
 				
 				echo'<div class="col-xs-12 col-sm-6 col-lg-8">';
 					
-					echo '<div style="display:block;max-height:350px;background:#555;overflow:hidden;border-radius:15px;box-shadow: rgb(50 50 93 / 25%) 0px 13px 27px -5px, rgb(0 0 0 / 30%) 0px 8px 16px -8px;}">';
+					echo '<div style="display:block;max-height:400px;background:#555;overflow:hidden;border-radius:15px;box-shadow: rgb(50 50 93 / 25%) 0px 13px 27px -5px, rgb(0 0 0 / 30%) 0px 8px 16px -8px;">';
 					
 					if( !empty($preview_modal) ){
 						

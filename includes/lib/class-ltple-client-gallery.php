@@ -500,7 +500,7 @@ class LTPLE_Client_Gallery {
 			//get start url
 
 			$start_url = $this->parent->urls->edit . '?uri='.$post->ID;
-		
+			
 			//get post_title
 			
 			$post_title = the_title('','',false);
@@ -555,7 +555,7 @@ class LTPLE_Client_Gallery {
 							
 							if($this->parent->plan->user_has_layer( $post ) === true){
 								
-								$item.='<a class="btn btn-sm btn-success" href="'. $editor_url .'" target="_parent" title="Start editing this template">Start</a>';
+								$item.='<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_parent" title="Start editing this template">Start</a>';
 							}
 							elseif( empty($this->parent->user->ID) || ( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
 								
