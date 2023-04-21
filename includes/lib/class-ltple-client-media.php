@@ -292,7 +292,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						$(html).insertAfter(".table");
 					}
 					
-					$("#previewImg").attr("src",previewSrc).attr("data-selector",$previewItem.closest(".hentry").attr("id"));
+					$("#previewImg").attr("src","").attr("src",previewSrc).attr("data-selector",$previewItem.closest(".hentry").attr("id"));
 				}
 				else if( $("#previewImg").length > 0 ){
 					

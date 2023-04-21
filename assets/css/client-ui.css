@@ -167,7 +167,7 @@
 #ltple-wrapper #plan_form {
 	width: 100%;
 	margin: 0px auto 70px;
-	padding: 10px;
+	padding: 0px;
 }
 
 #ltple-wrapper #plan_form #plan_price, #ltple-wrapper #plan_form #plan_button {
@@ -261,7 +261,7 @@ th input, th select {
 		margin-bottom: -8px !important;
 		margin-right: 0 !important;
 		padding-right: 10px !important;
-		width: 50vw !important;
+		width: 40vw !important;
 		overflow: hidden;
 		height: 48px;
 	}
