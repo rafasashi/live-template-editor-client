@@ -263,7 +263,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				if( typeof $previewItem != typeof undefined ){
 				
-					var previewSrc = $previewItem.contents().find("img").attr("data-original");
+					var previewSrc = $previewItem.contents().find("img").attr("data-image");
 					
 					$(".selectedItem").removeClass("selectedItem");
 					
@@ -685,8 +685,15 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	
 	public function get_image_item($image,$slug){
 		
-		if( $slug == 'user-images' ){
+		$thumb_url = false;
 		
+		if( $slug == 'user-images' ){
+			
+			if( $src = wp_get_attachment_image_src($image->ID,'medium')){
+				
+				$thumb_url = $src[0];
+			}
+			
 			$image_url = wp_get_attachment_url( $image->ID );
 		}
 		elseif( $slug == 'image-library' ){
@@ -697,7 +704,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			
 			$image_url = $image->post_content;
 		}
-		
+
 		//get item
 		
 		$item='';
@@ -716,7 +723,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				$item.='<div class="media_wrapper">';
 				
-					$item.= '<img loading="lazy" class="lazy" data-original="' . $image_url . '" />';
+					$item.= '<img loading="lazy" class="lazy" data-original="' . ( !empty($thumb_url) ? $thumb_url : $image_url ) . '" data-image="' . $image_url . '" />';
 				
 				$item.='</div>'; //thumb_wrapper						
 				

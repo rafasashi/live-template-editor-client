@@ -2631,7 +2631,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $storage;
 	}
 	
-	public function get_thumbnail_url($post,$size='medium_large'){
+	public function get_thumbnail_url($post,$size='medium_large',$alt_url=false){
 		
 		$post_id = 0;
 		
@@ -2650,7 +2650,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( $image_id = get_post_thumbnail_id( $post_id ) ){
 				
-				if ($src = wp_get_attachment_image_src( $image_id,$size)){
+				if ($src = wp_get_attachment_image_src($image_id,$size)){
 					
 					return $src[0];
 				}
@@ -2662,9 +2662,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				if( $defaultLayerId > 0 ){
 					
-					return $this->get_thumbnail_url($defaultLayerId);
+					return $this->get_thumbnail_url($defaultLayerId,$size);
 				}
 			}
+		}
+		
+		if( !empty($alt_url) ){
+			
+			return $alt_url;
 		}
 
 		return $this->parent->assets_url . 'images/default_item.png';
@@ -2739,15 +2744,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 							$content.= '<div class="modal-image-wrapper" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 100px);overflow:auto;background:#555;text-align:center;">';
 								
-								if( $image = $this->get_preview_image_url($layer->ID) ){
+								if( $image = $this->get_preview_image_url($layer->ID,'full') ){
 
 									$content.= '<img loading="lazy" src="' . $image . '">';
 								}
-								elseif( $image = get_the_post_thumbnail($layer->ID, 'full') ){
+								elseif( $image = get_the_post_thumbnail($layer->ID,'full') ){
 									
 									$content.= $image;
 								}
-								elseif( $image = $this->get_thumbnail_url($layer) ){
+								elseif( $image = $this->get_thumbnail_url($layer,'full') ){
 									
 									$content.= '<img loading="lazy" src="' . $image . '">';
 								}
@@ -2946,8 +2951,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$layer_type = $this->get_layer_type($post);			
 				
+				$alt_url = $this->get_preview_image_url($post,'thumbnail');
+				
 				$row = [];
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_preview_image_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
+				$row['preview'] 	= '<div style="height:100px;width:100px;background:url(' . $this->get_thumbnail_url($post,'thumbnail',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				//$row['status'] 	= $this->parse_layer_status($post->post_status);
 				$row['type'] 		= $layer_type->name;
@@ -2997,10 +3004,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			foreach( $posts as $i => $post ){
 				
 				$layer_type = $this->get_layer_type($post);
-								
+				
+				$alt_url = $this->get_preview_image_url($post,'thumbnail');
+				
 				$row = [];
 				
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_preview_image_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
+				$row['preview'] 	= '<div style="height:100px;width:100px;background:url(' . $this->get_thumbnail_url($post,'thumbnail',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				//$row['status'] 	= $this->parse_layer_status($post->post_status);
 				$row['type'] 		= $layer_type->name;
