@@ -2670,7 +2670,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $this->parent->assets_url . 'images/default_item.png';
 	}
 	
-	public function get_preview_image_url($post_id,$size='post-thumbnail',$alt_url=false){
+	public function get_preview_image_url($post,$size='post-thumbnail',$alt_url=false){
+		
+		$post_id = is_numeric($post) ? $post : $post->ID;
 		
 		// preview screenshot
 		
@@ -2945,7 +2947,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$layer_type = $this->get_layer_type($post);			
 				
 				$row = [];
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
+				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_preview_image_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				//$row['status'] 	= $this->parse_layer_status($post->post_status);
 				$row['type'] 		= $layer_type->name;
@@ -2998,7 +3000,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 				$row = [];
 				
-				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_thumbnail_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
+				$row['preview'] 	= '<div class="thumb_wrapper" style="background:url(' . $this->get_preview_image_url($post) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($post->post_title);
 				//$row['status'] 	= $this->parse_layer_status($post->post_status);
 				$row['type'] 		= $layer_type->name;
