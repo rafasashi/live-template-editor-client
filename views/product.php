@@ -380,12 +380,15 @@
 										echo '<div class="row">';
 											
 											echo '<div class="col-xs-3">';
-											
-												echo '<a class="thumbnail" href="' . get_permalink($post) . '">';
-											
-													echo get_the_post_thumbnail($post->ID, array(150,150));
-											
-												echo'</a>';
+												
+												if( $image = $this->parent->layer->get_preview_image_url($post->ID,'thumbnail') ){
+												
+													echo '<a class="thumbnail" href="' . get_permalink($post) . '">';
+												
+														echo '<img src="'.$image.'" style="height:75px;width:75px;"/>';
+												
+													echo'</a>';
+												}
 											
 											echo'</div>';
 											
