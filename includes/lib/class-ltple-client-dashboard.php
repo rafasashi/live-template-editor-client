@@ -303,12 +303,7 @@ class LTPLE_Client_Dashboard {
 
 				// get image url
 				
-				$image_url = get_the_post_thumbnail($post->ID, array(50,50));
-				
-				if( empty($image_url) ){
-					
-					$image_url = '<div style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height: 50px;display:block;"></div>';
-				}
+				$image_url = $this->parent->layer->get_preview_image_url($post->ID,'thumbnail');
 				
 				// get layer type
 				
@@ -324,7 +319,7 @@ class LTPLE_Client_Dashboard {
 							
 							$new_templates .= '<a href="'. $permalink . '">';
 						
-								$new_templates .= $image_url;
+								$new_templates .= '<img src="'. $image_url . '" style="height:50px;width:50px;" />';
 						
 							$new_templates .='</a>';													
 							
