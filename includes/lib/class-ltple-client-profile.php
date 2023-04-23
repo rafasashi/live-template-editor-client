@@ -254,15 +254,8 @@ class LTPLE_Client_Profile {
 					// get css framework
 					
 					add_filter('ltple_css_framework',function($framework){
-						
-						// TODO move tab filters to child plugins
-						
-						if( ($this->tab == 'store' || $this->tab == 'posts') && !empty($this->tabSlug) ){
-							
-							$framework = 'bootstrap-4';
-						}
-
-						return apply_filters('ltple_profile_css_framework',$framework,$this->tab);
+			
+						return apply_filters('ltple_profile_css_framework',$framework,$this->tab,$this->tabSlug);
 						
 					},99999999,1);					
 

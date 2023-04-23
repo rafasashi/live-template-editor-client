@@ -698,7 +698,7 @@ class LTPLE_Client_Gallery {
 			
 		$item_title.='</a>';
 		
-		$item_title.='<div class="gallery-item" style="margin-top:10px;line-height:25px;height:30px;overflow:hidden;font-size:15px;font-weight:bold;">';
+		$item_title.='<div style="margin-top:10px;line-height:25px;height:30px;overflow:hidden;font-size:15px;font-weight:bold;">';
 		
 			$item_title.= $content;
 		

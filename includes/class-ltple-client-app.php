@@ -109,6 +109,7 @@ class LTPLE_Client_App {
 		
 		//wp_register_script( $this->_token . '-frontend', esc_url( $this->assets_url ) . 'js/frontend' . $this->script_suffix . '.js', array( 'jquery' ), $this->_version );
 		//wp_enqueue_script( $this->_token . '-frontend' );
+	
 	} // End enqueue_scripts ()
 
 	/**

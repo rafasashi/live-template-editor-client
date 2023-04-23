@@ -304,38 +304,28 @@ th input, th select {
 	box-shadow:inset 0 -1px 12px -6px rgba(0,0,0,0.75);
 }
 
-.thumb_wrapper img {
-
-	height:auto;
-	width:100%;
-	position:inherit;
+.table-grid .thumb_wrapper {
+	
+	height: 200px;
+	width: 100%;
 }
 
-@media (min-width: 768px){
-	
-	.table-grid .thumb_wrapper {
-		
-		height: 200px;
-		width: 100%;
-	}
+.table-list .thumb_wrapper {
+	min-height: 100px;
+}
 
-	.table-list .thumb_wrapper {
-		min-height: 100px;
-	}
+.thumb_wrapper img {
 	
-	.thumb_wrapper img {
-		
-		max-height: 100%;
-		max-width: 100%;
-		width: auto;
-		height: auto;
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		margin: auto;
-	}
+	max-height: 100%;
+	max-width: 100%;
+	width: auto;
+	height: auto;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
 }
 
 .gallery_type_title {
