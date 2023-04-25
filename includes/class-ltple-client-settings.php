@@ -729,11 +729,20 @@ class LTPLE_Client_Settings {
 		$fields[] = array(
 		
 			'id' 			=> 'email_support',
-			'label'			=> __( 'Support email' , 'live-template-editor' ),
+			'label'			=> __( 'Support email' , 'live-template-editor-client' ),
 			'type'			=> 'text',
 			'placeholder'	=> __( 'support@example.com', 'live-template-editor' )
 		);
-
+		
+		$fields[] = array(
+		
+			'id' 			=> 'phone_support',
+			'label'			=> __( 'Support phone' , 'live-template-editor' ),
+			'type'			=> 'text',
+			'placeholder'	=> __( '+1 23456789', 'live-template-editor-client' ),
+			'description'	=> 'including country code',
+		);
+		
 		return $fields;
 	}
 		

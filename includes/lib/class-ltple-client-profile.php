@@ -257,7 +257,7 @@ class LTPLE_Client_Profile {
 			
 						return apply_filters('ltple_profile_css_framework',$framework,$this->tab,$this->tabSlug);
 						
-					},99999999,1);					
+					},99999999,1);			
 
 					// enqueue inline style
 					
@@ -266,7 +266,7 @@ class LTPLE_Client_Profile {
 						wp_register_style( $this->parent->_token . '-profile', false, array());
 						wp_enqueue_style( $this->parent->_token . '-profile' );
 
-						wp_add_inline_style( $this->parent->_token . '-profile', $this->get_style());
+						wp_add_inline_style( $this->parent->_token . '-profile', $this->get_profile_style());
 						
 						if( !empty($this->profile_css) ){
 							
@@ -283,7 +283,7 @@ class LTPLE_Client_Profile {
 							wp_register_script( $this->parent->_token . '-profile_menu', '', array( 'jquery' ) );
 							wp_enqueue_script( $this->parent->_token . '-profile_menu' );
 					
-							wp_add_inline_script( $this->parent->_token . '-profile_menu', $this->get_menu_script());					
+							wp_add_inline_script( $this->parent->_token . '-profile_menu', $this->get_profile_script());					
 						}
 						
 					},10 );
@@ -400,11 +400,9 @@ class LTPLE_Client_Profile {
 		);
 	}
 	
-	public function get_style(){
+	public function get_profile_style(){
 		
 		$style = '
-		
-		@import url("https://fonts.googleapis.com/css?family=Pacifico");
 		
 		.profile-heading {
 			
@@ -435,7 +433,6 @@ class LTPLE_Client_Profile {
 			color: #fff !important;
 			font-weight: normal;
 			font-size: 53px;
-			font-family: "Pacifico", cursive;
 			position: relative;
 			text-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
 			box-shadow: none !important;
@@ -496,19 +493,85 @@ class LTPLE_Client_Profile {
 			color:#fff;
 		}
 		
+		.mobile-bar a {
+			
+			font-size:20px;
+			height:35px;
+			width:35px;
+			text-align: center;
+			z-index: 200;
+			position: fixed;
+			background:#fff;
+			border-radius:25px;
+			box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+		}
+		
+		.mobile-bar i {
+			
+			padding: 3px!important;
+			margin: 5px!important;
+		}
+		
+		.mobile-bar #whatsapp {
+
+			bottom: 125px;
+			right: 20px;
+		}
+
+		.mobile-bar #to_top {
+
+			display: none;
+			bottom: 80px;
+			right: 20px;
+		}
 		';
 		
 		return $style;
 	}
 	
-	public function get_menu_script(){
+	public function get_profile_script(){
 		
 		$script = '
 		
 			;(function($){
 
 				$(document).ready(function(){
-				
+					
+					var scroll_timer;
+					
+					var displayed 	= false;
+					var $message 	= $("#to_top");
+					var $window 	= $(window);
+					var top 		= $(document.body).children(0).position().top;
+				 
+					$("#to_top").on("click",function(e) {
+						
+						e.preventDefault();
+						
+						$("html, body").animate({scrollTop : 0},"slow");
+					});
+					
+					/* react to scroll event on window */
+					
+					$window.on("scroll",function () {
+						
+						window.clearTimeout(scroll_timer);
+						
+						scroll_timer = window.setTimeout(function () { // use a timer for performance
+							
+							if($window.scrollTop()<=top){
+								
+								displayed = false;
+								$message.fadeOut(500);
+							}
+							else if(displayed == false){
+								
+								displayed = true;
+								$message.stop(true, true).show().on("click",function () { $message.fadeOut(500); });
+							}
+						}, 100);
+					});
+
 					if( $("#profile_menu").length > 0 ){
 
 						$.ajax({
@@ -847,6 +910,20 @@ class LTPLE_Client_Profile {
 		return $this->completeness[$user_id];
 	}
 	
+	public function get_whatsapp_url(){
+		
+		$url = '';
+		
+		if( $phone = get_option('ltple_phone_support',false) ){
+			
+			$phone = preg_replace('/[^0-9]/','',$phone);
+		
+			$url = 'https://wa.me/'.$phone;
+		}
+		
+		return apply_filters('ltple_profile_whatsapp_url',$url,$this->id);
+	}
+	
 	public function is_unclaimed(){
 		
 		if( is_null($this->is_unclaimed) ){
@@ -1159,19 +1236,11 @@ class LTPLE_Client_Profile {
 
 						if( !empty($meta) ){
 													
-							$content .= '<div class="panel panel-default">';
+							$content .= '<h4>' . ucfirst($field['label']) . '</h4>';
 								
-								$content .= '<div class="panel-heading">';
+							$content .= '<div>';
 								
-									$content .= '<h4>' . ucfirst($field['label']) . '</h4>';
-								
-								$content .= '</div>';
-								
-								$content .= '<div class="panel-body">';
-									
-									$content .= $meta;
-									
-								$content .= '</div>';
+								$content .= $meta;
 								
 							$content .= '</div>';
 						}
@@ -1198,7 +1267,12 @@ class LTPLE_Client_Profile {
 						
 						margin-top:15px !important;
 					}
- 
+					
+					#about div {
+						
+						margin:10px 0;
+					}
+					
 					#social_icons img {
 						background:#fff;
 						border:1px solid #eee;
@@ -1208,13 +1282,22 @@ class LTPLE_Client_Profile {
 						border-radius:250px;
 					}
 					
-					#about h5 {
+					#about h2, #about h3, #about h4, #about h5 {
 					
-						padding:8px;
-						text-transform:uppercase;
-						font-size:14px;
+						padding:8px 0;						
 						font-weight:bold;
+						text-transform: uppercase;
 						color:' . $this->parent->settings->mainColor . ';
+					}
+					
+					#about h4{
+						
+						font-size:16px;
+					}
+					
+					#about h5{
+						
+						font-size:14px;
 					}
 					
 					#about table th {

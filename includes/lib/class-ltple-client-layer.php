@@ -1795,27 +1795,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'stripcslashes'	=> false,
 							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 						);
-
-						if( $this->is_public_output($layer_type->output) ){
-						
-							$this->userFields[] = array(
-							
-								'metabox' 		=> array( 
-						
-									'name' 		=> 'layer-description',
-									'title' 	=> __( 'Short Description', 'live-template-editor-client' ),
-									'screen'	=> array($post->post_type),
-									'context' 	=> 'side',
-									'frontend'	=> false,
-								),
-								'type'			=> 'textarea',
-								'id'			=> 'layerDescription',
-								'label'			=> '',
-								'placeholder'	=> 'Short text description',
-								'description'	=> '<span style="float:right;font-size:10px;">max 500 words</span>',
-								'style'			=> 'height:100px;',
-							);
-						}
 					}
 				}
 				

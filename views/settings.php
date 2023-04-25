@@ -40,7 +40,6 @@ echo'<div id="media_library" class="wrapper">';
 						
 						echo'<div class="col-xs-4 text-right">';
 							
-							echo'<a target="_blank" class="label label-primary" style="font-size: 13px;" href="'.$ltple->urls->profile . $ltple->user->ID . '/about/">view profile</a>';
 							
 						echo'</div>';
 						

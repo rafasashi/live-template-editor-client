@@ -4,6 +4,17 @@ $ltple = LTPLE_Client::instance();
 
 // Gets all the scripts included by wordpress, wordpress plugins or functions.php
 
+	echo'<div class="mobile-bar">';
+		
+		if( $whatsapp_url = $ltple->profile->get_whatsapp_url() ){
+		
+			echo'<a id="whatsapp" style="background:#25d366;" data-toggle="tooltip" data-placement="left" title="WhatsApp Chat" href="'.$whatsapp_url.'" target="_blank"><i class="fab fa-whatsapp" style="color:#fff;"></i></a>';
+		}
+
+		echo'<a id="to_top" href="#" data-toggle="tooltip" data-placement="left" title="Scroll to Top"><i class="fa fa-angle-up p-0 m-2"></i></a>';
+	
+	echo'</div>';
+			
 	if( !$ltple->inWidget ){
 	
 		echo'<footer role="contentinfo" style="margin:0 !important;padding:0 !important;position:relative;">';
