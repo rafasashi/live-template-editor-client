@@ -144,6 +144,16 @@ if( typeof editorCallbacks == typeof undefined )
 			}
 		}
 		
+		function iframeResize() {
+			
+			var iframe = $('iframe.full-height');
+			
+			iframe.css('height', iframe.contents().height() + 'px').on('load',function(){
+				
+				$(this).css('height',$(this).contents().height() + 'px');
+			});
+		}
+		
 		function set_modals(){
 			
 			if( $('.modal').length > 0 ){
@@ -746,7 +756,21 @@ if( typeof editorCallbacks == typeof undefined )
 
 			navigationResize();
 		}
+		
+		if( $("iframe.full-height").length ){
 
+			if( typeof ResizeObserver != typeof undefined ){
+
+				new ResizeObserver(iframeResize).observe(document.querySelector('iframe.full-height'));
+			}
+			else{
+				
+				window.onresize = iframeResize;
+			}
+
+			iframeResize();
+		}
+		
 		// responsive sidebar
 		
 		$('#sidebarCollapse').on('click', function () {
