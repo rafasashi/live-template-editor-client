@@ -1132,7 +1132,7 @@ class LTPLE_Client_Profile {
 
 						$this->profile_css = $this->parent->layer->parse_css_content($this->profile_css, '.layer-' . $this->user->ID);
 					}
-
+					
 					wp_register_style( $this->parent->_token . '-home', false, array());
 					wp_enqueue_style( $this->parent->_token . '-home' );
 				

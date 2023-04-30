@@ -1792,14 +1792,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .='<table id="gallery-metabox">';
 					
 					  $html .='<tr><td>';
-					  
+						
+						$html .='<div>';
+						
+							$html .='<a href="#" class="btn btn-xs btn-info gallery-add" data-uploader-title="Add images" data-uploader-button-text="Add images">Add</a>';
+						
+						$html .='</div>';
+						
 						$html .='<ul id="gallery-metabox-list">';
 						
-							if ($data) : foreach($data as $key => $value) : $image = wp_get_attachment_image_src($value);
+							if ($data) : foreach($data as $value) : $image = wp_get_attachment_image_src($value);
 
 							  $html .='<li>';
-								$html .='<input type="hidden" name="' . $option_name . '[' . $key . ']" value="' . $value . '">';
-								$html .='<img class="image-preview" src="' . $image[0] . '">';
+								$html .='<input type="hidden" name="' . $option_name . '[]" value="' . $value . '">';
+								$html .='<img loading="lazy" class="image-preview" src="' . $image[0] . '">';
 								$html .='<a class="remove-image" href="#">x</a>';
 							  $html .='</li>';
 
@@ -1807,31 +1813,39 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 						$html .='</ul>';
 						
-						$html .='<a href="#" class="gallery-add" data-uploader-title="Add gallery images" data-uploader-button-text="Add gallery images">Add gallery images</a>';
-
 					  $html .='</td></tr>';
 					  
 					$html .='</table>';
 					
-					$html .='<style>
+					wp_register_style( $this->parent->_token . '_gallery_style_'.$id, false, array());
+					wp_enqueue_style( $this->parent->_token . '_gallery_style_'.$id );
+				
+					wp_add_inline_style( $this->parent->_token . '_gallery_style_'.$id, '
+					
 						#gallery-metabox-list {
 							margin-bottom:10px;
 							display:inline-block;
+							list-style: none;
 						}
 						#gallery-metabox-list li {
 							width: 75px;
+							height: 75px;
 							float: left;
 							cursor: move;
 							border: 1px solid #d5d5d5;
 							margin: 9px 9px 0 0;
-							background: #f7f7f7;
+							background-color: #f7f7f7;
+							background-position:center center;
+							background-repeat: no-repeat;
+							background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' xmlns:xlink=\'http://www.w3.org/1999/xlink\' version=\'1.1\' id=\'L4\' x=\'0px\' y=\'0px\' viewBox=\'0 0 100 100\' enable-background=\'new 0 0 0 0\' xml:space=\'preserve\'%3E%3Ccircle fill=\'%23007eff\' stroke=\'none\' cx=\'44\' cy=\'50\' r=\'1\'%3E%3Canimate attributeName=\'opacity\' dur=\'1s\' values=\'0;1;0\' repeatCount=\'indefinite\' begin=\'0.1\'/%3E%3C/circle%3E%3Ccircle fill=\'%23007eff\' stroke=\'none\' cx=\'47\' cy=\'50\' r=\'1\'%3E%3Canimate attributeName=\'opacity\' dur=\'1s\' values=\'0;1;0\' repeatCount=\'indefinite\' begin=\'0.2\'/%3E%3C/circle%3E%3Ccircle fill=\'%23007eff\' stroke=\'none\' cx=\'50\' cy=\'50\' r=\'1\'%3E%3Canimate attributeName=\'opacity\' dur=\'1s\' values=\'0;1;0\' repeatCount=\'indefinite\' begin=\'0.3\'/%3E%3C/circle%3E%3C/svg%3E");
 							border-radius: 2px;
 							position: relative;
 							box-sizing: border-box;
 						}
 						#gallery-metabox-list img {
-							width: 100%;
-							height: auto;
+							width: 73px;
+							height: 73px;
+							background:#fff;
 							display: block;						
 						}
 						#gallery-metabox-list .remove-image {
@@ -1840,7 +1854,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							text-align: center;
 							color: #fff;
 							border: 2px solid #fff;
-							background: #9E9E9E;
+							background: #ff0000;
 							border-radius: 250px;
 							height: 20px;
 							width: 20px;
@@ -1848,84 +1862,94 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							font-weight: bold;
 							margin: -5px;
 							right: 0;
+							text-decoration: none;
 						}
+						
 						.gallery-add {
-							display:block;
-						}
-					</style>';
-					
-					$html .='<script>
-					
-						jQuery(function($) {
-					
-						  var file_frame;
-
-						  $(document).on(\'click\', \'#gallery-metabox a.gallery-add\', function(e) {
-
-							e.preventDefault();
-
-							if (file_frame) file_frame.close();
-
-							file_frame = wp.media.frames.file_frame = wp.media({
-								
-								title	: $(this).data(\'uploader-title\'),
-								frame	: \'select\',
-								library	: { type: \'image\'},
-								button	: {
-									
-									text: $(this).data(\'uploader-button-text\'),
-								},
-								multiple: true
-							});
-
-							file_frame.on(\'select\', function() {
-							  var listIndex = $(\'#gallery-metabox-list li\').index($(\'#gallery-metabox-list li:last\')),
-								  selection = file_frame.state().get(\'selection\');
-
-							  selection.map(function(attachment, i) {
-								attachment = attachment.toJSON(),
-								index      = listIndex + (i + 1);
-
-								$(\'#gallery-metabox-list\').append(\'<li><input type="hidden" name="' . $option_name . '[\' + index + \']" value="\' + attachment.id + \'"><img class="image-preview" src="\' + attachment.sizes.thumbnail.url + \'"><a class="remove-image" href="#">x</a></li>\');
-							  });
-							});
-
-							makeSortable();
 							
-							file_frame.open();
-
-						  });
-
-						  function resetIndex() {
-							$(\'#gallery-metabox-list li\').each(function(i) {
-							  $(this).find(\'input:hidden\').attr(\'name\', \'' . $option_name . '[\' + i + \']\');
-							});
-						  }
-
-						  function makeSortable() {
-							$(\'#gallery-metabox-list\').sortable({
-							  opacity: 0.6,
-							  stop: function() {
-								resetIndex();
-							  }
-							});
-						  }
-
-						  $(document).on(\'click\', \'#gallery-metabox a.remove-image\', function(e) {
-							e.preventDefault();
-
-							$(this).parents(\'li\').animate({ opacity: 0 }, 200, function() {
-							  $(this).remove();
-							  resetIndex();
-							});
-						  });
-
-						  makeSortable();
-
-						});					
+							display:inline-block;
+						}
+					');
 					
-					</script>';			
-				
+					if( 1==1 || is_admin() ){
+						
+						wp_enqueue_media();
+						
+						wp_register_script( $this->parent->_token . '_gallery_script_'.$id, '', array('jquery','jquery-ui-sortable') );
+					
+						wp_enqueue_script( $this->parent->_token . '_gallery_script_'.$id );
+					
+						wp_add_inline_script( $this->parent->_token . '_gallery_script_'.$id,'
+						
+							jQuery(function($) {
+						
+							  var file_frame;
+
+							  $(document).on(\'click\', \'#gallery-metabox a.gallery-add\', function(e) {
+								
+								e.preventDefault();
+
+								if (file_frame) file_frame.close();
+
+								file_frame = wp.media.frames.file_frame = wp.media({
+									
+									title	: $(this).data(\'uploader-title\'),
+									frame	: \'select\',
+									library	: { 
+										type: \'image\',
+									},
+									button	: {
+										
+										text: $(this).data(\'uploader-button-text\'),
+									},
+									multiple: true
+								});
+								
+								file_frame.on(\'select\',function(){
+									
+									file_frame.state().get(\'selection\').map(function(attachment, i) {
+										
+										attachment = attachment.toJSON();
+										$(\'#gallery-metabox-list\').append(\'<li><input type="hidden" name="' . $option_name . '[]" value="\' + attachment.id + \'"><img loading="lazy" class="image-preview" src="\' + attachment.sizes.thumbnail.url + \'"><a class="remove-image" href="#">x</a></li>\');
+									});
+								});
+
+								makeSortable();
+								
+								file_frame.open();
+
+							  });
+
+							  function resetIndex() {
+								$(\'#gallery-metabox-list li\').each(function(i) {
+								  $(this).find(\'input:hidden\').attr(\'name\', \'' . $option_name . '[\' + i + \']\');
+								});
+							  }
+
+							  function makeSortable() {
+								$(\'#gallery-metabox-list\').sortable({
+								  opacity: 0.6,
+								  stop: function() {
+									resetIndex();
+								  }
+								});
+							  }
+
+							  $(document).on(\'click\', \'#gallery-metabox a.remove-image\', function(e) {
+								e.preventDefault();
+
+								$(this).parents(\'li\').animate({ opacity: 0 }, 200, function() {
+								  $(this).remove();
+								  resetIndex();
+								});
+							  });
+
+							  makeSortable();
+
+							});
+						');
+					}
+
 				break;
 				
 				case 'image':

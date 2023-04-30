@@ -1279,8 +1279,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			$tabs = apply_filters('ltple_' . $layer_type->output . '_project_tabs',$tabs,$layer,$layer_type);
 		
-			$tabs = apply_filters('ltple_project_advance_tabs',$tabs,$layer,$fields);
-		
 			if( $image = $this->get_image_tab_content($layer) ){
 				
 				$tabs['image'] = array(
@@ -1288,10 +1286,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'name' 		=> 'Image',
 					'slug'		=> 'image',
 					'content'	=> $image,
+				);	
 				
-				);				
+				$tabs = apply_filters('ltple_project_image_tabs',$tabs,$layer,$fields);
 			}
-		
+			
+			$tabs = apply_filters('ltple_project_advance_tabs',$tabs,$layer,$fields);
+
 			if( $installation = $this->get_installation_info($layer) ){
 				
 				$tabs['install'] = array(
@@ -1578,24 +1579,21 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			foreach ( $fields as $field ) {
 				
 				if( !isset($field['metabox']['frontend']) || $field['metabox']['frontend'] === true ){
-				
-					if( !isset($field['metabox']['context']) || $field['metabox']['context'] == 'advanced' ){
+
+					$slug = $field['metabox']['name'];
+					
+					if( !isset($tabs[$slug]) ){
 						
-						$slug = $field['metabox']['name'];
+						$tabs[$slug]  = array(
 						
-						if( !isset($tabs[$slug]) ){
-							
-							$tabs[$slug]  = array(
-							
-								'name' 		=> 	$field['metabox']['title'],
-								'slug'		=>	$slug,
-								'content'	=> 	$this->parent->admin->display_meta_box_field( $field, $layer, false),			
-							);
-						}
-						else{
-							
-							$tabs[$slug]['content'] .= $this->parent->admin->display_meta_box_field( $field, $layer, false);
-						}
+							'name' 		=> 	$field['metabox']['title'],
+							'slug'		=>	$slug,
+							'content'	=> 	$this->parent->admin->display_meta_box_field( $field, $layer, false),			
+						);
+					}
+					else{
+						
+						$tabs[$slug]['content'] .= $this->parent->admin->display_meta_box_field( $field, $layer, false);
 					}
 				}
 			}			

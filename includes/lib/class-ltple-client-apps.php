@@ -652,6 +652,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		$columns['slug'] 	= 'Slug';
 		$columns['types'] 	= 'Types';
 		$columns['thumb'] 	= 'Thumb'; // must remain last for mobile view
+		$columns['enable'] 	= 'Enable';
 		
 		return $columns;
 	}
@@ -675,9 +676,7 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		}
 		elseif($column_name == 'types'){
 			
-			$types = get_option('types_' . $term->slug);
-			
-			if(!empty($types)){
+			if( $types = get_option('types_' . $term->slug,false) ){
 				
 				$content.='<ul style="margin:0;font-size:11px;">';
 				
@@ -804,24 +803,35 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		//collect all term related data for this new taxonomy
 		
 		$term = get_term($term_id);
-
-		//save our custom fields as wp-options
 		
-		if(isset($_POST[$term->taxonomy . '-thumbnail'])){
+		if( $term->taxonomy == 'app-type' ){
 
-			update_option('thumbnail_'.$term->slug, sanitize_text_field($_POST[$term->taxonomy . '-thumbnail'],1),false);			
-		}
+			//save our custom fields as wp-options
+			
+			if(isset($_POST[$term->taxonomy . '-thumbnail'])){
 
-		if(isset($_POST[$term->taxonomy . '-types'])){
+				update_option('thumbnail_'.$term->slug, sanitize_text_field($_POST[$term->taxonomy . '-thumbnail'],1),false);			
+			}
+			
+			if($this->parent->user->is_admin){
+				
+				$types = array();
 
-			update_option('types_'.$term->slug, $_POST[$term->taxonomy . '-types'],false);			
-		}
-		
-		if($this->parent->user->is_admin){
-		
-			if(isset($_POST['parameters_'.$term->slug])){
+				if( is_array($_POST[$term->taxonomy . '-types']) ){
 
-				update_option('parameters_'.$term->slug, $_POST['parameters_'.$term->slug],false);			
+					$types = $_POST[$term->taxonomy . '-types'];
+				}
+				
+				update_option('types_'.$term->slug,$types,false);
+				
+				$parameters = array();
+				
+				if( is_array($_POST['parameters_'.$term->slug]) ){
+
+					$parameters = $_POST['parameters_'.$term->slug];
+				}
+				
+				update_option('parameters_'.$term->slug,$parameters,false);
 			}
 		}
 	}

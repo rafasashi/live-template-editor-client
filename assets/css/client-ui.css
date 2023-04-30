@@ -1524,6 +1524,14 @@ th input, th select {
     MEDIA LIBRARY
 ----------------------------------------------------- */
 
+.media-modal{
+
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+}
+
 .media-modal .media-frame-title{
 	
 	background: rgba(41, 78, 109, 0.94) !important;
