@@ -105,19 +105,19 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 			}
 		}
 		
-		if(!empty($term_id)){
+		if( $term_id > 0 ){
 			
 			//-------- save channel --------
 			
 			$response = wp_set_object_terms( $user_id, $term_id, $taxonomy);
 			
 			clean_object_term_cache( $user_id, $taxonomy );	
-
+			
 			if( empty($response) ){
 
 				echo 'Error saving user channel...';
 				exit;
-			}				
+			}		
 		}			
 	}
 	
