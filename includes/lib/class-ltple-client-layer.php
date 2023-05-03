@@ -222,6 +222,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
+		add_action('post_submitbox_misc_actions',function($post){
+			
+			$layer = LTPLE_Editor::instance()->get_layer($post);
+			
+			if( $layer->is_editable === true ){
+				
+				do_action('ltple_post_submitbox_misc_actions',$post);
+			}
+			
+		},10,1);
+		
 		add_action( 'add_meta_boxes', function(){
 			
 			$post = get_post();
@@ -756,27 +767,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$storage_name = $post->post_type == 'default-element' ? 'Element' : 'Template';
 			
 			if( $post->post_type == 'cb-default-layer' ){
-			
-				if( $buttons = LTPLE_Editor::instance()->get_edit_buttons($post) ){
-				
-					$this->defaultFields[]=array(
-					
-						'metabox' 		=> array( 
-				
-							'name' 		=> 'ltple-actions',
-							'title' 	=> __('Editor', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced',
-							'frontend'	=> false,
-						),
-						'type'			=> 'html',
-						'id'			=> 'templateActions',
-						'label'			=> '',
-						'description'	=> '',
-						'data'			=> '<div class="btn-wrapper" style="background:#fbfbfb;padding:120px 0;text-align:center;">' . $buttons . '</div>',
-					);
-				}				
-			
+
 				//get current layer range
 				
 				$this->defaultFields[] = array(
@@ -1280,13 +1271,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$tabs = apply_filters('ltple_' . $layer_type->output . '_project_tabs',$tabs,$layer,$layer_type);
 		
 			if( $image = $this->get_image_tab_content($layer) ){
-				
+
 				$tabs['image'] = array(
 				
 					'name' 		=> 'Image',
 					'slug'		=> 'image',
 					'content'	=> $image,
-				);	
+				);
 				
 				$tabs = apply_filters('ltple_project_image_tabs',$tabs,$layer,$fields);
 			}
@@ -1328,34 +1319,48 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$preview_id = 'preview_' . $md5;
 			$input_id 	= 'input_' . $md5;
 			
-			$tab .= '<button style="position:absolute;margin:5px;z-index:9999;" type="button" class="btn btn-xs btn-info" data-toggle="modal" data-target="#'.$modal_id.'">Edit</button>';
-
-			$tab .= '<img loading="lazy" id="'.$preview_id.'" src="'.$this->get_thumbnail_url($layer).'" style="width:auto;"/>';
-			
-			$tab .= '<input type="hidden" id="'.$input_id.'" name="image_url" value="" />';
-
-			$tab .= '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+			$tab .= '<div class="col-md-6">';
 				
-				$tab .= '<div class="modal-dialog modal-lg" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
+				$tab .= '<div style="padding:5px 0px;">';
 					
-					$tab .= '<div class="modal-content">'.PHP_EOL;
-						
-						$tab .= '<div class="modal-header">'.PHP_EOL;
-							
-							$tab .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-							
-							$tab .= '<h4 class="modal-title text-left" id="myModalLabel">Media Library</h4>'.PHP_EOL;
-						
-						$tab .= '</div>'.PHP_EOL;
+					$tab .= '<b class="pull-left" style="margin:5px 5px 5px 0;">Featured Image :</b>';
+					
+					$tab .= '<button type="button" onclick="return false;" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#'.$modal_id.'">Edit</button>';
 
-						$tab .= '<iframe id="iframe_'.$modal_id.'" data-src="' . $media_url . '" data-input-id="#' . $input_id . '" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';						
+				$tab .= '</div>';
+				
+				$tab .= '<div style="text-align:left;margin-top:10px;">';
+					
+					$tab .= '<img loading="lazy" id="'.$preview_id.'" src="'.$this->get_thumbnail_url($layer).'" style="width:auto;"/>';
+					
+					$tab .= '<input type="hidden" id="'.$input_id.'" name="image_url" value="" />';
+
+					$tab .= '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 						
-						wp_register_script( $this->parent->_token . '-image-tab', '', array( 'jquery' ) );
-						wp_enqueue_script( $this->parent->_token . '-image-tab' );
-						wp_add_inline_script( $this->parent->_token . '-image-tab', $this->get_image_tab_script($input_id,$preview_id) );
+						$tab .= '<div class="modal-dialog modal-lg" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
+							
+							$tab .= '<div class="modal-content">'.PHP_EOL;
+								
+								$tab .= '<div class="modal-header">'.PHP_EOL;
+									
+									$tab .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+									
+									$tab .= '<h4 class="modal-title text-left" id="myModalLabel">Media Library</h4>'.PHP_EOL;
+								
+								$tab .= '</div>'.PHP_EOL;
+
+								$tab .= '<iframe id="iframe_'.$modal_id.'" data-src="' . $media_url . '" data-input-id="#' . $input_id . '" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';						
+								
+								wp_register_script( $this->parent->_token . '-image-tab', '', array( 'jquery' ) );
+								wp_enqueue_script( $this->parent->_token . '-image-tab' );
+								wp_add_inline_script( $this->parent->_token . '-image-tab', $this->get_image_tab_script($input_id,$preview_id) );
+								
+							$tab .= '</div>'.PHP_EOL;
+							
+						$tab .= '</div>'.PHP_EOL;
 						
 					$tab .= '</div>'.PHP_EOL;
-					
+				
 				$tab .= '</div>'.PHP_EOL;
 				
 			$tab .= '</div>'.PHP_EOL;
@@ -1714,26 +1719,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 				if( $default_id = $this->get_default_id($post->ID) ){
 					
-					if( $buttons = LTPLE_Editor::instance()->get_edit_buttons($post) ){
-					
-						$this->userFields[]=array(
-						
-							'metabox' 		=> array( 
-					
-								'name' 		=> 'ltple-actions',
-								'title' 	=> __('Editor', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend'	=> false,
-							),
-							'type'			=> 'html',
-							'id'			=> 'templateActions',
-							'label'			=> '',
-							'description'	=> '<i>default ID: ' . $default_id . '</i>',
-							'data'			=> '<div class="btn-wrapper" style="background:#fbfbfb;padding:120px 0;text-align:center;">' . $buttons . '</div>',
-						);
-					}
-				
 					$layer_type = $this->get_layer_type($post);
 					
 					if( $this->is_html_output($layer_type->output) ){

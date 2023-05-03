@@ -1789,33 +1789,25 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'gallery':
 					
-					$html .='<table id="gallery-metabox">';
+					$html .='<div style="padding:5px 0px;">';
+						
+						$html .='<a href="#" class="btn btn-xs btn-primary gallery-add" data-uploader-title="Add images" data-uploader-button-text="Add images">Add image</a>';
 					
-					  $html .='<tr><td>';
-						
-						$html .='<div>';
-						
-							$html .='<a href="#" class="btn btn-xs btn-info gallery-add" data-uploader-title="Add images" data-uploader-button-text="Add images">Add</a>';
-						
-						$html .='</div>';
-						
-						$html .='<ul id="gallery-metabox-list">';
-						
-							if ($data) : foreach($data as $value) : $image = wp_get_attachment_image_src($value);
+					$html .='</div>';
+				
+					$html .='<ul id="gallery-metabox-list">';
+					
+						if ($data) : foreach($data as $value) : $image = wp_get_attachment_image_src($value);
 
-							  $html .='<li>';
-								$html .='<input type="hidden" name="' . $option_name . '[]" value="' . $value . '">';
-								$html .='<img loading="lazy" class="image-preview" src="' . $image[0] . '">';
-								$html .='<a class="remove-image" href="#">x</a>';
-							  $html .='</li>';
+						  $html .='<li>';
+							$html .='<input type="hidden" name="' . $option_name . '[]" value="' . $value . '">';
+							$html .='<img loading="lazy" class="image-preview" src="' . $image[0] . '">';
+							$html .='<a class="remove-image" href="#">x</a>';
+						  $html .='</li>';
 
-							endforeach; endif;
-							
-						$html .='</ul>';
+						endforeach; endif;
 						
-					  $html .='</td></tr>';
-					  
-					$html .='</table>';
+					$html .='</ul>';
 					
 					wp_register_style( $this->parent->_token . '_gallery_style_'.$id, false, array());
 					wp_enqueue_style( $this->parent->_token . '_gallery_style_'.$id );
@@ -1843,10 +1835,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							box-sizing: border-box;
 						}
 						#gallery-metabox-list img {
-							width: 73px;
+							max-width: 73px;
 							height: 73px;
-							background:#fff;
-							display: block;						
+							background: #fff;
+							display: block;
+							border: none;
+							margin: 0 auto;
+							text-align: center;					
 						}
 						#gallery-metabox-list .remove-image {
 							position: absolute;
@@ -2013,10 +2008,114 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			echo $html;
 		}
 		
+		public function get_currency_options(){
+			
+			return array(
+			
+				'-1'  => 'Select a currency',
+				'usd' => 'US Dollar',
+				'eur' => 'Euro',
+				'gbp' => 'British Pound',
+				'aud' => 'Australian Dollar',
+				'cad' => 'Canadian Dollar',
+				'chf' => 'Swiss Franc',
+				'dkk' => 'Danish Krone',
+				'hkd' => 'Hong Kong Dollar',
+				'jpy' => 'Japanese Yen',
+				'nzd' => 'New Zealand Dollar',
+				'sek' => 'Swedish Krona',
+				'sgd' => 'Singapore Dollar',
+				'cny' => 'Chinese Yuan',
+				'brl' => 'Brazilian Real',
+				'czk' => 'Czech Koruna',
+				'isz' => 'Israeli Shekel',
+				'mxn' => 'Mexican Peso',
+				'myr' => 'Malaysian Ringgit',
+				'php' => 'Philippine Peso',
+				'pln' => 'Polish Zloty',
+				'rub' => 'Russian Ruble',
+				'thb' => 'Thai Baht',
+				'try' => 'Turkish Lira',
+				'ars' => 'Argentine Peso',
+				'bam' => 'Bosnia and Herzegovina Convertible Mark',
+				'clp' => 'Chilean Peso',
+				'cop' => 'Colombian Peso',
+				'dop' => 'Dominican Peso',
+				'egp' => 'Egyptian Pound',
+				'fjd' => 'Fiji Dollar',
+				'gtq' => 'Guatemalan Quetzal',
+				'huf' => 'Hungarian Forint',
+				'idr' => 'Indonesian Rupiah',
+				'isk' => 'Icelandic Krona',
+				'jmd' => 'Jamaican Dollar',
+				'kes' => 'Kenyan Shilling',
+				'kwd' => 'Kuwaiti Dinar',
+				'lkr' => 'Sri Lankan Rupee',
+				'mad' => 'Moroccan Dirham',
+				'mmk' => 'Myanmar Kyat',
+				'mop' => 'Macau Pataca',
+				'mur' => 'Mauritian Rupee',
+				'mwk' => 'Malawian Kwacha',
+				'ngn' => 'Nigerian Naira',
+				'omr' => 'Omani Rial',
+				'pen' => 'Peruvian Sol',
+				'pgk' => 'Papua New Guinean Kina',
+				'ron' => 'Romanian Leu',
+				'sar' => 'Saudi Riyal',
+				'twd' => 'Taiwan New Dollar',
+				'uzs' => 'Uzbekistani Som',
+				'vnd' => 'Vietnamese Dong',
+				'zar' => 'South African Rand',
+				'aoa' => 'Angolan Kwanza',
+				'azn' => 'Azerbaijani Manat',
+				'bsd' => 'Bahamian Dollar',
+				'bgn' => 'Bulgarian Lev',
+				'bob' => 'Bolivian Boliviano',
+				'bwp' => 'Botswana Pula',
+				'xcd' => 'East Caribbean Dollar',
+				'hrk' => 'Croatian Kuna',
+				'dzd' => 'Algerian Dinar',
+				'etb' => 'Ethiopian Birr',
+				'ghs' => 'Ghanaian Cedi',
+				'gnf' => 'Guinean Franc',
+				'kyd' => 'Cayman Islands Dollar',
+				'khr' => 'Cambodian Riel',
+				'kzt' => 'Kazakhstani Tenge',
+				'lbp' => 'Lebanese Pound',
+				'lsl' => 'Lesotho Loti',
+				'mga' => 'Malagasy Ariary',
+				'mwk' => 'Malawian Kwacha',
+				'myr' => 'Malaysian Ringgit',
+				'mvr' => 'Maldivian Rufiyaa',
+				'mtn' => 'Mauritanian Ouguiya',
+				'mzn' => 'Mozambican Metical',
+				'nad' => 'Namibian Dollar',
+				'nio' => 'Nicaraguan Córdoba',
+				'pab' => 'Panamanian Balboa',
+				'pyg' => 'Paraguayan Guarani',
+				'ron' => 'Romanian Leu',
+				'rsd' => 'Serbian Dinar',
+				'scr' => 'Seychellois Rupee',
+				'sll' => 'Sierra Leonean Leone',
+				'sos' => 'Somali Shilling',
+				'szp' => 'Eswatini Lilangeni',
+				'tjs' => 'Tajikistani Somoni',
+				'ttd' => 'Trinidad and Tobago Dollar',
+				'tnd' => 'Tunisian Dinar',
+				'ugx' => 'Ugandan Shilling',
+				'wst' => 'Samoan Tala',
+				'xaf' => 'Central African CFA Franc',
+				'xof' => 'West African CFA Franc',
+				'yer' => 'Yemeni Rial',
+				'zmw' => 'Zambian Kwacha',
+			);
+		}
+		
 		public function get_country_options(){
 
 			return array(
 			
+				'-1'  => 'Select a country',
 				'AF'  => 'Afghanistan',
 				'AX'  => 'Åland Islands',
 				'AL'  => 'Albania',

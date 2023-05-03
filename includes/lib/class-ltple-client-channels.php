@@ -76,9 +76,11 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 
 		// get term_id
 		
+		$term_id = false;
+		
 		if( isset($_POST[$taxonomy]) &&  is_numeric($_POST[$taxonomy]) ){
 			
-			$term_id = intval($_POST[$taxonomy]);
+			$term_id = floatval($_POST[$taxonomy]);
 		}
 		elseif( !empty($name) ){
 			
@@ -105,7 +107,7 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 			}
 		}
 		
-		if( $term_id > 0 ){
+		if( is_numeric($term_id) && $term_id > 0 ){
 			
 			//-------- save channel --------
 			
