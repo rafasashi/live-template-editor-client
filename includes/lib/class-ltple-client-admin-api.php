@@ -578,9 +578,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'text_editor':
 					
+					$settings = !empty($field['settings']) ? $field['settings'] : array();
+					
 					ob_start();
 
-					wp_editor($data,$option_name);
+					wp_editor($data,$option_name,$settings);
 
 					$html .= ob_get_clean();
 
@@ -1788,26 +1790,30 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 				
 				case 'gallery':
-					
-					$html .='<div style="padding:5px 0px;">';
-						
-						$html .='<a href="#" class="btn btn-xs btn-primary gallery-add" data-uploader-title="Add images" data-uploader-button-text="Add images">Add image</a>';
-					
-					$html .='</div>';
 				
-					$html .='<ul id="gallery-metabox-list">';
-					
-						if ($data) : foreach($data as $value) : $image = wp_get_attachment_image_src($value);
-
-						  $html .='<li>';
-							$html .='<input type="hidden" name="' . $option_name . '[]" value="' . $value . '">';
-							$html .='<img loading="lazy" class="image-preview" src="' . $image[0] . '">';
-							$html .='<a class="remove-image" href="#">x</a>';
-						  $html .='</li>';
-
-						endforeach; endif;
+					$html .='<div id="gallery-metabox">';
 						
-					$html .='</ul>';
+						$html .='<div style="padding:5px 0px;">';
+							
+							$html .='<a href="#" class="btn btn-xs btn-primary gallery-add" data-uploader-title="Add images" data-uploader-button-text="Add images">Add image</a>';
+						
+						$html .='</div>';
+					
+						$html .='<ul id="gallery-metabox-list" style="list-style:none;">';
+						
+							if ($data) : foreach($data as $value) : $image = wp_get_attachment_image_src($value);
+
+							  $html .='<li class="pull-left" style="height:75px;width:75px;">';
+								$html .='<input type="hidden" name="' . $option_name . '[]" value="' . $value . '">';
+								$html .='<img loading="lazy" class="image-preview" src="' . $image[0] . '" style="max-width:73px;height:73px;">';
+								$html .='<a class="remove-image" href="#">x</a>';
+							  $html .='</li>';
+
+							endforeach; endif;
+							
+						$html .='</ul>';
+						
+					$html .='</div>';
 					
 					wp_register_style( $this->parent->_token . '_gallery_style_'.$id, false, array());
 					wp_enqueue_style( $this->parent->_token . '_gallery_style_'.$id );
@@ -1903,7 +1909,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 								file_frame.state().get(\'selection\').map(function(attachment, i) {
 									
 									attachment = attachment.toJSON();
-									$(\'#gallery-metabox-list\').append(\'<li><input type="hidden" name="' . $option_name . '[]" value="\' + attachment.id + \'"><img loading="lazy" class="image-preview" src="\' + attachment.sizes.thumbnail.url + \'"><a class="remove-image" href="#">x</a></li>\');
+									$(\'#gallery-metabox-list\').append(\'<li class="pull-left"><input type="hidden" name="' . $option_name . '[]" value="\' + attachment.id + \'"><img loading="lazy" class="image-preview" src="\' + attachment.sizes.thumbnail.url + \'"><a class="remove-image" href="#">x</a></li>\');
 								});
 							});
 

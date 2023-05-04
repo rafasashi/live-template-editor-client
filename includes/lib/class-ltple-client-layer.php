@@ -1267,9 +1267,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$tabs = array();
 		
 		if( $layer_type = $this->get_layer_type($layer) ){
-		
-			$tabs = apply_filters('ltple_' . $layer_type->output . '_project_tabs',$tabs,$layer,$layer_type);
-		
+
 			if( $image = $this->get_image_tab_content($layer) ){
 
 				$tabs['image'] = array(
@@ -1283,6 +1281,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			
 			$tabs = apply_filters('ltple_project_advance_tabs',$tabs,$layer,$fields);
+
+			$tabs = apply_filters('ltple_' . $layer_type->output . '_project_tabs',$tabs,$layer,$layer_type);
 
 			if( $installation = $this->get_installation_info($layer) ){
 				
@@ -1562,7 +1562,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		$edit = '<div style="background:#fbfbfb;padding:152px 0;text-align:center;">'; 
 	
-			$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->edit . '?uri=' . $layer->ID . '">Edit Content</a>';
+			$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->edit . '?uri=' . $layer->ID . '">Open in Editor</a>';
 
 		$edit .= '</div>';
 	
