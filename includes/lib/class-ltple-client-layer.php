@@ -1716,7 +1716,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$post_type = get_post_type_object($post->post_type);
 				
 				$storage_name = $post_type->labels->singular_name;
-
+				
 				if( $default_id = $this->get_default_id($post->ID) ){
 					
 					$layer_type = $this->get_layer_type($post);
@@ -2775,14 +2775,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				add_filter( $storage . '_custom_fields', array( $this, 'get_user_layer_fields' ));
 			}
 		}
-		
-		if( $local_types = $this->get_local_types() ){
-		
-			foreach( $local_types as $post_type ){
-				
-				add_filter( $post_type . '_custom_fields', array( $this, 'get_user_layer_fields' ));
-			}
-		}
 	}
 	
 	public function set_uri(){
@@ -2834,6 +2826,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			//set layer data
 			
 			$this->set_layer($this->uri);			
+		}
+
+		if( $local_types = $this->get_local_types() ){
+			
+			foreach( $local_types as $post_type ){
+				
+				add_filter( $post_type . '_custom_fields', array( $this, 'get_user_layer_fields' ));
+			}
 		}
 		
 		//Add Custom API Endpoints

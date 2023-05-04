@@ -207,6 +207,16 @@ class LTPLE_Client {
 		}
 		
 		add_action('ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
+		
+		/*
+		add_action('update_post_metadata',function($check,$object_id,$meta_key,$meta_value,$prev_value){
+			
+			if($meta_key=='product_description')dump($meta_value);
+			
+			return $check;
+			
+		},999999,5);
+		*/
 
 	} // End __construct ()
 	
