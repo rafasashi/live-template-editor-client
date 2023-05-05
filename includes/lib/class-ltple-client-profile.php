@@ -1216,28 +1216,35 @@ class LTPLE_Client_Profile {
 						}
 						else{
 							
-							$meta = $this->sanitize_text_editor($meta);
-							
 							if( $field['id'] == 'description' ){
 								
 								$meta = apply_filters('ltple_profile_about_description',$meta);
-							
+								
 								if( empty($meta) ){
 									
-									$meta = 'Nothing to say';
+									$meta = '<p>Nothing to say</p>';
 								}
 							}
+							
+							$meta = $this->sanitize_text_editor($meta);
 						}
 
 						if( !empty($meta) ){
-													
-							$content .= '<h4>' . ucfirst($field['label']) . '</h4>';
-								
-							$content .= '<div>';
+							
+							if( $field['id'] == 'description' ){
 								
 								$content .= $meta;
+							}
+							else{
 								
-							$content .= '</div>';
+								$content .= '<h5>' . ucfirst($field['label']) . '</h5>';
+								
+								$content .= '<p>';
+									
+									$content .= $meta;
+									
+								$content .= '</p>';
+							}
 						}
 					}
 				}
