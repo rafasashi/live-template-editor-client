@@ -1346,6 +1346,8 @@ class LTPLE_Client_Profile {
 		
 		$str = '<p>' . str_replace(PHP_EOL,'</p><p>',$str) . '</p>';
 		
+		$str = preg_replace('/^<p>(<p[^>]*>(.*?)<\/p>)<\/p>$/','$1',$str);
+		
 		return $str;
 	}
 	
