@@ -1216,12 +1216,7 @@ class LTPLE_Client_Profile {
 						}
 						else{
 							
-							if( !empty($meta) ){
-								
-								// add line break
-								
-								$meta = '<p>' . str_replace(PHP_EOL,'</p><p>',strip_tags($meta)) . '</p>';
-							}							
+							$meta = $this->sanitize_text_editor($meta);
 							
 							if( $field['id'] == 'description' ){
 								
@@ -1338,7 +1333,22 @@ class LTPLE_Client_Profile {
 		
 		return $this->tabs;
 	}
-
+	
+	public function sanitize_text_editor($str){
+		
+		$str = apply_filters('wpautop',$str);
+		
+		$str = apply_filters('nl2br',$str);
+	
+		$str =  strip_tags($str,'<p><table><tr><th><td><b><strong><em><span><i><br><ul><ol><li>');
+		
+		$str = preg_replace('/ (class|id|style)="[^"]*"/i', '', $str);
+		
+		$str = '<p>' . str_replace(PHP_EOL,'</p><p>',$str) . '</p>';
+		
+		return $str;
+	}
+	
 	public function get_slug(){
 		
 		if( is_null( $this->slug ) ){
@@ -1427,25 +1437,12 @@ class LTPLE_Client_Profile {
 	
 	public function get_profile_fields( $fields=[] ){
 		
-		/*
-		$fields['user_login'] = array(
-
-			'id' 			=> 'user_login',
-			'label'			=> 'Username',
-			'description'	=> '',
-			'placeholder'	=> 'Username',
-			'type'			=> 'text',
-			'location'		=> 'general-info',
-			'disabled'		=> true
-		);
-		*/
-		
 		$fields['nickname'] = array(
 
 			'id' 			=> 'nickname',
-			'label'			=> 'Nickname',
+			'label'			=> 'Name',
 			'description'	=> 'Your public name',
-			'placeholder'	=> 'Nickname',
+			'placeholder'	=> 'Name',
 			'type'			=> 'text',
 			'location'		=> 'general-info',
 			'required'		=> true
@@ -1454,12 +1451,24 @@ class LTPLE_Client_Profile {
 		$fields['description'] = array(
 
 			'id' 			=> 'description',
-			'label'			=> 'Description',
-			'description'	=> 'Brief text description of yourself',
-			'placeholder'	=> '',
-			'type'			=> 'textarea',
+			'label'			=> 'About',
+			'type'			=> 'text_editor',
 			'location'		=> 'general-info',
 			'style'			=> 'height:80px;',
+			'settings'		=> array(
+			
+				'wpautop' 			=> true,
+				'media_buttons'		=> false,
+				'drag_drop_upload'	=> false,
+				'textarea_name'		=> 'description',
+				'textarea_rows'		=> 20,
+				'teeny'				=> true,
+				'quicktags'			=> false,
+				'tinymce' 			=> array(
+				
+					'toolbar1' => 'bold,italic,underline,bullist,numlist',
+				)
+			),
 		);
 		
 		$fields['user_url'] = array(
@@ -1469,66 +1478,9 @@ class LTPLE_Client_Profile {
 			'description'	=> 'SEO optimized backlink (dofollow)',
 			'placeholder'	=> 'https://',
 			'location'		=> 'general-info',
-			'type'			=> 'text'			
+			'type'			=> 'url'			
 		);
 		
-		if( $this->parent->user->remaining_days > 0 ){
-			
-			$fields['ltple_profile_html'] = array(
-
-				'id' 			=> 'ltple_profile_html',
-				'label'			=> 'Home Page (HTML)',
-				'description'	=> 'Customize your profile page with HTML',
-				'placeholder'	=> '',
-				'type'			=> 'code_editor',
-				'code'			=> 'html',
-				'location'		=> 'home-page',
-				'disabled'		=> false,
-				
-			);
-			
-			$fields['ltple_profile_css'] = array(
-
-				'id' 			=> 'ltple_profile_css',
-				'label'			=> 'Home Page (CSS)',
-				'description'	=> 'Customize your profile page with CSS',
-				'placeholder'	=> '',
-				'type'			=> 'code_editor',
-				'code'			=> 'css',
-				'location'		=> 'home-page',
-				'disabled'		=> false,
-			);			
-		}
-		else{
-			
-			$fields['ltple_profile_html'] = array(
-
-				'id' 			=> 'ltple_profile_html',
-				'label'			=> 'Home Page (HTML)',
-				'description'	=> 'Customize your profile page with HTML',
-				'placeholder'	=> 'For paid license only',
-				'type'			=> 'code_editor',
-				'code'			=> 'html',
-				'location'		=> 'home-page',
-				'disabled'		=> true,
-				'data'			=> '',
-				
-			);
-			
-			$fields['ltple_profile_css'] = array(
-
-				'id' 			=> 'ltple_profile_css',
-				'label'			=> 'Home Page (CSS)',
-				'description'	=> 'Customize your profile page with CSS',
-				'placeholder'	=> 'For paid license only',
-				'type'			=> 'code_editor',
-				'code'			=> 'css',
-				'location'		=> 'home-page',
-				'disabled'		=> true,
-				'data'			=> '',
-			);
-		}
-
 		return $fields;
 	}
 	

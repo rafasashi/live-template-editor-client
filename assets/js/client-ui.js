@@ -995,6 +995,19 @@ if( typeof editorCallbacks == typeof undefined )
 			});
 		}
 		
+		// init tinyMCE
+		
+		$("form").on("submit",function(e){
+			
+			if( typeof tinyMCE != typeof undefined && tinyMCE.editors.length > 0 ){
+				
+				$.each(tinyMCE.editors,function(i,editor){
+					
+					editor.save();
+				});
+			}
+		});
+
 		// collect info modals
 		
 		if( $('.collect-info').length > 0 ){

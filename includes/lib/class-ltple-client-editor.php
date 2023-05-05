@@ -234,15 +234,7 @@ class LTPLE_Client_Editor {
 					$("#saveBtn").on("click",function(e){
 						
 						e.preventDefault();
-						
-						if( tinyMCE.editors.length > 0 ){
-							
-							$.each(tinyMCE.editors,function(i,editor){
-								
-								editor.save();
-							});
-						}
-						
+
 						$("#savePostForm").trigger("submit");
 					});
 					
