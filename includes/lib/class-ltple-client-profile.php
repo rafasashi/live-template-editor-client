@@ -1347,7 +1347,7 @@ class LTPLE_Client_Profile {
 		
 		$str = apply_filters('nl2br',$str);
 	
-		$str =  strip_tags($str,'<p><table><tr><th><td><b><strong><em><span><i><br><ul><ol><li>');
+		$str =  strip_tags($str,'<p><table><tr><th><td><b><strong><em><span><i><br><ul><ol><li><h4><h5>');
 		
 		$str = preg_replace('/ (class|id|style)="[^"]*"/i', '', $str);
 		

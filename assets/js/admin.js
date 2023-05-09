@@ -17,27 +17,37 @@
 		$(".add-input-group").on('click', function(e){
 			
 			e.preventDefault();
-
-			var target 	= "." + $(this).data("target");
 			
-			var $clone 	= $(target).eq(0).clone().removeClass('ui-state-disabled');
+			var target 	= "#" + $(this).data("target") + " .input-group";
 			
-			$clone.find('input,textarea,select,radio').val('');
-			
-			var $rands	= $clone.find('input[data-value="random"]');
-			
-			if( $rands.length > 0 ){
+			if( typeof $(this).data("html") != typeof undefined ){
 				
-				$rands.val(Math.floor(Math.random()*1000000000));
+				var html = $(this).data("html");
+		
+				var $block = $($.parseHTML(html));
+			
+				$(target).append($block);				
 			}
-			
-			if( $clone.find('a.remove-input-group').length < 1 ){
-			
-				$clone.append('<a class="remove-input-group" href="#">x</a>');
+			else{
+					
+				var $clone 	= $(target).eq(0).clone().removeClass('ui-state-disabled');
+				
+				$clone.find('input,textarea,select,radio').val('');
+				
+				var $rands	= $clone.find('input[data-value="random"]');
+				
+				if( $rands.length > 0 ){
+					
+					$rands.val(Math.floor(Math.random()*1000000000));
+				}
+				
+				if( $clone.find('a.remove-input-group').length < 1 ){
+				
+					$clone.append('<a class="remove-input-group" href="#">x</a>');
+				}
+				
+				$(this).next(".input-group").append($clone);
 			}
-			
-			$(this).next(".input-group").append($clone);
-			
 		});
 		
 		$(".input-group").on('click', ".remove-input-group", function(e){

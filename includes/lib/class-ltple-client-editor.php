@@ -407,6 +407,11 @@ class LTPLE_Client_Editor {
 			-webkit-box-shadow: none;
 			box-shadow: none;
 		}';		
+		
+		$css .= '.editor-tab-panel-body .form-group {
+		
+			margin-bottom:5px;
+		}';	
 
 		return $css;		
 	}
