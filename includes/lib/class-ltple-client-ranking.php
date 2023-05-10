@@ -2,7 +2,7 @@
 
 	if ( ! defined( 'ABSPATH' ) ) exit;
 
-	class LTPLE_Client_Stars {
+	class LTPLE_Client_Ranking {
 		
 		var $parent;
 		var $triggers;
@@ -240,23 +240,31 @@
 			
 			if( current_user_can( 'administrator' ) ){
 				
-				echo '<div style="margin:10px auto;min-height:45px;">';
+				echo '<h2>' . __( 'Ranking', 'live-template-editor-client' ) . '</h2>';
+
+				echo '<table class="form-table">';
+				echo '<tbody>';
 					
-					echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'Stars', 'live-template-editor-client' ) . '</h3>';
+					echo '<tr>';
 					
-					echo '<div style="display:inline-block;">';
+						echo '<th><label>Stars</label></th>';
 						
-						$this->parent->admin->display_field(array(
-				
-							'id' 			=> $this->parent->_base . 'stars',
-							'description' 	=> '',
-							'type'			=> 'number',
-							'placeholder'	=> 'stars',
-						), $user );
+						echo '<td>';
+					
+							$this->parent->admin->display_field(array(
+					
+								'id' 			=> $this->parent->_base . 'stars',
+								'description' 	=> '',
+								'type'			=> 'number',
+								'placeholder'	=> 'stars',
+							), $user );
 							
-					echo'</div>';
+						echo '</td>';
+							
+					echo'</tr>';
 						
-				echo'</div>';
+				echo'</tbody>';
+				echo'</table>';
 			}	
 		}
 		
@@ -278,14 +286,14 @@
 		}
 		
 		/**
-		 * Main LTPLE_Client_Stars Instance
+		 * Main LTPLE_Client_Ranking Instance
 		 *
-		 * Ensures only one instance of LTPLE_Client_Stars is loaded or can be loaded.
+		 * Ensures only one instance of LTPLE_Client_Ranking is loaded or can be loaded.
 		 *
 		 * @since 1.0.0
 		 * @static
 		 * @see LTPLE_Client()
-		 * @return Main LTPLE_Client_Stars instance
+		 * @return Main LTPLE_Client_Ranking instance
 		 */
 		 
 		public static function instance ( $parent ) {

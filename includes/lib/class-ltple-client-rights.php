@@ -83,32 +83,6 @@ class LTPLE_Client_Rights {
 		}
 	}
 	
-	public function show_user_rights( $user ) {
-		
-		if( current_user_can( 'administrator' ) ){
-			
-			$user_rights = $this->parent->editedUser->rights;
-			
-			if(!is_array($user_rights)){
-				
-				$user_rights = [];
-			}
-			
-			echo '<div style="margin:10px auto;min-height:45px;">';
-				
-				echo '<h3 style="margin:10px;width:300px;display: inline-block;">' . __( 'User Rights', 'live-template-editor-client' ) . '</h3>';
-
-				foreach($this->list as $right_slug => $right_name){
-					
-					echo '<input type="checkbox" name="' . $this->parent->_base . 'user-rights[]" id="user-right-'.$right_slug.'" value="'.$right_slug.'"'.( in_array( $right_slug, $user_rights ) ? ' checked="checked"' : '' ).'>';
-					echo '<label for="user-right-'.$right_slug.'">'.$right_name.'</label>';
-					echo '<br>';
-				}
-					
-			echo'</div>';
-		}
-	}
-	
 	public function save_user_rights( $user_id ) {
 		
 		if(isset($_POST[$this->parent->_base . 'user-rights'])){

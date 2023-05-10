@@ -41,31 +41,34 @@
 				do_action('ltple_list_programs');
 
 				if( !empty($this->list) ){
-
-					echo '<div style="margin:10px auto;min-height:45px;">';
-						
-						echo '<h3 style="margin:10px;width:300px;display: inline-block;float: left;">' . __( 'Programs', 'live-template-editor-client' ) . '</h3>';
-
-						echo '<div style="margin:10px 0 10px 0;display: inline-block;">';
-						
-							foreach($this->list as $slug => $name){
-								
-								echo '<div style="width:150px;display:inline-block;font-weight:bold;">'.$name.'</div>';
-								
-								echo '<label class="switch" for="user-program-'.$slug.'">';
-									
-									echo '<input class="form-control" type="checkbox" name="' . $this->parent->_base . 'user-programs[]" id="user-program-'.$slug.'" value="'.$slug.'"'.( in_array( $slug, $user_programs ) ? ' checked="checked"' : '' ).'>';
-									echo '<div class="slider round"></div>';
-								
-								echo '</label>';
-
-								echo '<br>';
-							}				
-								
-						echo'</div>';
-							
-					echo'</div>';
 					
+					echo '<h2>' . __( 'Programs', 'live-template-editor-client' ) . '</h2>';
+
+					echo '<table class="form-table">';
+					echo '<tbody>';
+			
+						foreach($this->list as $slug => $name){
+							
+							echo '<tr>';
+							
+								echo '<th><label>'.$name.'</label></th>';
+								 
+								echo '<td>';
+								
+									echo '<label class="switch">';
+							
+										echo '<input class="form-control" type="checkbox" name="' . $this->parent->_base . 'user-programs[]" id="user-program-'.$slug.'" value="'.$slug.'"'.( in_array( $slug, $user_programs ) ? ' checked="checked"' : '' ).'>';
+										echo '<div class="slider round"></div>';
+
+									echo '</label>';
+									
+								echo '</td>';
+								
+							echo '</tr>';
+						}				
+							
+					echo '</tbody>';
+					echo '</table>';
 				}
 			}	
 		}

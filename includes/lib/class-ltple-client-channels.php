@@ -127,53 +127,67 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 		
 		if( current_user_can( 'administrator' ) ){
 			
-			echo '<div style="margin:10px auto;min-height:45px;">';
-				
-				echo '<h3 style="margin:10px;width:300px;display:block;float:left;">' . __( 'Marketing Channel', 'live-template-editor-client' ) . '</h3>';
-				
-				$tax = get_taxonomy( $this->taxonomy );
 
-				/* Make sure the user can assign terms of the user taxonomy before proceeding. */
-				if ( !current_user_can( $tax->cap->assign_terms ) )
-				return;
+			$tax = get_taxonomy( $this->taxonomy );
 
-				echo '<div style="display:inline-block;padding:5px 0;">';
+			/* Make sure the user can assign terms of the user taxonomy before proceeding. */
+			if ( !current_user_can( $tax->cap->assign_terms ) ) return;
+			
+			echo '<h2>' . __( 'Marketing Channel', 'live-template-editor-client' ) . '</h2>';
+
+			echo '<table class="form-table">';
+			echo '<tbody>';
 				
-					$terms = wp_get_object_terms( $user->ID, $this->taxonomy );
+				echo '<tr>';
 				
-					echo wp_dropdown_categories(array(
+					echo '<th><label>Channel</label></th>';
 					
-						'show_option_none' => 'Select a channel',
-						'taxonomy'     => $this->taxonomy,
-						'name'    	   => $this->taxonomy,
-						'show_count'   => false,
-						'hierarchical' => true,
-						'selected'     => ( ( !isset($terms->errors) && isset($terms[0]->term_taxonomy_id) ) ? $terms[0]->term_taxonomy_id : ''),
-						'echo'		   => false,
-						'class'		   => 'form-control',
-						'hide_empty'   => false
-					));
-								
-					$referredBy = get_user_meta( $user->ID, $this->parent->_base . 'referredBy', true );
-					
-					echo '<div style="margin-top:5px;">';
+					echo '<td>';
 						
+						$terms = wp_get_object_terms( $user->ID, $this->taxonomy );
+					
+						echo wp_dropdown_categories(array(
+						
+							'show_option_none' => 'Select a channel',
+							'taxonomy'     => $this->taxonomy,
+							'name'    	   => $this->taxonomy,
+							'show_count'   => false,
+							'hierarchical' => true,
+							'selected'     => ( ( !isset($terms->errors) && isset($terms[0]->term_taxonomy_id) ) ? $terms[0]->term_taxonomy_id : ''),
+							'echo'		   => false,
+							'class'		   => 'form-control',
+							'hide_empty'   => false
+						));
+						
+					echo '</td>';
+				
+				echo '</tr>';
+				
+				echo '<tr>';
+				
+					echo '<th><label>Referent Id</label></th>';
+					
+					echo '<td>';
+						
+						$referredBy = get_user_meta( $user->ID, $this->parent->_base . 'referredBy', true );
+
 						$this->parent->admin->display_field( array(
 							
 							'id' 			=> $this->parent->_base . 'referentId',
 							'label'			=> '',
-							'description'	=> 'Referent Id',
+							'description'	=> '',
 							'placeholder'	=> 0,
 							'type'			=> 'number',
 							'data'			=> !empty($referredBy) ? key($referredBy) : 0,
 						
 						), false, true );
 						
-					echo '</div>';
-			
-				echo '</div>';
-
-			echo'</div>';
+					echo '</td>';
+				
+				echo '</tr>';
+				
+			echo '</tbody>';
+			echo '</table>';
 		}	
 	}
 	

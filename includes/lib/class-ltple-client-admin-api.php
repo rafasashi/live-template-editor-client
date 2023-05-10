@@ -744,7 +744,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$plan_options = (array) $data;
 													
-					$html .= '<table class="form-table striped">';
+					$html .= '<table class="form-table">';
 						
 						foreach ( $field['options'] as $taxonomy => $terms ) {
 							

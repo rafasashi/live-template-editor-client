@@ -273,12 +273,12 @@ class LTPLE_Client_Websocket {
 	/**
 	 * Main LTPLE_Client_Endpoint Instance
 	 *
-	 * Ensures only one instance of LTPLE_Client_Stars is loaded or can be loaded.
+	 * Ensures only one instance of LTPLE_Client_Ranking is loaded or can be loaded.
 	 *
 	 * @since 1.0.0
 	 * @static
 	 * @see LTPLE_Client()
-	 * @return Main LTPLE_Client_Stars instance
+	 * @return Main LTPLE_Client_Ranking instance
 	 */
 	public static function instance ( $parent ) {
 		

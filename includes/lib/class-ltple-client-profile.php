@@ -721,33 +721,37 @@ class LTPLE_Client_Profile {
 		
 		if( current_user_can( 'administrator' ) ){
 			
-			echo '<div style="margin:10px auto;min-height:45px;">';
-				
-				echo '<h3 style="float:left;margin:10px;width:300px;display:inline-block;">' . __( 'Privacy Settings', 'live-template-editor-client' ) . '</h3>';
-				
-				if( $fields = $this->get_privacy_fields() ){
-					
-					echo '<div style="margin:10px 0 10px 0;display: inline-block;">';
-						
-						foreach( $fields as $field ){
+			if( $fields = $this->get_privacy_fields() ){
 
-							echo '<div style="width:150px;display:inline-block;font-weight:bold;">'.$field['label'].'</div>';
+				echo '<h2>' . __( 'Privacy Settings', 'live-template-editor-client' ) . '</h2>';
+
+				echo '<table class="form-table">';
+				echo '<tbody>';
+
+					foreach( $fields as $field ){
+						
+						echo '<tr>';
+						
+							echo '<th><label>'.$field['label'].'</label></th>';
 							
-							$this->parent->admin->display_field(array(
+							echo '<td>';
+							
+								$this->parent->admin->display_field(array(
+									
+									'id'		=> $field['id'],
+									'type'		=> 'switch',
+									'default'	=> !empty($field['default']) ? $field['default'] : 'off',
+						
+								), $user );
 								
-								'id'		=> $field['id'],
-								'type'		=> 'switch',
-								'default'	=> !empty($field['default']) ? $field['default'] : 'off',
+							echo '</td>';
+							
+						echo '</tr>';
+					}
 					
-							), $user );
-								
-							echo'<br>';
-						}
-					
-					echo '</div>';
-				}
-					
-			echo'</div>';
+				echo '</tbody>';
+				echo '</table>';
+			}
 		}	
 	}
 	

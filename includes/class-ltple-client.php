@@ -147,7 +147,7 @@ class LTPLE_Client {
 								
 		$this->urls 		= new LTPLE_Client_Urls( $this );
 
-		$this->stars 		= new LTPLE_Client_Stars( $this );
+		$this->stars 		= new LTPLE_Client_Ranking( $this ); // TODO rename stars with ranking
 		$this->login 		= new LTPLE_Client_Login( $this );
 		$this->rights 		= new LTPLE_Client_Rights( $this );
 		
