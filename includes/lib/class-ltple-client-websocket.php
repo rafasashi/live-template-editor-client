@@ -63,16 +63,18 @@ class LTPLE_Client_Websocket {
 		
 		$ssl = $isSecure ? 's' : '';
 		
-		$host_name = 'ws.recuweb.co';
+		$host_name = 'ws-api.recuweb.co';
 		
 		// start server
 		
+		$server_url = 'http'.$ssl.'://' . $host_name . '/a/chat/start.php?room=' . $room;
+
 		$socket_url = false;
 		
 		if( $ch = curl_init() ){
 
-			curl_setopt($ch, CURLOPT_URL, 'http'.$ssl.'://' . $host_name . '/a/chat/start.php?room=' . $room );
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch,CURLOPT_URL,$server_url);
+			curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
 
 			$socket_url = curl_exec($ch);
 
@@ -89,7 +91,7 @@ class LTPLE_Client_Websocket {
 			$url = parse_url($socket_url);
 			
 			$host 	= $url['host'];
-			$port 	= $url['port'];
+			$port 	= $url['scheme'] == 'wss' ? 443 : 80;
 			$local 	= $this->parent->urls->current;
 			$key 	= 'asdasdaas76da7sd6asd6as7dasdasdaas76da7sd6asd6as7d';
 			

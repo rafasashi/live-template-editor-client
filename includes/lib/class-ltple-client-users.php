@@ -281,42 +281,42 @@
 			
 			add_filter('admin_footer-users.php', array($this, 'add_table_view_script'));
 			
-			add_filter('get_avatar', array($this, 'get_user_avatar'),9999,5);			
+			add_filter('get_avatar', array($this,'get_user_avatar'),9999,5);			
 		
-			add_action('admin_head', array($this, 'update_user_manually'));				
+			add_action('admin_head', array($this,'update_user_manually'));				
 			
 			if( method_exists($this, 'custom_' . $this->view . '_table_css') ){
 				
-				add_action('admin_head', array($this, 'custom_' . $this->view . '_table_css'));
+				add_action('admin_head-users.php',array($this,'custom_' . $this->view . '_table_css'));
 			}
 			else{
 				
-				add_action('admin_head', array($this, 'custom_users_table_css'));
+				add_action('admin_head-users.php',array($this,'custom_users_table_css'));
 			}
 			
 			if( method_exists($this, 'set_' . $this->view . '_table_columns') ){
 				
-				add_filter('manage_users_columns', array($this, 'set_' . $this->view . '_table_columns'), 100, 3);
+				add_filter('manage_users_columns',array($this, 'set_' . $this->view . '_table_columns'), 100, 3);
 			}
 			else{
 				
-				add_filter('manage_users_columns', array($this, 'set_users_table_columns'), 100, 3);
+				add_filter('manage_users_columns',array($this, 'set_users_table_columns'), 100, 3);
 			}
 
 			if( method_exists($this, 'get_' . $this->view . '_table_row') ){
 				
-				add_filter('manage_users_custom_column', array($this, 'get_' . $this->view . '_table_row'), 100, 3);	
+				add_filter('manage_users_custom_column',array($this, 'get_' . $this->view . '_table_row'), 100, 3);	
 			}
 			else{
 				
-				add_filter('manage_users_custom_column', array($this, 'get_users_table_row'), 100, 3);
+				add_filter('manage_users_custom_column',array($this, 'get_users_table_row'), 100, 3);
 			}
 			
-			add_filter('manage_users_custom_column', array($this, 'filter_notify_column'), 100, 3);
+			add_filter('manage_users_custom_column',array($this, 'filter_notify_column'), 100, 3);
 			
 			// custom bulk actions
 
-			add_action('ltple_restrict_manage_users', function( $which ){
+			add_action('ltple_restrict_manage_users',function( $which ){
 				
 				if( $which == 'top' ){
 					
