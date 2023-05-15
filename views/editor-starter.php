@@ -47,6 +47,10 @@ else{
 		
 		$layer_type = $ltple->layer->get_layer_type($ltple->layer->id);
 		
+		$storage_type = get_post_type_object($layer_type->storage);
+		
+		$storage_name = !empty($storage_type->labels->singular_name) ? strtolower($storage_type->labels->singular_name) : 'project';
+	
 		$user_plan 	= $ltple->plan->get_user_plan_info($ltple->user->ID);
 
 		$total_storage 	= isset($user_plan['info']['total_storage'][$layer_type->name]) ? $user_plan['info']['total_storage'][$layer_type->name] : 0;
@@ -95,8 +99,8 @@ else{
 			
 			echo '<div class="col-xs-12 col-sm-12 col-lg-6" style="padding:20px;">';
 				
-				echo '<h2 class="pull-left">Start a new project</h2>';
-					
+				echo '<h3 class="pull-left">Start a new '. $storage_name .'</h3>';
+				
 				if( $total_storage > 0 ){
 				
 					echo '<a class="pull-right" target="_parent" href="' . $ltple->urls->account . '?tab=billing-info"><span class="label label-default" style="font-size:18px;"> ' . ( !empty($plan_usage[$layer_type->name]) ? $plan_usage[$layer_type->name] : 0 ) . ' / ' . $total_storage . ' </span></a>';
@@ -112,18 +116,14 @@ else{
 						
 						$start_url = remove_query_arg('output',$this->parent->urls->current);			
 						
-						echo'<form target="_parent" class="col-xs-6" action="' . $start_url . '" id="savePostForm" method="post">';
+						echo'<form target="_parent" class="col-xs-8" action="' . $start_url . '" id="savePostForm" method="post">';
+							
+							do_action('ltple_editor_start_' . $layer_type->storage);
 							
 							echo'<div class="input-group">';					
 								
-								echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-lg required" placeholder="Project Title">';
+								echo'<input type="text" name="postTitle" id="postTitle" value="" class="form-control input-lg required" placeholder="'.ucfirst($storage_name).' Title">';
 								echo'<input type="hidden" name="postContent" id="postContent" value="">';
-
-								/*
-								echo'<input type="hidden" name="postCss" id="postCss" value="">';
-								echo'<input type="hidden" name="postJs" id="postJs" value="">';
-								echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
-								*/
 								
 								wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
 
@@ -136,6 +136,8 @@ else{
 									echo'<input formtarget="_parent" class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="padding:11px 15px;height:42px;" value="Start" />';
 								
 								echo'</span>';
+								
+								
 								
 							echo'</div>';
 							
@@ -150,7 +152,7 @@ else{
 						
 						echo'<div class="alert alert-warning">';
 							
-							echo'You can\'t save more projects from the <b>' . $layer_type->name . '</b> gallery with the current plan. Delete an old project or upgrade to increase your storage space.';
+							echo'You can\'t save more '.$storage_name.'s from the <b>' . $layer_type->name . '</b> gallery with the current plan. Delete an old '.$storage_name.' or upgrade to increase your storage space.';
 					
 						echo'</div>';				
 					}
@@ -167,9 +169,9 @@ else{
 
 				echo'<div class="col-xs-12 col-sm-12 col-lg-6" style="padding:20px;">';
 					
-					echo'<h2>Load a similar project <a target="_parent" href="' . $ltple->urls->dashboard . '?list=' . $layer_type->storage . '"><span class="pull-right label" style="font-size:14px;color:#cacaca;padding:10px;">see all</span></a></h2>';
+					echo'<h3 class="pull-left">Similar '.$storage_name.'s </h3><a class="pull-right" target="_parent" href="' . $ltple->urls->dashboard . '?list=' . $layer_type->storage . '"><span class="label" style="font-size:12px;color:#cacaca;padding:10px;line-height:30px;">see all</span></a>';
 					
-					echo'<hr>';
+					echo'<hr class="clearfix">';
 					
 					echo'<div style="height:calc( 100vh - ' . ( $ltple->inWidget ? 115 : 260 ) . 'px );overflow:auto;">';
 					

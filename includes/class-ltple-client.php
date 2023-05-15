@@ -1945,7 +1945,7 @@ class LTPLE_Client {
 						
 						$post_type = $this->layer->layerStorage;
 						
-						$post_status = 'publish';
+						$post_status = apply_filters('ltple_default_layer_status','publish',$post_type);
 						
 						$defaultLayer 	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 						
@@ -2028,11 +2028,11 @@ class LTPLE_Client {
 								
 								// update layer type
 								
-								$terms = wp_get_post_terms($defaultLayerId,'layer-type');
-								
-								if( !empty($terms[0]) ){
-
-									wp_set_object_terms( $post_id, $terms[0]->term_id, 'layer-type', false ); 
+								if( $layer_type = $this->layer->get_layer_type($defaultLayerId) ){
+									
+									wp_set_object_terms($post_id,$layer_type->term_id,'layer-type',false); 
+									
+									do_action('ltple_create_' . $layer_type->storage,$post_id,$defaultLayerId);
 								}
 								
 								//redirect to user layer

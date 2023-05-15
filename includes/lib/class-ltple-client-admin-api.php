@@ -1606,7 +1606,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'select':
 					
-					$html .= '<select class="form-control" name="' . esc_attr( $option_name ) . '" id="' . $id . '"'.$style.'>';
+					$html .= '<select class="form-control'. ( !empty( $field['class'] ) ? ' ' . $field['class'] : '' ) .'" name="' . esc_attr( $option_name ) . '" id="' . $id . '"'.$style.'>';
 					
 					foreach ( $field['options'] as $key => $value ) {
 						
