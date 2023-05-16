@@ -229,7 +229,7 @@ if( typeof editorCallbacks == typeof undefined )
 										
 										});	
 										
-										modalIframe.contents().find('.table').bind('DOMSubtreeModified',function(event) {
+										modalIframe.contents().find('.table').on('DOMSubtreeModified',function(event) {
 											
 											modalIframe.contents().find(".insert_media").off();
 										
@@ -324,7 +324,7 @@ if( typeof editorCallbacks == typeof undefined )
 			
 			if( $('[data-toggle="copy"]').length > 0 ){
 				
-				$('[data-toggle="copy"]').unbind().on('click', function(e) {
+				$('[data-toggle="copy"]').off().on('click', function(e) {
 					
 					e.preventDefault();
 					
@@ -374,7 +374,7 @@ if( typeof editorCallbacks == typeof undefined )
 			
 			if( $('[data-toggle="action"]').length > 0 ){
 			
-				$('[data-toggle="action"]').unbind().on('click', function(e) {
+				$('[data-toggle="action"]').off().on('click', function(e) {
 					
 					e.preventDefault();
 					
@@ -682,7 +682,7 @@ if( typeof editorCallbacks == typeof undefined )
 												$dialog.dialog("close");
 											});
 											
-											dialogIframe.contents().find('.table').bind('DOMSubtreeModified',function(event) {
+											dialogIframe.contents().find('.table').on('DOMSubtreeModified',function(event) {
 												
 												dialogIframe.contents().find(".insert_media").off();
 											
