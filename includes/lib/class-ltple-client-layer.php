@@ -832,7 +832,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'placeholder'	=> "HTML content",
 						//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>',
 					);			
-
+		
 					if( $layer_type->output != 'inline-css' ){
 						
 						// get layer css
@@ -1404,7 +1404,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$steps[$title] = apply_filters('the_content',$install);
 			}
 			
-			$steps = apply_filters('ltple-layer-installation-steps',$steps,$layer);
+			$steps = apply_filters('ltple_layer_installation_steps',$steps,$layer);
 		}
 		
 		// get content
@@ -1414,7 +1414,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !empty($steps) ){
 			
-			$html .= '<div id="install_info">';
+			$html .= '<div id="install_info" style="line-height:30px;">';
 
 				foreach( $steps as $title => $content ){
 					
@@ -1722,62 +1722,56 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$layer_type = $this->get_layer_type($post);
 					
 					if( $this->is_html_output($layer_type->output) ){
-
+							
+						$metabox = array( 
+				
+							'name' 		=> 'layer-code',
+							'title' 	=> 'Code',
+							'screen'	=> array($post->post_type),
+							'context' 	=> 'advanced',
+							'frontend'	=> $this->is_hosted($post) ? false : true,
+						);
+							
 						$this->userFields[] = array(
 						
-							'metabox' 		=> array( 
-					
-								'name' 		=> 'layer-content',
-								'title' 	=> __( $storage_name . ' HTML', 'live-template-editor-client' ),
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend'	=> false,
-							),
+							'metabox' 		=> $metabox,
 							'type'			=> 'code_editor',
 							'code'			=> 'html',
 							'id'			=> 'layerContent',
-							'label'			=> '',
+							'label'			=> __( $storage_name . ' HTML', 'live-template-editor-client' ),
 							'placeholder'	=> "HTML content",
 							'description'	=>''
 						);
+						
+						if( $layer_type->output != 'inline-css' ){
 												
-						$this->userFields[] = array(
+							$this->userFields[] = array(
+							
+								'metabox' 		=> $metabox,
+								'type'			=> 'code_editor',
+								'code'			=> 'css',
+								'id'			=> 'layerCss',
+								'label'			=> __( $storage_name . ' CSS', 'live-template-editor-client' ),
+								'placeholder'	=> "Internal CSS style sheet",
+								'stripcslashes'	=> false,
+								//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+							);
+						}
 						
-							'metabox' 		=> array( 
-					
-								'name' 		=> 'layer-css',
-								'title' 	=> __( $storage_name . ' CSS', 'live-template-editor-client' ),
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend'	=> false,
-							),
-							'type'			=> 'code_editor',
-							'code'			=> 'css',
-							'id'			=> 'layerCss',
-							'label'			=> '',
-							'placeholder'	=> "Internal CSS style sheet",
-							'stripcslashes'	=> false,
-							'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-						);
+						if( $this->is_hosted($post) ){
 						
-						$this->userFields[] = array(
-						
-							'metabox' 		=> array( 
-					
-								'name' 		=> 'layer-js',
-								'title' 	=> __( $storage_name . ' JS', 'live-template-editor-client' ),
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'frontend'	=> false,
-							),
-							'type'			=> 'code_editor',
-							'code'			=> 'js',
-							'id'			=> 'layerJs',
-							'label'			=> '',
-							'placeholder'	=> "Additional Javascript",
-							'stripcslashes'	=> false,
-							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
-						);
+							$this->userFields[] = array(
+							
+								'metabox' 		=> $metabox,
+								'type'			=> 'code_editor',
+								'code'			=> 'js',
+								'id'			=> 'layerJs',
+								'label'			=> __( $storage_name . ' JS', 'live-template-editor-client' ),
+								'placeholder'	=> "Additional Javascript",
+								'stripcslashes'	=> false,
+								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+							);
+						}
 					}
 				}
 				

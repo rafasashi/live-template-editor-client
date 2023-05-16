@@ -642,7 +642,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					// enqueue script
 					
-					$settings = wp_enqueue_code_editor( array( 'type' => $type ) );
+					$settings = wp_enqueue_code_editor( array( 
+						
+						'type' 			=> $type,
+						'codemirror'	=> array(
+						
+							'lint' => is_admin() ? true : false,
+						),
+					));
 					
 					$script = 'jQuery(document).ready(function($) {' . PHP_EOL;
 						
