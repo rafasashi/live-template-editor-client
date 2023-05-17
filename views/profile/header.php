@@ -114,6 +114,4 @@
 		echo '</div>';
 	}
 	
-?>
-
-<nav id="profile_menu" class="formheadersearch" role="navigation" style="background-color:transparent;z-index:998;"></nav>
+	//echo '<nav id="profile_menu" class="formheadersearch" role="navigation" style="background-color:transparent;z-index:998;"></nav>';

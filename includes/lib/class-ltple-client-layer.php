@@ -2283,7 +2283,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'name' 		=> 'Bootstrap 3.3.7',
 						'meta' 	=> array(
 
-							'js_url'		=> 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js',
+							'js_url'		=> 'https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js',
 							'js_content'	=> '
 								<script>
 								;(function($){

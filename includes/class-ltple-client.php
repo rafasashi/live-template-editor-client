@@ -2698,10 +2698,12 @@ class LTPLE_Client {
 			wp_enqueue_script('jquery-notify' );
 		}
 		
+		$framework = LTPLE_Editor::get_framework('css');
+		
 		wp_register_script($this->_token . '-client-ui', esc_url( $this->assets_url ) . 'js/client-ui.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-dialog' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-client-ui' );		
 		
-		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
+		wp_register_script($this->_token . '-bootstrap-js', esc_url( $this->assets_url ) . 'js/'.$framework.'.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-bootstrap-js' );
 
 		if( $this->inWidget ){
@@ -2710,7 +2712,7 @@ class LTPLE_Client {
 			wp_enqueue_script($this->_token . '-widget' );
 			wp_add_inline_script($this->_token . '-widget', $this->get_widget_script() );
 		}
-
+		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-lazyload' );	
 
@@ -2791,9 +2793,6 @@ class LTPLE_Client {
 		wp_register_script( $this->_token . '-client-admin', esc_url( $this->assets_url ) . 'js/admin.js', array( 'jquery' ), $this->_version );
 		wp_enqueue_script( $this->_token . '-client-admin' );
 
-		//wp_register_script($this->_token . '-bootstrap', esc_url( $this->assets_url ) . 'js/bootstrap.min.js', array( 'jquery' ), $this->_version);
-		//wp_enqueue_script( $this->_token . '-bootstrap' );		
-		
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-lazyload' );
 		

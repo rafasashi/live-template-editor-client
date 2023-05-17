@@ -179,7 +179,7 @@
 				
 				echo'<div id="panel" style="background:#fff;">';
 
-					echo'<div class="library-content" style="padding:0;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 130px );">';
+					echo'<div style="padding:0;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 130px );">';
 						
 						if( !$ltple->inWidget ){
 							
