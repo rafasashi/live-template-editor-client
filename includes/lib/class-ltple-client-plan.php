@@ -1589,7 +1589,6 @@ class LTPLE_Client_Plan {
 				if( !empty($plan['options']) ){
 					
 					$taxonomies 			= $this->get_layer_taxonomies_options();
-					$user_has_subscription 	= 'false';
 					$all_updated_terms 		= [];
 					
 					foreach( $taxonomies as $taxonomy => $terms ) {
@@ -1603,12 +1602,6 @@ class LTPLE_Client_Plan {
 								
 								$update_terms[]		= $term->term_id;
 								$update_taxonomy 	= $term->taxonomy;
-								
-								if( $plan['price'] > 0 ){
-									
-									$user_has_subscription = 'true';
-								}
-								
 								$all_updated_terms[] = $term->slug;
 							}
 						}
@@ -1629,13 +1622,6 @@ class LTPLE_Client_Plan {
 						$response = wp_set_object_terms( $user_plan_id, $update_terms, $update_taxonomy, $append );
 
 						clean_object_term_cache( $user_plan_id, $update_taxonomy );
-					}
-					
-					if( $plan['price'] > 0 ){
-					
-						// update user has subscription						
-						
-						update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
 					}
 				}
 				
@@ -2905,8 +2891,6 @@ class LTPLE_Client_Plan {
 		
 		if( isset($_POST[$this->parent->_base . 'user_plan_options']) ){
 			
-			$user_has_subscription = 'false';
-			
 			$all_updated_terms = [];
 			
 			if( !empty($_POST[$this->parent->_base . 'user_plan_options']) ){
@@ -2927,9 +2911,7 @@ class LTPLE_Client_Plan {
 								
 								$term_ids[] = $term->term_id;
 								
-								$all_updated_terms[] = $term->name;
-
-								$user_has_subscription = 'true';					
+								$all_updated_terms[] = $term->name;				
 							}
 						}
 						
@@ -2939,12 +2921,6 @@ class LTPLE_Client_Plan {
 					}
 				}
 			}
-			
-			update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
-			
-			//send admin notification
-								
-			//wp_mail($this->parent->settings->options->emailSupport, 'Plan edited from dashboard - user id ' . $user_id . ' - ip ' . $this->parent->request->ip, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($all_updated_terms,true) . PHP_EOL  . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);
 		}
 	}
 	

@@ -20,7 +20,9 @@
 			
 			$this->list = new stdClass();
 			
-			add_filter('init', array( $this, 'init_periods' ));
+			add_action('admin_init', array( $this, 'handle_bulk_actions' ));
+			
+			add_filter('admin_init', array( $this, 'update_subscription' ));
 			
 			add_filter('ltple_user_loaded', array( $this, 'init_user' ));
 						
@@ -51,25 +53,57 @@
 			add_action('delete_user', array( $this, 'delete_user' ),1,1);
 		}
 
-		public function init_periods(){
+		public function update_subscription(){
 			
-			if( is_admin() ){
+			if( current_user_can('administrator') ){
 				
-				if( !empty($_REQUEST['ltple_update_period']) && is_numeric($_REQUEST['ltple_update_period']) ){
+				if( !empty($_REQUEST['ltple_update_period']) ){
 					
-					// update subscription periods
-					
-					$this->update_periods($_REQUEST['ltple_update_period']);
-					
-					add_action('admin_notices',function(){
+					if( is_numeric($_REQUEST['ltple_update_period'])  ){
 						
-						echo '<div class="notice notice-success is-dismissible">';
+						// update subscription periods
+						
+						$this->update_periods(intval($_REQUEST['ltple_update_period']));
+
+						wp_redirect(add_query_arg(array('ltple_update_period'=>'done'),$this->parent->urls->current));
+						exit;
+					}
+					elseif( $_REQUEST['ltple_update_period'] == 'done' ){
+
+						add_action('admin_notices',function(){
 							
-							echo '<p>Periods updated</p>';
+							echo '<div class="notice notice-success is-dismissible">';
+								
+								echo '<p>Period updated</p>';
+							
+							echo '</div>';
+							
+						});
+					}
+				}
+				elseif(  !empty($_REQUEST['ltple_flush_plan']) ){
+					
+					if( is_numeric($_REQUEST['ltple_flush_plan']) ){
 						
-						echo '</div>';
+						// flush plan
 						
-					});
+						$this->parent->plan->flush_user_plan(intval($_REQUEST['ltple_flush_plan']));
+					
+						wp_redirect(add_query_arg(array('ltple_flush_plan'=>'done'),$this->parent->urls->current));
+						exit;					
+					}
+					elseif( $_REQUEST['ltple_flush_plan'] == 'done' ){
+						
+						add_action('admin_notices',function(){
+							
+							echo '<div class="notice notice-success is-dismissible">';
+								
+								echo '<p>Plan flushed</p>';
+							
+							echo '</div>';
+							
+						});
+					}
 				}
 				
 				// schedule update subscription periods
@@ -416,13 +450,6 @@
 								else{
 									
 									$remaining_days = $this->get_user_remaining_days($user->id);
-									
-									if( $remaining_days < -30 ){
-									
-										// flush user plan
-										
-										$this->parent->plan->flush_user_plan($user->id);
-									}
 								}
 							}
 						}
@@ -725,12 +752,6 @@
 			//$column["name"]		= 'Name';
 			$column["email"]		= 'Email';
 			$column["seen"]			= 'Seen';
-			
-			if( !empty($_GET['s']) ){
-				 
-				$column["subscription"]	= 'Subscription';
-			}
-			
 			$column["channel"]		= 'Channel';
 			$column["stars"]		= 'Stars';
 			$column['notify']		= 'Notify';
@@ -846,8 +867,6 @@
 				
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
 				$this->list->{$user_id}->last_seen 	= isset($meta['ltple__last_seen']) ? $meta['ltple__last_seen'] : '';
-				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
-				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id);
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
 				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
@@ -861,13 +880,12 @@
 			
 			$user_role 	= $this->list->{$user_id}->role;
 			$user_seen 	= $this->list->{$user_id}->last_seen;
-			$user_plan 	= $this->list->{$user_id}->plan;
+			
 			$user_agent	= $this->list->{$user_id}->last_uagent;
 			$user_stars	= $this->list->{$user_id}->stars;
 			$can_spam  	= $this->list->{$user_id}->can_spam;
 			$referredBy	= $this->list->{$user_id}->referredBy;
 			$channel   	= $this->list->{$user_id}->channel;
-			$period_end = $this->list->{$user_id}->period;
 			
 			if ($column_name == "seen") {
 				
@@ -885,48 +903,6 @@
 					$row .= $this->time_ago( '@' . $user_seen );
 					
 				$row .= '</span>';
-			}
-			elseif ($column_name == "subscription") { 
-
-				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
-
-					if( $user_plan['info']['total_fee_amount'] > 0 ){
-						
-						$row .= htmlentities(' ').$user_plan['info']['total_price_currency'].$user_plan['info']['total_fee_amount'].' '.$user_plan['info']['total_fee_period'];
-						$row .= '<br>+';
-					}
-					
-					$row .= $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].'/'.$user_plan['info']['total_price_period'];
-					
-				$row .= '</span>';
-			
-				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
-					
-					if( !empty($period_end) ){
-						
-						$days = floor($this->parent->plan->get_license_remaining_days($period_end));
-
-						$row .= $days . ' ' . ( ($days == 1 || $days == -1) ? 'day' : 'days' ) ;					
-					
-						if( $days < -30 ){
-							
-							$this->parent->plan->flush_user_plan($user_id);
-						}					
-					}
-					else{
-		
-						$row .= $period_end . ' days';
-					}
-					
-				$row .= '</span>';
-				
-				$update_period_url  = add_query_arg(array_merge(array('ltple_update_period'=>$user_id),$_REQUEST),$this->parent->urls->current);
-				
-				$row .= '<a href="'.$update_period_url.'">';
-				
-					$row .= "<img loading='lazy' src='" . $this->parent->assets_url . "images/send.png' width=25 height=25>";
-				
-				$row .= '</a>';
 			}
 			elseif ($column_name == "channel") {
 				
@@ -1010,12 +986,7 @@
 						
 						$days = floor($this->parent->plan->get_license_remaining_days($period_end));
 
-						$row .= $days . ' ' . ( ($days == 1 || $days == -1) ? 'day' : 'days' ) ;					
-					
-						if( $days < -30 ){
-							
-							$this->parent->plan->flush_user_plan($user_id);
-						}					
+						$row .= $days . ' ' . ( ($days == 1 || $days == -1) ? 'day' : 'days' ) ;				
 					}
 					else{
 		
@@ -1023,6 +994,14 @@
 					}
 					
 				$row .= '</span>';
+				
+				$flush_plan_url  = add_query_arg(array_merge(array('ltple_flush_plan'=>$user_id),$_REQUEST),$this->parent->urls->current);
+				
+				$row .= '<a href="'.$flush_plan_url.'">';
+				
+					$row .= "<img loading='lazy' src='" . $this->parent->assets_url . "images/wrong_arrow.png' width=25 height=25>";
+				
+				$row .= '</a>';
 				
 				$update_period_url  = add_query_arg(array_merge(array('ltple_update_period'=>$user_id),$_REQUEST),$this->parent->urls->current);
 				
@@ -1169,9 +1148,11 @@
 					  					
 					// append to top dropdown
 					jQuery('<option>').val('export-emails').text('<?php _e('Export emails')?>').appendTo("select[name='action']");
+					jQuery('<option>').val('refresh-period').text('<?php _e('Refresh period')?>').appendTo("select[name='action']");
 					
 					// append to bottom dropdown
 					jQuery('<option>').val('export-emails').text('<?php _e('Export emails')?>').appendTo("select[name='action2']");
+					jQuery('<option>').val('refresh-period').text('<?php _e('Refresh period')?>').appendTo("select[name='action2']");
 				});
 			
 			</script>
@@ -1241,7 +1222,7 @@
 			}
 			elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 				
-				$users = $_REQUEST['users'];
+				$users = array_map('intval',$_REQUEST['users']);
 			}
 			
 			return $users;
@@ -1270,7 +1251,7 @@
 					}
 					elseif( !empty($_REQUEST['users']) ){
 						
-						$user_ids = $_REQUEST['users'];
+						$user_ids = array_map('intval',$_REQUEST['users']);
 						
 						$users = new WP_User_Query(array(
 						
@@ -1302,6 +1283,31 @@
 					// build the redirect url
 					//$sendback = add_query_arg( array( 'exported' => $exported, 'ltple_view' => $_REQUEST['ltple_view'] ), $sendback );		
 				
+				break;
+				case 'refresh-period':
+					
+					if( !empty($_REQUEST['users']) ){
+						
+						$user_ids = array_map('intval',$_REQUEST['users']);
+						
+						foreach( $user_ids as $user_id){
+							
+							$this->update_periods($user_id);
+						}
+						
+						//redirect url
+						
+						$redirect_url = remove_query_arg( array(
+						
+							'users',
+							'_wp_http_referer',
+							
+						),$this->parent->urls->current);
+					
+						wp_redirect($redirect_url);
+						exit;
+					}
+					
 				break;
 				default:
 					
@@ -1499,7 +1505,9 @@
 					
 					if( current_user_can('delete_users') ){
 						
-						$ids = implode(',',$_REQUEST['users']);
+						$ids = array_map('intval',$_REQUEST['users']);
+						
+						$ids = implode(',',$ids);
 						
 						global $wpdb;
 						
