@@ -1423,16 +1423,6 @@ class LTPLE_Client_Plan {
 		exit;		
 	}
 	
-	public function remote_update_periods( $blocking = false ){
-		
-		wp_remote_request( $this->parent->urls->home . '/?ltple_update=periods', array(
-									
-			'method' 	=> 'GET',
-			'timeout' 	=> 100,
-			'blocking' 	=> $blocking
-		));		
-	}
-	
 	public function remote_get_ids($user_email=''){
 		
 		if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
@@ -1521,7 +1511,7 @@ class LTPLE_Client_Plan {
 								
 								// update period end
 								
-								$this->remote_update_periods(false);
+								$this->parent->users->remote_update_period($user->ID);
 								
 								// store message
 								
@@ -1697,10 +1687,6 @@ class LTPLE_Client_Plan {
 						}
 					}
 				}
-				
-				// update period end
-				
-				$this->remote_update_periods(false);
 			}
 		}
 		
@@ -1751,7 +1737,7 @@ class LTPLE_Client_Plan {
 						
 						// update periods
 						
-						$this->parent->users->update_periods($user_id);
+						$this->parent->users->remote_update_period($user_id);
 					}
 				}
 			}

@@ -51,6 +51,17 @@
 			add_filter('admin_init', array( $this, 'delete_user_manually' ));
 			
 			add_action('delete_user', array( $this, 'delete_user' ),1,1);
+
+			add_action( 'rest_api_init', function () {
+				
+				register_rest_route( 'ltple-user/v1', '/update/period/(?P<user>[\S]+)/(?P<period>[\S]+)', array(
+					
+					'methods' 	=> 'GET',
+					'callback' 	=> array($this,'handle_update_user_period'),
+					'permission_callback' => '__return_true',
+				) );
+				
+			} );
 		}
 
 		public function update_subscription(){
@@ -63,7 +74,7 @@
 						
 						// update subscription periods
 						
-						$this->update_periods(intval($_REQUEST['ltple_update_period']));
+						$this->remote_update_period(intval($_REQUEST['ltple_update_period']));
 
 						wp_redirect(add_query_arg(array('ltple_update_period'=>'done'),$this->parent->urls->current));
 						exit;
@@ -390,7 +401,7 @@
 			//add_filter('pre_get_users', array( $this, 'filter_users_by_role') );			
 		}
 	
-		public function update_periods($user_id=null){ 
+		public function remote_update_period($user_id=null){ 
 			
 			if( $user = get_user_by('id',$user_id) ){
 			
@@ -460,6 +471,25 @@
 					wp_mail($this->parent->settings->options->emailSupport, 'Error updating periods', print_r('',true));
 				}
 			}
+		}
+		
+		public function handle_update_user_period($rest){
+			
+			$user_email = $this->parent->ltple_decrypt_uri($rest['user']);
+			
+			if( $user = get_user_by('email',$user_email) ){
+				
+				$period_end = $this->parent->ltple_decrypt_uri($rest['period']);
+				
+				if( !empty($period_end) && is_numeric($period_end) ){
+					
+					$this->update_user_period($user->ID,$period_end);
+				
+					return true;
+				}
+			}
+			
+			return false;
 		}
 
 		public function update_user_period($user_id=0,$period_end=0){
@@ -1292,7 +1322,7 @@
 						
 						foreach( $user_ids as $user_id){
 							
-							$this->update_periods($user_id);
+							$this->remote_update_period($user_id);
 						}
 						
 						//redirect url

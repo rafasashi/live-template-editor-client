@@ -30,7 +30,7 @@ else{
 		
 		// refresh user period
 		
-		$ltple->users->update_periods($ltple->user->ID);
+		$ltple->users->remote_update_period($ltple->user->ID);
 		
 		// redirect url
 		
