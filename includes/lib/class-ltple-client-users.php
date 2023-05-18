@@ -725,7 +725,12 @@
 			//$column["name"]		= 'Name';
 			$column["email"]		= 'Email';
 			$column["seen"]			= 'Seen';
-			$column["subscription"]	= 'Subscription';
+			
+			if( !empty($_GET['s']) ){
+				 
+				$column["subscription"]	= 'Subscription';
+			}
+			
 			$column["channel"]		= 'Channel';
 			$column["stars"]		= 'Stars';
 			$column['notify']		= 'Notify';
