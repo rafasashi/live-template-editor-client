@@ -1722,14 +1722,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$layer_type = $this->get_layer_type($post);
 					
 					if( $this->is_html_output($layer_type->output) ){
-							
+						
 						$metabox = array( 
 				
 							'name' 		=> 'layer-code',
 							'title' 	=> 'Code',
 							'screen'	=> array($post->post_type),
 							'context' 	=> 'advanced',
-							'frontend'	=> $this->is_hosted($post) ? false : true,
+							'frontend'	=> $this->is_hosted_output($layer_type->output) || $layer_type->output == 'canvas' ? false : true,
 						);
 							
 						$this->userFields[] = array(

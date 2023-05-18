@@ -1354,11 +1354,14 @@ class LTPLE_Client_Profile {
 	
 		$str =  strip_tags($str,'<p><table><tr><th><td><b><strong><em><span><i><br><ul><ol><li><h4><h5>');
 		
-		$str = preg_replace('/ (class|id|style)="[^"]*"/i', '', $str);
+		if( !empty($str) ){
 		
-		$str = '<p>' . str_replace(PHP_EOL,'</p><p>',$str) . '</p>';
+			$str = preg_replace('/ (class|id|style)="[^"]*"/i', '', $str);
 		
-		$str = preg_replace('/^<p>(<p[^>]*>(.*?)<\/p>)<\/p>$/','$1',$str);
+			$str = '<p>' . str_replace(PHP_EOL,'</p><p>',$str) . '</p>';
+		
+			$str = preg_replace('/^<p>(<p[^>]*>(.*?)<\/p>)<\/p>$/','$1',$str);
+		}
 		
 		return $str;
 	}
