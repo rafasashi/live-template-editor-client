@@ -1723,18 +1723,21 @@ class LTPLE_Client_Plan {
 	
 	public function schedule_plan_emails($plan,$user){
 		
-		//send admin notification
+		if( !is_admin() ){
 		
-		if( !empty($plan['price']) || !empty($plan['fee']) ){
-		
-			wp_mail($this->parent->settings->options->emailSupport, 'Plan edited on checkout - user id ' . $user->ID, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($plan,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);
-		} 
-		
-		if( !empty($plan['id']) ){
-		
-			// schedule email series
+			//send admin notification
+			
+			if( !empty($plan['price']) || !empty($plan['fee']) ){
+			
+				wp_mail($this->parent->settings->options->emailSupport, 'Plan edited on checkout - user id ' . $user->ID, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($plan,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);
+			} 
+			
+			if( !empty($plan['id']) ){
+			
+				// schedule email series
 
-			do_action('ltple_schedule_plan_emails',$plan['id'],$user);
+				do_action('ltple_schedule_plan_emails',$plan['id'],$user);
+			}
 		}		
 	}
 
@@ -2740,7 +2743,7 @@ class LTPLE_Client_Plan {
 
 			$price_fields.='<span class="input-group-addon" style="color: #fff;padding: 5px 10px;background: #9E9E9E;">$</span>';
 			
-			$price_fields.='<input type="number" step="0.1" min="-1000" max="1000" placeholder="0" name="'.$taxonomy_name.'-price-amount" id="'.$taxonomy_name.'-price-amount" style="width: 60px;" value="'.$price_amount.'"/>';
+			$price_fields.='<input type="number" step="0.1" min="-10000" max="10000" placeholder="0" name="'.$taxonomy_name.'-price-amount" id="'.$taxonomy_name.'-price-amount" style="width: 60px;" value="'.$price_amount.'"/>';
 			
 			$price_fields.='<span> / </span>';
 			
@@ -2819,7 +2822,7 @@ class LTPLE_Client_Plan {
 
 			$storage_field.='<span class="input-group-addon" style="color: #fff;padding: 5px 10px;background: #9E9E9E;">+</span>';
 			
-			$storage_field.='<input type="number" step="1" min="-1000" max="1000" placeholder="0" name="'.$taxonomy_name.'-storage-amount" id="'.$taxonomy_name.'-storage-amount" style="width: 50px;" value="'.$storage_amount.'"/>';
+			$storage_field.='<input type="number" step="1" min="-10000" max="10000" placeholder="0" name="'.$taxonomy_name.'-storage-amount" id="'.$taxonomy_name.'-storage-amount" style="width: 50px;" value="'.$storage_amount.'"/>';
 			
 			$storage_field.='<select name="range_type" id="'.$taxonomy_name.'-range-type">';
 				
@@ -2883,7 +2886,7 @@ class LTPLE_Client_Plan {
 			
 				$storage_field.='<span class="input-group-addon" style="color:#fff;padding:6px 10px;background:#9E9E9E;">+</span>';
 				
-				$storage_field.='<input type="number" step="1" min="-1000" max="1000" placeholder="0" name="account_storages['.$storage_id.']" style="width:80px;" value="'.$storage_amount.'"/>';
+				$storage_field.='<input type="number" step="1" min="-10000" max="10000" placeholder="0" name="account_storages['.$storage_id.']" style="width:80px;" value="'.$storage_amount.'"/>';
 				
 				$storage_field.='<span class="input-group-addon" style="padding:6px 10px;">'.$storage_unit.'</span>';
 		

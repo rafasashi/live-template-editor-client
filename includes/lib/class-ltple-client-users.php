@@ -725,6 +725,7 @@
 			//$column["name"]		= 'Name';
 			$column["email"]		= 'Email';
 			$column["seen"]			= 'Seen';
+			$column["subscription"]	= 'Subscription';
 			$column["channel"]		= 'Channel';
 			$column["stars"]		= 'Stars';
 			$column['notify']		= 'Notify';
@@ -840,6 +841,8 @@
 				
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
 				$this->list->{$user_id}->last_seen 	= isset($meta['ltple__last_seen']) ? $meta['ltple__last_seen'] : '';
+				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
+				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id);
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
 				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
@@ -853,11 +856,13 @@
 			
 			$user_role 	= $this->list->{$user_id}->role;
 			$user_seen 	= $this->list->{$user_id}->last_seen;
+			$user_plan 	= $this->list->{$user_id}->plan;
 			$user_agent	= $this->list->{$user_id}->last_uagent;
 			$user_stars	= $this->list->{$user_id}->stars;
 			$can_spam  	= $this->list->{$user_id}->can_spam;
 			$referredBy	= $this->list->{$user_id}->referredBy;
 			$channel   	= $this->list->{$user_id}->channel;
+			$period_end = $this->list->{$user_id}->period;
 			
 			if ($column_name == "seen") {
 				
@@ -875,6 +880,48 @@
 					$row .= $this->time_ago( '@' . $user_seen );
 					
 				$row .= '</span>';
+			}
+			elseif ($column_name == "subscription") { 
+
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
+
+					if( $user_plan['info']['total_fee_amount'] > 0 ){
+						
+						$row .= htmlentities(' ').$user_plan['info']['total_price_currency'].$user_plan['info']['total_fee_amount'].' '.$user_plan['info']['total_fee_period'];
+						$row .= '<br>+';
+					}
+					
+					$row .= $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].'/'.$user_plan['info']['total_price_period'];
+					
+				$row .= '</span>';
+			
+				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
+					
+					if( !empty($period_end) ){
+						
+						$days = floor($this->parent->plan->get_license_remaining_days($period_end));
+
+						$row .= $days . ' ' . ( ($days == 1 || $days == -1) ? 'day' : 'days' ) ;					
+					
+						if( $days < -30 ){
+							
+							$this->parent->plan->flush_user_plan($user_id);
+						}					
+					}
+					else{
+		
+						$row .= $period_end . ' days';
+					}
+					
+				$row .= '</span>';
+				
+				$update_period_url  = add_query_arg(array_merge(array('ltple_update_period'=>$user_id),$_REQUEST),$this->parent->urls->current);
+				
+				$row .= '<a href="'.$update_period_url.'">';
+				
+					$row .= "<img loading='lazy' src='" . $this->parent->assets_url . "images/send.png' width=25 height=25>";
+				
+				$row .= '</a>';
 			}
 			elseif ($column_name == "channel") {
 				

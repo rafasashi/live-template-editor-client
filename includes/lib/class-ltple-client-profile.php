@@ -481,6 +481,7 @@ class LTPLE_Client_Profile {
 			font-family: "Open Sans", Helvetica;
 			text-transform: uppercase;
 			font-size: 12px;
+			border-radius:0;
 		}
 		
 		#profile_nav > li > a:hover {
