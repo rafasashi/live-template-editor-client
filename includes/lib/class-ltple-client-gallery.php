@@ -525,13 +525,15 @@ class LTPLE_Client_Gallery {
 						
 						if( $this->parent->inWidget === true ){
 							
+							$action = '';
+							
 							if( $this->parent->plan->user_has_layer( $post ) === true ){
 								
-								$action = '<a target="_parent" class="btn btn-sm btn-success" href="'. $start_url .'" title="Start editing this template">Start</a>';
+								$action .= '<a target="_parent" class="btn btn-sm btn-success" href="'. $start_url .'" title="Start editing this template">Start</a>';
 							}
-							elseif( $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+							elseif( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
-								$action =  '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+								$action .=  '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
 							
 									$action .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
 						

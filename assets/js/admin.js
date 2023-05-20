@@ -18,7 +18,7 @@
 			
 			e.preventDefault();
 			
-			var target 	= "#" + $(this).data("target") + " .input-group";
+			var target 	= "#" + $(this).data("target");
 			
 			if( typeof $(this).data("html") != typeof undefined ){
 				
@@ -26,11 +26,11 @@
 		
 				var $block = $($.parseHTML(html));
 			
-				$(target).append($block);				
+				$(target + " .input-group").append($block);				
 			}
 			else{
 					
-				var $clone 	= $(target).eq(0).clone().removeClass('ui-state-disabled');
+				var $clone 	= $(target + " .input-group-row").eq(0).clone().removeClass('ui-state-disabled');
 				
 				$clone.find('input,textarea,select,radio').val('');
 				

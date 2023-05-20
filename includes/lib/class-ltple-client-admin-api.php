@@ -524,7 +524,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$html .= '<div id="'.$field['id'].'" class="sortable">';
 						
-						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
+						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'" style="line-height:40px;">Add field</a>';
 					
 						$html .= '<ul class="input-group ui-sortable">';
 							
@@ -539,7 +539,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									$class='input-group-row ui-state-default ui-state-disabled';
 								}
 						
-								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
+								$html .= '<li class="'.$class.'" style="display:inline-block;width:100%;">';
 									
 									
 									foreach( $inputs as $i => $input ){
@@ -1005,7 +1005,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 					$html .= '<div id="'.$field['id'].'" class="sortable">';
 						
-						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add field</a>';
+						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'" style="line-height:40px;">Add field</a>';
 					
 						$html .= '<ul class="input-group ui-sortable">';
 							
@@ -1022,7 +1022,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 								$value = str_replace('\\\'','\'',$data['value'][$e]);
 										
-								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;">';
+								$html .= '<li class="'.$class.'" style="display:inline-block;width:100%;">';
 									
 									if( is_array($inputs) ){
 										
@@ -1298,7 +1298,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$class='input-group-row ui-state-default ui-sortable-handle';
 	
-					$html = '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;border-top:1px solid #eee;padding:15px 0 10px 0;margin:0;">';
+					$html = '<li class="'.$class.'" style="display:inline-block;width:100%;border-top:1px solid #eee;padding:15px 0 10px 0;margin:0;">';
 				
 						// inputs
 						
@@ -1406,7 +1406,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 					$html .= '<div id="'.$id.'" class="sortable">';
 						
-						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'-row" style="line-height:40px;">Add element</a>';
+						$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'" style="line-height:40px;">Add element</a>';
 					
 						$html .= '<ul class="input-group ui-sortable" style="width:100%;">';
 							
