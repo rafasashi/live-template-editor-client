@@ -4511,7 +4511,33 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		//output our additional fields
 
 		if( $term->taxonomy == 'layer-type' ){
-		
+
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Storage Unit </label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$this->parent->admin->display_field( array(			
+						
+						'name'			=> 'default_storage',
+						'id'			=> 'default_storage',
+						'label'			=> '',
+						'type'			=> 'select',
+						'options'		=> $this->get_storage_types(),
+						'inline'		=> false,
+						'description'	=> 'Default Post Type used to save the project',
+						
+					), $term );
+					
+				echo'</td>';	
+				
+			echo'</tr>';
+			
 			echo'<tr class="form-field">';
 			
 				echo'<th valign="top" scope="row">';
@@ -4537,71 +4563,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 				echo'</td>';	
 				
-			echo'</tr>';
-
-			echo'<tr class="form-field">';
-			
-				echo'<th valign="top" scope="row">';
-					
-					echo'<label for="category-text">Storage unit </label>';
-				
-				echo'</th>';
-				
-				echo'<td>';
-					
-					$this->parent->admin->display_field( array(			
-						
-						'name'			=> 'default_storage',
-						'id'			=> 'default_storage',
-						'label'			=> '',
-						'type'			=> 'select',
-						'options'		=> $this->get_storage_types(),
-						'inline'		=> false,
-						'description'	=> 'Default Post Type used to save the project',
-						
-					), $term );
-					
-				echo'</td>';	
-				
 			echo'</tr>';			
-		
-			echo'<tr class="form-field">';
-			
-				echo'<th valign="top" scope="row">';
-					
-					echo'<label for="category-text">Visibility </label>';
-				
-				echo'</th>';
-				
-				echo'<td>';
-					
-					$this->parent->admin->display_field( array(			
-						
-						'name'			=> 'visibility_'.$term->slug,
-						'id'			=> 'visibility_'.$term->slug,
-						'label'			=> "",
-						'type'			=> 'radio',
-						'options'		=> array(
-							
-							'anyone'		=> 'Anyone',
-							'admin'			=> 'Admin',
-							'none'			=> 'None',
-						),
-						'inline'		=> false,
-						'data'			=> $this->get_type_visibility($term),
-						'description'	=> 'Visibility in the gallery'
-						
-					), false );
-					
-				echo'</td>';	
-				
-			echo'</tr>';
 			
 			echo'<tr class="form-field">';
 			
 				echo'<th valign="top" scope="row">';
 					
-					echo'<label for="category-text">Gallery section </label>';
+					echo'<label for="category-text">Gallery Section </label>';
 				
 				echo'</th>';
 				
@@ -4640,12 +4608,44 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				echo'</td>';	
 				
 			echo'</tr>';
+
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Gallery Visibility </label>';
+				
+				echo'</th>';
+				 
+				echo'<td>';
+					
+					$this->parent->admin->display_field( array(			
+						
+						'name'			=> 'visibility_'.$term->slug,
+						'id'			=> 'visibility_'.$term->slug,
+						'label'			=> "",
+						'type'			=> 'radio',
+						'options'		=> array(
+							
+							'anyone'		=> 'Anyone',
+							'admin'			=> 'Admin',
+							'none'			=> 'None',
+						),
+						'inline'		=> false,
+						'data'			=> $this->get_type_visibility($term),
+						'description'	=> ''
+						
+					), false );
+					
+				echo'</td>';	
+				
+			echo'</tr>';
 			
 			echo'<tr class="form-field">';
 			
 				echo'<th valign="top" scope="row">';
 					
-					echo'<label for="category-text">Addon range </label>';
+					echo'<label for="category-text">Addon Range </label>';
 				
 				echo'</th>';
 				

@@ -377,7 +377,7 @@
 							
 								's' => !empty($_REQUEST['s']) ? urlencode($_REQUEST['s']) : '',
 								'marketing-channel1' => !empty($_REQUEST['marketing-channel1']) ? intval($_REQUEST['marketing-channel1']) : '',
-							
+								'role'	=> !empty($_REQUEST['role']) ? sanitize_title($_REQUEST['role']) : '',
 							));
 						
 						echo '</h2>';				
