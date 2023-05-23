@@ -760,11 +760,326 @@ class LTPLE_Client_Profile {
 
 		if( $this->id > 0 && $this->in_tab ){
 			
-			include($this->parent->views . '/profile.php');
+			include $this->parent->views . '/profile.php';
 		}
 		
 		return $path;
-	}	
+	}
+	
+	public function get_about_content(){
+		
+		$content = '';
+				
+		// get name
+	
+		$name = ucfirst(get_user_meta( $this->user->ID , 'nickname', true ));
+		
+		$content .= '<div class="profile-heading text-center" style="height:100px;padding:0;">';
+		
+			$content .= '<div class="profile-overlay"></div>';
+		
+			// mobile avatar
+			
+			$content .= '<div class="col-xs-3 col-sm-3 col-md-3 col-lg-2">';
+
+				$content .= '<div class="profile-avatar text-left hidden-sm hidden-md hidden-lg" style="padding:12px 8px;position:absolute;">';
+				
+					$content .= '<img style="border:none;" src="' . $this->picture . '" height="70" width="70" />';
+					
+				$content .= '</div>';					
+			
+			$content .= '</div>';
+			
+			$content .= '<div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">';
+			
+				$content .= '<h2 style="font-size:calc( 0.5vw + 15px );float:left;padding:35px 0 0 0;margin:0;">' . $name . '</h2>';
+			
+			$content .= '</div>';
+			
+		$content .= '</div>';
+		
+		$content .= '<div id="profile_page" style="display:block;">';
+
+			$content .= '<div id="panel" style="display:inline-block !important;box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
+
+				$content .= '<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2 hidden-xs text-center" style="padding:30px;">';
+						
+					// desktop avatar	
+						
+					$content .= '<div class="profile-avatar text-center hidden-xs" style="margin: -90px 10px 25px 10px;position:relative;">';
+					
+						$content .= '<img src="' . $this->picture . '" height="150" width="150" />';
+						
+						if( $this->is_pro ){
+							
+							$content .= '<span class="label label-primary" style="position:absolute;bottom:10%;right:16%;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';					
+						}						
+						
+					$content .= '</div>';
+					
+					if( $this->parent->settings->options->enable_ranking == 'on' ){
+						
+						// user stars
+						
+						$content .= '<span class="badge" style="background-color:#fff;color:' . $this->parent->settings->mainColor . ';font-size:18px;border-radius: 25px;padding: 8px 18px;box-shadow: inset 0px 0px 1px #666;">';
+							
+							$content .= '<span class="fa fa-star" aria-hidden="true"></span> ';
+							
+							$content .= $this->parent->stars->get_count($this->user->ID);
+					
+						$content .= '</span>';
+					}
+					
+					// social icons
+
+					$content .= '<div id="social_icons" class="text-center" style="margin:20px 0 0 0;">';
+							
+						$content .= apply_filters('ltple_before_social_icons','');
+						
+						if( !empty($this->apps) ){		
+							
+							foreach( $this->apps as $app ){
+								
+								if( !empty($app->user_profile) && !empty($app->social_icon) ){
+									
+									$show_profile = get_user_meta($this->user->ID,$this->parent->_base . 'app_profile_' . $app->ID,true);
+									
+									if( $show_profile != 'off' ){
+										
+										$content .= '<a href="' . $app->user_profile . '" style="margin:5px;display:inline-block;" ref="nofollow" target="_blank">';
+											
+											$content .= '<img src="' . $app->social_icon . '" />';
+											
+										$content .= '</a>';
+									}
+								}
+							}
+						}
+						
+						$content .= apply_filters('ltple_after_social_icons','');
+						
+					$content .= '</div>';
+				
+				$content .= '</div>';
+
+				$content .= '<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="padding:0;border-left:1px solid #ddd;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 150px );">';
+					
+					$content .= $this->get_navbar_content();
+
+					if( !empty($this->tabs) ){
+					
+						foreach( $this->tabs as $tab){
+							
+							if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
+
+								$content .= '<div class="tab-pane active" id="'.$tab['slug'].'">';
+								
+									if(!empty($this->parent->message)){ 
+									
+										//output message
+									
+										$content .= $this->parent->message;
+									}									
+								
+									$content .= $tab['content'];
+									
+								$content .= '</div>';
+								
+								break;
+							}							
+						}
+					}
+					
+				$content .= '</div>';
+				
+			$content .= '</div>';
+	
+		$content .= '</div>';
+		
+		return $content;
+	}
+	
+	public function get_navbar_content(){
+		
+		$content = '<ul id="profile_nav" class="nav nav-pills nav-resizable" role="tablist">';
+			
+			/*
+			if( $this->parent->inWidget ){
+				
+				$content .= '<li>';
+				
+					$content .= $this->parent->get_collapse_button();
+					
+				$content .= '</li>';
+			}
+			*/
+			
+			foreach( $this->tabs as $tab){
+				
+				if( !empty($tab['name']) ){
+
+					$active = ( $tab['slug'] == $this->tab ? ' active' : '');
+
+					$url = $this->url . '/';
+
+					if( $tab['slug'] != 'home' ){
+						
+						$url .= $tab['slug'] . '/';
+					}
+					
+					$content .= '<li role="presentation" class="'.$active.'">';
+					
+						$content .= '<a href="' . $url . '" role="tab">'.$tab['name'].'</a>';
+					
+					$content .= '</li>';
+				}
+			}
+			
+		$content .= '</ul>';
+
+		if( !$this->is_public() && $this->is_self() ){
+			
+			$content .= '<div class="alert alert-warning row" style="margin:0 0 0 0 !important;">';
+				
+				$content .= '<div class="col-xs-9">';
+				
+					$content .= 'Your profile is restricted, only you can see this page.';
+				
+				$content .= '</div>';
+				
+				$content .= '<div class="col-xs-3 text-right">';
+				
+					$content .= '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-settings">Start</a>';
+				
+				$content .= '</div>';
+				
+			$content .= '</div>';			
+		}
+		elseif( $this->is_unclaimed() ){
+			
+			$content .= '<div class="alert alert-info row" style="margin:0px 0 20px 0 !important;">';
+				
+				$content .= '<div class="col-xs-9">';
+					
+					$content .= 'This profile was auto generated';
+				
+				$content .= '</div>';
+				
+				$content .= '<div class="col-xs-3 text-right">';
+				
+					$content .= '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->home . '/contact/">Claim it</a>';
+				
+				$content .= '</div>';
+				
+			$content .= '</div>';
+		}
+						
+		return $content;
+	}
+	
+	public function render_page_content(){
+		
+		$content = $this->get_page_template();
+				
+		if( strpos($content,'{{ site_name }}') !== false ){
+
+			$name = ucfirst(get_user_meta( $this->user->ID , 'nickname', true ));
+			
+			$content = str_replace('{{ site_name }}',$name,$content);
+		}
+		
+		if( strpos($content,'{{ avatar_url }}') !== false ){
+			
+			$avatar = $this->picture;
+			
+			$content = str_replace('{{ avatar_url }}',$avatar,$content);
+		}
+		
+		if( strpos($content,'{{ navbar }}') !== false ){
+			
+			$navbar = $this->get_navbar_content();
+			
+			$content = str_replace('{{ navbar }}',$navbar,$content);
+		}
+		
+		if( strpos($content,'{{ content }}') !== false ){
+			
+			$tab_content = $this->get_tab_content();
+			
+			$content = str_replace('{{ content }}',$tab_content,$content);
+		}
+		
+		if( $this->tab == 'theme' ){
+			
+			$content = apply_filters('wp_filter_content_tags',$content);
+		}
+		
+		return $content;
+	}
+	
+	public function get_page_template(){
+		
+		$template = '<div class="profile-heading text-center" style="height:80px;padding:0;">';
+		
+			$template .= '<div class="profile-overlay"></div>';
+		
+			// avatar
+
+			$template .= '<div class="profile-avatar text-left" style="padding:10px;position:absolute;">';
+			
+				$template .= '<img style="border:none;" src="{{ avatar_url }}" height="55" width="55" />';
+				
+			$template .= '</div>';					
+			
+			$template .= '<h2 style="font-size:23px;float:left;padding:25px 0 0 85px;margin:0;line-height:25px;">{{ site_name }}</h2>';
+			
+		$template .= '</div>';
+		
+		$template .= '<div id="profile_page" style="display:block;">';
+			
+			$template .= '<div id="panel" style="padding:0;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 130px );">';
+
+				$template .= '{{ navbar }}';
+					
+				$template .= '{{ content }}';
+
+			$template .= '</div>';
+			
+		$template .= '</div>';
+		
+		return apply_filters('ltple_theme_template',$template,$this->tab);
+	}
+	
+	public function get_tab_content(){
+		
+		$content = '';
+
+		if( !empty($this->tabs) ){
+		
+			foreach( $this->tabs as $tab){
+				
+				if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
+
+					$content .= '<div class="tab-pane active" id="'.$tab['slug'].'">';
+					
+						if(!empty($this->parent->message)){ 
+						
+							//output message
+						
+							$content .= $this->parent->message;
+						}									
+					
+						$content .= $tab['content'];
+
+					$content .= '</div>';
+					
+					break;
+				}							
+			}
+		}
+		
+		return $content;
+	}
 	
 	public function get_profile_shortcode(){
 		

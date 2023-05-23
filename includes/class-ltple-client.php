@@ -894,7 +894,7 @@ class LTPLE_Client {
 							
 							$this->profile->set_profile($user_id,$tab,$layer->post_name,false);
 							
-							include($this->views . '/profile.php');					
+							return $this->views . '/profile.php';					
 						}
 						elseif( $layer->post_type == 'default-element' ) {
 							

@@ -612,9 +612,11 @@ class LTPLE_Client_Settings {
 				3
 			);
 			
+			$added = array();
+			
 			foreach( $this->tabs['default-contents'] as $slug => $tab ){
 				
-				if( !empty($tab['tab']) && !empty($tab['in_menu']) ){
+				if( !empty($tab['tab']) && !empty($tab['in_menu']) && !in_array($tab['tab'],$added) ){
 					
 					if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
 						
@@ -636,6 +638,8 @@ class LTPLE_Client_Settings {
 							'edit.php?post_type='.$slug
 						);
 					}
+					
+					$added[] = $tab['tab'];
 				}
 			}
 		}
@@ -655,9 +659,11 @@ class LTPLE_Client_Settings {
 				3
 			);
 			
+			$added = array();
+			
 			foreach( $this->tabs['user-contents'] as $slug => $tab ){
 				
-				if( !empty($tab['tab']) && !empty($tab['in_menu']) ){
+				if( !empty($tab['tab']) && !empty($tab['in_menu']) && !in_array($tab['tab'],$added) ){
 					
 					if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
 						
@@ -679,6 +685,8 @@ class LTPLE_Client_Settings {
 							'edit.php?post_type='.$slug
 						);
 					}
+					
+					$added[] = $tab['tab'];
 				}
 			}
 		}
@@ -1239,9 +1247,11 @@ class LTPLE_Client_Settings {
 								
 									echo '<ul>';
 										
+										$added = array();
+										
 										foreach( $this->tabs['default-contents'] as $slug => $tab ){
 											
-											if( !empty($tab['tab']) && !empty($tab['in_menu']) ){
+											if( !empty($tab['tab']) && !empty($tab['in_menu']) && !in_array($tab['tab'],$added) ){
 												
 												if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
 													
@@ -1253,6 +1263,8 @@ class LTPLE_Client_Settings {
 												}
 												
 												echo '<li><a href="'.get_admin_url(null,$path).'">' . $tab['tab'] . '</a></li>';
+											
+												$added[] = $tab['tab'];
 											}
 										}
 										
@@ -1297,9 +1309,11 @@ class LTPLE_Client_Settings {
 								
 									echo '<ul>';
 										
+										$added = array();
+										
 										foreach( $this->tabs['user-contents'] as $slug => $tab ){
 											
-											if( !empty($tab['tab']) && !empty($tab['in_menu']) ){
+											if( !empty($tab['tab']) && !empty($tab['in_menu']) && !in_array($tab['tab'],$added) ){
 												
 												if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
 													
@@ -1311,6 +1325,8 @@ class LTPLE_Client_Settings {
 												}
 												
 												echo '<li><a href="'.get_admin_url(null,$path).'">' . $tab['tab'] . '</a></li>';
+											
+												$added[] = $tab['tab'];
 											}
 										}
 										
