@@ -1519,19 +1519,19 @@ class LTPLE_Client_Profile {
 			
 			if( $theme = get_post($theme_id) ){
 				
+				$vars = array(
+					
+					'css' => array(
+					
+						'main_color' 	=> $this->parent->settings->mainColor,
+						'navbar_color' 	=> $this->parent->settings->navbarColor,
+						'link_color' 	=> $this->parent->settings->linkColor,
+					),
+				);
+				
 				if( $theme->post_type == 'user-theme' || $theme->ID == $layer->ID  ){
 					
 					if( $theme->post_author == $layer->post_author || $layer->post_type == 'cb-default-layer' ){
-						
-						$vars = array(
-							
-							'css' => array(
-							
-								'main_color' 	=> $this->parent->settings->mainColor,
-								'navbar_color' 	=> $this->parent->settings->navbarColor,
-								'link_color' 	=> $this->parent->settings->linkColor,
-							),
-						);
 						
 						// get css variables
 						
@@ -1580,10 +1580,10 @@ class LTPLE_Client_Profile {
 								}
 							}
 						}
-						
-						$theme->variables = $vars;
 					}
 				}
+				
+				$theme->variables = $vars;
 			}
 			
 			$this->theme = $theme;
