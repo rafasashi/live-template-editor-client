@@ -326,7 +326,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			return $editor_actions;
 		});
-		
+
 		// user layer
 		
 		add_filter('manage_user-layer_posts_columns', array( $this, 'set_user_layer_columns'),99999);
@@ -815,53 +815,148 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 					// get layer content
 					
+					$metabox = array(
+						
+						'name' 		=> 'layer-content',
+						'title' 	=> __( $storage_name . ' HTML', 'live-template-editor-client' ), 
+						'screen'	=> array($post->post_type),
+						'context' 	=> 'advanced',
+						'add_new'	=> false,
+					);
+					
 					$this->defaultFields[]=array(
 					
-						'metabox' => array(
-						
-							'name' 		=> 'layer-content',
-							'title' 	=> __( $storage_name . ' HTML', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced',
-							'add_new'	=> false,
-						),
-						
-						'id'			=> "layerContent",
+						'metabox' 		=> $metabox,
+						'id'			=> 'layerContent',
 						'type'			=> 'code_editor',
 						'code'			=> 'html',
-						'placeholder'	=> "HTML content",
-						//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>',
-					);			
-		
+						'placeholder'	=> 'HTML content',
+					);
+					
+					if( $layer_type->storage == 'user-theme' ){
+
+						$this->defaultFields[]=array(
+						
+							'metabox' 		=> $metabox,
+							'id'			=> 'layerContentVars',
+							'type'			=> 'html',
+							'data'			=> '<table class="widefat striped" style="border:1px solid #eee;">
+								<tr>
+									<th colspan="2">
+										<b>Default HTML Variables</b>
+									</th>
+								</tr>
+								<tr>
+									<td>
+										Profile
+									</td>
+									<td>
+										{{ profile.avatar.url }} 
+										<br>
+										{{ profile.banner.url }}
+									</td>
+								</tr>
+								<tr>
+									<td>
+										Site
+									</td>
+									<td>
+										{{ site.name }}
+									</td>
+								</tr>
+								<tr>
+									<td>
+										Theme
+									</td>
+									<td>
+										{{ theme.navbar }}
+									</td>
+								</tr>
+								<tr>
+									<td>
+										Page
+									</td>
+									<td>
+										{{ page.content }}
+									</td>
+								</tr>
+							</table>',
+						);
+					}
+					
 					if( $layer_type->output != 'inline-css' ){
 						
 						// get layer css
 						
+						$metabox = array(
+							
+							'name' 		=> 'layer-css',
+							'title' 	=> __( $storage_name . ' CSS', 'live-template-editor-client' ), 
+							'screen'	=> array($post->post_type),
+							'context' 	=> 'advanced',
+							'add_new'	=> false,
+						);
+						
 						$this->defaultFields[]=array(
 						
-							'metabox' => array(
-							
-								'name' 		=> 'layer-css',
-								'title' 	=> __( $storage_name . ' CSS', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
-								'context' 	=> 'advanced',
-								'add_new'	=> false,
-							),
-							
-							'id'			=> "layerCss",
+							'metabox' 		=> $metabox,
+							'id'			=> 'layerCss',
 							'type'			=> 'code_editor',
 							'code'			=> 'css',
 							'stripcslashes'	=> false,
 							'htmlentities'	=> false,
-							'placeholder'	=> "Internal CSS style sheet",
-							'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
+							'placeholder'	=> 'CSS rules without '.htmlentities('<style></style>'),
+							'description'	=> ''
 						);
+						
+						$this->defaultFields[]=array(
+						
+							'metabox' 		=> $metabox,
+							'id'			=> 'layerContentVars',
+							'type'			=> 'html',
+							'data'			=> '<table class="widefat striped" style="border:1px solid #eee;">
+								<tr>
+									<th colspan="2">
+										<b>Default CSS Variables</b>
+									</th>
+								</tr>
+								<tr>
+									<td>
+										Theme
+									</td>
+									<td>
+										{{ theme.css.main_color }}
+										<br>
+										{{ theme.css.navbar_color }}
+										<br>
+										{{ theme.css.link_color }}
+									</td>
+								</tr>
+							</table>',
+						);
+						
+						if( $layer_type->storage == 'user-theme' ){
+							
+							$this->defaultFields[]=array(
+							
+								'metabox' 		=> $metabox,
+								'id'			=> 'layerCssVars',
+								'type'			=> 'form',
+								'inputs'		=> array(
+								
+									'select',
+									'color',
+								),
+								'default' 		=> apply_filters('ltple_default_layer_css_variables_form_data',array(),$layer_type),
+								'description'	=> '',
+							);
+						}
 					}
 					
 					if( $post->post_type == 'cb-default-layer' ){
 						
 						if( $this->is_hosted_output($layer_type->output)  ){		
-												
+							
 							$this->defaultFields[]=array(
 							
 								'metabox' => array(
@@ -872,10 +967,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									'context' 	=> 'advanced'
 								),
 								
-								'id'			=> "layerJs",
+								'id'			=> 'layerJs',
 								'type'			=> 'code_editor',
 								'code'			=> 'javascript',
-								'placeholder'	=> "Additional Javascript",
+								'placeholder'	=> 'Additional Javascript',
 								'stripcslashes'	=> false,
 								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 							);
@@ -891,11 +986,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 										'screen'	=> array($post->post_type),
 										'context' 	=> 'advanced'
 									),
-									
-									'id'			=> "layerMeta",
+									'id'			=> 'layerMeta',
 									'type'			=> 'code_editor',
 									'code'			=> 'json',
-									'placeholder'	=> "JSON",
+									'placeholder'	=> 'JSON',
 									'description'	=> '<i>Additional Meta Data</i>'
 								);	
 							}
@@ -1011,14 +1105,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'add_new'	=> false,
 						),
 						
-						'id'			=> "layerJson",
+						'id'			=> 'layerJson',
 						'type'			=> 'code_editor',
 						'code'			=> 'json',
-						'placeholder'	=> "JSON content",
+						'placeholder'	=> 'JSON content',
 					);
 				}
 
-				
 				if( $post->post_type == 'cb-default-layer' ){
 					
 					if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
@@ -1033,7 +1126,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'context' 	=> 'side',
 								'frontend' 	=> false,
 							),
-							'id'			=> "layerForm",
+							'id'			=> 'layerForm',
 							'type'			=> 'radio',
 							'options'		=> array(
 							
@@ -1054,7 +1147,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'context' 	=> 'side',
 							'frontend' 	=> false,
 						),	
-						'id'			=> "layerVisibility",
+						'id'			=> 'layerVisibility',
 						'type'			=> 'radio',
 						'options'		=> array(
 						
@@ -1560,7 +1653,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_editable_layer_tabs($tabs,$layer){
 
-		$edit = '<div style="background:#fbfbfb;padding:152px 0;text-align:center;">'; 
+		$edit = '<div style="background:#fbfbfb;border:1px solid #eee;padding:152px 0;text-align:center;">'; 
 	
 			$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->edit . '?uri=' . $layer->ID . '">Open in Editor</a>';
 
@@ -1641,22 +1734,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( isset($_GET['uri']) ){
 			
-			$id = $_GET['uri'];
-		}
-		elseif( $post = $this->parent->profile->get_profile_post() ){
-			
-			$id = $post->ID;
+			$id = intval($_GET['uri']);
 		}
 		elseif( is_user_logged_in() && !is_admin() && !empty($_GET['p']) && !empty($_GET['preview']) && !empty($_GET['post_type']) ){
 			
 			// get id from preview url
 			
-			if( $post = get_post($_GET['p']) ){
+			if( $post = get_post(intval($_GET['p'])) ){
 				
 				if( intval($post->post_author) == $this->parent->user->ID )
 				
 					$id = $post->ID;
 			}
+		}
+		elseif( $post = $this->parent->profile->get_profile_post() ){
+			
+			$id = $post->ID;
 		}
 		else{
 			
@@ -1705,10 +1798,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( empty($this->userFields) ){
 			
 			//get post
-			
+
 			if( empty($post) ){
 				
-				$post = get_post();
+				if( is_admin() ){
+					
+					$post_id = get_the_ID();
+				}
+				elseif( !empty($_GET['id']) ){
+			
+					$post_id = intval($_GET['id']);
+				}
+				
+				if( !empty($post_id) ){
+					
+					$post = get_post($post_id);
+				}
 			}
 			
 			if( !empty($post->ID) ){
@@ -1773,16 +1878,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							);
 						}
 					}
-				}
-				
-				do_action('ltple_user_layer_fields',$post,array( 
 					
-					'name' 		=> 'ltple-settings',
-					'title' 	=> __( $storage_name . ' Editor Settings', 'live-template-editor-client' ), 
-					'screen'	=> array($post->post_type),
-					'context' 	=> 'advanced',
-					'frontend'	=> false,
-				));
+					do_action('ltple_user_layer_fields',$post,array( 
+						
+						'name' 		=> 'ltple-settings',
+						'title' 	=> __( $storage_name . ' Editor Settings', 'live-template-editor-client' ), 
+						'screen'	=> array($post->post_type),
+						'context' 	=> 'advanced',
+						'frontend'	=> false,
+					));					
+				}
 			}
 		}
 		
@@ -3307,65 +3412,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						//get element libraries
 						
 						$this->layerHtmlLibraries = $this->get_libraries($this->defaultId,'element');
-
-						if( $this->is_hosted_output($this->layerOutput) ){
-							
-							// get layer menu
-							
-							$this->layerMenuId = intval(get_post_meta( $this->id, 'layerMenuId', true ));	
-							
-							if( $this->layerMenuId > 0 ){
-								
-								$menu = get_post($this->layerMenuId);
-								
-								if( !empty($menu->post_status) && $menu->post_status == 'publish' ){
-									
-									$this->layerMenuDefaultId = $this->get_default_id($menu->ID);
-									
-									if( $this->layerMenuDefaultId > 0 ){
-											
-										// get menu content	
-											
-										$this->layerMenuContent = get_post_meta( $menu->ID, 'layerContent', true );
-										
-										if( empty($this->layerMenuContent) ){
-											
-											$this->layerMenuContent = get_post_meta( $this->layerMenuDefaultId, 'layerContent', true );
-										}
-										
-										// get menu css
-										
-										$this->layerMenuCss = get_post_meta( $menu->ID, 'layerCss', true );
-										
-										if( empty($this->layerMenuCss) ){
-											
-											$this->layerMenuCss = get_post_meta( $this->layerMenuDefaultId, 'layerCss', true );
-										}
-										
-										// get menu js	
-										
-										$this->layerMenuJs = $this->get_layer_js($menu->ID);
-										
-										if( empty($this->layerMenuJs) ){
-											
-											$this->layerMenuJs = $this->get_layer_js($this->layerMenuDefaultId);
-										}
-										
-										//get menu css libraries
-
-										$this->layerCssLibraries = array_merge($this->layerCssLibraries,$this->get_libraries($this->layerMenuDefaultId,'css'));
-
-										//get menu js libraries
-										
-										$this->layerJsLibraries = array_merge($this->layerJsLibraries,$this->get_libraries($this->layerMenuDefaultId,'js'));								
-										
-										//get menu font libraries
-										
-										$this->layerFontLibraries = array_merge($this->layerFontLibraries,$this->get_libraries($this->layerMenuDefaultId,'font'));																			
-									}
-								}
-							}
-						}
 					}
 				}
 			}
@@ -3506,6 +3552,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$content = str_replace('\\','\\\\',$content);
 		
+		// filter content
+		
+		$content = apply_filters('ltple_parse_css_variables',$content);
+		
 		// parse content
 		
 		include_once($this->parent->vendor . '/autoload.php');
@@ -3635,7 +3685,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		// normalize white spaces
 
 		$content = preg_replace('/[\t\r\n]+/S', '', $content);
-
+		
 		return $content;
 	}
 	
@@ -3837,11 +3887,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$layerCss = !empty($this->layerCss) ? $this->layerCss : '';
 		
-			if( !empty($this->layerMenuCss) ){
-				
-				$layerCss .= $this->parse_css_content($this->layerMenuCss, '.menu-' . $this->layerMenuId);
-			}
-			
 			$defaultJs 	= !empty($this->defaultJs) 	? $this->defaultJs 	: '';
 
 			$layerJs 	= !empty($this->layerJs) 	? $this->layerJs 	: '';
@@ -4160,17 +4205,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		//include layer
 		
 		$layer_template = get_page_template_slug( $this->id );
-
-		// layer menu
-		
-		if( !empty($this->layerMenuContent) ){
-			
-			$body .= '<div class="menu-' . $this->layerMenuId . '">';
-					
-				$body .= $this->layerMenuContent;
-				
-			$body .= '</div>';
-		}
 		
 		if( $this->in_editor() ){
 			
@@ -4226,11 +4260,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$body .= $layerJs .PHP_EOL;				
 			}
-			
-			if( !empty($this->layerMenuJs) ){
-
-				$body .= $this->layerMenuJs .PHP_EOL;				
-			}				
 			
 		$body .='</script>' .PHP_EOL;
 		

@@ -702,25 +702,6 @@ class LTPLE_Client_Settings {
 	}
 	
 	/**
-	 * Load settings JS & CSS
-	 * @return void
-	 */
-	public function settings_assets ( $version = '1.0.1' ) {
-
-		// We're including the farbtastic script & styles here because they're needed for the colour picker
-		// If you're not including a colour picker field then you can leave these calls out as well as the farbtastic dependency for the cbp-admin-js script below
-		wp_enqueue_style( 'farbtastic' );
-    	wp_enqueue_script( 'farbtastic' );
-
-    	// We're including the WP media scripts here because they're needed for the image upload field
-    	// If you're not including an image upload then you can leave this function call out
-    	wp_enqueue_media();
-		
-    	wp_register_script( $this->parent->_token . '-settings-js', $this->parent->assets_url . 'js/settings.js', array( 'farbtastic', 'jquery' ), $version );
-    	wp_enqueue_script( $this->parent->_token . '-settings-js' );
-	}
-
-	/**
 	 * Add settings link to plugin list table
 	 * @param  array $links Existing links
 	 * @return array 		Modified links
@@ -843,7 +824,7 @@ class LTPLE_Client_Settings {
 					'id' 			=> 'homeLogo',
 					'label'			=> __( 'Home Logo' , 'live-template-editor-client' ),
 					'description'	=> 'Logo url 100 x 50 recommended',
-					'type'			=> 'text',
+					'type'			=> 'url',
 					'placeholder'	=> 'https://',
 					'default'		=> $this->options->logo_url
 				),
@@ -851,7 +832,7 @@ class LTPLE_Client_Settings {
 					'id' 			=> 'profileHeader',
 					'label'			=> __( 'Profile Header' , 'live-template-editor-client' ),
 					'description'	=> 'Header url 1920 x 1080 recommended',
-					'type'			=> 'text',
+					'type'			=> 'url',
 					'placeholder'	=> 'https://',
 					'default'		=> $this->options->profile_header
 				),
@@ -859,7 +840,7 @@ class LTPLE_Client_Settings {
 					'id' 			=> 'socialIcon',
 					'label'			=> __( 'Social Icon' , 'live-template-editor-client' ),
 					'description'	=> 'Icon url 120 x 120 recommended',
-					'type'			=> 'text',
+					'type'			=> 'url',
 					'placeholder'	=> 'https://',
 					'default'		=> $this->options->social_icon
 				),
@@ -867,7 +848,7 @@ class LTPLE_Client_Settings {
 					'id' 			=> 'titleBkg',
 					'label'			=> __( 'Title Background' , 'live-template-editor-client' ),
 					'description'	=> 'Header url 2560 x 470 recommended',
-					'type'			=> 'text',
+					'type'			=> 'url',
 					'placeholder'	=> 'https://',
 					'default'		=> '',
 				),
@@ -875,7 +856,7 @@ class LTPLE_Client_Settings {
 					'id' 			=> 'navbarColor',
 					'label'			=> __( 'Navbar Color' , 'live-template-editor-client' ),
 					'description'	=> '',
-					'type'			=> 'text',
+					'type'			=> 'color',
 					'placeholder'	=> '#182f42',
 					'default'		=> '#182f42',
 				),
@@ -883,7 +864,7 @@ class LTPLE_Client_Settings {
 					'id' 			=> 'mainColor',
 					'label'			=> __( 'Main Color' , 'live-template-editor-client' ),
 					'description'	=> '',
-					'type'			=> 'text',
+					'type'			=> 'color',
 					'placeholder'	=> '#F86D18',
 					'default'		=> '#F86D18',
 				),
@@ -891,7 +872,7 @@ class LTPLE_Client_Settings {
 					'id' 			=> 'linkColor',
 					'label'			=> __( 'Link Color' , 'live-template-editor-client' ),
 					'description'	=> '',
-					'type'			=> 'text',
+					'type'			=> 'color',
 					'placeholder'	=> '#F86D18',
 					'default'		=> '#F86D18',
 				),
@@ -907,7 +888,7 @@ class LTPLE_Client_Settings {
 					'name' 			=> 'main_image',
 					'label'			=> __( 'Cover image' , 'live-template-editor-client' ),
 					'description'	=> 'Main cover image for plans',
-					'type'			=> 'text',
+					'type'			=> 'url',
 					'placeholder'	=> 'https://',
 				),
 			))

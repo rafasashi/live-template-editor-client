@@ -1,16 +1,18 @@
 <?php
 	
-	$ltple = LTPLE_Client::instance();
-	
+$ltple = LTPLE_Client::instance();
+
 	include_once( $ltple->views . '/profile/header.php' );
 	
-	if( $ltple->profile->is_public()|| $ltple->profile->is_self() ){
+	echo '<div id="ltple-content" style="min-height:100vh;">';
+	
+	if( $ltple->profile->is_public() || $ltple->profile->is_self() ){
 		
 		if( !$ltple->inWidget ){
 			
 			if( $ltple->profile->tab == 'about' ){
 				
-				echo $ltple->profile->get_about_content();
+				echo $ltple->profile->render_about_page();
 			}
 			else{
 				
@@ -35,5 +37,7 @@
 			
 		echo '</div>';
 	}
+	
+	echo '</div>';
 	
 	include_once( $ltple->views . '/profile/footer.php' );

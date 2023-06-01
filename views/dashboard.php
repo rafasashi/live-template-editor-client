@@ -12,8 +12,6 @@ echo'<div id="media_library" class="wrapper">';
 	
 	echo '<div id="sidebar">';
 			
-		echo '<div class="gallery_type_title gallery_head">Dashboard</div>';
-
 		echo '<ul class="nav nav-tabs tabs-left">';
 			
 			echo apply_filters('ltple_dashboard_sidebar','',$currentTab);

@@ -284,7 +284,7 @@ class LTPLE_Client_Integrator_Bookmark extends LTPLE_Client_Integrator {
 				
 				$input = str_replace('{'.$k.'}',' '.$this->parent->admin->display_field( $field, false, false ).' ',$input);				
 			}
-
+			
 			$this->message .= '<form action="' . $this->parent->urls->current . '" method="post">';
 				
 				$this->message .= '<div class="col-xs-8">';
@@ -321,7 +321,7 @@ class LTPLE_Client_Integrator_Bookmark extends LTPLE_Client_Integrator {
 							
 							$this->message .= '<div class="col-xs-6 text-right" style="margin-top:10px;">';
 							
-								$this->message .= '<button class="btn btn-sm btn-primary" type="submit">Connect</button>';
+								$this->message .= '<button class="btn btn-sm btn-success" type="submit">Add</button>';
 							
 							$this->message .= '</div>';
 							

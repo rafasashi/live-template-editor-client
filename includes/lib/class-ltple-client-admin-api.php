@@ -624,7 +624,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$html .= '<div id="' . $id . '" style="width:100%;height:300px;">';
 					
-						$html .= '<div class="btn-wrapper" style="background:#fbfbfb;padding:120px 0;text-align:center;">';
+						$html .= '<div class="btn-wrapper" style="background:#fbfbfb;border:1px solid #eee;padding:120px 0;text-align:center;">';
 							
 							// using <button> triggers post update if page not ready
 							
@@ -1132,16 +1132,32 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		
 					$id = ( !empty($field['id']) ? $field['id'] : 'form' );
 					
+					$inputs = !empty($field['inputs']) && is_array($field['inputs']) ? $field['inputs'] : array(
+					
+						'checkbox',
+						'select',
+						'text',
+						'textarea',
+						'number',
+						'length',
+						'weight',
+						'password',
+						'url',
+						'color',
+						'submit',
+					);
+					
 					$html .= '<div id="'.$id.'" class="sortable">';
 						
 						if( !isset($field['action']) ){
 						
 							$html .= ' <a href="#" class="add-input-group" data-target="'.$field['id'].'" style="line-height:40px;" data-html="' . esc_html($this->display_field(array(
 												
-								'id'	=> $id,
-								'name'	=> $id,
-								'type'	=> 'form_fields',
-								'data'	=> array(
+								'id'		=> $id,
+								'name'		=> $id,
+								'type'		=> 'form_fields',
+								'inputs'	=> $inputs,
+								'data'		=> array(
 									
 									'input'		=> '',
 									'name'		=> '',
@@ -1154,25 +1170,29 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							$html .= '<ul class="input-group ui-sortable" style="width:100%;">';
 								
-								foreach( $data['name'] as $e => $name ){
+								if( !empty($data['name']) ){
 									
-									$name = str_replace('-','_',sanitize_title($name));
-									
-									$html .= $this->display_field(array(
-														
-										'id'	=> $id,
-										'name'	=> $id,
-										'type'	=> 'form_fields',
-										'data'	=> array(
-											
-											'input' 	=> $data['input'][$e],
-											'name' 		=> $name,
-											'label' 	=> isset($data['label'][$e]) ? $data['label'][$e] : ucfirst(str_replace('_',' ',$name)),
-											'required' 	=> isset($data['required'][$e])	? str_replace('\\\'','\'',$data['required'][$e]): 'optional',
-											'value' 	=> isset($data['value'][$e])	? str_replace('\\\'','\'',$data['value'][$e])	: '',
-										),
-									
-									),false,false);
+									foreach( $data['name'] as $e => $name ){
+										
+										$name = str_replace('-','_',sanitize_title($name));
+										
+										$html .= $this->display_field(array(
+															
+											'id'		=> $id,
+											'name'		=> $id,
+											'type'		=> 'form_fields',
+											'inputs'	=> $inputs,
+											'data'		=> array(
+												
+												'input' 	=> $data['input'][$e],
+												'name' 		=> $name,
+												'label' 	=> isset($data['label'][$e]) ? $data['label'][$e] : ucfirst(str_replace('_',' ',$name)),
+												'required' 	=> isset($data['required'][$e])	? str_replace('\\\'','\'',$data['required'][$e]): 'optional',
+												'value' 	=> isset($data['value'][$e])	? str_replace('\\\'','\'',$data['value'][$e])	: '',
+											),
+										
+										),false,false);
+									}
 								}
 								
 							$html .= '</ul>';
@@ -1279,21 +1299,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 				
 				case 'form_fields':
-					
-					$inputs = array(
-					
-						'checkbox',
-						'select',
-						'text',
-						'textarea',
-						'number',
-						'length',
-						'weight',
-						'password',
-						'url',
-						'submit',
-					);
-					
+
 					$required = array('required','optional');
 					
 					$class='input-group-row ui-state-default ui-sortable-handle';
@@ -1304,7 +1310,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 						$html .= '<select class="form-control" name="'.$field['name'].'[input][]" style="width:100px;height:35px;float:left;">';
 
-							foreach ( $inputs as $input ) {
+							foreach ( $field['inputs'] as $input ) {
 								
 								$selected = false;
 								
@@ -1370,6 +1376,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 								
 								$html .= '<input class="form-control" type="text" placeholder="value" name="'.$field['name'].'[value][]" style="width:30%;height:35px;float:left;" value="'.$data['value'].'">';
 							}
+							elseif($data['input'] == 'color'){
+								
+								$html .= '<input type="color" name="'.$field['name'].'[value][]" class="color form-control" value="' . $data['value'] . '" style="width:30%;height:35px;float:left;" />';
+							}
 							else{
 								
 								$html .= '<textarea class="form-control" placeholder="values" name="'.$field['name'].'[value][]" style="width:30%;height:100px;float:left;">' . $data['value'] . '</textarea>';
@@ -1425,7 +1435,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									$class='input-group-row ui-state-default ui-state-disabled';
 								}								
 									
-								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:flex;background:#fff;border:1px solid #eee;border-radius:3px;padding:10px;margin:10px 0;box-shadow:0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);">';
+								$html .= '<li class="'.$class.' '.$field['id'].'-row" style="display:inline-block;width:100%;border-top:1px solid #eee;padding:15px 0 10px 0;margin:0;">';
 									
 									$html .= '<div style="width:90%;float:left;">';
 										
@@ -1985,22 +1995,85 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 				
 				case 'image':
+				
+					wp_enqueue_media();
+		
 					$image_thumb = '';
+					
 					if ( $data ) {
+						
 						$image_thumb = wp_get_attachment_thumb_url( $data );
 					}
+					
 					$html .= '<img loading="lazy" id="' . $option_name . '_preview" class="image_preview" src="' . $image_thumb . '" /><br/>' . "\n";
 					$html .= '<input id="' . $option_name . '_button" type="button" data-uploader_title="' . __( 'Upload an image' , 'live-template-editor-client' ) . '" data-uploader_button_text="' . __( 'Use image' , 'live-template-editor-client' ) . '" class="image_upload_button button" value="'. __( 'Upload new image' , 'live-template-editor-client' ) . '" />' . "\n";
 					$html .= '<input id="' . $option_name . '_delete" type="button" class="image_delete_button button" value="'. __( 'Remove image' , 'live-template-editor-client' ) . '" />' . "\n";
 					$html .= '<input id="' . $option_name . '" class="image_data_field" type="hidden" name="' . $option_name . '" value="' . $data . '"/><br/>' . "\n";
+				
 				break;
 
 				case 'color':
-					?><div class="color-picker" style="position:relative;">
-						<input type="text" name="<?php esc_attr_e( $option_name ); ?>" class="color form-control" value="<?php esc_attr_e( $data ); ?>" />
-						<div style="position:absolute;background:#FFF;z-index:99;border-radius:100%;" class="colorpicker"></div>
-					</div>
-					<?php
+				
+					wp_enqueue_script('iris', admin_url( 'js/iris.min.js' ), array( 'jquery-ui-draggable', 'jquery-ui-slider', 'jquery-touch-punch' ), false, 1 );
+					
+					wp_register_script( $this->parent->_token . 'colorpicker', '', array('jquery') );
+					wp_enqueue_script( $this->parent->_token . 'colorpicker' );
+					wp_add_inline_script( $this->parent->_token . 'colorpicker',';(function($){
+						
+						$(document).ready(function(){
+														
+							var styleId = "colorPickerStyle";
+							
+							if ($("#" + styleId).length === 0) {
+								
+								var style = $("<style>").attr("id", styleId);
+
+								style.html(".iris-picker {position:absolute;z-index:999;}");
+
+								$("body").append(style);
+							}
+							
+							$(".color-picker").iris({
+								
+								defaultColor: true,
+								change: function(event,ui){
+									
+									var selectedColor = ui.color.toString();
+
+									$(this).css("background-color",selectedColor);
+								},
+								clear: function(){
+									
+									$(this).css("background-color","");
+								},
+								//target: ".target-elem",
+								palettes: false,
+								hide: true
+								
+							}).on("click", function(){
+								
+								$(".color-picker").iris("hide");
+
+								$(this).iris("show");
+							});
+							
+							$(document).on("click", function(e) {
+								
+								var $visiblePicker = $(".iris-picker:visible");
+								 
+								if( !$visiblePicker.is(e.target) && $visiblePicker.has(e.target).length === 0 && !$visiblePicker.prev(".color-picker").is(e.target) ) {
+										
+									$visiblePicker.hide();
+								}
+							});
+						}); 
+							
+					})(jQuery);');
+					
+					$value = !empty($data) ? esc_attr( $data ) : '#fff';
+					
+					$html .='<input type="text" name="' . esc_attr( $option_name ) . '" class="color-picker form-control" value="' . $value . '" style="background-color:'.$value.';max-width:200px;" '.$required.'/>';
+					
 				break;
 
 			}
@@ -2765,15 +2838,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		}
 		
 		public function validate_input( $data = '', $type = 'text' ) {
-
-			switch( $type ) {
+			
+			if( is_array($data) ){
 				
-				case 'text'		: $data = sanitize_text_field( $data ); break;
-				case 'textarea'	: $data = sanitize_textarea_field( $data ); break;
-				case 'url'		: $data = sanitize_url( $data ); break;
-				case 'email'	: $data = sanitize_email( $data ); break;
+				foreach( $data as $key => $value ){
+					
+					if( is_string($value) || is_numeric($value) ){
+					
+						$data[$key] = $this->validate_input($value,$type);
+					}
+				}					
 			}
-
+			else{
+				
+				switch( $type ) {
+					
+					case 'textarea'	: $data = sanitize_textarea_field( $data ); break;
+					case 'url'		: $data = sanitize_url( $data ); break;
+					case 'email'	: $data = sanitize_email( $data ); break;
+					default			: $data = sanitize_text_field( $data ); break;
+				}
+			}
+			
 			return $data;
 		}
 
@@ -2969,13 +3055,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 			foreach($fields as $field) {
 				
-				if ( isset( $_REQUEST[ $field['id'] ] ) ) {
+				$field_id = isset($field['name']) ? $field['name'] : $field['id'];
+				
+				if( strpos($field_id,'[') ){
 					
-					update_post_meta( $post_id, $field['id'], $this->validate_input( $_REQUEST[ $field['id'] ], $field['type'] ) );
+					$field_id = strstr($field_id,'[',true);
+				}
+				
+				if( isset($_REQUEST[$field_id])) {
+					
+					update_post_meta($post_id,$field_id,$this->validate_input($_REQUEST[$field_id],$field['type']));
 				} 
 				elseif( empty($field['disabled']) ){
 					
-					update_post_meta( $post_id, $field['id'], '' );
+					update_post_meta($post_id,$field_id,'');
 				}
 			}
 		}

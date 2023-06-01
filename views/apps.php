@@ -4,16 +4,8 @@ $ltple = LTPLE_Client::instance();
 
 $currentTab = $ltple->get_current_tab('accounts');
 
-$inWidget = false;
-$output='default';
-$target='_self';
-
-if( isset($_GET['output']) && $_GET['output'] == 'widget' ){
-	
-	$inWidget = true;
-	$output = $_GET['output'];
-	$target = '_blank';
-}
+$output		= $ltple->inWidget ? 'widget' : 'default';
+$target		= $ltple->inWidget ? '_parent' : '_self';
 
 // get current tab
 
@@ -36,9 +28,9 @@ echo'<div id="media_library" class="wrapper">';
 			
 		echo'<ul class="nav nav-tabs tabs-left">';
 
-			echo'<li class="gallery_type_title">Accounts</li>';
+			//echo'<li class="gallery_type_title">Accounts</li>';
 			
-			echo'<li '. ( $currentTab == 'accounts' ? 'class="active"' : '' ) . '><a href="' . $ltple->urls->apps . '?tab=accounts">Connected Accounts</a></li>';
+			echo'<li '. ( $currentTab == 'accounts' ? 'class="active"' : '' ) . '><a href="' . $ltple->urls->apps . '?tab=accounts"><span class="fa fa-exchange-alt"></span> Applications</a></li>';
 			
 			do_action('ltple_connected_accounts_sidebar',$currentTab);
 			
@@ -121,7 +113,7 @@ echo'<div id="media_library" class="wrapper">';
 										
 									$item.='</div>';
 									$item.='<div class="col-xs-5 text-right">';
-										$item.='<a class="btn-sm btn-primary insert_media" href="'.$connect_url.'">Connect</a>';
+										$item.='<a class="btn btn-xs btn-success insert_media" href="'.$connect_url.'" target="'.$target.'">Add</a>';
 									$item.='</div>';
 								$item.='</div>'; //panel-body
 							$item.='</div>';

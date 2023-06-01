@@ -871,7 +871,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 					$item.='<b style="overflow:hidden;width:100%;height:25px;display:block;">' . $bookmark_title . '</b>';
 					
-					$item.='<input style="width:100%;padding: 2px;" type="text" value="'. $bookmark->post_content .'" />';
+					$item.='<input style="width:100%;padding:2px 10px;" type="text" value="'. $bookmark->post_content .'" />';
 
 				$item.='</div>';
 				

@@ -11,17 +11,17 @@ class LTPLE_Client_Profile {
 	var $slug 		= null;
 	var $tabSlug 	= null;
 	var $url 		= null;
-	var $tabs 		= array();
+	var $tabs 		= null;
 	var $user 		= null;
 	var $name		= null;
+	var $theme		= null;
 	
 	var $urls 		= array();
 
 	var $privacySettings 	= null;
 	var $socialAccounts 	= null;
 	var $pictures;
-	
-	var $profile_css 		= null;
+
 	var $background_image 	= '';
 	
 	var $is_public		= null;
@@ -224,20 +224,18 @@ class LTPLE_Client_Profile {
 				
 				$this->is_editable = ( $this->parent->user->loggedin && $this->parent->user->ID == $this->user->ID ? true : false );
 				
-				// get tabs
+				// disclaimer
 				
-				$this->tabs = $this->get_profile_tabs();
-					
-				// in tab
-				
-				$this->in_tab = isset($this->tabs[$this->tab]) ? true : false;
-				
-				if( $this->in_tab === true ){
+				if( $this->in_tab() === true ){
 					
 					do_action('ltple_profile_disclaimer');
 				}
 				
-				if( $this->tab == 'home' && empty($this->tabs['home']['content']) ){
+				// card
+				
+				$tabs = $this->get_profile_tabs();
+				
+				if( $this->tab == 'home' && empty($tabs['home']['content']) ){
 					
 					include $this->parent->views . '/profile/card.php';
 				}
@@ -261,32 +259,42 @@ class LTPLE_Client_Profile {
 
 					// enqueue inline style
 					
-					add_action( 'wp_enqueue_scripts',function(){
-
-						wp_register_style( $this->parent->_token . '-profile', false, array());
-						wp_enqueue_style( $this->parent->_token . '-profile' );
-
-						wp_add_inline_style( $this->parent->_token . '-profile', $this->get_profile_style());
+					add_action('wp_enqueue_scripts',function(){
 						
-						if( !empty($this->profile_css) ){
-							
-							wp_register_style( $this->parent->_token . '-profile_css', false, array());
-							wp_enqueue_style( $this->parent->_token . '-profile_css' );
-						
-							wp_add_inline_style( $this->parent->_token . '-profile_css', $this->profile_css );							
+						if( $this->tab != 'theme' ){
+
+							wp_register_style( $this->parent->_token . '-profile', false, array());
+							wp_enqueue_style( $this->parent->_token . '-profile' );
+
+							wp_add_inline_style( $this->parent->_token . '-profile',$this->get_profile_style());
 						}
 						
+						wp_register_style( $this->parent->_token . '-floating-bar', false, array());
+						wp_enqueue_style( $this->parent->_token . '-floating-bar' );
+
+						wp_add_inline_style( $this->parent->_token . '-floating-bar',$this->get_floating_style());
+
 						// enqueue inline script
 						
 						if( !$this->parent->inWidget ){
 						
-							wp_register_script( $this->parent->_token . '-profile_menu', '', array( 'jquery' ) );
-							wp_enqueue_script( $this->parent->_token . '-profile_menu' );
+							wp_register_script( $this->parent->_token . '-profile_script', '', array( 'jquery' ) );
+							wp_enqueue_script( $this->parent->_token . '-profile_script' );
 					
-							wp_add_inline_script( $this->parent->_token . '-profile_menu', $this->get_profile_script());					
+							wp_add_inline_script( $this->parent->_token . '-profile_script', $this->get_profile_script());					
 						}
 						
 					},10 );
+					
+					add_filter('ltple_parse_css_variables',function($style){
+						
+						$style = $this->parse_page_urls($style);
+						
+						$style = $this->parse_theme_variables($style);
+							
+						return $style;
+						
+					},10,1);
 				}
 			}
 			else{
@@ -294,6 +302,26 @@ class LTPLE_Client_Profile {
 				include( $this->parent->views . '/profile/restricted.php' );
 			}
 		}
+	}
+	
+	public function in_tab(){
+		
+		if( empty($this->in_tab) ){
+			
+			$in_tab = false;
+			
+			if( $tabs = $this->get_profile_tabs() ){
+				
+				if( isset($tabs[$this->tab]) ){
+					
+					$in_tab = true;
+				}
+			}
+			
+			$this->in_tab = apply_filters('ltple_profile_in_tab',$in_tab,$this->tab);
+		}
+		
+		return $this->in_tab;
 	}
 	
 	public function get_profile_menu( $rest = NULL ){
@@ -404,44 +432,81 @@ class LTPLE_Client_Profile {
 		
 		$style = '
 		
+		p{
+		    line-height: 2;
+		}
+		
+		a{
+			
+			color: {{ theme.css.link_color }};
+		}
+		
+		a:hover{
+			
+			text-decoration:none;
+		}
+		
+		.btn {
+			
+			color: #fff;
+			text-transform: uppercase;
+			box-shadow: none;
+			transition: box-shadow 0.5s ease;
+		}
+		
+		.btn:hover {
+		
+		    box-shadow: 0 14px 26px -12px rgb(0 0 0 / 42%), 0 4px 23px 0px rgb(0 0 0 / 12%), 0 8px 10px -5px rgb(0 0 0 / 20%);
+		}
+		
+		.btn-sm {
+			
+			font-size: 11px;
+		}
+		
+		.btn-primary, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active {
+				
+			background-color:{{ theme.css.link_color }};
+				
+			border-color:{{ theme.css.link_color }};
+
+			border-radius: 25px;
+		}
+		
 		.profile-heading {
 			
-			height:350px;
+			height:80px;
+			padding:0;
 			background-color: #333;
-			background-image: url("' . $this->background_image . '");
+			background-image: url("{{ profile.banner.url }}");
 			background-position: center center;
 			background-size: cover;
-			background-attachment: '. ( $this->tab == 'home' ? 'scroll' : 'scroll' ).';
+			background-attachment:scroll;
 			background-repeat: no-repeat;
-			border-bottom:5px solid ' . $this->parent->settings->mainColor . ';
+			border-bottom:5px solid {{ theme.css.main_color }};
 			position:relative;
 			overflow:hidden;
-		}		
-	
+		}
+
 		.profile-overlay {
 			
 			width:100%;
 			height:350px;
 			position:absolute;
-			background-image: linear-gradient(to bottom right,#284d6b,' . $this->parent->settings->mainColor . ');
-			opacity:'. ( $this->tab == 'home' ? '.5' : '.7' ).';
+			background-image: linear-gradient(to bottom right,#284d6b,{{ theme.css.main_color }});
+			opacity:.7;
 		}
 		
-		.profile-heading h1, .profile-heading h2 {
+		.profile-avatar{
 			
-			padding-top:'.( $this->is_editable ? '80px' : '125px').';
-			color: #fff !important;
-			font-weight: normal;
-			font-size: 53px;
-			position: relative;
-			text-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
-			box-shadow: none !important;
-			background: none !important;
+			padding:10px;
+			position:absolute;
+			text-align:left;
 		}
-			
+		
 		.profile-avatar img {
 
-			border: solid 7px #f9f9f9;
+			border:none;
 			border-radius: 100px;
 			margin:0px;
 			position: relative;
@@ -449,30 +514,58 @@ class LTPLE_Client_Profile {
 			box-shadow:6px -10px 6px -7px rgba(0, 0, 0, 0.27), -7px -10px 6px -7px rgba(0, 0, 0, 0.27);
 		}
 		
-		#profile_nav {
+		.profile-title{
 			
+			padding:25px 0 0 85px;
+			color: #fff !important;
+			font-weight: normal;
+			font-size:calc( 0.5vw + 15px );
+			position: relative;
+			text-shadow: 0px 0px 8px rgba(0, 0, 0, .4);
+			box-shadow: none !important;
+			background: none !important;
+			float:left;
+			margin:0;
+			line-height:25px;
+		}
+		
+		#ltple-content #panel {
+			
+			display: inline-block;
+			width: 100%;
+			background: rgb(249, 249, 249);
+		}
+
+		#ltple-content #sponsor.tab-pane {
+			
+			line-height: 20px;
+		}
+
+		#ltple-nav {
+			
+			position: relative;
 			border:none;
 			box-shadow:0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);
 			overflow:visible;
 			margin:0;
-			background:#182f42;
+			background:{{ theme.css.navbar_color }};
 			height: 41px;
 		}
-		
-		#profile_nav > li+li  {
+
+		#ltple-nav > li+li  {
 			
 			margin-left:0;
 			border-left: 1px solid #132533;
 		}
 		
-		#profile_nav > li {
+		#ltple-nav > li {
 			
 			position: relative;
 			display: block;
 			line-height: 25px;
 		}
 		
-		#profile_nav > li > a {
+		#ltple-nav > li > a {
 			
 			padding:8px 15px !important;
 			color:#fff;
@@ -483,18 +576,35 @@ class LTPLE_Client_Profile {
 			font-size: 12px;
 			border-radius:0;
 		}
-		
-		#profile_nav > li > a:hover {
+
+		#ltple-nav > li > a:hover {
 			
-			color:' . $this->parent->settings->mainColor . ';
+			color:{{ theme.css.main_color }};
 		}
 		
-		#profile_nav > .active > a:hover {
+		#ltple-nav > li.active > a {
+		
+			background-color:{{ theme.css.main_color }};
+		}
+		
+		#ltple-nav > li.active > a:hover {
 			
 			color:#fff;
 		}
+		';
+					
+		$style = $this->parse_page_urls($style);
+							
+		$style = $this->parse_theme_variables($style);
 		
-		.mobile-bar a {
+		return $style;
+	}
+	
+	public function get_floating_style(){
+		
+		$style = '
+		
+		#floating_bar a {
 			
 			font-size:20px;
 			height:35px;
@@ -505,27 +615,336 @@ class LTPLE_Client_Profile {
 			background:#fff;
 			border-radius:25px;
 			box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+			color:{{ theme.css.main_color }};
 		}
 		
-		.mobile-bar i {
+		#floating_bar i {
 			
 			padding: 3px!important;
 			margin: 5px!important;
 		}
 		
-		.mobile-bar #whatsapp {
+		#floating_bar #whatsapp {
 
 			bottom: 125px;
 			right: 20px;
 		}
 
-		.mobile-bar #to_top {
+		#floating_bar #to_top {
 
 			display: none;
 			bottom: 80px;
 			right: 20px;
 		}
 		';
+		
+		$style = $this->parse_theme_variables($style);
+		
+		return $style;
+	}
+	
+	public function get_card_style(){
+		
+		$style = '
+		
+		* {
+		  box-sizing: border-box;
+		  transition: .5s ease-in-out;
+		}
+
+		html, body {
+		  background-image: linear-gradient(to bottom right,#284d6bdb,{{ theme.css.main_color }}63);
+		  height: 100%;
+		  margin: 0;
+		  overflow: hidden;
+		  font-family: helvetica neue,helvetica,arial,sans-serif;
+		}
+		html h1, body h1 {
+		  font-size: 25px;
+		  font-weight: 200;
+		  color: white;
+		  line-height: 30px;
+		  margin-bottom: 15px;
+		}
+		html h2, body h2 {
+			font-size: 16px;
+			color: {{ theme.css.main_color }};
+			background: #fff;
+			display: inline;
+			padding: 3px 11px;
+			box-shadow: inset 0px 0px 1px #666;
+			border-radius: 250px;
+		}
+
+		#wrapper {
+		  /*opacity: 0;*/
+		  opacity: 1;
+		  display: table;
+		  height: 100%;
+		  width: 100%;
+		}
+		#wrapper.loaded {
+		  opacity: 1;
+		  transition: 2.5s ease-in-out;
+		}
+		#wrapper #content {
+		  display: table-cell;
+		  vertical-align: middle;
+		}
+		#logo{
+			z-index: 1;
+			position: absolute;
+			left: 50%;
+			margin-left: -50px;
+			top: 25px;				
+		}
+		#logo img{
+			height:50px;	
+			width:auto;
+		}
+		#card {
+		  height: 400px;
+		  width: 300px;
+		  margin: 0 auto;
+		  position: relative;
+		  z-index: 1;
+		  perspective: 600px;
+		}
+		#card #front, #card #back {
+		  border-radius: 10px;
+		  height: 100%;
+		  width: 100%;
+		  position: absolute;
+		  left: 0;
+		  top: 0;
+		  transform-style: preserve-3d;
+		  backface-visibility: hidden;
+		  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+		}
+		#card #front {
+		  transform: rotateY(0deg);
+		  overflow: hidden;
+		  z-index: 1;
+		}
+		#card #front #arrow {
+		  position: absolute;
+		  height: 50px;
+		  line-height: 50px;
+		  font-size: 30px;
+		  z-index: 10;
+		  bottom: 0;
+		  right: 50px;
+		  color: rgba(255, 255, 255, 0.5);
+		  animation: arrowWiggle 1s ease-in-out infinite;
+		}
+		#card #front #top-pic {
+		  height: 50%;
+		  width: 100%;
+		  background-image: url({{ profile.banner.url }});
+		  background-image: linear-gradient(to bottom right,#284d6bdb,{{ theme.css.main_color }}63), url({{ profile.banner.url }});
+		  background-size: cover;
+		  background-position: center center;
+		}
+		#card #front #avatar {
+		  width: 114px;
+		  height: 114px;
+		  top: 50%;
+		  left: 50%;
+		  margin: -77px 0 0 -57px;
+		  border-radius: 100%;
+		  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8), 0 4px 5px rgba(107, 5, 0, 0.6), 0 0 50px 50px rgba(255, 255, 255, 0.25);
+		  background-image: url({{ profile.avatar.url }});
+		  background-size: contain;
+		  position: absolute;
+		  z-index: 1;
+		}
+		#card #front #info-box {
+		  height: 50%;
+		  width: 100%;
+		  position: absolute;
+		  display: table;
+		  left: 0;
+		  bottom: 0;
+		  background: {{ theme.css.main_color }}cc;
+		  padding: 50px 0px;
+		}
+		#card #front #social-bar {
+		  height: 50px;
+		  width: 100%;
+		  position: absolute;
+		  bottom: 0;
+		  left: 0;
+		  line-height: 50px;
+		  font-size: 18px;
+		  text-align: center;
+		}
+		#card #front #social-bar a {
+		  display: inline-block;
+		  color: #ffffffb0;
+		  font-size:13px;
+		  text-decoration: none;
+		  padding: 5px;
+		  line-height: 18px;
+		  border-radius: 5px;
+		}
+		#card #front #social-bar a:hover {
+		  color: #450300;
+		  background: rgba(255, 255, 255, 0.3);
+		  transition: .25s ease-in-out;
+		}
+		#card #back {
+		  transform: rotateY(180deg);
+		  background-color: rgba(255, 255, 255, 0.6);
+		  display: table;
+		  z-index: 2;
+		  font-size: 13px;
+		  line-height: 20px;
+		  padding: 50px;
+		}
+		#card #back .back-info {
+		  text-align: justify;
+		  text-justify: inter-word;
+		}
+		#card #back .back-info a {
+			
+			color:{{ theme.css.link_color }};
+		}
+		#card #back #social-bar {
+		  height: 50px;
+		  width: 100%;
+		  position: absolute;
+		  bottom: 0;
+		  left: 0;
+		  line-height: 50px;
+		  font-size: 18px;
+		  text-align: center;
+		}
+		#card #back #social-bar a {
+		  display: inline-block;
+		  line-height: 18px;
+		  color: {{ theme.css.link_color }};
+		  text-decoration: none;
+		  padding: 5px;
+		  border-radius: 5px;
+		}
+		#card #back #social-bar a:hover {
+		  color: #450300;
+		  background: rgba(223, 74, 66, 0.5);
+		  transition: .25s ease-in-out;
+		}
+		#card .info {
+		  display: table-cell;
+		  height: 100%;
+		  vertical-align: middle;
+		  text-align: center;
+		}
+		#card.flip #front {
+		  transform: rotateY(180deg);
+		}
+		#card.flip #back {
+		  transform: rotateY(360deg);
+		}
+
+		#background {
+		  position: fixed;
+		  background-color: black;
+		  top: 0;
+		  left: 0;
+		  height: 100%;
+		  width: 100%;
+		}
+		#background #background-image {
+		  height: calc(100% + 60px);
+		  width: calc(100% + 60px);
+		  position: absolute;
+		  top: -30px;
+		  left: -30px;
+		  -webkit-filter: blur(10px);
+		  background-image: url({{ profile.banner.url }});
+		  background-image: linear-gradient(to bottom right,#284d6bdb,{{ theme.css.main_color }}63), url({{ profile.banner.url }});
+		  background-size: cover;
+		  background-position: center;
+		}
+
+		@keyframes arrowWiggle {
+		  0% {
+			right: 50px;
+		  }
+		  50% {
+			right: 35px;
+		  }
+		  100% {
+			right: 50px;
+		  }
+		}
+		';
+		
+		$style = $this->parse_page_urls($style);
+							
+		$style = $this->parse_theme_variables($style);
+		
+		return $style;
+	}
+	
+	public function get_about_style(){
+		
+		$style = '
+		
+		#about {
+			
+			margin-top:15px !important;
+		}
+		
+		#about div {
+			
+			margin:10px 0;
+		}
+
+		#social_icons img {
+			background:#fff;
+			border:1px solid #eee;
+			padding:1px;
+			height:30px;
+			width:30px;
+			border-radius:250px;
+		}
+		
+		#about h2, #about h3, #about h4, #about h5 {
+		
+			padding:25px 0 0 0;						
+			font-weight:bold;
+			text-transform: uppercase;
+			color:{{ theme.css.main_color }};
+		}
+		
+		#about h4{
+			
+			font-size:16px;
+		}
+		
+		#about h5{
+			
+			font-size:14px;
+		}
+		
+		#about table th {
+			background: none;
+			font-weight: bold;
+		}
+		
+		#about table td, #about table th {
+			
+			line-height:2;
+			padding: 8px;
+			border-bottom: none;
+			border-right: none;
+			border-left: none;
+			vertical-align: top;
+			text-align: left;
+		}
+		';
+					
+		$style = $this->parse_theme_variables($style);
 		
 		return $style;
 	}
@@ -572,7 +991,30 @@ class LTPLE_Client_Profile {
 							}
 						}, 100);
 					});
+					
+					if( $("#ltple-content").length > 0 ){
+						
+						function adjustProfileContentHeight() {
+						
+							var profileContent = $("#ltple-content");
+							
+							var footerHeight = $("#ltple-footer").length > 0 ? $("#ltple-footer").height() : 0;
+														
+							var profileContentOffset = profileContent.offset().top;
+							
+							var remainingHeight = $(window).height() - profileContentOffset - footerHeight;
+							
+							profileContent.css("min-height", remainingHeight + "px");
+						}
+						
+						adjustProfileContentHeight();
 
+						$(window).resize(function(){
+							
+							adjustProfileContentHeight();
+						});
+					}
+					
 					if( $("#profile_menu").length > 0 ){
 
 						$.ajax({
@@ -757,8 +1199,8 @@ class LTPLE_Client_Profile {
 	}
 	
 	public function include_user_profile($path){
-
-		if( $this->id > 0 && $this->in_tab ){
+		
+		if( $this->id > 0 && $this->in_tab() ){
 			
 			include $this->parent->views . '/profile.php';
 		}
@@ -766,15 +1208,9 @@ class LTPLE_Client_Profile {
 		return $path;
 	}
 	
-	public function get_about_content(){
+	public function render_about_page(){
 		
-		$content = '';
-				
-		// get name
-	
-		$name = ucfirst(get_user_meta( $this->user->ID , 'nickname', true ));
-		
-		$content .= '<div class="profile-heading text-center" style="height:100px;padding:0;">';
+		$content = '<div class="profile-heading text-center" style="height:100px;padding:0;">';
 		
 			$content .= '<div class="profile-overlay"></div>';
 		
@@ -784,7 +1220,7 @@ class LTPLE_Client_Profile {
 
 				$content .= '<div class="profile-avatar text-left hidden-sm hidden-md hidden-lg" style="padding:12px 8px;position:absolute;">';
 				
-					$content .= '<img style="border:none;" src="' . $this->picture . '" height="70" width="70" />';
+					$content .= '<img style="border:none;" src="{{ profile.avatar.url }}" height="70" width="70" />';
 					
 				$content .= '</div>';					
 			
@@ -792,229 +1228,191 @@ class LTPLE_Client_Profile {
 			
 			$content .= '<div class="col-xs-9 col-sm-9 col-md-9 col-lg-10">';
 			
-				$content .= '<h2 style="font-size:calc( 0.5vw + 15px );float:left;padding:35px 0 0 0;margin:0;">' . $name . '</h2>';
+				$content .= '<h1 style="font-size:calc( 0.5vw + 15px );float:left;padding:35px 0 0 0;margin:0;color:#fff;">{{ site.name }}</h1>';
 			
 			$content .= '</div>';
 			
 		$content .= '</div>';
-		
-		$content .= '<div id="profile_page" style="display:block;">';
+	
+		$content .= '<div id="panel" style="display:inline-block !important;box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
 
-			$content .= '<div id="panel" style="display:inline-block !important;box-shadow:inset 0px 2px 11px -4px rgba(0,0,0,0.75);">';
+			$content .= '<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2 hidden-xs text-center" style="padding:30px;">';
+					
+				// desktop avatar	
+					
+				$content .= '<div class="profile-avatar text-center hidden-xs" style="margin: -90px 10px 25px 10px;position:relative;">';
+				
+					$content .= '<img src="{{ profile.avatar.url }}" height="150" width="150" />';
+					
+					if( $this->is_pro ){
+						
+						$content .= '<span class="label label-primary" style="position:absolute;bottom:10%;right:16%;background:{{ theme.css.main_color }};font-size:14px;">pro</span>';					
+					}						
+					
+				$content .= '</div>';
+				
+				if( $this->parent->settings->options->enable_ranking == 'on' ){
+					
+					// user stars
+					
+					$content .= '<span class="badge" style="background-color:#fff;color:{{ theme.css.main_color }};font-size:18px;border-radius: 25px;padding: 8px 18px;box-shadow: inset 0px 0px 1px #666;">';
+						
+						$content .= '<span class="fa fa-star" aria-hidden="true"></span> ';
+						
+						$content .= $this->parent->stars->get_count($this->user->ID);
+				
+					$content .= '</span>';
+				}
+				
+				// social icons
 
-				$content .= '<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2 hidden-xs text-center" style="padding:30px;">';
+				$content .= '<div id="social_icons" class="text-center" style="margin:20px 0 0 0;">';
 						
-					// desktop avatar	
-						
-					$content .= '<div class="profile-avatar text-center hidden-xs" style="margin: -90px 10px 25px 10px;position:relative;">';
+					$content .= apply_filters('ltple_before_social_icons','');
 					
-						$content .= '<img src="' . $this->picture . '" height="150" width="150" />';
+					if( !empty($this->apps) ){		
 						
-						if( $this->is_pro ){
+						foreach( $this->apps as $app ){
 							
-							$content .= '<span class="label label-primary" style="position:absolute;bottom:10%;right:16%;background:' . $this->parent->settings->mainColor . ';font-size:14px;">pro</span>';					
-						}						
-						
-					$content .= '</div>';
-					
-					if( $this->parent->settings->options->enable_ranking == 'on' ){
-						
-						// user stars
-						
-						$content .= '<span class="badge" style="background-color:#fff;color:' . $this->parent->settings->mainColor . ';font-size:18px;border-radius: 25px;padding: 8px 18px;box-shadow: inset 0px 0px 1px #666;">';
-							
-							$content .= '<span class="fa fa-star" aria-hidden="true"></span> ';
-							
-							$content .= $this->parent->stars->get_count($this->user->ID);
-					
-						$content .= '</span>';
-					}
-					
-					// social icons
-
-					$content .= '<div id="social_icons" class="text-center" style="margin:20px 0 0 0;">';
-							
-						$content .= apply_filters('ltple_before_social_icons','');
-						
-						if( !empty($this->apps) ){		
-							
-							foreach( $this->apps as $app ){
+							if( !empty($app->user_profile) && !empty($app->social_icon) ){
 								
-								if( !empty($app->user_profile) && !empty($app->social_icon) ){
+								$show_profile = get_user_meta($this->user->ID,$this->parent->_base . 'app_profile_' . $app->ID,true);
+								
+								if( $show_profile != 'off' ){
 									
-									$show_profile = get_user_meta($this->user->ID,$this->parent->_base . 'app_profile_' . $app->ID,true);
-									
-									if( $show_profile != 'off' ){
+									$content .= '<a href="' . $app->user_profile . '" style="margin:5px;display:inline-block;" ref="nofollow" target="_blank">';
 										
-										$content .= '<a href="' . $app->user_profile . '" style="margin:5px;display:inline-block;" ref="nofollow" target="_blank">';
-											
-											$content .= '<img src="' . $app->social_icon . '" />';
-											
-										$content .= '</a>';
-									}
+										$content .= '<img src="' . $app->social_icon . '" />';
+										
+									$content .= '</a>';
 								}
 							}
 						}
-						
-						$content .= apply_filters('ltple_after_social_icons','');
-						
-					$content .= '</div>';
-				
-				$content .= '</div>';
-
-				$content .= '<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="padding:0;border-left:1px solid #ddd;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 150px );">';
-					
-					$content .= $this->get_navbar_content();
-
-					if( !empty($this->tabs) ){
-					
-						foreach( $this->tabs as $tab){
-							
-							if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
-
-								$content .= '<div class="tab-pane active" id="'.$tab['slug'].'">';
-								
-									if(!empty($this->parent->message)){ 
-									
-										//output message
-									
-										$content .= $this->parent->message;
-									}									
-								
-									$content .= $tab['content'];
-									
-								$content .= '</div>';
-								
-								break;
-							}							
-						}
 					}
 					
+					$content .= apply_filters('ltple_after_social_icons','');
+					
 				$content .= '</div>';
+			
+			$content .= '</div>';
+
+			$content .= '<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="padding:0;border-left:1px solid #ddd;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 150px );">';
+				
+				$content .= '{{ theme.navbar }}';
+				
+				$content .= '{{ page.content }}';
 				
 			$content .= '</div>';
-	
+			
 		$content .= '</div>';
+
+		$content = $this->parse_page_content($content);
+		
+		$content = $this->parse_page_urls($content);
+							
+		$content = $this->parse_theme_variables($content);
 		
 		return $content;
 	}
 	
 	public function get_navbar_content(){
 		
-		$content = '<ul id="profile_nav" class="nav nav-pills nav-resizable" role="tablist">';
+		$content = '<ul id="ltple-nav" class="nav nav-pills nav-resizable" role="menubar">';
 			
-			/*
-			if( $this->parent->inWidget ){
+			if( $tabs = $this->get_profile_tabs() ){
 				
-				$content .= '<li>';
-				
-					$content .= $this->parent->get_collapse_button();
+				foreach( $tabs as $tab){
 					
-				$content .= '</li>';
-			}
-			*/
-			
-			foreach( $this->tabs as $tab){
-				
-				if( !empty($tab['name']) ){
-
-					$active = ( $tab['slug'] == $this->tab ? ' active' : '');
-
-					$url = $this->url . '/';
-
-					if( $tab['slug'] != 'home' ){
+					if( !empty($tab['name']) ){
 						
-						$url .= $tab['slug'] . '/';
+						$active = ( $tab['slug'] == $this->tab ? ' active' : '');
+
+						$url = $this->url . '/';
+
+						if( $tab['slug'] != 'home' ){
+							
+							$url .= $tab['slug'] . '/';
+						}
+						
+						$content .= '<li class="'.$active.'" role="menuitem">';
+						
+							$content .= '<a href="' . $url . '">'.$tab['name'].'</a>';
+						
+						$content .= '</li>';
 					}
-					
-					$content .= '<li role="presentation" class="'.$active.'">';
-					
-						$content .= '<a href="' . $url . '" role="tab">'.$tab['name'].'</a>';
-					
-					$content .= '</li>';
 				}
 			}
 			
 		$content .= '</ul>';
 
+		if( $this->is_preview() ){
+			
+			$content = '<ltple-mod ltple-prop="theme.navbar">' . $content . '</ltple-mod>';
+		}
+		
+		$notice = '';
+	
 		if( !$this->is_public() && $this->is_self() ){
 			
-			$content .= '<div class="alert alert-warning row" style="margin:0 0 0 0 !important;">';
+			$notice .= '<div class="alert alert-warning row" style="margin:0 0 0 0 !important;">';
 				
-				$content .= '<div class="col-xs-9">';
+				$notice .= '<div class="col-xs-9">';
 				
-					$content .= 'Your profile is restricted, only you can see this page.';
+					$notice .= 'Your profile is restricted, only you can see this page.';
 				
-				$content .= '</div>';
+				$notice .= '</div>';
 				
-				$content .= '<div class="col-xs-3 text-right">';
+				$notice .= '<div class="col-xs-3 text-right">';
 				
-					$content .= '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-settings">Start</a>';
+					$notice .= '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->profile . '?tab=privacy-settings">Start</a>';
 				
-				$content .= '</div>';
+				$notice .= '</div>';
 				
-			$content .= '</div>';			
+			$notice .= '</div>';			
 		}
 		elseif( $this->is_unclaimed() ){
 			
-			$content .= '<div class="alert alert-info row" style="margin:0px 0 20px 0 !important;">';
+			$notice .= '<div class="alert alert-info row" style="line-height:25px;margin:0px 0 20px 0 !important;">';
 				
-				$content .= '<div class="col-xs-9">';
+				$notice .= '<div class="col-xs-9">';
 					
-					$content .= 'This profile was auto generated';
+					$notice .= 'This profile was auto generated';
 				
-				$content .= '</div>';
+				$notice .= '</div>';
 				
-				$content .= '<div class="col-xs-3 text-right">';
+				$notice .= '<div class="col-xs-3 text-right">';
 				
-					$content .= '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->home . '/contact/">Claim it</a>';
+					$notice .= '<a class="btn btn-sm btn-success" href="' . $this->parent->urls->home . '/contact/" style="color">Claim it</a>';
 				
-				$content .= '</div>';
+				$notice .= '</div>';
 				
-			$content .= '</div>';
+			$notice .= '</div>';
 		}
-						
+		
+		if( !empty($notice) ){
+			
+			if( $this->is_preview() ){
+				
+				$notice = '<ltple-mod ltple-prop="page.notice">' . $notice . '</ltple-mod>';
+			}
+			
+			$content .= $notice;
+		}
+					
 		return $content;
 	}
 	
 	public function render_page_content(){
 		
 		$content = $this->get_page_template();
-				
-		if( strpos($content,'{{ site_name }}') !== false ){
+		
+		$content = $this->parse_page_content($content);
+		
+		$content = $this->parse_page_urls($content);
+							
+		$content = $this->parse_theme_variables($content);
 
-			$name = ucfirst(get_user_meta( $this->user->ID , 'nickname', true ));
-			
-			$content = str_replace('{{ site_name }}',$name,$content);
-		}
-		
-		if( strpos($content,'{{ avatar_url }}') !== false ){
-			
-			$avatar = $this->picture;
-			
-			$content = str_replace('{{ avatar_url }}',$avatar,$content);
-		}
-		
-		if( strpos($content,'{{ navbar }}') !== false ){
-			
-			$navbar = $this->get_navbar_content();
-			
-			$content = str_replace('{{ navbar }}',$navbar,$content);
-		}
-		
-		if( strpos($content,'{{ content }}') !== false ){
-			
-			$tab_content = $this->get_tab_content();
-			
-			$content = str_replace('{{ content }}',$tab_content,$content);
-		}
-		
-		if( $this->tab == 'theme' ){
-			
-			$content = apply_filters('wp_filter_content_tags',$content);
-		}
-		
-		return $content;
+		return apply_filters('ltple_render_page_content',$content,$this->tab);
 	}
 	
 	public function get_page_template(){
@@ -1025,38 +1423,198 @@ class LTPLE_Client_Profile {
 		
 			// avatar
 
-			$template .= '<div class="profile-avatar text-left" style="padding:10px;position:absolute;">';
+			$template .= '<div class="profile-avatar">';
 			
-				$template .= '<img style="border:none;" src="{{ avatar_url }}" height="55" width="55" />';
+				$template .= '<img style="border:none;" src="{{ profile.avatar.url }}" height="55" width="55" />';
 				
 			$template .= '</div>';					
 			
-			$template .= '<h2 style="font-size:23px;float:left;padding:25px 0 0 85px;margin:0;line-height:25px;">{{ site_name }}</h2>';
+			$template .= '<div class="profile-title">{{ site.name }}</div>';
 			
 		$template .= '</div>';
-		
-		$template .= '<div id="profile_page" style="display:block;">';
-			
-			$template .= '<div id="panel" style="padding:0;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 130px );">';
 
-				$template .= '{{ navbar }}';
-					
-				$template .= '{{ content }}';
+		$template .= '<div id="panel" style="padding:0;background:#fff;">';
 
-			$template .= '</div>';
-			
+			$template .= '{{ theme.navbar }}';
+				
+			$template .= '{{ page.content }}';
+
 		$template .= '</div>';
 		
 		return apply_filters('ltple_theme_template',$template,$this->tab);
+	}
+	
+	public function parse_page_content($content){
+		
+		if( strpos($content,'{{ site.name }}') !== false ){
+
+			$name = ucfirst(get_user_meta( $this->user->ID , 'nickname', true ));
+			
+			$content = str_replace('{{ site.name }}',$name,$content);
+		}
+		
+		if( strpos($content,'{{ theme.navbar }}') !== false ){
+			
+			$navbar = $this->get_navbar_content();
+			
+			$content = str_replace('{{ theme.navbar }}',$navbar,$content);
+		}
+		
+		if( strpos($content,'{{ page.content }}') !== false ){
+			
+			$tab_content = $this->get_tab_content();
+			
+			$content = str_replace('{{ page.content }}',$tab_content,$content);
+		}
+		
+		return $content;
+	}
+	
+	public function parse_page_urls($content){
+		
+		if( strpos($content,'{{ profile.banner.url }}') !== false ){
+			
+			$banner = $this->parent->image->get_banner_url($this->id) . '?' . time();
+			
+			$content = str_replace('{{ profile.banner.url }}',$banner,$content);
+		}
+		
+		if( strpos($content,'{{ profile.avatar.url }}') !== false ){
+			
+			$avatar = $this->parent->image->get_avatar_url( $this->id );
+			
+			$content = str_replace('{{ profile.avatar.url }}',$avatar,$content);
+		}
+		
+		return $content;
+	}
+	
+	public function get_current_theme(){
+		
+		if( is_null($this->theme) ){
+			
+			$theme_id = 0;
+
+			if( $layer = LTPLE_Editor::instance()->get_layer() ){
+				
+				$layer_type = $this->parent->layer->get_layer_type($layer->ID);
+					
+				if( $layer->post_type == 'cb-default-layer' && $layer_type->storage == 'user-theme' ){
+					
+					$theme_id = $layer->ID;
+				}
+				elseif( $layer->post_type == 'user-theme' ){
+					
+					$theme_id = $layer->ID;
+				}
+				elseif( $layer_theme_id = intval(get_post_meta($layer->ID,'themeId',true)) ){
+					
+					$theme_id = $layer_theme_id;
+				}
+				else{
+					
+					$theme_id = apply_filters('ltple_current_theme_id',$theme_id,$layer);
+				}
+			}
+			
+			if( $theme = get_post($theme_id) ){
+				
+				if( $theme->post_type == 'user-theme' || $theme->ID == $layer->ID  ){
+					
+					if( $theme->post_author == $layer->post_author || $layer->post_type == 'cb-default-layer' ){
+						
+						$vars = array(
+							
+							'css' => array(
+							
+								'main_color' 	=> $this->parent->settings->mainColor,
+								'navbar_color' 	=> $this->parent->settings->navbarColor,
+								'link_color' 	=> $this->parent->settings->linkColor,
+							),
+						);
+						
+						// get css variables
+						
+						if( $theme->post_type == 'cb-default-layer' ){
+							
+							if( $data = get_post_meta($theme->ID,'layerCssVars',true) ){
+								
+								if( !empty($data['input']) ){
+									
+									foreach( $data['input'] as $e => $input ){
+										
+										if( !in_array($input,array(
+											
+											'select',
+											'checkbox',
+											
+										))){
+											
+											$name = isset($data['name'][$e]) ? sanitize_title($data['name'][$e]) : '';
+
+											if( !empty($name) ){
+												
+												$required 	= isset($data['required'][$e]) ? sanitize_title($data['required'][$e]) : '';
+												$value 		= isset($data['value'][$e]) ? sanitize_text_field($data['value'][$e]) : '';
+												
+												if( $required != 'required' || !empty($value) ){
+													
+													$vars['css'][$name] = $value;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						else{
+							
+							if( $values = get_post_meta($theme->ID,'themeCssVars',true) ){
+								
+								foreach( $values as $name => $value ){
+									
+									if( $name = sanitize_title($name) ){
+										
+										$vars['css'][$name] = sanitize_text_field($value);
+									}
+								}
+							}
+						}
+						
+						$theme->variables = $vars;
+					}
+				}
+			}
+			
+			$this->theme = $theme;
+		}
+		
+		return $this->theme;
+	}
+	
+	public function parse_theme_variables($content){
+	
+		if( $theme = $this->get_current_theme() ){
+		
+			foreach( $theme->variables['css'] as $key => $value ){
+				
+				if( strpos($content,'{{ theme.css.'.$key.' }}') !== false ){
+					
+					$content = str_replace('{{ theme.css.'.$key.' }}',$value,$content);
+				}
+			}
+		}
+		
+		return $content;
 	}
 	
 	public function get_tab_content(){
 		
 		$content = '';
 
-		if( !empty($this->tabs) ){
+		if( $tabs = $this->get_profile_tabs() ){
 		
-			foreach( $this->tabs as $tab){
+			foreach( $tabs as $tab){
 				
 				if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
 
@@ -1116,9 +1674,11 @@ class LTPLE_Client_Profile {
 	public function get_sidebar( $sidebar, $currentTab = 'home', $output = '' ){
 			
 		$storage_count = $this->parent->layer->count_layers_by_storage();
+	
+		$sidebar .= '<li class="gallery_type_title gallery_head"><a href="'.$this->parent->urls->dashboard . '" style="display:contents;color:#fff;"><span class="fas fa-angle-double-left" style="color:#fff;"></span> Web Settings</a></li>';
 		
-		$sidebar .= '<li class="gallery_type_title">Profile Settings</li>';
-		
+		$sidebar .= '<li class="gallery_type_title">Profile</li>';
+
 		$sidebar .= '<li'.( $currentTab == 'general-info' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '"><span class="fa fa-user-circle"></span> General Info</a></li>';
 		
 		$sidebar .= '<li'.( $currentTab == 'privacy-settings' ? ' class="active"' : '' ).'><a href="'.$this->parent->urls->profile . '?tab=privacy-settings"><span class="fa fa-user-shield"></span> Privacy Settings</a></li>';
@@ -1129,18 +1689,7 @@ class LTPLE_Client_Profile {
 		}
 		
 		$sidebar .= apply_filters('ltple_profile_settings_sidebar','',$currentTab,$storage_count);
-		
-		// website settings
 
-		$section = apply_filters('ltple_website_settings_sidebar','',$currentTab,$storage_count);
-				
-		if( !empty($section) ){
-
-			$sidebar .= '<li class="gallery_type_title">Web Pages</li>';
-			
-			$sidebar .= $section;
-		}
-			
 		return $sidebar;
 	}
 	
@@ -1328,19 +1877,12 @@ class LTPLE_Client_Profile {
 					if( isset($_POST[$field_id]) && ( !isset($field['disabled']) || $field['disabled'] == false ) && ( !isset($field['required']) || $field['required'] === false || ( $field['required'] === true && !empty($_POST[$field_id])) ) ){
 						
 						$content = wp_kses_post($_POST[$field_id]);
-						
-						if( in_array( $field_id, array( 'ltple_profile_html', 'ltple_profile_css' )) ){
 
-							update_user_meta($this->parent->user->ID,$field_id,$content);
-						}
-						else{
-						
-							wp_update_user( array( 
-								
-								'ID' 		=> $this->parent->user->ID, 
-								$field_id 	=> $content,
-							));
-						}
+						wp_update_user( array( 
+							
+							'ID' 		=> $this->parent->user->ID, 
+							$field_id 	=> $content,
+						));
 						
 						$this->parent->user->{$field_id} = $content;
 					}
@@ -1426,236 +1968,177 @@ class LTPLE_Client_Profile {
 	
 	public function get_profile_tabs(){
 		
-		if( empty($this->tabs) ){
-
-			// get home tab
+		if( is_null($this->tabs) ){
 			
-			$this->tabs['home']['position'] = 0;
+			$tabs = array();
 			
-			$this->tabs['home']['name'] 	= 'Home';
+			if( !empty($this->tab) ){
 				
-			$this->tabs['home']['slug'] 	= 'home';
-			
-			$this->tabs['home']['content'] 	= '';
-
-			if( $this->tab == 'home' ){
+				// get home tab
 				
-				if( $profile_html = $this->user->remaining_days > 0 ? apply_filters('ltple_user_profile_html','',$this->user->ID) : '' ){
+				$tabs['home']['position'] = 0;
 				
-					$this->tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
+				$tabs['home']['name'] 	= 'Home';
 					
-					// get home css
-					
-					$this->profile_css = apply_filters('ltple_user_profile_css','',$this->user->ID);
-					
-					if( !empty($this->profile_css) ){
-
-						$this->profile_css = $this->parent->layer->parse_css_content($this->profile_css, '.layer-' . $this->user->ID);
-					}
-					
-					wp_register_style( $this->parent->_token . '-home', false, array());
-					wp_enqueue_style( $this->parent->_token . '-home' );
+				$tabs['home']['slug'] 	= 'home';
 				
-					wp_add_inline_style( $this->parent->_token . '-home', '
+				$tabs['home']['content'] 	= '';
+
+				if( $this->tab == 'home' ){
 					
-						html {
-							
-							font-size: 100% !important;
-							scroll-behavior: smooth !important;
-						}
-
-						#home {
-
-							margin:0px !important;
-							display:block !important;
-							width:auto !important;
-						}
-
-						#home ul, #about li {
-							
-							list-style:none !important;
-						}
-
-						#home .layer-' . $this->user->ID . ' > *:first-child {
-
-							position: initial !important;
-							display: block !important;						
-							top: 0 !important;
-							bottom: 0 !important;
-							left: 0 !important;
-							right: 0 !important;
-							clear: both !important;
-							margin:0 !important;
-							border:none !important;
-							box-shadow:none !important;
-						}
-
-					');
+					if( $profile_html = $this->user->remaining_days > 0 ? apply_filters('ltple_user_profile_html','',$this->user->ID) : '' ){
 					
-					if( !empty($this->profile_css) ){
+						$tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
 						
-						wp_register_style( $this->parent->_token . '-profile-css', false, array());
-						wp_enqueue_style( $this->parent->_token . '-profile-css' );
+						// get home css
+
+						wp_register_style( $this->parent->_token . '-home', false, array());
+						wp_enqueue_style( $this->parent->_token . '-home' );
 					
-						wp_add_inline_style( $this->parent->_token . '-profile-css', $this->profile_css );							
+						wp_add_inline_style( $this->parent->_token . '-home', '
+						
+							html {
+								
+								font-size: 100% !important;
+								scroll-behavior: smooth !important;
+							}
+
+							#home {
+
+								margin:0px !important;
+								display:block !important;
+								width:auto !important;
+							}
+
+							#home ul, #about li {
+								
+								list-style:none !important;
+							}
+
+							#home .layer-' . $this->user->ID . ' > *:first-child {
+
+								position: initial !important;
+								display: block !important;						
+								top: 0 !important;
+								bottom: 0 !important;
+								left: 0 !important;
+								right: 0 !important;
+								clear: both !important;
+								margin:0 !important;
+								border:none !important;
+								box-shadow:none !important;
+							}
+
+						');
 					}
 				}
-			}
+				
+				// get about tab
+				
+				$tabs['about']['position'] = 1;
 			
-			// get about tab
-			
-			$this->tabs['about']['position'] = 1;
-		
-			$this->tabs['about']['name'] = 'About';
-			
-			$this->tabs['about']['slug'] = 'about';
-			
-			$content = '';
-			
-			if( $fields = $this->get_profile_fields() ){
+				$tabs['about']['name'] = 'About';
+				
+				$tabs['about']['slug'] = 'about';
+				
+				$content = '';
+				
+				if( $fields = $this->get_profile_fields() ){
 
-				foreach( $fields as $field ){
-					
-					if( !empty($field['id']) && !in_array($field['id'],array( 'nickname', 'ltple_profile_html', 'ltple_profile_css')) ){
-
-						if( isset($this->user->{$field['id']}) ){
-							
-							$meta = $this->user->{$field['id']};
-						}
-						else{
-							
-							$meta = get_user_meta( $this->user->ID , $field['id'] );
-						}
+					foreach( $fields as $field ){
 						
-						if(	$field['id'] == 'user_url'){
-							
-							if( !empty($meta) ){
-							
-								$meta = '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
-							}
-						}
-						else{
-							
-							if( $field['id'] == 'description' ){
-								
-								$meta = apply_filters('ltple_profile_about_description',$meta);
-								
-								if( empty($meta) ){
-									
-									$meta = '<p>Nothing to say</p>';
-								}
-							}
-							
-							$meta = $this->sanitize_text_editor($meta);
-						}
+						if( !empty($field['id']) && !in_array($field['id'],array('nickname'))){
 
-						if( !empty($meta) ){
-							
-							if( $field['id'] == 'description' ){
+							if( isset($this->user->{$field['id']}) ){
 								
-								$content .= $meta;
+								$meta = $this->user->{$field['id']};
 							}
 							else{
 								
-								$content .= '<h5>' . ucfirst($field['label']) . '</h5>';
+								$meta = get_user_meta( $this->user->ID , $field['id'] );
+							}
+							
+							if(	$field['id'] == 'user_url'){
 								
-								$content .= '<p>';
+								if( !empty($meta) ){
+								
+									$meta = '<a target="_blank" href="'.$meta.'">'.$meta.' <span style="font-size:11px;" class="glyphicon glyphicon-new-window" aria-hidden="true"></span></a>';
+								}
+							}
+							else{
+								
+								if( $field['id'] == 'description' ){
+									
+									$meta = apply_filters('ltple_profile_about_description',$meta);
+									
+									if( empty($meta) ){
+										
+										$meta = '<p>Nothing to say</p>';
+									}
+								}
+								
+								$meta = $this->sanitize_text_editor($meta);
+							}
+
+							if( !empty($meta) ){
+								
+								if( $field['id'] == 'description' ){
 									
 									$content .= $meta;
+								}
+								else{
 									
-								$content .= '</p>';
+									$content .= '<h5>' . ucfirst($field['label']) . '</h5>';
+									
+									$content .= '<p>';
+										
+										$content .= $meta;
+										
+									$content .= '</p>';
+								}
 							}
 						}
 					}
 				}
-			}
-			
-			$this->tabs['about']['content'] = '<div class="col-md-9">';
-			
-				$this->tabs['about']['content'] .= apply_filters('ltple_profile_about_content',$content);
-			
-			$this->tabs['about']['content'] .= '</div>';
-			
-			if( $this->tab == 'about' ){
 				
-				// register about style
+				$tabs['about']['content'] = '<div class="col-md-9">';
+				
+					$tabs['about']['content'] .= apply_filters('ltple_profile_about_content',$content);
+				
+				$tabs['about']['content'] .= '</div>';
+				
+				if( $this->tab == 'about' ){
+					
+					// register about style
 
-				wp_register_style( $this->parent->_token . '-about', false, array());
-				wp_enqueue_style( $this->parent->_token . '-about' );
-			
-				wp_add_inline_style( $this->parent->_token . '-about', '
-
-					#about {
-						
-						margin-top:15px !important;
-					}
+					wp_register_style( $this->parent->_token . '-about', false, array());
+					wp_enqueue_style( $this->parent->_token . '-about' );
+				
+					wp_add_inline_style( $this->parent->_token . '-about',$this->get_about_style());
+				}
+				
+				// get addon tabs
+				
+				$extra = apply_filters('ltple_profile_tabs',$tabs,$this->user,$this->tab);
+				
+				// sort addon tabs
+				
+				usort($extra, function($a, $b) {
 					
-					#about div {
-						
-						margin:10px 0;
-					}
+					return $a['position'] - $b['position'];
+				});
+				
+				// parse addon tabs
+				
+				foreach( $extra as $i => $tab ){
 					
-					#social_icons img {
-						background:#fff;
-						border:1px solid #eee;
-						padding:1px;
-						height:30px;
-						width:30px;
-						border-radius:250px;
-					}
+					$tab['slug'] = empty($tab['slug']) ? sanitize_title($tab['name']) : $tab['slug'];
 					
-					#about h2, #about h3, #about h4, #about h5 {
-					
-						padding:8px 0;						
-						font-weight:bold;
-						text-transform: uppercase;
-						color:' . $this->parent->settings->mainColor . ';
-					}
-					
-					#about h4{
-						
-						font-size:16px;
-					}
-					
-					#about h5{
-						
-						font-size:14px;
-					}
-					
-					#about table th {
-						background: none;
-						font-weight: bold;
-					}
-					
-					#about table td, #about table th {
-						padding: 8px;
-						border-bottom: none;
-						border-right: none;
-						border-left: none;
-						text-align: left;
-					}
-				');
+					$tabs[$tab['slug']] = $tab;
+				}
 			}
 			
-			// get addon tabs
-			
-			$tabs = apply_filters('ltple_profile_tabs',[],$this->user,$this->tab);
-			
-			// sort addon tabs
-			
-			usort($tabs, function($a, $b) {
-				
-				return $a['position'] - $b['position'];
-			});
-			
-			// parse addon tabs
-			
-			foreach( $tabs as $i => $tab ){
-				
-				$tab['slug'] = empty($tab['slug']) ? sanitize_title($tab['name']) : $tab['slug'];
-				
-				$this->tabs[$tab['slug']] = $tab;
-			}
+			$this->tabs = $tabs;
 		}
 		
 		return $this->tabs;
@@ -1765,6 +2248,11 @@ class LTPLE_Client_Profile {
 				$this->handle_update_profile();
 			}
 		}
+	}
+	
+	public function is_preview(){
+		
+		return LTPLE_Editor::instance()->is_preview();
 	}
 	
 	public function get_profile_fields( $fields=[] ){

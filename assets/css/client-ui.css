@@ -36,14 +36,6 @@
 }
 
 /* ---------------------------------------------------
-    PROFILE
------------------------------------------------------ */
-
-#profile_page #about.tab-pane, #profile_page #sponsor.tab-pane {
-	line-height: 30px;
-}
-
-/* ---------------------------------------------------
     SIDEBAR STYLE
 ----------------------------------------------------- */
 
@@ -1522,12 +1514,68 @@ th input, th select {
 
 .modal-header {
 	
-    padding: 4px 10px !important;
-    background: #345774 !important;
-    color: #fff;
-    border-bottom: none;
-    font-size: 16px;
+	margin: 0;
+    padding: 4px 10px;
+    background:rgb(236, 236, 236);
+    box-shadow: inset 0 -1px 10px -6px rgb(0 0 0 / 75%);
+    border-bottom: 1px solid #ddd;
 }
+
+.fade.in {
+	opacity: 1;
+}
+
+.modal-header .close span {
+	color: #345774 !important;
+	opacity: 1;
+	font-size: 35px;
+	filter: none;
+	box-shadow: none;
+	float: right;
+}
+
+.modal-title {
+	margin: 0;
+	line-height: 33px;
+	font-size: 18px;
+	color: #345774 !important;
+	display:inline-block;
+}
+
+.modal-content{
+	
+	border-radius: 0 !important;	
+}
+
+.modal-full{
+	   
+	display: contents;
+	width:100vw !important;
+	height: 100vh !important;
+	margin:0;
+	top:0;
+	bottom:0;
+	left:0;
+	right:0;
+	position:absolute;
+}
+
+.modal-full .modal-content {
+
+	width:100vw !important;
+	height: 100vh !important;
+	border: none;
+	overflow: hidden;
+}
+
+@media (min-width: 992px){
+	
+	.modal-lg {
+		
+		width: 1050px !important;
+	}
+}
+			
 
 /* ---------------------------------------------------
     MEDIA LIBRARY

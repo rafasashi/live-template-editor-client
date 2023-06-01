@@ -4,7 +4,9 @@ $ltple = LTPLE_Client::instance();
 
 // Gets all the scripts included by wordpress, wordpress plugins or functions.php
 
-	echo'<div class="mobile-bar">';
+if( $ltple->profile->in_tab() ){
+
+	echo'<div id="floating_bar">';
 		
 		if( $whatsapp_url = $ltple->profile->get_whatsapp_url() ){
 		
@@ -17,7 +19,7 @@ $ltple = LTPLE_Client::instance();
 			
 	if( !$ltple->inWidget ){
 	
-		echo'<footer role="contentinfo" style="margin:0 !important;padding:0 !important;position:relative;">';
+		echo'<footer id="ltple-footer" role="contentinfo" style="margin:0 !important;padding:0 !important;position:relative !important;width: 100% !important;display:table !important;">';
 		
 		if( LTPLE_Editor::get_framework('css') == 'bootstrap-4' ){
 			
@@ -84,14 +86,12 @@ $ltple = LTPLE_Client::instance();
 			</div>	
 		
 		</footer>
-	
-	<?php } ?>
-	
-<!-- FOOTER END
-================================================== -->
-</div>
+<?php 
 
-<?php wp_footer(); ?>
-</body>
-</html>
-<?php exit; ?>
+	} 
+}
+echo'</div>';
+wp_footer();
+echo'</body>';
+echo'</html>';
+exit;

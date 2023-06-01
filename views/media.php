@@ -273,7 +273,7 @@ echo'<div id="media_library" class="wrapper">';
 													
 													echo '<div class="input-group-btn">';
 														
-														echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Connect</button>';
+														echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Add</button>';
 														
 														echo '<input type="hidden" name="action" value="connect" />';
 														
@@ -581,7 +581,7 @@ echo'<div id="media_library" class="wrapper">';
 									
 									echo '<li role="presentation">';
 										
-										echo '<a target="_self" href="'.$ltple->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output . $modal . $section .'" class="btn btn-default btn-sm" style="margin:7px;padding:5px 10px !important;">+ Connect</a>';
+										echo '<a target="_self" href="'.$ltple->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output . $modal . $section .'" class="btn btn-default btn-sm" style="margin:7px;padding:5px 10px !important;" title="Add wallet">+ Wallet</a>';
 									
 									echo '</li>';
 									
@@ -603,9 +603,9 @@ echo'<div id="media_library" class="wrapper">';
 
 										echo '<li role="presentation">';
 										
-											echo '<button data-toggle="dialog" data-target="#addLink" class="btn btn-success btn-sm" style="margin:7px 0px 7px 1px;padding:5px 10px !important;">+ Add link</button>';
+											echo '<button data-toggle="dialog" data-target="#addLink" class="btn btn-success btn-sm" style="margin:7px 0px 7px 1px;padding:5px 10px !important;" title="Add link">+ Link</button>';
 
-											echo '<div style="display:none;" id="addLink" title="Add a new link">';
+											echo '<div style="display:none;" id="addLink" title="Add payment link">';
 												
 												echo '<form style="padding:10px;" target="_self" action="' . $ltple->urls->current . '#' . $app->slug . '" class="saveBookmarkForm" method="post">';
 													
@@ -615,7 +615,7 @@ echo'<div id="media_library" class="wrapper">';
 														
 														echo '<input type="text" name="bookmarkTitle" id="bookmarkTitle" value="" class="form-control required" placeholder="Product 1" />';
 																									
-														echo'<label>Account</label>';
+														echo'<label>Wallet</label>';
 				
 														echo $ltple->admin->display_field(array(
 							
@@ -726,9 +726,9 @@ echo'<div id="media_library" class="wrapper">';
 
 														echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
 														
-														echo '<div style="display:block;margin-top:5px;">';
+														echo '<div class="text-right" style="display:block;margin-top:5px;">';
 															
-															echo '<input class="btn btn-primary btn-sm" type="submit" value="Add" />';
+															echo '<input class="btn btn-success btn-xs" type="submit" value="Add" />';
 														
 														echo '</div>';
 														

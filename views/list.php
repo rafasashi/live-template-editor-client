@@ -31,22 +31,31 @@ echo'<div id="panel" class="wrapper">';
 						
 					echo apply_filters('ltple_list_'.$currentTab.'_menu','<li role="presentation" class="active"><a href="' . $ltple->urls->current . '" role="tab">' . $post_type->label . '</a></li>',$currentTab,$post_type);
 					
+					$modal_url = false;
+					
 					if( $currentTab == 'user-app' ){
 						
-						echo '<li role="presentation"><a href="' . apply_filters( 'ltple_list_'.$currentTab.'_new_url', $ltple->urls->gallery . '?layer[default_storage]=' . $currentTab, $currentTab, $output ) . '" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ New</a></li>';						
+						$modal_url = apply_filters( 'ltple_list_'.$currentTab.'_new_url', $ltple->urls->gallery . '?layer[default_storage]=' . $currentTab, $currentTab, 'widget' );					
+					
+						$modal_title = __('Add Account','live-template-editor-client');
 					}
 					elseif( apply_filters('ltple_list_'.$currentTab.'_new_modal',true) ){
 						
+						$modal_url = add_query_arg( array(
+						
+							'output' 	=> 'widget',
+							
+						),$ltple->urls->gallery . '?layer[default_storage]=' . $currentTab);
+					
+						$modal_title = __('New Project','live-template-editor-client');
+					}
+					
+					if( !empty($modal_url) ){
+						
+						$modal_id='modal_'.md5($modal_url);
+							
 						echo '<li role="presentation">';
-							
-							$gallery_url = add_query_arg( array(
-							
-								'output' 	=> 'widget',
-								
-							),$ltple->urls->gallery . '?layer[default_storage]=' . $currentTab);
-							
-							$modal_id='modal_'.md5($gallery_url);
-							
+
 							echo'<a href="#" style="margin:7px 3px;padding:5px 10px !important;" type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 								
 								echo'+ New'.PHP_EOL;
@@ -63,11 +72,11 @@ echo'<div id="panel" class="wrapper">';
 											
 											echo'<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 											
-											echo'<h4 class="modal-title text-left" id="myModalLabel">New Project</h4>'.PHP_EOL;
+											echo'<h4 class="modal-title text-left" id="myModalLabel">' . $modal_title . '</h4>'.PHP_EOL;
 										
 										echo'</div>'.PHP_EOL;
 									  
-										echo '<iframe data-src="'.$gallery_url.'" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';
+										echo '<iframe data-src="'.$modal_url.'" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';
 									  
 									echo'</div>'.PHP_EOL;
 									

@@ -330,7 +330,7 @@ class LTPLE_Client_Integrator_Scraper extends LTPLE_Client_Integrator {
 								
 								$this->message .= '<div class="col-xs-6 text-right" style="margin-top:10px;">';
 								
-									$this->message .= '<button class="btn btn-sm btn-primary" type="submit">Connect</button>';
+									$this->message .= '<button class="btn btn-sm btn-primary" type="submit">Add</button>';
 								
 								$this->message .= '</div>';
 								

@@ -91,7 +91,7 @@ class LTPLE_Client_Dashboard {
 				
 				$boxes['new_templates'] = array(
 				
-					'title' 	=> 'New resources',
+					'title' 	=> 'New Resources',
 					'content' 	=> $templates,
 				);
 			}
@@ -441,7 +441,9 @@ class LTPLE_Client_Dashboard {
 		
 		// manage section
 		
-		$manage_section = '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '"><span class="glyphicon glyphicon-dashboard"></span> Overview</a></li>';
+		$manage_section = '<li class="gallery_type_title">Manage</li>';
+		
+		$manage_section .= '<li'.( $currentTab == 'home' ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '"><span class="glyphicon glyphicon-dashboard"></span> Overview</a></li>';
 		
 		$manage_section .= '<li><a href="' . $this->parent->urls->profile . $this->parent->user->profile .'"><span class="fa fa-user-cog"></span> Profile Settings</a></li>';
 
@@ -451,7 +453,7 @@ class LTPLE_Client_Dashboard {
 		
 		if( !empty($manage_section) ){
 			
-			$sidebar .= '<li class="gallery_type_title">Manage</li>';
+			$sidebar .= '<li class="gallery_type_title gallery_head">Dashboard</li>';
 			
 			$sidebar .= $manage_section;
 		}

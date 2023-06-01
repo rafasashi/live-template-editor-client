@@ -607,7 +607,7 @@ class LTPLE_Client {
 		add_action('admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 10, 1 );
 		add_action('admin_enqueue_scripts', array( $this, 'admin_enqueue_styles' ), 10, 1 );
 		
-		add_action('ltple_editor_admin_enqueue_scripts', array( $this, 'editor_enqueue_styles' ), 10, 1 );
+		add_action('ltple_editor_admin_enqueue_scripts', array( $this, 'ui_enqueue_styles' ), 10, 1 );
 		
 		add_action('admin_head', array($this, 'custom_admin_dashboard_css'));
 		
@@ -1441,11 +1441,23 @@ class LTPLE_Client {
 											wp_set_post_terms( $post_id, $terms, $taxonomy, false );
 										}
 									}
-									elseif( isset($_POST[$field['id']]) ){
+									else{
 										
-										//update meta
+										$field_id = isset($field['name']) ? $field['name'] : $field['id'];
+										
+										if( strpos($field_id,'[') ){
 											
-										update_post_meta($post_id,$field['id'],$_POST[$field['id']]);
+											$field_id = strstr($field_id,'[',true);
+										}
+										
+										if( isset($_POST[$field_id]) ){
+										
+											//update meta
+											
+											$value = is_array($_POST[$field_id]) ? array_map('sanitize_text_field',$_POST[$field_id]) : sanitize_text_field($_POST[$field_id]);
+											
+											update_post_meta($post_id,$field_id,$value);
+										}
 									}
 								}
 							}
@@ -1508,7 +1520,7 @@ class LTPLE_Client {
 
 												$message .='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
 												$message .='<br>';
-												$message .='<input style="width:100%;padding: 2px;" type="text" value="'. $image_url . basename($image) .'" />';
+												$message .='<input style="width:100%;padding:2px 10px;" type="text" value="'. $image_url . basename($image) .'" />';
 
 											$message .='</div>';										
 										
@@ -1596,8 +1608,8 @@ class LTPLE_Client {
 				$post_js 		= ( !empty($_POST['postJs'])  ? sanitize_meta('layerJs',stripcslashes( $_POST['postJs'] ),'post') : '' );
 
 				$post_title 	= ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
-				$post_name 		= $post_title;			
-				
+				$post_name 		= $post_title;	
+
 				if( $_POST['postAction'] == 'update' ){
 					
 					//update layer
@@ -2213,22 +2225,25 @@ class LTPLE_Client {
 	 */
 	public function enqueue_styles() {
 	
-		$this->editor_enqueue_styles();
-
-		wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
-		wp_enqueue_style( $this->_token . '-toggle-switch' );
-	
 		wp_register_style( 'fontawesome-5', '//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css', array(), $this->_version );
-		wp_enqueue_style( 'fontawesome-5' );			
+		wp_enqueue_style( 'fontawesome-5' );
+					
+		if( empty($this->profile->id) ){
 		
-		global $post;
-		
-		if( empty($post->post_type) || $post->post_type != 'default-element' ){
+			$this->ui_enqueue_styles();
+
+			wp_register_style( $this->_token . '-toggle-switch', esc_url( $this->assets_url ) . 'css/toggle-switch.css', array(), $this->_version );
+			wp_enqueue_style( $this->_token . '-toggle-switch' );
+
+			global $post;
 			
-			wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css','theme-style',$this->_token . '-client-ui'));
-			wp_enqueue_style( $this->_token . '-client' );
-		
-			wp_add_inline_style( $this->_token . '-client', $this->get_client_style() );
+			if( empty($post->post_type) || $post->post_type != 'default-element' ){
+				
+				wp_register_style( $this->_token . '-client', false,array($this->_token . '-bootstrap-css','theme-style',$this->_token . '-client-ui'));
+				wp_enqueue_style( $this->_token . '-client' );
+			
+				wp_add_inline_style( $this->_token . '-client', $this->get_client_style() );
+			}
 		}
 	}
 	
@@ -2383,65 +2398,6 @@ class LTPLE_Client {
 				$style .='}';
 			}
 				
-			
-			
-			// bs modals
-
-			$style .='.fade.in {';
-				$style .='opacity: 1;';
-			$style .='}';
-
-			$style .='.modal-header .close span {';
-				$style .='color: #fff;';
-				$style .='opacity: 1;';
-				$style .='font-size: 35px;';
-				$style .='filter: none;';
-				$style .='box-shadow: none;';
-				$style .='float: right;';
-			$style .='}';
-
-			$style .='.modal-title {';
-				$style .='margin: 0;';
-				$style .='line-height: 33px;';
-				$style .='font-size: 18px;';
-				$style .='color: #fff;';
-				$style .='display:inline-block;';
-			$style .='}';
-
-			$style .='.modal-content{';
-				
-				$style .='border-radius: 0 !important;';	
-			$style .='}';
-
-			$style .='.modal-full{';
-				   
-				$style .='display: contents;';
-				$style .='width:100vw !important;';
-				$style .='height: 100vh !important;';
-				$style .='margin:0;';
-				$style .='top:0;';
-				$style .='bottom:0;';
-				$style .='left:0;';
-				$style .='right:0;';
-				$style .='position:absolute;';
-			$style .='}';
-
-			$style .='.modal-full .modal-content {';
-
-				$style .='width:100vw !important;';
-				$style .='height: 100vh !important;';
-				$style .='border: none;';
-				$style .='overflow: hidden;';
-			$style .='}';
-
-			$style .='@media (min-width: 992px){';
-				
-				$style .='.modal-lg {';
-					
-					$style .='width: 1050px !important;';
-				$style .='}';
-			$style .='}';
-			
 			// wedocs
 			
 			$style .='.wedocs-sidebar .widget-title {';
@@ -2691,10 +2647,10 @@ class LTPLE_Client {
 	 * @return  void
 	 */
 	public function enqueue_scripts () {
-
+		
 		if( $this->in_ui() ){
 
-			wp_register_script('jquery-notify', esc_url( $this->assets_url ) . 'js/notify.js', array( 'jquery' ), $this->_version);
+			wp_register_script('jquery-notify', esc_url( $this->assets_url ) . 'js/notify.js', array('jquery'), $this->_version);
 			wp_enqueue_script('jquery-notify' );
 		}
 		
@@ -2759,7 +2715,7 @@ class LTPLE_Client {
 	}
 	
 	
-	public function editor_enqueue_styles(){
+	public function ui_enqueue_styles(){
 		
 		$deps = array();
 		
