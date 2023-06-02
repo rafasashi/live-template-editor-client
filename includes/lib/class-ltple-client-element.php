@@ -81,84 +81,87 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 		global $post;
 		
-		$slug = 'ltple-html-element';
-		
-		if( has_shortcode($post->post_content,$slug) ) {
+		if( !empty($post->post_content) ){
 			
-			$pattern = get_shortcode_regex([$slug]);
-
-			preg_match_all("/$pattern/s", $post->post_content, $matches, PREG_SET_ORDER);
-
-			foreach($matches as $shortcode){
+			$slug = 'ltple-html-element';
+			
+			if( has_shortcode($post->post_content,$slug) ) {
 				
-				if( $shortcode[2] === 'ltple-html-element' ){
-					
-					$args = shortcode_parse_atts($shortcode[3]);
-					
-					if( !empty($args['id']) ){
-						
-						$layer = LTPLE_Editor::instance()->get_layer($args['id']);
-						
-						if( $layer->post_type == 'default-element' ){
-							
-							if( $layerFontLibraries = $this->parent->layer->get_libraries($layer->ID,'font') ){
-								
-								$fontsLibraries = array();
-								
-								foreach( $layerFontLibraries as $term ){
-									
-									$font_url = $this->parent->layer->get_font_parsed_url($term);
-									
-									if( !empty($font_url) ){
-										
-										wp_register_style( $this->parent->_token . '-font-' . $term->slug, $font_url, array(), null); // null to enqueue multiple fonts
-										wp_enqueue_style( $this->parent->_token . '-font-' . $term->slug );
-									}
-								}
-							}
-							
-							if( $layerCssLibraries = $this->parent->layer->get_libraries($layer->ID,'css') ){
-								
-								foreach($layerCssLibraries as $library){
-									
-									wp_register_style( $this->parent->_token . $library->prefix, $library->url, array());
-									wp_enqueue_style( $this->parent->_token . $library->prefix );
-								}
-							}
-							
-							if( !empty($layer->css) ){
-								
-								wp_register_style($this->parent->_token . 'layer-'.$layer->ID, false,array());
-								wp_enqueue_style($this->parent->_token . 'layer-'.$layer->ID);
-								
-								wp_add_inline_style($this->parent->_token . 'layer-'.$layer->ID,$this->parent->layer->parse_css_content($layer->css,'.layer-' . $layer->ID));
-							}
-							
-							if( $layerJsLibraries = $this->parent->layer->get_libraries($layer->ID,'js') ){
-								
-								foreach($layerJsLibraries as $term){
-									
-									$js_skip = $this->parent->layer->get_meta( $term, 'js_skip_local' ) != 'on' ? 'off' : 'on' ;
+				$pattern = get_shortcode_regex([$slug]);
 
-									if( $js_skip != 'on' ){
+				preg_match_all("/$pattern/s", $post->post_content, $matches, PREG_SET_ORDER);
+
+				foreach($matches as $shortcode){
+					
+					if( $shortcode[2] === 'ltple-html-element' ){
+						
+						$args = shortcode_parse_atts($shortcode[3]);
+						
+						if( !empty($args['id']) ){
+							
+							$layer = LTPLE_Editor::instance()->get_layer($args['id']);
+							
+							if( $layer->post_type == 'default-element' ){
+								
+								if( $layerFontLibraries = $this->parent->layer->get_libraries($layer->ID,'font') ){
+									
+									$fontsLibraries = array();
+									
+									foreach( $layerFontLibraries as $term ){
 										
-										$js_url = $this->parent->layer->get_js_parsed_url($term,'js_url');
+										$font_url = $this->parent->layer->get_font_parsed_url($term);
 										
-										if( !empty($js_url) ){
+										if( !empty($font_url) ){
 											
-											wp_register_script( $this->parent->_token . '-js-' . $term->term_id, esc_url($js_url), array(), $this->parent->_version);
-											wp_enqueue_script( $this->parent->_token . '-js-' . $term->term_id );
+											wp_register_style( $this->parent->_token . '-font-' . $term->slug, $font_url, array(), null); // null to enqueue multiple fonts
+											wp_enqueue_style( $this->parent->_token . '-font-' . $term->slug );
 										}
 									}
 								}
-							}
-							
-							if( !empty($layer->js) ){
 								
-								wp_register_script($this->parent->_token . 'layer-'.$layer->ID, '', array('jquery') );
-								wp_enqueue_script($this->parent->_token . 'layer-'.$layer->ID);
+								if( $layerCssLibraries = $this->parent->layer->get_libraries($layer->ID,'css') ){
+									
+									foreach($layerCssLibraries as $library){
+										
+										wp_register_style( $this->parent->_token . $library->prefix, $library->url, array());
+										wp_enqueue_style( $this->parent->_token . $library->prefix );
+									}
+								}
 								
-								wp_add_inline_script($this->parent->_token . 'layer-'.$layer->ID,$layer->js);
+								if( !empty($layer->css) ){
+									
+									wp_register_style($this->parent->_token . 'layer-'.$layer->ID, false,array());
+									wp_enqueue_style($this->parent->_token . 'layer-'.$layer->ID);
+									
+									wp_add_inline_style($this->parent->_token . 'layer-'.$layer->ID,$this->parent->layer->parse_css_content($layer->css,'.layer-' . $layer->ID));
+								}
+								
+								if( $layerJsLibraries = $this->parent->layer->get_libraries($layer->ID,'js') ){
+									
+									foreach($layerJsLibraries as $term){
+										
+										$js_skip = $this->parent->layer->get_meta( $term, 'js_skip_local' ) != 'on' ? 'off' : 'on' ;
+
+										if( $js_skip != 'on' ){
+											
+											$js_url = $this->parent->layer->get_js_parsed_url($term,'js_url');
+											
+											if( !empty($js_url) ){
+												
+												wp_register_script( $this->parent->_token . '-js-' . $term->term_id, esc_url($js_url), array(), $this->parent->_version);
+												wp_enqueue_script( $this->parent->_token . '-js-' . $term->term_id );
+											}
+										}
+									}
+								}
+								
+								if( !empty($layer->js) ){
+									
+									wp_register_script($this->parent->_token . 'layer-'.$layer->ID, '', array('jquery') );
+									wp_enqueue_script($this->parent->_token . 'layer-'.$layer->ID);
+									
+									wp_add_inline_script($this->parent->_token . 'layer-'.$layer->ID,$layer->js);
+								}
 							}
 						}
 					}
