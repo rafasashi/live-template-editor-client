@@ -511,7 +511,7 @@ class LTPLE_Client_Gallery {
 				
 				$item.='<div class="panel panel-default">';
 					
-					$alt_url = $this->parent->layer->get_preview_image_url($post,'blogindex-thumb');
+					$alt_url = $this->parent->layer->get_preview_image_url($post,'blogindex-thumb',$this->parent->assets_url . 'images/default_item.png');
 					
 					$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
 					

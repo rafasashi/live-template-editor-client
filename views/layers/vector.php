@@ -232,32 +232,7 @@
 		// include app html
 		
 		$layer .= '<canvas id="LiveTplEditorCanvas" width="600" height="500"></canvas>';
-		
-		// include js
-		
-		/*
-		if( !empty($layerJsLibraries) ){
-			
-			foreach($layerJsLibraries as $term){
-				
-				$js_url = $this->get_js_parsed_url( $term);
-				
-				if( !empty($js_url) ){
-					
-					$layer .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
-				}
-			}
-		}
-		
-		if( !empty($layerMeta['script']) ){
-			
-			foreach($layerMeta['script'] as $url){
-				
-				$layer .= '<script src="'.$url.'"></script>' .PHP_EOL;
-			}
-		}
-		*/
-
+	
 		//include layer script
 		
 		$layer .='<script id="LiveTplEditorScript">' .PHP_EOL;

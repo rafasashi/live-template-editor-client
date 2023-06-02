@@ -24,6 +24,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public $id				= -1;
 	public $defaultId		= -1;
+	public $themeId			= -1;
 	public $uri				= '';
 	public $key				= ''; // gives the server proxy access to the layer
 	public $slug			= '';
@@ -139,6 +140,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		});	
 		
 		$this->parent->register_taxonomy('layer-type', __( 'Template Gallery', 'live-template-editor-client' ), __( 'Template Gallery', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd'), array(
+			
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -153,6 +155,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		));
 		
 		$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
+			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -167,6 +170,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		));
 		
 		$this->parent->register_taxonomy( 'account-option', __( 'Template Options', 'live-template-editor-client' ), __( 'Template Option', 'live-template-editor-client' ),  array('user-plan'), array(
+			
 			'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -181,6 +185,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		));
 		
 		$this->parent->register_taxonomy( 'css-library', __( 'CSS Libraries', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
+			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -195,6 +200,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		));
 		
 		$this->parent->register_taxonomy( 'js-library', __( 'JS Libraries', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
+			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -209,6 +215,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		));
 		
 		$this->parent->register_taxonomy( 'font-library', __( 'Font Libraries', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
+			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
 			'show_ui' 				=> true,
@@ -1742,14 +1749,34 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( $post = get_post(intval($_GET['p'])) ){
 				
-				if( intval($post->post_author) == $this->parent->user->ID )
+				$user = wp_get_current_user();
+				
+				if( intval($post->post_author) == $user->ID ){
 				
 					$id = $post->ID;
+				}
 			}
 		}
 		elseif( $post = $this->parent->profile->get_profile_post() ){
 			
 			$id = $post->ID;
+		}
+		elseif( !is_admin() ){
+			
+			if( !empty($_SERVER['REQUEST_URI']) ){
+				
+				if( $_SERVER['REQUEST_URI'] == '/' ){
+					
+					if( !defined('REW_LTPLE') || REW_LTPLE == 'client' ){
+						
+						$id = get_option('page_on_front');
+					}
+				}
+				elseif( $post = get_page_by_path($_SERVER['REQUEST_URI']) ){
+					
+					$id = $post->ID;
+				}
+			}
 		}
 		else{
 			
@@ -2767,9 +2794,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			return $alt_url;
 		}
 		
-		// default image
-		
-		return $this->parent->assets_url . 'images/default-element.jpg';
+		return false;
 	}
 	
 	public function get_preview_modal($layer){
@@ -2816,7 +2841,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									
 									$content.= $image;
 								}
-								elseif( $image = $this->get_thumbnail_url($layer,'full') ){
+								elseif( $image = $this->get_thumbnail_url($layer,'full',$this->parent->assets_url . 'images/default_item.png') ){
 									
 									$content.= '<img loading="lazy" src="' . $image . '">';
 								}
@@ -3015,7 +3040,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$layer_type = $this->get_layer_type($post);			
 				
-				$alt_url = $this->get_preview_image_url($post,'thumbnail');
+				$alt_url = $this->get_preview_image_url($post,'thumbnail',$this->parent->assets_url . 'images/default_item.png');
 				
 				$row = [];
 				$row['preview'] 	= '<div style="height:100px;width:100px;background:url(' . $this->get_thumbnail_url($post,'thumbnail',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
@@ -3069,7 +3094,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$layer_type = $this->get_layer_type($post);
 				
-				$alt_url = $this->get_preview_image_url($post,'thumbnail');
+				$alt_url = $this->get_preview_image_url($post,'thumbnail',$this->parent->assets_url . 'images/default_item.png');
 				
 				$row = [];
 				
@@ -3172,7 +3197,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function set_layer( $layer = NULL, $echo = true ){
 		
-		if( $layer = get_post($layer) ){
+		if( $layer = LTPLE_Editor::instance()->get_layer($layer) ){
 			
 			if( $layer->post_status == 'publish' || $layer->post_status == 'draft' || $layer->post_status == 'inherit' || $layer->post_status == 'pending' ){
 				
@@ -3245,6 +3270,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						}
 					}
 					else{
+						
+						// get theme id
+						
+						if( $theme = $this->parent->profile->get_current_theme() ){
+							
+							$this->themeId = $theme->ID;
+						}
 						
 						// get layer Content
 						
@@ -3398,20 +3430,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->layerForm = get_post_meta( $this->defaultId, 'layerForm', true );
 						
 						//get css libraries
-
-						$this->layerCssLibraries = $this->get_libraries($this->defaultId,'css');
+						
+						$this->layerCssLibraries = $this->get_libraries(array($this->themeId,$this->defaultId),'css');
 						
 						//get js libraries
 						
-						$this->layerJsLibraries = $this->get_libraries($this->defaultId,'js');							
+						$this->layerJsLibraries = $this->get_libraries(array($this->themeId,$this->defaultId),'js');							
 						
 						//get font libraries
 						
-						$this->layerFontLibraries = $this->get_libraries($this->defaultId,'font');																			
+						$this->layerFontLibraries = $this->get_libraries(array($this->themeId,$this->defaultId),'font');																			
 						
 						//get element libraries
 						
-						$this->layerHtmlLibraries = $this->get_libraries($this->defaultId,'element');
+						$this->layerHtmlLibraries = $this->get_libraries(array($this->themeId,$this->defaultId),'element');
 					}
 				}
 			}
@@ -3422,104 +3454,140 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$libraries = array();
 		
-		if( $terms = wp_get_post_terms( $layer_id, $type . '-library', array( 
+		if( is_array($layer_id) ){
 			
-			'orderby' => 'term_id',
-			
-		))){
-			
-			foreach( $terms as $term ){
+			foreach( $layer_id as $id ){
 				
-				$libraries[$term->term_id] = $term;
+				if( is_numeric($id) ){
+					
+					$libraries = array_merge($libraries,$this->get_libraries($id,$type));
+				}
+			}
+		}
+		elseif( is_numeric($layer_id) ){
+			
+			if( $this->has_libraries($layer_id,$type) ){
 				
-				if( $type == 'element' ){
+				if( $terms = wp_get_post_terms( $layer_id, $type . '-library', array( 
+					
+					'orderby' => 'term_id',
+					
+				))){
+					
+					foreach( $terms as $term ){
 						
-					if( $term->parent == 0 ){
+						$libraries[$term->term_id] = $term;
 						
-						$children = get_term_children($term->term_id,$term->taxonomy);
-						
-						if( !empty($children) ){
-						
-							$children = get_terms( array(
+						if( $type == 'element' ){
 								
-								'taxonomy' 		=> $term->taxonomy,
-								'hide_empty' 	=> false,
-								'include' 		=> $children,
-							
-							));
-							
-							foreach( $children as $child ){
+							if( $term->parent == 0 ){
 								
-								$libraries[$child->term_id] = $child;
+								$children = get_term_children($term->term_id,$term->taxonomy);
+								
+								if( !empty($children) ){
+								
+									$children = get_terms( array(
+										
+										'taxonomy' 		=> $term->taxonomy,
+										'hide_empty' 	=> false,
+										'include' 		=> $children,
+									
+									));
+									
+									foreach( $children as $child ){
+										
+										$libraries[$child->term_id] = $child;
+									}
+								}
+							}
+						}
+						elseif( $term->parent > 0 ){
+
+							$ancestors = get_ancestors($term->term_id,$term->taxonomy);
+							
+							if( !empty($ancestors) ){
+							
+								$ancestors = get_terms( array(
+									
+									'taxonomy' 		=> $term->taxonomy,
+									'hide_empty' 	=> false,
+									'include' 		=> $ancestors,
+								
+								));
+								
+								foreach( $ancestors as $ancestor ){
+									
+									$libraries[$ancestor->term_id] = $ancestor;
+								}
 							}
 						}
 					}
 				}
-				elseif( $term->parent > 0 ){
+				
+				if( !empty($libraries) && ( $type == 'js' || $type == 'css' ) ){
+					
+					// order libraries
 
-					$ancestors = get_ancestors($term->term_id,$term->taxonomy);
+					$ordered 	= array();
+					$level 	= 0;
+					$items 	= $libraries;				
 					
-					if( !empty($ancestors) ){
-					
-						$ancestors = get_terms( array(
-							
-							'taxonomy' 		=> $term->taxonomy,
-							'hide_empty' 	=> false,
-							'include' 		=> $ancestors,
+					while( !empty($items) && $level < 10 ){
 						
-						));
-						
-						foreach( $ancestors as $ancestor ){
+						foreach( $items as $i => $item ){
 							
-							$libraries[$ancestor->term_id] = $ancestor;
+							if( !isset($libraries[$i]) ){
+								
+								unset($items[$i]);
+							}
+							elseif( $item->parent == 0 || isset($ordered[$item->parent]) ){
+								
+								$ordered[$item->term_id] = $item;
+								unset($items[$i]);
+							}
 						}
+						
+						++$level;
 					}
-				}
-			}
-		}
-		
-		if( !empty($libraries) && ( $type == 'js' || $type == 'css' ) ){
-			
-			// order libraries
-
-			$ordered 	= array();
-			$level 	= 0;
-			$items 	= $libraries;				
-			
-			while( !empty($items) && $level < 10 ){
-				
-				foreach( $items as $i => $item ){
 					
-					if( !isset($libraries[$i]) ){
+					$libraries = $ordered;
+					
+					// add arguments
+					
+					if( $type == 'css' ){
 						
-						unset($items[$i]);
-					}
-					elseif( $item->parent == 0 || isset($ordered[$item->parent]) ){
-						
-						$ordered[$item->term_id] = $item;
-						unset($items[$i]);
-					}
-				}
-				
-				++$level;
-			}
-			
-			$libraries = $ordered;
-			
-			// add arguments
-			
-			if( $type == 'css' ){
-				
-				foreach( $libraries as $library ){
+						foreach( $libraries as $library ){
 
-					$library->url 		= $this->get_css_parsed_url($library);
-					$library->prefix 	= 'style-' . $library->term_id;
+							$library->url 		= $this->get_css_parsed_url($library);
+							$library->prefix 	= 'style-' . $library->term_id;
+						}
+					}	
+				
 				}
-			}	
-		
+			}
 		}
 		
 		return $libraries;
+	}
+
+	public function has_libraries($layer_id,$type){
+		
+		return true;
+		
+		if( $layer_type = $this->get_layer_type($layer_id) ){
+			
+			if( in_array($layer_type->storage,array(
+			
+				'user-theme',
+				//'user-page',
+			
+			))){
+				
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public function extract_css_urls( $str ){
@@ -5230,7 +5298,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $column_name === 'thumb' ){
 			
-			$url = $this->get_preview_image_url($post_id);
+			$url = $this->get_preview_image_url($post_id,'thumbnail',$this->parent->assets_url . 'images/default_item.png');
 
 			echo '<div style="height:100px;margin:5px 0;overflow:auto;">';
 
@@ -6547,7 +6615,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function add_local_layer_scripts( $layer ){
-	
+		
 		if( !isset($_GET['uri']) ){
 			
 			if( $layer->area == 'backend' || $layer->output == 'hosted-page' ){

@@ -896,17 +896,16 @@ class LTPLE_Client {
 							
 							return $this->views . '/profile.php';					
 						}
-						elseif( $layer->post_type == 'default-element' ) {
-							
-							add_filter('ltple_css_framework',function($framework){
-								
-								return 'bootstrap-4';
-								
-							},99999999,1);	
-							
-							return get_stylesheet_directory() . '/templates/landing-page.php';
-						}
 						else{
+							
+							if( $layer->post_type == 'default-element' ) {
+								
+								add_filter('ltple_css_framework',function($framework){
+									
+									return 'bootstrap-4';
+									
+								},99999999,1);
+							}
 							
 							return $this->views . '/layer.php';
 						}
@@ -1113,7 +1112,8 @@ class LTPLE_Client {
 		echo '<meta name="twitter:card" content="'.$twitter_card.'" />' . PHP_EOL;
 	
 		// TODO application/ld+json
-	
+		
+		do_action('ltple_header_end');
 	}
 	
 	public function get_menu( $items, $args ){

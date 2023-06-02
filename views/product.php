@@ -381,7 +381,7 @@
 											
 											echo '<div class="col-xs-3">';
 												
-												if( $image = $this->parent->layer->get_preview_image_url($post->ID,'thumbnail') ){
+												if( $image = $this->parent->layer->get_preview_image_url($post->ID,'thumbnail',$this->parent->assets_url . 'images/default_item.png') ){
 												
 													echo '<a class="thumbnail" href="' . get_permalink($post) . '">';
 												

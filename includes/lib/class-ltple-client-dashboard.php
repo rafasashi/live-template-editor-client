@@ -303,7 +303,7 @@ class LTPLE_Client_Dashboard {
 
 				// get image url
 				
-				$alt_url = $this->parent->layer->get_thumbnail_url($post->ID,'thumbnail');
+				$alt_url = $this->parent->layer->get_thumbnail_url($post->ID,'thumbnail',$this->parent->assets_url . 'images/default_item.png');
 				
 				$image_url = $this->parent->layer->get_preview_image_url($post->ID,'thumbnail',$alt_url);
 				

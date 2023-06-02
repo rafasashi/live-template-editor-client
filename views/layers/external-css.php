@@ -142,54 +142,7 @@
 		
 		$head .= '<link rel="dns-prefetch" href="//fonts.googleapis.com">';
 		$head .= '<link rel="dns-prefetch" href="//s.w.org">';
-		
-		/*
-		// font library
-		
-		// TODO include in layerCss
-		
-		if( !empty($googleFonts) ){
-		
-			$head .= '<link href="//fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
-		}
-		
-		if( !empty($fontsLibraries) ){
-		
-			foreach( $fontsLibraries as $font ){
-		
-				$font =$this->sanitize_url( $font );
-				
-				if( !empty($font) && !in_array($font,$headLinks) ){
-		
-					$head .= '<link href="' . $font . '" rel="stylesheet" />';
-				
-					$headLinks[] = $font;
-				}
-			}
-		}
-		
-		// CSS Library
-		
-		// TODO include in layerCss
-			
-		if( !empty($layerCssLibraries) ){
-			
-			foreach($layerCssLibraries as $term){
-				
-				$css_url = $this->get_css_parsed_url($term);
-				
-				$css_url = $this->sanitize_url( $css_url );
-				
-				if( !empty($css_url) && !in_array($css_url,$headLinks) ){
 
-					$head .= '<link href="' . $css_url . '" rel="stylesheet" type="text/css" />';
-						
-					$headLinks[] = $css_url;
-				}
-			}
-		}
-		*/
-		
 	$head .= '</head>';
 
 	// get layer

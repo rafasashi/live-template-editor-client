@@ -1076,7 +1076,7 @@ class LTPLE_Client_Settings {
 				'app-type' 			=> array( 'tab'  => 'APIs',		'name' => 'APIs', 		'in_menu' => true, 		'type' => 'taxonomy', 'post-type' => 'user-app' ),	
 			)),
 			'user-contents' => apply_filters('ltple_admin_tabs_user-contents',array(
-			  
+					  
 				'user-layer' 	=> array( 'tab'  => 'HTML', 	'name' => 'HTML', 	'in_menu' => true),
 				'user-image' 	=> array( 'tab'  => 'Images',	'name' => 'Images', 'in_menu' => true),				
 				'user-psd' 		=> array( 'tab'  => 'Images',	'name' => 'PSDs', 	'in_menu' => false),

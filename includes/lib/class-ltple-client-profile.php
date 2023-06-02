@@ -257,24 +257,28 @@ class LTPLE_Client_Profile {
 						
 					},99999999,1);			
 
-					// enqueue inline style
+					add_action('ltple_header_end',function(){
+						
+						// profile inline style
+						
+						echo '<style id="profile-style">';
+						
+							if( $this->tab != 'theme' ){
+								
+								echo $this->get_profile_style();
+							}
+							
+							echo $this->get_floating_style();
+							
+							do_action('ltple_profile_header_style');
+							
+						echo '</style>';
+						
+					},PHP_INT_MAX);
 					
 					add_action('wp_enqueue_scripts',function(){
 						
-						if( $this->tab != 'theme' ){
-
-							wp_register_style( $this->parent->_token . '-profile', false, array());
-							wp_enqueue_style( $this->parent->_token . '-profile' );
-
-							wp_add_inline_style( $this->parent->_token . '-profile',$this->get_profile_style());
-						}
-						
-						wp_register_style( $this->parent->_token . '-floating-bar', false, array());
-						wp_enqueue_style( $this->parent->_token . '-floating-bar' );
-
-						wp_add_inline_style( $this->parent->_token . '-floating-bar',$this->get_floating_style());
-
-						// enqueue inline script
+						// profile inline script
 						
 						if( !$this->parent->inWidget ){
 						
@@ -284,14 +288,14 @@ class LTPLE_Client_Profile {
 							wp_add_inline_script( $this->parent->_token . '-profile_script', $this->get_profile_script());					
 						}
 						
-					},10 );
+					},PHP_INT_MAX);
 					
 					add_filter('ltple_parse_css_variables',function($style){
 						
 						$style = $this->parse_page_urls($style);
 						
 						$style = $this->parse_theme_variables($style);
-							
+						
 						return $style;
 						
 					},10,1);
@@ -592,11 +596,11 @@ class LTPLE_Client_Profile {
 			color:#fff;
 		}
 		';
-					
-		$style = $this->parse_page_urls($style);
-							
-		$style = $this->parse_theme_variables($style);
 		
+		$style = $this->parse_page_urls($style);
+				
+		$style = $this->parse_theme_variables($style);
+			
 		return $style;
 	}
 	
@@ -1296,7 +1300,7 @@ class LTPLE_Client_Profile {
 			
 			$content .= '</div>';
 
-			$content .= '<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="padding:0;border-left:1px solid #ddd;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 150px );">';
+			$content .= '<div class="col-xs-12 col-sm-9 col-md-9 col-lg-10 library-content" style="padding:0;border-left:1px solid #ddd;background:#fff;padding-bottom:0px;min-height:calc( 100vh - 133px );">';
 				
 				$content .= '{{ theme.navbar }}';
 				
@@ -1411,7 +1415,7 @@ class LTPLE_Client_Profile {
 		$content = $this->parse_page_urls($content);
 							
 		$content = $this->parse_theme_variables($content);
-
+		
 		return apply_filters('ltple_render_page_content',$content,$this->tab);
 	}
 	
@@ -1494,22 +1498,29 @@ class LTPLE_Client_Profile {
 		if( is_null($this->theme) ){
 			
 			$theme_id = 0;
-
+			
 			if( $layer = LTPLE_Editor::instance()->get_layer() ){
 				
 				$layer_type = $this->parent->layer->get_layer_type($layer->ID);
+				
+				if( $layer->post_type == 'cb-default-layer' ){
 					
-				if( $layer->post_type == 'cb-default-layer' && $layer_type->storage == 'user-theme' ){
+					if( $layer_type->storage == 'user-theme' ){
 					
-					$theme_id = $layer->ID;
+						$theme_id = $layer->ID;
+					}
+					else{
+						
+						$theme_id = intval(get_post_meta($layer->ID,'themeId',true));
+					}
 				}
 				elseif( $layer->post_type == 'user-theme' ){
 					
 					$theme_id = $layer->ID;
 				}
-				elseif( $layer_theme_id = intval(get_post_meta($layer->ID,'themeId',true)) ){
+				elseif( 1==2 && $default_id = $this->parent->layer->get_default_id($layer->ID) ){
 					
-					$theme_id = $layer_theme_id;
+					$theme_id = intval(get_post_meta($default_id,'themeId',true));
 				}
 				else{
 					
@@ -1593,7 +1604,7 @@ class LTPLE_Client_Profile {
 	}
 	
 	public function parse_theme_variables($content){
-	
+		
 		if( $theme = $this->get_current_theme() ){
 		
 			foreach( $theme->variables['css'] as $key => $value ){

@@ -103,7 +103,9 @@ class LTPLE_Client_Product {
 					$this->{$key} = $value;
 				}
 				
-				$this->image = $this->parent->layer->get_preview_image_url($post->ID);
+				$alt_url = $this->parent->layer->get_preview_image_url($post->ID,'post-thumbnail',$this->parent->assets_url . 'images/default_item.png');
+				
+				$this->image = $this->parent->layer->get_thumbnail_url($post->ID,'post-thumbnail',$alt_url);
 				
 				$layer_plan = $this->parent->plan->get_layer_options($post->ID);
 
