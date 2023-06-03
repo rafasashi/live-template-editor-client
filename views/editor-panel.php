@@ -103,7 +103,7 @@ echo'<div id="panel" class="wrapper">';
 								
 							echo'<div class="col-md-9">';
 
-								echo'<ul class="nav nav-tabs" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;overflow:visible !important;height:47px;font-size:13px;font-weight:bold;">';
+								echo'<ul class="nav nav-tabs nav-resizable" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;overflow:hidden;height:46px;font-size:13px;font-weight:bold;">';
 									
 									$class=' class="active"';
 									
