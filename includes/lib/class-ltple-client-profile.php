@@ -1518,10 +1518,6 @@ class LTPLE_Client_Profile {
 					
 					$theme_id = $layer->ID;
 				}
-				elseif( 1==2 && $default_id = $this->parent->layer->get_default_id($layer->ID) ){
-					
-					$theme_id = intval(get_post_meta($default_id,'themeId',true));
-				}
 				else{
 					
 					$theme_id = apply_filters('ltple_current_theme_id',$theme_id,$layer);
