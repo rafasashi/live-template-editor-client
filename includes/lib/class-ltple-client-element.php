@@ -173,7 +173,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	public function get_element_shortcode($args){
 		
 		if( !empty($args['id']) ){
-		
+			
 			$layer = LTPLE_Editor::instance()->get_layer($args['id']);
 		
 			if( $layer->post_type == 'default-element' ){

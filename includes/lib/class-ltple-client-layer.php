@@ -3298,11 +3298,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 						// get default css
 
-						$this->defaultCss = get_post_meta( $this->defaultId, 'layerCss', true );
+						$this->defaultCss = apply_filters('ltple_parse_css_variables',get_post_meta( $this->defaultId, 'layerCss', true ));
 						
 						// get layer css
 						
-						$this->layerCss = get_post_meta( $this->id, 'layerCss', true );
+						$this->layerCss = apply_filters('ltple_parse_css_variables',get_post_meta( $this->id, 'layerCss', true ));
 						
 						if( empty($this->layerCss) && $this->id != $this->defaultId ){
 							

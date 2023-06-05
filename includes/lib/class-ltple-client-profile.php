@@ -90,7 +90,17 @@ class LTPLE_Client_Profile {
 		
 		add_action( 'personal_options_update', array( $this, 'save_privacy_settings' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'save_privacy_settings' ) );
-		 
+		
+		add_filter('ltple_parse_css_variables',function($content){
+			
+			$content = $this->parse_page_urls($content);
+			
+			$content = $this->parse_theme_variables($content);
+			
+			return $content;
+			
+		},10,1);
+		
 		add_action( 'ltple_view_my_profile_settings', function(){
 			
 			echo'<li style="position:relative;background:#182f42;">';
@@ -263,10 +273,7 @@ class LTPLE_Client_Profile {
 						
 						echo '<style id="profile-style">';
 						
-							if( $this->tab != 'theme' ){
-								
-								echo $this->get_profile_style();
-							}
+							echo $this->get_profile_style();
 							
 							echo $this->get_floating_style();
 							
@@ -289,16 +296,6 @@ class LTPLE_Client_Profile {
 						}
 						
 					},PHP_INT_MAX);
-					
-					add_filter('ltple_parse_css_variables',function($style){
-						
-						$style = $this->parse_page_urls($style);
-						
-						$style = $this->parse_theme_variables($style);
-						
-						return $style;
-						
-					},10,1);
 				}
 			}
 			else{
@@ -435,6 +432,12 @@ class LTPLE_Client_Profile {
 	public function get_profile_style(){
 		
 		$style = '
+		
+		html{
+			
+			font-size: 100%;
+			scroll-behavior: smooth;
+		}
 		
 		p{
 		    line-height: 2;
@@ -596,12 +599,8 @@ class LTPLE_Client_Profile {
 			color:#fff;
 		}
 		';
-		
-		$style = $this->parse_page_urls($style);
-				
-		$style = $this->parse_theme_variables($style);
-			
-		return $style;
+
+		return apply_filters('ltple_parse_css_variables',$style);
 	}
 	
 	public function get_floating_style(){
@@ -882,12 +881,8 @@ class LTPLE_Client_Profile {
 		  }
 		}
 		';
-		
-		$style = $this->parse_page_urls($style);
-							
-		$style = $this->parse_theme_variables($style);
-		
-		return $style;
+
+		return apply_filters('ltple_parse_css_variables',$style);
 	}
 	
 	public function get_about_style(){
@@ -1312,11 +1307,7 @@ class LTPLE_Client_Profile {
 
 		$content = $this->parse_page_content($content);
 		
-		$content = $this->parse_page_urls($content);
-							
-		$content = $this->parse_theme_variables($content);
-		
-		return $content;
+		return apply_filters('ltple_parse_css_variables',$content);
 	}
 	
 	public function get_navbar_content(){
@@ -1412,11 +1403,7 @@ class LTPLE_Client_Profile {
 		
 		$content = $this->parse_page_content($content);
 		
-		$content = $this->parse_page_urls($content);
-							
-		$content = $this->parse_theme_variables($content);
-		
-		return apply_filters('ltple_render_page_content',$content,$this->tab);
+		return apply_filters('ltple_parse_css_variables',$content);
 	}
 	
 	public function get_page_template(){
@@ -1501,30 +1488,30 @@ class LTPLE_Client_Profile {
 			
 			if( $layer = LTPLE_Editor::instance()->get_layer() ){
 				
-				$layer_type = $this->parent->layer->get_layer_type($layer->ID);
-				
-				if( $layer->post_type == 'cb-default-layer' ){
+				if( $layer->post_type == 'user-theme' ){
+					
+					$theme_id = $layer->ID;
+				}
+				elseif( $layer->post_type == 'cb-default-layer' ){
+					
+					$layer_type = $this->parent->layer->get_layer_type($layer->ID);
 					
 					if( $layer_type->storage == 'user-theme' ){
-					
+						
 						$theme_id = $layer->ID;
 					}
 					else{
 						
-						$theme_id = intval(get_post_meta($layer->ID,'themeId',true));
+						$theme_id = apply_filters('ltple_user_theme_id',$theme_id,$layer);
 					}
-				}
-				elseif( $layer->post_type == 'user-theme' ){
-					
-					$theme_id = $layer->ID;
 				}
 				else{
 					
 					$theme_id = apply_filters('ltple_current_theme_id',$theme_id,$layer);
 				}
 			}
-			
-			if( $theme = get_post($theme_id) ){
+				
+			if( $theme = LTPLE_Editor::instance()->get_layer($theme_id) ){
 				
 				$vars = array(
 					
@@ -1618,9 +1605,9 @@ class LTPLE_Client_Profile {
 	public function get_tab_content(){
 		
 		$content = '';
-
-		if( $tabs = $this->get_profile_tabs() ){
 		
+		if( $tabs = $this->get_profile_tabs() ){
+			
 			foreach( $tabs as $tab){
 				
 				if( !empty($tab['content']) && $tab['slug'] == $this->tab  ){
@@ -1983,70 +1970,69 @@ class LTPLE_Client_Profile {
 				
 				// get home tab
 				
-				$tabs['home']['position'] = 0;
-				
-				$tabs['home']['name'] 	= 'Home';
-					
-				$tabs['home']['slug'] 	= 'home';
-				
+				$tabs['home']['position'] 	= 0;
+				$tabs['home']['name'] 		= 'Home';
+				$tabs['home']['slug'] 		= 'home';
 				$tabs['home']['content'] 	= '';
 
 				if( $this->tab == 'home' ){
 					
-					if( $profile_html = $this->user->remaining_days > 0 ? apply_filters('ltple_user_profile_html','',$this->user->ID) : '' ){
+					$layer = LTPLE_Editor::instance()->get_layer();
 					
-						$tabs['home']['content'] = '<div class="layer-' . $this->user->ID . '">' . $profile_html . '</div>';
-						
-						// get home css
-
-						wp_register_style( $this->parent->_token . '-home', false, array());
-						wp_enqueue_style( $this->parent->_token . '-home' );
+					$layer_type = $this->parent->layer->get_layer_type($layer);
 					
-						wp_add_inline_style( $this->parent->_token . '-home', '
+					if( $layer->post_type == 'cb-default-layer' && $layer_type->storage == 'user-theme' ){
 						
-							html {
+						if( $demo_id = intval(get_post_meta($layer->ID,'demoLayerId',true)) ){
+						
+							$demo = LTPLE_Editor::instance()->get_layer($demo_id);
+						
+							if( $demo->post_type == 'cb-default-layer' ){
 								
-								font-size: 100% !important;
-								scroll-behavior: smooth !important;
-							}
-
-							#home {
-
-								margin:0px !important;
-								display:block !important;
-								width:auto !important;
-							}
-
-							#home ul, #about li {
+								$classes = array('layer-' . $demo->ID);
 								
-								list-style:none !important;
+								if( $layerCssLibraries = $this->parent->layer->get_libraries($demo->ID,'css') ){
+									
+									foreach($layerCssLibraries as $library){
+										
+										$classes[] = $library->prefix;
+									}
+								}
+
+								$content = '<div class="'.implode(' ',$classes).'">' . $demo->html . '</div>';
+							
+								if( $this->is_preview() ){
+									
+									$content = '<ltple-mod>' . $content . '</ltple-mod>';
+								}
 							}
-
-							#home .layer-' . $this->user->ID . ' > *:first-child {
-
-								position: initial !important;
-								display: block !important;						
-								top: 0 !important;
-								bottom: 0 !important;
-								left: 0 !important;
-								right: 0 !important;
-								clear: both !important;
-								margin:0 !important;
-								border:none !important;
-								box-shadow:none !important;
-							}
-
-						');
+						}
+						
+						if( empty($content) ){
+							
+							// some content to skip the card
+							
+							$content = 'Page content goes here';
+						}
 					}
+					elseif( $this->user->remaining_days > 0 ){
+						
+						if( $profile_html = apply_filters('ltple_user_profile_html','',$this->user->ID) ){
+						
+							//$content = '<div class="site-' . $this->user->ID . '">' . $profile_html . '</div>';
+							
+							$content = $profile_html;
+						}
+					}
+			
+					$tabs['home']['content'] = $content;
 				}
 				
 				// get about tab
 				
-				$tabs['about']['position'] = 1;
-			
-				$tabs['about']['name'] = 'About';
-				
-				$tabs['about']['slug'] = 'about';
+				$tabs['about']['position'] 	= 1;
+				$tabs['about']['name'] 		= 'About';
+				$tabs['about']['slug'] 		= 'about';
 				
 				$content = '';
 				

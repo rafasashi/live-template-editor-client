@@ -30,11 +30,9 @@ if( $ltple->profile->in_tab() ){
 		else{
 			
 			echo '<div class="footerbottom">';
-			
-				echo '<div class="container">';
 		}
 		
-			?>
+		?>
 
 					<!-- left -->
 					<div class="col-md-5">
@@ -81,13 +79,19 @@ if( $ltple->profile->in_tab() ){
 					
 				</div>
 				
-				<!-- end container -->
+		<?php 
+			
+			if( LTPLE_Editor::get_framework('css') == 'bootstrap-4' ){
+			
+				echo '</div>';
+				echo '</div>';
+			}
+			else{
 				
-			</div>	
+				echo '</div>';
+			}
 		
-		</footer>
-<?php 
-
+		echo '</footer>';
 	} 
 }
 echo'</div>';
