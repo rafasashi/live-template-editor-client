@@ -1484,9 +1484,17 @@ class LTPLE_Client_Profile {
 		
 		if( is_null($this->theme) ){
 			
+			$user_id = 0;
 			$theme_id = 0;
 			
-			if( $layer = LTPLE_Editor::instance()->get_layer() ){
+			if( !empty($this->id) ){
+				
+				$user_id = $this->id;
+				$theme_id = apply_filters('ltple_user_theme_id',$theme_id,$user_id);
+			}
+			elseif( $layer = LTPLE_Editor::instance()->get_layer() ){
+				
+				$user_id = intval($layer->post_author);
 				
 				if( $layer->post_type == 'user-theme' ){
 					
@@ -1500,9 +1508,9 @@ class LTPLE_Client_Profile {
 						
 						$theme_id = $layer->ID;
 					}
-					else{
+					elseif( !empty($this->parent->user->ID) ){
 						
-						$theme_id = apply_filters('ltple_user_theme_id',$theme_id,$layer);
+						$theme_id = apply_filters('ltple_user_theme_id',$theme_id,$this->parent->user->ID);
 					}
 				}
 				else{
@@ -1523,9 +1531,9 @@ class LTPLE_Client_Profile {
 					),
 				);
 				
-				if( $theme->post_type == 'user-theme' || $theme->ID == $layer->ID  ){
+				if( $theme->post_type == 'user-theme' ){
 					
-					if( $theme->post_author == $layer->post_author || $layer->post_type == 'cb-default-layer' ){
+					if( $theme->post_author == $user_id || ( !empty($layer) && $layer->post_type == 'cb-default-layer' ) ){
 						
 						// get css variables
 						
@@ -1980,6 +1988,8 @@ class LTPLE_Client_Profile {
 					$layer = LTPLE_Editor::instance()->get_layer();
 					
 					$layer_type = $this->parent->layer->get_layer_type($layer);
+					
+					$content = '';
 					
 					if( $layer->post_type == 'cb-default-layer' && $layer_type->storage == 'user-theme' ){
 						
