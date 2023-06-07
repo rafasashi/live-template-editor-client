@@ -742,6 +742,29 @@ if( typeof editorCallbacks == typeof undefined )
 				});
 			}
 		}
+			
+		function adjustContainerHeight(target) {
+		
+			var container = $(target);
+			
+			var footerHeight = $("#ltple-footer").length > 0 ? $("#ltple-footer").height() : 0;
+										
+			var containerOffset = container.offset().top;
+			
+			var remainingHeight = $(window).height() - containerOffset - footerHeight;
+			
+			container.css("height", remainingHeight + "px");
+		}
+		
+		if( $("#ltple-wrapper #gallery_wrapper").length > 0 ){
+
+			adjustContainerHeight("#ltple-wrapper #gallery_wrapper");
+
+			$(window).resize(function(){
+				
+				adjustContainerHeight("#ltple-wrapper #gallery_wrapper");
+			});
+		}
 		
 		if( $(".nav-resizable").length ){
 

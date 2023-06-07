@@ -838,6 +838,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'type'			=> 'code_editor',
 						'code'			=> 'html',
 						'placeholder'	=> 'HTML content',
+						'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_content',''),
 					);
 					
 					if( $layer_type->storage == 'user-theme' ){
@@ -845,7 +846,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->defaultFields[]=array(
 						
 							'metabox' 		=> $metabox,
-							'id'			=> 'layerContentVars',
+							'id'			=> 'layerContentVarsTable',
 							'type'			=> 'html',
 							'data'			=> '<table class="widefat striped" style="border:1px solid #eee;">
 								<tr>
@@ -913,13 +914,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'stripcslashes'	=> false,
 							'htmlentities'	=> false,
 							'placeholder'	=> 'CSS rules without '.htmlentities('<style></style>'),
+							'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_css',''),
 							'description'	=> ''
 						);
 						
 						$this->defaultFields[]=array(
 						
 							'metabox' 		=> $metabox,
-							'id'			=> 'layerContentVars',
+							'id'			=> 'layerCssVarsTable',
 							'type'			=> 'html',
 							'data'			=> '<table class="widefat striped" style="border:1px solid #eee;">
 								<tr>
@@ -979,6 +981,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								'code'			=> 'javascript',
 								'placeholder'	=> 'Additional Javascript',
 								'stripcslashes'	=> false,
+								'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_js',''),
 								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 							);
 							
@@ -997,6 +1000,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									'type'			=> 'code_editor',
 									'code'			=> 'json',
 									'placeholder'	=> 'JSON',
+									'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_json',''),
 									'description'	=> '<i>Additional Meta Data</i>'
 								);	
 							}
@@ -1710,8 +1714,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function filter_preview_layer_link($url,$post){
 		
 		if( $post->post_type == 'cb-default-layer' ){
-
-			$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
+			
+			if( $post->post_type == 'publish' ){
+			
+				$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
+			}
+			else{
+				
+				$url = add_query_arg(array(
+					
+					'post_type' => $post->post_type,
+					'p' 		=> $post->ID,
+					'preview' 	=> 'true',
+					'_'			=> time(),
+					
+				),get_home_url());
+			}
 		}
 
 		return $url;
@@ -6607,8 +6625,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		if( !empty($post) && $post->post_type == 'cb-default-layer' ){
-		
-			$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
+			
+			if( $post->post_type == 'publish' ){
+			
+				$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
+			}
+			else{
+				
+				$url = add_query_arg(array(
+					
+					'post_type' => $post->post_type,
+					'p' 		=> $post->ID,
+					'preview' 	=> 'true',
+					'_'			=> time(),
+					
+				),get_home_url());
+			}
 		}
 		
 		return $url;

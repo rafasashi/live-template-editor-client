@@ -91,6 +91,9 @@ class LTPLE_Client_Profile {
 		add_action( 'personal_options_update', array( $this, 'save_privacy_settings' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'save_privacy_settings' ) );
 		
+		add_filter('ltple_default_user-theme_content', array( $this, 'get_default_page_template'),10,1 );
+		add_filter('ltple_default_user-theme_css', array( $this, 'get_default_page_style'),10,1 );
+		
 		add_filter('ltple_parse_css_variables',function($content){
 			
 			$content = $this->parse_page_urls($content);
@@ -273,7 +276,7 @@ class LTPLE_Client_Profile {
 						
 						echo '<style id="profile-style">';
 						
-							echo $this->get_profile_style();
+							echo $this->get_page_style();
 							
 							echo $this->get_floating_style();
 							
@@ -429,8 +432,8 @@ class LTPLE_Client_Profile {
 		);
 	}
 	
-	public function get_profile_style(){
-		
+	public function get_default_page_style(){
+	
 		$style = '
 		
 		html{
@@ -599,8 +602,13 @@ class LTPLE_Client_Profile {
 			color:#fff;
 		}
 		';
-
-		return apply_filters('ltple_parse_css_variables',$style);
+		
+		return $style;
+	}
+	
+	public function get_page_style(){
+		
+		return apply_filters('ltple_parse_css_variables',$this->get_default_page_style());
 	}
 	
 	public function get_floating_style(){
@@ -1406,33 +1414,37 @@ class LTPLE_Client_Profile {
 		return apply_filters('ltple_parse_css_variables',$content);
 	}
 	
+	public function get_default_page_template(){
+		
+		$template = '
+		<div class="profile-heading text-center" style="height:80px;padding:0;">
+		
+			<div class="profile-overlay"></div>
+		
+			<div class="profile-avatar">
+			
+				<img style="border:none;" src="{{ profile.avatar.url }}" height="55" width="55" />
+				
+			</div>				
+			
+			<div class="profile-title">{{ site.name }}</div>
+			
+		</div>
+
+		<div id="panel" style="padding:0;background:#fff;">
+
+			{{ theme.navbar }}
+				
+			{{ page.content }}
+
+		</div>';
+		
+		return $template;
+	}
+	
 	public function get_page_template(){
 		
-		$template = '<div class="profile-heading text-center" style="height:80px;padding:0;">';
-		
-			$template .= '<div class="profile-overlay"></div>';
-		
-			// avatar
-
-			$template .= '<div class="profile-avatar">';
-			
-				$template .= '<img style="border:none;" src="{{ profile.avatar.url }}" height="55" width="55" />';
-				
-			$template .= '</div>';					
-			
-			$template .= '<div class="profile-title">{{ site.name }}</div>';
-			
-		$template .= '</div>';
-
-		$template .= '<div id="panel" style="padding:0;background:#fff;">';
-
-			$template .= '{{ theme.navbar }}';
-				
-			$template .= '{{ page.content }}';
-
-		$template .= '</div>';
-		
-		return apply_filters('ltple_theme_template',$template,$this->tab);
+		return apply_filters('ltple_theme_template',$this->get_default_page_template(),$this->tab);
 	}
 	
 	public function parse_page_content($content){
@@ -1488,7 +1500,7 @@ class LTPLE_Client_Profile {
 			$theme_id = 0;
 			
 			if( !empty($this->id) ){
-				
+				 
 				$user_id = $this->id;
 				$theme_id = apply_filters('ltple_user_theme_id',$theme_id,$user_id);
 			}
@@ -2010,11 +2022,6 @@ class LTPLE_Client_Profile {
 								}
 
 								$content = '<div class="'.implode(' ',$classes).'">' . $demo->html . '</div>';
-							
-								if( $this->is_preview() ){
-									
-									$content = '<ltple-mod>' . $content . '</ltple-mod>';
-								}
 							}
 						}
 						
@@ -2022,7 +2029,16 @@ class LTPLE_Client_Profile {
 							
 							// some content to skip the card
 							
-							$content = 'Page content goes here';
+							$content = '<div style="display: block;background:#eee;text-align:center;font-size:30px;padding:32vh 0;color:#888;">';
+							
+								$content .= 'Page content goes here';
+							
+							$content .= '</div>';
+						}
+						
+						if( $this->is_preview() ){
+							
+							$content = '<ltple-mod ltple-prop="page.content">' . $content . '</ltple-mod>';
 						}
 					}
 					elseif( $this->user->remaining_days > 0 ){

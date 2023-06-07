@@ -2517,7 +2517,7 @@ class LTPLE_Client {
 			
 			$style .='}';
 			
-			$style .='footer#colophon h1, footer#colophon h2, footer#colophon h3{';
+			$style .='footer#ltple-footer h1, footer#ltple-footer h2, footer#ltple-footer h3{';
 			
 				$style .='border-bottom: 1px solid '.$this->settings->mainColor . ' !important;';
 			
@@ -2630,7 +2630,7 @@ class LTPLE_Client {
 		
 		if( !empty($this->settings->linkColor) ){
 			
-			$style .=' a, .colortext, code, .infoareaicon, .fontawesome-icon.circle-white, .wowmetaposts span a:hover, h1.widget-title, .testimonial-name, .mainthemetextcolor, .primarycolor, footer#colophon a:hover, .icon-box-top h1:hover, .icon-box-top.active a h1{';
+			$style .=' a, .colortext, code, .infoareaicon, .fontawesome-icon.circle-white, .wowmetaposts span a:hover, h1.widget-title, .testimonial-name, .mainthemetextcolor, .primarycolor, footer#ltple-footer a:hover, .icon-box-top h1:hover, .icon-box-top.active a h1{';
 				
 				$style .='color:'.$this->settings->linkColor . ';';
 				

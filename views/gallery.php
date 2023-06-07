@@ -24,7 +24,7 @@
 		
 		// output gallery 
 		 
-		echo '<div id="layer_gallery" class="wrapper">';
+		echo '<div id="gallery_wrapper" class="wrapper">';
 
 			echo '<div id="sidebar">';
 				

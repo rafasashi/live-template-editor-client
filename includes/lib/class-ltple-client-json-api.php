@@ -117,14 +117,9 @@ class LTPLE_Client_Json_API {
 					overflow:hidden;
 				}
 				
-				#ltple-wrapper #layer_gallery{
-					
-					height:100vh !important;
-				}
-				
 				#ltple-wrapper #gallery_sidebar{
 				
-					height:calc(100vh - '. ( $this->parent->inWidget ? 80 : 135 ) . 'px) !important;
+					height:calc(100vh - '. ( $this->parent->inWidget ? 110 : 165 ) . 'px) !important;
 					overflow-x:hidden;
 					overflow-y:auto;
 				}
@@ -133,7 +128,7 @@ class LTPLE_Client_Json_API {
 
 					#ltple-wrapper #gallery_sidebar{
 							
-						height:calc(100vh - '. ( $this->parent->inWidget ? 35 : 135 ) . 'px) !important;
+						height:calc(100vh - '. ( $this->parent->inWidget ? 65 : 165 ) . 'px) !important;
 					}
 				}
 				
@@ -158,7 +153,7 @@ class LTPLE_Client_Json_API {
 				.bootstrap-table{
 					
 					position: relative;
-					height: ' . ( $card === true ? 'calc( 100vh - 130px )' : 'auto' ).';					
+					height: ' . ( $card === true ? 'calc( 100vh - 160px )' : 'auto' ).';					
 				}
 			
 				.fixed-table-pagination{
@@ -202,7 +197,7 @@ class LTPLE_Client_Json_API {
 						
 					$style .= 'tbody {
 						
-						height:calc( 100vh - 240px);
+						height:calc( 100vh - 270px);
 					}';					
 				}
 
@@ -229,7 +224,7 @@ class LTPLE_Client_Json_API {
 						
 						$style .= 'tbody {
 							
-							height:calc( 100vh - ' . ( $this->parent->inWidget ?  100 : 190 ) . 'px);				
+							height:calc( 100vh - ' . ( $this->parent->inWidget ?  130 : 220 ) . 'px);				
 						}';					
 					}
 					
@@ -597,9 +592,11 @@ class LTPLE_Client_Json_API {
 
 				const observer = new ResizeObserver(entries => {
 					
-					var topHeight = " . ( $this->parent->inWidget ? 45 : 135 ) . ";
-
-					$('#".$tableId." tbody').css('height',window.innerHeight - topHeight + 'px');
+					var offset = $('#".$tableId." tbody').offset().top;
+					
+					var footerHeight = $('#ltple-footer').length > 0 ? $('#ltple-footer').height() : 0;
+					
+					$('#".$tableId." tbody').css('height',(window.innerHeight - offset - footerHeight) + 'px');
 				})
 				
 				observer.observe(document.querySelector('body'))

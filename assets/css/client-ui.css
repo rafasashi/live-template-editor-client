@@ -349,7 +349,7 @@ th input, th select {
     background: #ffffff;
 }
 
-#media_library, #panel, #layer_gallery {
+#media_library, #panel, #gallery_wrapper {
 
     display: inline-block;
     width: 100%;
