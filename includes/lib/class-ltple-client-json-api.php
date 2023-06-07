@@ -119,25 +119,15 @@ class LTPLE_Client_Json_API {
 				
 				#ltple-wrapper #gallery_sidebar{
 				
-					height:calc(100vh - '. ( $this->parent->inWidget ? 110 : 165 ) . 'px) !important;
 					overflow-x:hidden;
 					overflow-y:auto;
 				}
-				
-				@media (min-width: 768px) {
 
-					#ltple-wrapper #gallery_sidebar{
-							
-						height:calc(100vh - '. ( $this->parent->inWidget ? 65 : 165 ) . 'px) !important;
-					}
-				}
-				
 				.bootstrap-table{
 					
 					position: relative;
 					height:auto;					
 				}
-				
 				
 				.wraptotop, .footer{
 					
@@ -593,10 +583,12 @@ class LTPLE_Client_Json_API {
 				const observer = new ResizeObserver(entries => {
 					
 					var offset = $('#".$tableId." tbody').offset().top;
-					
+
 					var footerHeight = $('#ltple-footer').length > 0 ? $('#ltple-footer').height() : 0;
 					
-					$('#".$tableId." tbody').css('height',(window.innerHeight - offset - footerHeight) + 'px');
+					var height = window.innerHeight - offset - footerHeight;
+					
+					$('#".$tableId." tbody').css('height',height + 'px').css('min-height',height + 'px');
 				})
 				
 				observer.observe(document.querySelector('body'))
