@@ -1715,7 +1715,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $post->post_type == 'cb-default-layer' ){
 			
-			if( $post->post_type == 'publish' ){
+			if( $post->post_status == 'publish' ){
 			
 				$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
 			}
@@ -6626,7 +6626,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !empty($post) && $post->post_type == 'cb-default-layer' ){
 			
-			if( $post->post_type == 'publish' ){
+			if( $post->post_status == 'publish' ){
 			
 				$url = $this->parent->urls->home . '/preview/' . $post->post_name . '/';
 			}
