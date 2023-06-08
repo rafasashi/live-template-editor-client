@@ -1839,7 +1839,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function get_user_layer_fields($fields,$post=null){
 		
 		// TODO move to LTPLE plugin
-		
+	
 		if( empty($this->userFields) ){
 			
 			//get post
@@ -1862,77 +1862,74 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			
 			if( !empty($post->ID) ){
+
+				$layer_type = $this->get_layer_type($post);
 				
-				$post_type = get_post_type_object($post->post_type);
-				
-				$storage_name = $post_type->labels->singular_name;
-				
-				if( $default_id = $this->get_default_id($post->ID) ){
-					
-					$layer_type = $this->get_layer_type($post);
-					
-					if( $this->is_html_output($layer_type->output) ){
+				if( $this->is_html_output($layer_type->output) ){
+
+					$post_type = get_post_type_object($post->post_type);
+			
+					$storage_name = $post_type->labels->singular_name;
+			
+					$metabox = array( 
+			
+						'name' 		=> 'layer-code',
+						'title' 	=> 'Code',
+						'screen'	=> array($post->post_type),
+						'context' 	=> 'advanced',
+						'frontend'	=> $this->is_hosted_output($layer_type->output) || $layer_type->output == 'canvas' ? false : true,
+					);
 						
-						$metabox = array( 
-				
-							'name' 		=> 'layer-code',
-							'title' 	=> 'Code',
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced',
-							'frontend'	=> $this->is_hosted_output($layer_type->output) || $layer_type->output == 'canvas' ? false : true,
-						);
-							
+					$this->userFields[] = array(
+					
+						'metabox' 		=> $metabox,
+						'type'			=> 'code_editor',
+						'code'			=> 'html',
+						'id'			=> 'layerContent',
+						'label'			=> __( $storage_name . ' HTML', 'live-template-editor-client' ),
+						'placeholder'	=> "HTML content",
+						'description'	=>''
+					);
+					
+					if( $layer_type->output != 'inline-css' ){
+											
 						$this->userFields[] = array(
 						
 							'metabox' 		=> $metabox,
 							'type'			=> 'code_editor',
-							'code'			=> 'html',
-							'id'			=> 'layerContent',
-							'label'			=> __( $storage_name . ' HTML', 'live-template-editor-client' ),
-							'placeholder'	=> "HTML content",
-							'description'	=>''
+							'code'			=> 'css',
+							'id'			=> 'layerCss',
+							'label'			=> __( $storage_name . ' CSS', 'live-template-editor-client' ),
+							'placeholder'	=> "Internal CSS style sheet",
+							'stripcslashes'	=> false,
+							//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
 						);
-						
-						if( $layer_type->output != 'inline-css' ){
-												
-							$this->userFields[] = array(
-							
-								'metabox' 		=> $metabox,
-								'type'			=> 'code_editor',
-								'code'			=> 'css',
-								'id'			=> 'layerCss',
-								'label'			=> __( $storage_name . ' CSS', 'live-template-editor-client' ),
-								'placeholder'	=> "Internal CSS style sheet",
-								'stripcslashes'	=> false,
-								//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
-							);
-						}
-						
-						if( $this->is_hosted($post) ){
-						
-							$this->userFields[] = array(
-							
-								'metabox' 		=> $metabox,
-								'type'			=> 'code_editor',
-								'code'			=> 'js',
-								'id'			=> 'layerJs',
-								'label'			=> __( $storage_name . ' JS', 'live-template-editor-client' ),
-								'placeholder'	=> "Additional Javascript",
-								'stripcslashes'	=> false,
-								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
-							);
-						}
 					}
 					
-					do_action('ltple_user_layer_fields',$post,array( 
+					if( $this->is_hosted($post) ){
+					
+						$this->userFields[] = array(
 						
-						'name' 		=> 'ltple-settings',
-						'title' 	=> __( $storage_name . ' Editor Settings', 'live-template-editor-client' ), 
-						'screen'	=> array($post->post_type),
-						'context' 	=> 'advanced',
-						'frontend'	=> false,
-					));					
+							'metabox' 		=> $metabox,
+							'type'			=> 'code_editor',
+							'code'			=> 'js',
+							'id'			=> 'layerJs',
+							'label'			=> __( $storage_name . ' JS', 'live-template-editor-client' ),
+							'placeholder'	=> "Additional Javascript",
+							'stripcslashes'	=> false,
+							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+						);
+					}
 				}
+				
+				do_action('ltple_user_layer_fields',$post,array( 
+					
+					'name' 		=> 'ltple-settings',
+					'title' 	=> __( $storage_name . ' Editor Settings', 'live-template-editor-client' ), 
+					'screen'	=> array($post->post_type),
+					'context' 	=> 'advanced',
+					'frontend'	=> false,
+				));
 			}
 		}
 		
@@ -2558,6 +2555,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$term->name 	= 'Hosted Page';
 							$term->output 	= 'hosted-page';
 							$term->storage 	= 'user-element';
+						}
+						elseif( $post->post_type == 'page' ){
+						
+							$term->name 	= 'Page';
+							$term->output 	= 'hosted-page';
+							$term->storage 	= 'page';
+						}
+						elseif( $post->post_type == 'post' ){
+						
+							$term->name 	= 'Post';
+							$term->output 	= 'hosted-page';
+							$term->storage 	= 'post';
 						}
 						elseif( $this->is_media($post) ){
 							
@@ -4133,7 +4142,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		// add meta
 		
-		if(!$this->is_local($this->id)){ 
+		if( !$this->is_local($this->id) ){ 
 
 			// output default title
 			

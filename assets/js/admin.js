@@ -98,7 +98,38 @@
 				}
 			});
 		});
+			
+		// save CodeMirror
 		
+		if( typeof CodeMirror != typeof undefined ){
+			
+			if( $('.CodeMirror').length > 0 ){
+			
+				$('.CodeMirror').each(function(i,el) {
+					
+					el.CodeMirror.save();
+				});
+			}
+			
+			if( typeof wp != typeof undefined ){
+				
+				// save in guthenberg
+				
+				wp.data.subscribe( function(){
+					
+					if ( wp.data.select('core/editor').isSavingPost() ) {
+						
+						if( $('.CodeMirror').length > 0 ){
+						
+							$('.CodeMirror').each(function(i,el) {
+								
+								el.CodeMirror.save();
+							});
+						}
+					}
+				});
+			}
+		}
 	});
 	
 })(jQuery);

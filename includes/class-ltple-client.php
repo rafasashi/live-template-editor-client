@@ -915,33 +915,26 @@ class LTPLE_Client {
 			
 			return $this->views . '/preview.php';
 		}
-		elseif( $default_id = $this->layer->get_default_id($layer->ID) ){
+		elseif( $this->layer->is_local($layer) ){
+				
+			//theme template
 			
-			if( $this->layer->is_local($layer) ){
-				
-				//theme template
-				
-				return $path; 
-			}
-			elseif( $this->user->loggedin ){
-				
-				if( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID ){
-				
-					return $this->views . '/layer.php';
-				}
-				else{
-					
-					$this->exit_message('You don\'t have access to this template...',404);	
-				}
+			return $path; 
+		}
+		elseif( $this->user->loggedin ){
+			
+			if( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID ){
+			
+				return $this->views . '/layer.php';
 			}
 			else{
 				
-				$this->exit_message('Sign in to access this template...',404);
-			}				
+				$this->exit_message('You don\'t have access to this template...',404);	
+			}
 		}
-		elseif( file_exists($this->views . '/'.$layer->post_type . '.php') ){
+		else{
 			
-			return $this->views .  '/' . $layer->post_type . '.php';
+			$this->exit_message('Sign in to access this template...',404);
 		}
 		
 		return $path;
@@ -2745,8 +2738,8 @@ class LTPLE_Client {
 	public function admin_enqueue_scripts ( $hook = '' ) {
 		
 		wp_enqueue_script('jquery-ui-sortable');
-		
-		wp_register_script( $this->_token . '-client-admin', esc_url( $this->assets_url ) . 'js/admin.js', array( 'jquery' ), $this->_version );
+	
+		wp_register_script( $this->_token . '-client-admin', esc_url( $this->assets_url ) . 'js/admin.js', array( 'jquery' ), time() );
 		wp_enqueue_script( $this->_token . '-client-admin' );
 
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
