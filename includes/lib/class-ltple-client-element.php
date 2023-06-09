@@ -123,8 +123,8 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 									
 									foreach($layerCssLibraries as $library){
 										
-										wp_register_style( $this->parent->_token . $library->prefix, $library->url, array());
-										wp_enqueue_style( $this->parent->_token . $library->prefix );
+										wp_register_style( $this->parent->_token . '-' . $library->prefix, $library->url, array());
+										wp_enqueue_style( $this->parent->_token . '-' . $library->prefix );
 									}
 								}
 								

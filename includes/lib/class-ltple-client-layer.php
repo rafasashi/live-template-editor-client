@@ -1284,7 +1284,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$hosted_output = apply_filters('ltple_layer_hosted_output',array(
 			
 				'hosted-page',
-				
 			));
 			
 			if( in_array($output,$hosted_output) ){
@@ -6681,8 +6680,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					foreach($this->layerCssLibraries as $library){
 						
-						wp_register_style( $this->parent->_token . $library->prefix, $library->url, array());
-						wp_enqueue_style( $this->parent->_token . $library->prefix );
+						wp_register_style( $this->parent->_token . '-' . $library->prefix, $library->url, array());
+						wp_enqueue_style( $this->parent->_token . '-' . $library->prefix );
 					}
 				}
 				

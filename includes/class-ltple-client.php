@@ -852,89 +852,94 @@ class LTPLE_Client {
 	
 	public function filter_template_path( $path, $layer ){
 		
-		if( $this->layer->is_default($layer) && empty($_GET['action']) && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
+		$layer_type = $this->layer->get_layer_type($layer);
+		
+		if( !empty($layer_type->output) ){
 			
-			if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer->output) ){
+			if( $this->layer->is_default($layer) && empty($_GET['action']) && strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === false ){
 				
-				if( $this->layer->is_html_output($layer->output) && $layer->output != 'web-app' ){
-				
-					$show_layer = false;
-				
-					$visibility = $this->layer->get_layer_visibility($layer);
+				if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer->output) ){
 					
-					if( $visibility == 'anyone' ){
-						
-						$show_layer = true;
-					}
-					elseif( $visibility == 'registered' && $this->user->loggedin ){
-						
-						$show_layer = true;
-					}
-					elseif( $this->plan->user_has_layer( $layer ) === true ){
-						
-						$show_layer = true;
-					}
-					elseif( $this->user->can_edit ){
-						
-						$show_layer = true;
-					}
+					if( $this->layer->is_html_output($layer->output) && $layer->output != 'web-app' ){
 					
-					if( $show_layer ){
+						$show_layer = false;
+					
+						$visibility = $this->layer->get_layer_visibility($layer);
 						
-						if( $tab = apply_filters('ltple_preview_profile_tab',false,$this->layer->get_layer_type($layer)) ){
+						if( $visibility == 'anyone' ){
 							
-							if( $this->user->loggedin ){
+							$show_layer = true;
+						}
+						elseif( $visibility == 'registered' && $this->user->loggedin ){
+							
+							$show_layer = true;
+						}
+						elseif( $this->plan->user_has_layer( $layer ) === true ){
+							
+							$show_layer = true;
+						}
+						elseif( $this->user->can_edit ){
+							
+							$show_layer = true;
+						}
+						
+						if( $show_layer ){
+							
+							if( $tab = apply_filters('ltple_preview_profile_tab',false,$this->layer->get_layer_type($layer)) ){
 								
-								$user_id = $this->user->ID;
+								if( $this->user->loggedin ){
+									
+									$user_id = $this->user->ID;
+								}
+								else{
+									
+									$user_id = $layer->post_author;
+								}
+								
+								$this->profile->set_profile($user_id,$tab,$layer->post_name,false);
+								
+								return $this->views . '/profile.php';					
 							}
 							else{
 								
-								$user_id = $layer->post_author;
-							}
-							
-							$this->profile->set_profile($user_id,$tab,$layer->post_name,false);
-							
-							return $this->views . '/profile.php';					
-						}
-						else{
-							
-							if( $layer->post_type == 'default-element' ) {
+								if( $layer->post_type == 'default-element' ) {
+									
+									add_filter('ltple_css_framework',function($framework){
+										
+										return 'bootstrap-4';
+										
+									},99999999,1);
+								}
 								
-								add_filter('ltple_css_framework',function($framework){
-									
-									return 'bootstrap-4';
-									
-								},99999999,1);
+								return $this->views . '/layer.php';
 							}
-							
-							return $this->views . '/layer.php';
 						}
 					}
 				}
-			}
-			
-			return $this->views . '/preview.php';
-		}
-		elseif( $this->layer->is_local($layer) ){
 				
-			//theme template
-			
-			return $path; 
-		}
-		elseif( $this->user->loggedin ){
-			
-			if( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID ){
-			
-				return $this->views . '/layer.php';
+				return $this->views . '/preview.php';
+			}
+			elseif( $this->layer->is_hosted_output($layer_type->output) ){
+					
+				//theme template
+				
+				return $path; 
+			}
+			elseif( $this->user->loggedin ){
+				
+				if( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID ){
+				
+					return $this->views . '/layer.php';
+				}
+				else{
+					
+					$this->exit_message('You don\'t have access to this template...',404);	
+				}
 			}
 			else{
 				
-				$this->exit_message('You don\'t have access to this template...',404);	
+				$this->exit_message('Sign in to access this template...',404);
 			}
-		}
-		else{
-			
-			$this->exit_message('Sign in to access this template...',404);
 		}
 		
 		return $path;
@@ -2510,7 +2515,7 @@ class LTPLE_Client {
 			
 			$style .='}';
 			
-			$style .='footer#ltple-footer h1, footer#ltple-footer h2, footer#ltple-footer h3{';
+			$style .='footer#ltple-footer h4 {';
 			
 				$style .='border-bottom: 1px solid '.$this->settings->mainColor . ' !important;';
 			
@@ -2739,7 +2744,7 @@ class LTPLE_Client {
 		
 		wp_enqueue_script('jquery-ui-sortable');
 	
-		wp_register_script( $this->_token . '-client-admin', esc_url( $this->assets_url ) . 'js/admin.js', array( 'jquery' ), time() );
+		wp_register_script( $this->_token . '-client-admin', esc_url( $this->assets_url ) . 'js/admin.js', array( 'jquery' ), $this->_version);
 		wp_enqueue_script( $this->_token . '-client-admin' );
 
 		wp_register_script($this->_token . '-lazyload', esc_url( $this->assets_url ) . 'js/lazyload.min.js', array( 'jquery' ), $this->_version);
