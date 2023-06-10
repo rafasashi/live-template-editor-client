@@ -123,7 +123,7 @@
 								if( !isset($_GET['quick']) ){
 								
 									// view button
-								
+									
 									echo '<a id="viewBtn" target="_blank" class="btn btn-sm hidden-xs" href="' . $layer->urls['view'] . '" style="margin-left:2px;margin-right:2px;border:none;color: #fff;background-color: rgb(189, 120, 61);">View</a>';
 								}
 							}

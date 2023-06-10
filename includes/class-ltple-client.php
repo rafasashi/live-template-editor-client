@@ -920,10 +920,8 @@ class LTPLE_Client {
 				return $this->views . '/preview.php';
 			}
 			elseif( $this->layer->is_hosted_output($layer_type->output) ){
-					
-				//theme template
 				
-				return $path; 
+				return apply_filters('ltple_'. $layer_type->storage . '_template_path',$path);
 			}
 			elseif( $this->user->loggedin ){
 				
@@ -1466,7 +1464,7 @@ class LTPLE_Client {
 							
 							$this->exit_message('Settings successfully updated!', 200, apply_filters('ltple_edit_layer_callback',array(
 								
-								'callback' =>'$("#viewBtn").attr("href","'.$layer->urls['view'].'");',
+								'callback' =>'$("#viewBtn").attr("href","'.get_permalink($layer).'");',
 							
 							),$post));
 						}
