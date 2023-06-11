@@ -34,50 +34,45 @@ if( $ltple->profile->in_tab() ){
 		
 		?>
 
-					<!-- left -->
-					<div class="col-md-5">
-					
-						 <?php
-						  if( get_theme_mod( 'wow_copyright' ) == '') { ?>
-						  <a href="<?php echo $ltple->urls->primary; ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
-						  <?php }
-						  else { echo wp_kses_post( get_theme_mod( 'wow_copyright' ) ); } ?>
+				<div class="col-md-5">
+				
+					 <?php
+					  if( get_theme_mod( 'wow_copyright' ) == '') { ?>
+					  <a href="<?php echo $ltple->urls->primary; ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
+					  <?php }
+					  else { echo wp_kses_post( get_theme_mod( 'wow_copyright' ) ); } ?>
 
-					</div>
-					
-					<!-- right -->
-					
-					<div class="col-md-7 smallspacetop">
-						
-						<div class="pull-right smaller">
-						
-						<?php
-						
-						if( wp_nav_menu( array( 
-							
-							'theme_location' 	=> 'footer',
-							'container'  		=> false,
-							'depth'		 		=> 0,
-							'menu_class' 		=> 'footermenu',
-							'fallback_cb' 		=> 'false'
-							
-						))){
-							
-							echo wp_nav_menu( array( 'sort_column' => 'menu_order', 'container'  => false, 'theme_location' => 'footer' , 'echo' => '0' ) );
-						}
-						else {
-
-						}
-						
-						?>
-						
-						</div>
-
-					</div>
-					
-					<!-- end right -->
-					
 				</div>
+				
+				<div class="col-md-7 smallspacetop">
+					
+					<div class="pull-right smaller">
+					
+					<?php
+					
+					if( wp_nav_menu( array( 
+						
+						'theme_location' 	=> 'footer',
+						'container'  		=> false,
+						'depth'		 		=> 0,
+						'menu_class' 		=> 'footermenu',
+						'fallback_cb' 		=> 'false'
+						
+					))){
+						
+						echo wp_nav_menu( array( 'sort_column' => 'menu_order', 'container'  => false, 'theme_location' => 'footer' , 'echo' => '0' ) );
+					}
+					else {
+
+					}
+					
+					?>
+					
+					</div>
+
+				</div>
+				
+			</div>
 				
 		<?php 
 			

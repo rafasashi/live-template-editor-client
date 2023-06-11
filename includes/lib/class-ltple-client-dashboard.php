@@ -148,13 +148,13 @@ class LTPLE_Client_Dashboard {
 		
 		$widget_box = '';
 		
-		$widget_box .= '<div class="'.$class.'">';
+		$widget_box .= '<div class="'.$class.'" style="padding: 4px 8px !important;">';
 			
-			$widget_box .= '<h4 style="border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:10px;color:#888;">'.$title.'</h4>';				
+			$widget_box .= '<div class="panel panel-default" style="padding:10px;margin-bottom:10px;">';
 			
-			$widget_box .= '<div class="panel panel-default" style="padding:10px !important;">';
+				$widget_box .= '<h4 style="border-bottom:1px solid #eee;padding:5px 0 10px 0;color:#888;font-size:12px;font-weight:600;text-transform:uppercase;">'.$title.'</h4>';				
 			
-				$widget_box .= '<div class="panel-body" style="padding:0 !important;height:310px !important;overflow-x:hidden !important;overflow-y:auto !important;">';
+				$widget_box .= '<div class="panel-body" style="padding:0 !important;height:250px !important;overflow-x:hidden !important;overflow-y:auto !important;">';
 					
 					if(!empty($content)){
 					

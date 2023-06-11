@@ -26,7 +26,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 				echo'<div class="tab-pane active" id="general-info">';
 				
-					echo'<form method="post" enctype="multipart/form-data" class="tab-content row" style="margin:10px 10px 50px 10px;">';
+					echo'<form method="post" enctype="multipart/form-data" class="tab-content row" style="margin:5px 5px 50px 5px;">';
 						
 						echo'<input type="hidden" name="settings" value="general-info" />';
 						
@@ -49,7 +49,7 @@ echo'<div id="media_library" class="wrapper">';
 							
 							if( $completeness = $ltple->profile->get_profile_completeness($ltple->user->ID) ){
 								
-								echo'<div class="bs-callout bs-callout-default">';
+								echo'<div class="bs-callout bs-callout-default" style="margin-top:0;">';
 								
 									echo'<h4>Profile completeness</h4>';
 									
@@ -182,7 +182,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 				echo'<div class="tab-pane active" id="privacy-settings">';
 				
-					echo'<form action="' . $ltple->urls->current . '" method="post" class="tab-content row" style="margin:10px;">';
+					echo'<form action="' . $ltple->urls->current . '" method="post" class="tab-content row" style="margin:5px;">';
 						
 						echo'<input type="hidden" name="settings" value="privacy-settings" />';
 						
@@ -256,7 +256,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 				echo'<div class="tab-pane active" id="social-accounts">';
 				
-					echo'<form action="' . $ltple->urls->current . '" method="post" class="tab-content row" style="margin:10px;">';
+					echo'<form action="' . $ltple->urls->current . '" method="post" class="tab-content row" style="margin:5px;">';
 						
 						echo'<input type="hidden" name="settings" value="social-accounts" />';
 						
