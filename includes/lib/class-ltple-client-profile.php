@@ -145,11 +145,16 @@ class LTPLE_Client_Profile {
 		},1);
 	}
 	
+	public function get_current_profile_id(){
+		
+		$profile_id = apply_filters('ltple_profile_id',intval(get_query_var('pr')));
+	
+		return $profile_id;
+	}
+	
 	public function get_current_parameters(){
 		
-		$user_id = apply_filters('ltple_profile_id',intval(get_query_var('pr')));
-		
-		if( $user_id > 0 ){
+		if( $user_id = $this->get_current_profile_id() ){
 
 			$tab  = apply_filters('ltple_profile_tab',get_query_var('tab','home'));
 			
@@ -1499,10 +1504,9 @@ class LTPLE_Client_Profile {
 			$user_id = 0;
 			$theme_id = 0;
 			
-			if( !empty($this->id) ){
-				 
-				$user_id = $this->id;
-				$theme_id = apply_filters('ltple_user_theme_id',$theme_id,$user_id);
+			if( $user_id = $this->get_current_profile_id() ){
+				
+				$theme_id = apply_filters('ltple_profile_theme_id',$theme_id,$user_id);
 			}
 			elseif( $layer = LTPLE_Editor::instance()->get_layer() ){
 				
