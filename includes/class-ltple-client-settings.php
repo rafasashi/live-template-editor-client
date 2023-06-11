@@ -84,8 +84,6 @@ class LTPLE_Client_Settings {
 		
 		add_filter('ltple_general_settings', array( $this, 'register_general_settings' ),10,1 );
 
-		add_filter('ltple_addons_fields', array( $this, 'register_addons' ),10,1 );		
-		
 		add_action( 'admin_init' , array( $this, 'register_settings' ) );
 
 		add_filter('init',function(){
@@ -315,11 +313,14 @@ class LTPLE_Client_Settings {
 					
 					$html .= ob_get_clean();
 
-					if( empty($tab) || !in_array($tab,array('editors','addons','data')) ){
+					if( empty($tab) || !in_array($tab,array('editors')) ){
 					
 						$html .= '<p class="submit">' . "\n";
+							
 							$html .= '<input type="hidden" name="tab" value="' . esc_attr( $tab ) . '" />' . "\n";
+							
 							$html .= '<input name="Submit" type="submit" class="button-primary" value="' . esc_attr( __( 'Save Settings' , 'live-template-editor' ) ) . '" />' . "\n";
+						
 						$html .= '</p>' . "\n";
 					}
 					
@@ -561,16 +562,6 @@ class LTPLE_Client_Settings {
 
 		// settings
 
-		if( $this->parent->user->is_admin ){
-		
-			add_plugins_page( 
-				'Live Editor Addons', 
-				'Live Editor Addons', 
-				'edit_pages',
-				'admin.php?page=ltple-settings&tab=addons'
-			);
-		}
-		
 		add_submenu_page(
 			'ltple-settings',
 			__( 'Gallery', 'live-template-editor-client' ),
@@ -894,6 +885,20 @@ class LTPLE_Client_Settings {
 			))
 		);
 		
+		$settings['metrics'] = array(
+			'title'					=> __( 'Metrics', 'live-template-editor-client' ),
+			'description'			=> 'Default settings for metrics',
+			'fields'				=> apply_filters('ltple_plan_settings',array(				
+				array(
+					'id' 			=> 'enable_bandwidth',
+					'name' 			=> 'enable_bandwidth',
+					'label'			=> __( 'Bandwidth' , 'live-template-editor-client' ),
+					'description'	=> 'Enable bandwidth tracking',
+					'type'			=> 'switch',
+				),
+			))
+		);
+		
 		$settings['templates'] = array(
 		
 			'title'					=> __( 'Templates', 'live-template-editor-client' ),
@@ -948,6 +953,7 @@ class LTPLE_Client_Settings {
 			}
 		}
 		
+		/*
 		$settings['data'] = array(
 			'title'					=> __( 'Data', 'live-template-editor-client' ),
 			'description'			=> __( 'Import, export & update remote data', 'live-template-editor-client' ),
@@ -973,26 +979,8 @@ class LTPLE_Client_Settings {
 				),
 			)),
 		);
+		*/
 		
-		// get addons
-		
-		$this->addons = $this->addons_fields();
-		
-		if( !empty($this->addons) ){
-		
-			$settings['addons'] = array(
-				'title'					=> __( 'Addons', 'live-template-editor-client' ),
-				'description'			=> '',
-				'class'					=> 'pull-right',
-				'fields'				=> apply_filters('ltple_addon_settings',array(
-					array(
-						'id' 			=> 'addon_plugins',
-						'type'			=> 'addon_plugins'
-					)				
-				)),
-			);
-		}
-	
 		return apply_filters('ltple_settings_fields',$settings);
 	}
 

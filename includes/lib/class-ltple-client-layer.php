@@ -1864,12 +1864,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 				$layer_type = $this->get_layer_type($post);
 				
+				$post_type = get_post_type_object($post->post_type);
+		
+				$storage_name = $post_type->labels->singular_name;
+						
 				if( $this->is_html_output($layer_type->output) ){
 
-					$post_type = get_post_type_object($post->post_type);
-			
-					$storage_name = $post_type->labels->singular_name;
-			
 					$metabox = array( 
 			
 						'name' 		=> 'layer-code',
