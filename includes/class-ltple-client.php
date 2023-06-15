@@ -1449,8 +1449,30 @@ class LTPLE_Client {
 										if( isset($_POST[$field_id]) ){
 										
 											//update meta
-											
-											$value = is_array($_POST[$field_id]) ? array_map('sanitize_text_field',$_POST[$field_id]) : sanitize_text_field($_POST[$field_id]);
+										
+											if( !empty($field['type']) && in_array($field['type'],array(
+												
+												'textarea',
+												'code_editor',
+											))){
+												
+												if( !empty($field['code']) && $field['code'] == 'json' ){
+													
+													$value = LTPLE_Editor::sanitize_json($_POST[$field_id]);
+												}
+												elseif( !empty($field['code']) && $field['code'] == 'css' ){
+													
+													$value = LTPLE_Editor::sanitize_css($_POST[$field_id]);
+												}
+												else{
+													
+													$value = LTPLE_Editor::sanitize_content($_POST[$field_id]);
+												}
+											}
+											else{
+												
+												$value = is_array($_POST[$field_id]) ? array_map('sanitize_text_field',$_POST[$field_id]) : sanitize_text_field($_POST[$field_id]);
+											}
 											
 											update_post_meta($post_id,$field_id,$value);
 										}
@@ -1459,7 +1481,7 @@ class LTPLE_Client {
 							}
 							
 							do_action('ltple_edit_layer',$post_id,$post);
-						
+							
 							$layer = LTPLE_Editor::instance()->get_layer($post);
 							
 							$this->exit_message('Settings successfully updated!', 200, apply_filters('ltple_edit_layer_callback',array(
