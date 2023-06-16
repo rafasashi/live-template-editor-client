@@ -338,7 +338,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('manage_user-layer_posts_columns', array( $this, 'set_user_layer_columns'),99999);
 		add_action('manage_user-layer_posts_custom_column', array( $this, 'add_layer_type_column_content'), 10, 2);
-
+		
+		add_filter('ltple_default_user-layer_content', array( $this, 'filter_default_user_layer_content'),10,2 );
+		add_filter('ltple_default_user-layer_css', array( $this, 'filter_default_user_layer_style'),10,2 );
+		
 		// user psd
 		
 		add_filter('manage_user-psd_posts_columns', array( $this, 'set_user_layer_columns'),99999);
@@ -762,145 +765,64 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			//get post
 			
-			if( empty($post) ){
+			if( $layer = LTPLE_Editor::instance()->get_layer($post) ){
 				
-				$post = get_post();
-			}
-			
-			if( empty($post->ID) )
-			
-				return false;
-			
-			$storage_name = $post->post_type == 'default-element' ? 'Element' : 'Template';
-			
-			if( $post->post_type == 'cb-default-layer' ){
+				$storage_name = $layer->post_type == 'default-element' ? 'Element' : 'Template';
+				
+				if( $layer->post_type == 'cb-default-layer' ){
 
-				//get current layer range
-				
-				$this->defaultFields[] = array(
-				
-					'metabox' => array( 
+					//get current layer range
 					
-						'name' 		=> 'layer-rangediv',
-						'title' 	=> __( $storage_name . ' Range', 'live-template-editor-client' ), 
-						'screen'	=> array($post->post_type),
-						'context' 	=> 'side',
+					$this->defaultFields[] = array(
+					
+						'metabox' => array( 
+						
+							'name' 		=> 'layer-rangediv',
+							'title' 	=> __( $storage_name . ' Range', 'live-template-editor-client' ), 
+							'screen'	=> array($layer->post_type),
+							'context' 	=> 'side',
+							'taxonomy'	=> 'layer-range',
+							'frontend'	=> false,
+						),
+						'type'		=> 'dropdown_categories',
+						'id'		=> 'layer-range',
+						'name'		=> 'tax_input[layer-range][]',
 						'taxonomy'	=> 'layer-range',
-						'frontend'	=> false,
-					),
-					'type'		=> 'dropdown_categories',
-					'id'		=> 'layer-range',
-					'name'		=> 'tax_input[layer-range][]',
-					'taxonomy'	=> 'layer-range',
-					'callback' 	=> array($this,'get_layer_range_id'),
-					'description'=>''
-				);
-				
-				$this->defaultFields[] = array(
-				
-					'metabox' => array( 
-					
-						'name' 		=> 'layer-gallery',
-						'title' 	=> __( 'Gallery Images', 'live-template-editor-client' ), 
-						'screen'	=> array($post->post_type),
-						'context' 	=> 'side',
-						'frontend'	=> false,
-					),
-					
-					'type'			=> 'gallery',
-					'id'			=> 'layer-gallery',
-				);
-			}
-			
-			//get layer type
-			
-			$layer_type = $this->get_layer_type($post);	
-			
-			if( !empty($layer_type->output) ){
-				
-				if( $this->is_html_output($layer_type->output) ){
-				
-					// get layer content
-					
-					$metabox = array(
-						
-						'name' 		=> 'layer-content',
-						'title' 	=> __( $storage_name . ' HTML', 'live-template-editor-client' ), 
-						'screen'	=> array($post->post_type),
-						'context' 	=> 'advanced',
-						'add_new'	=> false,
+						'callback' 	=> array($this,'get_layer_range_id'),
+						'description'=>''
 					);
 					
-					$this->defaultFields[]=array(
+					$this->defaultFields[] = array(
 					
-						'metabox' 		=> $metabox,
-						'id'			=> 'layerContent',
-						'type'			=> 'code_editor',
-						'code'			=> 'html',
-						'placeholder'	=> 'HTML content',
-						'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_content',''),
+						'metabox' => array( 
+						
+							'name' 		=> 'layer-gallery',
+							'title' 	=> __( 'Gallery Images', 'live-template-editor-client' ), 
+							'screen'	=> array($layer->post_type),
+							'context' 	=> 'side',
+							'frontend'	=> false,
+						),
+						
+						'type'			=> 'gallery',
+						'id'			=> 'layer-gallery',
 					);
+				}
+				
+				//get layer type
+				
+				$layer_type = $this->get_layer_type($layer);	
+				
+				if( !empty($layer_type->output) ){
 					
-					if( $layer_type->storage == 'user-theme' ){
-
-						$this->defaultFields[]=array(
-						
-							'metabox' 		=> $metabox,
-							'id'			=> 'layerContentVarsTable',
-							'type'			=> 'html',
-							'data'			=> '<table class="widefat striped" style="border:1px solid #eee;">
-								<tr>
-									<th colspan="2">
-										<b>Default HTML Variables</b>
-									</th>
-								</tr>
-								<tr>
-									<td>
-										Profile
-									</td>
-									<td>
-										{{ profile.avatar.url }} 
-										<br>
-										{{ profile.banner.url }}
-									</td>
-								</tr>
-								<tr>
-									<td>
-										Site
-									</td>
-									<td>
-										{{ site.name }}
-									</td>
-								</tr>
-								<tr>
-									<td>
-										Theme
-									</td>
-									<td>
-										{{ theme.navbar }}
-									</td>
-								</tr>
-								<tr>
-									<td>
-										Page
-									</td>
-									<td>
-										{{ page.content }}
-									</td>
-								</tr>
-							</table>',
-						);
-					}
+					if( $this->is_html_output($layer_type->output) ){
 					
-					if( $layer_type->output != 'inline-css' ){
-						
-						// get layer css
+						// get layer content
 						
 						$metabox = array(
 							
-							'name' 		=> 'layer-css',
-							'title' 	=> __( $storage_name . ' CSS', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
+							'name' 		=> 'layer-content',
+							'title' 	=> __( $storage_name . ' HTML', 'live-template-editor-client' ), 
+							'screen'	=> array($layer->post_type),
 							'context' 	=> 'advanced',
 							'add_new'	=> false,
 						);
@@ -908,272 +830,347 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						$this->defaultFields[]=array(
 						
 							'metabox' 		=> $metabox,
-							'id'			=> 'layerCss',
+							'id'			=> 'layerContent',
 							'type'			=> 'code_editor',
-							'code'			=> 'css',
-							'stripcslashes'	=> false,
-							'htmlentities'	=> false,
-							'placeholder'	=> 'CSS rules without '.htmlentities('<style></style>'),
-							'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_css',''),
-							'description'	=> ''
-						);
-						
-						$this->defaultFields[]=array(
-						
-							'metabox' 		=> $metabox,
-							'id'			=> 'layerCssVarsTable',
-							'type'			=> 'html',
-							'data'			=> '<table class="widefat striped" style="border:1px solid #eee;">
-								<tr>
-									<th colspan="2">
-										<b>Default CSS Variables</b>
-									</th>
-								</tr>
-								<tr>
-									<td>
-										Theme
-									</td>
-									<td>
-										{{ theme.css.main_color }}
-										<br>
-										{{ theme.css.navbar_color }}
-										<br>
-										{{ theme.css.link_color }}
-									</td>
-								</tr>
-							</table>',
+							'code'			=> 'html',
+							'placeholder'	=> 'HTML content',
+							'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_content','',$layer),
 						);
 						
 						if( $layer_type->storage == 'user-theme' ){
+
+							$this->defaultFields[]=array(
+							
+								'metabox' 		=> $metabox,
+								'id'			=> 'layerContentVarsTable',
+								'type'			=> 'html',
+								'data'			=> '<table class="widefat striped" style="border:1px solid #eee;">
+									<tr>
+										<th colspan="2">
+											<b>Default HTML Variables</b>
+										</th>
+									</tr>
+									<tr>
+										<td>
+											Profile
+										</td>
+										<td>
+											{{ profile.avatar.url }} 
+											<br>
+											{{ profile.banner.url }}
+										</td>
+									</tr>
+									<tr>
+										<td>
+											Site
+										</td>
+										<td>
+											{{ site.name }}
+										</td>
+									</tr>
+									<tr>
+										<td>
+											Theme
+										</td>
+										<td>
+											{{ theme.navbar }}
+										</td>
+									</tr>
+									<tr>
+										<td>
+											Page
+										</td>
+										<td>
+											{{ page.content }}
+										</td>
+									</tr>
+								</table>',
+							);
+						}
+						
+						if( $layer_type->output != 'inline-css' ){
+							
+							// get layer css
+							
+							$metabox = array(
+								
+								'name' 		=> 'layer-css',
+								'title' 	=> __( $storage_name . ' CSS', 'live-template-editor-client' ), 
+								'screen'	=> array($layer->post_type),
+								'context' 	=> 'advanced',
+								'add_new'	=> false,
+							);
 							
 							$this->defaultFields[]=array(
 							
 								'metabox' 		=> $metabox,
-								'id'			=> 'layerCssVars',
-								'type'			=> 'form',
-								'inputs'		=> array(
-								
-									'select',
-									'color',
-								),
-								'default' 		=> apply_filters('ltple_default_layer_css_variables_form_data',array(),$layer_type),
-								'description'	=> '',
+								'id'			=> 'layerCss',
+								'type'			=> 'code_editor',
+								'code'			=> 'css',
+								'stripcslashes'	=> false,
+								'htmlentities'	=> false,
+								'placeholder'	=> 'CSS rules without '.htmlentities('<style></style>'),
+								'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_css','',$layer),
+								'description'	=> ''
 							);
-						}
-					}
-					
-					if( $post->post_type == 'cb-default-layer' ){
-						
-						if( $this->is_hosted_output($layer_type->output)  ){		
 							
 							$this->defaultFields[]=array(
 							
-								'metabox' => array(
-								
-									'name' 		=> 'layer-js',
-									'title' 	=> __( $storage_name . ' JS', 'live-template-editor-client' ), 
-									'screen'	=> array($post->post_type),
-									'context' 	=> 'advanced'
-								),
-								
-								'id'			=> 'layerJs',
-								'type'			=> 'code_editor',
-								'code'			=> 'javascript',
-								'placeholder'	=> 'Additional Javascript',
-								'stripcslashes'	=> false,
-								'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_js',''),
-								'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+								'metabox' 		=> $metabox,
+								'id'			=> 'layerCssVarsTable',
+								'type'			=> 'html',
+								'data'			=> '<table class="widefat striped" style="border:1px solid #eee;">
+									<tr>
+										<th colspan="2">
+											<b>Default CSS Variables</b>
+										</th>
+									</tr>
+									<tr>
+										<td>
+											Theme
+										</td>
+										<td>
+											{{ theme.css.main_color }}
+											<br>
+											{{ theme.css.navbar_color }}
+											<br>
+											{{ theme.css.link_color }}
+										</td>
+									</tr>
+								</table>',
 							);
 							
-							if( $this->is_public_output($layer_type->output) ){
+							if( $layer_type->storage == 'user-theme' ){
+								
+								$this->defaultFields[]=array(
+								
+									'metabox' 		=> $metabox,
+									'id'			=> 'layerCssVars',
+									'type'			=> 'form',
+									'inputs'		=> array(
+									
+										'select',
+										'color',
+									),
+									'default' 		=> apply_filters('ltple_default_layer_css_variables_form_data',array(),$layer_type),
+									'description'	=> '',
+								);
+							}
+						}
+						
+						if( $layer->post_type == 'cb-default-layer' ){
 							
+							if( $this->is_hosted_output($layer_type->output)  ){		
+								
 								$this->defaultFields[]=array(
 								
 									'metabox' => array(
 									
-										'name' 		=> 'layer-meta',
-										'title' 	=> __( $storage_name . ' Meta Data', 'live-template-editor-client' ), 
-										'screen'	=> array($post->post_type),
+										'name' 		=> 'layer-js',
+										'title' 	=> __( $storage_name . ' JS', 'live-template-editor-client' ), 
+										'screen'	=> array($layer->post_type),
 										'context' 	=> 'advanced'
 									),
-									'id'			=> 'layerMeta',
+									
+									'id'			=> 'layerJs',
 									'type'			=> 'code_editor',
-									'code'			=> 'json',
-									'placeholder'	=> 'JSON',
-									'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_json',''),
-									'description'	=> '<i>Additional Meta Data</i>'
+									'code'			=> 'javascript',
+									'placeholder'	=> 'Additional Javascript',
+									'stripcslashes'	=> false,
+									'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_js','',$layer),
+									'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+								);
+								
+								if( $this->is_public_output($layer_type->output) ){
+								
+									$this->defaultFields[]=array(
+									
+										'metabox' => array(
+										
+											'name' 		=> 'layer-meta',
+											'title' 	=> __( $storage_name . ' Meta Data', 'live-template-editor-client' ), 
+											'screen'	=> array($layer->post_type),
+											'context' 	=> 'advanced'
+										),
+										'id'			=> 'layerMeta',
+										'type'			=> 'code_editor',
+										'code'			=> 'json',
+										'placeholder'	=> 'JSON',
+										'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_json','',$layer),
+										'description'	=> '<i>Additional Meta Data</i>'
+									);	
+								}
+							}
+							elseif( $layer_type->output == 'inline-css' ){
+								
+								$this->defaultFields[]=array(
+								
+									'metabox' => array(
+									
+										'name' 		=> 'layer-margin',
+										'title' 	=> __( 'Editor Margin', 'live-template-editor-client' ), 
+										'screen'	=> array($layer->post_type),
+										'context' 	=> 'side',
+										'add_new'	=> false,
+									),
+									
+									'id'			=> "layerMargin",
+									'type'			=> 'text',
+									'placeholder'	=> '0px auto',
+									'default'		=> '',
 								);	
 							}
+							
+							if( $this->has_html_elements($layer_type) ){
+								
+								$this->defaultFields[]=array(
+								
+									'metabox' => array(
+									
+										'name' 		=> 'layer-elements',
+										'title' 	=> __( 'Template Elements', 'live-template-editor-client' ), 
+										'screen'	=> array($layer->post_type),
+										'context' 	=> 'advanced',
+										'frontend' 	=> false,
+									),
+									
+									'id'	=> "layerElements",
+									'name'	=> "layerElements",
+									'type'	=> 'element',
+								);
+							}
 						}
-						elseif( $layer_type->output == 'inline-css' ){
+						elseif( $layer->post_type == 'default-element' ){
+							
+							$metabox = array(
+								
+								'name' 		=> 'element-options',
+								'title' 	=> __( $storage_name . ' Options', 'live-template-editor-client' ), 
+								'screen'	=> array($layer->post_type),
+								'context' 	=> 'advanced',
+								'add_new'	=> false,
+							);
 							
 							$this->defaultFields[]=array(
 							
-								'metabox' => array(
-								
-									'name' 		=> 'layer-margin',
-									'title' 	=> __( 'Editor Margin', 'live-template-editor-client' ), 
-									'screen'	=> array($post->post_type),
-									'context' 	=> 'side',
-									'add_new'	=> false,
+								'metabox' 		=> $metabox,
+								'id'			=> 'elementType',
+								'label'			=> 'Element Section',
+								'type'			=> 'select',
+								'options'		=> $this->parent->element->get_default_sections(),
+								'description'	=> '',
+							);
+							
+							$this->defaultFields[]=array(
+							
+								'metabox' 		=> $metabox,
+								'id'			=> 'elementDrop',
+								'label'			=> 'Target Drop',
+								'type'			=> 'select',
+								'options'		=> array(
+									
+									'out'	=> 'Out',
+									'in'	=> 'In',
 								),
-								
-								'id'			=> "layerMargin",
-								'type'			=> 'text',
-								'placeholder'	=> '0px auto',
-								'default'		=> '',
 							);	
 						}
+					}
+					elseif( $this->is_image_output($layer_type->output) ){
 						
-						if( $this->has_html_elements($layer_type) ){
+						$this->defaultFields[]=array(
+						
+							'metabox' => array(
 							
-							$this->defaultFields[]=array(
+								'name' 		=> 'layer-image-url',
+								'title' 	=> __( 'Image Template', 'live-template-editor-client' ), 
+								'screen'	=> array($layer->post_type),
+								'context' 	=> 'advanced'
+							),
+							
+							'id'			=> 'layerImageTpl',
+							'type'			=> 'file',
+							'label'			=> '<b>Upload File</b>',
+							'accept'		=> '.psd,.xfc,.sketch',
+							'script'		=> 'jQuery(document).ready(function($){$(\'form#post\').attr(\'enctype\',\'multipart/form-data\');});',
+							'placeholder'	=> "image.psd",
+							'style'			=> "padding:5px;margin: 15px 0 5px 0;",
+							'description'	=> "Upload an image template ( Photoshop, GIMP, Sketch )",
+						);						
+					}
+					elseif( $this->is_vector_output($layer_type->output) ){
+					
+						// get layer content
+						
+						$this->defaultFields[]=array(
+						
+							'metabox' => array(
+							
+								'name' 		=> 'layer-json',
+								'title' 	=> __( 'Vector Graphics', 'live-template-editor-client' ), 
+								'screen'	=> array($layer->post_type),
+								'context' 	=> 'advanced',
+								'add_new'	=> false,
+							),
+							
+							'id'			=> 'layerJson',
+							'type'			=> 'code_editor',
+							'code'			=> 'json',
+							'placeholder'	=> 'JSON content',
+						);
+					}
+
+					if( $layer->post_type == 'cb-default-layer' ){
+						
+						if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
+							
+							$this->defaultFields[]=array( 
 							
 								'metabox' => array(
 								
-									'name' 		=> 'layer-elements',
-									'title' 	=> __( 'Template Elements', 'live-template-editor-client' ), 
-									'screen'	=> array($post->post_type),
-									'context' 	=> 'advanced',
+									'name' 		=> 'layer-form',
+									'title' 	=> __( 'Template Action', 'live-template-editor-client' ), 
+									'screen'	=> array($layer->post_type),
+									'context' 	=> 'side',
 									'frontend' 	=> false,
 								),
+								'id'			=> 'layerForm',
+								'type'			=> 'radio',
+								'options'		=> array(
 								
-								'id'	=> "layerElements",
-								'name'	=> "layerElements",
-								'type'	=> 'element',
-							);
+									'none'		=> 'None',
+									'importer'	=> 'Importer',
+								),
+								'inline'		=> false,
+							);					
 						}
-					}
-					elseif( $post->post_type == 'default-element' ){
-						
-						$metabox = array(
-							
-							'name' 		=> 'element-options',
-							'title' 	=> __( $storage_name . ' Options', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced',
-							'add_new'	=> false,
-						);
-						
-						$this->defaultFields[]=array(
-						
-							'metabox' 		=> $metabox,
-							'id'			=> 'elementType',
-							'label'			=> 'Element Section',
-							'type'			=> 'select',
-							'options'		=> $this->parent->element->get_default_sections(),
-							'description'	=> '',
-						);
-						
-						$this->defaultFields[]=array(
-						
-							'metabox' 		=> $metabox,
-							'id'			=> 'elementDrop',
-							'label'			=> 'Target Drop',
-							'type'			=> 'select',
-							'options'		=> array(
-								
-								'out'	=> 'Out',
-								'in'	=> 'In',
-							),
-						);	
-					}
-				}
-				elseif( $this->is_image_output($layer_type->output) ){
-					
-					$this->defaultFields[]=array(
-					
-						'metabox' => array(
-						
-							'name' 		=> 'layer-image-url',
-							'title' 	=> __( 'Image Template', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced'
-						),
-						
-						'id'			=> 'layerImageTpl',
-						'type'			=> 'file',
-						'label'			=> '<b>Upload File</b>',
-						'accept'		=> '.psd,.xfc,.sketch',
-						'script'		=> 'jQuery(document).ready(function($){$(\'form#post\').attr(\'enctype\',\'multipart/form-data\');});',
-						'placeholder'	=> "image.psd",
-						'style'			=> "padding:5px;margin: 15px 0 5px 0;",
-						'description'	=> "Upload an image template ( Photoshop, GIMP, Sketch )",
-					);						
-				}
-				elseif( $this->is_vector_output($layer_type->output) ){
-				
-					// get layer content
-					
-					$this->defaultFields[]=array(
-					
-						'metabox' => array(
-						
-							'name' 		=> 'layer-json',
-							'title' 	=> __( 'Vector Graphics', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'advanced',
-							'add_new'	=> false,
-						),
-						
-						'id'			=> 'layerJson',
-						'type'			=> 'code_editor',
-						'code'			=> 'json',
-						'placeholder'	=> 'JSON content',
-					);
-				}
-
-				if( $post->post_type == 'cb-default-layer' ){
-					
-					if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
 						
 						$this->defaultFields[]=array( 
 						
 							'metabox' => array(
 							
-								'name' 		=> 'layer-form',
-								'title' 	=> __( 'Template Action', 'live-template-editor-client' ), 
-								'screen'	=> array($post->post_type),
+								'name' 		=> 'layer-visibility',
+								'title' 	=> __( 'Template Visibility', 'live-template-editor-client' ), 
+								'screen'	=> array($layer->post_type),
 								'context' 	=> 'side',
 								'frontend' 	=> false,
-							),
-							'id'			=> 'layerForm',
+							),	
+							'id'			=> 'layerVisibility',
 							'type'			=> 'radio',
 							'options'		=> array(
 							
-								'none'		=> 'None',
-								'importer'	=> 'Importer',
+								'subscriber'	=> 'Subscriber (plan)',
+								'assigned'		=> 'Assigned (tailored)',
+								'registered'	=> 'Registered (loggedin)',
+								'anyone'		=> 'Anyone',
 							),
 							'inline'		=> false,
-						);					
+							'description'	=> ''
+						);	
 					}
-					
-					$this->defaultFields[]=array( 
-					
-						'metabox' => array(
-						
-							'name' 		=> 'layer-visibility',
-							'title' 	=> __( 'Template Visibility', 'live-template-editor-client' ), 
-							'screen'	=> array($post->post_type),
-							'context' 	=> 'side',
-							'frontend' 	=> false,
-						),	
-						'id'			=> 'layerVisibility',
-						'type'			=> 'radio',
-						'options'		=> array(
-						
-							'subscriber'	=> 'Subscriber (plan)',
-							'assigned'		=> 'Assigned (tailored)',
-							'registered'	=> 'Registered (loggedin)',
-							'anyone'		=> 'Anyone',
-						),
-						'inline'		=> false,
-						'description'	=> ''
-					);	
 				}
+				
+				do_action('ltple_default_layer_fields',$layer_type,$layer);
 			}
-			
-			do_action('ltple_default_layer_fields',$layer_type);
 		}
 		
 		return $this->defaultFields;
@@ -1860,11 +1857,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 			}
 			
-			if( !empty($post->ID) ){
+			if( $layer = LTPLE_Editor::instance()->get_layer($post) ){
 
-				$layer_type = $this->get_layer_type($post);
+				$layer_type = $this->get_layer_type($layer);
 				
-				$post_type = get_post_type_object($post->post_type);
+				$post_type = get_post_type_object($layer->post_type);
 		
 				$storage_name = $post_type->labels->singular_name;
 						
@@ -1874,7 +1871,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 						'name' 		=> 'layer-code',
 						'title' 	=> 'Code',
-						'screen'	=> array($post->post_type),
+						'screen'	=> array($layer->post_type),
 						'context' 	=> 'advanced',
 						'frontend'	=> $this->is_hosted_output($layer_type->output) || $layer_type->output == 'canvas' ? false : true,
 					);
@@ -1887,25 +1884,28 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'id'			=> 'layerContent',
 						'label'			=> __( $storage_name . ' HTML', 'live-template-editor-client' ),
 						'placeholder'	=> "HTML content",
+						'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_content','',$layer),
 						'description'	=>''
 					);
 					
 					if( $layer_type->output != 'inline-css' ){
-											
+						
 						$this->userFields[] = array(
 						
 							'metabox' 		=> $metabox,
 							'type'			=> 'code_editor',
 							'code'			=> 'css',
+							'stripcslashes'	=> false,
+							'htmlentities'	=> false,
 							'id'			=> 'layerCss',
 							'label'			=> __( $storage_name . ' CSS', 'live-template-editor-client' ),
 							'placeholder'	=> "Internal CSS style sheet",
-							'stripcslashes'	=> false,
+							'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_css','',$layer),
 							//'description'	=> '<i>without '.htmlentities('<style></style>').'</i>'
 						);
 					}
 					
-					if( $this->is_hosted($post) ){
+					if( $this->is_hosted($layer) ){
 					
 						$this->userFields[] = array(
 						
@@ -1915,17 +1915,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'id'			=> 'layerJs',
 							'label'			=> __( $storage_name . ' JS', 'live-template-editor-client' ),
 							'placeholder'	=> "Additional Javascript",
+							'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_js','',$layer),
 							'stripcslashes'	=> false,
 							'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
 						);
 					}
 				}
 				
-				do_action('ltple_user_layer_fields',$post,array( 
+				do_action('ltple_user_layer_fields',$layer,array( 
 					
 					'name' 		=> 'ltple-settings',
 					'title' 	=> __( $storage_name . ' Editor Settings', 'live-template-editor-client' ), 
-					'screen'	=> array($post->post_type),
+					'screen'	=> array($layer->post_type),
 					'context' 	=> 'advanced',
 					'frontend'	=> false,
 				));
@@ -5294,6 +5295,31 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return false;
 	}
+	public function filter_default_user_layer_content($html,$layer){
+		
+		if( empty($html) ){
+			
+			if( $default_id = $this->get_default_id($layer->ID) ){
+			
+				$html = get_post_meta($default_id,'layerContent',true);
+			}
+		}
+		
+		return $html;
+	}
+	
+	public function filter_default_user_layer_style($style,$layer){
+		
+		if( empty($style) ){
+			
+			if( $default_id = $this->get_default_id($layer->ID) ){
+			
+				$style = get_post_meta($default_id,'layerCss',true);
+			}
+		}
+		
+		return $style;
+	}
 	
 	public function set_default_layer_columns($columns){
 		
@@ -5401,15 +5427,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$this->columns['name'] 			= 'Name';
 		$this->columns['price'] 		= 'Price';
 		$this->columns['storages'] 		= 'Storages';
+		$this->columns['usage'] 		= 'Limits';
 		
-		do_action('ltple_layer_option_columns');
-
 		return $this->columns;
 	}
 	
 	public function add_layer_tax_column_content($content, $column_name, $term_id){
-		
-		$this->column = $content;
 		
 		if( $term = get_term($term_id) ){
 			
@@ -5422,7 +5445,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$output = 'inline-css';
 				}
 
-				$this->column .='<span class="label label-primary">'.$editors[$output].'</span>';
+				$content .='<span class="label label-primary">'.$editors[$output].'</span>';
 			}
 			elseif($column_name === 'section') {
 
@@ -5432,7 +5455,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( !empty($sections[$section_id]) ){
 						
-						$this->column .='<span class="label label-info">' . $sections[$section_id]->name . '</span>';
+						$content .='<span class="label label-info">' . $sections[$section_id]->name . '</span>';
 					}
 				}
 			}
@@ -5442,15 +5465,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				if( $visibility == 'admin' ){
 					
-					$this->column .='<span class="label label-warning">'.$visibility.'</span>';
+					$content .='<span class="label label-warning">'.$visibility.'</span>';
 				}
 				elseif( $visibility == 'none' ){
 					
-					$this->column .='<span class="label label-danger">'.$visibility.'</span>';
+					$content .='<span class="label label-danger">'.$visibility.'</span>';
 				}
 				else{
 					
-					$this->column .='<span class="label label-success">'.$visibility.'</span>';
+					$content .='<span class="label label-success">'.$visibility.'</span>';
 				}
 				
 			}
@@ -5466,41 +5489,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$price_period = 'month';
 				} 	
 				
-				$this->column .=$price_amount.'$'.' / '.$price_period;
-			}
-			elseif($column_name === 'storage') {
-				
-				// get storage amount
-				
-				$storage_amount = $this->get_plan_amount($term,'storage');			
-				
-				// get range type
-				
-				$type = '';
-				
-				if( $type_id = get_term_meta($term->term_id,'range_type',true)){
-					
-					if( $type = get_term($type_id) ){
-						
-						$type = ' <span class="label label-info">' . $type->name . '</span>';
-					}
-				}				
-				
-				if( !empty($type) ){
-					
-					if( $storage_amount == 1 ){
-						
-						$this->column .='<span class="label label-primary">+' . $storage_amount . '</span>' . $type;
-					}
-					elseif($storage_amount > 0){
-						
-						$this->column .='<span class="label label-primary">+' . $storage_amount . '</span>' .  $type;
-					}
-					else{
-						
-						$this->column .= '<span class="label label-primary">' . $storage_amount . '</span>' .  $type;
-					}
-				}
+				$content .=$price_amount.'$'.' / '.$price_period;
 			}
 			elseif($column_name === 'storages') {
 				
@@ -5520,35 +5509,37 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 								if( $storage_amount == 1 ){
 									
-									$this->column .='<span class="label label-primary">+' . $storage_amount . '</span>' . $type;
+									$content .='<span class="label label-primary">+' . $storage_amount . '</span>' . $type;
 								}
 								elseif($storage_amount > 0){
 									
-									$this->column .='<span class="label label-primary">+' . $storage_amount . '</span>' .  $type;
+									$content .='<span class="label label-primary">+' . $storage_amount . '</span>' .  $type;
 								}
 								else{
 									
-									$this->column .= '<span class="label label-primary">' . $storage_amount . '</span>' .  $type;
+									$content .= '<span class="label label-primary">' . $storage_amount . '</span>' .  $type;
 								}
 
-								$this->column .= '<br>';							
+								$content .= '<br>';							
 							}
 						}
 					}
 				}
 				
 			}
+			elseif($column_name === 'usage') {
+				
+				$content .= apply_filters('ltple_layer_usage_column','',$term);
+			}
 			elseif($column_name === 'users') {
 				
 				$users=0;
 				
-				$this->column .=$users;
+				$content .=$users;
 			}
-			
-			do_action('ltple_layer_column_content',$column_name,$term);
 		}
 
-		return $this->column;
+		return $content;
 	}
 	
 	public function add_manage_layer_filters($post_type,$which){
