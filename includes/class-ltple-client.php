@@ -939,6 +939,10 @@ class LTPLE_Client {
 				$this->exit_message('Sign in to access this template...',404);
 			}
 		}
+		elseif( file_exists($this->views.'/'.$layer->post_type.'.php') ){
+			
+			$path = $this->views.'/'.$layer->post_type.'.php';
+		}
 		
 		return $path;
 	}
