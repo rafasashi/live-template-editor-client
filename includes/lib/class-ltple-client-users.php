@@ -560,7 +560,7 @@
 			// add plan value filter
 
 			if( $this->view == 'customers' ){
-			
+				
 				echo '<span>';
 					
 					$filter = 'licenseStatus';

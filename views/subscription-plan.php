@@ -3,7 +3,7 @@
 	$ltple = LTPLE_Client::instance();
 	
 	echo get_header();
-
+		 
 		if( !empty($_GET['output']) && $_GET['output'] == 'widget' ){
 			
 			echo do_shortcode( '[subscription-plan id="' . $post->ID . '" widget="true"]' );

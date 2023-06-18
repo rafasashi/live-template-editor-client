@@ -92,7 +92,7 @@ class LTPLE_Client_Profile {
 		add_action( 'edit_user_profile_update', array( $this, 'save_privacy_settings' ) );
 		
 		add_filter('ltple_default_user-theme_content', array( $this, 'get_default_page_template'),10,1 );
-		add_filter('ltple_default_user-theme_css', array( $this, 'get_default_page_style'),10,1 );
+		add_filter('ltple_default_user-theme_css', array( $this, 'filter_default_page_style'),10,1 );
 		
 		add_filter('ltple_parse_css_variables',function($content){
 			
@@ -437,7 +437,7 @@ class LTPLE_Client_Profile {
 		);
 	}
 	
-	public function get_default_page_style(){
+	public function filter_default_page_style(){
 	
 		$style = '
 		
@@ -613,7 +613,7 @@ class LTPLE_Client_Profile {
 	
 	public function get_page_style(){
 		
-		return apply_filters('ltple_parse_css_variables',$this->get_default_page_style());
+		return apply_filters('ltple_parse_css_variables',$this->filter_default_page_style());
 	}
 	
 	public function get_floating_style(){
@@ -1263,7 +1263,7 @@ class LTPLE_Client_Profile {
 					
 				$content .= '</div>';
 				
-				if( $this->parent->settings->options->enable_ranking == 'on' ){
+				if( $this->parent->settings->is_enabled('ranking') ){
 					
 					// user stars
 					

@@ -32,7 +32,8 @@ class LTPLE_Client_Settings {
 	public $addons;
 	
 	var $tabs = array();
-	
+	var $enabled = array();
+		
 	public function __construct ( $parent ) {
 
 		$this->parent = $parent;
@@ -48,8 +49,6 @@ class LTPLE_Client_Settings {
 
 		$this->options->social_icon = $this->get_default_social_icon();
 		
-		$this->options->enable_ranking 	= get_option( $this->parent->_base . 'enable_ranking', 'off' );
-
 		// get custom style
 		
 		$this->navbarColor 	= get_option( $this->parent->_base . 'navbarColor', '#182f42' );
@@ -90,6 +89,18 @@ class LTPLE_Client_Settings {
 			
 			$this->settings = $this->get_fields();
 		});
+	}
+	
+	public function is_enabled($service){
+		
+		if( !isset($this->enabled[$service]) ){
+		
+			$enable = get_option( $this->parent->_base . 'enable_' . $service,false);
+	
+			$this->enabled[$service] = $enable == 'on' ? true : false;
+		}
+		
+		return $this->enabled[$service];
 	}
 	
 	public function get_default_logo_url() {
@@ -891,7 +902,6 @@ class LTPLE_Client_Settings {
 			'fields'				=> apply_filters('ltple_plan_settings',array(				
 				array(
 					'id' 			=> 'enable_bandwidth',
-					'name' 			=> 'enable_bandwidth',
 					'label'			=> __( 'Bandwidth' , 'live-template-editor-client' ),
 					'description'	=> 'Enable bandwidth tracking',
 					'type'			=> 'switch',

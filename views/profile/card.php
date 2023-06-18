@@ -122,7 +122,7 @@
 
 							echo'<span class="fa fa-star" aria-hidden="true"></span>'; 
 							
-							if( $ltple->settings->options->enable_ranking == 'on' ){
+							if( $ltple->settings->is_enabled('ranking') ){
 							
 								echo $ltple->stars->get_count($ltple->profile->id);
 							}

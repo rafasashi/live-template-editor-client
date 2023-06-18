@@ -30,7 +30,20 @@ class LTPLE_Client_Dashboard {
 			
 			add_filter('body_class',array($this,'filter_dashboard_classes'),99999,2);
 			add_filter('post_class',array($this,'filter_dashboard_classes'),99999,2);
-		}		
+		
+			//Add Custom API Endpoints
+			
+			add_action('rest_api_init', function(){
+						
+				register_rest_route( 'ltple-dashboard/v1', '/metrics/', array(
+					
+					'methods' 	=> 'GET',
+					'callback' 	=> array($this,'get_metrics_data'),
+					'permission_callback' => '__return_true',
+				));
+				
+			});
+		}	
 	}
 	
 	public function filter_dashboard_classes($classes,$css_class){
@@ -73,6 +86,16 @@ class LTPLE_Client_Dashboard {
 		
 			$boxes = array();
 			
+			if( $metrics = $this->get_active_metrics() ){
+				
+				$boxes['metrics'] = array(
+				
+					'class'		=> 'col-xs-12 col-sm-12 col-md-8',
+					'position'	=> 1,
+					'content' 	=> $this->get_metrics_content($metrics),
+				);
+			}
+			
 			if( $articles = $this->get_recent_posts( array(
 
 				'post_type' 	=> array('post','docs'),
@@ -83,6 +106,7 @@ class LTPLE_Client_Dashboard {
 				$boxes['last_articles'] = array(
 				
 					'title' 	=> 'Articles & Docs',
+					'position'	=> 10,
 					'content' 	=> $articles,
 				);
 			}
@@ -92,6 +116,7 @@ class LTPLE_Client_Dashboard {
 				$boxes['new_templates'] = array(
 				
 					'title' 	=> 'New Resources',
+					'position'	=> 20,
 					'content' 	=> $templates,
 				);
 			}
@@ -101,14 +126,306 @@ class LTPLE_Client_Dashboard {
 				$boxes['saved_projects'] = array(
 				
 					'title' 	=> 'Saved Projects',
+					'position'	=> !empty($metrics) ? 2 : 30,
 					'content' 	=> $projects,
 				);
 			}			
 			
-			$this->all_boxes = apply_filters('ltple_dashboard_boxes',$boxes);
+			$boxes = apply_filters('ltple_dashboard_boxes',$boxes);
+		
+			usort($boxes,function($a,$b){
+				
+				return $a['position'] - $b['position'];
+			});
+			
+			$this->all_boxes = $boxes;
 		}
 		
 		return $this->all_boxes;
+	}
+	
+	public function get_active_metrics(){
+		
+		$metrics = array();
+
+		if( $this->parent->settings->is_enabled('bandwidth') ){
+			
+			$metrics['bandwidth'] = array(
+			
+				'name'	=> 'Bandwidth',
+				'icon'	=> 'fas fa-cloud',
+			);
+		}
+		
+		if( 1==2 ){
+			
+			$metrics['clicks'] = array(
+			
+				'name'	=> 'Clicks',
+				'icon' 	=> 'fas fa-mouse-pointer',
+			);
+			
+			$metrics['revenues'] = array(
+			
+				'name'	=> 'Revenues',
+
+				'icon' 	=> 'fas fa-money-bill-wave',
+				//'icon' 	=> 'fas fa-university',
+				//'icon' 	=> 'fas fa-piggy-bank',
+				//'icon' 	=> 'fas fa-coins',
+			);
+		}
+		
+		return $metrics;
+	}
+
+	public function get_metrics_data( $rest = NULL ){
+		
+		$metrics = array();
+		
+		if( !empty($this->parent->user->ID) ){
+			
+			$user_plan = $this->parent->plan->get_user_plan_info( $this->parent->user->ID );
+			
+			if( $user_plan['holder'] != $this->parent->user->ID ){
+				
+				$user = get_user_by('id',$user_plan['holder']);
+			}
+			else{
+				
+				$user = $this->parent->user;
+			}
+			
+			$api_url = add_query_arg(array(
+			
+				'_' 	=> time(),
+				'user' 	=> $this->parent->ltple_encrypt_uri($user->user_email),
+			
+			),$this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/metrics/' . ( user_can($user,'administrator') ? 'all' : 'user' ) );
+			
+			$response = wp_remote_get( $api_url, array(
+			
+				'headers' => array(
+					
+					'X-Forwarded-Server' => $_SERVER['HTTP_HOST']
+				)
+			));
+			
+			if (!is_wp_error($response)){
+				
+				$metrics = json_decode(wp_remote_retrieve_body($response),true);
+				
+				if( !empty($metrics) ){
+					
+					foreach( $metrics as $slug => $chart ){
+						
+						if( !empty($chart['data']['datasets']) ){
+							
+							foreach( $chart['data']['datasets'] as $i => $dataset ){
+								
+								$dataset['borderColor']		= $this->parent->settings->mainColor;
+								$dataset['backgroundColor']	= $this->parent->settings->mainColor.'24';
+								$dataset['tension']			= 0.4;
+								$dataset['fill']			= true;
+								
+								$metrics[$slug]['data']['datasets'][$i] = $dataset;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return $metrics;
+	}
+	
+	public function get_metrics_content($metrics){
+		
+		$content = '';
+		
+		if( !empty($metrics) ){
+			
+			wp_register_script('chart-js', esc_url( $this->parent->assets_url ) . 'js/chart.min.js', array('jquery'),'4.3.0');
+			wp_enqueue_script('chart-js' );
+	
+			wp_register_script( $this->parent->_token . '-metrics', '', array('jquery','chart-js',$this->parent->_token . '-client-ui') );
+			wp_enqueue_script( $this->parent->_token . '-metrics' );
+			wp_add_inline_script( $this->parent->_token . '-metrics',";(function($){
+				
+				$(document).ready(function(){
+					
+					$.ajaxQueue({
+									
+						type 		: 'GET',
+						url  		: '".$this->parent->urls->api."ltple-dashboard/v1/metrics/',
+						cache		: false,
+						beforeSend	: function(){
+							
+							
+						},
+						error: function(jqXHR,textStatus,errorThrown) {
+							
+							/*
+							$.notify( 'Error ' + jqXHR.status, {
+								
+								className: 'error',
+								position: 'top center'
+							});
+							*/
+						},
+						success: function(data) {
+							
+							if (typeof data === 'string' || data instanceof String){
+								
+								try {
+									
+									data = JSON.parse(data);
+								}
+								catch(e){
+									
+									data = JSON.parse(JSON.stringify(data));
+								}
+							}
+							
+							$.each(data,function(name,chart){
+								
+								if( $('#' + name + 'Chart').length > 0 ){
+									
+									var ctx = document.getElementById(name+'Chart').getContext('2d');
+						
+									new Chart(ctx,{
+										
+										type	: 'line',
+										data	: chart.data,
+										options	: {
+											responsive: true,
+											scales: {
+												x: {
+													
+													ticks: {
+														
+														maxTicksLimit: Math.ceil(chart.data.labels.length/7),
+														callback: function(val, index) {
+															
+															var label = this.getLabelForValue(val);
+															
+															var day = new Date(label).getDay();
+															
+															if( day === 1 ) {
+																
+																 // is monday
+																 
+																var arr = label.split('-');
+																
+																return arr[2] + '/' + arr[1];
+															}
+															
+															return '';
+														}
+													}
+												},
+												y: {
+													
+													beginAtZero	: true,
+													title: {
+														display	: true,
+														text	: chart.data.y.title
+													}
+												}
+											},
+											plugins: {
+												
+												legend: {
+													
+													display: false
+												}
+											}
+										}
+									});
+									
+									$('#' + name + 'Total').empty().append( parseFloat(chart.totals.curr_mth).toFixed(2) + ' GB');
+									
+									$('#' + name + 'Chart').parent().css('backgroundImage','');
+								}
+							});
+							
+							/*
+							$.notify( 'Success', {
+								
+								className: 'success',
+								position: 'top center'
+							});
+							*/
+						},
+						complete: function(){
+							
+							
+						}
+					});
+					
+				}); 
+					
+			})(jQuery);");
+			
+			$content .= '<div id="metric-totals">';
+			
+				$active = true;
+				
+				$count = count($metrics);
+				
+				foreach( $metrics as $slug => $metric ){
+					
+					$content .= '<div class="col-xs-'.( 12/$count ).'" style="padding: 0px 10px 0 0;">';
+				
+						$content .= '<div class="bs-callout bs-callout-' . ( $active ? 'primary' : 'default' ) . '" style="position:relative;overflow:hidden;height:80px;margin:0 0 5px 0;padding: 10px;">';
+								
+							$content .= '<h4 style="padding:0 0 5px 0;font-size:12px;font-weight:600;text-transform:uppercase;">';
+								
+								$content .= $metric['name'];
+							
+							$content .= '</h4>';
+							
+							$content .= '<div id="'.$slug.'Total" style="font-size:20px;height:23px;">';
+								
+								$content .= '<img src="'.$this->parent->assets_url . '/loader.gif" style="height:17px;width:17px;">';
+							
+							$content .= '</div>';
+							
+							$content .= '<div style="font-size:10px;color:#aaa;padding-top:5px;">';
+							
+								$content .= 'Current period balance';
+							
+							$content .= '</div>';
+							
+							if( !empty($metric['icon']) ){
+							
+								$content .= '<i class="'.$metric['icon'].'" style="position:absolute;bottom:15px;right:20px;font-size:45px;color:#eee;"></i>';
+							}
+							
+						$content .= '</div>';
+						
+					$content .= '</div>';
+					
+					$active = false;
+				}
+				
+			$content .= '</div>';
+		
+			$content .= '<div id="metric-charts">';
+				
+				$content .= '<div class="col-xs-12" style="padding:0;overflow:hidden;height:200px;background-position:center center;background-repeat:no-repeat;background-image:url(' . $this->parent->assets_url . '/loader.gif);">';
+					
+					foreach( $metrics as $slug => $metric ){
+					
+						$content .= '<canvas id="'.$slug.'Chart" style="max-height:200px;width:100%;"></canvas>';
+					}
+					
+				$content .= '</div>';
+				
+			$content .= '</div>';
+		}
+		
+		return $content;
 	}
 	
 	public function get_dashboard_shortcode(){
@@ -142,7 +459,7 @@ class LTPLE_Client_Dashboard {
 	
 	public function get_widget_box($box){
 		
-		$title 		= $box['title'];
+		$title 		= !empty($box['title']) ? $box['title'] : false;
 		$content 	= $box['content'];
 		$class		= !empty($box['class']) ? $box['class'] : 'col-xs-12 col-sm-12 col-md-4';
 		
@@ -150,11 +467,14 @@ class LTPLE_Client_Dashboard {
 		
 		$widget_box .= '<div class="'.$class.'" style="padding: 4px 8px !important;">';
 			
-			$widget_box .= '<div class="panel panel-default" style="padding:10px;margin-bottom:10px;">';
-			
-				$widget_box .= '<h4 style="border-bottom:1px solid #eee;padding:5px 0 10px 0;color:#888;font-size:12px;font-weight:600;text-transform:uppercase;">'.$title.'</h4>';				
-			
-				$widget_box .= '<div class="panel-body" style="padding:0 !important;height:250px !important;overflow-x:hidden !important;overflow-y:auto !important;">';
+			$widget_box .= '<div class="panel panel-default" style="padding:8px;margin-bottom:8px;">';
+				
+				if( !empty($title) ){
+				
+					$widget_box .= '<h4 style="border-bottom:1px solid #eee;padding:5px 0 10px 0;color:#888;font-size:12px;font-weight:600;text-transform:uppercase;">'.$title.'</h4>';				
+				}
+				
+				$widget_box .= '<div class="panel-body" style="padding:0 !important;height:'.( !empty($title) ? 250 : 288 ).'px !important;overflow-x:hidden !important;overflow-y:auto !important;">';
 					
 					if(!empty($content)){
 					

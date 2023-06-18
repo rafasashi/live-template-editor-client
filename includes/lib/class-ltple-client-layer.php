@@ -169,7 +169,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'account-option', __( 'Template Options', 'live-template-editor-client' ), __( 'Template Option', 'live-template-editor-client' ),  array('user-plan'), array(
+		$this->parent->register_taxonomy( 'account-option', __( 'Plan Options', 'live-template-editor-client' ), __( 'Plan Option', 'live-template-editor-client' ),  array('user-plan'), array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> false,
@@ -4515,11 +4515,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $taxonomy == 'account-option' ){
 			
-			$this->options  = array();
+			if( $this->parent->settings->is_enabled('bandwidth') ){
+				
+				$options['bandwidth_amount'] = $this->get_plan_amount($term_id,'bandwidth');
+			}
 			
-			do_action('ltple_account_options',$term_id);
-			
-			$options = array_merge($options,$this->options);
+			$options = apply_filters('ltple_account_options',$options,$term_id);
 		}
 		
 		return $options;
@@ -4871,7 +4872,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				echo'<th valign="top" scope="row">';
 					
-					echo'<label for="category-text">Plan </label>';
+					echo'<label for="category-text">Price </label>';
 				
 				echo'</th>';		
 			
@@ -4889,12 +4890,24 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					echo'<div class="form-field" style="margin-bottom:15px;">';
 						
-						echo'<label for="' . $term->taxonomy . '-price-amount">Price</label>';
-
 						echo $this->parent->plan->get_layer_price_fields($term->taxonomy,$price);
 						
 					echo'</div>';
-
+					
+				echo'</td>';
+			
+			echo'</tr>';
+			
+			echo'<tr class="form-field">';
+			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Storage </label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+				
 					if( $term->taxonomy == 'layer-range' ){
 
 						// range storage amount
@@ -4909,8 +4922,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						echo'<div class="form-field" style="margin-bottom:15px;">';
 							
-							echo'<label for="' . $term->taxonomy . '-storage-amount">Storage</label>';
-
 							echo $this->parent->plan->get_layer_storage_fields($term->taxonomy,$storage);						
 							
 						echo'</div>';					
@@ -4927,20 +4938,61 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 						echo'<div class="form-field" style="margin-bottom:15px;">';
 							
-							echo'<label for="' . $term->taxonomy . '-storage-amount">Storage</label>';
-
 							echo $this->parent->plan->get_account_storage_fields($term->taxonomy,$storages);
 							
 						echo'</div>';
-						
-						//addon account fields
-						
-						do_action('ltple_account_plan_fields', $term->taxonomy, $term->term_id);
 					}
 					
 				echo'</td>';
 				
 			echo'</tr>';
+			
+			if( $term->taxonomy == 'account-option' ){
+				
+				echo'<tr class="form-field">';
+				
+					echo'<th valign="top" scope="row">';
+						
+						echo'<label for="category-text">Limits </label>';
+					
+					echo'</th>';
+					
+					echo'<td>';
+					
+						if( $this->parent->settings->is_enabled('bandwidth') ){
+
+							$bandwidth_amount = 0;
+						
+							if( !empty($term->term_id) ){
+								
+								$bandwidth_amount = $this->get_plan_amount($term->term_id,'bandwidth');
+							}
+							
+							echo'<div class="form-field" style="margin-bottom:15px;">';
+								
+								echo'<label for="'.$term->taxonomy.'-bandwidth-amount">Bandwidth (GB)</label>';
+
+								echo'<div class="input-group">';
+								
+									echo'<span class="input-group-addon" style="color: #fff;padding: 5px 10px;background: #9E9E9E;">+</span>';
+									
+									echo'<input type="number" step="1" min="0" max="10000" placeholder="0" name="'.$term->taxonomy.'-bandwidth-amount" id="'.$term->taxonomy.'-bandwidth-amount" style="width:80px;" value="'.$bandwidth_amount.'"/>';					
+									
+								echo'</div>';
+								
+								echo'<p class="description">Additional monthly bandwidth usage limit in GB </p>';
+
+							echo'</div>';	
+						}
+						
+						//addon account fields
+						
+						do_action('ltple_account_plan_fields', $term->taxonomy, $term->term_id);
+
+					echo'</td>';
+					
+				echo'</tr>';
+			}
 		}
 	}
 	
@@ -5491,6 +5543,40 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$content .=$price_amount.'$'.' / '.$price_period;
 			}
+			elseif($column_name === 'storage') {
+
+				// get storage amount
+				
+				$storage_amount = $this->get_plan_amount($term,'storage');			
+				
+				// get range type
+				
+				$type = '';
+				
+				if( $type_id = get_term_meta($term->term_id,'range_type',true)){
+					
+					if( $type = get_term($type_id) ){
+						
+						$type = ' <span class="label label-info">' . $type->name . '</span>';
+					}
+				}				
+				
+				if( !empty($type) ){
+					
+					if( $storage_amount == 1 ){
+						
+						$content .='<span class="label label-primary">+' . $storage_amount . '</span>' . $type;
+					}
+					elseif($storage_amount > 0){
+						
+						$content .='<span class="label label-primary">+' . $storage_amount . '</span>' .  $type;
+					}
+					else{
+						
+						$content .= '<span class="label label-primary">' . $storage_amount . '</span>' .  $type;
+					}
+				}
+			}
 			elseif($column_name === 'storages') {
 				
 				$storages = get_term_meta($term->term_id,'account_storages',true);			
@@ -5525,17 +5611,22 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						}
 					}
 				}
-				
 			}
 			elseif($column_name === 'usage') {
 				
+				if( $this->parent->settings->is_enabled('bandwidth') ){
+					
+					// display bandwidth amount
+					
+					if(!$bandwidth_amount = $this->parent->layer->get_plan_amount($term->term_id,'bandwidth')){
+						
+						$bandwidth_amount = 0;
+					}
+					
+					$content .= '+' . $bandwidth_amount . ' GB' . '</br>';
+				}
+				
 				$content .= apply_filters('ltple_layer_usage_column','',$term);
-			}
-			elseif($column_name === 'users') {
-				
-				$users=0;
-				
-				$content .=$users;
 			}
 		}
 
@@ -5660,7 +5751,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 					$this->update_plan_amount($term->term_id,'storage',round(intval(sanitize_text_field($_POST[$term->taxonomy . '-storage-amount'])),0));
 				}
-
+				
+				if(isset($_POST[$term->taxonomy .'-bandwidth-amount'])&&is_numeric($_POST[$term->taxonomy .'-bandwidth-amount'])){
+					
+					$this->update_plan_amount($term->term_id,'bandwidth',round(intval(sanitize_text_field($_POST[$term->taxonomy . '-bandwidth-amount'])),0));
+				}
+				
 				if(isset($_POST['output'])){
 
 					update_term_meta( $term->term_id, 'output', $_POST['output']);			

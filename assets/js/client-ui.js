@@ -441,7 +441,7 @@ if( typeof editorCallbacks == typeof undefined )
 					if( validity === true ){
 						
 						$( '#' + dialogId ).dialog('close');
-					
+						
 						$.ajaxQueue({
 										
 							type 		: method,

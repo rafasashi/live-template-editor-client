@@ -80,7 +80,7 @@ class LTPLE_Client_Plan {
 			$this->parent->admin->add_meta_box (
 			
 				'plan_options',
-				__( 'Plan options', 'live-template-editor-client' ), 
+				__( 'Plan & pricing', 'live-template-editor-client' ), 
 				array('subscription-plan'),
 				'advanced'
 			);
@@ -121,6 +121,8 @@ class LTPLE_Client_Plan {
 		add_action('ltple_plan_delivered', array( $this, 'schedule_plan_emails' ),10,2);
 	
 		add_action('admin_init', array( $this, 'handle_bulk_actions' ));
+	
+		add_filter('ltple_plan_table_services', array( $this, 'add_plan_table_services' ),0,2);
 	}
 
 	public function init_plan(){
@@ -145,7 +147,7 @@ class LTPLE_Client_Plan {
 			
 			add_filter('subscription-plan_custom_fields', array( $this, 'get_subscription_plan_fields' ));	
 							
-			add_filter('manage_subscription-plan_posts_columns', array( $this, 'set_subscription_plan_columns'));
+			add_filter('manage_subscription-plan_posts_columns', array( $this, 'set_subscription_plan_columns'),99999999);
 			add_action('manage_subscription-plan_posts_custom_column', array( $this, 'add_subscription_plan_column_content'), 10, 2);
 			add_filter('nav_menu_css_class', array( $this, 'change_subscription_plan_menu_classes'), 10,2 );		
 		}
@@ -291,8 +293,9 @@ class LTPLE_Client_Plan {
 		
 		$columns['cb'] 			= '<input type="checkbox" />';
 		$columns['title'] 		= 'Title';
+		$columns['price'] 		= 'Price';
 		$columns['shortcode'] 	= 'Shortcode';
-		$columns['date'] 		= 'Date';
+		//$columns['date'] 		= 'Date';
 		$columns['thumb'] 		= 'Cover';
 		
 		return $columns;		
@@ -311,8 +314,17 @@ class LTPLE_Client_Plan {
 	}
 	
 	public function add_subscription_plan_column_content($column_name, $post_id){
-
-		if($column_name === 'shortcode') {
+		
+		if($column_name === 'price') {
+			
+			$plan = $this->get_plan_info($post_id);
+			
+			if( !empty($plan['price_tag']) ){
+				
+				echo $plan['price_tag'];
+			}
+		}	
+		elseif($column_name === 'shortcode') {
 			
 			echo '<input style="width:200px;" type="text" name="shortcode" value="[subscription-plan id=\'' . $post_id . '\']" ' . disabled( true, true, false ) . ' />';
 		}	
@@ -475,9 +487,9 @@ class LTPLE_Client_Plan {
 		
 		);
 		
-		// get sections
+		// get resources
 		
-		$services = array();
+		$resources = array();
 		
 		if( !empty($plan['info']['total_storage']) ){
 			
@@ -584,7 +596,7 @@ class LTPLE_Client_Plan {
 										
 									$row .='</b>';
 
-									$row.='<i class="fas fa-eye pull-right hidden-xs"></i>'.PHP_EOL;
+									$row.='<i class="fas fa-eye pull-right hidden-xs" style="color:#b5b5b5;"></i>'.PHP_EOL;
 
 									$row.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 										
@@ -677,7 +689,7 @@ class LTPLE_Client_Plan {
 				
 				if( !empty($section) && !empty($row) ){
 				
-					$services['resources'][$section][] = $row;
+					$resources['resources'][$section][] = $row;
 				}
 			}
 		}
@@ -686,11 +698,18 @@ class LTPLE_Client_Plan {
 		
 		$table = '<div id="plan_table">'.PHP_EOL;
 			
+			if( $services = apply_filters('ltple_plan_table_services','',$plan) ){
+				
+				$table .= '<h2><i class="fas fa-server"></i> Cloud Services</h2>';
+
+				$table .= $services;
+			}
+			
 			$table .= '<div id="plan_storage" style="display:block;">';				
 				
-				foreach( $services as $service => $sections ){
+				foreach( $resources as $resource => $sections ){
 					
-					$table .= '<h2>' . $headers[$service] . '</h2>';
+					$table .= '<h2>' . $headers[$resource] . '</h2>';
 				
 					foreach( $sections as $section => $rows ){
 						
@@ -719,7 +738,7 @@ class LTPLE_Client_Plan {
 
 			$table .= '</div>';
 			
-			if( $extra = apply_filters('ltple_plan_table','',$plan) ){
+			if( $extra = apply_filters('ltple_plan_table_extra','',$plan) ){
 				
 				$table .= '<h2><i class="far fa-gem"></i> Extra Features</h2>';
 
@@ -728,6 +747,70 @@ class LTPLE_Client_Plan {
 
 		$table .= '</div>'.PHP_EOL;
 
+		return $table;
+	}
+
+	public function add_plan_table_services($table,$plan){
+		
+		if( $this->parent->settings->is_enabled('bandwidth') ){
+			
+			$total_bandwidth 	= isset( $plan['info']['total_bandwidth'] ) ? $plan['info']['total_bandwidth'] : 0;
+
+			if( $total_bandwidth > 0 ){
+				
+				$md5 = md5(rand());
+				
+				$table .='<a data-toggle="collapse" data-target="#section_'.$md5.'" class="plan_section">Hosting <i class="fas fa-angle-down pull-right" style="font-size:25px;"></i></a>';
+				
+				$table .= '<div id="section_'.$md5.'" class="panel-collapse collapse">';
+					
+					$table .= '<table id="plan_licenses" class="able-striped">';
+
+						if( $total_bandwidth > 0 ){
+							
+							$table .= '<tr>';
+						
+								$table .= '<th style="width:80%;">';	
+									
+									$table .= 'Media Library';
+									
+								$table .= '</th>';
+
+								$table .= '<th style="width:20%;text-align:center;">';							
+						
+									$table .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Bandwidth" data-content="Monthy bandwidth usage limit" data-original-title="" title="">Bandwidth <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
+									
+								$table .= '</th>';	
+							
+							$table .= '</tr>';
+							
+							$table .= '<tr>';
+						
+								$table .= '<td>';	
+									
+									$table .= '<b>';
+									
+										$table .= 'Images';
+									
+									$table .= '</b>';
+									
+								$table .= '</td>';
+
+								$table .= '<td style="text-align:center;background:#efefef;">';							
+						
+									$table .= '<span class="badge">'.$total_bandwidth.' GB</span>';
+									
+								$table .= '</td>';	
+							
+							$table .= '</tr>';
+						}
+						
+					$table .= '</table>';
+					
+				$table .= '</div>';
+			}
+		}
+		
 		return $table;
 	}
 	
@@ -794,74 +877,67 @@ class LTPLE_Client_Plan {
 				
 				//get subscription plan
 
-				$this->shortcode = '';
+				$shortcode = '';
 				
 				if( $message = $this->parent->session->get_user_data('message') ){ 
 				
 					//output message
 				
-					$this->shortcode .= $message;
-					
+					$shortcode .= $message;
 				}						
 				elseif( !empty($this->message) ){ 
 				
 					//output message
 				
-					$this->shortcode .= $this->message;
+					$shortcode .= $this->message;
 				}	
 				
 				if( !is_null($atts['widget']) && $atts['widget']==='true' ){
 					
-					$this->shortcode .= '<div class="modal-body" style="padding:0px;">'.PHP_EOL;
+					$shortcode .= '<div class="modal-body" style="padding:0px;">'.PHP_EOL;
 					
-						$this->shortcode .= '<iframe sandbox="allow-scripts allow-top-navigation allow-forms allow-same-origin" src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
+						$shortcode .= '<iframe sandbox="allow-scripts allow-top-navigation allow-forms allow-same-origin" src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
 				
-					$this->shortcode .= '</div>';
+					$shortcode .= '</div>';
 				}
 				else{		
 
-					$this->shortcode .='<div id="plan_form">';
+					$shortcode .='<div id="plan_form">';
 						
 						// Output iframe
 						
 						if( $atts['attributes'] === true ){
 							
-							$this->shortcode .= $this->get_plan_table($plan);
+							$shortcode .= $this->get_plan_table($plan);
 						
-							$this->shortcode .='<hr style="display:block;"></hr>';
+							$shortcode .='<hr style="display:block;"></hr>';
 						}
 						
-						$this->shortcode .= '<div id="plan_price">';				
+						$shortcode .= '<div id="plan_price">';				
 							
-							$this->shortcode .= $plan['price_tag'];
+							$shortcode .= $plan['price_tag'];
 							
-						$this->shortcode .= '</div>';
+						$shortcode .= '</div>';
 						
-						$this->shortcode .= '</br>';
+						$shortcode .= '</br>';
 						
-						do_action('ltple_plan_shortcode_value',$plan);
-						
-						$this->shortcode .= '<div id="plan_button" ' . ( !empty($plan_content) ? 'style="padding-bottom:40px;"' : '' ) . '>';				
+						$shortcode .= '<div id="plan_button" ' . ( !empty($plan_content) ? 'style="padding-bottom:40px;"' : '' ) . '>';				
 							
-							$this->shortcode .='<span class="payment-errors"></span>'.PHP_EOL;
+							$shortcode .='<span class="payment-errors"></span>'.PHP_EOL;
 
 							if( $action == 'unlocked' ){
 								
-								$this->shortcode .='<a class="btn btn-info btn-lg" href="' . $this->parent->urls->current . '">'.PHP_EOL;
+								$shortcode .='<a class="btn btn-info btn-lg" href="' . $this->parent->urls->current . '">'.PHP_EOL;
 							
-									$this->shortcode .='Unlocked'.PHP_EOL;
+									$shortcode .='Unlocked'.PHP_EOL;
 							
-								$this->shortcode .='</a>'.PHP_EOL;
+								$shortcode .='</a>'.PHP_EOL;
 							}
 							elseif( empty($this->parent->user->ID) || $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
-								// get addon buttons
-								
-								do_action( 'ltple_plan_shortcode', $plan_id );
-								
 								if(!empty($this->buttons[$plan_id])){
 									
-									$this->shortcode .= reset($this->buttons[$plan_id]).PHP_EOL;
+									$shortcode .= reset($this->buttons[$plan_id]).PHP_EOL;
 								}
 								else{
 								
@@ -869,107 +945,107 @@ class LTPLE_Client_Plan {
 									
 									if( $action == 'renew' ){
 										
-										$this->shortcode .='<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+										$shortcode .='<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 										
-											$this->shortcode .= ucfirst($action).PHP_EOL;
+											$shortcode .= ucfirst($action).PHP_EOL;
 
-										$this->shortcode .='</button>'.PHP_EOL;									
+										$shortcode .='</button>'.PHP_EOL;									
 									}
 									else{
 										
-										$this->shortcode .='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+										$shortcode .='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 											
 											if(!empty($atts['button'])){
 												
-												$this->shortcode .= ucfirst($atts['button']).PHP_EOL;
+												$shortcode .= ucfirst($atts['button']).PHP_EOL;
 											}
 											elseif($total_price_amount == 0 && $total_fee_amount == 0 ){
 												
-												$this->shortcode .='Start'.PHP_EOL;
+												$shortcode .='Start'.PHP_EOL;
 											}
 											elseif($total_price_amount == 0 && $total_fee_amount > 0 ){
 												
-												$this->shortcode .='Order'.PHP_EOL;
+												$shortcode .='Order'.PHP_EOL;
 											}
 											elseif( $action == 'upgrade' ){
 												
-												$this->shortcode .='Upgrade'.PHP_EOL;
+												$shortcode .='Upgrade'.PHP_EOL;
 											}
 											else{
 												
-												$this->shortcode .='Subscribe'.PHP_EOL;
+												$shortcode .='Subscribe'.PHP_EOL;
 											}
 
-										$this->shortcode .='</button>'.PHP_EOL;									
+										$shortcode .='</button>'.PHP_EOL;									
 									}
 
-									$this->shortcode .='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+									$shortcode .='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 										
-										$this->shortcode .='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
+										$shortcode .='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
 											
-											$this->shortcode .='<div class="modal-content">'.PHP_EOL;
+											$shortcode .='<div class="modal-content">'.PHP_EOL;
 											
-												$this->shortcode .='<div class="modal-header">'.PHP_EOL;
+												$shortcode .='<div class="modal-header">'.PHP_EOL;
 													
-													$this->shortcode .='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+													$shortcode .='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 													
-													$this->shortcode .= '<h4 class="modal-title" id="myModalLabel">';
+													$shortcode .= '<h4 class="modal-title" id="myModalLabel">';
 													
-														$this->shortcode .= $plan['title'];
+														$shortcode .= $plan['title'];
 														
 														if( $total_price_amount > 0 && $action != 'upgrade' ){
 														
-															$this->shortcode .= ' (' . $total_price_amount . $total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
+															$shortcode .= ' (' . $total_price_amount . $total_price_currency.' / '.$total_price_period.')'.PHP_EOL;
 														}
 													
-													$this->shortcode .= '</h4>'.PHP_EOL;
+													$shortcode .= '</h4>'.PHP_EOL;
 												
-												$this->shortcode .='</div>'.PHP_EOL;
+												$shortcode .='</div>'.PHP_EOL;
 
 												if( $this->parent->user->loggedin ){
 													
-													$this->shortcode .= '<iframe sandbox="allow-scripts allow-top-navigation allow-forms allow-same-origin" data-src="' . get_permalink( $plan_id ) . '?output=widget'.'" style="width: 100%;position:relative;top:0px;margin-bottom:-20px;bottom: 0;border:0;height:'.$this->iframe_height . 'px;overflow: hidden;"></iframe>';
+													$shortcode .= '<iframe sandbox="allow-scripts allow-top-navigation allow-forms allow-same-origin" data-src="' . get_permalink( $plan_id ) . '?output=widget'.'" style="width: 100%;position:relative;top:0px;margin-bottom:-20px;bottom: 0;border:0;height:'.$this->iframe_height . 'px;overflow: hidden;"></iframe>';
 												}
 												else{
 													
-													$this->shortcode .='<div class="modal-body">'.PHP_EOL;
+													$shortcode .='<div class="modal-body">'.PHP_EOL;
 													
-														$this->shortcode .= '<div style="font-size:20px;padding:20px;margin:0px;" class="alert alert-warning">';
+														$shortcode .= '<div style="font-size:20px;padding:20px;margin:0px;" class="alert alert-warning">';
 															
-															$this->shortcode .= 'You need to log in first...';
+															$shortcode .= 'You need to log in first...';
 															
-															$this->shortcode .= '<div class="pull-right">';
+															$shortcode .= '<div class="pull-right">';
 
-																$this->shortcode .= '<a style="margin:0 2px;" class="btn-lg btn-success" href="' . wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) . '">Login</a>';
+																$shortcode .= '<a style="margin:0 2px;" class="btn-lg btn-success" href="' . wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) . '">Login</a>';
 																
-																$this->shortcode .= '<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'&action=register">Register</a>';
+																$shortcode .= '<a style="margin:0 2px;" class="btn-lg btn-info" href="'. wp_login_url( 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'&action=register">Register</a>';
 															
-															$this->shortcode .= '</div>';
+															$shortcode .= '</div>';
 															
-														$this->shortcode .= '</div>';
+														$shortcode .= '</div>';
 													
-													$this->shortcode .='</div>'.PHP_EOL;
+													$shortcode .='</div>'.PHP_EOL;
 												}
 
-											$this->shortcode .='</div>'.PHP_EOL;
+											$shortcode .='</div>'.PHP_EOL;
 											
-										$this->shortcode .='</div>'.PHP_EOL;
+										$shortcode .='</div>'.PHP_EOL;
 										
-									$this->shortcode .='</div>'.PHP_EOL;
+									$shortcode .='</div>'.PHP_EOL;
 								}
 							}
 							else{
 								
-								$this->shortcode .='via manager account'.PHP_EOL;
+								$shortcode .='via manager account'.PHP_EOL;
 							}
 							
-						$this->shortcode .='</div>'.PHP_EOL;
-					$this->shortcode .='</div>'.PHP_EOL;	
+						$shortcode .='</div>'.PHP_EOL;
+					$shortcode .='</div>'.PHP_EOL;	
 				}
 			}
 		}		
 		
-		return $this->shortcode;
+		return $shortcode;
 	}
 	
 	public function get_layer_taxonomies_options(){
@@ -1011,7 +1087,28 @@ class LTPLE_Client_Plan {
 	}
 	
 	public function get_subscription_plan_fields($fields){
+		
+		global $post;
+		
+		if( !empty($post->ID) ){
+			
+			$plan = $this->get_plan_info($post->ID);
+			
+			if( !empty($plan['price_tag']) ){
+				
+				$fields[] = array(
 
+					'metabox' =>
+						array('name'	=> 'plan_options'),
+						'type'			=> 'html',
+						'id'			=> 'plan_total',
+						'label'			=> '',
+						'data'			=> '<div style="font-size:23px;text-align:right;padding:0 10px;margin-bottom:-30px;">' . $plan['price_tag'] . '</div>',
+						'description'	=> ''
+				);
+			}
+		}
+		
 		$fields[] = array(
 
 			'metabox' =>
@@ -1048,7 +1145,6 @@ class LTPLE_Client_Plan {
 		return $total_price_amount;
 	}
 	
-	
 	public function sum_total_storage( &$total_storage=[], $options){
 		
 		if( !empty($options['storage']) ){
@@ -1071,6 +1167,16 @@ class LTPLE_Client_Plan {
 		}
 		
 		return $total_storage;
+	}
+
+	public function sum_total_bandwidth( &$total_bandwidth=[], $options){
+		
+		if( isset($options['bandwidth_amount']) ){
+			
+			$total_bandwidth = $total_bandwidth + $options['bandwidth_amount'];
+		}
+		
+		return $total_bandwidth;
 	}
 	
 	public function is_parent_in_plan($user_plan_id, $taxonomy, $parent_id){
@@ -1120,7 +1226,90 @@ class LTPLE_Client_Plan {
 				}
 			}			
 
+			$user_plan = $this->get_user_plan_info( $user->ID );
+			
+			$period_end = $this->get_license_period_end( $user->ID );
+			
+			$days = floor($this->get_license_remaining_days( $period_end ));
+
 			echo '<h2>' . __( 'Plan & Pricing', 'live-template-editor-client' ) . '</h2>';
+				
+			echo '<table class="form-table">';
+			
+				echo '<tr>';
+					
+					echo '<th>';
+						
+						echo 'Current Plan';
+							
+					echo '</th>';
+					
+				echo '</tr>';
+				
+				echo '<tr>';
+					
+					echo '<table class="form-table wp-list-table widefat fixed striped table-view-list">';
+					
+						echo '<tr>';
+						
+						// period
+							
+							echo '<td style="width:25%">';
+								
+								echo $days . ' ' . ( ($days == 1 || $days == -1) ? 'day' : 'days' ) ;
+								
+							echo '</td>';
+							
+							// total price
+							
+							echo '<td style="width:25%">';
+								
+								if( $user_plan['info']['total_fee_amount'] > 0 ){
+									
+									echo htmlentities(' ').round($user_plan['info']['total_fee_amount'], 2).$user_plan['info']['total_price_currency'].' '.$user_plan['info']['total_fee_period'];
+									echo '<br>+';
+								}
+				
+								echo round($user_plan['info']['total_price_amount'], 2).$user_plan['info']['total_price_currency'].' / '.$user_plan['info']['total_price_period'];
+
+							echo '</td>';	
+							
+							// total storage
+							
+							echo '<td style="width:25%">';
+								
+								if( !empty($user_plan['info']['total_storage']) ){
+
+									foreach( $user_plan['info']['total_storage'] as $storage_unit => $storage_amount ){
+										
+										if( $storage_amount > 0 ){
+											
+											echo '+'.$storage_amount.' '.$storage_unit . '<br>';
+										}
+										elseif( $storage_amount < 0 ){
+											
+											echo $storage_amount . ' ' . $storage_unit . '<br>';
+										}
+									}							
+								}
+								
+							echo '</td>';								
+							
+							echo '<td style="width:25%">';
+
+								// get addon options total
+							
+								echo apply_filters('ltple_api_layer_plan_option_total','',$user_plan);
+							
+							echo '</td>';
+						
+						echo '</tr>';
+						
+					echo '</table>';
+
+				echo '</tr>';
+			
+			echo '</table>';
 			
 			echo $this->parent->admin->display_field( array(
 			
@@ -1129,7 +1318,7 @@ class LTPLE_Client_Plan {
 				'options'		=> $taxonomies,
 				'data'			=> $user_plan_options,
 				'description'	=> ''
-			));	
+			));
 		}	
 	}
 	
@@ -1137,12 +1326,13 @@ class LTPLE_Client_Plan {
 		
 		$taxonomies=[];
 		$taxonomies[] = array(
-			'name'		=> 'Layer Ranges',
+			'name'		=> 'Ranges',
 			'taxonomy'	=> 'layer-range',
 			'hierarchical' => true
 		);
+		
 		$taxonomies[] = array(
-			'name'		=> 'Account Options',
+			'name'		=> 'Options',
 			'taxonomy'	=> 'account-option',
 			'hierarchical' => false
 		);
@@ -1873,6 +2063,11 @@ class LTPLE_Client_Plan {
 								$plan['info']['total_price_amount'] = $this->sum_total_price_amount( $plan['info']['total_price_amount'], $term->options, $plan['info']['total_price_period'] );
 								$plan['info']['total_storage'] 		= $this->sum_total_storage( $plan['info']['total_storage'], $term->options);
 								
+								if( $this->parent->settings->is_enabled('bandwidth') ){
+									
+									$plan['info']['total_bandwidth'] = $this->sum_total_bandwidth( $plan['info']['total_bandwidth'], $term->options);
+								}
+								
 								$plan = apply_filters('ltple_subscription_plan_info',$plan,$term->options);								
 
 								// add children terms
@@ -1890,7 +2085,12 @@ class LTPLE_Client_Plan {
 											$child_options = $this->parent->layer->get_options($term->taxonomy,$child);
 									
 											$plan['info']['total_storage'] = $this->sum_total_storage( $plan['info']['total_storage'], $child_options);
-										
+											
+											if( $this->parent->settings->is_enabled('bandwidth') ){
+												
+												$plan['info']['total_bandwidth'] = $this->sum_total_bandwidth( $plan['info']['total_bandwidth'], $child_options);
+											}
+											
 											$plan = apply_filters('ltple_subscription_plan_info',$plan,$child_options);
 										}
 									}
@@ -2715,7 +2915,7 @@ class LTPLE_Client_Plan {
 
 			$price_fields.='<span class="input-group-addon" style="color: #fff;padding: 5px 10px;background: #9E9E9E;">$</span>';
 			
-			$price_fields.='<input type="number" step="0.1" min="-10000" max="10000" placeholder="0" name="'.$taxonomy_name.'-price-amount" id="'.$taxonomy_name.'-price-amount" style="width: 60px;" value="'.$price_amount.'"/>';
+			$price_fields.='<input type="number" step="0.1" min="-10000" max="10000" placeholder="0" name="'.$taxonomy_name.'-price-amount" id="'.$taxonomy_name.'-price-amount" style="width:80px;" value="'.$price_amount.'"/>';
 			
 			$price_fields.='<span> / </span>';
 			

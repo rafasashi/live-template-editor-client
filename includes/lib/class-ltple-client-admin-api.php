@@ -743,12 +743,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'checkbox_multi_plan_options':
 					
-					$total_price_amount 	= 0;
-					$total_fee_amount 		= 0;
-					$total_price_period		='month';
-					$total_fee_period		='once';
-					$total_price_currency	='$';
-					
 					$plan_options = (array) $data;
 													
 					$html .= '<table class="form-table">';
@@ -757,11 +751,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							$html .= '<tr>';
 							
-								$html .= '<td style="width:100%;font-weight:bold;">';
+								$html .= '<th style="padding:0;">';
 									
-									$html .= '<div for="' . $taxonomy . '">'.$taxonomy.'</div> ';
+									$html .= $taxonomy;
 										
-								$html .= '</td>';
+								$html .= '</th>';
 
 							$html .= '</tr>';
 							
@@ -769,13 +763,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		
 								// attribute column
 								
-								$html .= '<td style="width:100%;">';
+								$html .= '<td style="padding-left:0;">';
 									
-									$html .= '<table style="width:100%;">';
+									$html .= '<table class="wp-list-table widefat fixed striped table-view-list">';
 										
 										foreach( $terms as $term ){
 											
-											$html .= '<tr style="border-bottom: 1px solid #eee;">';
+											$html .= '<tr>';
 
 												$checked = false;
 												
@@ -784,7 +778,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 													$checked = true;
 												}
 												
-												$html .= '<td>';
+												$html .= '<td style="width:25%;">';
 												
 													$html .= '<span style="display:block;padding:1px 0;margin:0;">';
 														
@@ -793,18 +787,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 													$html .= '</span>';
 													
 												$html .= '</td>';
-												
+
 												// storage column
 												
-												$html .= '<td>';
-														
-													if ( in_array( $term->slug, $plan_options ) ) {
-														
-														$total_fee_amount 	= $this->parent->plan->sum_total_price_amount( $total_fee_amount, $term->options, $total_fee_period);
-														$total_price_amount = $this->parent->plan->sum_total_price_amount( $total_price_amount, $term->options, $total_price_period);
-														$total_storage 		= $this->parent->plan->sum_total_storage( $total_storage, $term->options);														
-													}
-													
+												$html .= '<td style="width:25%;">';
+
 													if( !empty($term->options['storage']) ){
 														
 														foreach( $term->options['storage'] as $storage_unit => $storage_amount ){
@@ -822,28 +809,40 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 													
 												$html .= '</td>';
 												
+												$html .= '<td style="width:25%;">';
+												
+													if( $term->taxonomy == 'account-option' ){
+														
+														if( !empty($term->options['bandwidth_amount']) ){
+														
+															if( $term->options['bandwidth_amount'] < 1000 ){
+																
+																$html .= '+'.$term->options['bandwidth_amount'].' GB' .'<br>';
+															}
+															elseif( $term->options['bandwidth_amount'] >= 1000 ){
+																
+																$html .= '+' . ( $term->options['bandwidth_amount'] / 1000 ) .' TB' .'<br>';
+															}
+														}
+														
+														// get addon options
+														
+														$html .= apply_filters('ltple_api_layer_plan_option','',$term);
+													}
+													
+												$html .= '</td>';
+
 												// price column
 												
-												$html .= '<td>';
+												$html .= '<td style="width:25%;text-align:right;">';
 
-													$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
+													$html .= '<span>';
 													
 														$html .= $term->options['price_amount'].$term->options['price_currency'].' / '.$term->options['price_period'];							
 												
 													$html .= '</span>';
 													
 												$html .= '</td>';
-	
-												if( $term->taxonomy == 'account-option' ){
-													
-													// get addon options
-													
-													$this->html = '';
-												
-													do_action('ltple_api_layer_plan_option',$term);
-												
-													$html .= $this->html;
-												}
 												
 											$html .= '</tr>';
 										}
@@ -854,78 +853,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 							$html .= '</tr>';
 						}
-
-						$html .= '<tr>';
-							
-							$html .= '<td>';
-								
-								$html .= '<span style="font-weight:bold;" for="totals">TOTALS</span> ';
-									
-							$html .= '</td>';
-							
-						$html .= '</tr>';
 						
-						$html .= '<tr>';
-							
-							$html .= '<table class="form-table" style="width:100%;margin:10px;">';
-							
-								$html .= '<tr>';
-							
-									$html .= '<td></td>';
-									
-									// total storage
-									
-									$html .= '<td>';
-										
-										if(!empty($total_storage)){
-	
-											foreach( $total_storage as $storage_unit => $storage_amount ){
-												
-												if( $storage_amount > 0 ){
-													
-													$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">+'.$storage_amount.' '.$storage_unit . '</span>';
-												}
-												elseif( $storage_amount < 0 ){
-													
-													$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">'.$storage_amount.' '.$storage_unit . '</span>';
-												}
-											}							
-										}
-										
-									$html .= '</td>';								
-									
-									// total price
-									
-									$html .= '<td>';
-										
-										$html .= '<span style="display:block;padding:1px 0 3px 0;margin:0;">';
-											
-											if( $total_fee_amount > 0 ){
-												
-												$html .= htmlentities(' ').round($total_fee_amount, 2).$total_price_currency.' '.$total_fee_period;
-												$html .= '<br>+';
-											}
-							
-											$html .= round($total_price_amount, 2).$total_price_currency.' / '.$total_price_period;
-
-										$html .= '</span>';	
-										
-									$html .= '</td>';	
-
-									// get addon options total
-									
-									$this->html = '';
-									
-									do_action('ltple_api_layer_plan_option_total',$field['options'], $plan_options);
-									
-									$html .= $this->html;
-
-								$html .= '</tr>';
-								
-							$html .= '</table>';
-						
-						$html .= '</tr>'; 
-					
 					$html .= '</table>';
 					
 				break;
