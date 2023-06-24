@@ -14,7 +14,7 @@ if( !$ltple->inWidget ){
 	
 		include('navbar.php');
 		
-		echo '<div style="min-height:calc( 100vh - 145px );overflow:hidden;">';
+		echo '<div style="min-height:calc( 100vh - 125px );overflow:hidden;">';
 		
 			echo'<iframe data-src="' . $url . '" style="width:100%;border:0;height:calc(100vh - 153px);overflow:hidden;"></iframe>';
 		

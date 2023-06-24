@@ -68,19 +68,6 @@ class LTPLE_Client_Settings {
 		
 		add_filter('plugin_action_links_' . plugin_basename( $this->parent->file ) , array( $this, 'add_settings_link' ) );
 		
-		//Add Custom API Endpoints
-		
-		add_action('rest_api_init', function() {
-			
-			register_rest_route( 'ltple-email/v1', '/info', array(
-				
-				'methods' 	=> 'GET',
-				'callback' 	=> array($this,'get_email_info'),
-				'permission_callback' => '__return_true',
-			));			
-			
-		});
-		
 		add_filter('ltple_general_settings', array( $this, 'register_general_settings' ),10,1 );
 
 		add_action( 'admin_init' , array( $this, 'register_settings' ) );
@@ -141,38 +128,6 @@ class LTPLE_Client_Settings {
 		
 		return $this->options->social_icon;
 	}
-	
-	public function get_email_info( $rest = NULL ) {
-		
-		$email_info 	= array();
-		
-		$email_info['name']                 = get_bloginfo("name");
-		$email_info['description']          = get_bloginfo("description");
-		$email_info['url']                  = $this->parent->urls->account . '?tab=billing-info';
-		$email_info['email_sender']         = get_bloginfo("admin_email");
-		$email_info['charset']              = get_bloginfo("charset");
-		$email_info['version']              = get_bloginfo("version");
-		$email_info['language']             = get_bloginfo("language");
-		//$email_info['html_type']            = get_bloginfo("html_type");
-		//$email_info['text_direction']       = get_bloginfo("text_direction");
-		//$email_info['stylesheet_url']       = get_bloginfo("stylesheet_url");
-		//$email_info['stylesheet_directory'] = get_bloginfo("stylesheet_directory");
-		//$email_info['template_url']         = get_bloginfo("template_url");
-		//$email_info['template_directory']   = get_bloginfo("template_url");
-		//$email_info['pingback_url']         = get_bloginfo("pingback_url");
-		//$email_info['atom_url']             = get_bloginfo("atom_url");
-		//$email_info['rdf_url']              = get_bloginfo("rdf_url");
-		//$email_info['rss_url']              = get_bloginfo("rss_url");
-		//$email_info['rss2_url']             = get_bloginfo("rss2_url");
-		//$email_info['comments_atom_url']    = get_bloginfo("comments_atom_url");
-		//$email_info['comments_rss2_url']    = get_bloginfo("comments_rss2_url");
-		//$email_info['wpurl']                = get_bloginfo("wpurl");
-		//$email_info['siteurl']              = home_url();
-		//$email_info['home']                 = home_url();
-		
-		return $email_info;
-	}
-
 
 	/**
 	 * Register plugin settings

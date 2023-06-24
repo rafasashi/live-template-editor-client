@@ -228,18 +228,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'rewrite' 				=> true,
 			'sort' 					=> '',
 		));
-		
-		add_action('post_submitbox_misc_actions',function($post){
-			
-			$layer = LTPLE_Editor::instance()->get_layer($post);
-			
-			if( $layer->is_editable === true ){
-				
-				do_action('ltple_post_submitbox_misc_actions',$post);
-			}
-			
-		},10,1);
-		
+
 		add_action( 'add_meta_boxes', function(){
 			
 			$post = get_post();
