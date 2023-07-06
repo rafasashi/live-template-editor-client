@@ -199,20 +199,21 @@ class LTPLE_Client_Dashboard {
 			$api_url = add_query_arg(array(
 			
 				'_' 	=> time(),
-				'du'	=> $_SERVER['HTTP_HOST'],
+				//'du'	=> $_SERVER['HTTP_HOST'],
 				'user' 	=> $this->parent->ltple_encrypt_uri($user->user_email),
 			
 			),$this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/metrics/' . ( user_can($user,'administrator') ? 'all' : 'user' ) );
 			
 			$response = wp_remote_get( $api_url, array(
-			
-				'headers' => array(
+				
+				'timeout'   => 30,
+				'headers' 	=> array(
 					
-					'X-Forwarded-Server' => $_SERVER['HTTP_HOST'], // TODO not always forwarded
+					'X-Forwarded-Server' => $_SERVER['HTTP_HOST'],
 				)
 			));
 			
-			if (!is_wp_error($response)){
+			if( !$error = is_wp_error($response) ){
 				
 				$metrics = json_decode(wp_remote_retrieve_body($response),true);
 				
@@ -234,7 +235,19 @@ class LTPLE_Client_Dashboard {
 						}
 					}
 				}
+				else{
+					
+					$metrics['message'] = 'Empty response';
+				}
 			}
+			else{
+				
+				$metrics = rest_convert_error_to_response($response);
+			}
+		}
+		else{
+			
+			$metrics['message'] = 'User not found';
 		}
 		
 		return $metrics;
