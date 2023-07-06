@@ -199,6 +199,7 @@ class LTPLE_Client_Dashboard {
 			$api_url = add_query_arg(array(
 			
 				'_' 	=> time(),
+				'du'	=> $_SERVER['HTTP_HOST'],
 				'user' 	=> $this->parent->ltple_encrypt_uri($user->user_email),
 			
 			),$this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/metrics/' . ( user_can($user,'administrator') ? 'all' : 'user' ) );
@@ -207,7 +208,7 @@ class LTPLE_Client_Dashboard {
 			
 				'headers' => array(
 					
-					'X-Forwarded-Server' => $_SERVER['HTTP_HOST']
+					'X-Forwarded-Server' => $_SERVER['HTTP_HOST'], // TODO not always forwarded
 				)
 			));
 			
