@@ -1530,8 +1530,9 @@ class LTPLE_Client_Plan {
 			}
 			
 			$response = wp_remote_get( $api_url, array(
-			
-				'headers' => array(
+				
+				'timeout'   => 10,
+				'headers' 	=> array(
 					
 					'X-Forwarded-Server' => $_SERVER['HTTP_HOST']
 				)
@@ -1625,12 +1626,13 @@ class LTPLE_Client_Plan {
 			}
 			
 			$response = wp_remote_get( $api_url, array(
-			
+				
+				'timeout'   => 10,
 				'headers' => array(
 					
 					'X-Forwarded-Server' => $_SERVER['HTTP_HOST']
 				)
-			) );
+			));
 			
 			if( is_array($response) && !empty($response['body']) ){
 				

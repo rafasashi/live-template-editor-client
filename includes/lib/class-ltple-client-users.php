@@ -298,12 +298,14 @@
 			$this->view = !empty($_REQUEST['ltple_view']) ? sanitize_title($_REQUEST['ltple_view']) : 'users';
 			
 			if( !empty($this->view) && $this->view != 'newsletter' ){
-			
+				
 				remove_all_actions('restrict_manage_users');
 				
 				if( method_exists($this, 'add_' . $this->view . '_updater') ){
 				
 					add_filter('ltple_'.$this->view.'_updater', array( $this, 'add_'.$this->view.'_updater') );
+			
+					add_filter('admin_footer-users.php', array($this, 'add_table_view_script'));
 			
 					add_action('admin_footer-users.php', array( $this, 'add_select_all_script') );
 				
@@ -323,8 +325,6 @@
 				do_action( 'ltple_restrict_manage_users', 1 === ++$instance ? 'top' : 'bottom'  );
 			
 			},9999);
-			
-			add_filter('admin_footer-users.php', array($this, 'add_table_view_script'));
 			
 			add_filter('get_avatar', array($this,'get_user_avatar'),9999,5);			
 		
