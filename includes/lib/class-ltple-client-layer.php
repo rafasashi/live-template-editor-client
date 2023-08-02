@@ -296,7 +296,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_action('restrict_manage_posts', array($this, 'add_manage_layer_filters'),10,2 );
 		
-		add_action( 'current_screen', function ( $screen ) {
+		add_action('current_screen', function ( $screen ) {
 			
 			if( $screen->id == 'edit-cb-default-layer' ){
 				

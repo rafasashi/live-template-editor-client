@@ -26,7 +26,7 @@ echo'<div id="media_library" class="wrapper">';
 			
 			$boxes = $this->get_all_boxes();
 			
-			echo'<div id="dashboard" class="tab-content gutter-20" style="padding:10px 5px;display:inline-block;">';
+			echo'<div id="dashboard" class="tab-content gutter-20" style="padding:10px 5px;display:inline-block;width:100%;">';
 				
 				foreach( $boxes as $box ){
 					
