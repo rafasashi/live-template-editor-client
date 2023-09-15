@@ -392,6 +392,11 @@ class LTPLE_Client_Plan {
 			$plan_data['upgrade'] = $plan['upgrade'];
 		}
 		
+		if( !empty($plan['endpoint_url']) ){
+			
+			$plan_data['endpoint'] = $plan['endpoint_url'];
+		}
+		
 		if( !empty($plan['back_url']) ){
 			
 			$plan_data['back'] = $plan['back_url'];
@@ -424,6 +429,7 @@ class LTPLE_Client_Plan {
 			'storage' 	=> array('templates' => 0 ),
 			'subscriber'=> $this->parent->user->user_email,
 			'client'	=> $this->parent->client->url,
+			'endpoint'	=> '',
 			'back'		=> '',
 			'meta' 		=> array(),
 			'upgrade' 	=> array(),
@@ -754,8 +760,8 @@ class LTPLE_Client_Plan {
 		
 		if( $this->parent->settings->is_enabled('bandwidth') ){
 			
-			$total_bandwidth 	= isset( $plan['info']['total_bandwidth'] ) ? $plan['info']['total_bandwidth'] : 0;
-
+			$total_bandwidth = isset( $plan['info']['total_bandwidth'] ) ? $plan['info']['total_bandwidth'] : 0;
+			
 			if( $total_bandwidth > 0 ){
 				
 				$md5 = md5(rand());
@@ -1346,24 +1352,25 @@ class LTPLE_Client_Plan {
 		
 		if( !empty($options) ){
 		
-			$subscription_plans = $this->get_subscription_plans();
-			
-			foreach( $subscription_plans as $plan ){
+			if( $subscription_plans = $this->get_subscription_plans() ){
 				
-				$in_plan = true;
-				
-				foreach( $options as $option ){
+				foreach( $subscription_plans as $plan ){
 					
-					if( !in_array($option,$plan['options']) ){
+					$in_plan = true;
+					
+					foreach( $options as $option ){
 						
-						$in_plan = false;
-						break;
+						if( !in_array($option,$plan['options']) ){
+							
+							$in_plan = false;
+							break;
+						}
 					}
-				}
-				
-				if($in_plan){
-				
-					$plans[] = $plan;
+					
+					if($in_plan){
+					
+						$plans[] = $plan;
+					}
 				}
 			}
 		}
@@ -1432,6 +1439,8 @@ class LTPLE_Client_Plan {
 					$plan['price_tag'] = $this->get_price_tag($plan);
 					
 					$plan['items'] = array($layer_id);
+					
+					$plan['endpoint_url'] = $this->parent->urls->account .'?tab=billing-info';
 					
 					$plan['back_url'] = $this->parent->urls->current;
 					
@@ -2160,6 +2169,8 @@ class LTPLE_Client_Plan {
 				
 				// plan urls
 				
+				$plan['endpoint_url'] 	= $this->parent->urls->account .'?tab=billing-info';
+				
 				$plan['back_url'] 	 	= $this->parent->urls->current;
 				
 				$plan['info_url'] 	 	= get_post_permalink($plan_id);
@@ -2174,7 +2185,9 @@ class LTPLE_Client_Plan {
 	}
 	
 	public function get_subscription_plans(){	
-
+		
+		$plans = array();
+		
 		if( $posts = get_posts( array(
 		
 			'post_type' 	=> 'subscription-plan',
@@ -2184,11 +2197,11 @@ class LTPLE_Client_Plan {
 
 			foreach( $posts as $post ){
 				
-				$subscription_plans[$post->ID] = $this->get_plan_info($post);
+				$plans[$post->ID] = $this->get_plan_info($post);
 			}
 		}
 		
-		return $subscription_plans;
+		return $plans;
 	}
 	
 	public function get_price_tag($plan){
@@ -2449,6 +2462,8 @@ class LTPLE_Client_Plan {
 			
 			$this->user_plans[$user_id]['info']['total_price_amount'] 	= 0;
 			$this->user_plans[$user_id]['info']['total_fee_amount'] 	= 0;
+			$this->user_plans[$user_id]['info']['total_bandwidth'] 		= 0;
+			
 			$this->user_plans[$user_id]['info']['total_price_period'] 	= 'month';
 			$this->user_plans[$user_id]['info']['total_fee_period'] 	= 'once';
 			$this->user_plans[$user_id]['info']['total_price_currency'] = '$';
@@ -2533,6 +2548,11 @@ class LTPLE_Client_Plan {
 							}
 							
 							$this->user_plans[$user_id]['info']['total_storage'] = $this->sum_total_storage( $this->user_plans[$user_id]['info']['total_storage'], $options);
+							
+							if( $this->parent->settings->is_enabled('bandwidth') ){
+								
+								$this->user_plans[$user_id]['info']['total_bandwidth'] = $this->sum_total_bandwidth( $this->user_plans[$user_id]['info']['total_bandwidth'], $options);
+							}
 							
 							if( $taxonomy == 'account-option' ){
 							

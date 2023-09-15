@@ -18,6 +18,8 @@ echo'<div id="media_library" class="wrapper">';
 							
 			echo'<li'.( $currentTab == 'billing-info' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->account . '?tab=billing-info">Billing Info</a></li>';
 			
+			echo'<li'.( $currentTab == 'plan-details' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->account . '?tab=plan-details">Plan Details</a></li>';
+			
 			do_action('ltple_account_settings_sidebar',$currentTab);
 
 			echo'<li><a href="' . wp_lostpassword_url() . '">Reset Password</a></li>';
@@ -96,82 +98,92 @@ echo'<div id="media_library" class="wrapper">';
 				
 				echo'<div class="tab-pane active" id="billing-info">';
 					
-					echo'<ul class="nav nav-pills nav-resizable" role="tablist" style="overflow: visible;">';
-					
-						echo'<li role="presentation" class="active">';
+					if( isset($_GET['checkoutSuccess']) ){
 						
-							echo'<a href="' . $ltple->urls->current . '" role="tab">Current Plan</a></li>';
-						
-						echo'</li>';
+						echo '<div class="alert alert-success">';
 
-					echo'</ul>';
+							echo 'Your plan was successfully upgraded ';
+							
+							echo '<a href="'.$ltple->urls->account . '?tab=plan-details" class="btn btn-sm btn-success" style="padding:5px 10px;margin-left:10px;">';
+								
+								echo 'See More';
+								
+							echo '</a>';
+
+						echo '</div>';
+					}
 					
 					echo '<div class="container">';
 						
-						echo'<form action="' . $ltple->urls->current . '" method="post" class="tab-content" style="margin-top:20px;">';
+						echo'<h2><i class="fas fa-file-invoice"></i> License & Payment</h2>';
 
-							$user_plan = $ltple->plan->get_user_plan_info( $ltple->user->ID );
-		
-							if( $user_plan['holder'] == $ltple->user->ID ){
-						
-								if( empty($ltple->user->period_end) ){
-						
-									echo '<div class="alert alert-warning">There is no active subscription for the moment, please renew your license via the plan page or contact us.</div>';
-								
-									echo '<hr>';
-								}
-								else{
-										
-									$plan_usage = $ltple->plan->get_user_plan_usage( $ltple->user->ID );
-
-									$remaining_days = $ltple->user->remaining_days;
-									
-									if( $remaining_days < 0 ){
-										
-										$ltple->users->remote_update_period($ltple->user->ID);
-									
-										$remaining_days = $ltple->users->get_user_remaining_days($ltple->user->ID);
-									}
-
-									if( $remaining_days < 0 ){
-						
-										echo '<div class="alert alert-warning">Your license could not be renewed, please update your card details or contact us...</div>';
-										
-										echo '<hr>';
-									}
-									
-									echo $ltple->plan->get_plan_table($user_plan,$plan_usage);
-								}
-							}
-							else{
-								
-								$license_holder = get_user_by('id',$user_plan['holder']);
-								
-								echo '<div style="margin-bottom:20px;background: rgb(248, 248, 248);display:block;padding:20px;text-align:left;border-left: 5px solid #888;">';
-									
-									echo'Your license is currently handled by <a style="font-weight:bold;" href="' . $ltple->urls->profile . $license_holder->ID . '/">' . ucfirst($license_holder->nickname) . '</a>';
-									
-								echo '</div>';									
-							}
-						
-							echo'<h2><i class="fas fa-file-invoice"></i> License & Payment</h2>';
-
-							echo '<div class="panel panel-default">';
-						
-								echo '<div class="panel-body">';								
-		
-									echo '<iframe data-src="' . $ltple->server->url . '/agreement/?overview=' . $ltple->ltple_encrypt_uri($ltple->user->user_email) . '&du=' . parse_url($ltple->urls->primary,PHP_URL_HOST) . '&_='.time().'" style="position:relative;top:0;bottom:0;width:100%;height:500px;overflow:hidden;border:0;"></iframe>';
-									
-								echo '</div>';
+						echo '<div class="panel panel-default">';
+					
+							echo '<div class="panel-body">';								
+	
+								echo '<iframe data-src="' . $ltple->server->url . '/agreement/?overview=' . $ltple->ltple_encrypt_uri($ltple->user->user_email) . '&du=' . parse_url($ltple->urls->primary,PHP_URL_HOST) . '&_='.time().'" style="position:relative;top:0;bottom:0;width:100%;height:500px;overflow:hidden;border:0;"></iframe>';
 								
 							echo '</div>';
 							
-
-						echo'</form>';
+						echo '</div>';
 						
 					echo'</div>';	
 					
-				echo'</div>';					
+				echo'</div>';				
+			}
+			elseif( $currentTab == 'plan-details' ){
+				
+				echo'<div class="tab-pane active" id="plan-details">';
+
+					echo '<div class="container">';
+						
+						$user_plan = $ltple->plan->get_user_plan_info( $ltple->user->ID );
+	
+						if( $user_plan['holder'] == $ltple->user->ID ){
+					
+							if( empty($ltple->user->period_end) ){
+					
+								echo '<div class="alert alert-warning">There is no active subscription for the moment, please renew your license via the plan page or contact us.</div>';
+							
+								echo '<hr>';
+							}
+							else{
+									
+								$plan_usage = $ltple->plan->get_user_plan_usage( $ltple->user->ID );
+
+								$remaining_days = $ltple->user->remaining_days;
+								
+								if( $remaining_days < 0 ){
+									
+									$ltple->users->remote_update_period($ltple->user->ID);
+								
+									$remaining_days = $ltple->users->get_user_remaining_days($ltple->user->ID);
+								}
+
+								if( $remaining_days < 0 ){
+					
+									echo '<div class="alert alert-warning">Your license could not be renewed, please update your card details or contact us...</div>';
+									
+									echo '<hr>';
+								}
+								
+								echo $ltple->plan->get_plan_table($user_plan,$plan_usage);
+							}
+						}
+						else{
+							
+							$license_holder = get_user_by('id',$user_plan['holder']);
+							
+							echo '<div style="margin-bottom:20px;background: rgb(248, 248, 248);display:block;padding:20px;text-align:left;border-left: 5px solid #888;">';
+								
+								echo'Your license is currently handled by <a style="font-weight:bold;" href="' . $ltple->urls->profile . $license_holder->ID . '/">' . ucfirst($license_holder->nickname) . '</a>';
+								
+							echo '</div>';									
+						}
+						
+					echo'</div>';	
+					
+				echo'</div>';
 			}
 			else{
 				
