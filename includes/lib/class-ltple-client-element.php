@@ -249,7 +249,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		add_filter('manage_element-library_custom_column', array( $this, 'filter_element_library_column_content' ),10,3);
 	
 		add_filter('manage_default-element_posts_columns', 	array( $this, 'filter_default_element_columns' ),999 );
-		add_filter('manage_default-element_posts_custom_column', array( $this, 'filter_default_element_column_content' ),10,3);
+		add_filter('manage_default-element_posts_custom_column', array( $this, 'filter_default_element_column_content' ),10,2);
 	
 		add_filter('ltple_admin_editor_actions',function($editor_actions){
 			
@@ -402,12 +402,8 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	}
 	
 	public function filter_default_element_columns($columns){
-		
-		// Remove description, posts, wpseo columns
-		
+
 		$columns = [];
-		
-		// Add artist-website, posts columns
 
 		$columns['cb'] 		= '<input type="checkbox" />';
 		$columns['title'] 	= 'Title';

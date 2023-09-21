@@ -373,6 +373,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_filter('ltple_hosted-page_project_tabs', array($this,'get_hosted_layer_tabs'),10,2);
 		add_filter('ltple_canvas_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
 		add_filter('ltple_image_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
+		add_filter('ltple_vector_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
 		
 		add_filter('ltple_project_advance_tabs', array($this,'get_layer_advance_tabs'),10,3);
 		
@@ -1095,7 +1096,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'metabox' => array(
 							
 								'name' 		=> 'layer-json',
-								'title' 	=> __( 'Vector Graphics', 'live-template-editor-client' ), 
+								'title' 	=> __( 'Template JSON', 'live-template-editor-client' ), 
 								'screen'	=> array($layer->post_type),
 								'context' 	=> 'advanced',
 								'add_new'	=> false,
@@ -1224,7 +1225,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function is_vector_output($output){
 		
-		$outputs = apply_filters('ltple_layer_html_output',array(
+		$outputs = apply_filters('ltple_layer_vector_output',array(
 			
 			'vector',
 		));
@@ -6620,7 +6621,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 			else{
 				
-				$layer = apply_filters( 'ltple_' . $output . '_layer', '' );
+				$layer = apply_filters('ltple_' . $output . '_layer','');
 			}
 			
 			do_action( 'ltple_layer_loaded', $layer );

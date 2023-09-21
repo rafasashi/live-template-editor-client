@@ -720,41 +720,47 @@ class LTPLE_Client_Settings {
 			'title'					=> __( 'URLs', 'live-template-editor-client' ),
 			'description'			=> __( '', 'live-template-editor-client' ),
 			'fields'				=> apply_filters('ltple_urls_settings',array(
-
+				array(
+					'id' 			=> 'accountSlug',
+					'label'			=> __( 'Account Settings' , 'live-template-editor-client' ),
+					'description'	=> '[ltple-client-account]',
+					'type'			=> 'slug',
+					'placeholder'	=> __( 'account', 'live-template-editor-client' )
+				),
+				array(
+					'id' 			=> 'profileSlug',
+					'label'			=> __( 'Profile Settings' , 'live-template-editor-client' ),
+					'description'	=> '[ltple-client-profile]',
+					'type'			=> 'slug',
+					'placeholder'	=> __( 'profile', 'live-template-editor-client' )
+				),
+				array(
+					'id' 			=> 'loginSlug',
+					'label'			=> __( 'Login Page' , 'live-template-editor-client' ),
+					'description'	=> '[ltple-client-login]',
+					'type'			=> 'slug',
+					'placeholder'	=> __( 'login', 'live-template-editor-client' )
+				),
 				array(
 					'id' 			=> 'editorSlug',
-					'label'			=> __( 'Editor' , 'live-template-editor-client' ),
+					'label'			=> __( 'Template Gallery' , 'live-template-editor-client' ),
 					'description'	=> '[ltple-client-editor]',
 					'type'			=> 'slug',
 					'placeholder'	=> __( 'editor', 'live-template-editor-client' )
 				),
 				array(
 					'id' 			=> 'mediaSlug',
-					'label'			=> __( 'Media' , 'live-template-editor-client' ),
+					'label'			=> __( 'Media Library' , 'live-template-editor-client' ),
 					'description'	=> '[ltple-client-media]',
 					'type'			=> 'slug',
 					'placeholder'	=> __( 'media', 'live-template-editor-client' )
 				),
 				array(
-					'id' 			=> 'accountSlug',
-					'label'			=> __( 'Account' , 'live-template-editor-client' ),
-					'description'	=> '[ltple-client-account]',
-					'type'			=> 'slug',
-					'placeholder'	=> __( 'account', 'live-template-editor-client' )
-				),
-				array(
 					'id' 			=> 'appsSlug',
-					'label'			=> __( 'Apps' , 'live-template-editor-client' ),
+					'label'			=> __( 'Connected Apps' , 'live-template-editor-client' ),
 					'description'	=> '[ltple-client-apps]',
 					'type'			=> 'slug',
 					'placeholder'	=> __( 'apps', 'live-template-editor-client' )
-				),
-				array(
-					'id' 			=> 'loginSlug',
-					'label'			=> __( 'Login' , 'live-template-editor-client' ),
-					'description'	=> '[ltple-client-login]',
-					'type'			=> 'slug',
-					'placeholder'	=> __( 'login', 'live-template-editor-client' )
 				),
 				array(
 					'id' 			=> 'plansSlug',

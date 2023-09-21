@@ -1675,7 +1675,7 @@ class LTPLE_Client_Plan {
 		
 		// get plan subscription
 		
-		if( !empty( $this->parent->user->ID ) && isset($_GET['pk'])&&isset($_GET['pd'])&&isset($_GET['pv'])){
+		if( !empty( $this->parent->user->ID ) && isset($_GET['pk']) && isset($_GET['pd']) && isset($_GET['pv']) ){
 
 			$plan_data = sanitize_text_field($_GET['pd']);
 			$plan_data = $this->parent->base64_urldecode($plan_data);

@@ -56,7 +56,7 @@ echo'<div id="media_library" class="wrapper">';
 
 	echo '<div id="sidebar">';
 		
-		echo'<div class="gallery_type_title gallery_head">' . ( $ltple->inWidget ? 'Directory' : 'Media Library' ) . '</div>';
+		echo'<div class="gallery_type_title gallery_head">Directory</div>';
 		
 		echo'<ul id="gallery_sidebar" class="nav nav-tabs tabs-left">';
 
@@ -101,7 +101,7 @@ echo'<div id="media_library" class="wrapper">';
 	echo'<div id="content" class="library-content" style="min-height:calc( 100vh - ' . ( $ltple->inWidget ?  0 : 190 ) . 'px);">';
 
 		echo'<div class="tab-content">';
-
+			
 			if( $this->type == 'user-images' ){
 
 				//output user images	

@@ -54,7 +54,29 @@ class LTPLE_Client_Editor {
 		
 		add_filter('ltple_editor_js_settings', array( $this, 'filter_js_settings' ),1,2);	
 
-		add_filter('ltple_editor_script', array( $this, 'filter_editor_script' ),1);
+		add_filter('ltple_editor_script', array( $this, 'filter_editor_script' ),0,2);
+		
+		add_filter('ltple_editor_media_lib_url', function($url,$layer){
+			
+			if( !is_admin() ){
+				
+				$url = $this->parent->urls->media . '?output=widget&section=images';
+			}
+			
+			return $url;
+
+		},0,2);
+		
+		add_filter('ltple_editor_bookmark_lib_url', function($url,$layer){
+			
+			if( !is_admin() ){
+				
+				$url = $this->parent->urls->media . 'user-payment-urls/?output=widget';
+			}
+
+			return $url;
+			
+		},0,2);
 		
 		add_action('admin_post_duplicate', array($this, 'duplicate_item') );
 		
@@ -568,6 +590,9 @@ class LTPLE_Client_Editor {
 		}
 		else{
 			
+			$js .= ' var mediaLibUrl = "' . apply_filters('ltple_editor_media_lib_url','',$layer) . '";'. PHP_EOL;
+			$js .= ' var bookmarkUrl = "' . apply_filters('ltple_editor_bookmark_lib_url','',$layer) . '";'. PHP_EOL;
+
 			if( !empty($_POST) || empty($layer->urls['preview']) ){
 				
 				// content based preview
@@ -640,49 +665,7 @@ class LTPLE_Client_Editor {
 		return $js;
 	}
 	
-	public function filter_editor_script($editor){
-		
-		if( !is_admin() ){
-			
-			$modal_css = 'position:absolute;top:0;left:0;right:0;width:100%!important;margin:0;bottom:0;';
-					
-			$iframe_css = 'margin-top:-64px;position:relative;width:100%;top:0;bottom:0;border:0;height:calc( 100vh - 48px);'; 
-			
-			$editor .= '<div class="modal fade" id="media_library_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">';
-				$editor .= '<div class="modal-dialog modal-lg" role="document" style="' . $modal_css . '">';
-					$editor .= '<div class="modal-content">';
-					
-						$editor .= '<div class="modal-header">';
-							$editor .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>';
-							$editor .= '<h3 class="modal-title text-left">Media library</h3>';
-						$editor .= '</div>';
-						
-						$editor .= '<div id="media_library_container"></div>';
-						$editor .= '<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . 'loader.gif\');height:64px;"></div>';
-						$editor .= '<iframe id="media_library_iframe" data-src="' . $this->parent->urls->media . '?output=widget&section=images" style="' . $iframe_css . '"></iframe>';
-					
-					$editor .= '</div>';
-				$editor .= '</div>';
-			$editor .= '</div>';
-			
-			$editor .= '<div class="modal fade" id="bookmarks_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">';
-				$editor .= '<div class="modal-dialog modal-lg" role="document" style="'.$modal_css.'">';
-					$editor .= '<div class="modal-content">';
-					
-						$editor .= '<div class="modal-header">';
-							$editor .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>';
-							$editor .= '<h3 class="modal-title text-left">Media Library</h3>';
-						$editor .= '</div>';
-						
-						$editor .= '<div id="media_library_container"></div>';
-						
-						$editor .= '<div class="loadingIframe" style="width: 100%;position: relative;background-position: 50% center;background-repeat: no-repeat;background-image:url(\'' . $this->parent->assets_url . 'loader.gif\');height:64px;"></div>';
-						$editor .= '<iframe id="bookmarks_iframe" src=""  data-src="' . $this->parent->urls->media . 'user-payment-urls/?output=widget" style="' . $iframe_css . '"></iframe>';
-					
-					$editor .= '</div>';
-				$editor .= '</div>';
-			$editor .= '</div>';
-		}
+	public function filter_editor_script($editor,$layer){
 		
 		return $editor;
 	}
@@ -1043,7 +1026,7 @@ class LTPLE_Client_Editor {
 						var id 		= $(this).attr("data-id");
 						var title 	= $(this).attr("data-title");
 						var source 	= $(this).attr("data-source");
-
+						
 						var screenshotUrl 	= "' . $this->parent->server->url . '";
 						var uploaderUrl		= "' . get_admin_url() . '";
 						

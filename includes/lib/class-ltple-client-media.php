@@ -226,7 +226,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			
 			#previewWrapper {
 				
-				padding:30px;
+				margin: 15px;
 			}
 			
 			#previewToolbar{
@@ -241,9 +241,11 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			}
 			
 			#previewContainer img {
-				
+
 				width: auto;
-				max-height: calc(100vh - ' . ( $this->parent->inWidget ? 190 : 250 ) . 'px);
+				max-height: calc(100vh - ' . ( $this->parent->inWidget ? 190 : 250 ) . 'px);	
+				background-repeat: repeat;
+				background-image: url("data:image/jpeg;base64,/9j/4AAQSkZJRgABAQED6APoAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAAQABADAREAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAACQAK/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwDfwA/wQEAB/9k=");
 			}
 		';
 		

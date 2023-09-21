@@ -215,7 +215,9 @@ class LTPLE_Client_Dashboard {
 			
 			if( !$error = is_wp_error($response) ){
 				
-				$metrics = json_decode(wp_remote_retrieve_body($response),true);
+				$body = wp_remote_retrieve_body($response);
+				
+				$metrics = json_decode($body,true);
 				
 				if( !empty($metrics) ){
 					
@@ -655,7 +657,7 @@ class LTPLE_Client_Dashboard {
 							
 							$new_templates .= '<a href="'. $permalink . '">';
 						
-								$new_templates .= '<img src="'. $image_url . '" style="height:50px;width:50px;" />';
+								$new_templates .= '<div style="background-image:url('.$image_url.');background-size:cover;background-repeat:no-repeat;background-position:center center;width: 50px;height:50px;display:block;"></div>';
 						
 							$new_templates .='</a>';													
 							

@@ -123,7 +123,7 @@ class LTPLE_Client {
 		$this->views   		= trailingslashit( $this->dir ) . 'views';
 		$this->vendor  		= trailingslashit( $this->dir ) . 'vendor';
 		$this->assets_dir 	= trailingslashit( $this->dir ) . 'assets';
-		$this->assets_url 	= home_url( trailingslashit( str_replace( ABSPATH, '', $this->dir ))  . 'assets/' );
+		$this->assets_url 	= esc_url( trailingslashit( plugins_url( '/assets/', $this->file ) ) );
 		
 		$this->inWidget = ( ( isset($_GET['output']) && $_GET['output'] == 'widget' ) ? true : false );
 		
@@ -2096,11 +2096,11 @@ class LTPLE_Client {
 				
 					if( $this->layer->upload_image_template() ){
 						
-						$this->exit_message('Template successfully saved!',200);						
+						$this->exit_message('Design successfully saved!',200);						
 					}
 					else{
 						
-						$this->exit_message('Error Saving Template...',404);
+						$this->exit_message('Error Saving Design...',404);
 					}
 				}
 			}	
