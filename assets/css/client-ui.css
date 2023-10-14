@@ -52,7 +52,7 @@
 }
 
 #ltple-wrapper #sidebar {
-	min-height: calc(100vh - 145px);
+	min-height: calc(100vh - 126px);
     width: 220px !important;
     transition: all 0.3s !important;
 }

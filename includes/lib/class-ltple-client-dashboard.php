@@ -805,7 +805,7 @@ class LTPLE_Client_Dashboard {
 		
 		if( !empty($storage_count['user-psd']) ){
 		
-			$edit_section .= '<li'.( ( $currentTab == 'user-psd' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Graphic Designs</a></li>';
+			$edit_section .= '<li'.( ( $currentTab == 'user-psd' ) ? ' class="active"' : '' ).'><a href="' . $this->parent->urls->dashboard . '?list=user-psd"><span class="glyphicon glyphicon-picture"></span> Image Designs</a></li>';
 		}
 		
 		$edit_section = apply_filters('ltple_dashboard_design_sidebar',$edit_section,$currentTab,$output);

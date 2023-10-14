@@ -527,7 +527,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		if( !empty($_GET['s']) ){
 			
-			$args['s'] = $_GET['s'];
+			$args['s'] = sanitize_text_field($_GET['s']);
 		}
 		
 		if( !empty($_GET['filter']) ){
@@ -600,7 +600,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			
 			if( !empty($_GET['s']) ){
 				
-				$args['s'] = $_GET['s'];
+				$args['s'] = sanitize_text_field($_GET['s']);
 			}
 			
 			$meta_key = $this->parent->_base . 'upload_source';
@@ -663,7 +663,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 			if( !empty($_GET['s']) ){
 				
-				$args['s'] = $_GET['s'];
+				$args['s'] = sanitize_text_field($_GET['s']);
 			}
 
 			$q = new WP_Query($args);

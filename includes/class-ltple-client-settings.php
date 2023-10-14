@@ -1037,8 +1037,8 @@ class LTPLE_Client_Settings {
 			'user-contents' => apply_filters('ltple_admin_tabs_user-contents',array(
 					  
 				'user-layer' 	=> array( 'tab'  => 'HTML', 	'name' => 'HTML', 	'in_menu' => true),
-				'user-image' 	=> array( 'tab'  => 'Images',	'name' => 'Images', 'in_menu' => true),				
-				'user-psd' 		=> array( 'tab'  => 'Images',	'name' => 'PSDs', 	'in_menu' => false),
+				'user-psd' 		=> array( 'tab'  => 'Images',	'name' => 'Bitmaps','in_menu' => true),
+				'user-image' 	=> array( 'tab'  => 'Images',	'name' => 'External','in_menu' => false), // TODO migrate to media lib
 				'user-bookmark' => array( 'tab'  => 'Links',	'name' => 'Links', 	'in_menu' => true),
 				'user-app' 		=> array( 'tab'  => 'Apps',		'name' => 'Apps', 	'in_menu' => true),
 			)),

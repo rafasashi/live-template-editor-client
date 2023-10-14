@@ -375,7 +375,7 @@
 							
 							do_action('ltple_users_tabs',$this->view,array(
 							
-								's' => !empty($_REQUEST['s']) ? urlencode($_REQUEST['s']) : '',
+								's' => !empty($_REQUEST['s']) ? urlencode(sanitize_text_field($_REQUEST['s'])) : '',
 								'marketing-channel1' => !empty($_REQUEST['marketing-channel1']) ? intval($_REQUEST['marketing-channel1']) : '',
 								'role'	=> !empty($_REQUEST['role']) ? sanitize_title($_REQUEST['role']) : '',
 							));

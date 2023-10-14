@@ -2,4 +2,6 @@
 
 	$ltple = LTPLE_Client::instance();
 	
-	echo $ltple->layer->render_output();
+	$layer = LTPLE_Editor::instance()->get_layer();
+	
+	echo $ltple->layer->render_output($layer);

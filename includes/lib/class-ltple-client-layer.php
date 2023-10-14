@@ -112,7 +112,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			return 'frontend';
 		});	
-
+		
 		$this->parent->register_post_type( 'user-psd', __( 'Images', 'live-template-editor-client' ), __( 'Image', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
@@ -434,12 +434,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_filter( 'ltple_preview_post_url', array($this,'filter_view_layer_link'),99999,2 );
 		
 		// layer parameters
-		
+
 		add_filter('ltple_layer_id', array($this,'get_layer_id'),10,1);
 		
 		add_filter('ltple_layer_output', array($this,'get_layer_editor'),10,2);
 		
 		add_filter('ltple_layer_is_editable', array($this,'filter_layer_is_editable'),10,2 );
+	
+		add_filter('ltple_editor_layer',function($layer){
+			
+			if( isset($layer->ID) && !isset($layer->default_id) ){
+				
+				$layer->default_id = !$layer->is_default ? $this->get_default_id($layer->ID) : 0;
+			}
+			
+			return $layer;
+			
+		},10,1);
 	}
 	
 	public function count_layer_range($terms,$taxonomy){
@@ -1911,7 +1922,29 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						);
 					}
 				}
-				
+				elseif( $this->is_vector_output($layer_type->output) ){
+					
+					// get layer content
+					
+					$this->userFields[]=array(
+					
+						'metabox' => array(
+						
+							'name' 		=> 'layer-json',
+							'title' 	=> __( 'Template JSON', 'live-template-editor-client' ), 
+							'screen'	=> array($layer->post_type),
+							'context' 	=> 'advanced',
+							'frontend'	=> false,
+							'add_new'	=> false,
+						),
+						
+						'id'			=> 'layerJson',
+						'type'			=> 'code_editor',
+						'code'			=> 'json',
+						'placeholder'	=> 'JSON content',
+					);
+				}
+					
 				do_action('ltple_user_layer_fields',$layer,array( 
 					
 					'name' 		=> 'ltple-settings',
@@ -1982,7 +2015,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 				'user-layer'	=>'HTML Template',
 				'user-element'	=>'HTML Element',
-				'user-psd'		=>'Graphic Design',
+				'user-psd'		=>'Image Design',
 			));
 		}
 		
@@ -3134,48 +3167,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !$default_id = intval(get_post_meta( $id, 'defaultLayerId', true )) ){
 				
-				$post_type = false;
-				
-				if( is_admin() ){
-					
-					if( strpos($_SERVER['SCRIPT_NAME'],'post.php') > 0 ){
-						
-						if( !empty($_GET['post']) ){
-							
-							$post_id = intval($_GET['post']);
-							
-							if( $post = get_post($post_id) ){
-								
-								$post_type = $post->post_type;
-							}
-						}
-					}
-					elseif( strpos($_SERVER['SCRIPT_NAME'],'post-new.php') > 0 ){
-						
-						if( !empty($_GET['post_type']) ){
-							
-							$post_type = sanitize_title($_GET['post_type']);
-						}
-					}
-				}
-				elseif( !empty($_GET['page_id']) && !empty($_GET['preview']) ){
-				
-					// preview in editor
-					
-					$post_id = intval($_GET['page_id']);
-					
-					if( $post = get_post($post_id) ){
-					
-						$post_type = $post->post_type;
-					}
-				}
-				
-				/*
-				if( $post_type == 'page' ){
-					
-					$default_id = $this->parent->settings->get_default_page_template_id();
-				}
-				*/
+				//$default_id = $id;
 			}
 			
 			$this->default_ids[$id] = $default_id;
@@ -3312,7 +3304,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 							$this->layerJson = get_post_meta( $this->defaultId, 'layerJson', true );
 						}
-					
+						
 						// get default css
 
 						$this->defaultCss = apply_filters('ltple_parse_css_variables',get_post_meta( $this->defaultId, 'layerCss', true ));
@@ -6603,13 +6595,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return true;
 	}
 
-	public function render_output(){
+	public function render_output($layer){
 		
 		$content = '';
 		
-		if( !empty($this->layerOutput) ){
+		if( !empty($layer->output) ){
 			
-			$output = $this->layerOutput;
+			$output = $layer->output;
 			
 			$this->parse_hosted_content($output);
 			

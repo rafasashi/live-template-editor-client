@@ -321,7 +321,7 @@ class LTPLE_Client_Gallery {
 			
 			if( !empty($_GET['s']) ){
 				
-				$args['s'] = $_GET['s'];
+				$args['s'] = sanitize_text_field($_GET['s']);
 			}
 			
 			$args = apply_filters('ltple_gallery_' . $layer_type->storage . '_query',$args);

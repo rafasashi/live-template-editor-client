@@ -597,7 +597,7 @@ class LTPLE_Client_Editor {
 				
 				// content based preview
 				
-				$content = $this->parent->layer->render_output() . PHP_EOL;
+				$content = $this->parent->layer->render_output($layer) . PHP_EOL;
 				
 				if( !$this->parent->layer->is_app_output($layer->output) ){
 				
