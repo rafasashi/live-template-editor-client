@@ -318,14 +318,14 @@ class LTPLE_Client_Product {
 					
 						$button.='<div class="modal-header">'.PHP_EOL;
 							
-							$button.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-							
 							$button.= '<h4 class="modal-title" id="myModalLabel">';
 							
 								$button.= 'Unlock ' . $post->post_title;
 							
 							$button.= '</h4>'.PHP_EOL;
 						
+							$button.='<button type="button" class="close m-0 p-0" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+							
 						$button.='</div>'.PHP_EOL;
 						
 						$button.='<div class="modal-body" style="padding:0px;">'.PHP_EOL;
@@ -397,21 +397,65 @@ class LTPLE_Client_Product {
 		return $description;
 	}
 	
+	public function get_product_gallery_ids($product){
+		
+		$ids = array();
+		
+		if( $id = get_post_thumbnail_id($product) ){
+			
+			$ids[] = $id;
+		}
+		
+		if( $gallery = get_post_meta($product->ID,'layer-gallery',true) ){
+			
+			foreach( $gallery as $id ){
+				
+				$id = intval($id);
+				
+				if( !in_array($id,$ids) ){
+					
+					$ids[] = $id;
+				}
+			}
+		}
+		
+		if( empty($ids) ){
+			
+			// set alt image
+			
+			return array(0); 
+		}
+		
+		return $ids;
+	}
+
+	public function get_product_image_url($image_id,$size='medium_large'){
+		
+		$url = $this->parent->assets_url . 'images/default_item.png';
+		
+		if ($src = wp_get_attachment_image_src( $image_id, $size )){
+		
+			$url = $src[0];
+		}
+		
+		return $url;
+	}
+	
 	public function get_product_info($product){
 		
 		echo'<div class="col-xs-12">';
 			
 			if( $tabs = $this->get_product_tabs($product) ){
 				
-				echo'<ul class="nav nav-tabs nav-resizable" role="tablist" style="background:transparent;margin:-1px;padding:0px !important;overflow:hidden;height:48px;font-size:13px;font-weight:bold;">';
+				echo'<ul class="nav nav-tabs nav-resizable my-3" role="tablist">';
 					
-					$class=' class="active"';
+					$active=' active';
 					
 					foreach( $tabs as $tab ){
 						
-						echo'<li role="presentation"'.$class.'><a href="#'.$tab['slug'].'" aria-controls="'.$tab['slug'].'" role="tab" data-toggle="tab" aria-expanded="true">'.$tab['name'].'</a></li>';
+						echo'<li role="presentation" class="nav-item"><a class="nav-link'.$active.'" href="#'.$tab['slug'].'" aria-controls="'.$tab['slug'].'" role="tab" data-toggle="tab" aria-expanded="true">'.$tab['name'].'</a></li>';
 					
-						$class = '';
+						$active = '';
 					}
 					
 				echo'</ul>';

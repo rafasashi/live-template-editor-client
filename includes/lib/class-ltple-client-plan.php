@@ -776,7 +776,7 @@ class LTPLE_Client_Plan {
 							
 							$table .= '<tr>';
 						
-								$table .= '<th style="width:80%;">';	
+								$table .= '<th style="width:60%;">';	
 									
 									$table .= 'Media Library';
 									
@@ -787,7 +787,13 @@ class LTPLE_Client_Plan {
 									$table .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Bandwidth" data-content="Monthy bandwidth usage limit" data-original-title="" title="">Bandwidth <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
 									
 								$table .= '</th>';	
-							
+								
+								$table .= '<th style="width:20%;text-align:center;">';							
+						
+									$table .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Bandwidth" data-content="The amount of stored images allowed by the plan" data-original-title="" title="">Storage <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
+									
+								$table .= '</th>';
+								
 							$table .= '</tr>';
 							
 							$table .= '<tr>';
@@ -802,12 +808,18 @@ class LTPLE_Client_Plan {
 									
 								$table .= '</td>';
 
-								$table .= '<td style="text-align:center;background:#efefef;">';							
+								$table .= '<td style="text-align:center;">';							
 						
 									$table .= '<span class="badge">'.$total_bandwidth.' GB</span>';
 									
 								$table .= '</td>';	
-							
+								
+								$table .= '<td style="text-align:center;background:#efefef;">';							
+						
+									$table .= '<span class="badge" data-toggle="tooltip" data-placement="left" title="" data-original-title="Unlimited"><i class="fas fa-infinity" style="font-size:14px;"></i></span>';
+									
+								$table .= '</td>';
+								
 							$table .= '</tr>';
 						}
 						

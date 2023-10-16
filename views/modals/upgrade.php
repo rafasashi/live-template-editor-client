@@ -28,10 +28,10 @@
 				
 				echo '<div class="modal-header" style="background:#fff !important;">'.PHP_EOL;
 					
-					echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="color:' . $ltple->settings->navbarColor . ';">&times;</span></button>'.PHP_EOL;
-					
-					echo '<h4 class="modal-title text-left" id="myModalLabel" style="color:'.$ltple->settings->navbarColor.';">Upgrade your plan</h4>'.PHP_EOL;
+					echo '<h4 class="modal-title" id="myModalLabel" style="color:'.$ltple->settings->navbarColor.';">Upgrade your plan</h4>'.PHP_EOL;
 				
+					echo '<button type="button" class="close m-0 p-0" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="color:' . $ltple->settings->navbarColor . ';">&times;</span></button>'.PHP_EOL;
+					
 				echo '</div>'.PHP_EOL;
 			  
 				echo '<div class="modal-body text-center">'.PHP_EOL;

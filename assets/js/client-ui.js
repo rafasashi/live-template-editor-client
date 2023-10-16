@@ -311,11 +311,25 @@ if( typeof editorCallbacks == typeof undefined )
 			
 			if( $('[data-toggle="collapse"]').length > 0 ){
 			
-				$('[data-toggle="collapse"]').collapse();
-				
 				$('[data-toggle="collapse"]').on('click', function(e) {
 					
 					e.preventDefault();
+					e.stopPropagation();
+					
+					const target = $(this).data('target');
+					
+					if( $(target).hasClass('collapse') ){
+						
+						$(target).removeClass('collapse');
+						
+						$(target).addClass('in').addClass('show');
+					}
+					else{
+						
+						$(target).removeClass('in').removeClass('show');
+						
+						$(target).addClass('collapse');
+					}
 				});
 			}
 		}

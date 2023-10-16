@@ -1523,9 +1523,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$html .= '<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" role="tab" id="heading_'.$slug.'">';
 						
-						$html .= '<button style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
-						  
-							//$html .= '<i class="fa fa-cloud-download-alt" aria-hidden="true"></i> ';
+						$html .= '<button style="display:block;background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
 						  
 							$html .= $title . ' ';
 							
@@ -1535,7 +1533,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$html .= '</div>';
 					
-					$html .= '<div style="margin:10px;" id="collapse_'.$slug.'" class="panel-collapse collapse'.( $expanded === 'true' ? ' in' : '' ).'" role="tabpanel" aria-labelledby="heading_'.$slug.'">';
+					$html .= '<div style="margin:10px;" id="collapse_'.$slug.'" class="panel-collapse '.( $expanded === 'true' ? 'in show' : 'collapse' ).'" role="tabpanel" aria-labelledby="heading_'.$slug.'">';
 						
 						$html .= $content;
 						
@@ -1614,9 +1612,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$slug = sanitize_title('blocks_'.$type);
 						
-						$html .= '<div class="panel panel-default" role="tab" id="heading_'.$slug.'">';
+						$html .= '<div class="panel panel-default" style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" role="tab" id="heading_'.$slug.'">';
 							
-							$html .= '<a style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
+							$html .= '<button style="display:block;pointer:cursor;background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:15px;border:none;" role="button" data-toggle="collapse" data-parent="#install_info" data-target="#collapse_'.$slug.'" aria-expanded="'.$expanded.'" aria-controls="collapse_'.$slug.'">';
 							  
 								$html .= '<div style="width:40px;display:inline-block;">';
 								
@@ -1628,11 +1626,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 								$html .= '<i class="fas fa-angle-down pull-right" style="font-size:25px;"></i>';
 							
-							$html .= '</a>';
+							$html .= '</button>';
 						
 						$html .= '</div>';
 						
-						$html .= '<div id="collapse_'.$slug.'" class="panel-collapse collapse'.( $expanded === 'true' ? ' in' : '' ).'" role="tabpanel" aria-labelledby="heading_'.$slug.'">';
+						$html .= '<div id="collapse_'.$slug.'" class="panel-collapse '.( $expanded === 'true' ? 'in show' : 'collapse' ).'" role="tabpanel" aria-labelledby="heading_'.$slug.'">';
 							
 							$html .='<div class="row" style="margin-top:10px;">';
 							
@@ -2869,10 +2867,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 						$content.='<div class="modal-header">'.PHP_EOL;
 							
-							$content.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-							
 							$content.='<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
 						
+							$content.='<button type="button" class="close m-0 p-0" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+							
 						$content.='</div>'.PHP_EOL;
 						
 						if( $show_preview === true ){
