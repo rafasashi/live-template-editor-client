@@ -444,7 +444,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		include($this->parent->views . '/navbar.php');
 		
-		if($this->parent->user->loggedin){
+		if( apply_filters('ltple_show_media_library',false,$this->type) || $this->parent->user->loggedin ){
 
 			include($this->parent->views . '/media.php');
 

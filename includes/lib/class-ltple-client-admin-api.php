@@ -744,10 +744,43 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				case 'checkbox_multi_plan_options':
 					
 					$plan_options = (array) $data;
-													
+
+					$build_tree = function ($terms, $parent_id = 0, $indentLevel = 0) use (&$build_tree) {
+						
+						$tree = array();
+
+						foreach ($terms as $term) {
+							
+							if ($term->parent == $parent_id) {
+								
+								if( $term->parent > 0 ){
+									
+									$term->name = str_repeat('—', $indentLevel) . ' ' . $term->name;
+								}
+								else{
+									
+									$term->name = '<b>' . $term->name . '</b>';
+								}
+								
+								$tree[] = $term;
+								
+								$tree = array_merge($tree, $build_tree($terms, $term->term_id, $indentLevel + 1));
+							}
+						}
+
+						return $tree;
+					};
+
+					$dir_tree = array();
+
+					foreach ($field['options'] as $taxonomy => $terms) {
+						
+						$dir_tree[$taxonomy] = $build_tree($terms);
+					}
+					
 					$html .= '<table class="form-table">';
 						
-						foreach ( $field['options'] as $taxonomy => $terms ) {
+						foreach ( $dir_tree as $taxonomy => $terms ) {
 							
 							$html .= '<tr>';
 							
@@ -778,7 +811,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 													$checked = true;
 												}
 												
-												$html .= '<td style="width:25%;">';
+												$html .= '<td style="width:30%;">';
 												
 													$html .= '<span style="display:block;padding:1px 0;margin:0;">';
 														
@@ -790,7 +823,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 												// storage column
 												
-												$html .= '<td style="width:25%;">';
+												$html .= '<td style="width:20%;">';
 
 													if( !empty($term->options['storage']) ){
 														

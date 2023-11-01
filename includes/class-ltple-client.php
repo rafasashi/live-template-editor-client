@@ -2171,7 +2171,7 @@ class LTPLE_Client {
 						}
 					}
 					
-					if( $post_title!='' && is_int($defaultLayerId) && $defaultLayerId > 0 ){
+					if( $post_title != '' && is_int($defaultLayerId) && $defaultLayerId > 0 ){
 						
 						$time 	= current_time('mysql');
 						$gmt 	= get_gmt_from_date($time);

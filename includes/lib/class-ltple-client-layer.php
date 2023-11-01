@@ -53,7 +53,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function __construct( $parent ) {
 		
 		$this->parent = $parent;
-		
+	
 		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Templates', 'live-template-editor-client' ), __( 'Default Template', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> true,
@@ -154,7 +154,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ), array('user-plan','cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ),array('user-plan','cb-default-layer'), array(
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
@@ -770,29 +770,33 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$storage_name = $layer->post_type == 'default-element' ? 'Element' : 'Template';
 				
+				if( $taxonomies = get_object_taxonomies($layer->post_type) ){
+					
+					if( in_array('layer-range',$taxonomies) ){
+							
+						$this->defaultFields[] = array(
+						
+							'metabox' => array( 
+							
+								'name' 		=> 'layer-rangediv',
+								'title' 	=> __( $storage_name . ' Range', 'live-template-editor-client' ), 
+								'screen'	=> array($layer->post_type),
+								'context' 	=> 'side',
+								'taxonomy'	=> 'layer-range',
+								'frontend'	=> false,
+							),
+							'type'		=> 'dropdown_categories',
+							'id'		=> 'layer-range',
+							'name'		=> 'tax_input[layer-range][]',
+							'taxonomy'	=> 'layer-range',
+							'callback' 	=> array($this,'get_layer_range_id'),
+							'description'=>''
+						);
+					}
+				}
+				
 				if( $layer->post_type == 'cb-default-layer' ){
 
-					//get current layer range
-					
-					$this->defaultFields[] = array(
-					
-						'metabox' => array( 
-						
-							'name' 		=> 'layer-rangediv',
-							'title' 	=> __( $storage_name . ' Range', 'live-template-editor-client' ), 
-							'screen'	=> array($layer->post_type),
-							'context' 	=> 'side',
-							'taxonomy'	=> 'layer-range',
-							'frontend'	=> false,
-						),
-						'type'		=> 'dropdown_categories',
-						'id'		=> 'layer-range',
-						'name'		=> 'tax_input[layer-range][]',
-						'taxonomy'	=> 'layer-range',
-						'callback' 	=> array($this,'get_layer_range_id'),
-						'description'=>''
-					);
-					
 					$this->defaultFields[] = array(
 					
 						'metabox' => array( 
@@ -1435,7 +1439,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$tab .= '<img loading="lazy" id="'.$preview_id.'" src="'.$this->get_thumbnail_url($layer).'" style="width:auto;"/>';
 					
 					$tab .= '<input type="hidden" id="'.$input_id.'" name="image_url" value="" />';
-
+					
 					$tab .= '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
 						
 						$tab .= '<div class="modal-dialog modal-lg" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
@@ -1968,7 +1972,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'hosted-page'	=>'Hosted',
 				'canvas'		=>'HTML to PNG',
 				'image'			=>'Image',
-				'vector'		=>'Vector',
 				'web-app'		=>'Standalone',
 			));
 		} 
@@ -2316,7 +2319,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$terms = wp_get_post_terms($post->ID,'layer-range');
 			
-				if( !empty($terms[0]) ){
+				if( !is_wp_error( $terms ) && !empty($terms[0]) ){
 					
 					$term = $terms[0];
 				}				
@@ -2599,7 +2602,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 							$terms = wp_get_post_terms($post->ID,'layer-type');
 							
-							if( empty($terms[0]) ){
+							if( !is_wp_error( $terms ) && !empty($terms[0]) ){
+							
+								$term = $terms[0];
+							}
+							else{
 								
 								if( $post->post_type != 'cb-default-layer' ){
 								
@@ -2623,7 +2630,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									
 									if( $default_range = $this->get_layer_range($post)){
 										
-										$term = $this->get_range_type($default_range->term_id);
+										if( $range_type = $this->get_range_type($default_range->term_id) ){
+											
+											$term = $range_type;
+										}
 									}
 								}
 								
@@ -2633,10 +2643,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 											
 									wp_set_object_terms( $post->ID, $term->term_id, 'layer-type', false ); 					
 								}
-							}
-							else{
-								
-								$term = $terms[0];
 							}
 							
 							if( !empty($term->term_id) ){
@@ -2650,7 +2656,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( !isset($term->output) ){
 						
-						$term->output 	= '';
+						$term->output = '';
 					}
 					
 					if( !isset($term->storage) ){
@@ -3475,11 +3481,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( $this->has_libraries($layer_id,$type) ){
 				
-				if( $terms = wp_get_post_terms( $layer_id, $type . '-library', array( 
+				$terms = wp_get_post_terms( $layer_id, $type . '-library', array( 
 					
 					'orderby' => 'term_id',
-					
-				))){
+				));	
+				
+				if( !is_wp_error( $terms ) && !empty($terms) ){
 					
 					foreach( $terms as $term ){
 						

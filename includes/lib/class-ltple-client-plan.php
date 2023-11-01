@@ -662,11 +662,11 @@ class LTPLE_Client_Plan {
 								if( $i == 0 ){
 									
 									$row .='<td rowspan="' . count($ranges) . '" style="text-align:center;background:#efefef;">';
+									
+										if( $total_storage_amount > 0 ){
 											
-										$row .= '<span class="badge">';
+											$row .= '<span class="badge">';
 											
-											if( $total_storage_amount > 0 ){
-												
 												if( is_array($usage) ){
 													
 													$storage_usage = isset($usage[$storage_unit]) ? $usage[$storage_unit] : 0;
@@ -677,14 +677,18 @@ class LTPLE_Client_Plan {
 												
 													$row .= $total_storage_amount;
 												}
-											}
-											else{
 												
-												$row .= '<i class="fas fa-infinity" style="font-size:14px;"></i>';
-											}
+											$row .= '</span>';
+										}
+										else{
 											
-										$row .= '</span>';
-									
+											$row .= '<span class="badge" data-toggle="tooltip" data-placement="left" title="" data-original-title="Unlimited">';
+											
+												$row .= '<i class="fas fa-infinity" style="font-size:14px;"></i>';
+											
+											$row .= '</span>';
+										}
+										
 									$row .='</td>';
 								}
 							
@@ -1085,7 +1089,7 @@ class LTPLE_Client_Plan {
 				$terms = get_terms( array(
 						
 					'taxonomy' 		=> $taxonomy['taxonomy'],
-					'hide_empty' 	=> false
+					'hide_empty' 	=> false,
 				));
 
 				foreach($terms as $term){
@@ -1343,16 +1347,19 @@ class LTPLE_Client_Plan {
 	public function get_plan_taxonomies(){
 		
 		$taxonomies=[];
+		
 		$taxonomies[] = array(
-			'name'		=> 'Ranges',
-			'taxonomy'	=> 'layer-range',
-			'hierarchical' => true
+			
+			'name'			=> 'Ranges',
+			'taxonomy'		=> 'layer-range',
+			'hierarchical' 	=> true
 		);
 		
 		$taxonomies[] = array(
-			'name'		=> 'Options',
-			'taxonomy'	=> 'account-option',
-			'hierarchical' => false
+			
+			'name'			=> 'Options',
+			'taxonomy'		=> 'account-option',
+			'hierarchical' 	=> false
 		);
 
 		return $taxonomies;
@@ -2453,16 +2460,22 @@ class LTPLE_Client_Plan {
 		return $this->license_users[$holder_id];
 	}
 
-	public function get_user_plan_info( $user_id ){	
+	public function get_user_plan_info( $user_id = 0 ){	
 		
+		if( empty($user_id) ){
+			
+			$user_id = $this->parent->user->ID;
+		}
+
 		// get license holder id
 		
 		$user_id = $this->get_license_holder_id($user_id);
 		
 		if( !isset($this->user_plans[$user_id]) ){
 		
-			$user_plan_id 	= $this->get_user_plan_id( $user_id );
-			$taxonomies 	= $this->get_plan_taxonomies();
+			$user_plan_id = $this->get_user_plan_id( $user_id );
+			
+			$taxonomies = $this->get_plan_taxonomies();
 
 			$this->user_plans[$user_id] = [];
 			

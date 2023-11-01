@@ -970,7 +970,7 @@
 				$this->list->{$user_id} = new stdClass();
 				
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
-				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info( $user_id, true );
+				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info($user_id);
 				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id);
 				$this->list->{$user_id}->last_seen 	= isset($meta['ltple__last_seen']) ? $meta['ltple__last_seen'] : '';
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';

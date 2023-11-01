@@ -10,6 +10,8 @@ $target		= $ltple->inWidget ? '_blank' : '_self';
 $modal 		= !empty($ltple->modalId) ?  $ltple->modalId : '';
 $section	= !empty($_GET['section']) ? sanitize_title($_GET['section']) : '';
 
+$apps 		= $ltple->media->get_external_providers();
+
 // get query arguments
 
 $query_args = array();
@@ -62,17 +64,26 @@ echo'<div id="media_library" class="wrapper">';
 
 			if( empty($section) || $section == 'images' ){
 				
-				$counts = $this->get_image_counts();
-				
 				echo'<li class="gallery_type_title">Images</li>';
 				
 				if( empty($section) || $section == 'images' || $section == 'user-images' )
 					
 					echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->media . 'user-images/'.$query_args.'"><i class="far fa-file-image"></i> Uploaded Images</a></li>';
 				
-				if( empty($section) || $section == 'images' || $section == 'external-images' )
+				foreach( $apps as $app ){
+					
+					if( $app->slug != 'url' && in_array('images',$app->types) ){
+					
+						if( empty($section) || $section == 'images' || $section == 'external-images' ){
 				
-					echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->media . 'external-images/'.$query_args.'"><i class="far fa-file-image"></i> External Images</a></li>';
+							echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->media . 'external-images/'.$query_args.'"><i class="far fa-file-image"></i> External Images</a></li>';
+						}
+						
+						break;
+					}
+				}
+				
+				$counts = $this->get_image_counts();
 				
 				if( !empty($counts['default-image']) ){
 				
@@ -119,36 +130,7 @@ echo'<div id="media_library" class="wrapper">';
 							echo'</li>';
 						}
 			
-						//get app list
-						
-						$apps = [];
-
-						$item = new stdClass();
-						$item->name 	= 'My Images';
-						$item->slug 	= 'upload';
-						$item->types 	= ['images'];
-						$item->pro 		= true;
-						
-						$apps[] = $item;
-						
-						//output list
-						
-						foreach($apps as $app){
-							
-							if( in_array('images',$app->types) ){
-							
-								if( $app->slug == $tab ){
-									
-									$active=' class="active"';
-								}
-								else{
-									
-									$active='';
-								}
-							
-								echo'<li role="presentation"'.$active.'><a href="' . add_query_arg('tab',$app->slug,$ltple->urls->current) . '">' . ( $ltple->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . strtoupper($app->name) . '</a></li>';
-							}
-						}
+						echo'<li role="presentation" class="active"><a href="' . add_query_arg('tab','upload',$ltple->urls->current) . '">' . ( $ltple->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . 'My Images</a></li>';
 						
 						echo '<li role="presentation">';
 							
@@ -320,44 +302,6 @@ echo'<div id="media_library" class="wrapper">';
 								}
 								else{
 									
-									$save_url = '';
-						
-									echo '<form style="padding:10px;" target="_self" action="' . $save_url . '" id="saveImageForm" class="dynamic-form" method="post">';
-										
-										echo '<div style="padding-bottom:10px;display:block;">';
-
-											echo'<label>From an image url</label>';
-											
-											echo '<div class="input-group">';
-											
-												echo '<input type="text" name="imgUrl" id="imgUrl" value="" class="form-control required" placeholder="http://" />';
-												
-												echo '<div class="input-group-btn">';
-												
-													echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Import</button>';
-													
-													echo '<input type="hidden" name="imgAction" id="imgAction" value="save" />';
-													
-													wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
-
-													echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
-													
-													echo '<input type="hidden" name="output" value="' . $output . '" />';
-													
-													echo '<input type="hidden" name="modal" value="' . $ltple->modalId . '" />';
-													
-												echo '</div>';
-												
-											echo '</div>';
-											
-										echo '</div>';
-
-									echo '</form>';
-		
-									//get app list
-								
-									$apps = $ltple->media->get_external_providers();
-
 									//get options
 									
 									$options = array();
@@ -378,6 +322,8 @@ echo'<div id="media_library" class="wrapper">';
 									
 									if( !empty($options) ){
 									
+										$save_url = '';
+										
 										echo '<form style="padding:10px;" target="_self" id="importAppImages" action="' . $save_url . '" method="get">';
 											
 											echo '<div style="padding-bottom:10px;display:block;">';
@@ -461,8 +407,8 @@ echo'<div id="media_library" class="wrapper">';
 						}
 						
 						$type = !empty($filter['image-type']) ? $filter['image-type'] : '';
-
-						echo'<li style="padding:3px 6px;">';
+						
+						echo'<li style="padding:7px;">';
 							
 							echo'<form id="formFilters">';
 								
@@ -487,7 +433,7 @@ echo'<div id="media_library" class="wrapper">';
 									'options' 			=> $options,
 									'data'				=> $type,
 									'description'		=> '',
-									'style'				=> '',
+									'style'				=> 'height:26px;padding:3px;',
 
 								),false,false);
 								

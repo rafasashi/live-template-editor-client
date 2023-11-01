@@ -224,7 +224,7 @@
 					
 						//output more info
 						
-						do_action('ltple_product_info',$this);
+						do_action('ltple_product_info',$layer,$layer_range);
 						
 						if( $is_html && $is_editable && $layer->output != 'web-app' ){
 							
@@ -430,43 +430,6 @@
 			echo '</div>';
 
 		echo '</div>' . PHP_EOL;
-		
-		/*
-		
-		echo'<div id="layer_detail" class="col-xs-12 library-content">';
-
-			echo'<div class="row">';
-				
-				echo'<div class="col-xs-12 col-sm-6 col-lg-8">';
-					
-					echo '<div style="display:block;max-height:400px;background:#555;overflow:hidden;border-radius:15px;box-shadow: rgb(50 50 93 / 25%) 0px 13px 27px -5px, rgb(0 0 0 / 30%) 0px 8px 16px -8px;">';
-					
-					if( !empty($preview_modal) ){
-						
-						echo '<a href="#" type="button" data-toggle="modal" data-target="#'.$preview_modal['id'].'">';
-					}
-					
-					echo'<img style="margin:0 auto;" class="img-responsive" src="' . $this->image . '" alt="">';
-					
-					if( !empty($preview_modal) ){
-						
-						echo '</a>';
-					}
-					
-					echo '</div>';
-					
-				echo'</div>';
-				
-				echo'<div class="col-xs-12 col-sm-6 col-lg-4">';
-					
-					
-					
-				echo'</div>';
-				
-			echo'</div>';
-			
-		echo'</div>';
-		*/
 		
 		// upgrade plan modal
 			

@@ -51,7 +51,7 @@ class LTPLE_Client_Product {
 		
 		add_filter('template_redirect', array( $this, 'get_url_parameters' ));
 	
-		add_action('ltple_product_info', array($this,'get_product_info'),10,1 );
+		add_action('ltple_product_info', array($this,'get_product_info'),0,1 );
 		
 		add_filter('post_type_link', array( $this, 'get_permalink'),1,2);
 	}
@@ -462,7 +462,7 @@ class LTPLE_Client_Product {
 
 				echo'<div class="panel panel-default">';								
 				
-					echo'<div class="panel-body tab-content" style="min-height:380px;font-size:16px;line-height:2em;">';
+					echo'<div class="panel-body tab-content" style="font-size:16px;line-height:2em;">';
 						
 						$class = ' class="tab-pane active"';
 						

@@ -105,11 +105,14 @@ class LTPLE_Client_Checkout {
 		
 			$options = explode('|',$_GET['options']);
 			
-			echo'<div class="col-sm-7" style="' . ( !$this->parent->inWidget ? 'margin-top:20px;' : '' ).'">';
+			echo'<div class="col-sm-7" style="' . ( !$this->parent->inWidget ? 'margin-top:20px;min-height:calc(100vh - 103px)' : '' ).'">';
 				
 				if( $plans = $this->parent->plan->get_plans_by_options( $options ) ){
 					
-					//echo '<h4 style="margin-top:15px;">Upgrade to one of the following plans</h4>';
+					if( !$this->parent->inWidget ){
+					
+						echo '<h2 style="margin-top:15px;">Upgrade to one of the following plans</h2>';
+					}
 					
 					foreach( $plans as $i => $plan ){
 						
@@ -141,8 +144,39 @@ class LTPLE_Client_Checkout {
 								echo'<a href="'.$plan['info_url'].'" target="_blank" class="btn btn-sm btn-info" style="margin-right: 5px;">Info</a>';
 	
 								if( $this->parent->user->loggedin ){
-								
-									echo'<a href="' . $plan['agreement_url'] . '" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+									
+									if( !$this->parent->inWidget ){
+										
+										$modal_id = 'modal_' . md5($plan['agreement_url']);
+										
+										echo '<button type="button" onclick="return false;" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#'.$modal_id.'">' . ucfirst($plan['action']) . '</button>';
+										
+										echo '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+											
+											echo '<div class="modal-dialog modal-lg" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
+												
+												echo '<div class="modal-content">'.PHP_EOL;
+													
+													echo '<div class="modal-header">'.PHP_EOL;
+														
+														echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+														
+														echo '<h4 class="modal-title text-left" id="myModalLabel">Unlock '.$plan['title'].'</h4>'.PHP_EOL;
+													
+													echo '</div>'.PHP_EOL;
+
+													echo '<iframe id="iframe_'.$modal_id.'" data-src="' . $plan['agreement_url'] . '" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';						
+													
+												echo '</div>'.PHP_EOL;
+												
+											echo '</div>'.PHP_EOL;
+											
+										echo '</div>'.PHP_EOL;
+									}
+									else{
+										
+										echo'<a href="' . $plan['agreement_url'] . '" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+									}
 								}
 								else{
 									
