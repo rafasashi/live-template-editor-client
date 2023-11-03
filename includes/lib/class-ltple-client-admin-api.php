@@ -1162,7 +1162,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							$method = ( ( isset($field['method']) && $field['method'] == 'post' ) ? 'post' : 'get' );
 							
-							$html .= '<form id="formFilters" action="'.$field['action'].'" method="'.$method.'">';
+							$html .= '<form id="formFilters" style="height:calc( 100vh - 175px );" action="'.$field['action'].'" method="'.$method.'">';
 							
 							foreach( $data['name'] as $e => $name) {
 								
