@@ -762,9 +762,9 @@ if( typeof editorCallbacks == typeof undefined )
 			var container = $(target);
 			
 			var footerHeight = $("#ltple-footer").length > 0 ? $("#ltple-footer").height() : 0;
-										
+			
 			var containerOffset = container.offset().top;
-
+			
 			var height = $(window).height() - containerOffset - footerHeight;
 			
 			container.css("height", height + "px").css("min-height", height + "px");
