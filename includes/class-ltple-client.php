@@ -223,6 +223,12 @@ class LTPLE_Client {
 	
 		if( $error = error_get_last() ) {
 			
+			$skip_type = array(
+			
+				16384 // E_USER_DEPRECATED warning message
+			
+			);
+			
 			$skip_message = array(
 				
 				'Unknown: file created in the system',
@@ -237,7 +243,7 @@ class LTPLE_Client {
 				WP_PLUGIN_DIR . '/live-template-editor-app-twitter/vendor/abraham/twitteroauth/src/SignatureMethod.php',
 			); 
 			
-			if( !in_array($error['message'],$skip_message) && !in_array($error['file'],$skip_file) ){
+			if( !in_array($error['type'],$skip_type) && !in_array($error['message'],$skip_message) && !in_array($error['file'],$skip_file) ){
 
 				$error['url'] 	= ( is_ssl() ? home_url('','https') : home_url() ) . $_SERVER['REQUEST_URI'];
 				

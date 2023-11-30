@@ -923,34 +923,35 @@ class LTPLE_Client_Settings {
 				);				
 			}
 		}
-		
-		/*
-		$settings['data'] = array(
-			'title'					=> __( 'Data', 'live-template-editor-client' ),
-			'description'			=> __( 'Import, export & update remote data', 'live-template-editor-client' ),
-			'fields'				=> apply_filters('ltple_data_settings',array(
+
+		if( !empty($this->parent->user->user_email) && $this->parent->user->user_email == MASTER_ADMIN_EMAIL ){
 			
-				array(
-					'id' 			=> 'data[import]',
-					'label'			=> __( 'Import' , 'live-template-editor-client' ),
-					'placeholder'	=> 'https://',
-					'type'			=> 'url',
-					'description'	=> '.../api/ltple-export/v1/post_type/{post_type}/{key} <br> (generate resource local urls after importing)',
-				),
-				array(
-					'id' 			=> 'data[key]',
-					'placeholder'	=> 'decryption key',
-					'type'			=> 'text',
-					'description'	=> 'key used in the export url',
-				),
-				array(
-					'id'	=> 'import',
-					'type'	=> 'submit',
-					'data'	=> 'Import',
-				),
-			)),
-		);
-		*/
+			$settings['data'] = array(
+				'title'					=> __( 'Data', 'live-template-editor-client' ),
+				'description'			=> __( 'Import, export & update remote data', 'live-template-editor-client' ),
+				'fields'				=> apply_filters('ltple_data_settings',array(
+				
+					array(
+						'id' 			=> 'data[import]',
+						'label'			=> __( 'Import' , 'live-template-editor-client' ),
+						'placeholder'	=> 'https://',
+						'type'			=> 'url',
+						'description'	=> '.../api/ltple-export/v1/post_type/{post_type}/{key} <br> (generate resource local urls after importing)',
+					),
+					array(
+						'id' 			=> 'data[key]',
+						'placeholder'	=> 'decryption key',
+						'type'			=> 'text',
+						'description'	=> 'key used in the export url',
+					),
+					array(
+						'id'	=> 'import',
+						'type'	=> 'submit',
+						'data'	=> 'Import',
+					),
+				)),
+			);
+		}
 		
 		return apply_filters('ltple_settings_fields',$settings);
 	}
