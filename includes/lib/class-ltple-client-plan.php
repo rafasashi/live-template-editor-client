@@ -665,7 +665,7 @@ class LTPLE_Client_Plan {
 								
 								if( $i == 0 ){
 									
-									$row .='<td rowspan="' . count($ranges) . '" style="text-align:center;background:#efefef;">';
+									$row .='<td rowspan="' . count($ranges) . '" style="text-align:center;background:#efefef;vertical-align:middle;">';
 									
 										if( $total_storage_amount > 0 ){
 											
@@ -778,7 +778,7 @@ class LTPLE_Client_Plan {
 				
 				$table .= '<div id="section_'.$md5.'" class="panel-collapse collapse">';
 					
-					$table .= '<table id="plan_licenses" class="able-striped">';
+					$table .= '<table id="plan_licenses" class="table table-striped">';
 
 						if( $total_bandwidth > 0 ){
 							
@@ -822,7 +822,7 @@ class LTPLE_Client_Plan {
 									
 								$table .= '</td>';	
 								
-								$table .= '<td style="text-align:center;background:#efefef;">';							
+								$table .= '<td style="text-align:center;background:#efefef;vertical-align:middle;">';							
 						
 									$table .= '<span class="badge" data-toggle="tooltip" data-placement="left" title="" data-original-title="Unlimited"><i class="fas fa-infinity" style="font-size:14px;"></i></span>';
 									
