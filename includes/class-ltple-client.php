@@ -869,7 +869,6 @@ class LTPLE_Client {
 					
 				},99999999,1);
 				
-
 				add_action( 'wp_enqueue_scripts',function(){
 
 					// styles

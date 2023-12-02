@@ -10,7 +10,7 @@
 		}
 		else{
 		
-			echo '<h2 id="plan_title" style="margin-bottom: 0;padding: 30px 30px;font-weight: bold;background: rgba(158, 158, 158, 0.24);box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);">' . $post->post_title . '</h2>';
+			echo '<h2 id="plan_title" class="m-0 p-4" style="font-weight:bold;background: rgba(158, 158, 158, 0.24);box-shadow:inset 0 -1px 10px -6px rgba(0,0,0,0.75);">' . $post->post_title . '</h2>';
 							
 			if( $plan_thumb = get_the_post_thumbnail_url($post->ID) ){
 				

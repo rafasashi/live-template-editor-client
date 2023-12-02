@@ -1123,7 +1123,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'placeholder'	=> 'JSON content',
 						);
 					}
-
+					
 					if( $layer->post_type == 'cb-default-layer' ){
 						
 						if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
@@ -1221,8 +1221,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$outputs = apply_filters('ltple_layer_html_output',array(
 			
-			'post',
-			'page',
 			'inline-css',
 			'external-css',
 			'hosted-page',
@@ -1448,7 +1446,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								
 								$tab .= '<div class="modal-header">'.PHP_EOL;
 									
-									$tab .= '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+									$tab .= '<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 									
 									$tab .= '<h4 class="modal-title text-left" id="myModalLabel">Media Library</h4>'.PHP_EOL;
 								
@@ -1867,9 +1865,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$post_type = get_post_type_object($layer->post_type);
 		
 				$storage_name = $post_type->labels->singular_name;
-						
+				
 				if( $this->is_html_output($layer_type->output) ){
-
+					
 					$metabox = array( 
 			
 						'name' 		=> 'layer-code',
@@ -2581,13 +2579,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$term->storage 	= 'user-element';
 						}
 						elseif( $post->post_type == 'page' ){
-						
+
+							// TODO migrate pages to element shortcode
+							
 							$term->name 	= 'Page';
 							$term->output 	= 'hosted-page';
 							$term->storage 	= 'page';
 						}
 						elseif( $post->post_type == 'post' ){
-						
+							
+							// TODO migrate posts to element shortcode
+							
 							$term->name 	= 'Post';
 							$term->output 	= 'hosted-page';
 							$term->storage 	= 'post';
@@ -3341,7 +3343,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						// get default elements
 
 						$this->defaultElements = get_post_meta( $this->defaultId, 'layerElements', true );
-												
+						
 						// get layer meta
 						
 						$this->layerMeta = get_post_meta( $this->id, 'layerMeta', true );
@@ -3477,7 +3479,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 			}
 		}
-		elseif( is_numeric($layer_id) ){
+		elseif( is_numeric($layer_id) && $layer_id > 0 ){
 			
 			if( $this->has_libraries($layer_id,$type) ){
 				
@@ -3575,8 +3577,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$library->url 		= $this->get_css_parsed_url($library);
 							$library->prefix 	= 'style-' . $library->term_id;
 						}
-					}	
-				
+					}
 				}
 			}
 		}
@@ -5028,8 +5029,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'id'				=> 'css_content',
 					'name'				=> 'css_content',
 					'placeholder'		=> '.style{display:block;}',
-					'description'		=> '<i>without ' . htmlentities('<style></style>') . '</i>'
-					
+					'description'		=> '<i>without ' . htmlentities('<style></style>') . '</i>',
+					'htmlentities'		=> false,
 				), $term );				
 					
 			echo'</td>';
@@ -5319,7 +5320,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function get_font_parsed_url($term){
 		
 		$attach_id 	= intval($this->get_meta( $term, 'font_attachment' ));		
-
+		
 		if( is_numeric($attach_id) ){
 			
 			$url = wp_get_attachment_url($attach_id);
@@ -6060,13 +6061,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					$font_version = '1.0.7';
 				
 					$attach_id = get_term_meta($term->term_id, 'font_attachment', true);
-				
+					
+					$font_attachment = get_post($attach_id);
+							
 					$font_md5 = get_term_meta($term->term_id, 'font_md5', true);
 									
 					$md5 = md5($font_url.$attach_id.$font_version);
 					
-					if( $font_md5 != $md5 ){
-												
+					if( $font_md5 != $md5 || empty($font_attachment) ){
+						
 						$fonts = array(
 							
 							'text/css'		=> 'css',
@@ -6111,8 +6114,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						if( !empty($content) && !empty($ext) ){
 							
 							// remove current attachment
-							
-							$font_attachment = get_post($attach_id);
 							
 							if( !empty($font_attachment) ){
 								

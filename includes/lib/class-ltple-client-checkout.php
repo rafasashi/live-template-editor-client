@@ -159,7 +159,7 @@ class LTPLE_Client_Checkout {
 													
 													echo '<div class="modal-header">'.PHP_EOL;
 														
-														echo '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+														echo '<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 														
 														echo '<h4 class="modal-title text-left" id="myModalLabel">Unlock '.$plan['title'].'</h4>'.PHP_EOL;
 													

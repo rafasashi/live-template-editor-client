@@ -482,7 +482,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 								
 								foreach($data as $term){
 								
-									$html .= '<span class="tag button button-default"><span class="text">' . $term->name . '</span><span class="close">&times;</span><input type="hidden" value="' . $term->term_id . '" name="tax_input['.$field['taxonomy'].'][]"/></span>';
+									$html .= '<span class="tag button button-default"><span class="text">' . $term->name . '</span><span class="close m-0 p-0 border-0 bg-transparent">&times;</span><input type="hidden" value="' . $term->term_id . '" name="tax_input['.$field['taxonomy'].'][]"/></span>';
 								}
 							}
 							

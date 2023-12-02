@@ -593,37 +593,41 @@ class LTPLE_Client_Plan {
 							$modal_id='modal_'.md5($preview_url);
 							
 							$row .='<tr>';
+							
+								$row .='<td>';
 
-								$row .='<td style="cursor:pointer;" type="button" data-toggle="modal" data-target="#'.$modal_id.'">';
-
-									$row .='<b>';
+									$row .='<div style="cursor:pointer;" type="button" data-bs-toggle="modal" data-toggle="modal" data-target="#'.$modal_id.'" data-bs-target="#'.$modal_id.'">';
 										
-										$row .= $range['name'];
-										
-									$row .='</b>';
-
-									$row.='<i class="fas fa-eye pull-right hidden-xs" style="color:#b5b5b5;"></i>'.PHP_EOL;
-
-									$row.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
-										
-										$row.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
+										$row .='<b>';
 											
-											$row.='<div class="modal-content">'.PHP_EOL;
+											$row .= $range['name'];
 											
-												$row.='<div class="modal-header">'.PHP_EOL;
-													
-													$row.='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-													
-													$row.='<h4 class="modal-title text-left" id="myModalLabel">Gallery</h4>'.PHP_EOL;
+										$row .='</b>';
+
+										$row.='<i class="fas fa-eye pull-right hidden-xs" style="color:#b5b5b5;"></i>'.PHP_EOL;
+
+										$row.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+											
+											$row.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 												
+												$row.='<div class="modal-content">'.PHP_EOL;
+												
+													$row.='<div class="modal-header">'.PHP_EOL;
+														
+														$row.='<h4 class="modal-title text-left" id="myModalLabel">Gallery</h4>'.PHP_EOL;
+													
+														$row.='<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+														
+													$row.='</div>'.PHP_EOL;
+													
+													$row.= '<iframe data-src="'.$preview_url.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 40px);overflow:hidden;"></iframe>';											
+													
 												$row.='</div>'.PHP_EOL;
-												
-												$row.= '<iframe data-src="'.$preview_url.'" style="width:100%;position:relative;bottom:0;border:0;height:calc( 100vh - 40px);overflow:hidden;"></iframe>';											
 												
 											$row.='</div>'.PHP_EOL;
 											
 										$row.='</div>'.PHP_EOL;
-										
+									
 									$row.='</div>'.PHP_EOL;
 									
 								$row .='</td>';
@@ -634,17 +638,17 @@ class LTPLE_Client_Plan {
 										
 										// plan view
 										
-										$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+										$row .= '<span class="far fa-check-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
 									}
 									elseif( isset( $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] ) && $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] === true ){
 										
 										// billing info view
 										
-										$row .= '<span class="glyphicon glyphicon-ok-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+										$row .= '<span class="far fa-check-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
 									}											
 									else{
 										
-										$row .= '<span class="glyphicon glyphicon-remove-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
+										$row .= '<span class="far fa-times-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
 									}
 
 								$row .='</td>';
@@ -733,7 +737,7 @@ class LTPLE_Client_Plan {
 						
 						$table .= '<div id="section_'.$md5.'" class="panel-collapse collapse">';
 				
-							$table .='<table class="table-striped">';
+							$table .='<table class="table table-striped">';
 							
 							foreach( $rows as $row ){
 			
@@ -967,7 +971,7 @@ class LTPLE_Client_Plan {
 									
 									if( $action == 'renew' ){
 										
-										$shortcode .='<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+										$shortcode .='<button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-bs-toggle="modal" data-target="#'.$modal_id.'" data-bs-target="#'.$modal_id.'">'.PHP_EOL;
 										
 											$shortcode .= ucfirst($action).PHP_EOL;
 
@@ -975,7 +979,7 @@ class LTPLE_Client_Plan {
 									}
 									else{
 										
-										$shortcode .='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+										$shortcode .='<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-bs-toggle="modal" data-target="#'.$modal_id.'" data-bs-target="#'.$modal_id.'">'.PHP_EOL;
 											
 											if(!empty($atts['button'])){
 												
@@ -1009,8 +1013,6 @@ class LTPLE_Client_Plan {
 											
 												$shortcode .='<div class="modal-header">'.PHP_EOL;
 													
-													$shortcode .='<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-													
 													$shortcode .= '<h4 class="modal-title" id="myModalLabel">';
 													
 														$shortcode .= $plan['title'];
@@ -1021,7 +1023,9 @@ class LTPLE_Client_Plan {
 														}
 													
 													$shortcode .= '</h4>'.PHP_EOL;
-												
+													
+													$shortcode .='<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+													
 												$shortcode .='</div>'.PHP_EOL;
 
 												if( $this->parent->user->loggedin ){
