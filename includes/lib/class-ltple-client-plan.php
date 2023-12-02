@@ -594,9 +594,9 @@ class LTPLE_Client_Plan {
 							
 							$row .='<tr>';
 							
-								$row .='<td>';
+								$row .='<td class="p-0">';
 
-									$row .='<div style="cursor:pointer;" type="button" data-bs-toggle="modal" data-toggle="modal" data-target="#'.$modal_id.'" data-bs-target="#'.$modal_id.'">';
+									$row .='<div class="p-3" style="cursor:pointer;" type="button" data-bs-toggle="modal" data-toggle="modal" data-target="#'.$modal_id.'" data-bs-target="#'.$modal_id.'">';
 										
 										$row .='<b>';
 											
@@ -632,7 +632,7 @@ class LTPLE_Client_Plan {
 									
 								$row .='</td>';
 								
-								$row .='<td style="text-align:center;">';
+								$row .='<td style="vertical-align:middle;text-align:center;">';
 									
 									if( isset($plan['options'][0]) && in_array( $range['slug'], $plan['options'] ) ){
 										
@@ -653,7 +653,7 @@ class LTPLE_Client_Plan {
 
 								$row .='</td>';
 								
-								$row .='<td style="text-align:center;">';
+								$row .='<td style="vertical-align:middle;text-align:center;">';
 
 									$row .='<span class="badge">';
 									
@@ -729,7 +729,7 @@ class LTPLE_Client_Plan {
 						
 						$md5 = md5($section);
 						
-						$table .= '<a data-toggle="collapse" data-target="#section_'.$md5.'" class="plan_section">';
+						$table .= '<a data-toggle="collapse" data-bs-toggle="collapse" data-target="#section_'.$md5.'" data-bs-target="#section_'.$md5.'" class="plan_section">';
 						
 							$table .= $section . ' <i class="fas fa-angle-down pull-right" style="font-size:25px;"></i>';
 						
@@ -774,7 +774,7 @@ class LTPLE_Client_Plan {
 				
 				$md5 = md5(rand());
 				
-				$table .='<a data-toggle="collapse" data-target="#section_'.$md5.'" class="plan_section">Hosting <i class="fas fa-angle-down pull-right" style="font-size:25px;"></i></a>';
+				$table .='<a data-toggle="collapse" data-bs-toggle="collapse" data-target="#section_'.$md5.'" data-bs-target="#section_'.$md5.'" class="plan_section">Hosting <i class="fas fa-angle-down pull-right" style="font-size:25px;"></i></a>';
 				
 				$table .= '<div id="section_'.$md5.'" class="panel-collapse collapse">';
 					
