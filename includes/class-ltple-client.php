@@ -2615,7 +2615,20 @@ class LTPLE_Client {
 				$style .='color: #506988;';
 				
 			$style .='}';
-
+			
+			$style .='.wedocs-single-wrap .wedocs-single-content{';			
+							
+				$style .='min-height: 100vh;';
+				$style .='padding-right: 20px;';
+				
+			$style .='}';
+			
+			$style .='.wedocs-breadcrumb {';
+			
+				$style .='margin-top: 15px;';
+				
+			$style .='}';
+			
 			$style .='.wedocs-single-wrap .wedocs-single-content article .entry-content img{';			
 							
 				$style .='max-width: 100%;';
@@ -2626,6 +2639,13 @@ class LTPLE_Client {
 				$style .='background: transparent;';
 				$style .='display: block;';
 				
+			$style .='}';
+			
+			$style .='.wedocs-doc-nav a {';
+				
+				$style .='color: #fff;';
+				$style .='padding: 5px 10px;';
+			
 			$style .='}';
 			
 			$style .='span.htitle, .captionicons, .colorarea, .mainthemebgcolor, .dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus, .icon-box-top i:hover, .grey-box-icon:hover .fontawesome-icon.circle-white, .grey-box-icon.active .fontawesome-icon.circle-white, .active i.fontawesome-icon, .widget_tag_cloud a, .tagcloud a, #back-top a:hover span, .add-on, #commentform input#submit, .featured .wow-pricing-per, .featured .wow-pricing-cost, .featured .wow-pricing-button .wow-button, .buttoncolor, ul.social-icons li, #skill i, .btn-primary, .pagination .current, .ui-tabs-active, .totop, .totop:hover, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {';
