@@ -2616,6 +2616,12 @@ class LTPLE_Client {
 				
 			$style .='}';
 			
+			$style .='.wedocs-shortcode-wrap{';
+				
+				$style .='min-height:64vh;';
+			
+			$style .='}';
+			
 			$style .='.wedocs-single-wrap .wedocs-single-content{';			
 							
 				$style .='min-height: 100vh;';
