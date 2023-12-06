@@ -490,7 +490,6 @@ class LTPLE_Client_Plan {
 		$headers = array(
 		
 			'resources'	=> '<i class="fas fa-cubes"></i> Resources',
-		
 		);
 		
 		// get resources
@@ -539,7 +538,7 @@ class LTPLE_Client_Plan {
 							
 							$row .='<th style="width:20%;text-align:center;">';
 							
-								$row .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Access" data-content="Access to the range of resources within the ' . $storage_unit . ' gallery">';
+								$row .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Access" data-bs-title="Access" data-content="Access to the range of resources within the ' . $storage_unit . ' gallery" data-bs-content="Access to the range of resources within the ' . $storage_unit . ' gallery">';
 									
 									$row .= 'Access';
 								
@@ -551,7 +550,7 @@ class LTPLE_Client_Plan {
 							
 							$row .='<th style="width:20%;text-align:center;">';
 								
-								$row .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Resources" data-content="The amount of ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' included in the range of resources">';
+								$row .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Resources" data-bs-title="Resources" data-content="The amount of ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' included in the range of resources" data-bs-content="The amount of ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' included in the range of resources">';
 									
 									//$row .= $this->parent->layer->get_storage_name($type->storage) . 's';
 									
@@ -565,7 +564,7 @@ class LTPLE_Client_Plan {
 
 							$row .='<th style="width:20%;text-align:center;">';
 								
-								$row .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Storage" data-content="The amount of saved ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' allowed by the plan">';
+								$row .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Storage" data-bs-title="Storage" data-content="The amount of saved ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' allowed by the plan" data-bs-content="The amount of saved ' . $this->parent->layer->get_storage_name($type->storage) . 's' . ' allowed by the plan">';
 								
 									$row .= 'Storage';
 									
@@ -686,7 +685,7 @@ class LTPLE_Client_Plan {
 										}
 										else{
 											
-											$row .= '<span class="badge" data-toggle="tooltip" data-placement="left" title="" data-original-title="Unlimited">';
+											$row .= '<span class="badge" data-toggle="tooltip" data-placement="left" data-bs-placement="left" title="" data-original-title="Unlimited">';
 											
 												$row .= '<i class="fas fa-infinity" style="font-size:14px;"></i>';
 											
@@ -707,6 +706,8 @@ class LTPLE_Client_Plan {
 				}
 			}
 		}
+		
+		$resources = apply_filters('ltple_plan_table_resources',$resources,$plan);
 		
 		// get table
 		
@@ -792,13 +793,13 @@ class LTPLE_Client_Plan {
 
 								$table .= '<th style="width:20%;text-align:center;">';							
 						
-									$table .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Bandwidth" data-content="Monthy bandwidth usage limit" data-original-title="" title="">Bandwidth <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
+									$table .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Bandwidth" data-bs-title="Bandwidth" data-content="Monthy bandwidth usage limit" data-bs-content="Monthy bandwidth usage limit" data-original-title="" title="">Bandwidth <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
 									
 								$table .= '</th>';	
 								
 								$table .= '<th style="width:20%;text-align:center;">';							
 						
-									$table .= '<div data-html="true" data-toggle="popover" data-placement="bottom" data-trigger="hover" data-title="Bandwidth" data-content="The amount of stored images allowed by the plan" data-original-title="" title="">Storage <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
+									$table .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Bandwidth" data-bs-title="Bandwidth" data-content="The amount of stored images allowed by the plan" data-bs-content="The amount of stored images allowed by the plan" data-original-title="" title="">Storage <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
 									
 								$table .= '</th>';
 								
@@ -824,7 +825,7 @@ class LTPLE_Client_Plan {
 								
 								$table .= '<td style="text-align:center;background:#efefef;vertical-align:middle;">';							
 						
-									$table .= '<span class="badge" data-toggle="tooltip" data-placement="left" title="" data-original-title="Unlimited"><i class="fas fa-infinity" style="font-size:14px;"></i></span>';
+									$table .= '<span class="badge" data-toggle="tooltip" data-placement="left" data-bs-placement="left" title="" data-original-title="Unlimited"><i class="fas fa-infinity" style="font-size:14px;"></i></span>';
 									
 								$table .= '</td>';
 								

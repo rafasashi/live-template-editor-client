@@ -860,15 +860,22 @@ if( typeof editorCallbacks == typeof undefined )
 			
 		$('[data-toggle="tooltip"]').tooltip();
 		
-		$('[data-toggle="popover"]').popover().on("click", function(e) {
+		if( typeof bootstrap === 'object' && typeof bootstrap.Modal === 'function' ){
 			
-			if($(this).attr('data-trigger') == 'hover'){
+			document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => new bootstrap.Popover(el));
+		}
+		else{
+			
+			$('[data-toggle="popover"]').popover().on("click", function(e) {
 				
-				e.preventDefault();
-				
-				$(location).attr('href',$(this).attr('href'));
-			}
-		});
+				if( $(this).attr('data-trigger') == 'hover' ){
+					
+					e.preventDefault();
+					
+					$(location).attr('href',$(this).attr('href'));
+				}
+			});
+		}
 		
 		// set hash on click without jumb
 		
