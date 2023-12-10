@@ -885,10 +885,10 @@ class LTPLE_Client_Settings {
 				array(
 					'id' 			=> 'main_video',
 					'name' 			=> 'main_video',
-					'label'			=> __( 'HTML editor video' , 'live-template-editor-client' ),
+					'label'			=> __( 'HTML editor' , 'live-template-editor-client' ),
 					'description'	=> 'HTML editor video',
-					'type'			=> 'text',
-					'placeholder'	=> 'http://',
+					'type'			=> 'url',
+					'placeholder'	=> 'https://',
 				),
 				
 			))

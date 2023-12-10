@@ -591,6 +591,20 @@ class LTPLE_Client_Plan {
 
 							$modal_id='modal_'.md5($preview_url);
 							
+
+							if( isset($plan['options'][0]) && in_array( $range['slug'], $plan['options'] ) ){
+								
+								$has_access = true;
+							}
+							elseif( isset( $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] ) && $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] === true ){
+								
+								$has_access = true;
+							}											
+							else{
+								
+								$has_access = false;
+							}
+							
 							$row .='<tr>';
 							
 								$row .='<td class="p-0">';
@@ -633,15 +647,7 @@ class LTPLE_Client_Plan {
 								
 								$row .='<td style="vertical-align:middle;text-align:center;">';
 									
-									if( isset($plan['options'][0]) && in_array( $range['slug'], $plan['options'] ) ){
-										
-										// plan view
-										
-										$row .= '<span class="far fa-check-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
-									}
-									elseif( isset( $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] ) && $plan['taxonomies'][$range['taxonomy']]['terms'][$range['slug']]['has_term'] === true ){
-										
-										// billing info view
+									if( $has_access ){
 										
 										$row .= '<span class="far fa-check-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
 									}											
@@ -665,8 +671,12 @@ class LTPLE_Client_Plan {
 								if( $i == 0 ){
 									
 									$row .='<td rowspan="' . count($ranges) . '" style="text-align:center;background:#efefef;vertical-align:middle;">';
-									
-										if( $total_storage_amount > 0 ){
+										
+										if( !$has_access ){
+											
+											$row .= '<span class="badge">0</span>';
+										}
+										else if( $total_storage_amount > 0 ){
 											
 											$row .= '<span class="badge">';
 											
