@@ -933,7 +933,7 @@ class LTPLE_Client_Plan {
 					
 					$shortcode .= '<div class="modal-body" style="padding:0px;">'.PHP_EOL;
 					
-						$shortcode .= '<iframe sandbox="allow-scripts allow-top-navigation allow-forms allow-same-origin" src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
+						$shortcode .= '<iframe sandbox="allow-popups allow-scripts allow-top-navigation allow-forms allow-same-origin" src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
 				
 					$shortcode .= '</div>';
 				}
