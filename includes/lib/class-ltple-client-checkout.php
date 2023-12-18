@@ -107,7 +107,7 @@ class LTPLE_Client_Checkout {
 			
 			echo'<div class="col-sm-7" style="' . ( !$this->parent->inWidget ? 'margin-top:20px;min-height:calc(100vh - 103px)' : '' ).'">';
 				
-				if( $plans = $this->parent->plan->get_plans_by_options( $options ) ){
+				if( $plans = $this->parent->plan->get_plans_by_options($options,'OR') ){
 					
 					if( !$this->parent->inWidget ){
 					

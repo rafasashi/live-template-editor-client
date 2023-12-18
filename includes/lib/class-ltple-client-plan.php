@@ -933,7 +933,7 @@ class LTPLE_Client_Plan {
 					
 					$shortcode .= '<div class="modal-body" style="padding:0px;">'.PHP_EOL;
 					
-						$shortcode .= '<iframe sandbox="allow-popups allow-scripts allow-top-navigation allow-forms allow-same-origin" src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
+						$shortcode .= '<iframe sandbox="allow-scripts allow-top-navigation allow-forms allow-same-origin" src="'.$agreement_url.'" style="position:relative;width:100%;bottom: 0;border:0;height:' . ($this->iframe_height - 10 ) . 'px;overflow: hidden;"></iframe>';													
 				
 					$shortcode .= '</div>';
 				}
@@ -1380,7 +1380,7 @@ class LTPLE_Client_Plan {
 		return $taxonomies;
 	}
 	
-	public function get_plans_by_options( $options = array() ){
+	public function get_plans_by_options( $options = array(), $relation = 'AND' ){
 		
 		$plans = array();
 		
@@ -1390,13 +1390,21 @@ class LTPLE_Client_Plan {
 				
 				foreach( $subscription_plans as $plan ){
 					
-					$in_plan = true;
+					$in_plan = $relation == 'AND' ? true : false;
 					
 					foreach( $options as $option ){
 						
 						if( !in_array($option,$plan['options']) ){
 							
-							$in_plan = false;
+							if( $relation == 'AND' ){
+							
+								$in_plan = false;
+								break;
+							}
+						}
+						elseif( $relation == 'OR' ){
+							
+							$in_plan = true;
 							break;
 						}
 					}
