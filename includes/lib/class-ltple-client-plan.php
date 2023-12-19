@@ -662,7 +662,7 @@ class LTPLE_Client_Plan {
 
 									$row .='<span class="badge">';
 									
-										$row .= $this->parent->gallery->get_badge_count($range['count']);
+										$row .= $this->parent->gallery->get_badge_count(apply_filters('ltple_plan_range_count',$range['count'],$range));
 									
 									$row .= '</span>';
 									

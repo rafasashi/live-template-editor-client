@@ -773,7 +773,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				if( $taxonomies = get_object_taxonomies($layer->post_type) ){
 					
 					if( in_array('layer-range',$taxonomies) ){
-							
+						
 						$this->defaultFields[] = array(
 						
 							'metabox' => array( 
@@ -2127,9 +2127,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 											
 						// todo move visibility to term meta
 							
-						$term->visibility 	= $this->get_type_visibility($term);
+						$term->visibility = $this->get_type_visibility($term);
 
-						$term->output 		= $this->get_type_output($term);
+						$term->output = $this->get_type_output($term);
 
 						$term->gallery_section = $this->get_type_gallery_section($term);
 						
