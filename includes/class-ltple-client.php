@@ -861,7 +861,7 @@ class LTPLE_Client {
 		
 		if( !empty($layer_type->output) ){
 			
-			if( strpos($this->urls->current,$this->urls->home . '/' . $this->product->slug . '/') === 0 ){
+			if( $this->urls->is_product_page($layer) ){
 				
 				add_filter('ltple_css_framework',function($framework){
 					
@@ -1024,6 +1024,8 @@ class LTPLE_Client {
 					wp_enqueue_script( $this->_token . '-store' );
 
 				},10 );
+				
+				$path = apply_filters('ltple_product_page_path',$path,$layer);
 			}
 			elseif( $this->layer->is_default($layer) && empty($_GET['action']) ){
 				

@@ -143,6 +143,16 @@ class LTPLE_Client_Urls {
 			
 		return false;
 	}
+	
+	public function is_product_page($layer){
+		
+		if( strpos($this->current,$this->home . '/' . $this->parent->product->slug . '/') === 0 ){
+			
+			return true;
+		}
+		
+		return apply_filters('ltple_is_product_page',false,$layer);
+	}		
 		
 	public function init_urls(){
 		

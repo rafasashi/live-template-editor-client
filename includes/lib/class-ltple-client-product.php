@@ -148,7 +148,7 @@ class LTPLE_Client_Product {
 			$this->slug . '/([^/]+)/?$',
 			'index.php?pagename=' . $this->slug . '&slug=$matches[1]',
 			'top'
-		);		
+		);
 		
 		if( !is_admin() ){
 			
