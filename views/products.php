@@ -1,17 +1,21 @@
 <?php 
 
-	if(!empty($this->message)){ 
+	$ltple = LTPLE_Client::instance();
 	
-		echo $this->message;
+	get_header();
+
+	if(!empty($ltple->product->message)){ 
+	
+		echo $ltple->product->message;
 	}
 	
 	echo'<h1 class="px-3"><i class="fa fa-shopping-cart" aria-hidden="true"></i> Newly added Products</h1>';
 
-	echo'<div id="layer_detail" class="container-fluid">';
+	echo'<div id="layer_detail" class="container-fluid" style="min-height:calc( 100vh - 167px );">';
 		
 		echo'<div class="row">';
 			
-			if( $current_types = $this->parent->gallery->get_current_types() ){
+			if( $current_types = $ltple->gallery->get_current_types() ){
 			
 				foreach( $current_types as $term ){
 					
@@ -64,7 +68,7 @@
 						
 												if( !$thumb = get_the_post_thumbnail($post->ID, array(50,50)) ){
 													
-													$thumb = '<div style="background-image:url('.$this->parent->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width:75px;height:75px;display:block;"></div>';
+													$thumb = '<div style="background-image:url('.$ltple->assets_url . 'images/default_item.png);background-size:cover;background-repeat:no-repeat;background-position:center center;width:75px;height:75px;display:block;"></div>';
 												}
 													
 												echo $thumb;
@@ -79,10 +83,12 @@
 												
 												echo '</a>';
 												
-												echo '<br>';
+												echo '<p style="height:45px;overflow:hidden;">';
 												
-												echo $post->post_excerpt;
-											
+													echo $post->post_excerpt;
+												
+												echo'</p>';
+												
 											echo'</div>';
 										
 										echo'</div>';
@@ -92,7 +98,7 @@
 								
 								if( count($q) == 3 ){
 							
-									echo'<a class="btn btn-xs btn-primary" style="margin:5px;" href="' . $this->parent->urls->gallery . '?gallery=' . $term->slug . '">see more</a>';
+									echo'<a class="btn btn-xs btn-primary" style="margin:5px;" href="' . $ltple->urls->gallery . '?gallery=' . $term->slug . '">see more</a>';
 								}
 								
 							echo'</div>';
@@ -104,3 +110,5 @@
 		echo'</div>';
 
 	echo'</div>';
+	
+	get_footer();

@@ -40,7 +40,7 @@ class LTPLE_Client_Checkout {
 		
 			if( $layer = get_post($layer_id) ){
 				
-				if( $layer->post_type == 'cb-default-layer' ){
+				if( $layer->post_type == 'cb-default-layer' || $this->parent->layer->is_element($layer) ){
 				
 					echo'<div class="col-sm-7">';
 

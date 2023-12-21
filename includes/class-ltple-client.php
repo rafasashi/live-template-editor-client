@@ -1025,7 +1025,14 @@ class LTPLE_Client {
 
 				},10 );
 				
-				$path = apply_filters('ltple_product_page_path',$path,$layer);
+				if( !empty($this->product->ID) ){
+					
+					$path = $this->views . '/product.php';
+				}
+				else{
+					
+					$path = apply_filters('ltple_product_page_path',$this->views . '/products.php',$layer);
+				}
 			}
 			elseif( $this->layer->is_default($layer) && empty($_GET['action']) ){
 				

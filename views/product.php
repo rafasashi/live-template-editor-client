@@ -1,52 +1,52 @@
 <?php 
+	
+	$ltple = LTPLE_Client::instance();
+	
+	global $post;
+	
+	$layer = !empty($ltple->product->ID) ? $ltple->product : $post;
+	
+	$layer = LTPLE_Editor::instance()->get_layer($layer);
 
-	$layer = LTPLE_Editor::instance()->get_layer($this);
+	$visibility = $ltple->layer->get_layer_visibility( $layer );
 	
-	$visibility = $this->parent->layer->get_layer_visibility( $layer );
+	$has_layer = $ltple->plan->user_has_layer($layer);
 	
-	if( $visibility != 'assigned' || $this->parent->user->is_admin || $this->parent->user->has_layer ){
+	get_header();
+	
+	if( $visibility != 'assigned' || $has_layer || $ltple->user->is_admin ){
 				
-		$start_url 	= $this->parent->urls->edit . '?uri=' . $layer->ID;
+		$start_url 	= $ltple->urls->edit . '?uri=' . $layer->ID;
 		
-		$product_url 	= get_permalink($layer->ID);
+		$product_url = get_permalink($layer->ID);
 
-		$layer_range 	= $this->parent->layer->get_layer_range($layer->ID);
+		$layer_range = $ltple->layer->get_layer_range($layer->ID);
 			
-		$is_html = $this->parent->layer->is_html_output($layer->output);
+		$is_html = $ltple->layer->is_html_output($layer->output);
 		
 		$is_editable = $layer->is_editable;
 				
-		$output_name = $this->parent->layer->get_output_name($layer->output);
+		$output_name = $ltple->layer->get_output_name($layer->output);
 		
 		// get from value
-
-		$this->parent->plan->options = array();
+	
+		$preview_modal = $ltple->layer->get_preview_modal($layer);
 		
-		foreach( $this->taxonomies['layer-range']['terms'] as $term ){
-			
-			if($term['has_term']){
-				
-				$this->parent->plan->options[] = $term['slug'];
-			}
-		}
-		
-		$has_layer 	 	= $this->parent->plan->user_has_layer( $this );
-		
-		$preview_modal 	= $this->parent->layer->get_preview_modal($layer);
-		
-		$from_amount 	= null;
+		$from_amount = null;
 		
 		if( !$has_layer ){
 		
-			$plans = $this->parent->plan->get_plans_by_options($this->parent->plan->options);
+			$ranges = $ltple->product->get_product_ranges($layer);
+		
+			$plans = $ltple->plan->get_plans_by_options($ranges);
 		
 			$from_amount = isset($plans[0]['info']['total_price_amount']) ? $plans[0]['info']['total_price_amount'] : null;
 			$from_currency 	= isset($plans[0]['info']['total_price_currency']) ? $plans[0]['info']['total_price_currency'] : '$';
 		}
 		
-		if(!empty($this->message)){ 
+		if(!empty($ltple->product->message)){ 
 		
-			echo $this->message;
+			echo $ltple->product->message;
 		}
 		
 		echo '<div id="product_detail">';
@@ -62,13 +62,13 @@
 				
 					echo '<div id="product_gallery" class="p-0 col-sm-1 d-none d-md-block">';
 						
-						if( $ids = $this->get_product_gallery_ids($layer) ){
+						if( $ids = $ltple->product->get_product_gallery_ids($layer) ){
 							
 							foreach( $ids as $i => $image_id ){
 							
 								echo '<div class="media border p-1 mx-3 mb-2 float-left' . ( $i===0 ? ' active' : '' ) . '" data-index="' . $i . '">';
 									
-									echo '<img loading="lazy" class="lazy" src="'.$this->get_product_image_url($image_id,'thumbnail').'" decoding="async"/>';
+									echo '<img loading="lazy" class="lazy" src="'.$ltple->product->get_product_image_url($image_id,'thumbnail').'" decoding="async"/>';
 									
 								echo '</div>';
 							}
@@ -78,15 +78,15 @@
 					
 					echo '<div id="product_preview" class="p-0 col-12 col-sm-6 col-lg-7">';
 						
-						if( $ids = $this->get_product_gallery_ids($layer) ){
+						if( $ids = $ltple->product->get_product_gallery_ids($layer) ){
 							
 							foreach( $ids as $i => $image_id ){
 								
 								echo '<div class="m-auto product-image svgLoader text-center">';
 									
-									echo '<img loading="lazy" class="lazy pl-3 pr-3 img-responsive" src="' . $this->get_product_image_url($image_id,'medium_large') . '" alt="' . $layer->post_title . '">';
+									echo '<img loading="lazy" class="lazy pl-3 pr-3 img-responsive" src="' . $ltple->product->get_product_image_url($image_id,'medium_large') . '" alt="' . $layer->post_title . '">';
 									
-									echo '<a class="product-view" href="' . $this->get_product_image_url($image_id,'full') . '" title="' . $layer->post_title . '"><i class="fas fa-search-plus"></i></a>';
+									echo '<a class="product-view" href="' . $ltple->product->get_product_image_url($image_id,'full') . '" title="' . $layer->post_title . '"><i class="fas fa-search-plus"></i></a>';
 								
 								echo '</div>';
 							}
@@ -96,7 +96,7 @@
 					
 					echo '<div id="product_sidebar" class="col-12 col-sm-5 col-lg-4">';
 
-						echo  '<h1 id="product_title">' . $this->post_title . '</h1>';
+						echo  '<h1 id="product_title">' . $layer->post_title . '</h1>';
 
 						echo'<div class="bs-callout bs-callout-primary">';
 						
@@ -107,9 +107,9 @@
 									echo'font-size:17px;';
 									echo'padding: 10px 15px;';
 									echo'background:#ffffff;';
-									echo'color:' . $this->parent->settings->mainColor . ';';
+									echo'color:' . $ltple->settings->mainColor . ';';
 									echo'border-radius:4px;';
-									echo'border: 1px solid ' . $this->parent->settings->mainColor . ';';
+									echo'border: 1px solid ' . $ltple->settings->mainColor . ';';
 									
 								echo'">';				
 									
@@ -147,9 +147,9 @@
 									
 									echo'<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_self" title="Start editing this '.$output_name.'">Start</a>';
 								}
-								elseif( empty($this->parent->user->plan) || $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+								elseif( empty($ltple->user->plan) || $ltple->user->plan['holder'] == $ltple->user->ID ){
 									
-									echo $this->get_checkout_button($layer);
+									echo $ltple->product->get_checkout_button($layer);
 								}
 										
 							echo'</div>';
@@ -158,7 +158,7 @@
 					
 						echo'<p style="margin:5px;height:70px;overflow:hidden;">';
 
-							echo '<b>' . $this->post_title . '</b> is a ';
+							echo '<b>' . $layer->post_title . '</b> is a ';
 						
 							echo' '.$output_name.' ';
 							
@@ -172,39 +172,39 @@
 								echo'available online via our '.( $layer->output == 'web-app' ? 'platform' : 'HTML editing tool' ).'. ';
 							}
 							
-							echo $this->post_excerpt;
+							echo $layer->post_excerpt;
 							
-							edit_post_link( __( 'Edit', 'templatemela' ), '<span class="edit-link"><i class="fa fa-pencil"></i>', '</span>', $this->ID );
+							edit_post_link( __( 'Edit', 'templatemela' ), '<span class="edit-link"><i class="fa fa-pencil"></i>', '</span>', $layer->ID );
 						
 						echo'</p>';
 						
 						echo'<div id="share_product" style="margin:25px 0;font-size:40px;">';
 						
-							echo'<a href="https://twitter.com/intent/tweet?text=' . urlencode( 'Awesome ' . $this->post_title . '! ' . $product_url ) . '" target="_blank" title="share on twitter" style="margin:5px;">';
+							echo'<a href="https://twitter.com/intent/tweet?text=' . urlencode( 'Awesome ' . $layer->post_title . '! ' . $product_url ) . '" target="_blank" title="share on twitter" style="margin:5px;">';
 							
 								echo'<i class="fab fa-twitter-square" aria-hidden="true"></i>';
 							
 							echo'</a>';
 							
-							echo'<a href="https://www.facebook.com/sharer/sharer.php?u='.urlencode( $product_url ).'&t='.urlencode( 'Awesome ' . $this->post_title . '!' ).'" target="_blank" title="share on facebook" style="margin:5px;">';
+							echo'<a href="https://www.facebook.com/sharer/sharer.php?u='.urlencode( $product_url ).'&t='.urlencode( 'Awesome ' . $layer->post_title . '!' ).'" target="_blank" title="share on facebook" style="margin:5px;">';
 						
 								echo'<i class="fab fa-facebook-square" aria-hidden="true"></i>';
 							
 							echo'</a>';
 							
-							echo'<a href="http://pinterest.com/pin/create/link/?url='.urlencode( $product_url ).'&description='.urlencode( 'Awesome ' . $this->post_title . '!' ).'" target="_blank" title="share on pinterest" style="margin:5px;">';
+							echo'<a href="http://pinterest.com/pin/create/link/?url='.urlencode( $product_url ).'&description='.urlencode( 'Awesome ' . $layer->post_title . '!' ).'" target="_blank" title="share on pinterest" style="margin:5px;">';
 							
 								echo'<i class="fab fa-pinterest-square" aria-hidden="true"></i>';
 						
 							echo'</a>';
 							
-							echo'<a href="https://www.linkedin.com/cws/share?url='.urlencode( $product_url ).'&title='.urlencode( $this->post_title ).'&summary='.urlencode( $this->post_excerpt ).'" target="_blank" title="share on linkedin" style="margin:5px;">';
+							echo'<a href="https://www.linkedin.com/cws/share?url='.urlencode( $product_url ).'&title='.urlencode( $layer->post_title ).'&summary='.urlencode( $layer->post_excerpt ).'" target="_blank" title="share on linkedin" style="margin:5px;">';
 							
 								echo'<i class="fab fa-linkedin" aria-hidden="true"></i>';
 						
 							echo'</a>';
 							
-							echo'<a href="https://www.reddit.com/submit?url='.urlencode( $product_url ).'&title='.urlencode( $this->post_title ) .'" target="_blank" title="share on reddit" style="margin:5px;">';
+							echo'<a href="https://www.reddit.com/submit?url='.urlencode( $product_url ).'&title='.urlencode( $layer->post_title ) .'" target="_blank" title="share on reddit" style="margin:5px;">';
 							
 								echo'<i class="fab fa-reddit-square" aria-hidden="true"></i>';
 						
@@ -218,7 +218,7 @@
 
 						echo'<div class="alert alert-info text-center">';
 						
-							echo'For more information about a tailored '.$output_name.' like <b>' . $this->post_title . '</b> please contact us directly.';
+							echo'For more information about a tailored '.$output_name.' like <b>' . $layer->post_title . '</b> please contact us directly.';
 							
 						echo'</div>';							
 					
@@ -248,7 +248,7 @@
 										
 										echo '<p style="margin:10px;">';
 										
-											echo 'Edit <b>' . $this->post_title . '</b> code, duplicate or remove parts, save your custom version and export the result online directly from the editor.';
+											echo 'Edit <b>' . $layer->post_title . '</b> code, duplicate or remove parts, save your custom version and export the result online directly from the editor.';
 										
 										echo '</p>';
 										
@@ -270,7 +270,7 @@
 										
 										echo '<p style="margin:10px;">';
 										
-											echo 'Insert your contents into <b>' . $this->post_title . '</b> template directly from the editor, import images to your library, build custom payment links and add them to your list of bookmarks.';
+											echo 'Insert your contents into <b>' . $layer->post_title . '</b> template directly from the editor, import images to your library, build custom payment links and add them to your list of bookmarks.';
 
 										echo '</p>';
 										
@@ -326,11 +326,11 @@
 								
 								echo'<div class="col-md-4">';
 									
-									$video_url = get_option( $this->parent->_base . 'main_video' );
+									$video_url = get_option( $ltple->_base . 'main_video' );
 									
 									if( !empty($video_url) ){
 										
-										echo'<iframe src="https://www.youtube.com/embed/'.$this->parent->apps->get_youtube_id($video_url).'" frameborder="0" style="background-color:#000000;width:100%;height:300px;" allowfullscreen></iframe>';
+										echo'<iframe src="https://www.youtube.com/embed/'.$ltple->apps->get_youtube_id($video_url).'" frameborder="0" style="background-color:#000000;width:100%;height:300px;" allowfullscreen></iframe>';
 									}
 									
 								echo'</div>';
@@ -343,7 +343,7 @@
 								
 										$q = get_posts( array(
 										
-											'post_type' 	=> $this->post_type,
+											'post_type' 	=> $layer->post_type,
 											'numberposts' 	=> -1,
 											'tax_query' 	=> array(
 												
@@ -378,7 +378,7 @@
 												
 													echo '<div class="media mb-1 p-0">';
 														
-														if( $image = $this->parent->layer->get_preview_image_url($post->ID,'thumbnail',$this->parent->assets_url . 'images/default_item.png') ){
+														if( $image = $ltple->layer->get_preview_image_url($post->ID,'thumbnail',$ltple->assets_url . 'images/default_item.png') ){
 														
 															echo '<a class="thumbnail mb-3 mr-1" href="' . get_permalink($post) . '">';
 														
@@ -433,5 +433,7 @@
 		
 		// upgrade plan modal
 			
-		include( $this->parent->views  . '/modals/upgrade.php');
+		include( $ltple->views  . '/modals/upgrade.php');
 	}
+	
+	get_footer();

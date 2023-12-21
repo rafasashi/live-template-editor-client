@@ -772,7 +772,7 @@ class LTPLE_Client_Settings {
 				array(
 					'id' 			=> 'productSlug',
 					'label'			=> __( 'Product' , 'live-template-editor-client' ),
-					'description'	=> '[ltple-client-product]',
+					'description'	=> '',
 					'type'			=> 'slug',
 					'placeholder'	=> __( 'product', 'live-template-editor-client' )
 				)

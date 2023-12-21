@@ -106,11 +106,7 @@ class LTPLE_Client_Product {
 				$alt_url = $this->parent->layer->get_preview_image_url($post->ID,'post-thumbnail',$this->parent->assets_url . 'images/default_item.png');
 				
 				$this->image = $this->parent->layer->get_thumbnail_url($post->ID,'post-thumbnail',$alt_url);
-				
-				$layer_plan = $this->parent->plan->get_layer_options($post->ID);
 
-				$this->taxonomies 	= $layer_plan['taxonomies'];
-				
 				add_filter('document_title_parts', array($this,'get_title'), 99,1);
 			
 				add_action('wp_head', array($this, 'get_meta_tags'));
@@ -149,11 +145,6 @@ class LTPLE_Client_Product {
 			'index.php?pagename=' . $this->slug . '&slug=$matches[1]',
 			'top'
 		);
-		
-		if( !is_admin() ){
-			
-			add_shortcode('ltple-client-product', array( $this , 'get_product_shortcode' ) );
-		}
 	}
 	
 	public function get_permalink( $post_link, $post ){
@@ -174,6 +165,24 @@ class LTPLE_Client_Product {
         //$title['site'];
 		
 		return $title;
+	}
+	
+	public function get_product_ranges($product){
+		
+		$ranges = array();
+		
+		if( $layer_plan = $this->parent->plan->get_layer_options($product->ID) ){
+
+			foreach( $layer_plan['taxonomies']['layer-range']['terms'] as $term ){
+				
+				if($term['has_term']){
+					
+					$ranges[] = $term['slug'];
+				}
+			}
+		}
+		
+		return $ranges;
 	}
 	
 	public function get_meta_tags(){
@@ -208,26 +217,6 @@ class LTPLE_Client_Product {
 	
 		return $this->parent->canonical_url;
 	}	
-	
-	public function get_product_shortcode(){
-	
-		ob_start();
-	
-		echo '<div style="min-height:500px;">';
-		
-			if( !empty($this->ID) ){
-				
-				include($this->parent->views . '/product.php');
-			}
-			else{
-				
-				include($this->parent->views . '/products.php');
-			}
-			
-		echo '</div>';
-		
-		return ob_get_clean();
-	}
 	
 	public function get_agreement_url( $post, $layer_type, $fee=null, $plan=null ){
 		
