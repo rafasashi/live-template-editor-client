@@ -874,7 +874,15 @@ class LTPLE_Client_Settings {
 		
 			'title'					=> __( 'Templates', 'live-template-editor-client' ),
 			'description'			=> 'Default template settings',
-			'fields'				=> apply_filters('ltple_templates_settings',array())
+			'fields'				=> apply_filters('ltple_templates_settings',array(
+				array(
+					'id' 			=> 'default_range_id',
+					'label'			=> __( 'Default gallery range' , 'live-template-editor-client' ),
+					'description'	=> 'Default range of the template gallery',
+					'type'			=> 'dropdown_categories',
+					'taxonomy'		=> 'layer-range',
+				),
+			))
 		);
 		
 		$settings['videos'] = array(

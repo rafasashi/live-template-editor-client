@@ -9,12 +9,12 @@
 	$current_types = $this->gallery->get_current_types();
 	
 	// get layer type
-
-	if( $layer_type = $this->gallery->get_layer_type_info((!empty($_GET['gallery']) ? sanitize_title($_GET['gallery']) : false )) ){
+	
+	if( $layer_type = $this->gallery->get_current_type() ){
 		
-		//get layer range
+		// get layer range
 		
-		$layer_range = ( !empty($_GET['range']) ? $_GET['range'] : key($layer_type->ranges) );
+		$layer_range = $this->gallery->get_current_range();
 		
 		//get layer range name
 		

@@ -180,6 +180,71 @@ class LTPLE_Client_Gallery {
 		return $this->current_types;
 	}
 	
+	public function get_current_type(){
+		
+		if( !empty($_GET['gallery']) ){
+			
+			$layer_type = $this->get_layer_type_info(sanitize_title($_GET['gallery']));
+		}
+		elseif( $default_range = intval(get_option('ltple_default_range_id',false)) ){
+			
+			$current_types = $this->get_current_types();
+			
+			foreach($current_types as $type){
+				
+				foreach( $type->ranges as $range ){
+					
+					if( $range['term_id'] == $default_range ){
+						
+						$layer_type = $type;
+						
+						break;
+					}
+				}
+			}
+		}
+		else{
+			
+			$layer_type = $this->get_layer_type_info(false);
+		}
+		
+		return $layer_type;
+	}
+	
+	public function get_current_range(){
+		
+		if( !empty($_GET['range']) ){
+		
+			$layer_range = sanitize_title($_GET['range']);
+		}
+		elseif( $default_range = intval(get_option('ltple_default_range_id',false)) ){
+			
+			$current_types = $this->get_current_types();
+			
+			$layer_type = $this->get_current_type();
+			
+			$layer_range = key($layer_type->ranges);
+			
+			foreach( $layer_type->ranges as $range ){
+				
+				if( $range['term_id'] == $default_range ){
+					
+					$layer_range = $range['slug'];
+					
+					break;
+				}
+			}
+		}
+		else{
+			
+			$layer_type = $this->get_layer_type_info(false);
+			
+			$layer_range = key($layer_type->ranges);
+		}
+		
+		return $layer_range;
+	}
+	
 	public function get_all_sections(){
 		
 		if( is_null($this->all_sections) ){
@@ -368,13 +433,11 @@ class LTPLE_Client_Gallery {
 		
 		$referer = $rest->get_header( 'referer' );
 		
-		$gallery = !empty($_GET['gallery']) ? sanitize_title($_GET['gallery']) : false;
-		
-		if( $layer_type = $this->get_layer_type_info($gallery) ){
+		if( $layer_type = $this->get_current_type() ){
 			
 			//get layer range
 			
-			$layer_range = ( !empty($_GET['range']) ? sanitize_title($_GET['range']) : key($layer_type->ranges) );
+			$layer_range = $this->get_current_range();
 			
 			// get gallery items 
 			

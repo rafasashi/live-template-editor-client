@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			add_action('save_post', array( $this, 'save_meta_boxes' ), 10, 1 );
 			
 			add_shortcode('ltple-client-admin', array( $this , 'get_admin_frontend' ) );
-						
+			
 			do_action('updated_option', array( $this, 'settings_updated' ), 10, 3 );
 		}
 		
@@ -1638,12 +1638,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 				
 				case 'dropdown_categories':
-
+					
 					$html .= wp_dropdown_categories(array(
 					
 						'show_option_none' => 'None',
 						'taxonomy'     => $field['taxonomy'],
-						'name'    	   => $field['name'],
+						'name'    	   => $option_name,
+						'id'    	   => $field['id'],
 						'show_count'   => false,
 						'hierarchical' => true,
 						'selected'     => $data,
@@ -2787,7 +2788,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		 * @return string       Validated value
 		 */
 		public function validate_output ( $data = '', $type = 'text' ) {
-
+			
 			switch( $type ) {
 				
 				case 'text'		: $data = esc_attr( $data ); break;
