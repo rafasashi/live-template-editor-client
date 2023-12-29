@@ -2610,6 +2610,12 @@ class LTPLE_Client {
 				$style .='border: none !important;';
 			
 			$style .='}';
+			
+			$style .='.wedocs-single-wrap .wedocs-sidebar h3.widget-title {';
+				
+				$style .='padding:15px;';
+				
+			$style .='}';
 
 			$style .='.wedocs-single-wrap .wedocs-sidebar ul.doc-nav-list > li.current_page_parent > a, .wedocs-single-wrap .wedocs-sidebar ul.doc-nav-list > li.current_page_item > a, .wedocs-single-wrap .wedocs-sidebar ul.doc-nav-list > li.current_page_ancestor > a {';
 				

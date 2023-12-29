@@ -671,12 +671,8 @@ class LTPLE_Client_Plan {
 								if( $i == 0 ){
 									
 									$row .='<td rowspan="' . count($ranges) . '" style="text-align:center;background:#efefef;vertical-align:middle;">';
-										
-										if( !$has_access ){
-											
-											$row .= '<span class="badge">0</span>';
-										}
-										else if( $total_storage_amount > 0 ){
+
+										if( $total_storage_amount > 0 ){
 											
 											$row .= '<span class="badge">';
 											
@@ -693,13 +689,17 @@ class LTPLE_Client_Plan {
 												
 											$row .= '</span>';
 										}
-										else{
+										else if( $has_access ){
 											
-											$row .= '<span class="badge" data-toggle="tooltip" data-placement="left" data-bs-placement="left" title="" data-original-title="Unlimited">';
+											$row .= '<span class="badge" data-toggle="tooltip" data-placement="left" data-bs-placement="left" title="" data-original-title="Not applicable">';
 											
-												$row .= '<i class="fas fa-infinity" style="font-size:14px;"></i>';
+												$row .= 'N/A';
 											
 											$row .= '</span>';
+										}
+										else{
+											
+											$row .= '<span class="badge">0</span>';
 										}
 										
 									$row .='</td>';
