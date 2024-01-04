@@ -859,7 +859,7 @@
 					$notify = array();
 				}
 				
-				$notify = array_merge($this->parent->email->get_notification_settings(),$notify);
+				$notify = array_merge($this->parent->email->get_notification_fields(),$notify);
 				
 				foreach( $notify as $channel => $can_notify ){
 					
@@ -899,7 +899,6 @@
 				$this->list->{$user_id}->last_seen 	= isset($meta['ltple__last_seen']) ? $meta['ltple__last_seen'] : '';
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
-				$this->list->{$user_id}->can_spam 	= isset($meta['ltple__can_spam']) ? $meta['ltple__can_spam'] : 'false';
 				$this->list->{$user_id}->referredBy	= isset($meta[$this->parent->_base . 'referredBy']) ? $meta[$this->parent->_base . 'referredBy'] : '';
 
 				// user marketing channel
@@ -913,7 +912,6 @@
 			
 			$user_agent	= $this->list->{$user_id}->last_uagent;
 			$user_stars	= $this->list->{$user_id}->stars;
-			$can_spam  	= $this->list->{$user_id}->can_spam;
 			$referredBy	= $this->list->{$user_id}->referredBy;
 			$channel   	= $this->list->{$user_id}->channel;
 			
@@ -1107,23 +1105,18 @@
 		
 		public function get_user_notification_settings( $user_id ){
 			
-			if( !$notify = get_user_meta($user_id, 'ltple_notify',true) ){
+			if( $notify = get_user_meta($user_id, 'ltple_notify',true) ){
 				
-				if( !$last_seen = get_user_meta($user_id, 'ltple__last_seen',true)){
-					
-					$can_spam = 'false';
-				}
-				elseif ( !$can_spam = get_user_meta($user_id, 'ltple__can_spam',true) ){
-					
-					$can_spam = 'false';
-				}
+				unset($notify['series']);
+			}
+			else{
 				
-				$notify = array('series' => $can_spam);
+				$notify = array();
 			}
 			
 			// normalize default notification settings
 			
-			$notification_settings = $this->parent->email->get_notification_settings();
+			$notification_settings = $this->parent->email->get_notification_fields();
 			
 			foreach( $notification_settings as $key => $value ){
 				
@@ -1146,15 +1139,7 @@
 			
 				$notify = array();
 				
-				if( wp_verify_nonce($wp_nonce, "ltple_can_spam") && isset($_REQUEST["ltple_can_spam"]) ){
-					
-					$can_spam = $_REQUEST["ltple_can_spam"] == 'true' ? 'true' : 'false';
-
-					$notify = $this->get_user_notification_settings($user_id);				
-						
-					$notify['series'] = $can_spam;
-				}
-				elseif( wp_verify_nonce($wp_nonce, "ltple_notify") && isset($_REQUEST["ltple_notify"]) && is_array($_REQUEST["ltple_notify"]) ){
+				if( wp_verify_nonce($wp_nonce, "ltple_notify") && isset($_REQUEST["ltple_notify"]) && is_array($_REQUEST["ltple_notify"]) ){
 					
 					$notify = $this->get_user_notification_settings($user_id);
 					
@@ -1248,7 +1233,7 @@
 			
 			if( !empty($_REQUEST['selectAll']) ){
 
-				$users = $this->get_all_selected_users('id');
+				$users = $this->get_all_selected_users('ID');
 			}
 			elseif( !empty($_REQUEST['users']) && is_array($_REQUEST['users']) ){
 				
@@ -1348,21 +1333,6 @@
 					$this->bulk_add_range();
 					$this->bulk_add_option();
 					//$this->bulk_add_stars();					
-					
-					if( !empty($_GET['users']) ){
-
-						//redirect url
-						
-						$redirect_url = remove_query_arg( array(
-						
-							'users',
-							'_wp_http_referer',
-							
-						),$this->parent->urls->current);
-					
-						wp_redirect($redirect_url);
-						exit;					
-					}
 					
 				return;
 			}
@@ -1480,16 +1450,12 @@
 			return $query;
 		}
 			
-		public function get_all_selected_users( $field ) {
-			
-			$selected_users = array();
-			
-			$meta_query = array();
-				
+		public function get_all_selected_users( $fields ) {
+
 			$args = array( 
-				
-				'fields' 		=> array($field),
-				'meta_query' 	=> $meta_query,
+
+				'number' => -1,
+				'fields' => $fields,
 			);
 			
 			$s = $this->get_search_query();
@@ -1513,18 +1479,14 @@
 				$args['role__in'] = array($role);
 			}
 			
-			if( $users = new WP_User_Query($args)){
+			$users = array();
+			
+			if( $query = new WP_User_Query($args)){
 				
-				if( !empty($users->results) ){
-					
-					foreach( $users->results as $user){
-						
-						$selected_users[] = $user->{$field};
-					}
-				}
+				$users = $query->get_results();
 			}
 			
-			return $selected_users;
+			return $users;
 		}
 		
 		public function delete_user_manually(){

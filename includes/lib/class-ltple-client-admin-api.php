@@ -1603,7 +1603,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						}
 						else{
 
-							$selected = $key == $data ? true : false;
+							$selected = false;
+					
+							if( is_numeric($data) && floatval($key) === floatval($data) ) {
+								
+								$selected = true;
+							}
+							elseif( $key === $data ){
+								
+								$selected = true;
+							}
 
 							$html .= '<option ' . selected( $selected, true, false ) . ' value="' . esc_attr( $key ) . '">' . $value . '</option>';
 						}
@@ -1641,7 +1650,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					
 					$html .= wp_dropdown_categories(array(
 					
-						'show_option_none' => 'None',
+						'show_option_none' => !empty($field['none']) ? $field['none'] : 'None',
 						'taxonomy'     => $field['taxonomy'],
 						'name'    	   => $option_name,
 						'id'    	   => $field['id'],

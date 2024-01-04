@@ -2,7 +2,9 @@
 
 $ltple = LTPLE_Client::instance();
 
-$currentTab = $ltple->get_current_tab('email-notifications');
+$currentTab = $ltple->get_current_tab('billing-info');
+
+$notifications = $ltple->account->get_notification_fields();
 
 echo'<div id="media_library" class="wrapper">';
 
@@ -13,12 +15,15 @@ echo'<div id="media_library" class="wrapper">';
 		echo'<ul class="nav nav-tabs tabs-left">';
 
 			//echo'<li class="gallery_type_title">Account Settings</li>';
-
-			echo'<li'.( $currentTab == 'email-notifications' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->account . '?tab=email-notifications">Email Notifications</a></li>';
-							
+		
 			echo'<li'.( $currentTab == 'billing-info' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->account . '?tab=billing-info">Billing Info</a></li>';
 			
 			echo'<li'.( $currentTab == 'plan-details' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->account . '?tab=plan-details">Plan Details</a></li>';
+			
+			if( !empty( $notifications ) ){
+			
+				echo'<li'.( $currentTab == 'email-notifications' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->account . '?tab=email-notifications">Email Notifications</a></li>';
+			}
 			
 			do_action('ltple_account_settings_sidebar',$currentTab);
 
@@ -32,7 +37,7 @@ echo'<div id="media_library" class="wrapper">';
 		
 		echo'<div class="tab-content">';
 
-			if( $currentTab == 'email-notifications' ){
+			if( $currentTab == 'email-notifications' && !empty($notifications) ){
 			
 				//---------------------- output Email Notifications --------------------------
 				
@@ -56,23 +61,21 @@ echo'<div id="media_library" class="wrapper">';
 
 							echo'<table class="form-table">';
 								
-								if(!empty($ltple->account->notificationSettings )){
+								foreach( $notifications as $field ){
 									
-									foreach( $ltple->account->notificationSettings as $field ){
+									echo'<tr>';
+									
+										echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
 										
-										echo'<tr>';
+										echo'<td style="padding:20px;">';
 										
-											echo'<th><label for="'.$field['label'].'">'.ucfirst($field['label']).'</label></th>';
-											
-											echo'<td style="padding:20px;">';
-											
-												$ltple->admin->display_field( $field , $ltple->user );
-											
-											echo'</td>';
-											
-										echo'</tr>';
-									}
+											$ltple->admin->display_field( $field , $ltple->user );
+										
+										echo'</td>';
+										
+									echo'</tr>';
 								}
+							
 								
 							echo'</table>';
 							

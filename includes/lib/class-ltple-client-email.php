@@ -202,7 +202,7 @@ class LTPLE_Client_Email {
 		return false;
 	}
 	
-	public function get_notification_settings( $field = 'default' ){
+	public function get_notification_fields( $field = 'default' ){
 		
 		// get notification settings
 		
@@ -754,14 +754,7 @@ class LTPLE_Client_Email {
 				
 				$users = $this->imported['imported'];
 			}
-			
-			/*
-			if(!empty($this->parent->email->imported['already registered'])){
-			
-				$users = array_merge($users,$this->parent->email->imported['already registered']);
-			}
-			*/
-
+		
 			if(!empty($users)){
 				
 				// get plan thumb
@@ -784,124 +777,119 @@ class LTPLE_Client_Email {
 						
 						'ri' 	=> $this->parent->user->refId,
 						
-					), $this->parent->urls->gallery ); 
+					), $this->parent->urls->gallery );
 					
-					$can_spam = get_user_meta( $user['id'], 'ltple__can_spam',true);
-
-					if( $can_spam == 'true' ){
+					//get invitation title
 					
-						//get invitation title
-						
-						$invitation_title = 'User invitation - ' . ucfirst($this->parent->user->nickname) . ' is inviting you to try ' . $company . ' ';
-						
-						//check if invitation exists
+					$invitation_title = 'User invitation - ' . ucfirst($this->parent->user->nickname) . ' is inviting you to try ' . $company . ' ';
+					
+					//check if invitation exists
 
-						if( !$invitation = get_posts(array(
+					if( !$invitation = get_posts(array(
+						
+						'post_type' 	=> 'email-invitation',
+						'author' 		=> $this->parent->user->ID,
+
+						'meta_query' 	=> array(	
+							array(
 							
-							'post_type' 	=> 'email-invitation',
-							'author' 		=> $this->parent->user->ID,
+								'key' 		=> 'invited_user_email',
+								'value' 	=> $user['email'],									
+							),
+						)
+					
+					))){
 
-							'meta_query' 	=> array(	
-								array(
-								
-									'key' 		=> 'invited_user_email',
-									'value' 	=> $user['email'],									
-								),
-							)
+						//get invitation content
 						
-						))){
-
-							//get invitation content
-							
-							$invitation_content = '<table style="width: 100%; max-width: 100%; min-width: 320px; background-color: #f1f1f1;margin:0;padding:40px 0 45px 0;margin:0 auto;text-align:center;border:0;">';
-										
-								$invitation_content .= '<tr>';
+						$invitation_content = '<table style="width: 100%; max-width: 100%; min-width: 320px; background-color: #f1f1f1;margin:0;padding:40px 0 45px 0;margin:0 auto;text-align:center;border:0;">';
 									
-									$invitation_content .= '<td>';
+							$invitation_content .= '<tr>';
+								
+								$invitation_content .= '<td>';
+									
+									$invitation_content .= '<table style="width: 100%; max-width: 600px; min-width: 320px; background-color: #FFFFFF;border-radius:5px 5px 0 0;-moz-border-radius:5px 5px 0 0;-ms-border-radius:5px 5px 0 0;-o-border-radius:5px 5px 0 0;-webkit-border-radius:5px 5px 0 0;text-align:center;border:0;margin:0 auto;font-family: Arial, sans-serif;">';
 										
-										$invitation_content .= '<table style="width: 100%; max-width: 600px; min-width: 320px; background-color: #FFFFFF;border-radius:5px 5px 0 0;-moz-border-radius:5px 5px 0 0;-ms-border-radius:5px 5px 0 0;-o-border-radius:5px 5px 0 0;-webkit-border-radius:5px 5px 0 0;text-align:center;border:0;margin:0 auto;font-family: Arial, sans-serif;">';
+										$invitation_content .= '<tr>';
 											
-											$invitation_content .= '<tr>';
+											$invitation_content .= '<td style="font-family: Arial, sans-serif;padding:10px 0 15px 0;font-size:19px;color:#888888;font-weight:bold;border-bottom:1px solid #cccccc;text-align:center;background-color:#FFFFFF;">';
 												
-												$invitation_content .= '<td style="font-family: Arial, sans-serif;padding:10px 0 15px 0;font-size:19px;color:#888888;font-weight:bold;border-bottom:1px solid #cccccc;text-align:center;background-color:#FFFFFF;">';
-													
-													$invitation_content .= 'Friendly Invitation';
-													
-												$invitation_content .= '</td>';
-											
-											$invitation_content .= '</tr>';
-											
+												$invitation_content .= 'Friendly Invitation';
+												
+											$invitation_content .= '</td>';
+										
+										$invitation_content .= '</tr>';
+										
+										$invitation_content .= '<tr>';	
+
+											$invitation_content .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:20px;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
+												
+												$invitation_content .= 'Hello '.$user_name.',' . PHP_EOL . PHP_EOL;
+												
+												$invitation_content .= ucfirst($this->parent->user->nickname) . ' is currently using <b>' . $company . '</b> and is inviting you to try it!' . PHP_EOL . PHP_EOL;
+												
+											$invitation_content .=  '</td>';
+														
+										$invitation_content .= '</tr>';
+												
+										if( !empty($_POST['importMessage']) ){
+										
 											$invitation_content .= '<tr>';	
 
-												$invitation_content .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:20px;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
-													
-													$invitation_content .= 'Hello '.$user_name.',' . PHP_EOL . PHP_EOL;
-													
-													$invitation_content .= ucfirst($this->parent->user->nickname) . ' is currently using <b>' . $company . '</b> and is inviting you to try it!' . PHP_EOL . PHP_EOL;
-													
+												$invitation_content .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:10px 20px ;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
+																										
+													$invitation_content .= 'Additional message from ' . ucfirst($this->parent->user->nickname) . ': ' . PHP_EOL;
+														
 												$invitation_content .=  '</td>';
-															
+														
 											$invitation_content .= '</tr>';
-													
-											if( !empty($_POST['importMessage']) ){
-											
-												$invitation_content .= '<tr>';	
 
-													$invitation_content .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:10px 20px ;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
+											$invitation_content .= '<tr>';													
+														
+												$invitation_content .= '<td style="background: rgb(248, 248, 248);display:block;padding:20px;margin:20px;text-align:left;border-left: 5px solid #888;">';
+														
+													$invitation_content .= $_POST['importMessage'];
+												
+												$invitation_content .=  '</td>';
+														
+											$invitation_content .= '</tr>';														
+										}
+
+										$invitation_content .= '<tr>';	
+
+											$invitation_content .= '<td style="font-family: Arial, sans-serif;height:150px;font-size:16px;color:#666666;text-align:center;border:0;background-color:#FFFFFF;">';
 																											
-														$invitation_content .= 'Additional message from ' . ucfirst($this->parent->user->nickname) . ': ' . PHP_EOL;
-															
-													$invitation_content .=  '</td>';
-															
-												$invitation_content .= '</tr>';
+												$invitation_content .=  '<a style="background: ' . $this->parent->settings->mainColor . ';color: #fff;padding: 17px;text-decoration: none;border-radius: 5px;font-weight: bold;font-size: 20px;" href="'.$editor_url.'">Let\'s do it! </a>' . PHP_EOL . PHP_EOL;
 
-												$invitation_content .= '<tr>';													
-															
-													$invitation_content .= '<td style="background: rgb(248, 248, 248);display:block;padding:20px;margin:20px;text-align:left;border-left: 5px solid #888;">';
-															
-														$invitation_content .= $_POST['importMessage'];
-													
-													$invitation_content .=  '</td>';
-															
-												$invitation_content .= '</tr>';														
-											}
-
-											$invitation_content .= '<tr>';	
-
-												$invitation_content .= '<td style="font-family: Arial, sans-serif;height:150px;font-size:16px;color:#666666;text-align:center;border:0;background-color:#FFFFFF;">';
-																												
-													$invitation_content .=  '<a style="background: ' . $this->parent->settings->mainColor . ';color: #fff;padding: 17px;text-decoration: none;border-radius: 5px;font-weight: bold;font-size: 20px;" href="'.$editor_url.'">Let\'s do it! </a>' . PHP_EOL . PHP_EOL;
-
-												$invitation_content .=  '</td>';
-											$invitation_content .=  '</tr>';
-										$invitation_content .=  '</table>';
-										 
-									$invitation_content .=  '<td>';
-								$invitation_content .=  '<tr>';
-							$invitation_content .=  '</table>';
+											$invitation_content .=  '</td>';
+										$invitation_content .=  '</tr>';
+									$invitation_content .=  '</table>';
+									 
+								$invitation_content .=  '<td>';
+							$invitation_content .=  '<tr>';
+						$invitation_content .=  '</table>';
+						
+						$invitation_content = str_replace(PHP_EOL,'<br/>',$invitation_content);
+						
+						//insert invitation
+						
+						if($invitation_id = wp_insert_post( array(
+						
+							'post_type'     	=> 'email-invitation',
+							'post_title' 		=> $invitation_title,
+							'post_content' 		=> $invitation_content,
+							'post_status' 		=> 'publish',
+							'menu_order' 		=> 0
+						))){
 							
-							$invitation_content = str_replace(PHP_EOL,'<br/>',$invitation_content);
+							update_post_meta($invitation_id,'invited_user_email',$user['email']);
 							
-							//insert invitation
+							wp_schedule_single_event( ( time() + ( 60 * $m ) ) , 'ltple_send_email_event' , [$invitation_id,$user['email']] );
 							
-							if($invitation_id = wp_insert_post( array(
-							
-								'post_type'     	=> 'email-invitation',
-								'post_title' 		=> $invitation_title,
-								'post_content' 		=> $invitation_content,
-								'post_status' 		=> 'publish',
-								'menu_order' 		=> 0
-							))){
+							if ($i % 10 == 0) {
 								
-								update_post_meta($invitation_id,'invited_user_email',$user['email']);
-								
-								wp_schedule_single_event( ( time() + ( 60 * $m ) ) , 'ltple_send_email_event' , [$invitation_id,$user['email']] );
-								
-								if ($i % 10 == 0) {
-									
-									++$m;
-								}								
-							}
+								++$m;
+							}								
 						}
 					}
 				}

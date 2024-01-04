@@ -1,7 +1,7 @@
 <?php 
 /**
  * Plugin Name: Live Template Editor Client
- * Version: 1.1.14.34
+ * Version: 1.1.14.35
  * Plugin URI: https://github.com/rafasashi
  * Description: Live Template Editor allows you to edit and save HTML5 and CSS3 templates.
  * Author: Rafasashi
@@ -24,7 +24,7 @@
 	* Add documentation link
 	*
 	*/
-	
+
 	if ( ! defined( 'ABSPATH' ) ) exit;
 	
 	$plugins = apply_filters('active_plugins', get_option('active_plugins'));

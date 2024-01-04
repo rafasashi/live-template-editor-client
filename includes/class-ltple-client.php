@@ -140,6 +140,7 @@ class LTPLE_Client {
 		add_action('init', array( $this, 'load_localisation' ), 0 );		
 		
 		$this->client 		= new LTPLE_Client_Client( $this );
+		
 		$this->request 		= new LTPLE_Client_Request( $this );
 		$this->email 		= new LTPLE_Client_Email( $this );
 		$this->session 		= new LTPLE_Client_Session( $this );
@@ -195,7 +196,7 @@ class LTPLE_Client {
 		$this->extension = new LTPLE_Client_Extension( $this );
 					
 		$this->update = new LTPLE_Client_Update( $this );
-		
+
 		if( is_admin() ) {		
 		
 			add_action('init', array( $this, 'init_backend' ));
@@ -501,10 +502,8 @@ class LTPLE_Client {
 				
 				// get user notification settings
 				
-				$this->user->notify 		= $this->users->get_user_notification_settings( $this->user->ID );
-				$this->user->can_spam 		= $this->user->notify['series'];
-				$this->user->can_spam_set 	= ( !empty(get_user_meta($this->user->ID, 'ltple__can_spam',true)) ? true : false );
-				
+				$this->user->notify = $this->users->get_user_notification_settings( $this->user->ID );
+
 				// get user last user agent
 				
 				$this->user->last_uagent = get_user_meta( $this->user->ID, $this->_base . '_last_uagent',true);
@@ -1335,14 +1334,7 @@ class LTPLE_Client {
 			
 			// collect usr information
 
-			if( empty( $this->user->can_spam_set ) && !isset($_POST['ltple_can_spam']) ){
-				
-				include($this->views . '/modals/newsletter.php');
-			}
-			else{
-				
-				do_action('ltple_collect_user_information');
-			}
+			do_action('ltple_collect_user_information');
 		}
 		
 		do_action('ltple_footer');

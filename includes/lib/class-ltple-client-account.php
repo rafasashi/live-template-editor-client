@@ -6,37 +6,27 @@ class LTPLE_Client_Account {
 
 	private $parent;
 	
-	var $notificationSettings 	= null;
+	var $notificationFields = null;
 	
 	/**
 	 * Constructor function
 	 */
 	public function __construct ( $parent ) {
 
-		$this->parent 	= $parent;
+		$this->parent = $parent;
 		
-		add_filter('ltple_loaded', array( $this, 'init_account' ));
+		add_action('wp', array( $this,'init_account'),9999);
 		
 		add_shortcode('ltple-client-account', array( $this , 'get_account_shortcode' ) );
 	}
 	
 	public function init_account(){
 		
-		if( !is_admin() ){
-			
-			if( $this->parent->user->loggedin ){
-			
-				// get account fields
-
-				if( empty($_GET['tab']) || $_GET['tab'] == 'email-notifications' ){
-					
-					$this->set_notification_fields();
-				}
-				
-				// update account fields
-			
-				$this->handle_update_account();
-			}
+		if( !is_admin() && $this->parent->user->loggedin ){
+		
+			// update account fields
+		
+			$this->handle_update_account();
 		}
 	}
 	
@@ -58,19 +48,19 @@ class LTPLE_Client_Account {
 		return ob_get_clean();
 	}
 
-	public function set_notification_fields(){
+	public function get_notification_fields(){
 		
-		if( is_null($this->notificationSettings) ){
+		if( is_null($this->notificationFields) ){
 			
 			if( !empty($this->parent->user->notify) ){
 				
-				$descriptions = $this->parent->email->get_notification_settings('description');
+				$descriptions = $this->parent->email->get_notification_fields('description');
 				
 				foreach( $this->parent->user->notify as $key => $value ){
 					
 					if( !empty($descriptions[$key]) ){
 						
-						$this->notificationSettings[$key] = array(
+						$settings[$key] = array(
 
 							'id' 			=> $this->parent->_base . 'notify['.$key.']',
 							'label'			=> ucfirst($key),
@@ -81,9 +71,11 @@ class LTPLE_Client_Account {
 					}
 				}
 			}
+			
+			$this->notificationFields = apply_filters('ltple_notification_fields',$settings,$this->parent->user->ID);
 		}
 		
-		return $this->notificationSettings;
+		return $this->notificationFields;
 	}
 
 	public function handle_update_account(){
@@ -95,53 +87,31 @@ class LTPLE_Client_Account {
 
 			if( !empty($_POST['settings']) ){
 				
-				if( $_POST['settings'] == 'email-notifications' && !empty($this->parent->user->notify) ){
+				if( $_POST['settings'] == 'email-notifications' ){
 					
-					// save notification settings			
-					
-					foreach( $notify as $key => $value ){
-					
-						if( !empty($_POST['ltple_notify'][$key]) && $_POST['ltple_notify'][$key] == 'on' ){
-							
-							$notify[$key] = 'true';
-							
-							$this->notificationSettings[$key]['data'] = 'on';
+					if( !empty($notify) ){
+						
+						// save notification settings			
+						
+						foreach( $notify as $key => $value ){
+						
+							if( !empty($_POST['ltple_notify'][$key]) && $_POST['ltple_notify'][$key] == 'on' ){
+								
+								$notify[$key] = 'true';
+							}
+							else{
+								
+								$notify[$key] = 'false';
+							}
 						}
-						else{
-							
-							$notify[$key] = 'false';
-							
-							$this->notificationSettings[$key]['data'] = 'off';
-						}
+
+						update_user_meta($user_id, 'ltple_notify', $notify);
 					}
 					
-					update_user_meta($user_id, 'ltple__can_spam', $notify['series']);
-						
-					update_user_meta($user_id, 'ltple_notify', $notify);					
-				
-					$this->parent->user->notify = $notify;
+					do_action('ltple_update_notification_settings',$user_id);
 				}
 				
 				do_action('ltple_update_account');
-			}
-			elseif( !empty($_POST['ltple_can_spam']) && !empty($_REQUEST['submitted']) ){
-				
-				// collected from popup
-				
-				$wp_nonce = sanitize_title($_POST['ltple_can_spam']);
-				
-				$can_spam = $_REQUEST['submitted'] == 'true' ? 'true' : 'false';
-				
-				if( wp_verify_nonce($wp_nonce,'can_spam_nonce') ){
-				
-					$notify['series'] = $can_spam;
-					
-					update_user_meta($user_id,'ltple__can_spam',$can_spam);
-						
-					update_user_meta($user_id,'ltple_notify',$notify);
-				
-					$this->parent->user->notify = $notify;
-				}
 			}
 		}
 	}
