@@ -52,6 +52,8 @@ class LTPLE_Client_Account {
 		
 		if( is_null($this->notificationFields) ){
 			
+			$settings = array();
+			
 			if( !empty($this->parent->user->notify) ){
 				
 				$descriptions = $this->parent->email->get_notification_fields('description');
