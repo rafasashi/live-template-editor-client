@@ -16,7 +16,9 @@ class LTPLE_Client_Websocket {
 		
 		//init websocket 
 		
-		add_action( 'wp_loaded', array( $this, 'init' ));	
+		add_action('wp_loaded',array( $this,'init'));
+
+		add_action('ltple_editor_ui_script',array( $this,'get_editor_ui_script'),10,2);
 	}
 	
 	public function init(){
@@ -82,6 +84,184 @@ class LTPLE_Client_Websocket {
 		}
 		
 		return $socket_url;
+	}
+	
+	public function get_editor_ui_script($script,$layer){
+		
+		$script .= ';(function($){' . PHP_EOL;
+
+			$script .= $this->get_script('editor-ui');
+
+			$script .= '$(document).ready(function(){' . PHP_EOL;
+
+				$script .= 'var olWebSocket = startWebsocket("' . $this->get_key('layer_ui_' . $layer->ID) . '");' . PHP_EOL;
+
+			$script .= '});' . PHP_EOL;
+
+		$script .= '})(jQuery);' . PHP_EOL;
+		
+		return $script;
+	}
+	
+	public function get_script($context=''){
+		
+		$script = '';
+		
+		$script .= 'function showMessage(messageHTML) {' . PHP_EOL;
+			
+			if( $context == 'editor-ui' ){
+			
+				$script .= 'var message = new DOMParser().parseFromString(messageHTML, "text/xml");' . PHP_EOL;
+
+				$script .= 'console.log($(message).text());' . PHP_EOL;
+			}
+			else{
+			
+				$script = apply_filters('ltple_websocket_show_message_script',$script,$context);
+			}
+
+		$script .= '}' . PHP_EOL;
+		
+		$script .= 'function getSocketInfo(room){' . PHP_EOL;
+		
+			$script .= 'var info;' . PHP_EOL;
+
+			$script .= '$.ajax({' . PHP_EOL;
+				
+				$script .= 'type: "GET",' . PHP_EOL;
+				$script .= 'url	: "' . $this->parent->urls->api . 'ltple-websocket/v1/info/",' . PHP_EOL;
+				$script .= 'contentType: "application/json",' . PHP_EOL;
+				$script .= 'data: {' . PHP_EOL;
+					
+					$script .= 'room : room,' . PHP_EOL;
+				
+				$script .= '},' . PHP_EOL;
+				$script .= 'async: false,' . PHP_EOL;
+				$script .= 'beforeSend: function() {' . PHP_EOL;
+
+				$script .= '},' . PHP_EOL;
+				$script .= 'complete: function() {' . PHP_EOL;
+					
+					
+				$script .= '},' . PHP_EOL;
+				$script .= 'success: function(data) {' . PHP_EOL;
+					
+					$script .= 'if( typeof data.url == typeof undefined){';
+						
+						$script .= 'showMessage("<ws-error>Error reaching server</ws-error>");' . PHP_EOL;
+
+					$script .= '} else {';
+					
+						$script .= 'info = data;' . PHP_EOL;
+
+					$script .= '}';
+
+				$script .= '},' . PHP_EOL;
+				$script .= 'error: function(jqXHR,textStatus) {' . PHP_EOL;
+					
+					$script .= 'showMessage("<ws-error>Error reaching server</ws-error>");' . PHP_EOL;
+				
+				$script .= '}' . PHP_EOL;
+			
+			$script .= '});' . PHP_EOL;
+			
+			$script .= 'return info;' . PHP_EOL;
+			
+		$script .= '}' . PHP_EOL;
+		
+		$script .= 'function startWebsocket(info){' . PHP_EOL;
+
+			$script .= 'if( typeof info == \'string\' ){' . PHP_EOL;
+				
+				$script .= 'info = getSocketInfo(info);' . PHP_EOL;
+				
+			$script .= '}' . PHP_EOL;
+			
+			$script .= 'if( typeof info == typeof undefined && typeof info.url == typeof undefined ){' . PHP_EOL;
+				
+				$script .= 'showMessage("<ws-closed>Wrong socket credentials</ws-closed>");' . PHP_EOL;
+				
+				$script .= 'return false;' . PHP_EOL;
+				
+			$script .= '}' . PHP_EOL;
+			
+			$script .= 'showMessage("<ws-start>Connecting...</ws-start>");' . PHP_EOL;
+
+			$script .= 'olWebSocket = new WebSocket(info.url);' . PHP_EOL;
+
+			$script .= 'olWebSocket.onopen = function(event) {' . PHP_EOL; 
+				
+				$script .= 'showMessage("<ws-connection>Connection established</ws-connection>");' . PHP_EOL;	
+				
+				// keep the socket alive
+				
+				$script .= 'setInterval(function() {' . PHP_EOL;
+					
+					$script .= 'olWebSocket.send("");' . PHP_EOL;
+				
+				$script .= '}, 10 * 1000 );' . PHP_EOL; // every 10 sec
+								
+				$script = apply_filters('ltple_websocket_connection_script',$script,$context);
+				
+			$script .= '}' . PHP_EOL;
+
+			$script .= 'olWebSocket.onmessage = function(event) {' . PHP_EOL;
+
+				$script .= 'var Data = JSON.parse(event.data);' . PHP_EOL;
+				
+				$script .= 'var type = Data.message_type;' . PHP_EOL;
+				
+				$script .= "var room = Data.message.substring(0, Data.message.indexOf(':'));" . PHP_EOL;
+				
+				$script .= "var message = Data.message.substring(Data.message.indexOf(':')+1);" . PHP_EOL;
+				
+				$script .= 'if( typeof message != "string" || message == "" ) return false;' . PHP_EOL;
+				
+				$script = apply_filters('ltple_websocket_onmessage_script',$script,$context);
+
+			$script .= '};' . PHP_EOL;
+
+			$script .= 'olWebSocket.onerror = function(event){' . PHP_EOL;
+				
+				$script .= 'showMessage("<ws-error>Problem due to some Error</ws-error>");' . PHP_EOL;
+			
+				$script .= 'info = reconnectWebsocket(info,10);' . PHP_EOL;
+				
+			$script .= '};' . PHP_EOL;
+			
+			$script .= 'olWebSocket.onclose = function(event){' . PHP_EOL;
+				
+				$script .= 'showMessage("<ws-closed>Connection closed</ws-closed>");' . PHP_EOL;
+
+				$script .= 'info = reconnectWebsocket(info,0.5);' . PHP_EOL;
+			
+			$script .= '};' . PHP_EOL;
+
+			$script = apply_filters('ltple_websocket_start_script',$script,$context);
+			
+			$script .= 'return olWebSocket;' . PHP_EOL;
+
+		$script .= '}' . PHP_EOL;
+		
+		$script .= 'function reconnectWebsocket(info,delay){' . PHP_EOL;
+			
+			// get new info
+			
+			$script .= 'info = getSocketInfo(info.room);' . PHP_EOL;
+
+			$script .= 'setTimeout(function() {' . PHP_EOL;
+			  
+				// reconnect socket after delay
+			  
+				$script .= 'olWebSocket = startWebsocket(info);' . PHP_EOL;
+			
+			$script .= '},( delay * 1000 ));' . PHP_EOL;
+		
+			$script .= 'return info;' . PHP_EOL;
+		
+		$script .= '}' . PHP_EOL;
+		
+		return apply_filters('ltple_websocket_script',$script,$context);
 	}
 	
 	public function open_socket($room,$data){
