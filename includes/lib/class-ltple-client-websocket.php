@@ -88,18 +88,6 @@ class LTPLE_Client_Websocket {
 	
 	public function get_editor_ui_script($script,$layer){
 		
-		$script .= ';(function($){' . PHP_EOL;
-
-			$script .= $this->get_script('editor-ui');
-
-			$script .= '$(document).ready(function(){' . PHP_EOL;
-
-				$script .= 'var olWebSocket = startWebsocket("' . $this->get_key('layer_ui_' . $layer->ID) . '");' . PHP_EOL;
-
-			$script .= '});' . PHP_EOL;
-
-		$script .= '})(jQuery);' . PHP_EOL;
-		
 		return $script;
 	}
 	
@@ -194,11 +182,19 @@ class LTPLE_Client_Websocket {
 				$script .= 'showMessage("<ws-connection>Connection established</ws-connection>");' . PHP_EOL;	
 				
 				// keep the socket alive
-				
-				$script .= 'setInterval(function() {' . PHP_EOL;
+
+				$script .= 'intervalId = setInterval(function() {' . PHP_EOL;
 					
-					$script .= 'olWebSocket.send("");' . PHP_EOL;
-				
+					$script .= 'if (olWebSocket.readyState === olWebSocket.OPEN) {' . PHP_EOL;
+					
+						$script .= 'olWebSocket.send("");' . PHP_EOL;
+					
+					$script .= '} else {' . PHP_EOL;
+						
+						$script .= 'clearInterval(intervalId);' . PHP_EOL;
+					
+					$script .= '}' . PHP_EOL;
+					
 				$script .= '}, 10 * 1000 );' . PHP_EOL; // every 10 sec
 								
 				$script = apply_filters('ltple_websocket_connection_script',$script,$context);

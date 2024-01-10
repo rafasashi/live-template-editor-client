@@ -441,6 +441,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		add_filter('ltple_layer_is_editable', array($this,'filter_layer_is_editable'),10,2 );
 	
+		add_filter('ltple_layer_is_storable', array($this,'filter_layer_is_storable'),10,2 );
+	
 		add_filter('ltple_editor_layer',function($layer){
 			
 			if( isset($layer->ID) && !isset($layer->default_id) ){
@@ -1215,6 +1217,29 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return apply_filters('ltple_editable_' . $output,$is_editable);
+	}
+	
+	public function filter_layer_is_storable($is_storable,$post){
+		
+		if( $this->is_default($post) || $this->is_storage($post) ){
+
+			return $this->is_storable_output($post->ID,$is_storable);
+		}
+		
+		return $is_storable;
+	}
+
+	public function is_storable_output($output,$is_storable = true){
+		
+		if( is_numeric($output) ){
+			
+			if( $layer_type = $this->get_layer_type($output) ){
+		
+				$output = $layer_type->output;
+			}
+		}
+		
+		return apply_filters('ltple_storable_' . $output,$is_storable);
 	}
 	
 	public function is_html_output($output){
