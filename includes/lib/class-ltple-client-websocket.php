@@ -18,7 +18,7 @@ class LTPLE_Client_Websocket {
 		
 		add_action('wp_loaded',array( $this,'init'));
 
-		add_action('ltple_editor_ui_script',array( $this,'get_editor_ui_script'),10,2);
+		add_action('ltple_editor_ui_script',array( $this,'get_editor_ui_script'),10,3);
 	}
 	
 	public function init(){
@@ -86,7 +86,7 @@ class LTPLE_Client_Websocket {
 		return $socket_url;
 	}
 	
-	public function get_editor_ui_script($script,$layer){
+	public function get_editor_ui_script($script,$layer,$context){
 		
 		return $script;
 	}

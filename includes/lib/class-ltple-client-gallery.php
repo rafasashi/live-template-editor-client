@@ -212,34 +212,35 @@ class LTPLE_Client_Gallery {
 	}
 	
 	public function get_current_range(){
-		
+
 		if( !empty($_GET['range']) ){
 		
 			$layer_range = sanitize_title($_GET['range']);
 		}
-		elseif( $default_range = intval(get_option('ltple_default_range_id',false)) ){
-			
-			$current_types = $this->get_current_types();
-			
-			$layer_type = $this->get_current_type();
-			
-			$layer_range = key($layer_type->ranges);
-			
-			foreach( $layer_type->ranges as $range ){
-				
-				if( $range['term_id'] == $default_range ){
-					
-					$layer_range = $range['slug'];
-					
-					break;
-				}
-			}
-		}
 		else{
 			
-			$layer_type = $this->get_layer_type_info(false);
-			
-			$layer_range = key($layer_type->ranges);
+			$layer_type = $this->get_current_type();
+		
+			if( $default_range = intval(get_option('ltple_default_range_id',false)) ){
+				
+				$current_types = $this->get_current_types();
+				
+				$layer_range = key($layer_type->ranges);
+				
+				foreach( $layer_type->ranges as $range ){
+					
+					if( $range['term_id'] == $default_range ){
+						
+						$layer_range = $range['slug'];
+						
+						break;
+					}
+				}
+			}
+			else{
+				
+				$layer_range = key($layer_type->ranges);
+			}
 		}
 		
 		return $layer_range;
