@@ -391,7 +391,14 @@ class LTPLE_Client_Settings {
 			}
 			else{
 				
-				$data['url'] = 'edit.php?post_type='.$slug;
+				if( !empty($_GET['author']) ){
+					
+					$data['url'] = 'edit.php?post_type='.$slug.'&author='.intval($_GET['author']);
+				}
+				else{
+				
+					$data['url'] = 'edit.php?post_type='.$slug;
+				}
 			}
 				
 			$tabs[$tab][$slug] = $data;

@@ -51,7 +51,9 @@
 			add_filter('admin_init', array( $this, 'delete_user_manually' ));
 			
 			add_action('delete_user', array( $this, 'delete_user' ),1,1);
-
+			
+			add_filter('user_row_actions', array( $this, 'add_user_row_actions'), 10, 2);
+			
 			add_action( 'rest_api_init', function () {
 				
 				register_rest_route( 'ltple-user/v1', '/update/period/(?P<user>[\S]+)/(?P<period>[\S]+)', array(
@@ -1521,6 +1523,13 @@
 
 				$wpdb->get_results('DELETE FROM ' . $wpdb->prefix . 'usermeta WHERE user_id in('. $user_id . ')');
 			}
+		}
+		
+		public function add_user_row_actions($actions, $user){
+			
+			$actions['projects'] = "<a class='projects' href='" . admin_url( "edit.php?post_type=user-layer&author=$user->ID") . "'>" . esc_html__( 'Projects', 'live-template-editor-client' ) . "</a>";
+			
+			return $actions;
 		}
 		
 		public function bulk_add_plan() {
