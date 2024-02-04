@@ -18,7 +18,7 @@ class LTPLE_Client_Websocket {
 		
 		add_action('wp_loaded',array( $this,'init'));
 
-		add_action('ltple_editor_ui_script',array( $this,'get_editor_ui_script'),10,3);
+		add_action('ltple_editor_ui_script',array( $this,'add_editor_ui_script'),10,3);
 	}
 	
 	public function init(){
@@ -86,27 +86,38 @@ class LTPLE_Client_Websocket {
 		return $socket_url;
 	}
 	
-	public function get_editor_ui_script($script,$layer,$context){
+	public function add_editor_ui_script($script,$layer,$context){
+		
+		if( is_numeric($layer) ){
+			
+			$layer = LTPLE_Editor::instance()->get_layer($layer);
+		}
+		
+		if( $room = apply_filters('ltple_websocket_'.$context.'_room','user_' . $this->parent->user->ID,$layer) ){
+
+			$script .= ';(function($){' . PHP_EOL;
+				
+				$script .= $this->get_script($layer,$context) . PHP_EOL;
+
+				$script .= '$(document).ready(function(){' . PHP_EOL;
+
+					$script .= 'var uiWebSocket = startWebsocket("'.$this->get_key($room).'");' . PHP_EOL;
+
+				$script .= '});' . PHP_EOL;
+					
+			$script .= '})(jQuery);' . PHP_EOL;
+		}
 		
 		return $script;
 	}
 	
-	public function get_script($context=''){
+	public function get_script($layer,$context=''){
 		
 		$script = '';
 		
 		$script .= 'function showMessage(messageHTML) {' . PHP_EOL;
 			
-			if( $context == 'editor-ui' ){
-			
-				$script .= 'var message = new DOMParser().parseFromString(messageHTML, "text/xml");' . PHP_EOL;
-
-				$script .= 'console.log($(message).text());' . PHP_EOL;
-			}
-			else{
-			
-				$script = apply_filters('ltple_websocket_show_message_script',$script,$context);
-			}
+			$script = apply_filters('ltple_websocket_show_message_script',$script,$layer,$context);
 
 		$script .= '}' . PHP_EOL;
 		
@@ -175,9 +186,9 @@ class LTPLE_Client_Websocket {
 			
 			$script .= 'showMessage("<ws-start>Connecting...</ws-start>");' . PHP_EOL;
 
-			$script .= 'olWebSocket = new WebSocket(info.url);' . PHP_EOL;
+			$script .= 'uiWebSocket = new WebSocket(info.url);' . PHP_EOL;
 
-			$script .= 'olWebSocket.onopen = function(event) {' . PHP_EOL; 
+			$script .= 'uiWebSocket.onopen = function(event) {' . PHP_EOL; 
 				
 				$script .= 'showMessage("<ws-connection>Connection established</ws-connection>");' . PHP_EOL;	
 				
@@ -185,9 +196,9 @@ class LTPLE_Client_Websocket {
 
 				$script .= 'intervalId = setInterval(function() {' . PHP_EOL;
 					
-					$script .= 'if (olWebSocket.readyState === olWebSocket.OPEN) {' . PHP_EOL;
+					$script .= 'if (uiWebSocket.readyState === uiWebSocket.OPEN) {' . PHP_EOL;
 					
-						$script .= 'olWebSocket.send("");' . PHP_EOL;
+						$script .= 'uiWebSocket.send("");' . PHP_EOL;
 					
 					$script .= '} else {' . PHP_EOL;
 						
@@ -197,11 +208,11 @@ class LTPLE_Client_Websocket {
 					
 				$script .= '}, 10 * 1000 );' . PHP_EOL; // every 10 sec
 								
-				$script = apply_filters('ltple_websocket_connection_script',$script,$context);
+				$script = apply_filters('ltple_websocket_connection_script',$script,$layer,$context);
 				
 			$script .= '}' . PHP_EOL;
 
-			$script .= 'olWebSocket.onmessage = function(event) {' . PHP_EOL;
+			$script .= 'uiWebSocket.onmessage = function(event) {' . PHP_EOL;
 
 				$script .= 'var Data = JSON.parse(event.data);' . PHP_EOL;
 				
@@ -213,11 +224,11 @@ class LTPLE_Client_Websocket {
 				
 				$script .= 'if( typeof message != "string" || message == "" ) return false;' . PHP_EOL;
 				
-				$script = apply_filters('ltple_websocket_onmessage_script',$script,$context);
+				$script = apply_filters('ltple_websocket_onmessage_script',$script,$layer,$context);
 
 			$script .= '};' . PHP_EOL;
 
-			$script .= 'olWebSocket.onerror = function(event){' . PHP_EOL;
+			$script .= 'uiWebSocket.onerror = function(event){' . PHP_EOL;
 				
 				$script .= 'showMessage("<ws-error>Problem due to some Error</ws-error>");' . PHP_EOL;
 			
@@ -225,7 +236,7 @@ class LTPLE_Client_Websocket {
 				
 			$script .= '};' . PHP_EOL;
 			
-			$script .= 'olWebSocket.onclose = function(event){' . PHP_EOL;
+			$script .= 'uiWebSocket.onclose = function(event){' . PHP_EOL;
 				
 				$script .= 'showMessage("<ws-closed>Connection closed</ws-closed>");' . PHP_EOL;
 
@@ -233,9 +244,9 @@ class LTPLE_Client_Websocket {
 			
 			$script .= '};' . PHP_EOL;
 
-			$script = apply_filters('ltple_websocket_start_script',$script,$context);
+			$script = apply_filters('ltple_websocket_start_script',$script,$layer,$context);
 			
-			$script .= 'return olWebSocket;' . PHP_EOL;
+			$script .= 'return uiWebSocket;' . PHP_EOL;
 
 		$script .= '}' . PHP_EOL;
 		
@@ -249,7 +260,7 @@ class LTPLE_Client_Websocket {
 			  
 				// reconnect socket after delay
 			  
-				$script .= 'olWebSocket = startWebsocket(info);' . PHP_EOL;
+				$script .= 'uiWebSocket = startWebsocket(info);' . PHP_EOL;
 			
 			$script .= '},( delay * 1000 ));' . PHP_EOL;
 		
@@ -257,7 +268,7 @@ class LTPLE_Client_Websocket {
 		
 		$script .= '}' . PHP_EOL;
 		
-		return apply_filters('ltple_websocket_script',$script,$context);
+		return apply_filters('ltple_websocket_script',$script,$layer,$context);
 	}
 	
 	public function open_socket($room,$data){
