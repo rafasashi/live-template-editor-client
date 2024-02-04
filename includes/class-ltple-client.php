@@ -208,15 +208,7 @@ class LTPLE_Client {
 		
 		add_action('ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
 		
-		/*
-		add_action('update_post_metadata',function($check,$object_id,$meta_key,$meta_value,$prev_value){
-			
-			if($meta_key=='product_description')dump($meta_value);
-			
-			return $check;
-			
-		},999999,5);
-		*/
+		add_action('update_post_metadata', array( $this, 'check_post_metadata'),99999999,5 );
 
 	} // End __construct ()
 	
@@ -1527,8 +1519,57 @@ class LTPLE_Client {
 			echo $dropdown;
 		}
 	}
+
+	public function check_post_metadata($check,$object_id,$meta_key,$meta_value,$prev_value){
+		
+		if( !is_admin() ){
+			
+			if( $meta_key == 'layerContent' ){
+				
+				if( !isset($_POST['postContent']) ){
+				
+					$check = false;
+				}
+			}
+			elseif( $meta_key == 'layerJs' ){
+				
+				if( !isset($_POST['postJs']) ){
+				
+					$check = false;
+				}
+			}
+			elseif( $meta_key == 'layerCss' ){
+				
+				if( !isset($_POST['postCss']) ){
+				
+					$check = false;
+				}
+			}
+			elseif( $meta_key == 'layerJson' ){
+				
+				if( !isset($_POST['postJson']) ){
+				
+					$check = false;
+				}
+			}
+			else{
+				
+				$fields = $this->layer->get_user_layer_fields([]);
+				
+				foreach( $fields as $field ){
+					
+					if( $field['id'] == $meta_key && !isset($_POST[$meta_key]) ){
+						
+						$check = false;
+					}
+				}
+			}
+		}
+		
+		return $check;
+	}
 	
-	public function do_editor_action(){	
+	public function do_editor_action(){
 		
 		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
 			
