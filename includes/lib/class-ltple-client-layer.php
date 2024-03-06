@@ -1892,7 +1892,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$post_type = get_post_type_object($layer->post_type);
 		
-				$storage_name = $post_type->labels->singular_name;
+				$storage_name = isset($post_type->labels->singular_name) ? $post_type->labels->singular_name  : 'template';
 				
 				if( $this->is_html_output($layer_type->output) ){
 					
