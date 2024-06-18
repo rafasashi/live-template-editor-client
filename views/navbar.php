@@ -12,7 +12,7 @@
 				
 				$user_storage_types = !empty($ltple->user->ID) ? $ltple->layer->get_user_storage_types($ltple->user->ID) : null;
 			
-				echo'<div class="col-xs-6 col-sm-10" style="z-index:10;padding:0 8px;">';			
+				echo'<div class="col-xs-6 col-sm-9" style="z-index:10;padding:0 8px;">';			
 					
 					echo'<div class="pull-left" style="margin-right:-6px;">';
 					
@@ -43,7 +43,7 @@
 
 				echo'</div>';
 				
-				echo'<div class="col-xs-6 col-sm-2 text-right" style="padding:0 5px;">';
+				echo'<div class="col-xs-6 col-sm-3 text-right" style="padding:0 5px;">';
 					
 					if( $ltple->user->loggedin === true ){
 						
