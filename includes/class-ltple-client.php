@@ -1552,7 +1552,9 @@ class LTPLE_Client {
 					$check = false;
 				}
 			}
-			else{
+			elseif(1==2){
+				
+				// not compatible with all client side UI such add scripts/addPackage
 				
 				$fields = $this->layer->get_user_layer_fields([]);
 				

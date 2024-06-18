@@ -110,20 +110,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 			$id = !empty($field['id']) ? $this->sanitize_id($field['id']) : ( !empty($field['name']) ? $this->sanitize_id($field['name']) : 'f_' . rand(1000,9999) );
 			
-			// get field style
+			// get attributes
 			
-			$style = '';
-			
-			if( !empty($field['style']) ){
-				
-				$style = ' style="'.$field['style'].'"';
-			}
+			$style = ( !empty($field['style']) ? ' style="'.$field['style'].'"' : '' );
 			
 			$disabled = ( ( isset($field['disabled']) && $field['disabled'] === true ) ? ' disabled="disabled"' : '' );
 
 			$required = ( ( isset($field['required']) && $field['required'] === true ) ? ' required="true"' : '' );
 			
-			$placeholder = ( isset($field['placeholder']) ? $field['placeholder'] : '' );
+			$placeholder = ( !empty($field['placeholder']) && is_string($field['placeholder']) ? esc_attr($field['placeholder']) : '' );
 			
 			$html = '';
 			
