@@ -1007,6 +1007,12 @@ class LTPLE_Client {
 							
 							color: #888;
 						}
+						
+						#product_features .fa {
+						
+						    color: ' . $this->settings->mainColor . ';
+							margin: 0 10px 0 -10px;
+						}
 					');
 					
 					// scripts

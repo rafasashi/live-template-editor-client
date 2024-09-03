@@ -8,7 +8,9 @@
 	
 	$layer = LTPLE_Editor::instance()->get_layer($layer);
 
-	$visibility = $ltple->layer->get_layer_visibility( $layer );
+	$visibility = $ltple->layer->get_layer_visibility($layer);
+	
+	$features = $ltple->layer->get_layer_features($layer);
 	
 	$has_layer = $ltple->plan->user_has_layer($layer);
 	
@@ -177,6 +179,26 @@
 							edit_post_link( __( 'Edit', 'templatemela' ), '<span class="edit-link"><i class="fa fa-pencil"></i>', '</span>', $layer->ID );
 						
 						echo'</p>';
+						
+						if( !empty($features) ){
+							
+							echo'<div id="product_features" class="mt-2">';
+								
+								echo'<ul class="list-group list-group-flush">';
+								
+									foreach( $features as $feature ){
+										
+										echo'<li class="list-group-item">';
+										
+											echo '<i class="fa fa-star"></i>' . $feature->name;
+										
+										echo'</li>';
+									}
+									
+								echo'</ul>';
+								
+							echo'</div>';
+						}
 						
 						echo'<div id="share_product" style="margin:25px 0;font-size:40px;">';
 						

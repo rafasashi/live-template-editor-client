@@ -168,6 +168,24 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'rewrite' 				=> true,
 			'sort' 					=> '',
 		));
+
+		$this->parent->register_taxonomy( 'layer-features', __( 'Template Features', 'live-template-editor-client' ), __( 'Template Feature', 'live-template-editor-client' ),array('cb-default-layer'), 
+	
+			array(
+			
+				'hierarchical' 			=> true,
+				'public' 				=> false,
+				'show_ui' 				=> true,
+				'show_in_nav_menus' 	=> false,
+				'show_tagcloud' 		=> false,
+				'meta_box_cb' 			=> null,
+				'show_admin_column' 	=> false,
+				'update_count_callback' => '',
+				'show_in_rest'          => false,
+				'rewrite' 				=> false,
+				'sort' 					=> '',
+			)
+		);
 		
 		$this->parent->register_taxonomy( 'account-option', __( 'Plan Options', 'live-template-editor-client' ), __( 'Plan Option', 'live-template-editor-client' ),  array('user-plan'), array(
 			
@@ -1172,7 +1190,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							),
 							'inline'		=> false,
 							'description'	=> ''
-						);	
+						);
 					}
 				}
 				
@@ -2714,6 +2732,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 		
 		return $type_term;
+	}
+
+	public function get_layer_features($layer){
+		
+		if( is_numeric($layer) ){
+			
+			$layer = get_post($layer);
+		}
+		
+		$features = get_the_terms($layer->ID, 'layer-features');
+		
+		return $features;
 	}
 	
 	public function get_layer_visibility($layer){

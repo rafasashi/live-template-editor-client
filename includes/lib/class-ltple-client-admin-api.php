@@ -934,7 +934,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$html .= '</div>';
 				
 				break;
-				
 				case 'key_value':
 					
 					if( !isset($data['key']) || !isset($data['value']) ){
