@@ -16,7 +16,7 @@ if( $ltple->profile->in_tab() ){
 		echo'<a id="to_top" href="#" data-toggle="tooltip" data-placement="left" title="Scroll to Top"><i class="fa fa-angle-up p-0 m-2"></i></a>';
 	
 	echo'</div>';
-			
+	
 	if( !$ltple->inWidget ){
 	
 		echo'<footer id="ltple-footer" role="contentinfo" style="margin:0 !important;padding:0 !important;position:relative !important;width: 100% !important;display:table !important;">';

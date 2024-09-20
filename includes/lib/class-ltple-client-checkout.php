@@ -103,7 +103,9 @@ class LTPLE_Client_Checkout {
 		}
 		elseif( !empty($_GET['options']) ){
 		
-			$options = explode('|',$_GET['options']);
+			$options = is_string($_GET['options']) ? explode('|',$_GET['options']) : $_GET['options'];
+			
+			$options = array_map('sanitize_title',$options);
 			
 			echo'<div class="col-sm-7" style="' . ( !$this->parent->inWidget ? 'margin-top:20px;min-height:calc(100vh - 103px)' : '' ).'">';
 				
