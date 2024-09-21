@@ -210,6 +210,17 @@ class LTPLE_Client {
 		
 		add_action('update_post_metadata', array( $this, 'check_post_metadata'),99999999,5 );
 
+		add_action('ltple_layer_is_editable',function($is_editable,$post){
+			
+			if( $post->post_type == 'page' ){
+				
+				$is_editable = true; 
+			}
+			
+			return $is_editable;
+			
+		},10,2);
+		
 	} // End __construct ()
 	
 	public function handle_error(){
