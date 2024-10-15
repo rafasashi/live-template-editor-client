@@ -281,7 +281,7 @@ class LTPLE_Client_Product {
 			
 			//get editor_url
 
-			$start_url = $this->parent->urls->edit . '?uri='.$post->ID;
+			$start_url = apply_filters('ltple_start_url',$this->parent->urls->edit . '?uri='.$post->ID,$post);
 							
 			$button.='<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_self" title="Start editing this template">Start</a>';
 		}

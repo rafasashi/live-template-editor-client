@@ -563,7 +563,7 @@ class LTPLE_Client_Gallery {
 
 			//get start url
 
-			$start_url = $this->parent->urls->edit . '?uri='.$post->ID;
+			$start_url = apply_filters('ltple_start_url',$this->parent->urls->edit . '?uri='.$post->ID,$post);
 			
 			//get post_title
 			

@@ -18,7 +18,7 @@
 	
 	if( $visibility != 'assigned' || $has_layer || $ltple->user->is_admin ){
 				
-		$start_url 	= $ltple->urls->edit . '?uri=' . $layer->ID;
+		$start_url 	= apply_filters('ltple_start_url',$ltple->urls->edit . '?uri=' . $layer->ID,$layer);
 		
 		$product_url = get_permalink($layer->ID);
 

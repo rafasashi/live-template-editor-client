@@ -2917,7 +2917,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$preview_url = $layer->urls['view'];
 			
-			$start_url = $this->parent->urls->edit . '?uri='.$layer->ID;
+			$start_url = apply_filters('ltple_start_url',$this->parent->urls->edit . '?uri='.$layer->ID,$layer);
 
 			$visibility = $this->get_layer_visibility($layer);
 			
