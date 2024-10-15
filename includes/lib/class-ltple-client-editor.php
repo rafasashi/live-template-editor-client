@@ -440,7 +440,7 @@ class LTPLE_Client_Editor {
 
 	public function filter_iframe_url($url,$layer){
 		
-		$url = $this->parent->urls->edit . '?uri=' . $layer->ID . '&lk=' . $layer->key . '&_=' . $layer->token;
+		$url = apply_filters('ltple_client_iframe_url',$this->parent->urls->edit . '?uri=' . $layer->ID . '&lk=' . $layer->key . '&_=' . $layer->token,$layer);
 
 		return $url;
 	}
