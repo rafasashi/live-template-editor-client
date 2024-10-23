@@ -533,7 +533,7 @@ class LTPLE_Client_Editor {
 				
 					$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-export" aria-hidden="true"></span> Download image';
 				}
-				else{
+				elseif( $this->parent->layer->is_html_output($layer->output) ){
 					
 					$buttons['downloadImgBtn'] = '<span class="glyphicon glyphicon-camera" aria-hidden="true"></span> Take a screenshot';
 				}					
