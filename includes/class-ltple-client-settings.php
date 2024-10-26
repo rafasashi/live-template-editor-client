@@ -785,6 +785,19 @@ class LTPLE_Client_Settings {
 				)
 			))
 		);
+		
+		$settings['media'] = array(
+			'title'					=> __( 'Media', 'live-template-editor-client' ),
+			'description'			=> 'User media library settings',
+			'fields'				=> apply_filters('ltple_media_settings',array(				
+				array(
+					'id' 			=> 'enable_image_editor',
+					'label'			=> __( 'Image editor' , 'live-template-editor-client' ),
+					'description'	=> 'Enable image editor in media library',
+					'type'			=> 'switch',
+				),
+			))
+		);
 
 		$settings['style'] = array(
 			'title'					=> __( 'Style', 'live-template-editor-client' ),

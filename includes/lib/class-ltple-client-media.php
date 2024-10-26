@@ -349,6 +349,40 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					}' . PHP_EOL;
 				}
 				
+				$script .= '$(".open-url").on("click",function(e){
+					
+					e.preventDefault();
+
+					var url = $(this).data("target");
+
+					window.open(url,"_blank");
+					
+				});';
+				
+				$script .= '$(".copy-url").on("click",function(e){
+					
+					e.preventDefault();
+					
+					var url = $(this).data("target");
+					
+					var $temp = $("<input>");
+					
+					$("body").append($temp);
+				
+					$temp.val(url).select();
+					
+					document.execCommand("copy");
+					
+					$temp.remove();
+									
+					$.notify( "Copied to clipboard", {
+									
+						className: "info",
+						position: "top center"
+					});
+				
+				});';
+				
 			$script .= '
 			
 			}
@@ -406,7 +440,6 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						set_image_preview($(this));
 					});
 				});
-				
 			});	
 		
 		})(jQuery);' . PHP_EOL;
@@ -759,16 +792,31 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 								$item.='<ul class="dropdown-menu dropdown-menu-right" style="background:#fff;">';
 									
-									$item.='<li style="position:relative;">';
+									$item.='<li style="position:relative;background:#eee;">';
 									
-										$item.='<b style="padding: 10px;display: block;">Open with</b>';
+										$item.='<b style="padding: 10px;display: block;">Open image in</b>';
 										
 									$item.='</li>';
 									
 									$item.='<li style="position:relative;">';
+										
+										$item.='<a class="open-url" href="#open-url" data-target="'.$image_url.'"><span class="glyphicon glyphicon-open pull-right" aria-hidden="true"></span> New Tab</a>';
+										
+									$item.='</li>';
 									
-										$item.='<a href="' . $this->parent->urls->edit . '?uri=' . $image->ID . '&quick"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Image Editor</a>';
+									if( $this->parent->settings->is_enabled('image_editor') ){
+
+										$item.='<li style="position:relative;">';
+										
+											$item.='<a href="' . $this->parent->urls->edit . '?uri=' . $image->ID . '&quick"><span class="glyphicon glyphicon-pencil pull-right" aria-hidden="true"></span> Image Editor</a>';
+										
+										$item.='</li>';
+									}
 									
+									$item.='<li style="position:relative;">';
+										
+										$item.='<a class="copy-url" href="#copy-url" data-target="'.$image_url.'"><span class="glyphicon glyphicon-copy pull-right" aria-hidden="true"></span> Copy URL</a>';
+										
 									$item.='</li>';
 									
 								$item.='</ul>';
