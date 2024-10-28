@@ -197,9 +197,9 @@
 									$ranges[] = $range;
 								}
 								
-								$filter_style = 'border-radius:20px!important;padding:2px 10px !important;margin:5px;background:#fff !important;color:#ed018c;border:1px solid #ed018c;';
+								$filter_style = 'border-radius:20px!important;padding:2px 10px !important;margin:5px;background:#fff !important;color:'.$this->settings->mainColor.';border:1px solid '.$this->settings->mainColor.';';
 								
-								$count_style = 'margin-left:5px;font-size:10px!important;color:#576876;background:#f2f2f2;';
+								$count_style = 'margin-left:5px;font-size:10px!important;color:'.$this->settings->navbarColor.'b8;background:#f2f2f2;';
 								
 								if( empty($layer_range) ){
 								
