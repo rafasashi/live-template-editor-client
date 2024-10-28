@@ -2663,6 +2663,12 @@ class LTPLE_Client {
 			
 			$style .='}';
 			
+			$style .='.wedocs-single-search-input{';
+				
+				$style .='margin-left:11px;';
+				
+			$style .='}';
+			
 			$style .='.wedocs-single-wrap .wedocs-sidebar h3.widget-title {';
 				
 				$style .='padding:15px;';

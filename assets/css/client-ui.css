@@ -352,6 +352,19 @@ th input, th select {
     background: rgb(249, 249, 249);
 }
 
+.item-range {
+	
+	position:absolute;
+	top:-17px;
+	right:0px;
+	padding:6px 15px;
+	background:#fff;
+	font-size:12px;
+	border-radius:15px 0 0 0;
+	box-shadow:-1px -4px 10px -5px rgb(0 0 0 / 20%);
+	font-weight:600;
+}
+
 .library-content .nav-pills {
 	
     background: rgb(242, 242, 242);

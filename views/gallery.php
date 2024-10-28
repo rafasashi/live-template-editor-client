@@ -172,8 +172,16 @@
 							
 							if( !empty($layer_type->ranges) ){
 
+								$gallery_url = add_query_arg($_GET,$this->urls->gallery);
+									
+								$gallery_url = remove_query_arg(array('range','uri'),$gallery_url);
+								
+								$gallery_url = add_query_arg(array('gallery'=> $layer_type->slug),$gallery_url);
+								
+								$gallery_count = 0;
+								
 								$ranges = array();
-
+								
 								foreach( $layer_type->ranges as $range ){
 									
 									if( $range['count'] < 1 )
@@ -181,33 +189,24 @@
 									
 									if( !$this->user->loggedin && !empty($layer_type->addon) && $layer_type->addon->slug == $range['slug'] )
 										continue;
-
-									$range_url = add_query_arg($_GET,$this->urls->gallery);
 									
-									$range_url = remove_query_arg(array('uri'),$range_url);
+									$gallery_count += $range['count'];
 									
-									$range_url = add_query_arg( array(
-									
-										'gallery' 	=> $layer_type->slug,
-										'range' 	=> $range['slug'],
-										
-									), $range_url );
-									
-									$range['url'] = $range_url;
+									$range['url'] = add_query_arg( array('range' => $range['slug']),$gallery_url);
 									
 									$ranges[] = $range;
 								}
-						
-								$active = null;
 								
+								$active = $layer_range;
+								
+								echo'<li role="presentation"'.( $layer_range ? '' : ' class="active"' ).'><a href="' . $gallery_url . '" aria-controls="all" role="tab" title="All Templates">All <span class="badge" style="font-size:10px !important;">'.$this->gallery->get_badge_count($gallery_count).'</span></a></li>';
+
 								foreach( $ranges as $range ){
 
-									if( empty($layer_range) || $layer_range == $range['slug'] ){
+									if( $layer_range == $range['slug'] ){
 										
 										echo'<li role="presentation" class="active"><a href="' . $range['url'] . '" aria-controls="' . $range['slug'] . '" role="tab" title="'.ucfirst($range['name']).'">'.strtoupper($range['short']).' <span class="badge" style="font-size:10px !important;">'.$this->gallery->get_badge_count($range['count']).'</span></a></li>';
 									
-										$active = $range['slug'];
-										
 										break;	
 									}
 								}
@@ -218,7 +217,7 @@
 									
 									echo '<li class="more dropdown" style="margin-left: 8px; margin-bottom: 0px;">';
 										
-										echo '<button style="padding:3px 5px;margin:8px 0px;height:25px;background:#f2f2f2;border:0;font-size:14px;" class="glyphicon glyphicon-option-vertical dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"></button>';
+										echo '<button style="padding:3px 5px;margin:8px 0px;height:25px;background:#f2f2f2;border:0;font-size:15px;" class="dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"><i class="glyphicon glyphicon-filter"></i></button>';
 										
 										echo '<ul class="dropdown-menu dropdown-menu-left" style="margin-left:-8px;">';
 											

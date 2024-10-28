@@ -2366,6 +2366,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				if( !is_wp_error( $terms ) && !empty($terms[0]) ){
 					
 					$term = $terms[0];
+					
+					// get short name
+					
+					$shortname = get_term_meta($term->term_id,'shortname',true);
+
+					$term->shortname = !empty($shortname) ? $shortname : $term->name;
 				}				
 			}
 		}
