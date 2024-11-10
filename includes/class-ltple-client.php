@@ -2560,7 +2560,7 @@ class LTPLE_Client {
 		
 		$style .='#main-menu {';
 		
-			$style .='padding-left:79px;';
+			$style .='padding-left:80px;';
 		
 		$style .='}';	
 		

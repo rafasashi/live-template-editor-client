@@ -224,7 +224,7 @@
 									
 									echo '<li class="more dropdown">';
 										
-										echo '<button style="padding:3px 5px;margin:8px 0px;height:25px;background:#f2f2f2;border:0;font-size:15px;" class="dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"><i class="glyphicon glyphicon-filter"></i></button>';
+										echo '<button style="margin:7px 0px;height:27px;background:transparent;border:0;font-size:12px;" class="dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"><i class="glyphicon glyphicon-plus" style="background:#fafafa;color:#a3a3a3;height:25px;width:25px;padding:6px;border-radius:15px;box-shadow: inset -1px -2px 8px -6px rgb(0 0 0 / 75%);"></i></button>';
 										
 										echo '<ul class="dropdown-menu dropdown-menu-left" style="margin-left:-8px;">';
 											
