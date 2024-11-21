@@ -348,6 +348,31 @@ class LTPLE_Client_Gallery {
 					);					
 				}
 			}
+			else{
+				
+				$tax_query[1] = array('relation'=>'OR');
+				
+				if( !empty($addon->slug) ){
+					
+					$tax_query[1][] = array(
+					
+						'taxonomy' 			=> 'layer-range',
+						'field' 			=> 'slug',
+						'terms' 			=> $addon->slug,
+						'include_children' 	=> false,
+						'operator'			=> 'NOT IN'
+					);
+					
+					$tax_query[1][] = array(
+				
+						'taxonomy' 			=> 'user-contact',
+						'field' 			=> 'slug',
+						'terms' 			=> $this->parent->user->user_email,
+						'include_children' 	=> false,
+						'operator'			=> 'IN'
+					);	
+				}
+			}
 			
 			$args = array( 
 			
@@ -378,7 +403,7 @@ class LTPLE_Client_Gallery {
 						while ( $query->have_posts() ) : $query->the_post(); 
 							
 							global $post;
-												
+							
 							if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
 								
 								//get item
