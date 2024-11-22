@@ -334,7 +334,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !empty($_GET['post_type']) && $_GET['post_type'] == 'cb-default-layer' && current_user_can('administrator') ){
 				
-				$editor_actions['edit-with-ltple'] 	= 'Editor';
 				$editor_actions['refresh-preview'] 	= 'Refresh Preview';
 			}
 			

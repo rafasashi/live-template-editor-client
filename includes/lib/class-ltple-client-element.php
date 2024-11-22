@@ -254,8 +254,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		add_filter('ltple_admin_editor_actions',function($editor_actions){
 			
 			if( $this->is_element_panel() && current_user_can('administrator') ){
-				
-				$editor_actions['edit-with-ltple'] 	= 'Editor';
+
 				$editor_actions['refresh-preview'] 	= 'Refresh Preview';
 			}
 			

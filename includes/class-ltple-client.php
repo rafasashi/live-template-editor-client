@@ -762,11 +762,7 @@ class LTPLE_Client {
 				
 				if( $this->layer->is_html_output($layer->output) ){
 					
-					if( $slug == 'edit-with-ltple' ){
-						 
-						$actions[$slug] = '<a href="' . $layer->urls['edit'] . '">'.$name.'</a>';
-					}
-					elseif( $slug == 'refresh-preview' ){
+					if( $slug == 'refresh-preview' ){
 						
 						$source = get_preview_post_link($post->ID);
 						

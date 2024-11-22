@@ -584,9 +584,7 @@ class LTPLE_Client_Json_API {
 					
 					var offset = $('#".$tableId." tbody').offset().top;
 
-					var footerHeight = $('#ltple-footer').length > 0 ? $('#ltple-footer').height() : 0;
-					
-					var height = window.innerHeight - offset - footerHeight;
+					var height = window.innerHeight - offset;
 					
 					$('#".$tableId." tbody').css('height',height + 'px').css('min-height',height + 'px');
 				})
