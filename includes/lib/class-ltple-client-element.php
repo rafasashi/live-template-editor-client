@@ -16,7 +16,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 	
-		$this->parent->register_post_type( 'default-element', __( 'Default Elements', 'live-template-editor-client' ), __( 'Default Element', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'default-element', __( 'HTML Elements', 'live-template-editor-client' ), __( 'HTML Element', 'live-template-editor-client' ), '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> true,
@@ -195,7 +195,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 	
 	public function filter_element_types($types=array()){
 		
-		$types['default-element'] = 'Default Element';
+		$types['default-element'] = 'HTML Element';
 		
 		return $types;
 	}
