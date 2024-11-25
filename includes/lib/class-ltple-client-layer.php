@@ -54,7 +54,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 		
-		add_filter('plugins_loaded',function(){
+		//add_filter('plugins_loaded',function(){
 			
 			$this->parent->register_post_type( 'cb-default-layer', __( 'Default Templates', 'live-template-editor-client' ), __( 'Default Template', 'live-template-editor-client' ), '', array(
 
@@ -227,7 +227,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'sort' 					=> '',
 			));
 
-		});
+		//});
 		
 		add_filter('ltple_cb-default-layer_layer_area',function($area,$layer){ 
 			
@@ -2030,11 +2030,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 	public function get_default_types(){
 		
-		return array_merge(array(
+		$types = array(
 		
 			'cb-default-layer',
-			
-		),array_keys(LTPLE_Editor::get_element_types()));
+		);
+		
+		if( function_exists('LTPLE_Editor') ){
+		
+			$types = array_merge($types,array_keys(LTPLE_Editor::get_element_types()));
+		}
+		
+		return $types;
 	}
 	
 	public function get_storage_types(){
