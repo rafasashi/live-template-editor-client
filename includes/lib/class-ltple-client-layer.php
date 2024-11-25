@@ -54,180 +54,176 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 		
-		//add_filter('plugins_loaded',function(){
-			
-			$this->parent->register_post_type( 'cb-default-layer', __( 'Default Templates', 'live-template-editor-client' ), __( 'Default Template', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Templates', 'live-template-editor-client' ), __( 'Default Template', 'live-template-editor-client' ), '', array(
 
-				'public' 				=> true,
-				'publicly_queryable' 	=> true,
-				'exclude_from_search' 	=> true,
-				'show_ui' 				=> true,
-				'show_in_menu' 			=> 'cb-default-layer',
-				'show_in_nav_menus' 	=> false,
-				'query_var' 			=> true,
-				'can_export'			=> true,
-				'rewrite' 				=> array('slug'=>'preview'),
-				'capability_type' 		=> 'post',
-				'has_archive' 			=> true,
-				'hierarchical' 			=> true,
-				'show_in_rest' 			=> false,
-				//'supports' 			=> array( 'title', 'editor', 'excerpt', 'comments', 'thumbnail' ),
-				'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail', 'author' ),
-				'menu_position' 		=> 5,
-				'menu_icon' 			=> 'dashicons-admin-post',
-			));
-			
-			$this->parent->register_post_type( 'user-layer', __( 'Templates', 'live-template-editor-client' ), __( 'Template', 'live-template-editor-client' ), '', array(
-
-				'public' 				=> false,
-				'publicly_queryable' 	=> true,
-				'exclude_from_search' 	=> true,
-				'show_ui' 				=> true,
-				'show_in_menu' 			=> false,
-				'show_in_nav_menus' 	=> false,
-				'query_var' 			=> true,
-				'can_export' 			=> true,
-				'rewrite' 				=> false,
-				'capability_type' 		=> 'post',
-				'has_archive' 			=> true,
-				'hierarchical' 			=> true,
-				'show_in_rest' 			=> false,
-				//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-				'supports' 				=> array( 'title', 'author' ),
-				'menu_position' 		=> 5,
-				'menu_icon' 			=> 'dashicons-admin-post',
-			));
-			
-			$this->parent->register_post_type( 'user-psd', __( 'Images', 'live-template-editor-client' ), __( 'Image', 'live-template-editor-client' ), '', array(
-
-				'public' 				=> false,
-				'publicly_queryable' 	=> false,
-				'exclude_from_search' 	=> true,
-				'show_ui' 				=> true,
-				'show_in_menu' 			=> false,
-				'show_in_nav_menus' 	=> false,
-				'query_var' 			=> true,
-				'can_export' 			=> true,
-				'rewrite' 				=> false,
-				'capability_type' 		=> 'post',
-				'has_archive' 			=> true,
-				'hierarchical' 			=> false,
-				'show_in_rest' 			=> false,
-				//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
-				'supports' 				=> array('title','author'),
-				'menu_position' 		=> 5,
-				'menu_icon' 			=> 'dashicons-admin-post',
-			));	
-
-			$this->parent->register_taxonomy('layer-type', __( 'Template Gallery', 'live-template-editor-client' ), __( 'Template Gallery', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd'), array(
-				
-				'hierarchical' 			=> false,
-				'public' 				=> false,
-				'show_ui' 				=> true,
-				'show_in_nav_menus' 	=> false,
-				'show_tagcloud' 		=> false,
-				'meta_box_cb' 			=> null,
-				'show_admin_column' 	=> true,
-				'update_count_callback' => '',
-				'show_in_rest'          => true,
-				'rewrite' 				=> true,
-				'sort' 					=> '',
-			));
-			
-			$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ),array('user-plan','cb-default-layer'), array(
-				
-				'hierarchical' 			=> true,
-				'public' 				=> false,
-				'show_ui' 				=> true,
-				'show_in_nav_menus' 	=> false,
-				'show_tagcloud' 		=> false,
-				'meta_box_cb' 			=> null,
-				'show_admin_column' 	=> true,
-				'update_count_callback' => array($this,'count_layer_range'),
-				'show_in_rest'          => true,
-				'rewrite' 				=> true,
-				'sort' 					=> '',
-			));
-
-			$this->parent->register_taxonomy( 'layer-features', __( 'Template Features', 'live-template-editor-client' ), __( 'Template Feature', 'live-template-editor-client' ),$this->get_default_types(), 
+			'public' 				=> true,
+			'publicly_queryable' 	=> true,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> 'cb-default-layer',
+			'show_in_nav_menus' 	=> false,
+			'query_var' 			=> true,
+			'can_export'			=> true,
+			'rewrite' 				=> array('slug'=>'preview'),
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> true,
+			'hierarchical' 			=> true,
+			'show_in_rest' 			=> false,
+			//'supports' 			=> array( 'title', 'editor', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array( 'title', 'editor', 'excerpt', 'thumbnail', 'author' ),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));
 		
-				array(
-				
-					'hierarchical' 			=> true,
-					'public' 				=> false,
-					'show_ui' 				=> true,
-					'show_in_nav_menus' 	=> false,
-					'show_tagcloud' 		=> false,
-					'meta_box_cb' 			=> null,
-					'show_admin_column' 	=> false,
-					'update_count_callback' => '',
-					'show_in_rest'          => false,
-					'rewrite' 				=> false,
-					'sort' 					=> '',
-				)
-			);
-			
-			$this->parent->register_taxonomy( 'account-option', __( 'Plan Options', 'live-template-editor-client' ), __( 'Plan Option', 'live-template-editor-client' ),  array('user-plan'), array(
-				
-				'hierarchical' 			=> false,
-				'public' 				=> false,
-				'show_ui' 				=> true,
-				'show_in_nav_menus' 	=> false,
-				'show_tagcloud' 		=> false,
-				'meta_box_cb' 			=> null,
-				'show_admin_column' 	=> true,
-				'update_count_callback' => '',
-				'show_in_rest'          => true,
-				'rewrite' 				=> true,
-				'sort' 					=> '',
-			));
-			
-			$this->parent->register_taxonomy( 'css-library', __( 'CSS Libraries', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
-				
-				'hierarchical' 			=> true,
-				'public' 				=> false,
-				'show_ui' 				=> true,
-				'show_in_nav_menus' 	=> false,
-				'show_tagcloud' 		=> false,
-				'meta_box_cb' 			=> null,
-				'show_admin_column' 	=> false,
-				'update_count_callback' => '',
-				'show_in_rest'          => true,
-				'rewrite' 				=> true,
-				'sort' 					=> '',
-			));
-			
-			$this->parent->register_taxonomy( 'js-library', __( 'JS Libraries', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
-				
-				'hierarchical' 			=> true,
-				'public' 				=> false,
-				'show_ui' 				=> true,
-				'show_in_nav_menus' 	=> false,
-				'show_tagcloud' 		=> false,
-				'meta_box_cb' 			=> null,
-				'show_admin_column' 	=> false,
-				'update_count_callback' => '',
-				'show_in_rest'          => true,
-				'rewrite' 				=> true,
-				'sort' 					=> '',
-			));
-			
-			$this->parent->register_taxonomy( 'font-library', __( 'Font Libraries', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
-				
-				'hierarchical' 			=> true,
-				'public' 				=> false,
-				'show_ui' 				=> true,
-				'show_in_nav_menus' 	=> false,
-				'show_tagcloud' 		=> false,
-				'meta_box_cb' 			=> null,
-				'show_admin_column' 	=> false,
-				'update_count_callback' => '',
-				'show_in_rest'          => true,
-				'rewrite' 				=> true,
-				'sort' 					=> '',
-			));
+		$this->parent->register_post_type( 'user-layer', __( 'Templates', 'live-template-editor-client' ), __( 'Template', 'live-template-editor-client' ), '', array(
 
-		//});
+			'public' 				=> false,
+			'publicly_queryable' 	=> true,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> false,
+			'show_in_nav_menus' 	=> false,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> true,
+			'hierarchical' 			=> true,
+			'show_in_rest' 			=> false,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array( 'title', 'author' ),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));
+		
+		$this->parent->register_post_type( 'user-psd', __( 'Images', 'live-template-editor-client' ), __( 'Image', 'live-template-editor-client' ), '', array(
+
+			'public' 				=> false,
+			'publicly_queryable' 	=> false,
+			'exclude_from_search' 	=> true,
+			'show_ui' 				=> true,
+			'show_in_menu' 			=> false,
+			'show_in_nav_menus' 	=> false,
+			'query_var' 			=> true,
+			'can_export' 			=> true,
+			'rewrite' 				=> false,
+			'capability_type' 		=> 'post',
+			'has_archive' 			=> true,
+			'hierarchical' 			=> false,
+			'show_in_rest' 			=> false,
+			//'supports' 			=> array( 'title', 'editor', 'author', 'excerpt', 'comments', 'thumbnail' ),
+			'supports' 				=> array('title','author'),
+			'menu_position' 		=> 5,
+			'menu_icon' 			=> 'dashicons-admin-post',
+		));	
+
+		$this->parent->register_taxonomy('layer-type', __( 'Template Gallery', 'live-template-editor-client' ), __( 'Template Gallery', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd'), array(
+			
+			'hierarchical' 			=> false,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort' 					=> '',
+		));
+		
+		$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ),array('user-plan','cb-default-layer'), array(
+			
+			'hierarchical' 			=> true,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => array($this,'count_layer_range'),
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort' 					=> '',
+		));
+
+		$this->parent->register_taxonomy( 'layer-features', __( 'Template Features', 'live-template-editor-client' ), __( 'Template Feature', 'live-template-editor-client' ),$this->get_default_types(), 
+	
+			array(
+			
+				'hierarchical' 			=> true,
+				'public' 				=> false,
+				'show_ui' 				=> true,
+				'show_in_nav_menus' 	=> false,
+				'show_tagcloud' 		=> false,
+				'meta_box_cb' 			=> null,
+				'show_admin_column' 	=> false,
+				'update_count_callback' => '',
+				'show_in_rest'          => false,
+				'rewrite' 				=> false,
+				'sort' 					=> '',
+			)
+		);
+		
+		$this->parent->register_taxonomy( 'account-option', __( 'Plan Options', 'live-template-editor-client' ), __( 'Plan Option', 'live-template-editor-client' ),  array('user-plan'), array(
+			
+			'hierarchical' 			=> false,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort' 					=> '',
+		));
+		
+		$this->parent->register_taxonomy( 'css-library', __( 'CSS Libraries', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
+			
+			'hierarchical' 			=> true,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> false,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort' 					=> '',
+		));
+		
+		$this->parent->register_taxonomy( 'js-library', __( 'JS Libraries', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
+			
+			'hierarchical' 			=> true,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> false,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort' 					=> '',
+		));
+		
+		$this->parent->register_taxonomy( 'font-library', __( 'Font Libraries', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
+			
+			'hierarchical' 			=> true,
+			'public' 				=> false,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> false,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> true,
+			'sort' 					=> '',
+		));
 		
 		add_filter('ltple_cb-default-layer_layer_area',function($area,$layer){ 
 			

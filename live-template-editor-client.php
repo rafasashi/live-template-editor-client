@@ -1,7 +1,7 @@
 <?php 
 /**
  * Plugin Name: Live Template Editor Client
- * Version: 1.1.14.60
+ * Version: 1.1.15.0
  * Plugin URI: https://github.com/rafasashi
  * Description: Live Template Editor allows you to edit and save HTML5 and CSS3 templates.
  * Author: Rafasashi
@@ -84,6 +84,9 @@
 				return $instance;
 			}
 			
-			LTPLE_Client('1.1.13.77');
+			add_filter('wp2e_live-template-editor_loaded',function(){
+				
+				LTPLE_Client('1.1.13.77');
+			});
 		}
 	}
