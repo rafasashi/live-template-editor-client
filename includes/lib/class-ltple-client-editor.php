@@ -592,8 +592,8 @@ class LTPLE_Client_Editor {
 			
 			$js .= ' var mediaLibUrl = "' . apply_filters('ltple_editor_media_lib_url','',$layer) . '";'. PHP_EOL;
 			$js .= ' var bookmarkUrl = "' . apply_filters('ltple_editor_bookmark_lib_url','',$layer) . '";'. PHP_EOL;
-
-			if( !empty($_POST) || empty($layer->urls['preview']) ){
+			
+			if( !empty($_POST) || empty($layer->urls['preview']) || $this->parent->layer->is_app_output($layer->output) ){
 				
 				// content based preview
 				
