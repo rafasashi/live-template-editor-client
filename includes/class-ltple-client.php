@@ -2537,7 +2537,7 @@ class LTPLE_Client {
 		
 		$style .='#header_logo a {';
 		
-			$style .='padding:8px 4px;';
+			$style .='padding:4px;';
 			$style .='height:50px;';
 			$style .='width:100%;';
 			$style .='border:none;';
@@ -2549,8 +2549,8 @@ class LTPLE_Client {
 		$style .='#header_logo a img {';
 			
 			$style .='width: auto;';
-			$style .='height: 35px;';
-			$style .='margin-left: -10px;';
+			$style .='height: 40px;';
+			$style .='margin-left: -13px;';
 			
 		$style .='}';
 		
