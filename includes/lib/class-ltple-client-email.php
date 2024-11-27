@@ -66,12 +66,14 @@ class LTPLE_Client_Email {
 		
 		// Custom default email address
 		
-		add_filter('wp_mail_from', function($old){
+		add_filter('wp_mail_from', function($email){
 			
-			$urlparts 	= parse_url(site_url());
-			$domain 	= $urlparts ['host'];
+			if( !empty($this->parent->settings->options->emailSupport) ){
+				
+				$email = $this->parent->settings->options->emailSupport;
+			}
 			
-			return 'please-reply@'.$domain;
+			return $email;
 		});
 		
 		// newsletter

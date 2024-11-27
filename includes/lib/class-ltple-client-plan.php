@@ -1943,8 +1943,11 @@ class LTPLE_Client_Plan {
 			//send admin notification
 			
 			if( !empty($plan['price']) || !empty($plan['fee']) ){
-			
-				wp_mail($this->parent->settings->options->emailSupport, 'Plan edited on checkout - user id ' . $user->ID, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($plan,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);
+				
+				if( defined('MASTER_ADMIN_EMAIL') ){
+					
+					wp_mail(MASTER_ADMIN_EMAIL, 'Plan edited on checkout - user id ' . $user->ID, 'New plan' . PHP_EOL . '--------------' . PHP_EOL . print_r($plan,true) . PHP_EOL . 'Server request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_SERVER,true). PHP_EOL  . 'Data request' . PHP_EOL . '--------------' . PHP_EOL . print_r($_REQUEST,true) . PHP_EOL);
+				}
 			} 
 			
 			if( !empty($plan['id']) ){

@@ -468,9 +468,9 @@
 						}
 					}							
 				}
-				else{
+				elseif( defined('MASTER_ADMIN_EMAIL') ){
 					
-					wp_mail($this->parent->settings->options->emailSupport, 'Error updating periods', print_r('',true));
+					wp_mail(MASTER_ADMIN_EMAIL, 'Error updating periods', print_r('',true));
 				}
 			}
 		}
