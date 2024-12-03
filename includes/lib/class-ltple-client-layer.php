@@ -3761,32 +3761,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$valid = true;
 				
-				/*
-				
-				// filter selectors
-				
-				$filters = '.glyphicon-';
-				
-				$filters = explode(' ',$filters);
-				
-				if( !empty($filters) ){
-				
-					foreach( $filters as $filter ){
-					
-						if( strpos($name,$filter) !== false ){
-							
-							$valid = false;
-							break;
-						}
-					}
-				}
-				*/
-				
 				if( $valid ){
 					
 					$separator = ' ';
 					
-					$selector->setSelector( $prepend . $separator . $selector->getSelector() );
+					$target = $selector->getSelector();
+					
+					if( !in_array($target,array(
+						
+						':root',
+						
+					))){
+					
+						$selector->setSelector( $prepend . $separator . $target );
+					}
 				}
 				else{
 					
