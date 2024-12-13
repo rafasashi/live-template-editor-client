@@ -488,7 +488,7 @@ class LTPLE_Client_Gallery {
 															
 							$item .='<div>';
 											
-								$item .='<button type="button" class="btn btn-sm" data-toggle="modal" data-target="#upgrade_plan" style="width:100%;font-size:17px;background:' . $this->parent->settings->mainColor . '99;color:#fff;padding: 15px 0;border:1px solid ' . $this->parent->settings->mainColor . ';">';
+								$item .='<button type="button" class="btn btn-sm" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range.'" style="width:100%;font-size:17px;background:' . $this->parent->settings->mainColor . '99;color:#fff;padding: 15px 0;border:1px solid ' . $this->parent->settings->mainColor . ';">';
 								
 									$item .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> ' . ( !empty($this->parent->user->plan) && $this->parent->user->plan['info']['total_price_amount'] > 0 ? 'upgrade' : 'start' );
 									
@@ -604,7 +604,7 @@ class LTPLE_Client_Gallery {
 							}
 							elseif( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
 								
-								$action .=  '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+								$action .=  '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
 							
 									$action .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
 						
@@ -634,7 +634,7 @@ class LTPLE_Client_Gallery {
 							}
 							elseif( empty($this->parent->user->ID) || ( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
 								
-								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
 							
 									$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 						

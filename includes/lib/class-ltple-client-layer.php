@@ -2914,6 +2914,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			$visibility = $this->get_layer_visibility($layer);
 			
+            $layer_range = $this->get_layer_range($layer);
+           
 			$show_preview = ( $visibility == 'anyone' || $visibility == 'registered' || ( $this->parent->user->loggedin && $this->parent->plan->user_has_layer( $layer ) === true )) ? true : false;
 
 			$modal_id='modal_'.md5($preview_url);
@@ -2966,7 +2968,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							}
 							else{
 								
-								$actions ='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan">'.PHP_EOL;
+								$actions ='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
 								
 									$actions.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
 							
