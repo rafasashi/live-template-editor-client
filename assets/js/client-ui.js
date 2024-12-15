@@ -814,7 +814,7 @@ if( typeof editorCallbacks == typeof undefined )
 		
 		$('#sidebarCollapse').on('click', function () {
 			
-			$('#sidebar').toggleClass('active');
+            $('#sidebar').toggleClass('collapsed');
 			
 			navigationResize();
 		});

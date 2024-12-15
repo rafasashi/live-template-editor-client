@@ -57,7 +57,7 @@
     transition: all 0.3s !important;
 }
 
-#ltple-wrapper #sidebar.active {
+#ltple-wrapper #sidebar.collapsed {
     margin-left: -220px !important;
 }
 
@@ -102,7 +102,7 @@
         margin-left: -220px !important;
     }
 	
-    #ltple-wrapper #sidebar.active {
+    #ltple-wrapper #sidebar.collapsed {
 		
 		margin-left: 0 !important;
 		position: absolute;
@@ -114,12 +114,12 @@
 		box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);
     }
 	
-	.ltple-ui #ltple-wrapper #sidebar.active {
+	.ltple-ui #ltple-wrapper #sidebar.collapsed {
 		
 		top: 0;
 	}
 	
-	.ltple-widget #ltple-wrapper #sidebar.active {
+	.ltple-widget #ltple-wrapper #sidebar.collapsed {
 		
 		top: 40px;
 	}

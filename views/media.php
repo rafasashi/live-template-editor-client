@@ -8,7 +8,9 @@ $output		= $ltple->inWidget ? 'widget' : 'default';
 $target		= $ltple->inWidget ? '_blank' : '_self';
 
 $modal 		= !empty($ltple->modalId) ?  $ltple->modalId : '';
+
 $section	= !empty($_GET['section']) ? sanitize_title($_GET['section']) : '';
+$sidebar	= !empty($_GET['sidebar']) ? sanitize_title($_GET['sidebar']) : '';
 
 $apps 		= $ltple->media->get_external_providers();
 
@@ -56,7 +58,7 @@ elseif( $this->type == 'user-payment-urls' ){
 
 echo'<div id="media_library" class="wrapper">';
 
-	echo '<div id="sidebar">';
+	echo '<div id="sidebar" class="'.$sidebar.'">';
 		
 		echo'<div class="gallery_type_title gallery_head">Directory</div>';
 		
