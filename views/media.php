@@ -132,7 +132,7 @@ echo'<div id="media_library" class="wrapper">';
 							echo'</li>';
 						}
 			
-						echo'<li role="presentation" class="active"><a href="' . add_query_arg('tab','upload',$ltple->urls->current) . '">' . ( $ltple->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . 'My Images</a></li>';
+						//echo'<li role="presentation" class="active"><a href="' . add_query_arg('tab','upload',$ltple->urls->current) . '">' . ( $ltple->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . 'My Images</a></li>';
 						
 						echo '<li role="presentation">';
 							
@@ -211,9 +211,8 @@ echo'<div id="media_library" class="wrapper">';
 							echo'</li>';
 						}
 						
-						echo'<li role="presentation" class="active"><a href="' . $ltple->urls->current . '">External URLs</a></li>';
+						//echo'<li role="presentation" class="active"><a href="' . $ltple->urls->current . '">External URLs</a></li>';
 						
-
 						if( !$ltple->inWidget && !empty($ltple->apps->list) ){
 							
 							//get options
@@ -399,7 +398,7 @@ echo'<div id="media_library" class="wrapper">';
 							echo'</li>';
 						}
 						
-						echo'<li role="presentation" class="active"><a href="' . $ltple->urls->current . '">Default Images</a></li>';
+						//echo'<li role="presentation" class="active"><a href="' . $ltple->urls->current . '">Default Images</a></li>';
 						
 						$filter = false;
 						

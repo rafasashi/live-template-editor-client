@@ -305,7 +305,26 @@ if( typeof editorCallbacks == typeof undefined )
 				});
 			}
 		}
-				
+		
+        function set_sidebar(){
+            
+            // responsive sidebar
+            
+            if( $('#sidebarCollapse').length > 0 ){
+                
+                if( $('body').width() < 950 ){
+                    
+                    $('#sidebar').addClass('collapsed');
+                }
+                            
+                $('#sidebarCollapse').on('click', function () {
+                    
+                    $('#sidebar').toggleClass('collapsed');
+                    
+                    navigationResize();
+                });
+            }
+        }
 		
 		function set_collapsibles(){
 			
@@ -809,16 +828,9 @@ if( typeof editorCallbacks == typeof undefined )
 
 			iframeResize();
 		}
-		
-		// responsive sidebar
-		
-		$('#sidebarCollapse').on('click', function () {
-			
-            $('#sidebar').toggleClass('collapsed');
-			
-			navigationResize();
-		});
-		
+
+        set_sidebar();
+        
 		set_collapsibles();
 		
 		set_actionables();

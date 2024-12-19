@@ -99,12 +99,8 @@
 @media (max-width: 768px) {
 	
     #ltple-wrapper #sidebar {
-        margin-left: -220px !important;
-    }
-	
-    #ltple-wrapper #sidebar.collapsed {
-		
-		margin-left: 0 !important;
+        
+        margin-left: 0 !important;
 		position: absolute;
 		overflow: hidden;
 		background: #fbfbfb;
@@ -112,14 +108,20 @@
 		bottom: 0;
 		z-index: 1;
 		box-shadow: 0 1px 3px 0 rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 2px 1px -1px rgba(0,0,0,.12);
+        
     }
 	
-	.ltple-ui #ltple-wrapper #sidebar.collapsed {
+    #ltple-wrapper #sidebar.collapsed {
+		
+        margin-left: -220px !important;
+    }
+	
+	.ltple-ui #ltple-wrapper #sidebar {
 		
 		top: 0;
 	}
 	
-	.ltple-widget #ltple-wrapper #sidebar.collapsed {
+	.ltple-widget #ltple-wrapper #sidebar {
 		
 		top: 40px;
 	}

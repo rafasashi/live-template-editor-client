@@ -18,7 +18,8 @@ class LTPLE_Client_Gallery {
 		$this->parent 	= $parent;
 		
 		$this->parent->register_taxonomy( 'gallery-section', __( 'Gallery Sections', 'live-template-editor-client' ), __( 'Gallery Section', 'live-template-editor-client' ),  array(), array(
-			'hierarchical' 			=> false,
+			
+            'hierarchical' 			=> false,
 			'public' 				=> false,
 			'show_ui' 				=> true,
 			'show_in_nav_menus' 	=> false,
@@ -30,7 +31,22 @@ class LTPLE_Client_Gallery {
 			'rewrite' 				=> false,
 			'sort' 					=> '',
 		));
-
+        
+		$this->parent->register_taxonomy( 'image-gallery', __( 'Galleries', 'live-template-editor-client' ), __( 'Image Gallery', 'live-template-editor-client' ),  array('attachment'), array(
+			
+            'hierarchical' 			=> false,
+			'public' 				=> true,
+			'show_ui' 				=> true,
+			'show_in_nav_menus' 	=> false,
+			'show_tagcloud' 		=> false,
+			'meta_box_cb' 			=> null,
+			'show_admin_column' 	=> true,
+			'update_count_callback' => '',
+			'show_in_rest'          => true,
+			'rewrite' 				=> array('slug'=>'images'),
+			'sort' 					=> '',
+		));
+        
 		add_action( 'rest_api_init', function () {
 			
 			register_rest_route( 'ltple-template/v1', '/list', array(
