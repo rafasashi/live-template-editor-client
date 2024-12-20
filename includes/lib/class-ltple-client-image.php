@@ -129,7 +129,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				
 				if( $this->parent->user->is_admin ){
 				
-					register_rest_route( 'ltple-images/v1', '/list', array(
+					register_rest_route( 'ltple-images/v1', '/list/', array(
 						
 						'methods' 	=> 'GET',
 						'callback' 	=> array($this,'list_user_images'),

@@ -46,10 +46,26 @@ class LTPLE_Client_Gallery {
 			'rewrite' 				=> array('slug'=>'images'),
 			'sort' 					=> '',
 		));
+             
+        add_action('pre_get_posts', function( $query ) {
+            
+            if ( !is_admin() && $query->is_main_query() && is_tax( 'image-gallery' ) ) {
+                
+                $query->set('post_status','inherit');
+                
+                $query->set('posts_per_page', 20);
+                
+				add_filter('ltple_css_framework',function($framework){
+					
+					return 'bootstrap-5';
+					
+				},99999999,1);
+            }
+        });
         
 		add_action( 'rest_api_init', function () {
 			
-			register_rest_route( 'ltple-template/v1', '/list', array(
+			register_rest_route( 'ltple-template/v1', '/list/', array(
 				
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_gallery_items'),
@@ -421,7 +437,7 @@ class LTPLE_Client_Gallery {
 							global $post;
 							
 							if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
-								
+                                   
 								//get item
 								
 								$item = $this->get_item($post,$layer_type,$referer);
