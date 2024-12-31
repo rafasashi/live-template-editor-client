@@ -107,7 +107,7 @@ class LTPLE_Client_Json_API {
 			}
 			
 			';
-			
+
 			if( $pagination === 'scroll' ){
 				
 				$style .= '
@@ -183,6 +183,25 @@ class LTPLE_Client_Json_API {
 
 			if( $card !== false ){
 				
+                $style .= '.bootstrap-table a.btn{';
+                    
+                    $style .= 'background-color:#f5f5f5;';
+                    $style .= 'font-size:11px;';
+                    $style .= 'padding: 8px;';
+                    $style .= 'font-weight:bold;';
+                    $style .= 'box-shadow:0px 0px 12px -12px rgb(153 153 153 / 42%), 0px 3px 9px 0px rgb(0 0 0 / 12%), 0 0px 10px -5px rgb(153 153 153 / 20%);';
+                    $style .= 'color:#566674;';
+               
+                $style .= '}';
+                
+                $style .= '.bootstrap-table a.btn:hover, .bootstrap-table a.btn:active{';
+                    
+                    $style .= 'color:#fff;';
+                    $style .= 'background-color:#566674;';
+                    $style .= 'box-shadow:0 14px 26px -12px rgb(153 153 153 / 42%), 0 4px 23px 0px rgb(0 0 0 / 12%), 0 8px 10px -5px rgb(153 153 153 / 20%)';
+                    
+                $style .= '}';
+                
 				if( $pagination != 'scroll' ){
 						
 					$style .= 'tbody {
@@ -237,10 +256,9 @@ class LTPLE_Client_Json_API {
 					
 					$style .= 'tr {';
 						
-						if( $card === true || $card == 4 ){
+                        if( $card === true || $card == 3 || $card === 4 ){
 						
 							$style .= 'width: 33.33333333%; /*md-4*/';
-						
 						}
 						elseif( $card == 2 ){
 						
@@ -260,7 +278,11 @@ class LTPLE_Client_Json_API {
 					
 					$style .= 'tr {';
 						
-						if( $card === true || $card == 4 ){
+                        if( $card === true || $card == 4 ){
+                            
+                            $style .= 'width: 25%; /*lg-3*/';
+                        }
+                        else if( $card === 3 ){
 						
 							$style .= 'width: 33.33333333%; /*lg-4*/';
 						}
@@ -602,51 +624,41 @@ class LTPLE_Client_Json_API {
 
 					$('#".$tableId."').bootstrapTable('refresh');
 				}); 
-				
+                
 				// table filters
-
-				if( $('#formFilters').length > 0 ){
+                
+				if( $('#tableFilters').length > 0 ){
 									
-					$('#formFilters').change(function () {
-						
-						tableData['filter'] =  $('#formFilters').serialize();
-						
-						//console.log(tableData);
-						
-						$('#formFilters :input').filter(function(index, element) {
+					$('#tableFilters').change(function () {
+                        
+                        var rangeInput = false;
+                        
+                        if( $('#tableFilters select[name=\"range\"]').length ){
+                            
+                            rangeInput = $('#tableFilters select[name=\"range\"]');
+                            
+                            rangeInput.prop('disabled',true);
+						}
+                        
+						tableData['filter'] =  $('#tableFilters').serialize();
+                        
+                        if( rangeInput ){
+                        
+                            rangeInput.prop('disabled',false);
+                            
+                            // set range value
+                            
+                            tableData['range'] = rangeInput.val();
+                            
+                            // Modify the URL to update the range parameter
+                            
+                            var url = new URL(window.location.href);
+                            
+                            url.searchParams.set('range', rangeInput.val());
 
-							/*
-							var name = $(element).attr('name');
-						
-							var val = '';
-							
-							if( $(element).attr('type') == 'checkbox' ){
-								
-								name = name.replace('[]', '[' + $(element).val() + ']');
-								
-								if($(element).is(':checked')){
-									
-									val = 'true';
-								}
-							}
-							else{
-								
-								val = $(element).val();									
-							}
-							
-							if( val.length > 0 ){
-								
-								tableData['filter'] = {};
-								
-								tableData.filter[name]= val;
-							}
-							else{
-								
-								tableData['filter'] = null;
-							}
-							*/
-						});
-						
+                            history.replaceState(null, '', url.toString());
+                        }
+                        
 						$('#".$tableId."').bootstrapTable('refresh');
 
 					});
@@ -660,13 +672,13 @@ class LTPLE_Client_Json_API {
 				
 				// table filters
 
-				if( $('#formFilters').length > 0 ){
+				if( $('#tableFilters').length > 0 ){
 
-					$('#formFilters').change(function () {
+					$('#tableFilters').change(function () {
 
-						var formFilters = {};
+						var tableFilters = {};
 
-						$('#formFilters :input').filter(function(index, element) {
+						$('#tableFilters :input').filter(function(index, element) {
 
 							var name = $(element).attr('name');
 
@@ -688,11 +700,11 @@ class LTPLE_Client_Json_API {
 
 							if( val != '' && val != 0 && val != $(element).attr('data-original') ){
 
-								formFilters[name] = val;
+								tableFilters[name] = val;
 							}										
 						});
 
-						$('#".$tableId."').bootstrapTable('filterBy',formFilters);
+						$('#".$tableId."').bootstrapTable('filterBy',tableFilters);
 
 					});
 				}

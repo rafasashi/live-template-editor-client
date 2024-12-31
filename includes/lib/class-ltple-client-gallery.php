@@ -245,8 +245,15 @@ class LTPLE_Client_Gallery {
 	
 	public function get_current_range(){
 		
-		return !empty($_GET['range']) ? sanitize_title($_GET['range']) : null;
-	}
+		$range = !empty($_GET['range']) ? sanitize_title($_GET['range']) : null;
+	
+        if( $range == 'all' ){
+            
+            $range = null;
+        }
+    
+        return $range;
+    }
 	
 	public function get_all_sections(){
 		
@@ -493,7 +500,7 @@ class LTPLE_Client_Gallery {
 					
 					if( !$is_addon && !$has_options && !empty($plans) && ( empty($this->parent->user->plan['holder']) || $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
 
-						$item ='<div class="panel panel-default bs-callout bs-callout-primary" style="min-height:315px;margin:0px;padding:7%;border:none !important;">';
+						$item ='<div class="panel panel-default bs-callout bs-callout-primary" style="min-height:319px;margin:0px;padding:7%;border:none !important;">';
 							
 							$item .='<div style="padding-bottom:35px;">';
 							
@@ -614,66 +621,95 @@ class LTPLE_Client_Gallery {
 					
 					$alt_url = $this->parent->layer->get_preview_image_url($post,'blogindex-thumb',$this->parent->assets_url . 'images/default_item.png');
 					
-					$item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
+                    if( !$this->parent->inWidget ){
+                    
+                        $item.='<a href="'.$info_url.'">';
+                    }
+                    
+                    $item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
 					
+                    if( !$this->parent->inWidget ){
+                    
+                        $item.='</a>';
+                    }
+                    
 					$item.='<div class="panel-body" style="padding-bottom:0;position:relative;">';
 						
 						$item.='<span class="item-range" style="color:'.$this->parent->settings->mainColor.';">'.$layer_range->shortname.'</span>';
 						
-						$item.= apply_filters('ltple_gallery_item_title','<b>' . $post_title . '</b>',$post);
-						 
+                        $title = '';
+                        
+                        if( !$this->parent->inWidget ){
+                        
+                            $title.='<a href="'.$info_url.'" style="color:#566674;">';
+                        }
+                        
+                        $title .='<b>' . $post_title . '</b>';
+                        
+                        if( !$this->parent->inWidget ){
+                        
+                            $title.='</a>';
+                        }
+                        
+						$item.= apply_filters('ltple_gallery_item_title',$title,$post);
+
+                        
 					$item.='</div>';
 					
-					$item.='<div style="background:#fff;border:none;" class="panel-footer text-right">';
+					$item.='<div class="panel-footer" style="padding:0;margin-top:15px;">';
 						
-						if( $this->parent->inWidget === true ){
-							
-							$action = '';
-							
-							if( $this->parent->plan->user_has_layer( $post ) === true ){
-								
-								$action .= '<a target="_parent" class="btn btn-sm btn-success" href="'. $start_url .'" title="Start editing this template">Start</a>';
-							}
-							elseif( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
-								
-								$action .=  '<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
-							
-									$action .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
-						
-								$action .= '</button>'.PHP_EOL;
-							}
-							
-							$item.= apply_filters('ltple_widget_gallery_item_action',$action,$post,$referer);
-						}
-						else{
+                        $item.='<div class="btn-group btn-group-justified">';
+                            
+                            if( $this->parent->inWidget === true ){
+                                
+                                $action = '';
+                                
+                                if( $this->parent->plan->user_has_layer( $post ) === true ){
+                                    
+                                    $action .= '<a target="_parent" class="btn" href="'. $start_url .'" title="Start editing this template">Start</a>';
+                                }
+                                elseif( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
+                                    
+                                    $action .=  '<a type="button" class="btn" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'" href="#upgrade_plan_'.$layer_range->slug.'" >'.PHP_EOL;
+                                
+                                        $action .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
+                            
+                                    $action .= '</a>'.PHP_EOL;
+                                }
+                                
+                                $item.= apply_filters('ltple_widget_gallery_item_action',$action,$post,$referer);
+                            }
+                            else{
 
-							$item.='<a target="_parent" class="btn btn-sm btn-info" style="margin-right:4px;" href="'. $info_url . '" title="More info about '. $post_title .' template">Info</a>';
-							
-							if( $modal = $this->parent->layer->get_preview_modal($layer) ){
-								
-								$item.='<button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#'.$modal['id'].'">'.PHP_EOL;
-									
-									$item.='Preview'.PHP_EOL;
-								
-								$item.='</button>'.PHP_EOL;
-								
-								$item.=$modal['content'].PHP_EOL;
-							}
-							
-							if($this->parent->plan->user_has_layer( $post ) === true){
-								
-								$item.='<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_parent" title="Start editing this template">Start</a>';
-							}
-							elseif( empty($this->parent->user->ID) || ( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
-								
-								$item.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
-							
-									$item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
-						
-								$item.='</button>'.PHP_EOL;
-							}
-						}
-						
+                                $item.='<a target="_parent" class="btn" href="'. $info_url . '" title="More info about '. $post_title .' template">Info</a>';
+                                
+                                if( $modal = $this->parent->layer->get_preview_modal($layer) ){
+                                    
+                                    $item.='<a type="button" class="btn" data-toggle="modal" data-target="#'.$modal['id'].'" href="#'.$modal['id'].'">'.PHP_EOL;
+                                        
+                                        $item.='Preview'.PHP_EOL;
+                                    
+                                    $item.='</a>'.PHP_EOL;
+                                    
+                                    $item.=$modal['content'].PHP_EOL;
+                                }
+                                
+                                if($this->parent->plan->user_has_layer( $post ) === true){
+                                    
+                                    $item.='<a class="btn" href="'. $start_url .'" target="_parent" title="Start editing this template">Start</a>';
+                                }
+                                elseif( empty($this->parent->user->ID) || ( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
+                                    
+                                    $item.='<a type="button" class="btn" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'" href="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
+                                
+                                        $item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
+                            
+                                    $item.='</a>'.PHP_EOL;
+                                }
+                            }
+
+						$item.='</div>';
+                        
 					$item.='</div>';
 				
 				$item.='</div>';
@@ -728,8 +764,8 @@ class LTPLE_Client_Gallery {
 						$pagination	= 'scroll',
 						$form		= false,
 						$toolbar 	= 'toolbar',
-						$card		= true,
-						$itemHeight	= 335, 
+						$card		= 4,
+						$itemHeight	= 330, 
 						$fixedHeight= true, 
 						$echo		= true,
 						$pageSize	= $this->per_page
@@ -799,7 +835,7 @@ class LTPLE_Client_Gallery {
 			
 		$item_title='<a class="product-logo" href="' . $this->parent->profile->get_user_url($post->post_author) . '" style="position:absolute;top:-25px;">';
 			
-			$item_title.='<img loading="lazy" src="'.$this->parent->image->get_avatar_url($post->post_author).'" style="height:50px;width:50px;border: 5px solid #fff;background:#fff;border-radius:250px;">';
+			$item_title.='<img loading="lazy" src="'.$this->parent->image->get_avatar_url($post->post_author).'" style="height:45px;width:45px;border: 5px solid #fff;background:#fff;border-radius:250px;">';
 			
 		$item_title.='</a>';
 		

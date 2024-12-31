@@ -411,7 +411,7 @@ echo'<div id="media_library" class="wrapper">';
 						
 						echo'<li style="padding:7px;">';
 							
-							echo'<form id="formFilters">';
+							echo'<form id="tableFilters">';
 								
 								$options = array( '' => 'All' );
 								

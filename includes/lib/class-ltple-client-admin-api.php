@@ -1156,7 +1156,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							
 							$method = ( ( isset($field['method']) && $field['method'] == 'post' ) ? 'post' : 'get' );
 							
-							$html .= '<form id="formFilters" action="'.$field['action'].'" method="'.$method.'">';
+							$html .= '<form id="tableFilters" action="'.$field['action'].'" method="'.$method.'">';
 							
 							foreach( $data['name'] as $e => $name) {
 								

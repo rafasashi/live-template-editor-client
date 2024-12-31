@@ -536,7 +536,6 @@ th input, th select {
   border: none;
   border-radius: 3px;
   position: relative;
-  padding: 12px 30px;
   font-size: 12px;
   font-weight: 400;
   text-transform: uppercase;
@@ -544,6 +543,7 @@ th input, th select {
   will-change: box-shadow, transform;
   transition: box-shadow 0.2s cubic-bezier(0.4, 0, 1, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .btn::-moz-focus-inner,
 .navbar .navbar-nav > li > a.btn::-moz-focus-inner {
   border: 0;

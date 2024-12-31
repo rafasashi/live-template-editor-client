@@ -158,93 +158,63 @@
 					echo'<div class="tab-pane active" id="' . $layer_type->slug . '">';
 						
 						//output Nav tabs
+                            
+                        echo'<ul class="nav nav-pills nav-resizable" role="tablist">';
+                        
+                            if( $ltple->inWidget ){
+                                
+                                echo'<li>';
+                                
+                                    echo $ltple->get_collapse_button();
+                                    
+                                echo'</li>';
+                            }
+                            
+                            echo '<li>';
 
-						echo'<ul class="nav nav-pills nav-resizable" role="tablist">';
-							
-							if( $ltple->inWidget ){
-								
-								echo'<li>';
-								
-									echo $ltple->get_collapse_button();
-									
-								echo'</li>';
-							}
-							
-							if( !empty($layer_type->ranges) ){
+                                echo'<form id="tableFilters">';
+                                
+                                    // switch range
+                                        
+                                    $ranges = array('all'=>'All');
+                                    
+                                    if( !empty($layer_type->ranges) ){
 
-								$gallery_url = add_query_arg($_GET,$this->urls->gallery);
-									
-								$gallery_url = remove_query_arg(array('range','uri'),$gallery_url);
-								
-								$gallery_url = add_query_arg(array('gallery'=> $layer_type->slug),$gallery_url);
-								
-								$gallery_count = 0;
-								
-								$ranges = array();
-								
-								foreach( $layer_type->ranges as $range ){
-									
-									if( $range['count'] < 1 )
-										continue;
-									
-									if( !$this->user->loggedin && !empty($layer_type->addon) && $layer_type->addon->slug == $range['slug'] )
-										continue;
-									
-									$gallery_count += $range['count'];
-									
-									$range['url'] = add_query_arg( array('range' => $range['slug']),$gallery_url);
-									
-									$ranges[] = $range;
-								}
-								
-								$filter_style = 'border-radius:20px!important;padding:0 10px !important;margin:7px;background:#fff !important;color:'.$this->settings->mainColor.';border:1px solid '.$this->settings->mainColor.';';
-								
-								$count_style = 'margin-left:5px;font-size:10px!important;color:'.$this->settings->navbarColor.'b8;background:#f2f2f2;';
-								
-								if( empty($layer_range) ){
-								
-									echo'<li><a style="'.$filter_style.'" href="' . $gallery_url . '" aria-controls="all" role="tab" title="All Templates">All <span class="badge" style="'.$count_style.'">'.$this->gallery->get_badge_count($gallery_count).'</span></a></li>';
-								}
-								else{
-									
-									foreach( $ranges as $range ){
+                                        $gallery_count = 0;
+                                        
+                                        foreach( $layer_type->ranges as $range ){
+                                            
+                                            if( $range['count'] < 1 )
+                                                continue;
+                                            
+                                            if( !$this->user->loggedin && !empty($layer_type->addon) && $layer_type->addon->slug == $range['slug'] )
+                                                continue;
+                                            
+                                            $gallery_count += $range['count'];
+                                            
+                                            $ranges[$range['slug']] = $range['short'] . ' (' . $range['count'] . ')';
+                                        }
+                                        
+                                        $ranges['all'] .= ' (' . $gallery_count . ')';
+                                    }
+                                
+                                    echo $ltple->admin->display_field( array(
 
-										if( $layer_range == $range['slug'] ){
-											
-											echo'<li><a style="'.$filter_style.'" href="' . $gallery_url . '" aria-controls="' . $range['slug'] . '" role="tab" title="'.ucfirst($range['name']).'">'.strtoupper($range['short']).' <span class="badge" style="'.$count_style.'">'.$this->gallery->get_badge_count($range['count']).'</span><span class="far fa-times-circle" style="font-size:15px;margin-left:10px;margin-top:5px;float:right;"></span></a></li>';
-										
-											break;	
-										}
-									}
-								}
-								
-								if( count($ranges) > 1 ){
-									
-									// switch range
-									
-									echo '<li class="more dropdown">';
-										
-										echo '<button style="margin:7px 0px;height:27px;background:transparent;border:0;font-size:12px;" class="dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"><i class="glyphicon glyphicon-plus" style="background:#fafafa;color:#a3a3a3;height:25px;width:25px;padding:6px;border-radius:15px;box-shadow: inset -1px -2px 8px -6px rgb(0 0 0 / 75%);"></i></button>';
-										
-										echo '<ul class="dropdown-menu dropdown-menu-left" style="margin-left:-8px;">';
-											
-										foreach( $ranges as $range ){
+                                        'type'			=> 'select',
+                                        'id'			=> 'gallery-range',
+                                        'name'			=> 'range',
+                                        'options' 		=> $ranges,
+                                        'data'			=> $layer_range,
 
-											if( $layer_range != $range['slug'] ){
-												
-												echo'<li role="presentation"><a href="' . $range['url'] . '" aria-controls="' . $range['slug'] . '" role="tab" title="'.ucfirst($range['name']).'"><span class="badge" style="font-size:10px !important;margin-right:10px;">'.$this->gallery->get_badge_count($range['count']).'</span>'.strtoupper($range['short']).'</a></li>';
-											}
-										}
-										
-										echo '</ul>';
-								
-									echo '</li>';
-								}
-							}
-							
-							do_action('ltple_gallery_tab',$layer_type->slug,$layer_range);
-
-						echo'</ul>';
+                                    ),false,false);
+                                    
+                                    do_action('ltple_gallery_tab',$layer_type->slug,$layer_range);
+                                
+                                echo'</form>';
+                            
+                            echo '</li>';
+                        
+                        echo'</ul>';
 
 						//output Tab panes
 						

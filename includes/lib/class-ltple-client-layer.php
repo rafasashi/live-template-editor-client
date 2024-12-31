@@ -2843,7 +2843,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( !empty($post) && $post_id > 0 ){
 			
-			if( $image_id = get_post_thumbnail_id( $post_id ) ){
+			if( $image_id = apply_filters('ltple_layer_thumbnail_id',get_post_thumbnail_id( $post_id ),$post_id) ){
 				
 				if ($src = wp_get_attachment_image_src($image_id,$size)){
 					

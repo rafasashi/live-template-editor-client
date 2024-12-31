@@ -855,276 +855,289 @@ class LTPLE_Client {
 	
 	public function filter_template_path( $path, $layer ){
 		
-		$layer_type = $this->layer->get_layer_type($layer);
-		
-		if( !empty($layer_type->output) ){
-			
-			if( $this->urls->is_product_page($layer) ){
-				
-				add_filter('ltple_css_framework',function($framework){
-					
-					return 'bootstrap-4';
-					
-				},99999999,1);
-				
-				add_action( 'wp_enqueue_scripts',function(){
+        if( $this->urls->current_url_in('editor') ){
+            
+            // TODO include gallery.php
+            
+            add_filter('ltple_css_framework',function($framework){
+                        
+                return 'bootstrap-3';
+                
+            },99999999,1);
+        }
+        else{
+            
+            $layer_type = $this->layer->get_layer_type($layer);
+            
+            if( !empty($layer_type->output) ){
+                
+                if( $this->urls->is_product_page($layer) ){
+                    
+                    add_filter('ltple_css_framework',function($framework){
+                        
+                        return 'bootstrap-4';
+                        
+                    },99999999,1);
+                    
+                    add_action( 'wp_enqueue_scripts',function(){
 
-					// styles
+                        // styles
 
-					wp_register_style( $this->_token . '-product', false, array());
-					wp_enqueue_style( $this->_token . '-product' );
-				
-					wp_add_inline_style( $this->_token . '-product', '
-						
-						#product_detail {
-							
-							padding: 0px;
-							margin: 0px;
-							font-size: 15px;
-							display:inline-block;
-							width: 100%;
-							min-height:600px;
-						}
-						
-						#product_wrap {
-							
-							padding: 20px 0 0 0;
-						}
-						
-						.carousel-control-prev, .carousel-control-next{
-							
-							color:#888;
-						}
-						
-						#product_gallery, #product_preview{
+                        wp_register_style( $this->_token . '-product', false, array());
+                        wp_enqueue_style( $this->_token . '-product' );
+                    
+                        wp_add_inline_style( $this->_token . '-product', '
+                            
+                            #product_detail {
+                                
+                                padding: 0px;
+                                margin: 0px;
+                                font-size: 15px;
+                                display:inline-block;
+                                width: 100%;
+                                min-height:600px;
+                            }
+                            
+                            #product_wrap {
+                                
+                                padding: 20px 0 0 0;
+                            }
+                            
+                            .carousel-control-prev, .carousel-control-next{
+                                
+                                color:#888;
+                            }
+                            
+                            #product_gallery, #product_preview{
 
-							height:600px;
-							overflow:hidden;
-						}
-						
-						#product_gallery .media{
-							
-							opacity:0.5;
-							cursor:pointer;
-							cursor: pointer;
-							border-radius: 100px !important;
-							overflow: hidden;
-							padding: 0!important;
-						}
-						
-						#product_gallery .media:hover{
-							
-							opacity:1;
-						}
-						
-						#product_gallery .media.active{
-							
-							opacity:1;
-						}
-						
-						#product_preview .product-image {
-							
-							min-height:600px;
-							height: auto;
-							width: 100%;
-							overflow: hidden;
-							margin-bottom:1000px;
-							border-radius: 20px;
-							position: relative;
-						}
-						
-						#product_preview .product-view {
-							
-							position:absolute;
-						    font-size: 18px;
-							height: 40px;
-							width: 40px;
-							padding: 8px;
-							color: #555;
-							cursor: pointer;
-							text-align: center;
-							z-index: 200;
-							position: absolute;
-							top:0;
-							right:18px;
-							background: #fff;
-							border-radius: 25px;
-							box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
-						}
-						
-						@media (max-width: 767px) {
-							
-							#product_preview {
-								
-								height: calc( 100vh - 200px );
-							}
-							
-							#product_preview .product-image {
-								
-								min-height: calc( 100vh - 200px );
-							}
-						}
-						
-						#product_preview .product-image img {
-							
-							max-height: 90%;
-							max-width: 90%;
-							width: auto;
-							height: auto;
-							position: absolute;
-							top: 0;
-							bottom: 0;
-							left: 0;
-							right: 0;
-							margin: auto;
-							border-radius:25px;
-							padding: 0 !important;
-							box-shadow:rgb(50 50 93 / 25%) 0px 13px 27px -5px, rgb(0 0 0 / 30%) 0px 8px 16px -8px;
-							background:#fff;
-						}
-						
-						#product_preview .gallery-prev, #product_preview .gallery-next {
-							
-							font-size: 23px;
-							height: 50px;
-							width: 50px;
-							padding: 8px;
-							color: #555;
-							cursor: pointer;
-							text-align: center;
-							z-index: 200;
-							position: absolute;
-							top:50%;
-							background: #fff;
-							border-radius: 25px;
-							box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
-						}
-						
-						#product_preview .gallery-prev{
-						
-						    left: 15px;
-						}
-						
-						#product_preview .gallery-next{
-							
-							right:15px;
-						}
-						
-						#product_preview .gallery-prev:hover, #product_preview .gallery-next:hover {
-							
-							color: #888;
-						}
-						
-						#product_features .fa {
-						
-						    color: ' . $this->settings->mainColor . ';
-							margin: 0 10px 0 -10px;
-						}
-					');
-					
-					// scripts
-					
-					wp_register_script( $this->_token . '-store', esc_url( $this->assets_url ) . 'js/store-ui.js', array( 'jquery' ), $this->_version );
-					wp_enqueue_script( $this->_token . '-store' );
+                                height:600px;
+                                overflow:hidden;
+                            }
+                            
+                            #product_gallery .media{
+                                
+                                opacity:0.5;
+                                cursor:pointer;
+                                cursor: pointer;
+                                border-radius: 100px !important;
+                                overflow: hidden;
+                                padding: 0!important;
+                            }
+                            
+                            #product_gallery .media:hover{
+                                
+                                opacity:1;
+                            }
+                            
+                            #product_gallery .media.active{
+                                
+                                opacity:1;
+                            }
+                            
+                            #product_preview .product-image {
+                                
+                                min-height:600px;
+                                height: auto;
+                                width: 100%;
+                                overflow: hidden;
+                                margin-bottom:1000px;
+                                border-radius: 20px;
+                                position: relative;
+                            }
+                            
+                            #product_preview .product-view {
+                                
+                                position:absolute;
+                                font-size: 18px;
+                                height: 40px;
+                                width: 40px;
+                                padding: 8px;
+                                color: #555;
+                                cursor: pointer;
+                                text-align: center;
+                                z-index: 200;
+                                position: absolute;
+                                top:0;
+                                right:18px;
+                                background: #fff;
+                                border-radius: 25px;
+                                box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+                            }
+                            
+                            @media (max-width: 767px) {
+                                
+                                #product_preview {
+                                    
+                                    height: calc( 100vh - 200px );
+                                }
+                                
+                                #product_preview .product-image {
+                                    
+                                    min-height: calc( 100vh - 200px );
+                                }
+                            }
+                            
+                            #product_preview .product-image img {
+                                
+                                max-height: 90%;
+                                max-width: 90%;
+                                width: auto;
+                                height: auto;
+                                position: absolute;
+                                top: 0;
+                                bottom: 0;
+                                left: 0;
+                                right: 0;
+                                margin: auto;
+                                border-radius:25px;
+                                padding: 0 !important;
+                                box-shadow:rgb(50 50 93 / 25%) 0px 13px 27px -5px, rgb(0 0 0 / 30%) 0px 8px 16px -8px;
+                                background:#fff;
+                            }
+                            
+                            #product_preview .gallery-prev, #product_preview .gallery-next {
+                                
+                                font-size: 23px;
+                                height: 50px;
+                                width: 50px;
+                                padding: 8px;
+                                color: #555;
+                                cursor: pointer;
+                                text-align: center;
+                                z-index: 200;
+                                position: absolute;
+                                top:50%;
+                                background: #fff;
+                                border-radius: 25px;
+                                box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+                            }
+                            
+                            #product_preview .gallery-prev{
+                            
+                                left: 15px;
+                            }
+                            
+                            #product_preview .gallery-next{
+                                
+                                right:15px;
+                            }
+                            
+                            #product_preview .gallery-prev:hover, #product_preview .gallery-next:hover {
+                                
+                                color: #888;
+                            }
+                            
+                            #product_features .fa {
+                            
+                                color: ' . $this->settings->mainColor . ';
+                                margin: 0 10px 0 -10px;
+                            }
+                        ');
+                        
+                        // scripts
+                        
+                        wp_register_script( $this->_token . '-store', esc_url( $this->assets_url ) . 'js/store-ui.js', array( 'jquery' ), $this->_version );
+                        wp_enqueue_script( $this->_token . '-store' );
 
-				},10 );
-				
-				if( !empty($this->product->ID) ){
-					
-					$path = $this->views . '/product.php';
-				}
-				else{
-					
-					$path = apply_filters('ltple_product_page_path',$this->views . '/products.php',$layer);
-				}
-			}
-			elseif( $this->layer->is_default($layer) && empty($_GET['action']) ){
-				
-				if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer->output) ){
-					
-					if( $this->layer->is_html_output($layer->output) && $layer->output != 'web-app' ){
-					
-						$show_layer = false;
-					
-						$visibility = $this->layer->get_layer_visibility($layer);
-						
-						if( $visibility == 'anyone' ){
-							
-							$show_layer = true;
-						}
-						elseif( $visibility == 'registered' && $this->user->loggedin ){
-							
-							$show_layer = true;
-						}
-						elseif( $this->plan->user_has_layer( $layer ) === true ){
-							
-							$show_layer = true;
-						}
-						elseif( $this->user->can_edit ){
-							
-							$show_layer = true;
-						}
-						
-						if( $show_layer ){
-							
-							if( $tab = apply_filters('ltple_preview_profile_tab',false,$this->layer->get_layer_type($layer)) ){
-								
-								if( $this->user->loggedin ){
-									
-									$user_id = $this->user->ID;
-								}
-								else{
-									
-									$user_id = $layer->post_author;
-								}
-								
-								$this->profile->set_profile($user_id,$tab,$layer->post_name,false);
-								
-								return $this->views . '/profile.php';					
-							}
-							else{
-								
-								if( $layer->post_type == 'default-element' ) {
-									
-									add_filter('ltple_css_framework',function($framework){
-										
-										return 'bootstrap-4';
-										
-									},99999999,1);
-								}
-								
-								return $this->views . '/layer.php';
-							}
-						}
-					}
-				}
-				
-				return $this->views . '/preview.php';
-			}
-			elseif( $this->layer->is_hosted_output($layer_type->output) ){
-				
-				return apply_filters('ltple_'. $layer_type->storage . '_template_path',$path);
-			}
-			elseif( $this->user->loggedin ){
-				
-				if( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID ){
-				
-					return $this->views . '/layer.php';
-				}
-				else{
-					
-					$this->exit_message('You don\'t have access to this template...',404);	
-				}
-			}
-			else{
-				
-				$this->exit_message('Sign in to access this template...',404);
-			}
-		}
-		elseif( file_exists($this->views.'/'.$layer->post_type.'.php') ){
-			
-			$path = $this->views.'/'.$layer->post_type.'.php';
-		}
+                    },10 );
+                    
+                    if( !empty($this->product->ID) ){
+                        
+                        $path = $this->views . '/product.php';
+                    }
+                    else{
+                        
+                        $path = apply_filters('ltple_product_page_path',$this->views . '/products.php',$layer);
+                    }
+                }
+                elseif( $this->layer->is_default($layer) && empty($_GET['action']) ){
+                    
+                    if( strpos($this->urls->current,$this->urls->home . '/preview/') !== 0 || $this->layer->has_preview($layer->output) ){
+                        
+                        if( $this->layer->is_html_output($layer->output) && $layer->output != 'web-app' ){
+                        
+                            $show_layer = false;
+                        
+                            $visibility = $this->layer->get_layer_visibility($layer);
+                            
+                            if( $visibility == 'anyone' ){
+                                
+                                $show_layer = true;
+                            }
+                            elseif( $visibility == 'registered' && $this->user->loggedin ){
+                                
+                                $show_layer = true;
+                            }
+                            elseif( $this->plan->user_has_layer( $layer ) === true ){
+                                
+                                $show_layer = true;
+                            }
+                            elseif( $this->user->can_edit ){
+                                
+                                $show_layer = true;
+                            }
+                            
+                            if( $show_layer ){
+                                
+                                if( $tab = apply_filters('ltple_preview_profile_tab',false,$this->layer->get_layer_type($layer)) ){
+                                    
+                                    if( $this->user->loggedin ){
+                                        
+                                        $user_id = $this->user->ID;
+                                    }
+                                    else{
+                                        
+                                        $user_id = $layer->post_author;
+                                    }
+                                    
+                                    $this->profile->set_profile($user_id,$tab,$layer->post_name,false);
+                                    
+                                    return $this->views . '/profile.php';					
+                                }
+                                else{
+                                    
+                                    if( $layer->post_type == 'default-element' ) {
+                                        
+                                        add_filter('ltple_css_framework',function($framework){
+                                            
+                                            return 'bootstrap-4';
+                                            
+                                        },99999999,1);
+                                    }
+                                    
+                                    return $this->views . '/layer.php';
+                                }
+                            }
+                        }
+                    }
+                    
+                    return $this->views . '/preview.php';
+                }
+                elseif( $this->layer->is_hosted_output($layer_type->output) ){
+                    
+                    return apply_filters('ltple_'. $layer_type->storage . '_template_path',$path);
+                }
+                elseif( $this->user->loggedin ){
+                    
+                    if( $this->user->is_admin || intval($layer->post_author ) == $this->user->ID ){
+                    
+                        return $this->views . '/layer.php';
+                    }
+                    else{
+                        
+                        $this->exit_message('You don\'t have access to this template...',404);	
+                    }
+                }
+                else{
+                    
+                    $this->exit_message('Sign in to access this template...',404);
+                }
+            }
+            elseif( file_exists($this->views.'/'.$layer->post_type.'.php') ){
+                
+                $path = $this->views.'/'.$layer->post_type.'.php';
+            }
+        }
 		
 		return $path;
 	}
@@ -2599,9 +2612,27 @@ class LTPLE_Client {
 				
 			$style .='}';			
 		}
+        
+        $style .=' .nav-pills form{';
+            
+            $style .='display:flex;';
+            $style .='padding-left:5px;';
+            
+        $style .='}';
+        
+        $style .=' .library-content .form-control{';
+        
+            $style .='height: 26px;';
+            $style .='width: auto;';
+            $style .='padding: 3px;';
+            $style .='margin: 7px 5px;';
+            $style .='border:1px solid '.( !empty($this->settings->navbarColor) ? $this->settings->navbarColor . '78' : '#ccc' ).';';
+            $style .='border-radius:25px;';
+            
+        $style .='}';
 		
 		if( !empty($this->settings->mainColor) ){
-			
+            
 			$style .=' .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover{';	
 			
 				$style .='background-color:'.$this->settings->mainColor.' !important;';
