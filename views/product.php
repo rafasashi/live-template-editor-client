@@ -90,7 +90,7 @@
 									
                                     if( !$ltple->inWidget ){
                                     
-                                        echo '<a class="product-view" href="' . $ltple->product->get_product_image_url($image_id,'full') . '" title="' . $layer->post_title . '"><i class="fas fa-search-plus"></i></a>';
+                                        echo '<a class="product-view mt-4" href="' . $ltple->product->get_product_image_url($image_id,'full') . '" title="' . $layer->post_title . '"><i class="fas fa-search-plus"></i></a>';
                                     }
                                     
 								echo '</div>';
@@ -238,220 +238,217 @@
 						echo'</div>';
 						
 					echo '</div>';
+                
+                    echo '<div class="container-fluid">';
+
+                        echo'<div class="alert alert-info text-center">';
+                        
+                            echo'For more information about a tailored '.$output_name.' like <b>' . $layer->post_title . '</b> please contact us directly.';
+                            
+                        echo'</div>';							
                     
-                    if( !$ltple->inWidget ){
+                        //output more info
                         
-                        echo '<div class="container-fluid">';
-
-                            echo'<div class="alert alert-info text-center">';
-                            
-                                echo'For more information about a tailored '.$output_name.' like <b>' . $layer->post_title . '</b> please contact us directly.';
-                                
-                            echo'</div>';							
+                        do_action('ltple_product_info',$layer,$layer_range);
                         
-                            //output more info
+                        if( !$ltple->inWidget && $is_html && $is_editable && $layer->output != 'web-app'  ){
                             
-                            do_action('ltple_product_info',$layer,$layer_range);
-                            
-                            if( $is_html && $is_editable && $layer->output != 'web-app' ){
+                            echo'<div class="row mt-5">';
                                 
-                                echo'<div class="row mt-5">';
-                                    
-                                    echo'<div id="about_tool" class="col-md-4">';
+                                echo'<div id="about_tool" class="col-md-4">';
 
-                                        echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading1">';
-                                            
-                                            echo'<button class="d-block" style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">';
-                                              
-                                                echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
-                                              
-                                                echo'Live Editing Tool';
-                                            
-                                            echo'</button>';
+                                    echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading1">';
                                         
-                                        echo'</div>';
+                                        echo'<button class="d-block" style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">';
+                                          
+                                            echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
+                                          
+                                            echo'Live Editing Tool';
                                         
-                                        echo'<div id="collapse1" class="panel-collapse in show" role="tabpanel" aria-labelledby="heading1">';
-                                            
-                                            echo '<p style="margin:10px;">';
-                                            
-                                                echo 'Edit <b>' . $layer->post_title . '</b> code, duplicate or remove parts, save your custom version and export the result online directly from the editor.';
-                                            
-                                            echo '</p>';
-                                            
-                                        echo'</div>';
-                                    
-                                        echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading2">';
-                                            
-                                            echo'<button class="d-block" style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">';
-                                              
-                                                echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
-                                              
-                                                echo'Media Library';
-                                            
-                                            echo'</button>';
-                                        
-                                        echo'</div>';
-                                        
-                                        echo'<div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">';
-                                            
-                                            echo '<p style="margin:10px;">';
-                                            
-                                                echo 'Insert your contents into <b>' . $layer->post_title . '</b> template directly from the editor, import images to your library, build custom payment links and add them to your list of bookmarks.';
-
-                                            echo '</p>';
-                                            
-                                        echo'</div>';
-
-                                        echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading3">';
-                                            
-                                            echo'<button class="d-block" style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">';
-                                              
-                                                echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
-                                              
-                                                echo'Connected Apps';
-                                            
-                                            echo'</button>';
-                                        
-                                        echo'</div>';
-                                        
-                                        echo'<div id="collapse3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading3">';
-                                            
-                                            echo '<p style="margin:10px;">';
-                                            
-                                                echo 'Connect third party apps to import or upload your communication material, take advantage of advance features and gain stars';
-                                            
-                                            echo '</p>';
-                                            
-                                        echo'</div>';
-
-                                        echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading4">';
-                                            
-                                            echo'<button class="d-block" style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">';
-                                              
-                                                echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
-                                              
-                                                echo'Custom Url';
-                                            
-                                            echo'</button>';
-                                        
-                                        echo'</div>';
-                                        
-                                        echo'<div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">';
-                                            
-                                            echo '<p style="margin:10px;">';
-                                            
-                                                echo 'Add and manage dedicated domain names and assign custom urls to your saved templates.';
-                                            
-                                            echo '</p>';
-                                            
-                                        echo'</div>';				
+                                        echo'</button>';
                                     
                                     echo'</div>';
                                     
-                                    //output video tutorial
-                                    
-                                    echo'<div class="col-md-4">';
+                                    echo'<div id="collapse1" class="panel-collapse in show" role="tabpanel" aria-labelledby="heading1">';
                                         
-                                        $video_url = get_option( $ltple->_base . 'main_video' );
+                                        echo '<p style="margin:10px;">';
                                         
-                                        if( !empty($video_url) ){
-                                            
-                                            echo'<iframe src="https://www.youtube.com/embed/'.$ltple->apps->get_youtube_id($video_url).'" frameborder="0" style="background-color:#000000;width:100%;height:300px;" allowfullscreen></iframe>';
-                                        }
+                                            echo 'Edit <b>' . $layer->post_title . '</b> code, duplicate or remove parts, save your custom version and export the result online directly from the editor.';
+                                        
+                                        echo '</p>';
                                         
                                     echo'</div>';
+                                
+                                    echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading2">';
+                                        
+                                        echo'<button class="d-block" style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">';
+                                          
+                                            echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
+                                          
+                                            echo'Media Library';
+                                        
+                                        echo'</button>';
                                     
-                                    //output related templates
+                                    echo'</div>';
                                     
-                                    echo'<div class="col-md-4">';
+                                    echo'<div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">';
+                                        
+                                        echo '<p style="margin:10px;">';
+                                        
+                                            echo 'Insert your contents into <b>' . $layer->post_title . '</b> template directly from the editor, import images to your library, build custom payment links and add them to your list of bookmarks.';
+
+                                        echo '</p>';
+                                        
+                                    echo'</div>';
+
+                                    echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading3">';
+                                        
+                                        echo'<button class="d-block" style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">';
+                                          
+                                            echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
+                                          
+                                            echo'Connected Apps';
+                                        
+                                        echo'</button>';
                                     
-                                        if( !empty($layer_range) && !empty($layer_range->name) ){
+                                    echo'</div>';
                                     
-                                            $q = get_posts( array(
-                                            
-                                                'post_type' 	=> $layer->post_type,
-                                                'numberposts' 	=> -1,
-                                                'tax_query' 	=> array(
-                                                    
-                                                    array(
-                                                        
-                                                        'taxonomy' 			=> 'layer-range',
-                                                        'field' 			=> 'name',
-                                                        'terms' 			=> $layer_range->name,
-                                                        'include_children' 	=> false
-                                                    )
-                                                ),
-                                                'meta_query' 	=> array(
+                                    echo'<div id="collapse3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading3">';
+                                        
+                                        echo '<p style="margin:10px;">';
+                                        
+                                            echo 'Connect third party apps to import or upload your communication material, take advantage of advance features and gain stars';
+                                        
+                                        echo '</p>';
+                                        
+                                    echo'</div>';
+
+                                    echo'<div style="border-bottom:1px solid #DDDDDD;background:rgb(252, 252, 252);" id="heading4">';
+                                        
+                                        echo'<button class="d-block" style="background:none;text-align:left;font-size:15px;font-weight:bold;width:100%;padding:10px;border:none;" role="button" data-toggle="collapse" data-parent="#about_tool" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">';
+                                          
+                                            echo'<i class="fa fa-check-circle" aria-hidden="true"></i> ';
+                                          
+                                            echo'Custom Url';
+                                        
+                                        echo'</button>';
+                                    
+                                    echo'</div>';
+                                    
+                                    echo'<div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">';
+                                        
+                                        echo '<p style="margin:10px;">';
+                                        
+                                            echo 'Add and manage dedicated domain names and assign custom urls to your saved templates.';
+                                        
+                                        echo '</p>';
+                                        
+                                    echo'</div>';				
+                                
+                                echo'</div>';
+                                
+                                //output video tutorial
+                                
+                                echo'<div class="col-md-4">';
+                                    
+                                    $video_url = get_option( $ltple->_base . 'main_video' );
+                                    
+                                    if( !empty($video_url) ){
+                                        
+                                        echo'<iframe src="https://www.youtube.com/embed/'.$ltple->apps->get_youtube_id($video_url).'" frameborder="0" style="background-color:#000000;width:100%;height:300px;" allowfullscreen></iframe>';
+                                    }
+                                    
+                                echo'</div>';
+                                
+                                //output related templates
+                                
+                                echo'<div class="col-md-4">';
+                                
+                                    if( !empty($layer_range) && !empty($layer_range->name) ){
+                                
+                                        $q = get_posts( array(
+                                        
+                                            'post_type' 	=> $layer->post_type,
+                                            'numberposts' 	=> -1,
+                                            'tax_query' 	=> array(
                                                 
-                                                    array(
+                                                array(
                                                     
-                                                        'key' 		=> 'layerVisibility',
-                                                        'value' 	=> 'assigned',
-                                                        'compare' 	=> '!='
-                                                    )
+                                                    'taxonomy' 			=> 'layer-range',
+                                                    'field' 			=> 'name',
+                                                    'terms' 			=> $layer_range->name,
+                                                    'include_children' 	=> false
                                                 )
-                                            ));
+                                            ),
+                                            'meta_query' 	=> array(
                                             
-                                            if( !empty($q) ){
+                                                array(
+                                                
+                                                    'key' 		=> 'layerVisibility',
+                                                    'value' 	=> 'assigned',
+                                                    'compare' 	=> '!='
+                                                )
+                                            )
+                                        ));
+                                        
+                                        if( !empty($q) ){
 
-                                                $i=1;
-                                            
-                                                shuffle($q);
-                                            
-                                                foreach( $q as $post){
-                                                    
-                                                    if( $post->ID != $layer->ID ){
-                                                    
-                                                        echo '<div class="media mb-1 p-0">';
+                                            $i=1;
+                                        
+                                            shuffle($q);
+                                        
+                                            foreach( $q as $post){
+                                                
+                                                if( $post->ID != $layer->ID ){
+                                                
+                                                    echo '<div class="media mb-1 p-0">';
+                                                        
+                                                        if( $image = $ltple->layer->get_preview_image_url($post->ID,'thumbnail',$ltple->assets_url . 'images/default_item.png') ){
+                                                        
+                                                            echo '<a class="thumbnail mb-3 mr-1" href="' . get_permalink($post) . '">';
+                                                        
+                                                                echo '<img src="'.$image.'" style="height:75px;width:75px;"/>';
+                                                        
+                                                            echo'</a>';
+                                                        }
+                                                        
+                                                        echo '<div class="media-body">';
+                                                        
+                                                            echo '<a href="' . get_permalink($post) . '" style="font-weight:bold;">';
                                                             
-                                                            if( $image = $ltple->layer->get_preview_image_url($post->ID,'thumbnail',$ltple->assets_url . 'images/default_item.png') ){
+                                                                echo $post->post_title;
                                                             
-                                                                echo '<a class="thumbnail mb-3 mr-1" href="' . get_permalink($post) . '">';
+                                                            echo '</a>';
                                                             
-                                                                    echo '<img src="'.$image.'" style="height:75px;width:75px;"/>';
+                                                            echo '<p style="height:45px;overflow:hidden;">';
                                                             
-                                                                echo'</a>';
-                                                            }
+                                                                echo $post->post_excerpt;
                                                             
-                                                            echo '<div class="media-body">';
-                                                            
-                                                                echo '<a href="' . get_permalink($post) . '" style="font-weight:bold;">';
-                                                                
-                                                                    echo $post->post_title;
-                                                                
-                                                                echo '</a>';
-                                                                
-                                                                echo '<p style="height:45px;overflow:hidden;">';
-                                                                
-                                                                    echo $post->post_excerpt;
-                                                                
-                                                                echo '</p>';
-                                                            
-                                                            echo'</div>';
-                                                            
+                                                            echo '</p>';
+                                                        
                                                         echo'</div>';
                                                         
-                                                        if($i==3){
-                                                            
-                                                            break;
-                                                        }
-                                                        else{
-                                                            
-                                                            ++$i;
-                                                        }
+                                                    echo'</div>';
+                                                    
+                                                    if($i==3){
+                                                        
+                                                        break;
+                                                    }
+                                                    else{
+                                                        
+                                                        ++$i;
                                                     }
                                                 }
                                             }
                                         }
-                                        
-                                    echo'</div>';
+                                    }
                                     
                                 echo'</div>';
-                            }
-                            
-                        echo'</div>';
-                    }
+                                
+                            echo'</div>';
+                        }
+                        
+                    echo'</div>';
 
 				echo '</div>';
 				
