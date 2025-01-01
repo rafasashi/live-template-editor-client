@@ -1453,7 +1453,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					$tab .= '<input type="hidden" id="'.$input_id.'" name="image_url" value="" />';
 					
-					$tab .= '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+					$tab .= '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog">'.PHP_EOL;
 						
 						$tab .= '<div class="modal-dialog modal-lg" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
 							
@@ -1463,7 +1463,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									
 									$tab .= '<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 									
-									$tab .= '<h4 class="modal-title text-left" id="myModalLabel">Media Library</h4>'.PHP_EOL;
+									$tab .= '<h4 class="modal-title text-left">Media Library</h4>'.PHP_EOL;
 								
 								$tab .= '</div>'.PHP_EOL;
 
@@ -2903,8 +2903,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return false;
 	}
-	
-	public function get_preview_modal($layer){
+    
+	public function get_modal($layer,$modal_title=null){
 		
 		if( !empty($layer->urls['view']) ){
 			
@@ -2920,23 +2920,34 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			$modal_id='modal_'.md5($preview_url);
 
-			$content='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+			$content='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog">'.PHP_EOL;
 				
 				$content.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 					
 					$content.='<div class="modal-content">'.PHP_EOL;
-					
-						$content.='<div class="modal-header">'.PHP_EOL;
-							
-							$content.='<h4 class="modal-title text-left" id="myModalLabel">Preview</h4>'.PHP_EOL;
-						
-							$content.='<button type="button" class="close m-0 p-0" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-							
-						$content.='</div>'.PHP_EOL;
+                        
+                        if( !empty($modal_title) ){
+                            
+                            $content.='<div class="modal-header">'.PHP_EOL;
+                                
+                                $content.='<h4 class="modal-title text-left">'.$modal_title.'</h4>'.PHP_EOL;
+                            
+                                $content.='<button type="button" class="close m-0 p-0" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+                                
+                            $content.='</div>'.PHP_EOL;
+                        }
+                        else{
+                            
+                            $content .= '<button type="button" class="close m-0 p-0" data-dismiss="modal" aria-label="Close" style="position:absolute;top:5px;right:5px;z-index:999999;">';
+                                
+                                $content .= '<span aria-hidden="true" style="background:#eee;display:block;width:30px;height:30px;border-radius:25px;font-size:30px;">&times;</span>';
+                            
+                            $content .= '</button>';
+                        }
 						
 						if( $show_preview === true ){
 							
-							$content.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:calc( 100vh - 100px);overflow: hidden;"></iframe>';											
+							$content.= '<iframe data-src="'.$preview_url.'" style="width: 100%;position:relative;bottom: 0;border:0;height:' . ( !empty($modal_title) ? 'calc( 100vh - 100px)' : '100vh' ) .';overflow: hidden;"></iframe>';											
 						}
 						else{
 							
@@ -2964,7 +2975,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 							if( $this->parent->user->loggedin ){
 
-								$actions ='<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_self" title="Start editing this template">Start</a>';
+								$actions ='<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_parent" title="Start editing this template">Start</a>';
 							}
 							else{
 								

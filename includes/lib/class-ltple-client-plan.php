@@ -619,7 +619,7 @@ class LTPLE_Client_Plan {
 
 										$row.='<i class="fas fa-eye pull-right hidden-xs" style="color:#b5b5b5;"></i>'.PHP_EOL;
 
-										$row.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+										$row.='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog">'.PHP_EOL;
 											
 											$row.='<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 												
@@ -627,7 +627,7 @@ class LTPLE_Client_Plan {
 												
 													$row.='<div class="modal-header">'.PHP_EOL;
 														
-														$row.='<h4 class="modal-title text-left" id="myModalLabel">Gallery</h4>'.PHP_EOL;
+														$row.='<h4 class="modal-title text-left">Gallery</h4>'.PHP_EOL;
 													
 														$row.='<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 														
@@ -1016,7 +1016,7 @@ class LTPLE_Client_Plan {
 										$shortcode .='</button>'.PHP_EOL;									
 									}
 
-									$shortcode .='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+									$shortcode .='<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog">'.PHP_EOL;
 										
 										$shortcode .='<div class="modal-dialog modal-lg" role="document">'.PHP_EOL;
 											
@@ -1024,7 +1024,7 @@ class LTPLE_Client_Plan {
 											
 												$shortcode .='<div class="modal-header">'.PHP_EOL;
 													
-													$shortcode .= '<h4 class="modal-title" id="myModalLabel">';
+													$shortcode .= '<h4 class="modal-title">';
 													
 														$shortcode .= $plan['title'];
 														

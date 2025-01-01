@@ -156,12 +156,12 @@ if( typeof editorCallbacks == typeof undefined )
 		
 		function set_modals(){
 			
-			if( $('.modal').length > 0 ){
+			if( $('.modal:not([data-loaded])').length > 0 ){
 				
 				//modal always on top 
 				
 				$('.modal').appendTo("body");
-						
+                	
 				//load modal iframes
 
 				$('.modal').on('shown.bs.modal', function (e) {
@@ -266,7 +266,7 @@ if( typeof editorCallbacks == typeof undefined )
 					
 					$('html').css('overflow','initial');
 					
-				});
+				}).attr('data-loaded','true');
 			}			
 		}
 		
@@ -355,9 +355,9 @@ if( typeof editorCallbacks == typeof undefined )
 		
 		function set_actionables(){
 			
-			if( $('[data-toggle="copy"]').length > 0 ){
+			if( $('[data-toggle="copy"]:not([data-loaded]').length > 0 ){
 				
-				$('[data-toggle="copy"]').off().on('click', function(e) {
+				$('[data-toggle="copy"]:not([data-loaded]').on('click', function(e) {
 					
 					e.preventDefault();
 					
@@ -402,7 +402,8 @@ if( typeof editorCallbacks == typeof undefined )
 							}
 						}
 					}
-				});
+                    
+				}).attr('data-loaded','true');
 			}
 			
 			if( $('[data-toggle="action"]').length > 0 ){
@@ -610,17 +611,17 @@ if( typeof editorCallbacks == typeof undefined )
 		
 		function set_tooltips(){
 			
-			if( $('[data-toggle="tooltip"]').length > 0 ){
+			if( $('[data-toggle="tooltip"]:not([data-loaded]').length > 0 ){
 			
-				$('[data-toggle="tooltip"]').tooltip();
+				$('[data-toggle="tooltip"]:not([data-loaded]').tooltip().attr('data-loaded','true');
 			}
 		}
 		
 		function set_dialogs(){
 			
-			if( $('[data-toggle="dialog"]').length > 0 ){
+			if( $('[data-toggle="dialog"]:not([data-loaded]').length > 0 ){
 				
-				$('[data-toggle="dialog"]').each(function(e){
+				$('[data-toggle="dialog"]:not([data-loaded]').each(function(e){
 					
 					var id 		= $(this).data('target');
 					
@@ -748,6 +749,8 @@ if( typeof editorCallbacks == typeof undefined )
 							}				
 						}
 					});
+                    
+                    $(this).attr('data-loaded','true');
 				});
 			}
 		}
@@ -762,17 +765,18 @@ if( typeof editorCallbacks == typeof undefined )
 			
 			set_tooltips();
 			
-			$("img.lazy").lazyload({
+			$("img.lazy:not([data-loaded]").lazyload({
 				
 				container: $(".table tbody")
-			});
+                
+			}).attr('data-loaded','true');
 			
-			if( $(".pagination .page-link").length > 0 ){
+			if( $(".pagination .page-link:not([data-loaded]").length > 0 ){
 			
-				$(".pagination .page-link").on('click',function(){
+				$(".pagination .page-link:not([data-loaded]").on('click',function(){
 					
 					$("tbody").animate({ scrollTop: 0 }, "fast");
-				});
+				}).attr('data-loaded','true');
 			}
 		}
 			

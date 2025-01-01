@@ -538,20 +538,23 @@ class LTPLE_Client_Json_API {
 							if( data.length > 0 ){
 								
 								$('.no-records-found').remove();
-							
-								$.each(data, function(i,item) {
-									
-									var content = 'item field missing';
-									
-									if( typeof item.item != typeof undefined){
-										
-										content = item.item;
-									}
-									
-									$('.table tbody').append('<tr><td>' + content + '</td></tr>');
-								});
+                                
+								const fragment = document.createDocumentFragment();
+                                
+                                data.forEach(item => {
+                                    
+                                    const content = item?.item || 'Item field missing';
+                                    
+                                    const row = document.createElement('tr');
+                                    
+                                    row.innerHTML = '<td>' + content + '</td>';
+                                    
+                                    fragment.appendChild(row);
+                                });
 								
-								$('.table').trigger('page-change.bs.table');
+                                $('.table tbody').append(fragment);
+								
+                                $('.table').trigger('page-change.bs.table');
 							}
 							
 							if( data.length < $('#".$tableId."').data('page-size') ){
@@ -576,7 +579,10 @@ class LTPLE_Client_Json_API {
 				
 			}
 			
-			tableRequest();
+            $(window).on('pageshow', function () {
+                
+                tableRequest();
+            });
 			
 			$(document).ready(function(){
 				
@@ -642,6 +648,10 @@ class LTPLE_Client_Json_API {
                         
 						tableData['filter'] =  $('#tableFilters').serialize();
                         
+                        var url = new URL(window.location.href);
+                            
+                        url.searchParams.set('filter',tableData['filter']);
+
                         if( rangeInput ){
                         
                             rangeInput.prop('disabled',false);
@@ -650,14 +660,12 @@ class LTPLE_Client_Json_API {
                             
                             tableData['range'] = rangeInput.val();
                             
-                            // Modify the URL to update the range parameter
-                            
-                            var url = new URL(window.location.href);
-                            
-                            url.searchParams.set('range', rangeInput.val());
-
-                            history.replaceState(null, '', url.toString());
+                            url.searchParams.set('range',tableData['range']);
                         }
+                        
+                        // modify the URL
+                         
+                        history.replaceState(null,'',url.toString());
                         
 						$('#".$tableId."').bootstrapTable('refresh');
 

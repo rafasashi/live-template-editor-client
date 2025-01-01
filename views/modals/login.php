@@ -1,6 +1,6 @@
 <?php
 
-	echo '<div class="modal fade" id="login_first" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+	echo '<div class="modal fade" id="login_first" tabindex="-1" role="dialog">'.PHP_EOL;
 		
 		echo '<div class="modal-dialog modal-lg" role="document" style="max-width:500px !important;">'.PHP_EOL;
 			
@@ -10,7 +10,7 @@
 					
 					echo '<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 					
-					echo '<h4 class="modal-title text-left" id="myModalLabel">You need to Login first</h4>'.PHP_EOL;
+					echo '<h4 class="modal-title text-left">You need to Login first</h4>'.PHP_EOL;
 				
 				echo '</div>'.PHP_EOL;
 			  

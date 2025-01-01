@@ -2,7 +2,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Checkout {
+class LTPLE_Client_Checkout extends LTPLE_Client_Object {
 	
 	/**
 	 * The single instance of LTPLE_Client_Checkout.
@@ -80,7 +80,7 @@ class LTPLE_Client_Checkout {
 										}
 										else{
 											
-											echo'<a href="' . wp_login_url(remove_query_arg('output',$this->parent->urls->current)) . '" target="_parent" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+											echo'<a href="' . wp_login_url($this->parent->urls->current) . '" target="_parent" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
 										}
 										
 									echo'</div>';
@@ -111,18 +111,12 @@ class LTPLE_Client_Checkout {
 				
 				if( $plans = $this->parent->plan->get_plans_by_options($options,'OR') ){
 					
-					if( !$this->parent->inWidget ){
-					
-						echo '<h2 style="margin-top:15px;">Upgrade to one of the following plans</h2>';
-					}
-					
+					echo '<h4 style="margin-top:15px;">Upgrade to one of the following plans</h4>';
+
 					foreach( $plans as $i => $plan ){
 						
-						if( $i > 0 ){
-							
-							echo'<hr style="margin-top:15px;margin-bottom:15px;">';
-						}
-						
+						echo'<hr style="margin-top:15px;margin-bottom:15px;">';
+
 						echo'<div class="row">';
 
 							echo'<div class="col-xs-8">';
@@ -147,42 +141,20 @@ class LTPLE_Client_Checkout {
 	
 								if( $this->parent->user->loggedin ){
 									
-									if( !$this->parent->inWidget ){
-										
-										$modal_id = 'modal_' . md5($plan['agreement_url']);
-										
-										echo '<button type="button" onclick="return false;" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#'.$modal_id.'">' . ucfirst($plan['action']) . '</button>';
-										
-										echo '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
-											
-											echo '<div class="modal-dialog modal-lg" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
-												
-												echo '<div class="modal-content">'.PHP_EOL;
-													
-													echo '<div class="modal-header">'.PHP_EOL;
-														
-														echo '<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-														
-														echo '<h4 class="modal-title text-left" id="myModalLabel">Unlock '.$plan['title'].'</h4>'.PHP_EOL;
-													
-													echo '</div>'.PHP_EOL;
+									if( $this->parent->inWidget === true ){
 
-													echo '<iframe id="iframe_'.$modal_id.'" data-src="' . $plan['agreement_url'] . '" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';						
-													
-												echo '</div>'.PHP_EOL;
-												
-											echo '</div>'.PHP_EOL;
-											
-										echo '</div>'.PHP_EOL;
-									}
-									else{
-										
 										echo'<a href="' . $plan['agreement_url'] . '" target="_self" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
 									}
+                                    elseif( $checkout_modal = $this->get_modal($plan['agreement_url'],$plan['title']) ){
+
+                                        echo '<button type="button" onclick="return false;" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#'.$checkout_modal['id'].'">' . ucfirst($plan['action']) . '</button>';
+                                    
+                                        echo $checkout_modal['content'];
+                                    }
 								}
 								else{
 									
-									echo'<a href="' . wp_login_url(remove_query_arg('output',$this->parent->urls->current)) . '" target="_parent" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
+									echo'<a href="' . wp_login_url($this->parent->urls->current) . '" target="_parent" class="btn btn-sm btn-primary">' . ucfirst($plan['action']) . '</a>';
 								}
 								
 							echo'</div>';
@@ -200,6 +172,57 @@ class LTPLE_Client_Checkout {
 		
 		return ob_get_clean();
 	}
+    
+    public function get_modal($layer_range,$layer_title=null){
+
+        $checkout_url = add_query_arg( array(
+            
+            'output' 	=> 'widget',
+            'options' 	=> $layer_range,
+        
+        ), $this->parent->urls->checkout );
+        
+        $modal_id = 'upgrade_plan_'.$layer_range;
+        
+        $content = '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog">'.PHP_EOL;
+            
+            $content .= '<div class="modal-dialog modal-full" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
+                
+                $content .= '<div class="modal-content">'.PHP_EOL;
+                    
+                    if( !empty($layer_title) ){
+                        
+                        $content .= '<div class="modal-header">'.PHP_EOL;
+                            
+                            $content .= '<h4 class="modal-title text-left">'.$layer_title.'</h4>'.PHP_EOL;
+                        
+                            $content .= '<button type="button" class="close m-0 p-0" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+                            
+                        $content .= '</div>'.PHP_EOL;
+                    }
+                    else{
+                            
+                        $content .= '<button type="button" class="close m-0 p-0" data-dismiss="modal" aria-label="Close" style="position:absolute;top:5px;right:5px;z-index:999999;">';
+                            
+                            $content .= '<span aria-hidden="true" style="background:#eee;display:block;width:30px;height:30px;border-radius:25px;font-size:30px;">&times;</span>';
+                        
+                        $content .= '</button>';
+                    }
+
+                    $content .= '<iframe id="iframe_'.$modal_id.'" data-src="' . $checkout_url . '" style="display:block;position:relative;width:100%;top:0;bottom:0;border:0;height:' . ( !empty($layer_title) ? 'calc( 100vh - 50px)' : '100vh' ) .';"></iframe>';						
+                    
+                $content .= '</div>'.PHP_EOL;
+                
+            $content .= '</div>'.PHP_EOL;
+            
+        $content .= '</div>'.PHP_EOL;
+    
+        return array(
+            
+            'id' 		=> $modal_id,
+            'content' 	=> $content,
+        );
+    }
 	
 	/**
 	 * Main LTPLE_Client_Checkout Instance

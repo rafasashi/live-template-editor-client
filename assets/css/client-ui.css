@@ -1,4 +1,13 @@
 /* ---------------------------------------------------
+   BUTTONS
+----------------------------------------------------- */
+
+.btn, a[type="button"]{
+    
+    cursor:pointer;
+}
+
+/* ---------------------------------------------------
    MCE
 ----------------------------------------------------- */
 
@@ -30,6 +39,10 @@
 /* ---------------------------------------------------
     DASHBOARD & PRODUCTS
 ----------------------------------------------------- */
+
+#main {
+    min-height: calc( 100vh - 80px );
+}
 
 #dashboard .media-body a, #layer_detail{
 	line-height:22px;
@@ -1548,7 +1561,7 @@ th input, th select {
 
 .modal-title {
 	margin: 0;
-	line-height: 33px;
+	line-height: 40px;
 	font-size: 18px;
 	color: #345774 !important;
 	display:inline-block;

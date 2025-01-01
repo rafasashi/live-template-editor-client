@@ -283,14 +283,6 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 							
 							html += "</div>";
 							
-							/*
-							html += "<div id=\"previewToolbar\">";
-							
-								html += "tool";
-							
-							html += "</div>";
-							*/
-							
 						html += "</div>";
 						
 						$(html).insertAfter(".table");
@@ -778,7 +770,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				}
 				else{
 					
-					$item.='<div class="panel-body" style="padding:15px 0 15px 15px;">';
+					$item.='<div class="panel-body" style="padding:10px 0 10px 10px;">';
 						
 						$item.='<div class="pull-left" style="width: calc(100% - 40px) !important;">';
 

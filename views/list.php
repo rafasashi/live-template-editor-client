@@ -62,7 +62,7 @@ echo'<div id="panel" class="wrapper">';
 							
 							echo'</a>'.PHP_EOL;
 
-							echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">'.PHP_EOL;
+							echo'<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog">'.PHP_EOL;
 								
 								echo'<div class="modal-dialog modal-full" role="document">'.PHP_EOL;
 									
@@ -72,7 +72,7 @@ echo'<div id="panel" class="wrapper">';
 											
 											echo'<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
 											
-											echo'<h4 class="modal-title text-left" id="myModalLabel">' . $modal_title . '</h4>'.PHP_EOL;
+											echo'<h4 class="modal-title text-left">' . $modal_title . '</h4>'.PHP_EOL;
 										
 										echo'</div>'.PHP_EOL;
 									  

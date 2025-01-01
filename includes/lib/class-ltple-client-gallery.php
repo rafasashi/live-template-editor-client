@@ -2,12 +2,12 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class LTPLE_Client_Gallery {
+class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 	
 	var $all_sections 	= null;
 	var $current_types 	= null;
 	var $all_ranges 	= null;
-	var $per_page 		= 50;
+	var $per_page 		= 30;
 	var $max_num_pages;
 	
 	/**
@@ -590,24 +590,24 @@ class LTPLE_Client_Gallery {
 
 		return 	$layer_type;	
 	}
-	
+    
 	public function get_item($post,$layer_type,$referer=null){
 		
 		$item = '';
 
 		if( $layer = LTPLE_Editor::instance()->get_layer($post) ){
 			
-			// get info url
-			
-			$info_url = get_permalink($post);
-
-			//get start url
-
-			$start_url = apply_filters('ltple_start_url',$this->parent->urls->edit . '?uri='.$post->ID,$post);
-			
 			//get post_title
 			
 			$post_title = the_title('','',false);
+			
+			// get info modal
+            
+            $info_modal = $this->get_modal(get_permalink($post),$post_title);
+            
+			//get start url
+
+			$start_url = apply_filters('ltple_start_url',$this->parent->urls->edit . '?uri='.$post->ID,$post);
 			
 			// get layer range
 			
@@ -615,50 +615,49 @@ class LTPLE_Client_Gallery {
 			
 			// get item
 
-			$item.='<div class="' . implode( ' ', get_post_class('',$post->ID) ) . '" id="post-' . $post->ID . '">';
+			$item .= '<div class="' . implode( ' ', get_post_class('',$post->ID) ) . '" id="post-' . $post->ID . '">';
 				
-				$item.='<div class="panel panel-default">';
+				$item .= '<div class="panel panel-default">';
 					
 					$alt_url = $this->parent->layer->get_preview_image_url($post,'blogindex-thumb',$this->parent->assets_url . 'images/default_item.png');
 					
                     if( !$this->parent->inWidget ){
                     
-                        $item.='<a href="'.$info_url.'">';
+                        $item .= '<a type="button" data-toggle="modal" data-target="#'.$info_modal['id'].'">';
                     }
                     
-                    $item.='<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
+                    $item .= '<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
 					
                     if( !$this->parent->inWidget ){
                     
-                        $item.='</a>';
+                        $item .= '</a>';
                     }
                     
-					$item.='<div class="panel-body" style="padding-bottom:0;position:relative;">';
+					$item .='<div class="panel-body" style="padding-bottom:0;position:relative;">';
 						
-						$item.='<span class="item-range" style="color:'.$this->parent->settings->mainColor.';">'.$layer_range->shortname.'</span>';
+						$item .='<span class="item-range" style="color:'.$this->parent->settings->mainColor.';">'.$layer_range->shortname.'</span>';
 						
                         $title = '';
                         
                         if( !$this->parent->inWidget ){
                         
-                            $title.='<a href="'.$info_url.'" style="color:#566674;">';
+                            $title .='<a type="button" data-toggle="modal" data-target="#'.$info_modal['id'].'" style="color:#566674;">';
                         }
                         
-                        $title .='<b>' . $post_title . '</b>';
+                        $title  .='<b>' . $post_title . '</b>';
                         
                         if( !$this->parent->inWidget ){
                         
-                            $title.='</a>';
+                            $title .= '</a>';
                         }
                         
 						$item.= apply_filters('ltple_gallery_item_title',$title,$post);
 
-                        
-					$item.='</div>';
+					$item .= '</div>';
 					
-					$item.='<div class="panel-footer" style="padding:0;margin-top:15px;">';
+					$item .= '<div class="panel-footer" style="padding:0;margin-top:15px;">';
 						
-                        $item.='<div class="btn-group btn-group-justified">';
+                        $item .= '<div class="btn-group btn-group-justified">';
                             
                             if( $this->parent->inWidget === true ){
                                 
@@ -670,51 +669,53 @@ class LTPLE_Client_Gallery {
                                 }
                                 elseif( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
                                     
-                                    $action .=  '<a type="button" class="btn" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'" href="#upgrade_plan_'.$layer_range->slug.'" >'.PHP_EOL;
+                                    $action .=  '<a type="button" class="btn" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
                                 
                                         $action .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
                             
                                     $action .= '</a>'.PHP_EOL;
                                 }
                                 
-                                $item.= apply_filters('ltple_widget_gallery_item_action',$action,$post,$referer);
+                                $item .= apply_filters('ltple_widget_gallery_item_action',$action,$post,$referer);
                             }
                             else{
 
-                                $item.='<a target="_parent" class="btn" href="'. $info_url . '" title="More info about '. $post_title .' template">Info</a>';
+                                $item .= '<a type="button" class="btn" data-toggle="modal" data-target="#'.$info_modal['id'].'" title="More info about '. $post_title .' template">Info</a>';
                                 
-                                if( $modal = $this->parent->layer->get_preview_modal($layer) ){
+                                $item .= $info_modal['content'];
+                                
+                                if( $preview_modal = $this->parent->layer->get_modal($layer,'Preview') ){
                                     
-                                    $item.='<a type="button" class="btn" data-toggle="modal" data-target="#'.$modal['id'].'" href="#'.$modal['id'].'">'.PHP_EOL;
+                                    $item .= '<a type="button" class="btn" data-toggle="modal" data-target="#'.$preview_modal['id'].'">'.PHP_EOL;
                                         
-                                        $item.='Preview'.PHP_EOL;
+                                        $item .= 'Preview'.PHP_EOL;
                                     
-                                    $item.='</a>'.PHP_EOL;
+                                    $item .= '</a>'.PHP_EOL;
                                     
-                                    $item.=$modal['content'].PHP_EOL;
+                                    $item .= $preview_modal['content'].PHP_EOL;
                                 }
                                 
                                 if($this->parent->plan->user_has_layer( $post ) === true){
                                     
-                                    $item.='<a class="btn" href="'. $start_url .'" target="_parent" title="Start editing this template">Start</a>';
+                                    $item .= '<a class="btn" href="'. $start_url .'" target="_parent" title="Start editing this template">Start</a>';
                                 }
                                 elseif( empty($this->parent->user->ID) || ( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
                                     
-                                    $item.='<a type="button" class="btn" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'" href="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
+                                    $item .= '<a type="button" class="btn" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'" href="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
                                 
-                                        $item.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
+                                        $item .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
                             
-                                    $item.='</a>'.PHP_EOL;
+                                    $item .= '</a>'.PHP_EOL;
                                 }
                             }
 
-						$item.='</div>';
+						$item .= '</div>';
                         
-					$item.='</div>';
+					$item .= '</div>';
 				
-				$item.='</div>';
+				$item .= '</div>';
 				
-			$item.='</div>';
+			$item .= '</div>';
 		}
 
 		return $item;
@@ -831,34 +832,34 @@ class LTPLE_Client_Gallery {
 	
 	public function filter_gallery_item_title($content,$post){
 		
-		$nickname = get_the_author_meta( 'nickname', $post->post_author );
+		$nickname = get_the_author_meta('nickname', $post->post_author );
 			
-		$item_title='<a class="product-logo" href="' . $this->parent->profile->get_user_url($post->post_author) . '" style="position:absolute;top:-25px;">';
+		$item_title = '<a class="product-logo" href="' . $this->parent->profile->get_user_url($post->post_author) . '" target="_blank" style="position:absolute;top:-25px;">';
 			
-			$item_title.='<img loading="lazy" src="'.$this->parent->image->get_avatar_url($post->post_author).'" style="height:45px;width:45px;border: 5px solid #fff;background:#fff;border-radius:250px;">';
+			$item_title .= '<img loading="lazy" src="'.$this->parent->image->get_avatar_url($post->post_author).'" style="height:45px;width:45px;border: 5px solid #fff;background:#fff;border-radius:250px;">';
 			
-		$item_title.='</a>';
+		$item_title .= '</a>';
 		
-		$item_title.='<div style="margin-top:10px;line-height:25px;height:30px;overflow:hidden;font-size:15px;font-weight:bold;">';
+		$item_title .= '<div style="margin-top:10px;line-height:25px;height:30px;overflow:hidden;font-size:15px;font-weight:bold;">';
 		
-			$item_title.= $content;
+			$item_title .= $content;
 		
-		$item_title.='</div>';
+		$item_title .= '</div>';
 		
 		if( !empty($nickname) ){
 		
-			$item_title.='<div style="font-size: 11px;">';
+			$item_title .= '<div style="font-size: 11px;">';
 				
 				if( $this->parent->inWidget === true ){
 					
-					$item_title.='by <span>' . $nickname . '</span>';
+					$item_title .= ' by <span>' . $nickname . '</span>';
 				}
 				else{
 					
-					$item_title.='by <a href="' . $this->parent->profile->get_user_url($post->post_author) . '/">' . $nickname . '</a>';
+					$item_title .= ' by <a href="' . $this->parent->profile->get_user_url($post->post_author) . '/" target="_blank">' . $nickname . '</a>';
 				}
 			
-			$item_title.='</div>';
+			$item_title .= ' </div>';
 		}
 		
 		return $item_title;
