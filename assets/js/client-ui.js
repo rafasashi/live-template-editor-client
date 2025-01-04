@@ -755,6 +755,70 @@ if( typeof editorCallbacks == typeof undefined )
 			}
 		}
 		
+        function set_links(){
+           
+            const params = new URLSearchParams(window.location.search);
+            
+            if( params.get('output') === 'widget' ){
+                
+                $('a').each(function() {
+                    
+                    if( !$(this).attr('target') && $(this).attr('href') ) {
+                        
+                        const href = $(this).attr('href');
+                        
+                        if( href.indexOf('http') === 0 ){
+                            
+                            const linkHost = new URL(href).hostname;
+
+                            if( linkHost === window.location.hostname ) {
+                                
+                                $(this).attr('target', '_parent');
+                            }
+                            else {
+                                
+                                $(this).attr('target', '_blank');
+                            }
+                        }
+                    }
+                });
+            }
+            
+            $(".open-url").on("click",function(e){
+                
+                e.preventDefault();
+
+                var url = $(this).data("target");
+
+                window.open(url,"_blank");
+                
+            });
+            
+            $(".copy-url").on("click",function(e){
+                
+                e.preventDefault();
+                
+                var url = $(this).data("target");
+                
+                var $temp = $("<input>");
+                
+                $("body").append($temp);
+            
+                $temp.val(url).select();
+                
+                document.execCommand("copy");
+                
+                $temp.remove();
+                                
+                $.notify( "Copied to clipboard", {
+                                
+                    className: "info",
+                    position: "top center"
+                });
+            
+            });
+        }
+        
 		function set_table(){
 			
 			set_modals();
@@ -966,6 +1030,17 @@ if( typeof editorCallbacks == typeof undefined )
 		// dialog boxes
 		
 		set_dialogs();
+        
+        // links
+		
+		set_links();  
+        
+        window.addEventListener('ltple.set.links', function(event) {
+            
+            //const eventData = event.detail;
+            
+            set_links();
+        });
 		
 		// bootstrap table callbacks
 		

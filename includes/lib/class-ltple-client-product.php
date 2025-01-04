@@ -291,15 +291,26 @@ class LTPLE_Client_Product extends LTPLE_Client_Object {
 			
 			$checkout_url = $this->get_checkout_url($post);
             
-            $checkout_modal = $this->get_modal($checkout_url);
-			
-			$button.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#'.$checkout_modal['id'].'">'.PHP_EOL;
-		
-				$button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
-	
-			$button.='</button>'.PHP_EOL;
-			
-            $button.=$checkout_modal['content'].PHP_EOL;
+            if( $this->parent->inWidget === true ){
+                
+                $button.='<a type="button" class="btn btn-sm btn-success" href="'.$checkout_url.'" targer="_self">'.PHP_EOL;
+            
+                    $button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
+        
+                $button.='</a>'.PHP_EOL;
+            }
+            else{
+                
+                $checkout_modal = $this->get_modal($checkout_url);
+                
+                $button.='<button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#'.$checkout_modal['id'].'">'.PHP_EOL;
+            
+                    $button.='<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
+        
+                $button.='</button>'.PHP_EOL;
+                
+                $button.=$checkout_modal['content'].PHP_EOL;
+            }
 		}
 
 		return $button;

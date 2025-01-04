@@ -419,6 +419,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 				'tax_query' 	=> apply_filters('ltple_gallery_' . $layer_type->storage . '_tax_query',$tax_query),
 				'orderby' 		=> apply_filters('ltple_gallery_' . $layer_type->storage . '_orderby',array('date'=>'DESC')),
 				'posts_per_page'=> $this->per_page,
+                'no_found_rows' => true,
 				'paged'			=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
 			);
 			
@@ -626,8 +627,10 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
                         $item .= '<a type="button" data-toggle="modal" data-target="#'.$info_modal['id'].'">';
                     }
                     
-                    $item .= '<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
+                    //$item .= '<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
 					
+                    $item .= '<div class="thumb_wrapper"><img loading="lazy" class="lazy" src="'.$this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url).'"></div>';
+                    
                     if( !$this->parent->inWidget ){
                     
                         $item .= '</a>';
@@ -766,7 +769,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 						$form		= false,
 						$toolbar 	= 'toolbar',
 						$card		= 4,
-						$itemHeight	= 330, 
+						$itemHeight	= 295, 
 						$fixedHeight= true, 
 						$echo		= true,
 						$pageSize	= $this->per_page

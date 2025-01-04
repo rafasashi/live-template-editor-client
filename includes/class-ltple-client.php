@@ -412,9 +412,20 @@ class LTPLE_Client {
 		add_action('ltple_message', array( $this, 'output_message') );	
 		
 		// add footer
+        
+		add_action('wp_footer', array( $this, 'get_footer') );
 		
-		add_action('wp_footer', array( $this, 'get_footer') );	
-		
+       add_action('ltple_show_theme_footer', function($show){
+           
+           if( $this->inWidget || $this->urls->current_url_in('editor') || $this->urls->current_url_in('media') ){
+               
+                $show = false;
+           }
+           
+            return $show;
+           
+       },10,1);
+       
 		// Custom default layer template
 		
 		add_filter('ltple_layer_template', array( $this, 'filter_template_path'),1,2 );

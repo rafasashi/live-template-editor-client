@@ -32,7 +32,7 @@
 		
 		// get from value
 	
-		$preview_modal = $ltple->layer->get_modal($layer);
+		$preview_modal = !$ltple->inWidget ? $ltple->layer->get_modal($layer) : false;
 		
 		$from_amount = null;
 		
@@ -205,33 +205,39 @@
 						
 						echo'<div id="share_product" style="margin:25px 0;font-size:40px;">';
 						
-							echo'<a href="https://twitter.com/intent/tweet?text=' . urlencode( 'Awesome ' . $layer->post_title . '! ' . $product_url ) . '" target="_blank" title="share on twitter" style="margin:5px;">';
+							echo'<a class="open-url" href="#twitter-share" data-target="https://twitter.com/intent/tweet?text=' . urlencode( 'Awesome ' . $layer->post_title . '! ' . $product_url ) . '" target="_blank" title="share on twitter" style="margin:5px;">';
 							
 								echo'<i class="fab fa-twitter-square" aria-hidden="true"></i>';
 							
 							echo'</a>';
 							
-							echo'<a href="https://www.facebook.com/sharer/sharer.php?u='.urlencode( $product_url ).'&t='.urlencode( 'Awesome ' . $layer->post_title . '!' ).'" target="_blank" title="share on facebook" style="margin:5px;">';
+							echo'<a class="open-url" href="#facebook-share" data-target="https://www.facebook.com/sharer/sharer.php?u='.urlencode( $product_url ).'&t='.urlencode( 'Awesome ' . $layer->post_title . '!' ).'" target="_blank" title="share on facebook" style="margin:5px;">';
 						
 								echo'<i class="fab fa-facebook-square" aria-hidden="true"></i>';
 							
 							echo'</a>';
-							
-							echo'<a href="http://pinterest.com/pin/create/link/?url='.urlencode( $product_url ).'&description='.urlencode( 'Awesome ' . $layer->post_title . '!' ).'" target="_blank" title="share on pinterest" style="margin:5px;">';
+
+							echo'<a class="open-url" href="#pinterest-share" data-target="http://pinterest.com/pin/create/link/?url='.urlencode( $product_url ).'&description='.urlencode( 'Awesome ' . $layer->post_title . '!' ).'" target="_blank" title="share on pinterest" style="margin:5px;">';
 							
 								echo'<i class="fab fa-pinterest-square" aria-hidden="true"></i>';
 						
 							echo'</a>';
 							
-							echo'<a href="https://www.linkedin.com/cws/share?url='.urlencode( $product_url ).'&title='.urlencode( $layer->post_title ).'&summary='.urlencode( $layer->post_excerpt ).'" target="_blank" title="share on linkedin" style="margin:5px;">';
+							echo'<a class="open-url" href="#linkedin-share" data-target="https://www.linkedin.com/cws/share?url='.urlencode( $product_url ).'&title='.urlencode( $layer->post_title ).'&summary='.urlencode( $layer->post_excerpt ).'" target="_blank" title="share on linkedin" style="margin:5px;">';
 							
 								echo'<i class="fab fa-linkedin" aria-hidden="true"></i>';
 						
 							echo'</a>';
 							
-							echo'<a href="https://www.reddit.com/submit?url='.urlencode( $product_url ).'&title='.urlencode( $layer->post_title ) .'" target="_blank" title="share on reddit" style="margin:5px;">';
+							echo'<a class="open-url" href="#reddit-share" data-target="https://www.reddit.com/submit?url='.urlencode( $product_url ).'&title='.urlencode( $layer->post_title ) .'" target="_blank" title="share on reddit" style="margin:5px;">';
 							
 								echo'<i class="fab fa-reddit-square" aria-hidden="true"></i>';
+						
+							echo'</a>';
+                            
+                            echo'<a class="copy-url" href="#copy-url" data-target="'.$product_url.'" target="_blank" style="margin:5px;">';
+							
+								echo'<i class="fa fa-link" aria-hidden="true" style="vertical-align:middle;color:#fff;background:'.$ltple->settings->mainColor.';padding:6px;font-size:24px;border-radius:5px;margin-top:-10px;"></i>';
 						
 							echo'</a>';
 						
@@ -251,7 +257,7 @@
                         
                         do_action('ltple_product_info',$layer,$layer_range);
                         
-                        if( !$ltple->inWidget && $is_html && $is_editable && $layer->output != 'web-app'  ){
+                        if( $is_html && $is_editable && $layer->output != 'web-app'  ){
                             
                             echo'<div class="row mt-5">';
                                 

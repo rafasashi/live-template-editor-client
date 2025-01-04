@@ -257,7 +257,17 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	public function get_script(){
 		
 		$script = ';(function($){
-			
+            
+            function dispatch_event(name,detail){
+                
+                const event = new CustomEvent(name,{
+                    
+                    detail: detail
+                });
+                
+                window.dispatchEvent(event);
+            }
+            
 			function set_image_preview($previewItem){
 				
 				if( typeof $previewItem == typeof undefined ){
@@ -343,39 +353,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					}' . PHP_EOL;
 				}
 				
-				$script .= '$(".open-url").on("click",function(e){
-					
-					e.preventDefault();
-
-					var url = $(this).data("target");
-
-					window.open(url,"_blank");
-					
-				});';
-				
-				$script .= '$(".copy-url").on("click",function(e){
-					
-					e.preventDefault();
-					
-					var url = $(this).data("target");
-					
-					var $temp = $("<input>");
-					
-					$("body").append($temp);
-				
-					$temp.val(url).select();
-					
-					document.execCommand("copy");
-					
-					$temp.remove();
-									
-					$.notify( "Copied to clipboard", {
-									
-						className: "info",
-						position: "top center"
-					});
-				
-				});';
+				$script .= 'dispatch_event("ltple.set.links");' . PHP_EOL;
 				
 			$script .= '
 			
