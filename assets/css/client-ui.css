@@ -328,6 +328,12 @@ th input, th select {
 	width: 100%;
 }
 
+.table-grid .thumb_wrapper img {
+    
+    height: 165px;
+    max-width: fit-content;
+}
+
 .table-list .thumb_wrapper {
 	min-height: 100px;
 }
