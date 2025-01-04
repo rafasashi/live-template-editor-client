@@ -237,7 +237,7 @@
                             
                             echo'<a class="copy-url" href="#copy-url" data-target="'.$product_url.'" target="_blank" style="margin:5px;">';
 							
-								echo'<i class="fa fa-link" aria-hidden="true" style="vertical-align:middle;color:#fff;background:'.$ltple->settings->mainColor.';padding:6px;font-size:24px;border-radius:5px;margin-top:-10px;"></i>';
+								echo'<i class="fa fa-link" aria-hidden="true" style="vertical-align:middle;color:#fff;background:'.$ltple->settings->linkColor.';padding:6px;font-size:24px;border-radius:5px;margin-top:-10px;"></i>';
 						
 							echo'</a>';
 						
