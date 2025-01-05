@@ -158,110 +158,115 @@ if( typeof editorCallbacks == typeof undefined )
 			
 			if( $('.modal:not([data-loaded])').length > 0 ){
 				
-				//modal always on top 
-				
-				$('.modal').appendTo("body");
-                	
 				//load modal iframes
 
-				$('.modal').on('shown.bs.modal', function (e) {
+				$('.modal:not([data-loaded]').on('shown.bs.modal', function(e){
 					
 					$('html').css('overflow','hidden');
 					
 					var $modal = $(this);
-					
-					var modalIframe = $modal.find('iframe');
-					
-					if(modalIframe.length > 0){
-						
-						var iframeSrc = modalIframe.attr("src");
-						
-						if(typeof iframeSrc == typeof undefined || iframeSrc == false){
-							
-							iframeSrc = modalIframe.attr("data-src");
-							
-							if(typeof iframeSrc !== typeof undefined && iframeSrc !== false){
-								
-								// show loader
+                    
+                    if( !$modal.data('initiated') ){
+                        
+                        // move the modal down
+                                
+                        $modal.appendTo("body").attr('data-initiated','true');
+                        
+                        var modalIframe = $modal.find('iframe');
+                        
+                        if( modalIframe.length > 0 ){
+                            
+                            var iframeSrc = modalIframe.attr("src");
+                            
+                            if( typeof iframeSrc == typeof undefined || iframeSrc == false ){
+                                
+                                iframeSrc = modalIframe.attr("data-src");
+                                
+                                if( typeof iframeSrc !== typeof undefined && iframeSrc !== false ){
+                                    
+                                    // show loader
 
-								modalIframe.addClass('svgLoader');
+                                    modalIframe.addClass('svgLoader');
+                                    
+                                    // prevent browser caching
 
-								// prevent browser caching
+                                    iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
 
-								iframeSrc = append_url_parameter(iframeSrc,"_i",Math.random());
+                                    modalIframe.attr("src", iframeSrc).on('load',function(){
+                                        
+                                        // hide loader
 
-								modalIframe.attr("src", iframeSrc).on('load',function(){
-									
-									// hide loader
+                                        modalIframe.removeClass('svgLoader');
+                                        
+                                        $('.modal-backdrop').removeClass('svgLoader');
 
-									modalIframe.removeClass('svgLoader');
+                                        // get input id
+                                                
+                                        var inputId = modalIframe.attr("data-input-id");
+                                        
+                                        if( typeof inputId !== typeof undefined ){
+                                        
+                                            // insert media
+                                            
+                                            modalIframe.contents().find(".insert_media").off();
+                                            
+                                            modalIframe.contents().find(".insert_media").on("click", function(e){
 
-									// get input id
-											
-									var inputId = modalIframe.attr("data-input-id");
-									
-									if( typeof inputId !== typeof undefined ){
-									
-										// insert media
-										
-										modalIframe.contents().find(".insert_media").off();
-										
-										modalIframe.contents().find(".insert_media").on("click", function(e){
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                
+                                                // get media src
+                                                
+                                                var src = $(this).attr("data-src");
+                                                                                    
+                                                // set input change
+                                                 
+                                                $(inputId).val(src);
+                                                
+                                                // trigger input change
+                            
+                                                $(inputId).trigger("change");
+                                            
+                                                // close current modal
 
-											e.preventDefault();
-											e.stopPropagation();
-											
-											// get media src
-											
-											var src = $(this).attr("data-src");
-																				
-											// set input change
-											 
-											$(inputId).val(src);
-											
-											// trigger input change
-						
-											$(inputId).trigger("change");
-										
-											// close current modal
+                                                $modal.modal("toggle");
+                                            
+                                            });	
+                                            
+                                            modalIframe.contents().find('.table').on('DOMSubtreeModified',function(event) {
+                                                
+                                                modalIframe.contents().find(".insert_media").off();
+                                            
+                                                modalIframe.contents().find(".insert_media").on("click", function(e){
 
-											$modal.modal("toggle");
-										
-										});	
-										
-										modalIframe.contents().find('.table').on('DOMSubtreeModified',function(event) {
-											
-											modalIframe.contents().find(".insert_media").off();
-										
-											modalIframe.contents().find(".insert_media").on("click", function(e){
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    
+                                                    // get media src
+                                                    
+                                                    var src = $(this).attr("data-src");
+                                                                                        
+                                                    // set input change
+                                                     
+                                                    $(inputId).val( src );
+                                                    
+                                                    // trigger input change
+                                
+                                                    $(inputId).trigger("change");
+                                                
+                                                    // close current modal
 
-												e.preventDefault();
-												e.stopPropagation();
-												
-												// get media src
-												
-												var src = $(this).attr("data-src");
-																					
-												// set input change
-												 
-												$(inputId).val( src );
-												
-												// trigger input change
-							
-												$(inputId).trigger("change");
-											
-												// close current modal
+                                                    $modal.modal("toggle");
+                                                
+                                                });										
+                                            });
+                                        }							
+                                    });
+                                }
+                            }				
+                        }
+                    }
 
-												$modal.modal("toggle");
-											
-											});										
-										});
-									}							
-								});
-							}
-						}				
-					}
-				
 				}).on('hidden.bs.modal', function(){
 					
 					$('html').css('overflow','initial');
