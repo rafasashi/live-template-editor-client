@@ -1311,13 +1311,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function is_app_output($output){
-		
-		$app_output = apply_filters('ltple_layer_app_output',array(
-		
-			'web-app',
-			'vector',
-			
-		));
+
+		$app_output = apply_filters('ltple_layer_app_types',array('web-app'));
 		
 		if( in_array($output,$app_output) ){
 			
