@@ -2040,7 +2040,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			$this->storageTypes = apply_filters('ltple_layer_storages',array(
 					
-				'user-layer'	=>'HTML Template',
+				'user-layer'	=>'Web Template',
 				'user-element'	=>'HTML Element',
 				'user-psd'		=>'Image Design',
 			));

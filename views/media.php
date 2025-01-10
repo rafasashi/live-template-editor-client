@@ -70,7 +70,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 				if( empty($section) || $section == 'images' || $section == 'user-images' )
 					
-					echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->media . 'user-images/'.$query_args.'"><i class="far fa-file-image"></i> Uploaded Images</a></li>';
+					echo'<li'.( $this->type == 'user-images' ? ' class="active"' : '' ).'><a target="'.$target.'" href="'.$ltple->urls->media . 'user-images/'.$query_args.'"><i class="far fa-file-image"></i> Uploaded Images</a></li>';
 				
 				foreach( $apps as $app ){
 					
@@ -78,7 +78,7 @@ echo'<div id="media_library" class="wrapper">';
 					
 						if( empty($section) || $section == 'images' || $section == 'external-images' ){
 				
-							echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->media . 'external-images/'.$query_args.'"><i class="far fa-file-image"></i> External Images</a></li>';
+							echo'<li'.( $this->type == 'external-images' ? ' class="active"' : '' ).'><a target="'.$target.'" href="'.$ltple->urls->media . 'external-images/'.$query_args.'"><i class="far fa-file-image"></i> External Images</a></li>';
 						}
 						
 						break;
@@ -91,7 +91,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 					if( empty($section) || $section == 'images' || $section == 'image-library' )
 				
-						echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->media . 'image-library/'.$query_args.'"><i class="far fa-file-image"></i> Default Images</a></li>';
+						echo'<li'.( $this->type == 'image-library' ? ' class="active"' : '' ).'><a target="'.$target.'" href="'.$ltple->urls->media . 'image-library/'.$query_args.'"><i class="far fa-file-image"></i> Default Images</a></li>';
 				}
 			}
 			
@@ -101,7 +101,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 					echo'<li class="gallery_type_title">Links</li>';
 					
-					echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a href="'.$ltple->urls->media . 'user-payment-urls/'.$query_args.'"><i class="fas fa-credit-card"></i> Payment Links</a></li>';
+					echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a target="'.$target.'" href="'.$ltple->urls->media . 'user-payment-urls/'.$query_args.'"><i class="fas fa-credit-card"></i> Payment Links</a></li>';
 				}
 			}
 			
@@ -132,7 +132,7 @@ echo'<div id="media_library" class="wrapper">';
 							echo'</li>';
 						}
 			
-						//echo'<li role="presentation" class="active"><a href="' . add_query_arg('tab','upload',$ltple->urls->current) . '">' . ( $ltple->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . 'My Images</a></li>';
+						//echo'<li role="presentation" class="active"><a target="'.$target.'" href="' . add_query_arg('tab','upload',$ltple->urls->current) . '">' . ( $ltple->user->plan["info"]["total_price_amount"] == 0 ? '<span class="glyphicon glyphicon-lock" aria-hidden="true" data-toggle="popover" data-placement="bottom" title="" data-content="You need a paid plan to unlock this action" data-original-title="Pro users only"></span> ':'') . 'My Images</a></li>';
 						
 						echo '<li role="presentation">';
 							
@@ -211,7 +211,7 @@ echo'<div id="media_library" class="wrapper">';
 							echo'</li>';
 						}
 						
-						//echo'<li role="presentation" class="active"><a href="' . $ltple->urls->current . '">External URLs</a></li>';
+						//echo'<li role="presentation" class="active"><a target="'.$target.'" href="' . $ltple->urls->current . '">External URLs</a></li>';
 						
 						if( !$ltple->inWidget && !empty($ltple->apps->list) ){
 							
@@ -398,7 +398,7 @@ echo'<div id="media_library" class="wrapper">';
 							echo'</li>';
 						}
 						
-						//echo'<li role="presentation" class="active"><a href="' . $ltple->urls->current . '">Default Images</a></li>';
+						//echo'<li role="presentation" class="active"><a target="'.$target.'" href="' . $ltple->urls->current . '">Default Images</a></li>';
 						
 						$filter = false;
 						
@@ -489,7 +489,7 @@ echo'<div id="media_library" class="wrapper">';
 									
 									if( empty($currentTab) || $currentTab == $app->slug ){
 										
-										echo'<li role="presentation" class="active"><a href="'.add_query_arg('tab',$app->slug,$ltple->urls->current).'">'.strtoupper($app->name).'</a></li>';
+										echo'<li role="presentation" class="active"><a target="'.$target.'" href="'.add_query_arg('tab',$app->slug,$ltple->urls->current).'">'.strtoupper($app->name).'</a></li>';
 										
 										$active = $app->slug;
 										
@@ -510,7 +510,7 @@ echo'<div id="media_library" class="wrapper">';
 										
 										if( in_array('payment',$app->types) && $app->slug != $active ){
 										
-											echo'<li role="presentation"><a href="'.add_query_arg('tab',$app->slug,$ltple->urls->current).'">'.strtoupper($app->name).'</a></li>';
+											echo'<li role="presentation"><a target="'.$target.'" href="'.add_query_arg('tab',$app->slug,$ltple->urls->current).'">'.strtoupper($app->name).'</a></li>';
 										}
 									}
 									
@@ -528,7 +528,7 @@ echo'<div id="media_library" class="wrapper">';
 									
 									echo '<li role="presentation">';
 										
-										echo '<a target="_self" href="'.$ltple->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output . $modal . $section .'" class="btn btn-default btn-sm" style="margin:7px;padding:5px 10px !important;" title="Add wallet">+ Wallet</a>';
+										echo '<a target="'.$target.'" href="'.$ltple->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output . $modal . $section .'" class="btn btn-default btn-sm" style="margin:7px;padding:5px 10px !important;" title="Add wallet">+ Wallet</a>';
 									
 									echo '</li>';
 									

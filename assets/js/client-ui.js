@@ -766,6 +766,8 @@ if( typeof window.editorCallbacks == typeof undefined )
             
             if( params.get('output') === 'widget' ){
                 
+                $('#gallery_sidebar a').attr('target','_self');
+                
                 $('a').each(function() {
                     
                     if( !$(this).attr('target') && $(this).attr('href') ) {
