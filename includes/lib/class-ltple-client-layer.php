@@ -3123,14 +3123,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( $layer = LTPLE_Editor::instance()->get_layer($post->ID) ){
 			
-			$action  .= '<a target="'.$target.'" href="' . $layer->urls['settings'] . '" class="btn btn-sm btn-success" style="margin:1px;">Edit</a>';
+			$action  .= '<a target="'.$target.'" href="' . $layer->urls['settings'] . '" class="btn btn-sm btn-success">Edit</a>';
 			
 			if( $this->is_html_output($layer_type->output) ){
 			
-				$action .= '<a target="_blank" href="' . $layer->urls['view'] . '" class="btn btn-sm" style="background-color:rgb(189, 120, 61);margin:1px;" target="_blank">View</a>';
+				$action .= '<a target="_blank" href="' . $layer->urls['view'] . '" class="btn btn-sm" target="_blank">View</a>';
 			}
 			
-			$action .= '<button data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger" style="margin:1px;">Delete</button>';
+			$action .= '<button data-toggle="dialog" data-target="#quickRemoveTpl' . $post->ID . '" class="btn btn-sm btn-danger">Delete</button>';
 	 
 			$action .= '<div style="display:none;text-align:center;" id="quickRemoveTpl' . $post->ID . '" title="Remove Project #' . $post->ID . '">';
 				

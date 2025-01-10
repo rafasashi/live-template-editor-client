@@ -260,7 +260,8 @@ th input, th select {
 
 .fixed-table-toolbar .btn {
  
-    padding: 4px 8px;
+    padding: 3px 6px;
+    border-radius:25px;
 }
 
 .fixed-table-toolbar .search input {
@@ -418,6 +419,13 @@ th input, th select {
 	
 	padding: 8px 12px !important;
     border-radius: 0 !important;
+}
+
+.library-content .nav-pills .btn , .bootstrap-table table[data-card-view="false"] .btn {
+    
+    margin:6px 0px 6px 6px;
+    padding:5px 10px !important;
+    border-radius:25px !important;
 }
 
 .beforefooter {

@@ -56,7 +56,7 @@ echo'<div id="panel" class="wrapper">';
 							
 						echo '<li role="presentation">';
 
-							echo'<a href="#" style="margin:7px 3px;padding:5px 10px !important;" type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
+							echo'<a href="#" type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#'.$modal_id.'">'.PHP_EOL;
 								
 								echo'+ New'.PHP_EOL;
 							

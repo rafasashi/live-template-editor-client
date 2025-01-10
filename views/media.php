@@ -136,7 +136,7 @@ echo'<div id="media_library" class="wrapper">';
 						
 						echo '<li role="presentation">';
 							
-							echo '<button data-toggle="dialog" data-target="#uploadImage" class="btn btn-success btn-sm" style="margin:7px;padding:5px 10px !important;">+ Upload</button>';
+							echo '<button data-toggle="dialog" data-target="#uploadImage" class="btn btn-success btn-sm">+ Upload</button>';
 							
 							echo '<div style="display:none;" id="uploadImage" title="Upload a new Image">';
 								
@@ -231,7 +231,7 @@ echo'<div id="media_library" class="wrapper">';
 								
 								echo '<li role="presentation">';
 									
-									echo '<button data-toggle="dialog" data-target="#connectAccount" class="btn btn-default btn-sm" style="margin:7px 0px 7px 7px;padding:5px 10px !important;">+ Connect</button>';
+									echo '<button data-toggle="dialog" data-target="#connectAccount" class="btn btn-default btn-sm">+ Connect</button>';
 									
 									echo '<div style="display:none;max-width:250px;" id="connectAccount" title="Connect new account">';
 
@@ -281,7 +281,7 @@ echo'<div id="media_library" class="wrapper">';
 						
 						echo '<li role="presentation">';
 							
-							echo '<button data-toggle="dialog" data-target="#addImageUrl" class="btn btn-success btn-sm" style="margin:7px 0px 7px 7px;padding:5px 10px !important;">+ Import</button>';
+							echo '<button data-toggle="dialog" data-target="#addImageUrl" class="btn btn-success btn-sm">+ Import</button>';
 							
 							echo '<div style="display:none;max-width:250px;" id="addImageUrl" title="Add Image URL">';
 								
@@ -409,7 +409,7 @@ echo'<div id="media_library" class="wrapper">';
 						
 						$type = !empty($filter['image-type']) ? $filter['image-type'] : '';
 						
-						echo'<li style="padding:7px;">';
+						echo'<li>';
 							
 							echo'<form id="tableFilters">';
 								
@@ -528,7 +528,7 @@ echo'<div id="media_library" class="wrapper">';
 									
 									echo '<li role="presentation">';
 										
-										echo '<a target="'.$target.'" href="'.$ltple->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output . $modal . $section .'" class="btn btn-default btn-sm" style="margin:7px;padding:5px 10px !important;" title="Add wallet">+ Wallet</a>';
+										echo '<a target="'.$target.'" href="'.$ltple->apps->getAppUrl($app->slug,'connect','user-payment-urls') .'&output='.$output . $modal . $section .'" class="btn btn-default btn-sm" title="Add wallet">+ Wallet</a>';
 									
 									echo '</li>';
 									
@@ -550,7 +550,7 @@ echo'<div id="media_library" class="wrapper">';
 
 										echo '<li role="presentation">';
 										
-											echo '<button data-toggle="dialog" data-target="#addLink" class="btn btn-success btn-sm" style="margin:7px 0px 7px 1px;padding:5px 10px !important;" title="Add link">+ Link</button>';
+											echo '<button data-toggle="dialog" data-target="#addLink" class="btn btn-success btn-sm" title="Add link">+ Link</button>';
 
 											echo '<div style="display:none;" id="addLink" title="Add payment link">';
 												

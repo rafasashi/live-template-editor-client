@@ -211,7 +211,7 @@
 								
 								echo'<div style="margin:0 2px;" class="btn-group">';
 									
-									echo'<button style="background:#42bcf5;font-weight:bold;color:#fff;font-size:11px;padding: 4px 8px;text-align: center;" type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New</button>';
+									echo'<button style="background:#42bcf5;font-weight:bold;color:#fff;font-size:11px;padding:4px 8px;text-align:center;border-radius:25px;" type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New</button>';
 									
 									echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;margin-top:11px;text-transform:uppercase;">';
 										
