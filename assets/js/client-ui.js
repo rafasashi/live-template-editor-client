@@ -1,8 +1,8 @@
 // global variables
 
-if( typeof editorCallbacks == typeof undefined )
+if( typeof window.editorCallbacks == typeof undefined )
 	
-	var editorCallbacks = [];
+	window.editorCallbacks = [];
 
 ;(function($){
 

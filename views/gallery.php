@@ -208,7 +208,7 @@
 
                                     ),false,false);
                                     
-                                    do_action('ltple_gallery_tab',$layer_type->slug,$layer_range);
+                                    do_action('ltple_gallery_tab',$layer_type,$layer_range);
                                 
                                 echo'</form>';
                             

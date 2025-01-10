@@ -1983,7 +1983,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'hosted-page'	=>'Hosted',
 				'canvas'		=>'HTML to PNG',
 				'image'			=>'Image',
-				'web-app'		=>'Standalone',
+				'web-app'		=>'Web App',
 			));
 		} 
 		
