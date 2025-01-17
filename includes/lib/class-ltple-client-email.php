@@ -20,7 +20,7 @@ class LTPLE_Client_Email {
 		
 		$this->parent = $parent;
 		
-		$this->parent->register_post_type( 'email-invitation', __( 'User Invitations', 'live-template-editor-client' ), __( 'User Invitation', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'email-invitation','User Invitations','User Invitation', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,

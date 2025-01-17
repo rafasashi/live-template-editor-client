@@ -12,7 +12,7 @@ class LTPLE_Client_Tutorials {
 
 		$this->parent 	= $parent;
 		
-		$this->parent->register_post_type( 'tutorial', __( 'Tutorials', 'live-template-editor-client' ), __( 'Tutorial', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'tutorial','Tutorials','Tutorial', '', array(
 
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,

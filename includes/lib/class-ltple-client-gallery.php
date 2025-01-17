@@ -17,7 +17,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 
 		$this->parent 	= $parent;
 		
-		$this->parent->register_taxonomy( 'gallery-section', __( 'Gallery Sections', 'live-template-editor-client' ), __( 'Gallery Section', 'live-template-editor-client' ),  array(), array(
+		$this->parent->register_taxonomy( 'gallery-section','Gallery Sections','Gallery Section',  array(), array(
 			
             'hierarchical' 			=> false,
 			'public' 				=> false,
@@ -32,7 +32,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
         
-		$this->parent->register_taxonomy( 'image-gallery', __( 'Galleries', 'live-template-editor-client' ), __( 'Image Gallery', 'live-template-editor-client' ),  array('attachment'), array(
+		$this->parent->register_taxonomy( 'image-gallery','Galleries','Image Gallery',  array('attachment'), array(
 			
             'hierarchical' 			=> false,
 			'public' 				=> true,

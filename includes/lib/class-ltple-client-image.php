@@ -25,7 +25,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 	
-		$this->parent->register_post_type( 'default-image', __( 'Default Images', 'live-template-editor-client' ), __( 'Default Image', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'default-image','Default Images','Default Image', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
@@ -46,7 +46,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_post_type( 'user-image', __( 'User Images', 'live-template-editor-client' ), __( 'User Image', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-image','User Images','User Image', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
@@ -67,7 +67,7 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 
-		$this->parent->register_taxonomy( 'image-type', __( 'Image Sections', 'live-template-editor-client' ), __( 'Image Section', 'live-template-editor-client' ),  array('default-image'), array(
+		$this->parent->register_taxonomy( 'image-type','Image Sections','Image Section',  array('default-image'), array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> true,

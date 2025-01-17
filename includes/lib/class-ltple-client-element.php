@@ -16,7 +16,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 	
-		$this->parent->register_post_type( 'default-element', __( 'HTML Elements', 'live-template-editor-client' ), __( 'HTML Element', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'default-element','HTML Elements','HTML Element', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> true,
@@ -37,7 +37,7 @@ class LTPLE_Client_Element extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_taxonomy( 'element-library', __( 'Element Libraries', 'live-template-editor-client' ), __( 'Element Library', 'live-template-editor-client' ),array('cb-default-layer','default-element'), 
+		$this->parent->register_taxonomy( 'element-library','Element Libraries','Element Library',array('cb-default-layer','default-element'), 
 	
 			array(
 			

@@ -14,7 +14,7 @@ class LTPLE_Client_Bookmark {
 
 		$this->parent = $parent;
 		
-		$this->parent->register_post_type( 'user-bookmark', __( 'User Links', 'live-template-editor-client' ), __( 'User Link', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-bookmark','User Links','User Link', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,

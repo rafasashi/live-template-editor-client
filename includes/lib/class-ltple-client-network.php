@@ -21,7 +21,7 @@ class LTPLE_Client_Network extends LTPLE_Client_Object {
 			'cb-default-layer'
 		);
 		
-		$this->parent->register_taxonomy( 'user-contact', __( 'User emails', 'live-template-editor-client' ), __( 'User email', 'live-template-editor-client' ), $post_types, array(
+		$this->parent->register_taxonomy( 'user-contact','User emails','User email', $post_types, array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> false,

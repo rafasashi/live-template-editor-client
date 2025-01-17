@@ -17,7 +17,7 @@ class LTPLE_Client_Channels extends LTPLE_Client_Object {
 		
 		$this->taxonomy = 'marketing-channel';
 		
-		$this->parent->register_taxonomy( 'marketing-channel', __( 'Marketing Channels', 'live-template-editor-client' ), __( 'Marketing Channel', 'live-template-editor-client' ),  array('user'), array(
+		$this->parent->register_taxonomy( 'marketing-channel','Marketing Channels','Marketing Channel',  array('user'), array(
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,

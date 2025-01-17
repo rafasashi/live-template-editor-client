@@ -54,7 +54,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->parent = $parent;
 		
-		$this->parent->register_post_type( 'cb-default-layer', __( 'Default Templates', 'live-template-editor-client' ), __( 'Default Template', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'cb-default-layer','Default Templates','Default Template', '', array(
 
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
@@ -75,7 +75,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_post_type( 'user-layer', __( 'Templates', 'live-template-editor-client' ), __( 'Template', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-layer','Templates','Template', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> true,
@@ -96,7 +96,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_post_type( 'user-psd', __( 'Images', 'live-template-editor-client' ), __( 'Image', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-psd','Images','Image', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
@@ -117,7 +117,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));	
 
-		$this->parent->register_taxonomy('layer-type', __( 'Template Gallery', 'live-template-editor-client' ), __( 'Template Gallery', 'live-template-editor-client' ),  array('user-plan','cb-default-layer','user-layer','user-psd'), array(
+		$this->parent->register_taxonomy('layer-type','Template Gallery','Template Gallery',  array('user-plan','cb-default-layer','user-layer','user-psd'), array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> false,
@@ -132,7 +132,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'layer-range', __( 'Template Range', 'live-template-editor-client' ), __( 'Template Range', 'live-template-editor-client' ),array('user-plan','cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'layer-range','Template Range','Template Range',array('user-plan','cb-default-layer'), array(
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
@@ -147,7 +147,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 
-		$this->parent->register_taxonomy( 'layer-features', __( 'Template Features', 'live-template-editor-client' ), __( 'Template Feature', 'live-template-editor-client' ),$this->get_default_types(), 
+		$this->parent->register_taxonomy( 'layer-features','Template Features','Template Feature',$this->get_default_types(), 
 	
 			array(
 			
@@ -165,7 +165,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			)
 		);
 		
-		$this->parent->register_taxonomy( 'account-option', __( 'Plan Options', 'live-template-editor-client' ), __( 'Plan Option', 'live-template-editor-client' ),  array('user-plan'), array(
+		$this->parent->register_taxonomy( 'account-option','Plan Options','Plan Option',  array('user-plan'), array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> false,
@@ -180,7 +180,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'css-library', __( 'CSS Libraries', 'live-template-editor-client' ), __( 'CSS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
+		$this->parent->register_taxonomy( 'css-library','CSS Libraries','CSS Library',  array('cb-default-layer','default-element'), array(
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
@@ -195,7 +195,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'js-library', __( 'JS Libraries', 'live-template-editor-client' ), __( 'JS Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
+		$this->parent->register_taxonomy( 'js-library','JS Libraries','JS Library',  array('cb-default-layer','default-element'), array(
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
@@ -210,7 +210,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'font-library', __( 'Font Libraries', 'live-template-editor-client' ), __( 'Font Library', 'live-template-editor-client' ),  array('cb-default-layer','default-element'), array(
+		$this->parent->register_taxonomy( 'font-library','Font Libraries','Font Library',  array('cb-default-layer','default-element'), array(
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,

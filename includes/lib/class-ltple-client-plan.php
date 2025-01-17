@@ -33,7 +33,7 @@ class LTPLE_Client_Plan {
 
 		$this->parent 	= $parent;
 		
-		$this->parent->register_post_type( 'subscription-plan', __( 'Subscription Plans', 'live-template-editor-client' ), __( 'Subscription Plan', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'subscription-plan','Subscription Plans','Subscription Plan', '', array(
 
 			'public' 				=> true,
 			'publicly_queryable' 	=> true,
@@ -54,7 +54,7 @@ class LTPLE_Client_Plan {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_post_type( 'user-plan', __( 'User Plans', 'live-template-editor-client' ), __( 'User Plans', 'live-template-editor-client' ), '', array(
+		$this->parent->register_post_type( 'user-plan','User Plans','User Plans', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,

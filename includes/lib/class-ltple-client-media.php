@@ -943,7 +943,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 					);
 				
 					// get table of results
-
+                    
 					$this->parent->api->get_table(
 						
 						$this->parent->urls->api . 'ltple-media/v1/' . $type . '?' . http_build_query($_REQUEST, '', '&amp;'), 
@@ -957,8 +957,8 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 						$pagination	= 'scroll',
 						$form		= false,
 						$toolbar 	= 'toolbar',
-						$card		= 3,
-						$itemHeight	= 260, 
+						$card		= 4,
+						$itemHeight	= 255, 
 						$fixedHeight= true, 
 						$echo		= true,
 						$pageSize	= $this->per_page
