@@ -3995,43 +3995,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 	public function in_editor($editor='ltple'){
 		
-		if( $editor == 'gutenberg' ){
-
-			if( function_exists('get_current_screen') ){
-
-				$current_screen = get_current_screen();
-				
-				if( method_exists( $current_screen, 'is_block_editor' ) &&
-					
-					$current_screen->is_block_editor()
-				){
-					
-					return true;
-				}
-			}
-		}
-		else{
-			
-			if( !empty($_GET['preview']) && $_GET['preview'] == 'ltple' )
-				
-				// layer url
-				
-				return true;
-				
-			if( !empty($_GET['uri']) )
-							
-				// inline content
-				
-				return true;
-				
-			if( is_admin() && !empty($_GET['action']) && $_GET['action'] == 'ltple' )
-				
-				// admin editor
-				
-				return true;
-		}
-			
-		return false;
+		return LTPLE_Element::in_editor($editor);
 	}
 	
 	public function get_layer_attachments($post_id,$storage='user-psd'){
@@ -4629,12 +4593,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_font_family($term){
 		
-		if( !$font_family = $this->get_meta( $term, 'font_family' )){
-
-			$font_family = $term->name;
-		}
-		
-		return $font_family;
+		return LTPLE_Element::get_font_family($term);
 	}
 	
 	public function get_font_parsed_url($term){
@@ -5537,7 +5496,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return true;
 	}
-
+    
 	public function render_output($layer){
 		
 		$content = '';
@@ -5605,29 +5564,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_layer_classes($layer_id){
 		
-		$classes = array();
-		
-		if( $defaultId = $this->get_default_id($layer_id) ){
-		
-			$classes[] = 'layer-' . $defaultId;
-		}
-		
-		if( $defaultId != $layer_id ){
-			
-			$classes[] = 'layer-' . $layer_id;
-		}
-		
-		// TODO get libraries by layer id instead of globaly
-		
-		if( !empty($this->layerCssLibraries) ){
-			
-			foreach( $this->layerCssLibraries as $library ){
-				
-				$classes[] = $library->prefix;
-			}
-		}
-		
-		return !empty($classes) ? implode(' ',$classes) : '';
+        $defaultId = $this->get_default_id($layer_id);
+        
+        return LTPLE_Element::get_element_classes($layer_id,$defaultId);
 	}
 	
 	public function get_preview_layer_link($url,$post=null){
