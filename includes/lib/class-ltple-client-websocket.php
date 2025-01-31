@@ -120,6 +120,8 @@ class LTPLE_Client_Websocket {
 			$script = apply_filters('ltple_websocket_show_message_script',$script,$layer,$context);
 
 		$script .= '}' . PHP_EOL;
+        
+        $script .= 'window.showMessage = showMessage;' . PHP_EOL;
 		
 		$script .= 'function getSocketInfo(room){' . PHP_EOL;
 		
@@ -167,7 +169,9 @@ class LTPLE_Client_Websocket {
 			$script .= 'return info;' . PHP_EOL;
 			
 		$script .= '}' . PHP_EOL;
-		
+        
+        $script .= 'window.getSocketInfo = getSocketInfo;' . PHP_EOL;
+        
 		$script .= 'function startWebsocket(info){' . PHP_EOL;
 
 			$script .= 'if( typeof info == \'string\' ){' . PHP_EOL;
@@ -250,7 +254,9 @@ class LTPLE_Client_Websocket {
 
 		$script .= '}' . PHP_EOL;
 		
-		$script .= 'function reconnectWebsocket(info,delay){' . PHP_EOL;
+        $script .= 'window.startWebsocket = startWebsocket;' . PHP_EOL;
+		
+        $script .= 'function reconnectWebsocket(info,delay){' . PHP_EOL;
 			
 			// get new info
 			
@@ -267,6 +273,8 @@ class LTPLE_Client_Websocket {
 			$script .= 'return info;' . PHP_EOL;
 		
 		$script .= '}' . PHP_EOL;
+        
+        $script .= 'window.reconnectWebsocket = reconnectWebsocket;' . PHP_EOL;
 		
 		return apply_filters('ltple_websocket_script',$script,$layer,$context);
 	}

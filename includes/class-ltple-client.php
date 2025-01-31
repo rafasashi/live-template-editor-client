@@ -121,7 +121,6 @@ class LTPLE_Client {
 		$this->file 		= $file;
 		$this->dir 			= dirname( $this->file );
 		$this->views   		= trailingslashit( $this->dir ) . 'views';
-		$this->vendor  		= trailingslashit( $this->dir ) . 'vendor';
 		$this->assets_dir 	= trailingslashit( $this->dir ) . 'assets';
 		$this->assets_url 	= esc_url( trailingslashit( plugins_url( '/assets/', $this->file ) ) );
 		
@@ -172,9 +171,7 @@ class LTPLE_Client {
 		 
 		$this->apps 	= new LTPLE_Client_Apps( $this );
 		
-		$this->gallery 	= new LTPLE_Client_Gallery( $this );			
-		
-		$this->element 	= new LTPLE_Client_Element( $this );
+		$this->gallery 	= new LTPLE_Client_Gallery( $this );
 		
 		$this->layer 	= new LTPLE_Client_Layer( $this );
 		$this->tutorials = new LTPLE_Client_Tutorials( $this );
@@ -2117,7 +2114,7 @@ class LTPLE_Client {
 																			
 																			foreach($urls as $url){
 																				
-																				$abs_url = $this->get_absolute_url( $url, $source );
+																				$abs_url = $this->layer->get_absolute_url( $url, $source );
 																				
 																				$filename = strtolower(basename($abs_url));
 																				
@@ -2395,46 +2392,6 @@ class LTPLE_Client {
 					preg_replace( '/\\\\(.)/u', '\\1', $match );
 	 
 		return $urls;
-	}
-	
-	public static function get_absolute_url($u, $source){
-		
-		$parse = parse_url($source);
-		
-		if( !empty($u) && $u[0] != '#' && parse_url($u, PHP_URL_SCHEME) == ''){
-		
-			if( !empty($u[1]) && $u[0].$u[1] == '//'){
-
-				$u =  $parse['scheme'].'://'.substr($u, 2);
-			}
-			elseif( $u[0] == '/' ){
-				
-				$u = $parse['scheme'].'://'.$parse['host']. $u;
-			}
-			elseif( !empty($u[1]) && $u[0].$u[1] == './'){
-				
-				$u = dirname($source) . substr($u, 2);
-			}
-			elseif( !empty($u[1]) && !empty($u[2]) && $u[0].$u[1].$u[2] == '../'){
-				
-				$u = dirname(dirname($source)) . substr($u, 2);
-			}
-			elseif( substr($source, -1) == '/' ){
-				
-				$u = $source . $u;
-			}
-			else{
-				
-				$u = dirname($source) . '/' . $u;
-			}
-		}
-		
-		if( strpos($u,'#') ){
-		
-			$u = strstr($u, '#', true);
-		}
-
-		return $u;		
 	}
 	
 	public function get_current_tab($default=''){
@@ -3041,8 +2998,7 @@ class LTPLE_Client {
 		wp_register_style( $this->_token . '-server-admin', esc_url( $this->assets_url ) . 'css/admin.css', array(), $this->_version );
 		wp_enqueue_style( $this->_token . '-server-admin' );
 	}
-	
-	
+    
 	public function ui_enqueue_styles(){
 		
 		$deps = array();

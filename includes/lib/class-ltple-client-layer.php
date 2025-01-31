@@ -180,51 +180,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'css-library','CSS Libraries','CSS Library',  array('cb-default-layer','default-element'), array(
-			
-			'hierarchical' 			=> true,
-			'public' 				=> false,
-			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> false,
-			'show_tagcloud' 		=> false,
-			'meta_box_cb' 			=> null,
-			'show_admin_column' 	=> false,
-			'update_count_callback' => '',
-			'show_in_rest'          => true,
-			'rewrite' 				=> true,
-			'sort' 					=> '',
-		));
-		
-		$this->parent->register_taxonomy( 'js-library','JS Libraries','JS Library',  array('cb-default-layer','default-element'), array(
-			
-			'hierarchical' 			=> true,
-			'public' 				=> false,
-			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> false,
-			'show_tagcloud' 		=> false,
-			'meta_box_cb' 			=> null,
-			'show_admin_column' 	=> false,
-			'update_count_callback' => '',
-			'show_in_rest'          => true,
-			'rewrite' 				=> true,
-			'sort' 					=> '',
-		));
-		
-		$this->parent->register_taxonomy( 'font-library','Font Libraries','Font Library',  array('cb-default-layer','default-element'), array(
-			
-			'hierarchical' 			=> true,
-			'public' 				=> false,
-			'show_ui' 				=> true,
-			'show_in_nav_menus' 	=> false,
-			'show_tagcloud' 		=> false,
-			'meta_box_cb' 			=> null,
-			'show_admin_column' 	=> false,
-			'update_count_callback' => '',
-			'show_in_rest'          => true,
-			'rewrite' 				=> true,
-			'sort' 					=> '',
-		));
-		
 		add_filter('ltple_cb-default-layer_layer_area',function($area,$layer){ 
 			
 			return 'backend';
@@ -246,6 +201,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			return 'frontend';
 		});	
+        
+        add_filter('ltple_layer_has_libraries',function($has_library,$layer_id){ 
+
+            return $has_library;
+            
+		},10,2);
 		
 		add_action( 'add_meta_boxes', function(){
 			
@@ -395,25 +356,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_filter('ltple_project_advance_tabs', array($this,'get_layer_advance_tabs'),10,3);
 		
 		add_filter('ltple_edit_layer_options', array($this,'add_edit_layer_options'),10,2);
-
-		// css library fields
-		
-		add_action('css-library_edit_form_fields', array( $this, 'get_css_library_fields' ) );	
-		add_action('create_css-library', array( $this, 'save_library_fields' ) );
-		add_action('edit_css-library', array( $this, 'save_library_fields' ) );	
-	
-		// js library fields
-		
-		add_action('js-library_edit_form_fields', array( $this, 'get_js_library_fields' ) );	
-		add_action('create_js-library', array( $this, 'save_library_fields' ) );
-		add_action('edit_js-library', array( $this, 'save_library_fields' ) );	
-		
-		// font library fields
-		
-		add_action('font-library_edit_form_fields', array( $this, 'get_font_library_fields' ) );		
-		add_action('create_font-library', array( $this, 'save_library_fields' ) );
-		add_action('edit_font-library', array( $this, 'save_library_fields' ) );			
-		
+        
 		// init
 		
 		add_filter('init', array( $this, 'init_layer' ),10);
@@ -471,6 +414,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 		},10,1);
 	}
+    
+    public function get_libraries($layer_id,$type){
+        
+        return LTPLE_Element::get_libraries($layer_id,$type);
+    }
 	
 	public function count_layer_range($terms,$taxonomy){
 		
@@ -826,13 +774,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					'id'			=> 'layer-gallery',
 				);
 
-				//get layer type
+				if( $layer->post_type != 'default-element' ){
+                    
+                    //get layer type
+
+                    $layer_type = $this->get_layer_type($layer);	
 				
-				$layer_type = $this->get_layer_type($layer);	
-				
-				if( !empty($layer_type->output) ){
-					
-					if( $this->is_html_output($layer_type->output) ){
+					if( !empty($layer_type->output) && $this->is_html_output($layer_type->output) ){
 					
 						// get layer content
 						
@@ -1058,40 +1006,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								);
 							}
 						}
-						elseif( $layer->post_type == 'default-element' ){
-							
-							$metabox = array(
-								
-								'name' 		=> 'element-options',
-								'title' 	=> __( $storage_name . ' Options', 'live-template-editor-client' ), 
-								'screen'	=> array($layer->post_type),
-								'context' 	=> 'advanced',
-								'add_new'	=> false,
-							);
-							
-							$this->defaultFields[]=array(
-							
-								'metabox' 		=> $metabox,
-								'id'			=> 'elementType',
-								'label'			=> 'Element Section',
-								'type'			=> 'select',
-								'options'		=> $this->parent->element->get_default_sections(),
-								'description'	=> '',
-							);
-							
-							$this->defaultFields[]=array(
-							
-								'metabox' 		=> $metabox,
-								'id'			=> 'elementDrop',
-								'label'			=> 'Target Drop',
-								'type'			=> 'select',
-								'options'		=> array(
-									
-									'out'	=> 'Out',
-									'in'	=> 'In',
-								),
-							);	
-						}
 					}
 					elseif( $this->is_image_output($layer_type->output) ){
 						
@@ -1164,9 +1078,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'description'	=> ''
 						);
 					}
+                    
+                    do_action('ltple_default_layer_fields',$layer_type,$layer);
 				}
-				
-				do_action('ltple_default_layer_fields',$layer_type,$layer);
 			}
 		}
 		
@@ -1573,7 +1487,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				foreach( $libraries as $library ){
 					
-					$elements = $this->parent->element->get_library_elements($library);
+					$elements = LTPLE_Element::get_library_elements($library);
 					
 					if( !empty($elements['name']) ){
 
@@ -2577,7 +2491,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return $editor;
 	}
-
+    
 	public function get_layer_type($post){
 		
 		if( !empty($post) ){
@@ -2867,36 +2781,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_preview_image_url($post,$size='post-thumbnail',$alt_url=false){
 		
-		$post_id = is_numeric($post) ? $post : ( !empty($post->ID) ? $post->ID : 0 );
-		
-		if( !empty($post_id) ){
-			
-			// preview screenshot
-			
-			if( $att_id = get_post_meta($post_id,'ltple_screenshot_att_id',true) ){
-				
-				if( $src = wp_get_attachment_image_src( $att_id,$size ) ){
-					
-					return $src[0];
-				}
-			}
-			
-			// featured image
-			
-			if( $url = get_the_post_thumbnail_url($post_id,$size)){
-
-				return $url;
-			}
-		}
-		
-		// alternative image
-		
-		if( !empty($alt_url) ){
-			
-			return $alt_url;
-		}
-		
-		return false;
+		return LTPLE_Element::get_preview_image_url($post,$size,$alt_url);
 	}
     
 	public function get_modal($layer,$modal_title=null){
@@ -3530,324 +3415,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function get_libraries($layer_id,$type){
+	public function extract_css_urls($str){
 		
-		$libraries = array();
-		
-		if( is_array($layer_id) ){
-			
-			foreach( $layer_id as $id ){
-				
-				if( is_numeric($id) ){
-					
-					$libraries = array_merge($libraries,$this->get_libraries($id,$type));
-				}
-			}
-		}
-		elseif( is_numeric($layer_id) && $layer_id > 0 ){
-			
-			if( $this->has_libraries($layer_id,$type) ){
-				
-				$terms = wp_get_post_terms( $layer_id, $type . '-library', array( 
-					
-					'orderby' => 'term_id',
-				));	
-				
-				if( !is_wp_error( $terms ) && !empty($terms) ){
-					
-					foreach( $terms as $term ){
-						
-						$libraries[$term->term_id] = $term;
-						
-						if( $type == 'element' ){
-								
-							if( $term->parent == 0 ){
-								
-								$children = get_term_children($term->term_id,$term->taxonomy);
-								
-								if( !empty($children) ){
-								
-									$children = get_terms( array(
-										
-										'taxonomy' 		=> $term->taxonomy,
-										'hide_empty' 	=> false,
-										'include' 		=> $children,
-									
-									));
-									
-									foreach( $children as $child ){
-										
-										$libraries[$child->term_id] = $child;
-									}
-								}
-							}
-						}
-						elseif( $term->parent > 0 ){
-
-							$ancestors = get_ancestors($term->term_id,$term->taxonomy);
-							
-							if( !empty($ancestors) ){
-							
-								$ancestors = get_terms( array(
-									
-									'taxonomy' 		=> $term->taxonomy,
-									'hide_empty' 	=> false,
-									'include' 		=> $ancestors,
-								
-								));
-								
-								foreach( $ancestors as $ancestor ){
-									
-									$libraries[$ancestor->term_id] = $ancestor;
-								}
-							}
-						}
-					}
-				}
-				
-				if( !empty($libraries) && ( $type == 'js' || $type == 'css' ) ){
-					
-					// order libraries
-
-					$ordered 	= array();
-					$level 	= 0;
-					$items 	= $libraries;				
-					
-					while( !empty($items) && $level < 10 ){
-						
-						foreach( $items as $i => $item ){
-							
-							if( !isset($libraries[$i]) ){
-								
-								unset($items[$i]);
-							}
-							elseif( $item->parent == 0 || isset($ordered[$item->parent]) ){
-								
-								$ordered[$item->term_id] = $item;
-								unset($items[$i]);
-							}
-						}
-						
-						++$level;
-					}
-					
-					$libraries = $ordered;
-					
-					// add arguments
-					
-					if( $type == 'css' ){
-						
-						foreach( $libraries as $library ){
-
-							$library->url 		= $this->get_css_parsed_url($library);
-							$library->prefix 	= 'style-' . $library->term_id;
-						}
-					}
-				}
-			}
-		}
-		
-		return $libraries;
+		return LTPLE_Element::extract_css_urls($str);
 	}
-
-	public function has_libraries($layer_id,$type){
-		
-		return true;
-		
-		if( $layer_type = $this->get_layer_type($layer_id) ){
-			
-			if( in_array($layer_type->storage,array(
-			
-				'user-theme',
-				//'user-page',
-			
-			))){
-				
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	public function extract_css_urls( $str ){
-		
-		$urls = array( );
-	 
-		$url_pattern     = '(([^\\\\\'", \(\)]*(\\\\.)?)+)';
-		
-		$urlfunc_pattern = 'url\(\s*[\'"]?' . $url_pattern . '[\'"]?\s*\)';
-		
-		$pattern         = '/(' .
-			 '(@import\s*[\'"]' . $url_pattern     . '[\'"])' .
-			'|(@import\s*'      . $urlfunc_pattern . ')'      .
-			'|('                . $urlfunc_pattern . ')'      .  ')/iu';
-		
-		if ( !preg_match_all( $pattern, $str, $matches ) )
-			return $urls;
-	 
-		foreach ( $matches[11] as $match )
-			if ( !empty($match) )
-				$urls[] = 
-					preg_replace( '/\\\\(.)/u', '\\1', $match );
-	 
-		return $urls;
-	}
-
+    
 	public function parse_css_content($content,$prepend,$source='',$charset='utf-8'){
 		
-		// protect unicode numbers
-		
-		$content = str_replace('\\','\\\\',$content);
-		
-		// filter content
-		
-		$content = apply_filters('ltple_parse_css_variables',$content);
-		
-		// parse content
-		
-		include_once($this->parent->vendor . '/autoload.php');
-		
-		$cssSettings = Sabberworm\CSS\Settings::create();
-		
-		$cssSettings->withDefaultCharset($charset);
-		
-		$cssSettings->withMultibyteSupport(false); // use mb_* functions
-		
-		$cssParser = new Sabberworm\CSS\Parser($content,$cssSettings);
-		
-		$css = $cssParser->parse();
-		
-		// remove rules
-		
-		/*
-		foreach( $css->getAllRuleSets() as $rule ) {
-			
-			$rule->removeRule('cursor');
-		}
-		*/
-		
-		foreach( $css->getAllValues() as $value ) {
-			
-			if( !empty($source) ){
-				
-				// replace relative path to absolute
-			
-				if( method_exists($value,'__toString') ) {
-					
-					$str = $value->__toString();
-					
-					if( strpos($str,'url(') !== false ){
-
-						$urls = $this->extract_css_urls($str);
-						
-						if( !empty($urls) ){
-						
-							foreach( $urls as $url){
-								
-								$abs_url = $this->parent->get_absolute_url($url, $source);
-								
-								$newUrl = new \Sabberworm\CSS\Value\CSSString($abs_url);
-								
-								$value->setURL($newUrl);							
-							}
-						}
-					}
-				}
-			}
-		}
-				
-		// prepend selectors
-		
-		foreach( $css->getAllDeclarationBlocks() as $block ) {
-			
-			//dump($block);
-			
-			foreach( $block->getSelectors() as $selector ) {
-				
-				$name = $selector->getSelector();
-				
-				$valid = true;
-				
-				if( $valid ){
-					
-					$separator = ' ';
-					
-					$target = $selector->getSelector();
-					
-					if( !in_array($target,array(
-						
-						':root',
-						
-					))){
-					
-						$selector->setSelector( $prepend . $separator . $target );
-					}
-				}
-				else{
-					
-					// remove block
-					
-					$css->removeDeclarationBlockBySelector($block, true);
-				}
-			}
-		}
-		
-		//$content = $css->render(Sabberworm\CSS\OutputFormat::createPretty());
-		
-		//$content = $css->render(Sabberworm\CSS\OutputFormat::createCompact());
-		
-		$content = $css->render();
-
-		// restore unicode numbers
-		
-		$content = str_replace('\\\\','\\',$content);
-
-		// correct minor bugs
-		
-		$content = str_replace(
-			
-			array(
-				
-				'vm in;'
-			),
-			array(
-			
-				'vmin;'
-			),
-			
-		$content);
-		
-		// normalize white spaces
-
-		$content = preg_replace('/[\t\r\n]+/S', '', $content);
-		
-		return $content;
+		return LTPLE_Element::parse_css_content($content,$prepend,$source,$charset);
 	}
 	
 	public function parse_font_content($content,$font_url=null){
 		
-		if( !empty($font_url) ){
-			
-			$url = parse_url($font_url);
-			
-			$content = str_replace( array(
-				
-				'url(../',
-				'url (../',
-			
-			),'url('.$url['scheme'].'://'.$url['host'].dirname($url['path'],2).'/',$content);
-		
-			$content = str_replace( array(
-				
-				"url('../",
-				"url ('../",
-			
-			),"url('".$url['scheme'].'://'.$url['host'].dirname($url['path'],2).'/',$content);
-		
-		}
-		
-		return $content;
+		return LTPLE_Element::parse_font_content($content,$font_url);
 	}
 	
 	public function get_layer_js($layer_id){
@@ -5037,327 +4617,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function get_css_library_fields($term){
-
-		//output our additional fields
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Remote Url </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-				
-				$this->parent->admin->display_field(array(
-				
-					'type'				=> 'text',
-					'id'				=> 'css_url',
-					'name'				=> 'css_url',
-					'placeholder'		=> 'http://',
-					'description'		=> '',
-					
-				), $term );					
-				
-			echo'</td>';
-			
-		echo'</tr>';
-
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">CSS Content </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-					
-				$this->parent->admin->display_field(array(
-				
-					'type'				=> 'code_editor',
-					'code'				=> 'css',
-					'id'				=> 'css_content',
-					'name'				=> 'css_content',
-					'placeholder'		=> '.style{display:block;}',
-					'description'		=> '<i>without ' . htmlentities('<style></style>') . '</i>',
-					'htmlentities'		=> false,
-				), $term );				
-					
-			echo'</td>';
-			
-		echo'</tr>';
-		
-		$parse = $this->get_meta( $term, 'css_parse' ) != 'on' ? 'off' : 'on' ;
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Parse Content</label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-					
-				$this->parent->admin->display_field(array(
-				
-					'type'			=> 'switch',
-					'id'			=> 'css_parse',
-					'name'			=> 'css_parse',
-					'data'			=> $parse,
-					'description'	=> 'Prepend unique class name to CSS selectors',
-					
-				), $term );				
-					
-			echo'</td>';
-			
-		echo'</tr>';
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Source </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-					
-				$this->parent->admin->display_field(array(
-				
-					'type'		=> 'text',
-					'id'		=> 'css_source',
-					'name'		=> 'css_source',
-					'data'		=> $this->get_css_parsed_url($term),
-					'disabled'	=> true,
-					
-				), $term );				
-					
-			echo'</td>';
-			
-		echo'</tr>';
-	}
-	
 	public function get_css_parsed_url($term){
 		
-		$attach_id 	= intval($this->get_meta( $term, 'css_attachment' ));		
-
-		if( is_numeric($attach_id) ){
-			
-			$url = wp_get_attachment_url($attach_id);
-			
-			if(!empty($url)){
-						
-				$md5 = $this->get_meta( $term, 'css_md5' );
-		
-				return $url . '?' . $md5;
-			}
-		}
-		
-		return false;
-	}
-	
-	public function get_js_library_fields($term){
-
-		//output our additional fields
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Remote Url </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-				
-				$this->parent->admin->display_field(array(
-				
-					'type'				=> 'text',
-					'id'				=> 'js_url',
-					'name'				=> 'js_url',
-					'placeholder'		=> 'http://',
-					'description'		=> ''
-					
-				), $term );					
-				
-			echo'</td>';
-			
-		echo'</tr>';
-
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">JS Content </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-				
-				$this->parent->admin->display_field(array(
-				
-					'type'				=> 'code_editor',
-					'code'				=> 'javascript',
-					'id'				=> 'js_content',
-					'name'				=> 'js_content',
-					'placeholder'		=> 'javascript',
-					'description'		=> '<i>without '.htmlentities('<script></script>').'</i>',
-					'stripcslashes'		=> false,
-					'data'				=> $this->get_meta($term,'js_content'),
-					
-				), $term );
-					
-			echo'</td>';
-			
-		echo'</tr>';
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Skip local pages</label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-					
-				$this->parent->admin->display_field(array(
-				
-					'type'			=> 'switch',
-					'id'			=> 'js_skip_local',
-					'name'			=> 'js_skip_local',
-					'description'	=> 'Skip the library in local pages to avoid conflict with the current theme',
-					
-				), $term );				
-					
-			echo'</td>';
-			
-		echo'</tr>';
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Source </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-					
-				$this->parent->admin->display_field(array(
-				
-					'type'		=> 'text',
-					'id'		=> 'js_source',
-					'name'		=> 'js_source',
-					'data'		=> $this->get_js_parsed_url($term),
-					'disabled'	=> true,
-					
-				), $term );				
-					
-			echo'</td>';
-			
-		echo'</tr>';
+		return LTPLE_Element::get_css_parsed_url($term);
 	}
 	
 	public function get_js_parsed_url($term){
 		
-		$attach_id 	= intval($this->get_meta( $term, 'js_attachment' ));		
-
-		if( is_numeric($attach_id) ){
-			
-			$url = wp_get_attachment_url($attach_id);
-			
-			if(!empty($url)){
-						
-				$md5 = $this->get_meta( $term, 'js_md5' );
-		
-				return $url . '?' . $md5;
-			}
-		}
-		
-		return false;
-	}
-	
-	public function get_font_library_fields($term){
-
-		//output our additional fields
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Family </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-				
-				$this->parent->admin->display_field(array(
-				
-					'type'				=> 'text',
-					'id'				=> 'font_family',
-					'name'				=> 'font_family',
-					'placeholder'		=> 'Open Sans',
-					'default'			=> $term->name,
-					'description'		=> 'Font family name used in the CSS rules'
-					
-				), $term );					
-				
-			echo'</td>';
-			
-		echo'</tr>';
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Url </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-				
-				$this->parent->admin->display_field(array(
-				
-					'type'				=> 'text',
-					'id'				=> 'font_url',
-					'name'				=> 'font_url',
-					'placeholder'		=> 'http://',
-					'description'		=> ''
-					
-				), $term );					
-				
-			echo'</td>';
-			
-		echo'</tr>';	
-		
-		echo'<tr class="form-field">';
-		
-			echo'<th valign="top" scope="row">';
-				
-				echo'<label for="category-text">Source </label>';
-			
-			echo'</th>';
-			
-			echo'<td>';
-					
-				$this->parent->admin->display_field(array(
-				
-					'type'		=> 'text',
-					'id'		=> 'font_source',
-					'name'		=> 'font_source',
-					'data'		=> $this->get_font_parsed_url($term),
-					'disabled'	=> true,
-					
-				), $term );				
-					
-			echo'</td>';
-			
-		echo'</tr>';
+		return LTPLE_Element::get_js_parsed_url($term);
 	}
 	
 	public function get_font_family($term){
@@ -5372,22 +4639,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 	public function get_font_parsed_url($term){
 		
-		$attach_id 	= intval($this->get_meta( $term, 'font_attachment' ));		
-		
-		if( is_numeric($attach_id) ){
-			
-			$url = wp_get_attachment_url($attach_id);
-			
-			if(!empty($url)){
-						
-				$md5 = $this->get_meta( $term, 'font_md5' );
-		
-				return $url . '?' . $md5;
-			}
-		}
-		
-		return false;
+		return LTPLE_Element::get_font_parsed_url($term);
 	}
+    
 	public function filter_default_user_layer_content($html,$layer){
 		
 		if( empty($html) ){
@@ -5846,376 +5100,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				}
 				
 				do_action('ltple_save_layer_fields',$term);
-			}
-		}
-	}
-	
-	public function save_library_fields($term_id){
-
-		if( $this->parent->user->can_edit ){
-			
-			//collect all term related data for this new taxonomy
-			
-			$term = get_term($term_id);
-
-			//save our custom fields as wp-options
-			
-			if( $term->taxonomy == 'css-library' ){
-				
-				if( isset($_POST['css_url']) && isset($_POST['css_content']) ){
-					
-					$css_url = sanitize_url($_POST['css_url']);
-					
-					$css_parse 	= isset($_POST['css_parse']) && $_POST['css_parse'] == 'on' ? 'on' : 'off';
-				
-					$css_version = '1.0.7';
-					
-					$styleName = $css_parse == 'on' ? 'style-' . $term->term_id : '';
-					
-					$styleClass = !empty($styleName) ? '.' . $styleName : '';
-					
-					$css_content_input = $_POST['css_content']; // sanitize input
-					
-					if( $css_parse == 'on' ){
-						
-						$css_content = $this->parse_css_content($css_content_input, $styleClass);
-					}
-					else{
-						
-						$css_content = $css_content_input;
-					}
-					
-					$attach_id = get_term_meta($term->term_id, 'css_attachment', true);
-					
-					$css_md5 = get_term_meta($term->term_id, 'css_md5', true);
-										
-					$md5 = md5($css_url.$css_content.$styleName.$attach_id.$css_version);
-
-					if( $css_md5 != $md5 ){
-						
-						$content = '';
-						$mime = 'text/css';
-						
-						if( !empty($css_url) ){
-							
-							$response = wp_remote_get($css_url);
-
-							if ( is_array( $response ) ) {
-								
-								$body = $response['body'];
-								
-								if( $content_type = wp_remote_retrieve_header($response,'content-type') ){
-									
-									if( strpos($content_type,';') !== false ){
-									
-										$mime = strtok($content_type,';');
-									}
-									else{
-										
-										$mime = $content_type;
-									}
-								}
-								
-								if( !empty($body) && !empty($mime) ){
-									
-									if( $css_parse == 'on' ){
-									
-										$content .= $this->parse_css_content($body, $styleClass, $css_url);
-									}
-									else{
-										
-										$content .= $body . PHP_EOL;
-									}
-								}
-							}
-						}
-						
-						$content .= $css_content;
-						
-						if( !empty($mime) && !empty($content) ){
-							
-							// remove current attachment
-							
-							$css_attachment = get_post($attach_id);
-							
-							if(!empty($css_attachment)){
-								
-								wp_delete_attachment( $css_attachment->ID, true );
-							}				
-						
-							// add style to media
-							
-							if ( !function_exists('media_handle_upload') ) {
-								
-								require_once(ABSPATH . "wp-admin" . '/includes/image.php');
-								require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-								require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-							}
-
-							// create archive
-							
-							$ext = 'css';
-							
-							$tmp = wp_tempnam($term->slug) . '.' . $ext;
-							
-							file_put_contents($tmp,$content);
-							
-							$file_array = array(
-							
-								'name' 		=> $term->slug . '.' . $ext,
-								'type' 		=> $mime,
-								'tmp_name' 	=> $tmp,
-							);
-							
-							$post_data = array(
-							
-								'post_title' 		=> $term->slug,
-								'post_mime_type' 	=> $mime,
-							);
-
-							if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
-							
-							$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
-							
-							if( is_numeric($attach_id) ){
-								
-								update_post_meta($attach_id,'ltple_upload_dest','editor');
-								
-								update_term_meta($term->term_id,'css_attachment',$attach_id);
-							
-								update_term_meta($term->term_id,'css_url',$css_url);			
-
-								update_term_meta($term->term_id,'css_content',$css_content_input);			
-							
-								update_term_meta($term->term_id,'css_parse', $css_parse);
-								
-								update_term_meta($term->term_id,'css_md5',$md5);								
-							}
-						}
-					}
-				}
-			}
-			elseif( $term->taxonomy == 'js-library' ){
-				
-				$js_url = sanitize_url($_POST['js_url']);
-
-				$skip = isset($_POST['js_skip_local']) && $_POST['js_skip_local'] == 'on' ? 'on' : 'off';
-				
-				$js_version = '1.0.7';
-				
-				$js_content = isset($_POST['js_content']) ? stripslashes($_POST['js_content']) : '';
-				
-				$attach_id = get_term_meta($term->term_id, 'js_attachment', true);
-				
-				$js_md5 = get_term_meta($term->term_id, 'js_md5', true);
-									
-				$md5 = md5($js_url.$js_content.$attach_id.$js_version);
-				
-				if( $js_md5 != $md5 ){
-					
-					$content = '';
-					$mime = 'text/javascript';
-
-					if( !empty($js_url) ){
-						
-						$response = wp_remote_get($js_url);
-						
-						if ( is_array( $response ) ) {
-							
-							$body = $response['body'];
-							
-							if( !empty($body) && !empty($mime) ){
-								
-								$content .= $body; // TODO parse JS content
-							}
-						}
-					}
-					
-					if( !empty($js_content) ){
-					
-						$content .= PHP_EOL . $js_content;
-					}
-					
-					if( !empty($content) ){
-						
-						// remove current attachment
-						
-						$js_attachment = get_post($attach_id);
-						
-						if(!empty($js_attachment)){
-							
-							wp_delete_attachment( $js_attachment->ID, true );
-						}				
-					
-						// add style to media
-						
-						if ( !function_exists('media_handle_upload') ) {
-							
-							require_once(ABSPATH . "wp-admin" . '/includes/image.php');
-							require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-							require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-						}
-
-						// create archive
-						
-						$ext = 'js';
-						
-						$tmp = wp_tempnam($term->slug) . '.' . $ext;
-						
-						file_put_contents($tmp,$content);
-						
-						$file_array = array(
-						
-							'name' 		=> $term->slug . '.' . $ext,
-							'type' 		=> $mime,
-							'tmp_name' 	=> $tmp,
-						);
-						
-						$post_data = array(
-						
-							'post_title' 		=> $term->slug,
-							'post_mime_type' 	=> $mime,
-						);
-
-						if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
-						
-						$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
-						
-						if( is_numeric($attach_id) ){
-							
-							update_post_meta($attach_id,'ltple_upload_dest','editor');
-							
-							update_term_meta($term->term_id,'js_attachment',$attach_id);
-						
-							update_term_meta($term->term_id,'js_url',$js_url);			
-
-							update_term_meta($term->term_id,'js_content',base64_encode($js_content));			
-						
-							update_term_meta($term->term_id,'js_skip_local',$skip);
-
-							update_term_meta($term->term_id,'js_md5',$md5);								
-						}
-					}
-				}
-			}
-			elseif( $term->taxonomy == 'font-library' ){
-					
-				if( isset($_POST['font_family']) ){
-					
-					$font_family = sanitize_text_field($_POST['font_family']);
-					
-					update_term_meta($term->term_id,'font_family',$font_family);
-				}
-					
-				if( isset($_POST['font_url']) ){
-					
-					$font_url = sanitize_url($_POST['font_url']);
-					
-					$font_version = '1.0.7';
-				
-					$attach_id = get_term_meta($term->term_id, 'font_attachment', true);
-					
-					$font_attachment = get_post($attach_id);
-							
-					$font_md5 = get_term_meta($term->term_id, 'font_md5', true);
-									
-					$md5 = md5($font_url.$attach_id.$font_version);
-					
-					if( $font_md5 != $md5 || empty($font_attachment) ){
-						
-						$fonts = array(
-							
-							'text/css'		=> 'css',
-							
-							'font/otf'		=> 'otf',
-							'font/ttf'		=> 'ttf',
-							'font/woff'		=> 'woff',
-							'font/woff2'	=> 'woff2',
-							
-							'application/font-otf' 	=> 'otf',
-							'application/font-ttf' 	=> 'ttf',
-							'application/font-woff' => 'woff',
-							'application/font-woff2' => 'woff2',
-							
-							'application/vnd.ms-fontobject'	=> 'eot',
-						);	
-						
-						$content = '';
-						$ext = '';
-						
-						if( !empty($font_url) ){
-							
-							$response = wp_remote_get($font_url);
-							
-							if ( is_array( $response ) ) {
-								
-								$body = $response['body'];
-
-								$mime = wp_remote_retrieve_header($response,'content-type');
-								
-								$mime = strtok($mime,';');
-								
-								if( !empty($body) && !empty($mime) && isset($fonts[$mime]) ){
-									
-									$ext = $fonts[$mime];
-									
-									$content .= $this->parse_font_content($body,$font_url);
-								}
-							}
-						}
-						
-						if( !empty($content) && !empty($ext) ){
-							
-							// remove current attachment
-							
-							if( !empty($font_attachment) ){
-								
-								wp_delete_attachment( $font_attachment->ID, true );
-							}				
-						
-							// add style to media
-							
-							if ( !function_exists('media_handle_upload') ) {
-								
-								require_once(ABSPATH . "wp-admin" . '/includes/image.php');
-								require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-								require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-							}
-
-							// create archive
-							
-							$tmp = wp_tempnam($term->slug) . '.' . $ext;
-							
-							file_put_contents($tmp,$content);
-							
-							$file_array = array(
-							
-								'name' 		=> $term->slug . '.' . $ext,
-								'type' 		=> $mime,
-								'tmp_name' 	=> $tmp,
-							);
-							
-							$post_data = array(
-							
-								'post_title' 		=> $term->slug,
-								'post_mime_type' 	=> $mime,
-							);
-
-							if(!defined('ALLOW_UNFILTERED_UPLOADS')) define('ALLOW_UNFILTERED_UPLOADS', true);
-							
-							$attach_id = media_handle_sideload( $file_array, null, null, $post_data );
-							
-							if( is_numeric($attach_id) ){
-								
-								update_term_meta($term->term_id,'font_attachment',$attach_id);					
-								
-								update_term_meta($term->term_id,'font_url',$font_url);			
-				
-								update_term_meta($term->term_id,'font_md5',$md5);								
-							}
-						}
-					}
-				}
 			}
 		}
 	}

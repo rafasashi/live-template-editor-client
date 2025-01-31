@@ -84,7 +84,7 @@ class LTPLE_Client_Integrator_Scraper extends LTPLE_Client_Integrator {
 					$url .= '#' . $this->hash;
 				}
 				
-				$resourceUrl = 'http://recuweb.com/a/scraper/index.php?url=' . urlencode($url);
+				$resourceUrl = 'https://recuweb.com/a/scraper/index.php?url=' . urlencode($url);
 
 				//$resourceUrl = urldecode($url);
 				

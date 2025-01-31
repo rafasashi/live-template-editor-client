@@ -286,10 +286,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 			
 			if(class_exists($className)){
 				
-				// TODO move autoloader to integrator
-				
-				include_once( $this->parent->vendor . '/autoload.php' );
-				
 				if( $class = new $className($app_slug, $this->parent, $this) ){
 					
 					$this->appClasses[$app_slug] = $class;

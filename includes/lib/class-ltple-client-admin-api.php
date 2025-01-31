@@ -37,17 +37,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		 * @param  boolean $echo  Whether to echo the field HTML or return it
 		 * @return void
 		 */
-		public function display_field( $data = array(), $item = false, $echo = true ){
+		public function display_field( $field = array(), $item = false, $echo = true ){
 
 			// Get field info
 			
-			$field = ( isset( $data['field'] ) ? $data['field'] : $data );
+			$field = ( isset( $field['field'] ) ? $field['field'] : $field );
 			
 			// Get field id
 			
 			// Check for prefix on option name
 			
-			$option_name = ( isset( $data['prefix'] ) ? $data['prefix'] : '' ) . ( !empty($field['name']) ? $field['name'] : $field['id']);
+			$option_name = ( isset( $field['prefix'] ) ? $field['prefix'] : '' ) . ( !empty($field['name']) ? $field['name'] : $field['id']);
 			
 			// Get default
 			
@@ -593,79 +593,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'code_editor':
 					
-					$code = !empty($field['code']) ? $field['code'] : 'html';
-			
-					$type = ( $code == 'json' ? 'application' : 'text' ) . '/' . $code;
-					
-					$action = !empty($field['action']) ? $field['action'] : 'edit';
-					
-					if( !empty($data) ){
-						
-						if( is_array($data) ){
-							
-							$data = json_encode($data, JSON_PRETTY_PRINT);
-						}	
-
-						if( !isset($field['stripcslashes']) || $field['stripcslashes'] == true ){
-
-							$data = stripcslashes($data);
-						}
-						
-						if( !isset($field['htmlentities']) || $field['htmlentities'] == true ){
-							
-							$data = htmlentities($data);
-						}
-					}
-					
-					$html .= '<div id="' . $id . '" style="width:100%;height:300px;">';
-					
-						$html .= '<div class="btn-wrapper" style="background:#fbfbfb;border:1px solid #eee;padding:120px 0;text-align:center;">';
-							
-							// using <button> triggers post update if page not ready
-							
-							$html .= '<a href="#edit_'.$id.'" class="button button-primary button-hero btn btn-lg btn-primary">';
-								
-								$html .= ucfirst($action) . ' ' . strtoupper(($code=='javascript'?'js':$code)) . ' ' . ( $code == 'ssh' ? 'Key' : 'Code' );
-							
-							$html .= '</a>';
-						
-						$html .= '</div>';
-						
-						$html .= '<textarea style="display:none;" class="code-editor" name="' . esc_attr( $option_name ) . '" placeholder="' . $placeholder . '"'.$required.$disabled.'>' . $data . '</textarea>'. "\n";
-						
-					$html .= '</div>';
-					
-					// enqueue script
-					
-					$settings = wp_enqueue_code_editor( array( 
-						
-						'type' 			=> $type,
-						'codemirror'	=> array(
-						
-							'lint' => is_admin() ? true : false,
-						),
-					));
-					
-					$script = 'jQuery(document).ready(function($) {' . PHP_EOL;
-						
-						$script .= '$(\'#' . $id . ' a\').one(\'click\',function(e){' . PHP_EOL;
-							
-							$script .= 'e.preventDefault();' . PHP_EOL;
-							$script .= 'e.stopPropagation();' . PHP_EOL;
-							
-							$script .= '$(\'#' . $id . ' .btn-wrapper\').hide();' . PHP_EOL;
-							
-							$script .= 'wp.codeEditor.initialize($(\'#' . $id . ' textarea\'), '.wp_json_encode( $settings ).');' . PHP_EOL;
-							
-						$script .= '})' . PHP_EOL;
-							
-					$script .= '})' . PHP_EOL;
-					
-					wp_register_script( $this->parent->_token . '_code_editor_'.$id, '', array( 'wp-theme-plugin-editor' ) );
-					
-					wp_enqueue_script( $this->parent->_token . '_code_editor_' . $id );
-					
-					wp_add_inline_script( $this->parent->_token . '_code_editor_' . $id, $script );
+                    $html .= LTPLE_Editor_Admin_API::display_field($field,$item,false);
 					
 				break;
 				
@@ -1353,7 +1281,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				
 				case 'element':
 					
-					$types = $this->parent->element->get_default_sections();
+					$types = LTPLE_Element::get_default_sections();
 					
 					if( !is_array($data) || !isset($data['name']) ){
 

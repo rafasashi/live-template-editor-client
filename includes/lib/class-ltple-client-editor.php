@@ -17,6 +17,8 @@ class LTPLE_Client_Editor {
 		$this->parent = $parent;
 		
 		add_filter('ltple_loaded', array( $this, 'init_editor' ));
+        
+        add_filter('ltple_element_active','__return_true');
 		
 		add_filter('query_vars', function( $query_vars ){
 			
@@ -475,7 +477,7 @@ class LTPLE_Client_Editor {
 			
 			foreach( $this->parent->layer->layerHtmlLibraries as $term ){
 				
-				$elements = $this->parent->element->get_library_elements($term);
+				$elements = LTPLE_Element::get_library_elements($term);
 
 				if( !empty($elements['name'][0]) ){
 					
@@ -690,14 +692,14 @@ class LTPLE_Client_Editor {
 
 		add_filter('admin_footer',array( $this, 'add_actions_footer' ) );
 	}
-
+    
 	public function duplicate_item(){
 		
 		if( current_user_can( 'administrator' ) ){
 			
 			if( !empty($_POST['id']) && !empty($_POST['title']) && !empty($_POST['type']) ){
 				
-				list($type,$type_value) = explode(':',$_POST['type']);
+				list($type,$type_value) = explode(':',sanitize_text_field($_POST['type']));
 				
 				if( $type == 'post_type' ){
 					
@@ -716,8 +718,8 @@ class LTPLE_Client_Editor {
 							$post['post_modified_gmt']
 						);
 						
-						$post['post_title'] 	= $_POST['title'];
-						$post['post_status'] 	= 'draft';
+						$post['post_title']     = sanitize_text_field($_POST['title']);
+						$post['post_status']    = 'draft';
 						
 						if( $new_id = wp_insert_post($post) ){
 							
@@ -760,7 +762,7 @@ class LTPLE_Client_Editor {
 					
 					if( $term = get_term_by('id',$term_id,$type_value,ARRAY_A) ){
 						
-						if( $new_term = wp_insert_term( $_POST['title'], $type_value, array(
+						if( $new_term = wp_insert_term(sanitize_text_field($_POST['title']), $type_value, array(
 							
 							'description'	=> $term['description'],
 							'parent'		=> $term['parent'],
@@ -793,7 +795,7 @@ class LTPLE_Client_Editor {
 		
 		if( !empty($_POST['ref']) ){
 			
-			wp_redirect($_POST['ref']);
+			wp_redirect(sanitize_url($_POST['ref']));
 			exit;
 		}
 	}

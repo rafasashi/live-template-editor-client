@@ -59,24 +59,3 @@ html.wp-toolbar{padding-top:50px !important;}
     font-weight: bold;
     font-size: 14px;
 }
-.subnav-tabs {
-    display: block;
-    width: 100%;
-    padding: 0 5px;
-}
-.subnav-tabs li {
-        display: inline-block;
-}
-.subnav-tabs li + li::before {
-    content: "|";
-    padding: 0 5px 0 5px;
-    color: black;
-    font-weight: normal;
-}
-.subnav-li-active {
-    font-weight: bold;
-}
-.subnav-li a {
-    text-decoration: none;
-    color: #0073aa;
-}
