@@ -412,7 +412,7 @@ class LTPLE_Client {
         
 		add_action('wp_footer', array( $this, 'get_footer') );
 		
-       add_action('ltple_show_theme_footer', function($show){
+        add_action('ltple_show_theme_footer', function($show){
            
            if( $this->inWidget || $this->urls->current_url_in('editor') || $this->urls->current_url_in('media') ){
                
@@ -881,181 +881,188 @@ class LTPLE_Client {
                 
                 if( $this->urls->is_product_page($layer) ){
                     
-                    add_filter('ltple_css_framework',function($framework){
+                    if( $this->product->post_status == 'publish' ){
                         
-                        return 'bootstrap-4';
+                        add_filter('ltple_css_framework',function($framework){
+                            
+                            return 'bootstrap-4';
+                            
+                        },99999999,1);
                         
-                    },99999999,1);
-                    
-                    add_action( 'wp_enqueue_scripts',function(){
+                        add_action( 'wp_enqueue_scripts',function(){
 
-                        // styles
+                            // styles
 
-                        wp_register_style( $this->_token . '-product', false, array());
-                        wp_enqueue_style( $this->_token . '-product' );
-                    
-                        wp_add_inline_style( $this->_token . '-product', '
-                            
-                            #product_detail {
+                            wp_register_style( $this->_token . '-product', false, array());
+                            wp_enqueue_style( $this->_token . '-product' );
+                        
+                            wp_add_inline_style( $this->_token . '-product', '
                                 
-                                padding: 0px;
-                                margin: 0px;
-                                font-size: 15px;
-                                display:inline-block;
-                                width: 100%;
-                                min-height:600px;
-                            }
-                            
-                            #product_wrap {
-                                
-                                padding: 20px 0 0 0;
-                            }
-                            
-                            .carousel-control-prev, .carousel-control-next{
-                                
-                                color:#888;
-                            }
-                            
-                            #product_gallery, #product_preview{
-
-                                height:600px;
-                                overflow:hidden;
-                            }
-                            
-                            #product_gallery .media{
-                                
-                                opacity:0.5;
-                                cursor:pointer;
-                                cursor: pointer;
-                                border-radius: 100px !important;
-                                overflow: hidden;
-                                padding: 0!important;
-                            }
-                            
-                            #product_gallery .media:hover{
-                                
-                                opacity:1;
-                            }
-                            
-                            #product_gallery .media.active{
-                                
-                                opacity:1;
-                            }
-                            
-                            #product_preview .product-image {
-                                
-                                min-height:600px;
-                                height: auto;
-                                width: 100%;
-                                overflow: hidden;
-                                margin-bottom:1000px;
-                                border-radius: 20px;
-                                position: relative;
-                            }
-                            
-                            #product_preview .product-view {
-                                
-                                position:absolute;
-                                font-size: 18px;
-                                height: 40px;
-                                width: 40px;
-                                padding: 8px;
-                                color: #555;
-                                cursor: pointer;
-                                text-align: center;
-                                z-index: 200;
-                                position: absolute;
-                                top:0;
-                                right:18px;
-                                background: #fff;
-                                border-radius: 25px;
-                                box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
-                            }
-                            
-                            @media (max-width: 767px) {
-                                
-                                #product_preview {
+                                #product_detail {
                                     
-                                    height: calc( 100vh - 200px );
+                                    padding: 0px;
+                                    margin: 0px;
+                                    font-size: 15px;
+                                    display:inline-block;
+                                    width: 100%;
+                                    min-height:600px;
+                                }
+                                
+                                #product_wrap {
+                                    
+                                    padding: 20px 0 0 0;
+                                }
+                                
+                                .carousel-control-prev, .carousel-control-next{
+                                    
+                                    color:#888;
+                                }
+                                
+                                #product_gallery, #product_preview{
+
+                                    height:600px;
+                                    overflow:hidden;
+                                }
+                                
+                                #product_gallery .media{
+                                    
+                                    opacity:0.5;
+                                    cursor:pointer;
+                                    cursor: pointer;
+                                    border-radius: 100px !important;
+                                    overflow: hidden;
+                                    padding: 0!important;
+                                }
+                                
+                                #product_gallery .media:hover{
+                                    
+                                    opacity:1;
+                                }
+                                
+                                #product_gallery .media.active{
+                                    
+                                    opacity:1;
                                 }
                                 
                                 #product_preview .product-image {
                                     
-                                    min-height: calc( 100vh - 200px );
+                                    min-height:600px;
+                                    height: auto;
+                                    width: 100%;
+                                    overflow: hidden;
+                                    margin-bottom:1000px;
+                                    border-radius: 20px;
+                                    position: relative;
                                 }
-                            }
-                            
-                            #product_preview .product-image img {
                                 
-                                max-height: 90%;
-                                max-width: 90%;
-                                width: auto;
-                                height: auto;
-                                position: absolute;
-                                top: 0;
-                                bottom: 0;
-                                left: 0;
-                                right: 0;
-                                margin: auto;
-                                border-radius:25px;
-                                padding: 0 !important;
-                                box-shadow:rgb(50 50 93 / 25%) 0px 13px 27px -5px, rgb(0 0 0 / 30%) 0px 8px 16px -8px;
-                                background:#fff;
-                            }
-                            
-                            #product_preview .gallery-prev, #product_preview .gallery-next {
+                                #product_preview .product-view {
+                                    
+                                    position:absolute;
+                                    font-size: 18px;
+                                    height: 40px;
+                                    width: 40px;
+                                    padding: 8px;
+                                    color: #555;
+                                    cursor: pointer;
+                                    text-align: center;
+                                    z-index: 200;
+                                    position: absolute;
+                                    top:0;
+                                    right:18px;
+                                    background: #fff;
+                                    border-radius: 25px;
+                                    box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+                                }
                                 
-                                font-size: 23px;
-                                height: 50px;
-                                width: 50px;
-                                padding: 8px;
-                                color: #555;
-                                cursor: pointer;
-                                text-align: center;
-                                z-index: 200;
-                                position: absolute;
-                                top:50%;
-                                background: #fff;
-                                border-radius: 25px;
-                                box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
-                            }
-                            
-                            #product_preview .gallery-prev{
-                            
-                                left: 15px;
-                            }
-                            
-                            #product_preview .gallery-next{
+                                @media (max-width: 767px) {
+                                    
+                                    #product_preview {
+                                        
+                                        height: calc( 100vh - 200px );
+                                    }
+                                    
+                                    #product_preview .product-image {
+                                        
+                                        min-height: calc( 100vh - 200px );
+                                    }
+                                }
                                 
-                                right:15px;
-                            }
-                            
-                            #product_preview .gallery-prev:hover, #product_preview .gallery-next:hover {
+                                #product_preview .product-image img {
+                                    
+                                    max-height: 90%;
+                                    max-width: 90%;
+                                    width: auto;
+                                    height: auto;
+                                    position: absolute;
+                                    top: 0;
+                                    bottom: 0;
+                                    left: 0;
+                                    right: 0;
+                                    margin: auto;
+                                    border-radius:25px;
+                                    padding: 0 !important;
+                                    box-shadow:rgb(50 50 93 / 25%) 0px 13px 27px -5px, rgb(0 0 0 / 30%) 0px 8px 16px -8px;
+                                    background:#fff;
+                                }
                                 
-                                color: #888;
-                            }
+                                #product_preview .gallery-prev, #product_preview .gallery-next {
+                                    
+                                    font-size: 23px;
+                                    height: 50px;
+                                    width: 50px;
+                                    padding: 8px;
+                                    color: #555;
+                                    cursor: pointer;
+                                    text-align: center;
+                                    z-index: 200;
+                                    position: absolute;
+                                    top:50%;
+                                    background: #fff;
+                                    border-radius: 25px;
+                                    box-shadow: rgb(50 50 93 / 25%) 0px 2px 5px -1px, rgb(0 0 0 / 30%) 0px 1px 3px -1px;
+                                }
+                                
+                                #product_preview .gallery-prev{
+                                
+                                    left: 15px;
+                                }
+                                
+                                #product_preview .gallery-next{
+                                    
+                                    right:15px;
+                                }
+                                
+                                #product_preview .gallery-prev:hover, #product_preview .gallery-next:hover {
+                                    
+                                    color: #888;
+                                }
+                                
+                                #product_features .fa {
+                                
+                                    color: ' . $this->settings->mainColor . ';
+                                    margin: 0 10px 0 -10px;
+                                }
+                            ');
                             
-                            #product_features .fa {
+                            // scripts
                             
-                                color: ' . $this->settings->mainColor . ';
-                                margin: 0 10px 0 -10px;
-                            }
-                        ');
-                        
-                        // scripts
-                        
-                        wp_register_script( $this->_token . '-store', esc_url( $this->assets_url ) . 'js/store-ui.js', array( 'jquery' ), $this->_version );
-                        wp_enqueue_script( $this->_token . '-store' );
+                            wp_register_script( $this->_token . '-store', esc_url( $this->assets_url ) . 'js/store-ui.js', array( 'jquery' ), $this->_version );
+                            wp_enqueue_script( $this->_token . '-store' );
 
-                    },10 );
-                    
-                    if( !empty($this->product->ID) ){
+                        },10 );
                         
-                        $path = $this->views . '/product.php';
+                        if( !empty($this->product->ID) ){
+                            
+                            $path = $this->views . '/product.php';
+                        }
+                        else{
+                            
+                            $path = apply_filters('ltple_product_page_path',$this->views . '/products.php',$layer);
+                        }
                     }
                     else{
                         
-                        $path = apply_filters('ltple_product_page_path',$this->views . '/products.php',$layer);
+                        $path = get_template_directory() . '/404.php';
                     }
                 }
                 elseif( $this->layer->is_default($layer) && empty($_GET['action']) ){
