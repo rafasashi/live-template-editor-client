@@ -794,7 +794,7 @@ class LTPLE_Client_Settings {
 				),
 			))
 		);
-
+        
 		$settings['style'] = array(
 			'title'					=> __( 'Style', 'live-template-editor-client' ),
 			'description'			=> '',

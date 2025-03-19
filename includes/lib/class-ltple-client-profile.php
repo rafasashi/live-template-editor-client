@@ -2007,7 +2007,7 @@ class LTPLE_Client_Profile {
 					
 					$content = '';
 					
-					if( $layer->post_type == 'cb-default-layer' && $layer_type->storage == 'user-theme' ){
+					if( !empty($layer->post_type) && $layer->post_type == 'cb-default-layer' && $layer_type->storage == 'user-theme' ){
 						
 						if( $demo_id = intval(get_post_meta($layer->ID,'demoLayerId',true)) ){
 						

@@ -74,191 +74,194 @@ class LTPLE_Client_Update {
 							
 							$data = json_decode($data,true);
 							
-							$prefix = !empty($data['prefix']) ? $data['prefix'] : 'himl_';
+							$prefix = !empty($data['prefix']) ? $data['prefix'] : false;
 							
-							$ids = array();
-							
-							if( !empty($data['terms']) ){
-								
-								$level = 0;
-								
-								while( $level < 3 ){
-									
-									++$level;
-									
-									if( empty($data['terms']) ) break;
-									
-									foreach( $data['terms'] as $i => $term ){
-											
-										$exid 	= $term['term_id'];
-										$uuid 	= $prefix . $exid;
-										$slug 	= $uuid . '-' . $term['slug'];
-										$taxo 	= $term['taxonomy'];
-											
-										// get parent id
-										
-										$parent = null;
-										
-										if( $term['parent'] == 0 ){
-											
-											$parent = $term['parent'];
-										}
-										elseif( isset($ids['terms'][$term['parent']]) ){
-												
-											$parent = $ids['terms'][$term['parent']];
-										}
-										
-										if( !is_null($parent) ){
+                            if( !empty($prefix) ){
+                                
+                                $ids = array();
+                                
+                                if( !empty($data['terms']) ){
+                                    
+                                    $level = 0;
+                                    
+                                    while( $level < 3 ){
+                                        
+                                        ++$level;
+                                        
+                                        if( empty($data['terms']) ) break;
+                                        
+                                        foreach( $data['terms'] as $i => $term ){
+                                                
+                                            $exid 	= $term['term_id'];
+                                            $uuid 	= $prefix . $exid;
+                                            $slug 	= $uuid . '-' . $term['slug'];
+                                            $taxo 	= $term['taxonomy'];
+                                                
+                                            // get parent id
+                                            
+                                            $parent = null;
+                                            
+                                            if( $term['parent'] == 0 ){
+                                                
+                                                $parent = $term['parent'];
+                                            }
+                                            elseif( isset($ids['terms'][$term['parent']]) ){
+                                                    
+                                                $parent = $ids['terms'][$term['parent']];
+                                            }
+                                            
+                                            if( !is_null($parent) ){
 
-											if( $t = get_term_by('slug',$slug,$taxo) ){
-												
-												$term_id = $t->term_id;
-											}
-											else{
-												
-												// insert term
-												
-												$t = wp_insert_term(
-													
-													$term['name'],
-													$taxo,
-													array(
-														
-														'alias_of' 		=> $term['term_group'],
-														'description' 	=> $term['description'],
-														'parent' 		=> $parent,
-														'slug' 			=> $slug,
-													),
-												);
-												
-												if( !is_wp_error($t) ){
-													
-													$term_id = $t['term_id'];
-												
-													if( !empty($data['terms_meta'][$exid]) ){
-														
-														foreach( $data['terms_meta'][$exid] as $key => $meta ){
-															
-															update_term_meta($term_id,$key,maybe_unserialize($meta[0]));
-														}
-													}
-												}
-												else{
-													
-													dump($t);
-												}
-											}
-											
-											$ids['terms'][$exid] = $term_id;
-											
-											unset($data['terms'][$i]);
-										}
-									}
-								}
-							}
-							
-							if( !empty($data['posts']) ){
-								
-								$level = 0;
-								
-								while( $level < 3 ){
-									
-									++$level;
-									
-									if( empty($data['posts']) ) break;
-									
-									foreach( $data['posts'] as $i => $post ){
-										
-										$exid 	= $post['ID'];
-										$uuid 	= $prefix . $exid;
-										$slug 	= $uuid . '-' . $post['post_name'];
-										$type 	= $post['post_type'];
-											
-										// get parent id
-										
-										$parent = null;
-										
-										if( $post['post_parent'] == 0 ){
-											
-											$parent = $post['post_parent'];
-										}
-										elseif( isset($ids['posts'][$post['post_parent']]) ){
-												
-											$parent = $ids['posts'][$post['post_parent']];
-										}
-										
-										if( !is_null($parent) ){
-											
-											$q = new WP_Query([
-											
-												'post_type' => $type,
-												'name' 		=> $slug
-											]);
+                                                if( $t = get_term_by('slug',$slug,$taxo) ){
+                                                    
+                                                    $term_id = $t->term_id;
+                                                }
+                                                else{
+                                                    
+                                                    // insert term
+                                                    
+                                                    $t = wp_insert_term(
+                                                        
+                                                        $term['name'],
+                                                        $taxo,
+                                                        array(
+                                                            
+                                                            'alias_of' 		=> $term['term_group'],
+                                                            'description' 	=> $term['description'],
+                                                            'parent' 		=> $parent,
+                                                            'slug' 			=> $slug,
+                                                        ),
+                                                    );
+                                                    
+                                                    if( !is_wp_error($t) ){
+                                                        
+                                                        $term_id = $t['term_id'];
+                                                    
+                                                        if( !empty($data['terms_meta'][$exid]) ){
+                                                            
+                                                            foreach( $data['terms_meta'][$exid] as $key => $meta ){
+                                                                
+                                                                update_term_meta($term_id,$key,maybe_unserialize($meta[0]));
+                                                            }
+                                                        }
+                                                    }
+                                                    else{
+                                                        
+                                                        dump($t);
+                                                    }
+                                                }
+                                                
+                                                $ids['terms'][$exid] = $term_id;
+                                                
+                                                unset($data['terms'][$i]);
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                if( !empty($data['posts']) ){
+                                    
+                                    $level = 0;
+                                    
+                                    while( $level < 3 ){
+                                        
+                                        ++$level;
+                                        
+                                        if( empty($data['posts']) ) break;
+                                        
+                                        foreach( $data['posts'] as $i => $post ){
+                                            
+                                            $exid 	= $post['ID'];
+                                            $uuid 	= $prefix . $exid;
+                                            $slug 	= $uuid . '-' . $post['post_name'];
+                                            $type 	= $post['post_type'];
+                                                
+                                            // get parent id
+                                            
+                                            $parent = null;
+                                            
+                                            if( $post['post_parent'] == 0 ){
+                                                
+                                                $parent = $post['post_parent'];
+                                            }
+                                            elseif( isset($ids['posts'][$post['post_parent']]) ){
+                                                    
+                                                $parent = $ids['posts'][$post['post_parent']];
+                                            }
+                                            
+                                            if( !is_null($parent) ){
+                                                
+                                                $q = new WP_Query([
+                                                
+                                                    'post_type' => $type,
+                                                    'name' 		=> $slug
+                                                ]);
 
-											$p = $q->have_posts() ? reset($q->posts) : null;
-											
-											if( !empty($p) ){
-												
-												$post_id = $p->ID;
-											}
-											else{
-												
-												// insert post
-												
-												unset($post['ID'],$post['post_author']);
-												
-												$post['post_name'] 		= $slug;
-												$post['post_parent'] 	= $parent;
-												
-												$post_id = wp_insert_post($post);
-												
-												if( !is_wp_error($post_id) ){
-													
-													if( !empty($data['posts_meta'][$exid]) ){
-														
-														foreach( $data['posts_meta'][$exid] as $key => $meta ){
-															
-															update_post_meta($post_id,$key,maybe_unserialize($meta[0]));
-														}
-													}
-												}
-												else{
-													
-													dump($post_id);
-												}
-											}
-											
-											if( !empty($data['posts_terms'][$exid]) ){
-												
-												$terms = array();
-												
-												foreach( $data['posts_terms'][$exid] as $term_id ){
-													
-													if( isset($ids['terms'][$term_id]) ){
-														
-														if( $term = get_term($ids['terms'][$term_id]) ){
-													
-															$terms[$term->taxonomy][] = $ids['terms'][$term_id];
-														}
-													}
-												}
-												
-												if(!empty($terms)){
-													
-													foreach ( $terms as $taxonomy => $term_ids ) {
-														
-														wp_set_post_terms( $post_id, $term_ids, $taxonomy, true );
-													}
-												}
-											}
-											
-											$ids['posts'][$exid] = $post_id;
-											
-											unset($data['posts'][$i]);
-										}
-									}
-								}
-							}
+                                                $p = $q->have_posts() ? reset($q->posts) : null;
+                                                
+                                                if( !empty($p) ){
+                                                    
+                                                    $post_id = $p->ID;
+                                                }
+                                                else{
+                                                    
+                                                    // insert post
+                                                    
+                                                    unset($post['ID'],$post['post_author']);
+                                                    
+                                                    $post['post_name'] 		= $slug;
+                                                    $post['post_parent'] 	= $parent;
+                                                    
+                                                    $post_id = wp_insert_post($post);
+                                                    
+                                                    if( !is_wp_error($post_id) ){
+                                                        
+                                                        if( !empty($data['posts_meta'][$exid]) ){
+                                                            
+                                                            foreach( $data['posts_meta'][$exid] as $key => $meta ){
+                                                                
+                                                                update_post_meta($post_id,$key,maybe_unserialize($meta[0]));
+                                                            }
+                                                        }
+                                                    }
+                                                    else{
+                                                        
+                                                        dump($post_id);
+                                                    }
+                                                }
+                                                
+                                                if( !empty($data['posts_terms'][$exid]) ){
+                                                    
+                                                    $terms = array();
+                                                    
+                                                    foreach( $data['posts_terms'][$exid] as $term_id ){
+                                                        
+                                                        if( isset($ids['terms'][$term_id]) ){
+                                                            
+                                                            if( $term = get_term($ids['terms'][$term_id]) ){
+                                                        
+                                                                $terms[$term->taxonomy][] = $ids['terms'][$term_id];
+                                                            }
+                                                        }
+                                                    }
+                                                    
+                                                    if(!empty($terms)){
+                                                        
+                                                        foreach ( $terms as $taxonomy => $term_ids ) {
+                                                            
+                                                            wp_set_post_terms( $post_id, $term_ids, $taxonomy, true );
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                $ids['posts'][$exid] = $post_id;
+                                                
+                                                unset($data['posts'][$i]);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 						}
 					}
 				}

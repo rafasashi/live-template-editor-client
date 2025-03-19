@@ -1057,7 +1057,7 @@ class LTPLE_Client {
                         }
                         else{
                     
-                            $path = get_template_directory() . '/404.php';
+                            $path = get_404_template();
                         }
                     }
                     else{

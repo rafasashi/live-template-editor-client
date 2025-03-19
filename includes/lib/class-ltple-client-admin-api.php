@@ -37,22 +37,23 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 		 * @param  boolean $echo  Whether to echo the field HTML or return it
 		 * @return void
 		 */
-		public function display_field( $field = array(), $item = false, $echo = true ){
+		public function display_field( $data = array(), $item = false, $echo = true ){
+                
+            // Get field info.
+            if ( isset( $data['field'] ) ) {
+                $field = $data['field'];
+            } else {
+                $field = $data;
+            }
+            
+            // Check for prefix on option name.
+            
+            $option_name = ( isset( $data['prefix'] ) ? $data['prefix'] : '' ) . ( !empty($field['name']) ? $field['name'] : ( isset($field['id']) ? $field['id'] : '' ) );
 
-			// Get field info
-			
-			$field = ( isset( $field['field'] ) ? $field['field'] : $field );
-			
-			// Get field id
-			
-			// Check for prefix on option name
-			
-			$option_name = ( isset( $field['prefix'] ) ? $field['prefix'] : '' ) . ( !empty($field['name']) ? $field['name'] : $field['id']);
-			
-			// Get default
-			
-			$default = isset($field['default']) ? $field['default'] : null;
-			
+            // Get default
+                
+            $default = isset($field['default']) ? $field['default'] : null;
+                
 			// Get saved data
 			
 			$data = '';
