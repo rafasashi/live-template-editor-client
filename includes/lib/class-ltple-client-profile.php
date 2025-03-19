@@ -1534,18 +1534,18 @@ class LTPLE_Client_Profile {
 					$theme_id = apply_filters('ltple_current_theme_id',$theme_id,$layer);
 				}
 			}
-				
+            
+            $vars = array(
+					
+                'css' => array(
+                
+                    'main_color' 	=> $this->parent->settings->mainColor,
+                    'navbar_color' 	=> $this->parent->settings->navbarColor,
+                    'link_color' 	=> $this->parent->settings->linkColor,
+                ),
+            );
+            
 			if( $theme = LTPLE_Editor::instance()->get_layer($theme_id) ){
-				
-				$vars = array(
-					
-					'css' => array(
-					
-						'main_color' 	=> $this->parent->settings->mainColor,
-						'navbar_color' 	=> $this->parent->settings->navbarColor,
-						'link_color' 	=> $this->parent->settings->linkColor,
-					),
-				);
 				
 				if( $theme->post_type == 'user-theme' ){
 					
@@ -1600,9 +1600,18 @@ class LTPLE_Client_Profile {
 						}
 					}
 				}
-				
-				$theme->variables = $vars;
 			}
+            
+            if( empty($theme) ){
+                
+                $theme = (object) array(
+                
+                    'ID'        => 0,
+                    'post_type' => 'user-theme',
+                );
+            }
+            
+            $theme->variables = $vars;
 			
 			$this->theme = $theme;
 		}
@@ -1613,7 +1622,7 @@ class LTPLE_Client_Profile {
 	public function parse_theme_variables($content){
 		
 		if( $theme = $this->get_current_theme() ){
-		
+            
 			foreach( $theme->variables['css'] as $key => $value ){
 				
 				if( strpos($content,'{{ theme.css.'.$key.' }}') !== false ){
