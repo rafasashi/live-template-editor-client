@@ -1191,6 +1191,28 @@ if( typeof window.editorCallbacks == typeof undefined )
 				});
 			});
 		}
+        
+         // add close button to alerts
+        
+        function addCloseButton(alertElement) {
+            
+            if (!alertElement.find('.close').length) {
+                
+                let closeBtn = $('<button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>');
+                
+                closeBtn.on('click', function () {
+                    
+                    alertElement.remove();
+                });
+                
+                alertElement.prepend(closeBtn);
+            }
+        }
+
+        $('.alert').each(function () {
+            
+            addCloseButton($(this));
+        });
 	});
 	
 	// set hash on popstate

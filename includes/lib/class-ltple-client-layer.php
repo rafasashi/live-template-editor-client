@@ -5126,9 +5126,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $static_path;
 	}
 	
-	public function upload_image_template($source = 'php://input', $ext = 'zip'){
+	public function upload_image_template($layer,$source = 'php://input', $ext = 'zip'){
 		
-		if( $this->parent->user->loggedin && !empty($this->id) ){
+		if( $this->parent->user->loggedin && !empty($layer->ID) ){
 			
 			if ( !function_exists('media_handle_upload') ) {
 				
@@ -5139,7 +5139,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 			// get file name
 					
-			$filename = 'image_template_' . $this->id ;
+			$filename = 'image_template_' . $layer->ID;
 			
 			// get psd content
 			
@@ -5194,13 +5194,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				'post_title' => $filename,
 			);
 			
-			$attach_id = media_handle_sideload( $file_array, $this->id, null, $post_data );
+			$attach_id = media_handle_sideload( $file_array, $layer->ID, null, $post_data );
 			
 			@unlink($tmp);
 			
 			if( is_numeric($attach_id) ) {
 				
-				$this->delete_layer_attachments($this->id,2);
+				$this->delete_layer_attachments($layer->ID,2);
 				
 				return true;
 			}

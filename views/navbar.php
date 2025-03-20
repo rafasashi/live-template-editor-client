@@ -54,8 +54,8 @@ if( !$ltple->layer->in_editor('gutenberg') && (empty($ltple->profile->id) || $lt
                     if( !empty($layer) && isset($_GET['uri']) ){
                         
                         if( $layer->post_type != 'cb-default-layer' ){
-                                                        
-                            if( $ltple->user->has_layer && !$layer->is_media ){
+                            
+                            if( $ltple->plan->user_has_layer( $layer->ID ) && !$layer->is_media ){
 
                                 if( !empty($_GET['action']) && $_GET['action'] == 'edit' ){
                                     
@@ -71,7 +71,7 @@ if( !$ltple->layer->in_editor('gutenberg') && (empty($ltple->profile->id) || $lt
                                 
                                     echo'<div style="display:none;text-align:center;" id="removeCurrentTpl" title="Remove current template">';
                                         
-                                        echo '<div class="alert alert-danger">Are you sure you want to delete this ' . $ltple->layer->get_storage_name($ltple->layer->layerStorage) . '?</div>';						
+                                        echo '<div class="alert alert-danger">Are you sure you want to delete this?</div>';						
 
                                         echo '<a target="_self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . $ltple->urls->edit . '?uri=' . $layer->ID . '&postAction=delete&confirmed=self">Delete permanently</a>';
                                         
@@ -132,8 +132,8 @@ if( !$ltple->layer->in_editor('gutenberg') && (empty($ltple->profile->id) || $lt
                     if( $ltple->user->ID > 0  ){
                         
                         do_action('ltple_right_navbar');
-
-                        if( $ltple->layer->defaultId > 0 ){
+                        
+                        if( $layer->default_id > 0 ){
                             
                             if( !$layer->is_media && ( $layer->post_type != 'cb-default-layer' || $ltple->user->can_edit ) ){
                                 
@@ -183,7 +183,7 @@ if( !$ltple->layer->in_editor('gutenberg') && (empty($ltple->profile->id) || $lt
                                             echo'</div>';						
                                             
                                         echo'</li>';
-
+                                       
                                         if( $ltple->user->can_edit ){
                                             
                                             echo'<li>';

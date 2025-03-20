@@ -1614,18 +1614,22 @@ class LTPLE_Client {
 	
 	public function do_editor_action(){
 		
-		if( $this->user->loggedin && !empty($this->layer->id) && $this->layer->id > 0 ){
+        $layer = LTPLE_Editor::instance()->get_layer();
+        
+		if( $this->user->loggedin && !empty($layer->ID) ){
 			
 			if( isset($_POST['postAction'])&& $_POST['postAction'] == 'edit' ){
-						
+               
 				if( !empty($_POST['id']) ){
 					
 					// edit post
 					
-					$post_id = intval($_POST['id']);
-					
-					if( $post = get_post($post_id) ){
+					if( intval($_POST['id']) == $layer->ID ){
 						
+                        $post_id = $layer->ID;
+                        
+                        $post = $layer;
+					
 						if( $this->user->is_admin || intval($post->post_author) == $this->user->ID ){
 							
 							if( !empty($_POST['image_url']) ){
@@ -1757,14 +1761,14 @@ class LTPLE_Client {
 			}
 			elseif( isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
 				
-				if( $this->layer->author == $this->user->ID ){
+				if( intval($layer->post_author) == $this->user->ID ){
 					
 					// get local images
 				
 					$image_dir = $this->image->dir . $this->user->ID . '/';
 					$image_url = $this->image->url . $this->user->ID . '/';	
 				
-					$images = glob( $image_dir . $this->user->layer->ID . '_*.png');				
+					$images = glob( $image_dir . $layer->ID . '_*.png');				
 					
 					if( !isset($_GET['confirmed']) ){
 					
@@ -1772,7 +1776,7 @@ class LTPLE_Client {
 
 						$message = '<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
 							
-							$message .= '<h2>Are you sure you want to delete this  ' . $this->layer->get_storage_name($this->layer->layerStorage) . '?</h2>';
+							$message .= '<h2>Are you sure you want to delete this?</h2>';
 						
 							if( !empty($images) ){
 								
@@ -1812,7 +1816,7 @@ class LTPLE_Client {
 								
 								$message .= '<a style="margin:10px;" class="btn btn-lg btn-success" href="' . $this->urls->current . '&confirmed">Yes</a>';
 								
-								$message .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->edit . '?uri=' . $this->user->layer->ID . '">No</a>';
+								$message .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->edit . '?uri=' . $layer->ID . '">No</a>';
 
 							$message .= '</div>';
 						
@@ -1824,7 +1828,7 @@ class LTPLE_Client {
 						
 						// get layer type
 						
-						$layer_type = $this->layer->get_layer_type($this->user->layer);
+						$layer_type = $this->layer->get_layer_type($layer);
 
 						//delete images
 						
@@ -1835,15 +1839,15 @@ class LTPLE_Client {
 						
 						// delete static files
 						
-						$this->layer->delete_static_contents( $this->user->layer->ID );
+						$this->layer->delete_static_contents( $layer->ID );
 					
 						// move layer to trash
 						
-						//wp_trash_post( $this->user->layer->ID );
+						//wp_trash_post( $layer->ID );
 						
 						// delete layer
 						
-						wp_delete_post( $this->user->layer->ID, false );
+						wp_delete_post( $layer->ID, false );
 						
 						// output message
 						
@@ -1863,16 +1867,15 @@ class LTPLE_Client {
 						else{
 							
 							$this->exit_message('Template successfully deleted!',200);
-							
 						}
 					}
 				}
 			}
 			elseif( isset($_POST['postAction']) && $_POST['postAction'] == 'download' ){
 				
-				$this->layer->download_static_contents($this->layer->id);
+				$this->layer->download_static_contents($layer->ID);
 			}
-			elseif( isset($_POST['postContent']) && !empty($this->layer->type) ){
+			elseif( isset($_POST['postContent']) && !empty($layer->post_type) ){
 				
 				// get post content
 				
@@ -1886,24 +1889,17 @@ class LTPLE_Client {
 				$post_title 	= ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
 				$post_name 		= $post_title;	
 
+                $layer_type = $this->layer->get_layer_type($layer);
+                
 				if( $_POST['postAction'] == 'update' ){
 					
 					//update layer
 					
 					if( $this->user->can_edit ){
-					
-						if( $this->layer->type == $this->layer->layerStorage ){
-							
-							$layer	= get_page_by_path( $this->layer->slug, OBJECT, $this->layer->type);
-						}
-						else{
-							
-							$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
-						}
+                        
+						if( !empty($layer) ){
 						
-						if(!empty($layer)){
-						
-							$layerId	= intval( $layer->ID );
+							$layerId = intval( $layer->ID );
 
 							if( is_int($layerId) && $layerId !== -1 ){
 							
@@ -1933,17 +1929,6 @@ class LTPLE_Client {
 				elseif( $_POST['postAction'] == 'duplicate' ){
 					
 					//duplicate layer
-					
-					$layer = '';
-					
-					if( $this->layer->type == $this->layer->layerStorage ){
-						
-						$layer	= get_page_by_path( $this->layer->slug, OBJECT, $this->layer->type);
-					}
-					elseif( $this->user->is_admin ){
-						
-						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
-					}
 					
 					if( !empty($layer) ){
 					
@@ -2004,10 +1989,6 @@ class LTPLE_Client {
 				elseif( $_POST['postAction'] == 'import' ){
 					
 					if( $this->user->is_admin ){
-												
-						// import layer
-						
-						$layer	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
 						
 						if( !empty($layer) ){
 						
@@ -2214,28 +2195,28 @@ class LTPLE_Client {
 					$post_id = '';
 					$defaultLayerId = -1;
 					
-					if( empty($this->layer->layerStorage) ){
+					if( empty($layer_type->storage) ){
 						
 						$this->exit_alert('Wrong template storage...',404);
 					}
-					elseif( $this->layer->type != 'cb-default-layer' ){
+					elseif( $layer->post_type != 'cb-default-layer' ){
 						
-						$post_id		= $this->user->layer->ID;
-						$post_author	= $this->user->layer->post_author;
-						$post_title		= $this->user->layer->post_title;
-						$post_name		= $this->user->layer->post_name;
-						$post_status 	= $this->user->layer->post_status;
-						$post_type		= $this->layer->type; // user-layer, post, page...
+						$post_id		= $layer->ID;
+						$post_author	= $layer->post_author;
+						$post_title		= $layer->post_title;
+						$post_name		= $layer->post_name;
+						$post_status 	= $layer->post_status;
+						$post_type		= $layer->post_type; // user-layer, post, page...
 						
 						$defaultLayerId	= $this->layer->get_default_id($post_id);
 					}
 					else{
 						
-						$post_type = $this->layer->layerStorage;
+						$post_type = $layer_type->storage;
 						
 						$post_status = apply_filters('ltple_default_layer_status','publish',$post_type);
 						
-						$defaultLayer 	= get_page_by_path( $this->layer->slug, OBJECT, 'cb-default-layer');
+						$defaultLayer = $layer;
 						
 						if( !empty($defaultLayer) ){
 						
@@ -2253,7 +2234,7 @@ class LTPLE_Client {
 								$this->exit_alert('You can\'t save more projects from the <b>' . $layer_type->name . '</b> gallery with the current plan...',404);
 							}
 
-							$defaultLayerId	= intval( $defaultLayer->ID );
+							$defaultLayerId	= $defaultLayer->ID;
 						}
 						else{
 							
@@ -2312,17 +2293,14 @@ class LTPLE_Client {
 							
 							do_action('ltple_user_layer_' . $status,$post_id,$defaultLayerId);
 							
-							if( $this->layer->type == 'cb-default-layer' ){
+							if( $layer->post_type == 'cb-default-layer' ){
 								
 								// update layer type
 								
-								if( $layer_type = $this->layer->get_layer_type($defaultLayerId) ){
+								wp_set_object_terms($post_id,$layer_type->term_id,'layer-type',false); 
 									
-									wp_set_object_terms($post_id,$layer_type->term_id,'layer-type',false); 
-									
-									do_action('ltple_create_' . $layer_type->storage,$post_id,$defaultLayerId);
-								}
-								
+                                do_action('ltple_create_' . $layer_type->storage,$post_id,$defaultLayerId);
+
 								//redirect to user layer
 
 								$user_layer_url = $this->urls->get_edit_url($post_id);
@@ -2347,9 +2325,9 @@ class LTPLE_Client {
 			}
 			elseif( $_SERVER['REQUEST_METHOD'] === 'POST' ){
 				
-				if( !empty($this->layer->layerOutput) && $this->layer->layerOutput == 'image' ){
+                if( !empty($layer->output) && $layer->output == 'image' ){
 				
-					if( $this->layer->upload_image_template() ){
+					if( $this->layer->upload_image_template($layer) ){
 						
 						$this->exit_message('Design successfully saved!',200);						
 					}
