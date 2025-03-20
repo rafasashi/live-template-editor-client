@@ -2,6 +2,8 @@
 
 $ltple = LTPLE_Client::instance();
 
+$layer = LTPLE_Editor::instance()->get_layer();
+
 if( !$ltple->inWidget ){
 	
 	$url = add_query_arg( array(
@@ -24,7 +26,7 @@ if( !$ltple->inWidget ){
 }
 else{
 	
-	$layer_plan = $ltple->plan->get_layer_plan( $ltple->layer->id, 'min' );
+	$layer_plan = $ltple->plan->get_layer_plan( $layer->ID, 'min' );
 	
 	if( !isset($_GET['period_refreshed']) && $layer_plan['amount'] > 0 && $ltple->user->remaining_days < 0 ){
 		
@@ -45,7 +47,7 @@ else{
 	}
 	else{
 		
-		$layer_type = $ltple->layer->get_layer_type($ltple->layer->id);
+		$layer_type = $ltple->layer->get_layer_type($layer->ID);
 		
 		$storage_type = get_post_type_object($layer_type->storage);
 		
@@ -79,7 +81,7 @@ else{
 				
 				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit vector ( without saving )</a>';
 			}
-			elseif( $layer_type->output == 'inline-css' || $ltple->layer->layerOutput == 'external-css' ){
+			elseif( $layer_type->output == 'inline-css' || $layer->output == 'external-css' ){
 				
 				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
 			}
@@ -108,9 +110,9 @@ else{
 				
 				echo '<hr class="clearfix">';
 				
-				if( !$ltple->layer->is_media && ( $layer_plan['amount'] === floatval(0) || $ltple->user->remaining_days > 0 ) ){
+				if( !$layer->is_media && ( $layer_plan['amount'] === floatval(0) || $ltple->user->remaining_days > 0 ) ){
 					
-					if( $ltple->plan->remaining_storage_amount($ltple->layer->id) > 0 ){
+					if( $ltple->plan->remaining_storage_amount($layer->ID) > 0 ){
 						
 						// get editor url
 						

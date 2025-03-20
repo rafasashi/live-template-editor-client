@@ -2,12 +2,14 @@
 
 $ltple = LTPLE_Client::instance();
 
-$currentTab = $ltple->get_current_tab($ltple->user->layer->post_type);
+$layer = LTPLE_Editor::instance()->get_layer();
+
+$currentTab = $ltple->get_current_tab($layer->post_type);
 
 $post_type = post_type_exists($currentTab) ? get_post_type_object($currentTab) : get_post_type_object('page');
 
-$layer_type = $ltple->layer->get_layer_type($ltple->layer->id);
-						
+$layer_type = $ltple->layer->get_layer_type($layer->ID);
+
 get_header();
 
 include( $ltple->views . '/navbar.php' );
@@ -27,12 +29,12 @@ echo'<div id="panel" class="wrapper">';
 				echo $ltple->message;
 			}
 			
-			if( !empty($ltple->user->layer) ){
+			if( !empty($layer) ){
 				
 				echo '<h3 style="margin-top:15px;">Edit ' . ( !empty($post_type->labels->singular_name) ? $post_type->labels->singular_name : 'project' ) . '</h3>';
 					
-				$fields = $ltple->layer->get_user_layer_fields(array(),$ltple->user->layer);
-						
+				$fields = $ltple->layer->get_user_layer_fields(array(),$layer);
+				
 				echo '<form id="savePostForm" method="post" enctype="multipart/form-data">';
 					
 					echo'<div class="row gutter-20">';
@@ -45,11 +47,11 @@ echo'<div id="panel" class="wrapper">';
 							
 							// ID
 							
-							echo'<input type="hidden" name="id" value="' . ( !empty($ltple->user->layer->ID) ? $ltple->user->layer->ID : 0 ) . '" />';
+							echo'<input type="hidden" name="id" value="' . ( !empty($layer->ID) ? $layer->ID : 0 ) . '" />';
 							
 							// title
 							
-							$post_title = !empty($ltple->user->layer->post_title) ? $ltple->user->layer->post_title : '' ;
+							$post_title = !empty($layer->post_title) ? $layer->post_title : '' ;
 							
 							if( post_type_supports($post_type->name,'title') ){
 								
@@ -70,7 +72,7 @@ echo'<div id="panel" class="wrapper">';
 										
 										echo'<input type="text" placeholder="Title" name="post_title" value="' . $post_title . '" style="width:100%;padding:10px;font-size:20px;border-radius:2px;" required="required"/>';
 										
-										do_action('ltple_edit_layer_title',$ltple->user->layer);								
+										do_action('ltple_edit_layer_title',$layer);								
 									
 									echo'</div>';
 								
@@ -89,7 +91,7 @@ echo'<div id="panel" class="wrapper">';
 					
 							echo'<div class="panel panel-default">';
 								
-								do_action('ltple_edit_layer_options',$ltple->user->layer,$post_type);
+								do_action('ltple_edit_layer_options',$layer,$post_type);
 
 							echo'</div>';
 						
@@ -99,7 +101,7 @@ echo'<div id="panel" class="wrapper">';
 					
 					echo'<div class="row gutter-20">';
 						
-						if( $tabs = $ltple->layer->get_project_tabs($ltple->user->layer,$fields) ){
+						if( $tabs = $ltple->layer->get_project_tabs($layer,$fields) ){
 								
 							echo'<div class="col-md-9">';
 

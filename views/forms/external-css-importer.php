@@ -2,63 +2,65 @@
 	
 	$ltple = LTPLE_Client::instance();
 	
-	$layer = '<div class="container">';
+    $layer = LTPLE_Editor::instance()->get_layer();
 	
-		$layer .= '<div class="panel panel-default" style="margin:50px;">';
+    $html = '<div class="container">';
+	
+		$html .= '<div class="panel panel-default" style="margin:50px;">';
 		
-		$layer .= '<div class="panel-heading">';
+		$html .= '<div class="panel-heading">';
 		
-			$layer .='<h4>'.ucfirst($ltple->layer->title).'</h4>';
+			$html .='<h4>'.ucfirst($layer->post_title).'</h4>';
 			
-		$layer .= '</div>';
+		$html .= '</div>';
 		
-		$layer .= '<div class="panel-body">';
+		$html .= '<div class="panel-body">';
 		
-			$layer .= '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
+			$html .= '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
 			
-				$layer .= '<div class="col-xs-3">';
+				$html .= '<div class="col-xs-3">';
 				
-					$layer .='<label>HTML</label>';
+					$html .='<label>HTML</label>';
 					
-				$layer .= '</div>';
+				$html .= '</div>';
 				
-				$layer .= '<div class="col-xs-9">';
+				$html .= '<div class="col-xs-9">';
 				
-					$layer .= '<div class="form-group">';
+					$html .= '<div class="form-group">';
 					
-						$layer .= '<textarea class="form-control" name="importHtml" style="min-height:100px;"></textarea>';
+						$html .= '<textarea class="form-control" name="importHtml" style="min-height:100px;"></textarea>';
 						
-					$layer .= '</div>';
+					$html .= '</div>';
 					
-				$layer .= '</div>';
+				$html .= '</div>';
 			
-				$layer .= '<div class="col-xs-3">';
+				$html .= '<div class="col-xs-3">';
 				
-					$layer .='<label>CSS</label>';
+					$html .='<label>CSS</label>';
 					
-				$layer .= '</div>';
+				$html .= '</div>';
 				
-				$layer .= '<div class="col-xs-9">';
+				$html .= '<div class="col-xs-9">';
 				
-					$layer .= '<div class="form-group">';
+					$html .= '<div class="form-group">';
 					
-						$layer .= '<textarea class="form-control" name="importCss" style="min-height:100px;"></textarea>';
+						$html .= '<textarea class="form-control" name="importCss" style="min-height:100px;"></textarea>';
 						
-					$layer .= '</div>';
+					$html .= '</div>';
 					
-				$layer .= '</div>';									
+				$html .= '</div>';									
 				
-				$layer .= '<div class="col-xs-12 text-right">';
+				$html .= '<div class="col-xs-12 text-right">';
 					
-					$layer .= '<input class="btn btn-primary btn-md" type="submit" value="Import" />';
+					$html .= '<input class="btn btn-primary btn-md" type="submit" value="Import" />';
 					
-				$layer .= '</div>';						
+				$html .= '</div>';						
 			
-			$layer .= '</form>';
+			$html .= '</form>';
 			
-		$layer .= '</div>';
-		$layer .= '</div>';
+		$html .= '</div>';
+		$html .= '</div>';
 	
-	$layer .= '</div>';
+	$html .= '</div>';
 	
-	echo $layer;
+	echo $html;

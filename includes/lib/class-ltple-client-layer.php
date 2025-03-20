@@ -1329,7 +1329,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$tab = '';
 		
-		if( $this->is_public_output($this->layerOutput) ){
+		if( $this->is_public_output($layer->output) ){
 			
 			// image preview
 			
@@ -1763,7 +1763,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function get_user_layer_fields($fields,$post=null){
 		
 		// TODO move to LTPLE plugin
-	
+       
 		if( empty($this->userFields) ){
 			
 			//get post
@@ -2951,13 +2951,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		$this->set_uri();
 		
-		if( $this->uri > 0 ){
-
-			//set layer data
-			
-			$this->set_layer($this->uri);			
-		}
-
+        // set custom fields
+        
 		if( $local_types = $this->get_local_types() ){
 			
 			foreach( $local_types as $post_type ){
@@ -3166,7 +3161,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( $layer->post_status == 'publish' || $layer->post_status == 'draft' || $layer->post_status == 'inherit' || $layer->post_status == 'pending' ){
 				
-				$this->layerEcho = $echo;
+				$this->layerEcho    = $echo;
 				
 				$this->is_default 	= $this->is_default($layer);
 				
@@ -5505,7 +5500,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$output = $layer->output;
 			
-			$this->parse_hosted_content($output);
+            $this->set_layer($layer); // !important
+			
+            $this->parse_hosted_content($output);
 			
 			ob_start();
 			

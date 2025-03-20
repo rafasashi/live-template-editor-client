@@ -123,22 +123,26 @@ class LTPLE_Client_Editor {
 							echo LTPLE_Editor::upload_image_url($layer, $_POST['domId'], $_POST['url'], $crop);
 						}
 					}
-					else{
+					elseif( $user_email = $this->parent->plan->get_license_holder_email($this->parent->user) ){
 						
-						LTPLE_Editor::get_remote_script($layer,array(
+                        LTPLE_Editor::get_remote_script($layer,array(
 							
-							'key'		=> $_GET['lk'],
-							'user'		=> $this->parent->ltple_encrypt_str($this->parent->plan->get_license_holder_email($this->parent->user)),
+							'key'		=> sanitize_title($_GET['lk']),
+							'user'		=> $this->parent->ltple_encrypt_str($user_email),
 							'is_local' 	=> $this->parent->layer->is_local ? true : false,				
 							'plan_url'	=> $this->parent->urls->plans,
 						
 						));
 						
-						echo'Malformed request...';
+						echo 'Malformed request...';
 					}
+                    else{
+                        
+                        echo 'Login to use the service';
+                    }
 				}
-				elseif( $this->parent->user->has_layer ){
-					
+				elseif( $this->parent->plan->user_has_layer($layer->ID) ){
+                    
 					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
 						
 						wp_register_script('jquery-validate', esc_url( $this->parent->assets_url ) . 'js/jquery.validate.js', array( 'jquery' ), $this->parent->_version );
@@ -170,15 +174,17 @@ class LTPLE_Client_Editor {
 
 						include( $this->parent->views . '/editor-panel.php' );
 					}
-					elseif( ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $this->parent->layer->type == 'cb-default-layer' || $this->parent->layer->is_media ) ){
-
+					elseif( ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $layer->post_type == 'cb-default-layer' || $layer->is_media ) ){
+                       
 						include( $this->parent->views . '/editor-starter.php' );
 					}
 					else{
+                        
+						$default_id = $layer->post_type == 'cb-default-layer' ? $layer->ID : $this->parent->layer->get_default_id($layer->ID);
+                        
+						$layer_plan = $this->parent->plan->get_layer_plan( $default_id, 'min' );
 						
-						$layer_plan = $this->parent->plan->get_layer_plan( $this->parent->layer->defaultId, 'min' );
-						
-						if( $this->parent->layer->type != 'cb-default-layer' && $layer_plan['amount'] > 0 && !$this->parent->user->plan["info"]["total_price_amount"] > 0 ){
+						if( $layer->post_type != 'cb-default-layer' && $layer_plan['amount'] > 0 && !$this->parent->user->plan["info"]["total_price_amount"] > 0 ){
 							
 							echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
 								
@@ -220,6 +226,8 @@ class LTPLE_Client_Editor {
 							}
 							elseif( empty($_POST) && !empty($this->parent->layer->layerForm) && $this->parent->layer->layerForm != 'none' && empty($this->parent->layer->layerContent) ){
 								
+                                // TODO review
+                                
 								include( $this->parent->views . '/editor-form.php' );
 							}
 							else{
@@ -579,14 +587,26 @@ class LTPLE_Client_Editor {
 				
 				$attachment_url = wp_get_attachment_url($layer->ID );
 			}
-			elseif( $this->parent->layer->layerImageTpl->post_type == 'attachment' ){
-				
-				$attachment_url = wp_get_attachment_url($this->parent->layer->layerImageTpl->ID);
-			}
-			else{
-				
-				$attachment_url = trim(strip_tags(apply_filters('the_content',$this->parent->layer->layerImageTpl->post_content)));		
-			}
+            else{
+                
+                $default_id = $layer->post_type == 'cb-default-layer' ? $layer->ID : $this->parent->layer->get_default_id($layer->ID);
+                
+                $layer_type = $this->parent->layer->get_layer_type($layer);
+                
+                $attachments = $this->parent->layer->get_layer_attachments($default_id,$layer_type->storage);
+                
+                if( $image = reset($attachments) ){
+                    
+                    if( $image->post_type == 'attachment' ){
+                        
+                        $attachment_url = wp_get_attachment_url($image->ID);
+                    }
+                    else{
+                        
+                        $attachment_url = trim(strip_tags(apply_filters('the_content',$image->post_content)));		
+                    }
+                }
+            }
 			
 			$js .= ' var layerImageTpl = "' . LTPLE_Editor::get_image_proxy_url($attachment_url) . '";' . PHP_EOL;
 		}
