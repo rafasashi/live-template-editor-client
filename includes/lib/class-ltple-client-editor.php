@@ -621,37 +621,28 @@ class LTPLE_Client_Editor {
 			
 			$js .= ' var mediaLibUrl = "' . apply_filters('ltple_editor_media_lib_url','',$layer) . '";'. PHP_EOL;
 			$js .= ' var bookmarkUrl = "' . apply_filters('ltple_editor_bookmark_lib_url','',$layer) . '";'. PHP_EOL;
-			
-			if( !empty($_POST) || empty($layer->urls['preview']) || $this->parent->layer->is_app_output($layer->output) ){
-				
-				// content based preview
-				
-				$content = $this->parent->layer->render_output($layer) . PHP_EOL;
-				
-				if( !$this->parent->layer->is_app_output($layer->output) ){
-				
-					$content .= '<script id="LiveTplEditorClientScript">
+        
+            // content based preview
+            
+            $content = $this->parent->layer->render_output($layer) . PHP_EOL;
+            
+            if( !$this->parent->layer->is_app_output($layer->output) ){
+            
+                $content .= '<script id="LiveTplEditorClientScript">
 
-						// prevent link navigation
-						
-						document.querySelector(\'a\').addEventListener(\'click\', function(ev){
+                    // prevent link navigation
+                    
+                    document.querySelector(\'a\').addEventListener(\'click\', function(ev){
 
-							return false;
-						
-						}, false);
-						
-					</script>' . PHP_EOL;
-				}
-				
-				$js .= ' var layerContent = "' . base64_encode($content) . '";' . PHP_EOL;
-			}
-			else{
-				
-				// url based preview
-
-				$js .= ' var layerUrl	= "' . $layer->urls['preview'] . '";' . PHP_EOL;
-			}
-			
+                        return false;
+                    
+                    }, false);
+                    
+                </script>' . PHP_EOL;
+            }
+            
+            $js .= ' var layerContent = "' . base64_encode($content) . '";' . PHP_EOL;
+        
 			$js .= ' var layerJson = "' . base64_encode($this->parent->layer->layerJson) . '";' . PHP_EOL;
 
 			//include quick edit
