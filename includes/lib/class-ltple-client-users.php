@@ -997,7 +997,8 @@
 			$row='';
 			
 			if ($column_name == "subscription") { 
-
+                
+                /*
 				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
 
 					if( $user_plan['info']['total_fee_amount'] > 0 ){
@@ -1009,6 +1010,7 @@
 					$row .= $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].'/'.$user_plan['info']['total_price_period'];
 					
 				$row .= '</span>';
+                */
 
 				$row .= '<span style="width:100%;display:block;margin: 0px;font-size: 10px;line-height: 14px;">';	
 					

@@ -46,7 +46,7 @@ class LTPLE_Client_Editor {
 		
 		add_filter('ltple_editor_edit_url', array( $this, 'filter_edit_url' ),1);	
 				
-		add_filter('ltple_editor_elements', array( $this, 'filter_elements' ),1);	
+		add_filter('ltple_editor_elements', array( $this, 'filter_elements' ),1,2);	
 				
 		add_filter('ltple_right_editor_navbar', array( $this, 'filter_right_navbar' ),1);			
 		
@@ -472,42 +472,49 @@ class LTPLE_Client_Editor {
 		return $this->parent->urls->get_edit_url($post_id);
 	}	
 	
-	public function filter_elements($elemLibraries){
+	public function filter_elements($elemLibraries,$layer){
 			
-		// elements button
+        if( !empty($layer->default_id) ){
+            
+            $defaultElements = get_post_meta( $layer->default_id, 'layerElements', true );
+            
+            if( !empty($defaultElements['name'][0]) ){
+                
+                $elemLibraries[] = $defaultElements;
+            }
+            
+            $theme = $this->parent->profile->get_current_theme();
+            
+            $themeId = !empty($theme->ID) ? $theme->ID : 0;
+            
+            if( $libraries = LTPLE_Element::get_libraries(array($themeId,$layer->default_id),'element')  ){
+                
+                foreach( $libraries as $term ){
+                    
+                    $elements = LTPLE_Element::get_library_elements($term);
 
-		if( !empty($this->parent->layer->defaultElements['name'][0]) ){
-			
-			$elemLibraries[] = $this->parent->layer->defaultElements;
-		}			
-		
-		if( !empty($this->parent->layer->layerHtmlLibraries) ){
-			
-			foreach( $this->parent->layer->layerHtmlLibraries as $term ){
-				
-				$elements = LTPLE_Element::get_library_elements($term);
-
-				if( !empty($elements['name'][0]) ){
-					
-					$elemLibraries[] = $elements;
-				}
-			} 
-		}
-		
-		if( !empty($elemLibraries) ){
-			
-			foreach( $elemLibraries as $e => $elements ){
-				
-				foreach( $elements['image'] as $i => $image ){
-				
-					if( empty($image) ){
-				
-						$elemLibraries[$e]['image'][$i] = $this->parent->assets_url . 'images/default-element.jpg';
-					}
-				}
-			}
-		}
-		
+                    if( !empty($elements['name'][0]) ){
+                        
+                        $elemLibraries[] = $elements;
+                    }
+                } 
+            }
+        }
+    
+        if( !empty($elemLibraries) ){
+            
+            foreach( $elemLibraries as $e => $elements ){
+                
+                foreach( $elements['image'] as $i => $image ){
+                
+                    if( empty($image) ){
+                
+                        $elemLibraries[$e]['image'][$i] = $this->parent->assets_url . 'images/default-element.jpg';
+                    }
+                }
+            }
+        }
+        
 		return $elemLibraries;
 	}
 	
