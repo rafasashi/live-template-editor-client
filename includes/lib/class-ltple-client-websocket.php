@@ -117,8 +117,39 @@ class LTPLE_Client_Websocket {
 		
 		$script .= 'function showMessage(messageHTML) {' . PHP_EOL;
 			
-			$script = apply_filters('ltple_websocket_show_message_script',$script,$layer,$context);
-
+            if( in_array($context,array(
+                
+                //'editor',
+                'overlay',
+                
+            ))){
+                
+                $script .= 'const match = messageHTML.match(/^<([^>]+)>(.*?)<\/\1>$/);';
+                
+                $script .= 'if(match){';
+                    
+                    $script .= 'var className = "info";';
+                    
+                    $script .= 'if( match[1] == "ol-error" ){';
+                        
+                        $script .= 'className = "error";';
+                        
+                    $script .= '}';
+                    
+                    $script .= 'if(className=="error"){';
+                    
+                        $script .= '$.notify(match[2],{
+                            
+                            className: className,
+                            position: "top center"
+                            
+                        });';
+                        
+                    $script .= '}';
+                    
+                $script .= '}';
+            }
+            
 		$script .= '}' . PHP_EOL;
         
         $script .= 'window.showMessage = showMessage;' . PHP_EOL;
