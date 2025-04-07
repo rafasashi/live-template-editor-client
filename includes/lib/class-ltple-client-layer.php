@@ -405,14 +405,17 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	
 		add_filter('ltple_editor_layer',function($layer){
 			
-			if( isset($layer->ID) && !isset($layer->default_id) ){
-				
-				$layer->default_id = !$layer->is_default ? $this->get_default_id($layer->ID) : $layer->ID;
-            }
-            
-            if( !isset($layer->form) ){
-			
-                $layer->form = get_post_meta( $layer->default_id, 'layerForm', true );
+            if(  isset($layer->ID) ){
+                
+                if( !isset($layer->default_id) ){
+                    
+                    $layer->default_id = !$layer->is_default ? $this->get_default_id($layer->ID) : $layer->ID;
+                }
+                
+                if( !isset($layer->form) ){
+                
+                    $layer->form = get_post_meta( $layer->default_id, 'layerForm', true );
+                }
             }
             
 			return $layer;
