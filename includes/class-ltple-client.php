@@ -1567,44 +1567,30 @@ class LTPLE_Client {
 			
 			if( $meta_key == 'layerContent' ){
 				
-				if( !isset($_POST['layerContent']) ){
+				if( !isset($_POST['postContent']) && !isset($_POST['layerContent']) ){
 				
 					$check = false;
 				}
 			}
 			elseif( $meta_key == 'layerJs' ){
 				
-				if( !isset($_POST['layerJs']) ){
+				if( !isset($_POST['postJs']) && !isset($_POST['layerJs']) ){
 				
 					$check = false;
 				}
 			}
 			elseif( $meta_key == 'layerCss' ){
 				
-				if( !isset($_POST['layerCss']) ){
+				if( !isset($_POST['postCss']) && !isset($_POST['layerCss']) ){
 				
 					$check = false;
 				}
 			}
 			elseif( $meta_key == 'layerJson' ){
 				
-				if( !isset($_POST['layerJson']) ){
+				if( !isset($_POST['postJson']) && !isset($_POST['layerJson']) ){
 				
 					$check = false;
-				}
-			}
-			elseif(1==2){
-				
-				// not compatible with all client side UI such add scripts/addPackage
-				
-				$fields = $this->layer->get_user_layer_fields([]);
-				
-				foreach( $fields as $field ){
-					
-					if( $field['id'] == $meta_key && !isset($_POST[$meta_key]) ){
-						
-						$check = false;
-					}
 				}
 			}
 		}
