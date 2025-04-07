@@ -2559,7 +2559,7 @@ class LTPLE_Client {
             
         $style .='}';
         
-        $style .=' .library-content .form-control{';
+        $style .=' .library-content .nav .form-control, .bootstrap-table .search .form-control{';
         
             $style .='height: 26px;';
             $style .='width: auto;';
