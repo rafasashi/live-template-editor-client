@@ -407,9 +407,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( isset($layer->ID) && !isset($layer->default_id) ){
 				
-				$layer->default_id = !$layer->is_default ? $this->get_default_id($layer->ID) : 0;
-			}
+				$layer->default_id = !$layer->is_default ? $this->get_default_id($layer->ID) : $layer->ID;
+            }
+            
+            if( !isset($layer->form) ){
 			
+                $layer->form = get_post_meta( $layer->default_id, 'layerForm', true );
+            }
+            
 			return $layer;
 			
 		},10,1);
@@ -3181,8 +3186,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 					if( $this->is_default ){
 						
-						$this->defaultId = $this->id;
-						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );						
+						$this->defaultId = $this->id;						
 					}
 					elseif( $this->is_storage ){
 					
@@ -3190,13 +3194,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					}
 					elseif( $this->is_local ){
 						
-						$this->defaultId = $this->get_default_id($layer->ID);
-						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );							
+						$this->defaultId = $this->get_default_id($layer->ID);							
 					}
 					else{
 						
 						$this->defaultId = $this->id;
-						$this->form 	 = get_post_meta( $this->defaultId, 'layerForm', true );
 					}
 					
 					// get default layer type
@@ -3385,10 +3387,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$this->layerStaticDir = $this->get_static_dir($this->id);
 	
-						//get layer form
-						
-						$this->layerForm = get_post_meta( $this->defaultId, 'layerForm', true );
-						
 						//get css libraries
 						
 						$this->layerCssLibraries = $this->get_libraries(array($this->themeId,$this->defaultId),'css');

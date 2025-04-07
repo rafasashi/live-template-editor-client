@@ -1567,28 +1567,28 @@ class LTPLE_Client {
 			
 			if( $meta_key == 'layerContent' ){
 				
-				if( !isset($_POST['postContent']) ){
+				if( !isset($_POST['layerContent']) ){
 				
 					$check = false;
 				}
 			}
 			elseif( $meta_key == 'layerJs' ){
 				
-				if( !isset($_POST['postJs']) ){
+				if( !isset($_POST['layerJs']) ){
 				
 					$check = false;
 				}
 			}
 			elseif( $meta_key == 'layerCss' ){
 				
-				if( !isset($_POST['postCss']) ){
+				if( !isset($_POST['layerCss']) ){
 				
 					$check = false;
 				}
 			}
 			elseif( $meta_key == 'layerJson' ){
 				
-				if( !isset($_POST['postJson']) ){
+				if( !isset($_POST['layerJson']) ){
 				
 					$check = false;
 				}

@@ -224,11 +224,9 @@ class LTPLE_Client_Editor {
 									echo'</div>';
 								}
 							}
-							elseif( empty($_POST) && !empty($this->parent->layer->layerForm) && $this->parent->layer->layerForm != 'none' && empty($this->parent->layer->layerContent) ){
+							elseif( empty($_POST) && empty($layer->html) && !empty($layer->form) && $layer->form != 'none' ){
 								
-                                // TODO review
-                                
-								include( $this->parent->views . '/editor-form.php' );
+                                include( $this->parent->views . '/editor-form.php' );
 							}
 							else{
 								
