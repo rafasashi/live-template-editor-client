@@ -1589,8 +1589,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 	public function get_hosted_layer_tabs($tabs,$layer){
 		
-		$tabs = $this->get_editable_layer_tabs($tabs,$layer);
-				
+        if( $layer->is_editable ){
+        
+            $tabs = $this->get_editable_layer_tabs($tabs,$layer);
+        }
+        
 		return $tabs;
 	}
 	
