@@ -67,8 +67,8 @@
 					
 						echo '<li class="gallery_type_title">'.$section.'</li>';
 
-						$editors = $this->layer->get_layer_editors();
-											
+						//$editors = $this->layer->get_layer_editors();
+                        
 						$class='';
 						
 						foreach( $type_ids as $id ){
@@ -77,12 +77,9 @@
 								
 								$term = $current_types[$id];
 
-								if(!$output = get_term_meta($term->term_id,'output',true)){
-									
-									$output = 'inline-css';
-								}
-
-								if( isset($editors[$output]) ){
+                                $storage = $term->storage;
+                                
+								if( $storage_name = $this->layer->get_storage_name($term->storage) ){
 								
 									$gallery_url = add_query_arg($_GET,$this->urls->gallery);
 									 
@@ -128,7 +125,7 @@
 												
 												$label_style = 'margin-right:8px;padding:2px 0px;font-size:11px;color:' . $this->settings->navbarColor . 'b8;';
 												
-												echo '<i class="pull-left" style="' . $label_style . '">'.$editors[$output].'</i> ';											
+												echo '<i class="pull-left" style="' . $label_style . '">'.$storage_name.'</i> ';											
 																			
 												if( $term->visibility == 'admin' ){
 													

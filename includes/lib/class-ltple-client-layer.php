@@ -117,7 +117,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));	
 
-		$this->parent->register_taxonomy('layer-type','Template Gallery','Template Gallery',  array('user-plan','cb-default-layer','user-layer','user-psd'), array(
+		$this->parent->register_taxonomy('layer-type','Service Types','Service Type',  array('user-plan','cb-default-layer','user-layer','user-psd'), array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> false,
@@ -132,7 +132,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
-		$this->parent->register_taxonomy( 'layer-range','Template Range','Template Range',array('user-plan','cb-default-layer'), array(
+		$this->parent->register_taxonomy( 'layer-range','Service Ranges','Service Range',array('user-plan','cb-default-layer'), array(
 			
 			'hierarchical' 			=> true,
 			'public' 				=> false,
@@ -180,6 +180,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'sort' 					=> '',
 		));
 		
+        add_filter('ltple_register_element_library',function($post_types){ 
+            
+            $post_types[] = 'cb-default-layer';
+            
+			return $post_types;
+			
+		},10,1);
+        
 		add_filter('ltple_cb-default-layer_layer_area',function($area,$layer){ 
 			
 			return 'backend';
@@ -254,7 +262,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					}
 					
 					if( !$this->is_html_output($layer_type->output) || !$this->is_hosted_output($layer_type->output) ){
-											
+						
 						remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
 						
 						remove_meta_box( 'js-librarydiv', 'cb-default-layer', 'side' );
@@ -787,7 +795,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
                     //get layer type
 
                     $layer_type = $this->get_layer_type($layer);	
-				
+                    
 					if( !empty($layer_type->output) && $this->is_html_output($layer_type->output) ){
 					
 						// get layer content
@@ -952,7 +960,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									'placeholder'	=> 'Additional Javascript',
 									'stripcslashes'	=> false,
 									'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_js','',$layer),
-									'description'	=> '<i>without '.htmlentities('<script></script>').'</i>'
+									
 								);
 								
 								if( $this->is_public_output($layer_type->output) ){
@@ -1903,11 +1911,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 			$this->editors = apply_filters('ltple_layer_editors',array(
 					
-				'inline-css'	=>'HTML',
+				'inline-css'	=>'HTML Editor',
 				'external-css'	=>'HTML + CSS',
-				'hosted-page'	=>'Hosted',
+				'hosted-page'	=>'Hosted Page',
 				'canvas'		=>'HTML to PNG',
-				'image'			=>'Image',
+				'image'			=>'Image Editor',
 				'web-app'		=>'Web App',
 			));
 		} 
@@ -1920,28 +1928,14 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$editor_name = 'Template';
 		
 		if( !empty($output) ){
-			
-			$editors = $this->get_layer_editors();
-			
-			if( !empty($editors[$output]) ){
-				
-				$editor_name = $editors[$output];
-				
-				if( $this->is_html_output($output) ){
-					
-					if( $output == 'web-app' ){
-						
-						$editor_name .= ' application';
-					}
-					else{
-					
-						$editor_name .= ' template';
-					}
-				}
-			}
+        
+            if( $output == 'web-app' ){
+                
+                $editor_name = 'Standalone App';
+            }
 		}
 		
-		return $editor_name;
+		return apply_filters('ltple_layer_output_name',$editor_name,$output);
 	}
 		
 	public function get_default_types(){
@@ -4225,33 +4219,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				echo'<th valign="top" scope="row">';
 					
-					echo'<label for="category-text">Storage Unit </label>';
-				
-				echo'</th>';
-				
-				echo'<td>';
-					
-					$this->parent->admin->display_field( array(			
-						
-						'name'			=> 'default_storage',
-						'id'			=> 'default_storage',
-						'label'			=> '',
-						'type'			=> 'select',
-						'options'		=> $this->get_storage_types(),
-						'inline'		=> false,
-						'description'	=> 'Default Post Type used to save the project',
-						
-					), $term );
-					
-				echo'</td>';	
-				
-			echo'</tr>';
-			
-			echo'<tr class="form-field">';
-			
-				echo'<th valign="top" scope="row">';
-					
-					echo'<label for="category-text">Editor Output</label>';
+					echo'<label for="category-text">Service Type</label>';
 				
 				echo'</th>';
 				
@@ -4266,14 +4234,40 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'options'		=> $this->get_layer_editors(),
 						'inline'		=> false,
 						'default'		=> 'inline-css',
-						'description'	=> 'The Inputs and Type of Editor dependends on the selected Output',
+						'description'	=> 'Defining the core interaction based on that output',
 						
 					), $term );
 					
 				echo'</td>';	
 				
-			echo'</tr>';			
+			echo'</tr>';	
+            
+			echo'<tr class="form-field">';
 			
+				echo'<th valign="top" scope="row">';
+					
+					echo'<label for="category-text">Storage Format</label>';
+				
+				echo'</th>';
+				
+				echo'<td>';
+					
+					$this->parent->admin->display_field( array(			
+						
+						'name'			=> 'default_storage',
+						'id'			=> 'default_storage',
+						'label'			=> '',
+						'type'			=> 'select',
+						'options'		=> $this->get_storage_types(),
+						'inline'		=> false,
+						'description'	=> 'Defining how the output is stored internally',
+						
+					), $term );
+					
+				echo'</td>';	
+				
+			echo'</tr>';
+					
 			echo'<tr class="form-field">';
 			
 				echo'<th valign="top" scope="row">';

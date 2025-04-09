@@ -262,7 +262,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 			$this->all_sections = array();
 			
 			if( $current_types = $this->get_current_types() ){
-			
+               
 				foreach( $current_types as $term ){
 					
 					// get section name

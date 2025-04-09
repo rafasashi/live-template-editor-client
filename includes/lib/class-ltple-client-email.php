@@ -490,64 +490,6 @@ class LTPLE_Client_Email {
 											
 							$message .= '</tr>';
 							
-							/*	
-							$message .= '<tr>';	
-
-								$message .= '<td style="line-height: 25px;font-family: Arial, sans-serif;padding:10px 20px ;font-size:15px;color:#666666;text-align:left;font-weight: normal;border:0;background-color:#FFFFFF;">';
-																						
-									$message .= 'Here comes the summary of your current subscription and a list of your features: ' . PHP_EOL;
-										
-								$message .=  '</td>';
-										
-							$message .= '</tr>';
-							
-							$message .= '<tr>';													
-										
-								$message .= '<td style="background: rgb(248, 248, 248);display:block;padding:20px;margin:20px;text-align:left;border-left: 5px solid #888;">';
-									
-									$message .='<b>Price</b>: ' . $user_plan['info']['total_price_currency'].$user_plan['info']['total_price_amount'].' / '.$user_plan['info']['total_price_period'] . PHP_EOL;
-			
-									$message .= PHP_EOL;
-									
-									if( !empty($user_plan['taxonomies']['layer-type']['terms']) ){
-									
-										$message .= '<b>Template Types</b>';
-										
-										$message .= '<ul>';
-
-											foreach( $user_plan['taxonomies']['layer-type']['terms'] as $term ){
-												
-												if( $term['has_term'] ){
-													
-													$message .= '<li>'.ucfirst($term['name']).'</li>';
-												}
-											}
-										
-										$message .= '</ul>';
-									}
-									
-									if( !empty($user_plan['taxonomies']['layer-range']['terms']) ){
-									
-										$message .= '<b>Template Ranges</b>';
-										
-										$message .= '<ul>';
-
-											foreach( $user_plan['taxonomies']['layer-range']['terms'] as $term ){
-												
-												if( $term['has_term'] ){
-													
-													$message .= '<li>'.ucfirst($term['name']).'</li>';
-												}
-											}
-										
-										$message .= '</ul>';
-									}
-								
-								$message .=  '</td>';
-										
-							$message .= '</tr>';
-							*/
-
 							$message .= '<tr>';	
 
 								$message .= '<td style="font-family: Arial, sans-serif;height:150px;font-size:16px;color:#666666;text-align:center;border:0;background-color:#FFFFFF;">';

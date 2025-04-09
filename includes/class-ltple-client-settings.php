@@ -482,26 +482,31 @@ class LTPLE_Client_Settings {
 			// TODO list all template types
 			
 		}
-		elseif( !empty($tabs[$active]) && count($tabs[$active]) > 1 ){
-		
+		elseif( !empty($tabs[$active]) ){
+            
+            $count = count($tabs[$active]);
+            
 			foreach( $tabs[$active] as $slug => $data ){
 				
-				if( $slug == $current ){
-				
-					echo'<li class="subnav-li subnav-li-active">';
-						
-						echo '<a href="' . $data['url'] . '">' . $data['name'] . '</a>';
-						
-					echo'</li>';
-				}
-				else{
-					
-					echo'<li class="subnav-li subnav-li-inactive">';
-						
-						echo '<a href="' . $data['url'] . '">' . $data['name'] . '</a>';
-						
-					echo'</li>';
-				}
+                if( $count > 1 || $data['tab'] != $data['name'] ){
+                    
+                    if( $slug == $current ){
+                    
+                        echo'<li class="subnav-li subnav-li-active">';
+                            
+                            echo '<a href="' . $data['url'] . '">' . $data['name'] . '</a>';
+                            
+                        echo'</li>';
+                    }
+                    else{
+                        
+                        echo'<li class="subnav-li subnav-li-inactive">';
+                            
+                            echo '<a href="' . $data['url'] . '">' . $data['name'] . '</a>';
+                            
+                        echo'</li>';
+                    }
+                }
 			}
 		}
 		
@@ -580,8 +585,8 @@ class LTPLE_Client_Settings {
 
 		add_submenu_page(
 			'ltple-settings',
-			__( 'Gallery', 'live-template-editor-client' ),
-			__( 'Gallery', 'live-template-editor-client' ),
+			__( 'Services', 'live-template-editor-client' ),
+			__( 'Services', 'live-template-editor-client' ),
 			'edit_pages',
 			'edit-tags.php?taxonomy=gallery-section&post_type=cb-default-layer'
 		);
@@ -1062,7 +1067,7 @@ class LTPLE_Client_Settings {
 			'gallery-settings' => apply_filters('ltple_admin_tabs_gallery-settings',array(
 				
 				'gallery-section' 	=> array( 'tab'  => 'Sections', 	'name' => 'Sections', 	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),
-				'layer-type' 		=> array( 'tab'  => 'Categories', 	'name' => 'Categories',	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),
+				'layer-type' 		=> array( 'tab'  => 'Services', 	'name' => 'Services',	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),
 				'layer-range' 		=> array( 'tab'  => 'Ranges', 		'name' => 'Ranges',   	'type' => 'taxonomy', 	'post-type' => 'cb-default-layer' ),	
 			)),
 			'plan-settings' => apply_filters('ltple_admin_tabs_plan-settings',array(
