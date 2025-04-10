@@ -1603,7 +1603,8 @@ th input, th select {
 
 .modal-content{
 	
-	border-radius: 0 !important;	
+	border-radius: 0 !important;
+    border: none !important;
 }
 
 .modal-full{

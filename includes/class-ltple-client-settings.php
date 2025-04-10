@@ -585,8 +585,8 @@ class LTPLE_Client_Settings {
 
 		add_submenu_page(
 			'ltple-settings',
-			__( 'Services', 'live-template-editor-client' ),
-			__( 'Services', 'live-template-editor-client' ),
+			__( 'Apps & Services', 'live-template-editor-client' ),
+			__( 'Apps & Services', 'live-template-editor-client' ),
 			'edit_pages',
 			'edit-tags.php?taxonomy=gallery-section&post_type=cb-default-layer'
 		);

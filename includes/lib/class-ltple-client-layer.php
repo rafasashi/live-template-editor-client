@@ -45,7 +45,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public $columns			= '';
 	public $column			= '';
 	public $options			= array(); 
-	
+    public $forms           = array();
+    
 	/**
 	 * Constructor function
 	 */ 
@@ -422,13 +423,92 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
                 
                 if( !isset($layer->form) ){
                 
-                    $layer->form = get_post_meta( $layer->default_id, 'layerForm', true );
+                    $layer->form = apply_filters('ltple_layer_form',get_post_meta( $layer->default_id, 'layerForm', true ),$layer);
                 }
             }
             
 			return $layer;
 			
 		},10,1);
+	}
+    
+	public function get_form_fields($id){
+		
+		if( !isset($this->forms[$id]) ){
+            
+            $fields = array();
+            
+            if( $dataset = get_post_meta($id,'layerForm',true) ){
+                
+                $keys = array_keys($dataset);
+                
+                $dataset = array_map(function($values) use ($keys) {
+                    
+                    return array_combine($keys, $values);
+                
+                },array_map(null, ...array_values($dataset)));
+                
+                foreach( $dataset as $data ){
+                    
+                    if( !empty($data['name']) ){
+                        
+                        $field = array();
+                        
+                        $field['name'] = str_replace(' ','',sanitize_text_field($data['name']));
+                        
+                        $field['id'] = $this->parent->_base.$field['name'];
+                        
+                        $input = !empty($data['input']) ? sanitize_title($data['input']) : 'text';
+                        
+                        if( $input == 'checkbox' ){
+                            
+                            $field['type'] = 'checkbox_multi';
+                        }
+                        else{
+                            
+                            $field['type'] = $input;
+                            
+                            if( in_array($input,array(
+                            
+                                'url',
+                                'image'
+                                
+                            ))){
+                                
+                                $field['placeholder'] = 'https://';
+                            }
+                        }
+                        
+                        //$field['style'] = 'width:100%;';
+                        
+                        $field['label'] = !empty($data['label']) ? ucfirst(str_replace('_',' ',$data['label'])) : '';
+                        
+                        $field['required'] = !empty($data['required']) && sanitize_title($data['required']) == 'required' ? true : false;
+                        
+                        $value = sanitize_textarea_field($data['value']);
+                        
+                        if( $input == 'hidden' ){
+                            
+                            $field['data'] = $value;
+                        }
+                        elseif( $input == 'image' ){
+                            
+                            $field['data'] = !empty($value) ? $value : $this->parent->assets_url . 'images/default_item.png';
+                        }
+                        else{
+                            
+                            $field['options'] = !empty($data['value']) ? explode(PHP_EOL,$value) : array();
+                        }
+                        
+                        $fields[] = $field;
+                    }
+                }
+            }
+            
+			$this->forms[$id] = $fields;
+		}
+	
+		return $this->forms[$id];
 	}
     
     public function get_libraries($layer_id,$type){
@@ -478,8 +558,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 			$this->localTypes = apply_filters('ltple_local_post_types',array(
 				
-				'page',
-				'post',
 				'cb-default-layer',
 				'default-element',
 			));
@@ -1050,6 +1128,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
 							
+                            /*
 							$this->defaultFields[]=array( 
 							
 								'metabox' => array(
@@ -1068,7 +1147,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									'importer'	=> 'Importer',
 								),
 								'inline'		=> false,
-							);					
+							);
+                            */                            
 						}
 						
 						$this->defaultFields[]=array( 
@@ -1093,6 +1173,23 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							'inline'		=> false,
 							'description'	=> ''
 						);
+                        
+                        $this->defaultFields[]=array( 
+             
+                            'metabox' => array(
+                            
+                                'name' 		=> 'layerForm',
+                                'title' 	=> __( 'Template Form', 'live-template-editor-comfyui' ), 
+                                'screen'	=> array($layer->post_type),
+                                'context' 	=> 'advanced',
+                                'frontend' 	=> true,
+                                
+                            ),
+                            'id'		=> 'layerForm',
+                            'name'		=> 'layerForm',
+                            'label'		=> '',
+                            'type'		=> 'form',
+                        );
 					}
                     
                     do_action('ltple_default_layer_fields',$layer_type,$layer);
@@ -1348,86 +1445,18 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		if( $this->is_public_output($layer->output) ){
 			
 			// image preview
-			
-			$media_url = add_query_arg( array(
-			
-				'output' 	=> 'widget',
-				'section' 	=> 'images',
-				
-			), $this->parent->urls->media . 'user-images/' );
-			
-			$md5 = md5($media_url);
-			
-			$modal_id 	= 'modal_' . $md5;
-			$preview_id = 'preview_' . $md5;
-			$input_id 	= 'input_' . $md5;
-			
-			$tab .= '<div class="col-md-6">';
-				
-				$tab .= '<div style="padding:5px 0px;">';
-					
-					$tab .= '<b class="pull-left" style="margin:5px 5px 5px 0;">Featured Image :</b>';
-					
-					$tab .= '<button type="button" onclick="return false;" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#'.$modal_id.'">Edit</button>';
-
-				$tab .= '</div>';
-				
-				$tab .= '<div style="text-align:left;margin-top:10px;">';
-					
-					$tab .= '<img loading="lazy" id="'.$preview_id.'" src="'.$this->get_thumbnail_url($layer).'" style="width:auto;"/>';
-					
-					$tab .= '<input type="hidden" id="'.$input_id.'" name="image_url" value="" />';
-					
-					$tab .= '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog">'.PHP_EOL;
-						
-						$tab .= '<div class="modal-dialog modal-lg" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
-							
-							$tab .= '<div class="modal-content">'.PHP_EOL;
-								
-								$tab .= '<div class="modal-header">'.PHP_EOL;
-									
-									$tab .= '<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
-									
-									$tab .= '<h4 class="modal-title text-left">Media Library</h4>'.PHP_EOL;
-								
-								$tab .= '</div>'.PHP_EOL;
-
-								$tab .= '<iframe id="iframe_'.$modal_id.'" data-src="' . $media_url . '" data-input-id="#' . $input_id . '" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';						
-								
-								wp_register_script( $this->parent->_token . '-image-tab', '', array( 'jquery' ) );
-								wp_enqueue_script( $this->parent->_token . '-image-tab' );
-								wp_add_inline_script( $this->parent->_token . '-image-tab', $this->get_image_tab_script($input_id,$preview_id) );
-								
-							$tab .= '</div>'.PHP_EOL;
-							
-						$tab .= '</div>'.PHP_EOL;
-						
-					$tab .= '</div>'.PHP_EOL;
-				
-				$tab .= '</div>'.PHP_EOL;
-				
-			$tab .= '</div>'.PHP_EOL;
+            
+            $tab .= $this->parent->admin->display_meta_box_field(array(
+                
+                'id'    => 'image_url',
+                'label' => 'Featured Image',
+                'type'  => 'image',
+                'data'  => $this->get_thumbnail_url($layer),
+                
+            ),false,false);
 		}
 		
 		return $tab;
-	}
-	
-	public function get_image_tab_script($input_id,$preview_id){
-
-		$script = ';(function($){';
-
-			$script .= '$(document).ready(function(){
-				
-				$("#'.$input_id.'").on("change", function(e){
-					
-					$("#'.$preview_id.'").attr("src",$(this).val());
-				});
-			
-			});';
-		
-		$script .= '})(jQuery);';
-
-		return $script;
 	}
 	
 	public function get_installation_info($layer){
@@ -2531,22 +2560,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$term->output 	= 'hosted-page';
 							$term->storage 	= 'user-element';
 						}
-						elseif( $post->post_type == 'page' ){
-
-							// TODO migrate pages to element shortcode
-							
-							$term->name 	= 'Page';
-							$term->output 	= 'hosted-page';
-							$term->storage 	= 'page';
-						}
-						elseif( $post->post_type == 'post' ){
-							
-							// TODO migrate posts to element shortcode
-							
-							$term->name 	= 'Post';
-							$term->output 	= 'hosted-page';
-							$term->storage 	= 'post';
-						}
 						elseif( $this->is_media($post) ){
 							
 							$term->name 	= 'Image';
@@ -2795,7 +2808,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$preview_url = $layer->urls['view'];
 			
-			$start_url = apply_filters('ltple_start_url',$this->parent->urls->edit . '?uri='.$layer->ID,$layer);
+			$quick_start_url = apply_filters('ltple_quick_start_url',$this->parent->urls->edit . '?uri='.$layer->ID,$layer);
 
 			$visibility = $this->get_layer_visibility($layer);
 			
@@ -2860,7 +2873,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 							if( $this->parent->user->loggedin ){
 
-								$actions ='<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_parent" title="Start editing this template">Start</a>';
+								$actions ='<a class="btn btn-sm btn-success" href="'. $quick_start_url .'" target="_parent" title="Start editing this template">Start</a>';
 							}
 							else{
 								

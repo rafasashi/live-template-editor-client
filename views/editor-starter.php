@@ -4,6 +4,13 @@ $ltple = LTPLE_Client::instance();
 
 $layer = LTPLE_Editor::instance()->get_layer();
 
+add_filter( 'document_title_parts',function($title){
+    
+    $title['title'] = 'Edit';
+        
+    return $title;
+});
+
 if( !$ltple->inWidget ){
 	
 	$url = add_query_arg( array(
@@ -16,11 +23,7 @@ if( !$ltple->inWidget ){
 	
 		include('navbar.php');
 		
-		echo '<div style="min-height:calc( 100vh - 125px );overflow:hidden;">';
-		
-			echo'<iframe data-src="' . $url . '" style="width:100%;border:0;height:calc(100vh - 153px);overflow:hidden;"></iframe>';
-		
-		echo '</div>';
+		echo'<iframe class="full-height" data-src="' . $url . '" style="width:100%;border:0;height:calc(100vh - 153px);overflow:hidden;"></iframe>';
 		
 	get_footer();
 }
@@ -61,9 +64,9 @@ else{
 		
 		if( $ltple->layer->is_editable_output($layer_type->output) ){
 			
-			// get download url
+			// get start url
 			
-			$download_url = add_query_arg( array(
+			$quick_start_url = add_query_arg( array(
 			
 				'quick' 	=> '',
 				
@@ -75,24 +78,26 @@ else{
 			
 			if( $layer_type->output == 'image' ){
 				
-				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit image ( without saving )</a>';
+				$button_name ='Edit image ( without saving )';
 			}
 			elseif( $layer_type->output == 'vector' ){
 				
-				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Edit vector ( without saving )</a>';
+				$button_name ='Edit vector ( without saving )';
 			}
 			elseif( $layer_type->output == 'inline-css' || $layer->output == 'external-css' ){
 				
-				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Get the code ( without hosting )</a>';				
+				$button_name ='Get the code ( without hosting )';				
 			}
-			elseif( $layer_type->output == 'web-app' ){
-				
-				$quick_start = '<a target="_parent" href="'.$download_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">Launch the app</a>';
-			}
+			else{
+                
+                $button_name = apply_filters('ltple_editor_starter_button','Launch the app',$layer);
+            }
+            
+            $quick_start = '<a target="_parent" href="'.$quick_start_url.'" class="btn btn-lg btn-primary" style="margin: 15px 15px 0px 15px;">'.$button_name.'</a>';
 		}
 		else{
 			
-			$quick_start = apply_filters('ltple_quick_start_action','');
+			$quick_start = apply_filters('ltple_quick_start_action','',$layer);
 		}
 		
 		get_header();		
@@ -116,9 +121,9 @@ else{
 						
 						// get editor url
 						
-						$start_url = remove_query_arg('output',$this->parent->urls->current);			
+						$quick_start_url = remove_query_arg('output',$this->parent->urls->current);			
 						
-						echo'<form target="_parent" class="col-xs-8" action="' . $start_url . '" id="savePostForm" method="post">';
+						echo'<form target="_parent" class="col-xs-8" action="' . $quick_start_url . '" id="savePostForm" method="post">';
 							
 							do_action('ltple_editor_start_' . $layer_type->storage);
 							
@@ -138,8 +143,6 @@ else{
 									echo'<input formtarget="_parent" class="btn btn-lg btn-primary" type="submit" id="saveBtn" style="padding:11px 15px;height:42px;" value="Start" />';
 								
 								echo'</span>';
-								
-								
 								
 							echo'</div>';
 							
@@ -167,39 +170,39 @@ else{
 
 			echo'</div>';
 			
-			if( $projects = $ltple->layer->get_user_projects($ltple->user->ID,$layer_type) ){
+            echo'<div class="col-xs-12 col-sm-12 col-lg-6" style="padding:20px;">';
+                
+                if( $projects = $ltple->layer->get_user_projects($ltple->user->ID,$layer_type) ){
 
-				echo'<div class="col-xs-12 col-sm-12 col-lg-6" style="padding:20px;">';
-					
-					echo'<h3 class="pull-left">Similar '.$storage_name.'s </h3><a class="pull-right" target="_parent" href="' . $ltple->urls->dashboard . '?list=' . $layer_type->storage . '"><span class="label" style="font-size:12px;color:#cacaca;padding:10px;line-height:30px;">see all</span></a>';
-					
-					echo'<hr class="clearfix">';
-					
-					echo'<div style="height:calc( 100vh - ' . ( $ltple->inWidget ? 115 : 260 ) . 'px );overflow:auto;">';
-					
-						foreach( $projects as $project ){
-							
-							echo'<div style="margin: 5px 0;display: inline-block;width: 100%;">';
-							
-								echo'<div class="col-xs-6">';
-									
-									echo $project->post_title;
-							
-								echo'</div>';
-							
-								echo'<div class="col-xs-6 text-right">';
-								
-									echo $ltple->layer->get_action_buttons($project,$layer_type,'_parent');
-									
-								echo'</div>';
-								
-							echo'</div>';
-						}
-					
-					echo'</div>';
-						
-				echo'</div>';	
-			}
+                    echo'<h3 class="pull-left">Saved '.$storage_name.'s </h3><a class="pull-right" target="_parent" href="' . $ltple->urls->dashboard . '?list=' . $layer_type->storage . '"><span class="label" style="font-size:12px;color:#cacaca;padding:10px;line-height:30px;">see all</span></a>';
+                    
+                    echo'<hr class="clearfix">';
+                    
+                    echo'<div style="height:calc( 100vh - ' . ( $ltple->inWidget ? 115 : 260 ) . 'px );overflow:auto;">';
+                    
+                        foreach( $projects as $project ){
+                            
+                            echo'<div style="margin: 5px 0;display: inline-block;width: 100%;">';
+                            
+                                echo'<div class="col-xs-6">';
+                                    
+                                    echo $project->post_title;
+                            
+                                echo'</div>';
+                            
+                                echo'<div class="col-xs-6 text-right">';
+                                
+                                    echo $ltple->layer->get_action_buttons($project,$layer_type,'_parent');
+                                    
+                                echo'</div>';
+                                
+                            echo'</div>';
+                        }
+                    
+                    echo'</div>';
+                }
+                
+            echo'</div>';
 			
 		echo'</div>';
 		

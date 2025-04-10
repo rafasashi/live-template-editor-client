@@ -1017,7 +1017,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 					$id = ( !empty($field['id']) ? $field['id'] : 'form' );
 					
 					$inputs = !empty($field['inputs']) && is_array($field['inputs']) ? $field['inputs'] : array(
-					
+                        
+                        'hidden',
 						'checkbox',
 						'select',
 						'text',
@@ -1029,6 +1030,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						'url',
 						'color',
 						'submit',
+                        'image',
 					);
 					
 					$html .= '<div id="'.$id.'" class="sortable">';
@@ -1889,21 +1891,73 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 				break;
 				
 				case 'image':
-				
-					wp_enqueue_media();
-		
-					$image_thumb = '';
-					
-					if ( $data ) {
-						
-						$image_thumb = wp_get_attachment_thumb_url( $data );
-					}
-					
-					$html .= '<img loading="lazy" id="' . $option_name . '_preview" class="image_preview" src="' . $image_thumb . '" /><br/>' . "\n";
-					$html .= '<input id="' . $option_name . '_button" type="button" data-uploader_title="' . __( 'Upload an image' , 'live-template-editor-client' ) . '" data-uploader_button_text="' . __( 'Use image' , 'live-template-editor-client' ) . '" class="image_upload_button button" value="'. __( 'Upload new image' , 'live-template-editor-client' ) . '" />' . "\n";
-					$html .= '<input id="' . $option_name . '_delete" type="button" class="image_delete_button button" value="'. __( 'Remove image' , 'live-template-editor-client' ) . '" />' . "\n";
-					$html .= '<input id="' . $option_name . '" class="image_data_field" type="hidden" name="' . $option_name . '" value="' . $data . '"/><br/>' . "\n";
-				
+                    
+                    $media_url = add_query_arg( array(
+                    
+                        'output' 	=> 'widget',
+                        'section' 	=> 'images',
+                        
+                    ), $this->parent->urls->media . 'user-images/' );
+                    
+                    $modal_id 	= 'modal_' . $field['id'];
+                    $preview_id = 'preview_' . $field['id'];
+                    $input_id 	= 'input_' . $field['id'];
+                    
+                    $html .= '<div style="max-width:250px;">';
+                        
+                        $html .= '<div style="text-align:left;margin-top:10px;">';
+  
+                            $html .= '<a href="#'.$field['id'].'" type="button" onclick="return false;" data-toggle="modal" data-target="#'.$modal_id.'">';
+                                
+                                $html .= '<div style="position:relative;width:fit-content;">';
+                                
+                                    $html .= '<span class="glyphicon glyphicon-pencil" style="position:absolute;right:5px;top:5px;color:#ffffff94;"></span>';
+                            
+                                    $html .= '<img loading="lazy" id="'.$preview_id.'" src="'.$data.'" style="height:100px;width:auto;"/>';
+                                
+                                $html .= '</div>';
+                                
+                            $html .= '</a>';
+                            
+                            $html .= '<input type="hidden" id="'.$input_id.'" name="'.$option_name.'" value="" />';
+                            
+                            $html .= '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog">'.PHP_EOL;
+                                
+                                $html .= '<div class="modal-dialog modal-lg" role="document" style="margin:0;width:100% !important;position:absolute;">'.PHP_EOL;
+                                    
+                                    $html .= '<div class="modal-content">'.PHP_EOL;
+                                        
+                                        $html .= '<div class="modal-header">'.PHP_EOL;
+                                            
+                                            $html .= '<button type="button" class="close m-0 p-0 border-0 bg-transparent" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'.PHP_EOL;
+                                            
+                                            $html .= '<h4 class="modal-title text-left">Media Library</h4>'.PHP_EOL;
+                                        
+                                        $html .= '</div>'.PHP_EOL;
+
+                                        $html .= '<iframe id="iframe_'.$modal_id.'" data-src="' . $media_url . '" data-input-id="#' . $input_id . '" style="display:block;position:relative;width:100%;top:0;bottom: 0;border:0;height:calc( 100vh - 50px );"></iframe>';						
+                                        
+                                        wp_register_script( $this->parent->_token . '-image-input-'.$field['id'], '', array( 'jquery' ) );
+                                        wp_enqueue_script( $this->parent->_token . '-image-input-'.$field['id'] );
+                                        wp_add_inline_script( $this->parent->_token . '-image-input-'.$field['id'],';(function($){
+                                            $(document).ready(function(){
+                                                $("#'.$input_id.'").on("change", function(e){
+                                                    $("#'.$preview_id.'").attr("src",$(this).val());
+                                                });
+                                            });
+                                        })(jQuery);'
+                                        );
+                                        
+                                    $html .= '</div>'.PHP_EOL;
+                                    
+                                $html .= '</div>'.PHP_EOL;
+                                
+                            $html .= '</div>'.PHP_EOL;
+                        
+                        $html .= '</div>'.PHP_EOL;
+                        
+                    $html .= '</div>'.PHP_EOL;
+                    
 				break;
 
 				case 'color':

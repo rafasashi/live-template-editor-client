@@ -11,7 +11,7 @@ if( typeof window.editorCallbacks == typeof undefined )
 		// requests handler
 						
 		var ajaxQueue = $({});
-
+        
 		$.ajaxQueue = function( ajaxOpts ) {
 			var jqXHR,
 				dfd = $.Deferred(),
@@ -582,17 +582,22 @@ if( typeof window.editorCallbacks == typeof undefined )
 									className: 'success',
 									position: 'top center'
 								});
-
+                               
 								if( refresh == 'self' ){
 									
-									$('.table').bootstrapTable('refresh');
+                                    if( typeof $.fn.bootstrapTable === 'function' && $('.table').length > 0 ){
+                                        
+                                        $('.table').bootstrapTable('refresh');
+                                    }
+                                    else{
+                                        
+                                        window.location.href = window.location.href;
+                                    }
 								}
 								else if( refresh == 'parent' ){
 									
-									$('button[name="refresh"]:not(iframe button[name="refresh"])',window.top.document).trigger('click'); // refresh modal iframe
-								
-									
-								}
+                                    $('button[name="refresh"]:not(iframe button[name="refresh"])',window.top.document).trigger('click'); // refresh modal iframe
+                                }
 							},
 							complete: function(){
 								

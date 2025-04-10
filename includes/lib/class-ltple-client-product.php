@@ -281,9 +281,9 @@ class LTPLE_Client_Product extends LTPLE_Client_Object {
 			
 			//get editor_url
 
-			$start_url = apply_filters('ltple_start_url',$this->parent->urls->edit . '?uri='.$post->ID,$post);
+			$quick_start_url = apply_filters('ltple_quick_start_url',$this->parent->urls->edit . '?uri='.$post->ID,$post);
 							
-			$button.='<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_parent" title="Start editing this template">Start</a>';
+			$button.='<a class="btn btn-sm btn-success" href="'. $quick_start_url .'" target="_parent" title="Start editing this template">Start</a>';
 		}
 		else{
 			

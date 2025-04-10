@@ -608,7 +608,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
             
 			//get start url
 
-			$start_url = apply_filters('ltple_start_url',$this->parent->urls->edit . '?uri='.$post->ID,$post);
+			$quick_start_url = apply_filters('ltple_quick_start_url',$this->parent->urls->edit . '?uri='.$post->ID,$post);
 			
 			// get layer range
 			
@@ -668,7 +668,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
                                 
                                 if( $this->parent->plan->user_has_layer( $post ) === true ){
                                     
-                                    $action .= '<a target="_parent" class="btn" href="'. $start_url .'" title="Start editing this template">Start</a>';
+                                    $action .= '<a target="_parent" class="btn" href="'. $quick_start_url .'" title="Start editing this template">Start</a>';
                                 }
                                 elseif( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
                                     
@@ -700,7 +700,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
                                 
                                 if($this->parent->plan->user_has_layer( $post ) === true){
                                     
-                                    $item .= '<a class="btn" href="'. $start_url .'" target="_parent" title="Start editing this template">Start</a>';
+                                    $item .= '<a class="btn" href="'. $quick_start_url .'" target="_parent" title="Start editing this template">Start</a>';
                                 }
                                 elseif( empty($this->parent->user->ID) || ( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
                                     

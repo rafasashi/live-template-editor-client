@@ -18,7 +18,7 @@
 	
 	if( $visibility != 'assigned' || $has_layer || $ltple->user->is_admin ){
 				
-		$start_url 	= apply_filters('ltple_start_url',$ltple->urls->edit . '?uri=' . $layer->ID,$layer);
+		$quick_start_url 	= apply_filters('ltple_quick_start_url',$ltple->urls->edit . '?uri=' . $layer->ID,$layer);
 		
 		$product_url = get_permalink($layer->ID);
 
@@ -150,7 +150,7 @@
 								
 								if( $has_layer === true){
 									
-									echo'<a class="btn btn-sm btn-success" href="'. $start_url .'" target="_parent" title="Start editing this '.$output_name.'">Start</a>';
+									echo'<a class="btn btn-sm btn-success" href="'. $quick_start_url .'" target="_parent" title="Start editing this '.$output_name.'">Start</a>';
 								}
 								elseif( empty($ltple->user->plan) || $ltple->user->plan['holder'] == $ltple->user->ID ){
 									
