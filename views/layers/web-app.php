@@ -34,18 +34,10 @@
 
 	//get layer content
 	
-	if( isset($_POST['importHtml']) ){
+	$layerContent = $this->layerContent;
 
-		$layerContent = $_POST['importHtml'];
-	}
-	else{
-		
-		$layerContent =$this->layerContent;
-	}
-	
-	$layerContent =LTPLE_Editor::sanitize_content($layerContent);
+	$layerContent = LTPLE_Editor::sanitize_content($layerContent);
 
-	
 	// parse content elements
 	
 	libxml_use_internal_errors( true );

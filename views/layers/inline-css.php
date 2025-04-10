@@ -6,23 +6,23 @@
 
 	//get css libraries
 
-	$layerCssLibraries =$this->layerCssLibraries;
+	$layerCssLibraries = isset($this->layerCssLibraries) ? $this->layerCssLibraries : array();
 
 	//get js libraries
 	
-	$layerJsLibraries =$this->layerJsLibraries;
+	$layerJsLibraries = isset($this->layerJsLibraries) ? $this->layerJsLibraries : array();
 	
 	//get layer margin
 	
-	$layerMargin =$this->layerMargin;
+	$layerMargin = isset($this->layerMargin) ? $this->layerMargin : '';
 	
 	//get layer Min Width
 	
-	$layerMinWidth =$this->layerMinWidth;
+	$layerMinWidth = isset($this->layerMinWidth) ? $this->layerMinWidth : '';
 
 	// get layer content
 	
-	$layerContent 		= '';
+	$layerContent = '';
 	
 	$headStyles = array();
 	$headLinks = array();	
@@ -35,7 +35,7 @@
 	}
 	else{
 		
-		$layerContent =$this->layerContent;
+		$layerContent = isset($this->layerContent) ? $this->layerContent : '';
 	}
 	
 	$layerContent =LTPLE_Editor::sanitize_content($layerContent);

@@ -730,7 +730,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$is_hosted = true;
 		}
-	
+        
 		return $is_hosted;
 	}
 	
@@ -1316,24 +1316,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function is_hosted_output($output){
-		
-		if( $this->is_app_output($output) ){
-			
-			return true;
-		}
-		else{
-			
-			$hosted_output = apply_filters('ltple_layer_hosted_output',array(
-			
-				'hosted-page',
-			));
-			
-			if( in_array($output,$hosted_output) ){
-				
-				return true;
-			}
-		}
-		
+
+        if( in_array($output,apply_filters('ltple_layer_hosted_output',array(
+        
+            'hosted-page',
+        ))) ){
+            
+            return true;
+        }
+    
 		return false;
 	}
 	
