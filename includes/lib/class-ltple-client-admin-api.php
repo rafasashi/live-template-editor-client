@@ -1013,7 +1013,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 							}
 						}
 					}
-		
+                   
 					$id = ( !empty($field['id']) ? $field['id'] : 'form' );
 					
 					$inputs = !empty($field['inputs']) && is_array($field['inputs']) ? $field['inputs'] : array(
@@ -1060,7 +1060,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 									
 									foreach( $data['name'] as $e => $name ){
 										
-										$name = str_replace('-','_',sanitize_title($name));
+										$name = str_replace(' ','',sanitize_text_field($name));
 										
 										$html .= $this->display_field(array(
 															

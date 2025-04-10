@@ -439,7 +439,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
             $fields = array();
             
             if( $dataset = get_post_meta($id,'layerForm',true) ){
-                
+
                 $keys = array_keys($dataset);
                 
                 $dataset = array_map(function($values) use ($keys) {
