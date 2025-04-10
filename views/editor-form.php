@@ -6,7 +6,7 @@ $layer = LTPLE_Editor::instance()->get_layer();
 
 get_header();
 
-echo'<div id="layerForm" class="editor-form" style="height:calc( 100vh - 50px );">';
+echo'<div class="container-fluid" style="min-height:calc( 100vh - 50px );">';
 
     echo '<div class="col-xs-12 col-sm-12 col-lg-6" style="padding:20px;">';
         
