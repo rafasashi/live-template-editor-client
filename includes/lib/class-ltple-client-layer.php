@@ -262,7 +262,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						remove_meta_box( 'element-librarydiv', 'cb-default-layer', 'side' );
 					}
 					
-					if( !$this->is_html_output($layer_type->output) || !$this->is_hosted_output($layer_type->output) ){
+					if( !$this->is_html_output($layer_type->output) || ( !$this->is_hosted_output($layer_type->output) && !$this->is_app_output($layer_type->output) ) ){
 						
 						remove_meta_box( 'css-librarydiv', 'cb-default-layer', 'side' );
 						
@@ -1020,7 +1020,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						if( $layer->post_type == 'cb-default-layer' ){
 							
-							if( $this->is_hosted_output($layer_type->output)  ){		
+							if( $this->is_hosted_output($layer_type->output) || $this->is_app_output($layer_type->output) ){		
 								
 								$this->defaultFields[]=array(
 								
