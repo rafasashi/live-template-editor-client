@@ -1040,26 +1040,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_js','',$layer),
 									
 								);
-								
-								if( $this->is_public_output($layer_type->output) ){
-								
-									$this->defaultFields[]=array(
-									
-										'metabox' => array(
-										
-											'name' 		=> 'layer-meta',
-											'title' 	=> __( $storage_name . ' Meta Data', 'live-template-editor-client' ), 
-											'screen'	=> array($layer->post_type),
-											'context' 	=> 'advanced'
-										),
-										'id'			=> 'layerMeta',
-										'type'			=> 'code_editor',
-										'code'			=> 'json',
-										'placeholder'	=> 'JSON',
-										'default'		=> apply_filters('ltple_default_' . $layer_type->storage . '_json','',$layer),
-										'description'	=> '<i>Additional Meta Data</i>'
-									);	
-								}
 							}
 							elseif( $layer_type->output == 'inline-css' ){
 								
@@ -3294,21 +3274,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						// get default elements
 
 						$this->defaultElements = get_post_meta( $this->defaultId, 'layerElements', true );
-						
-						// get layer meta
-						
-						$this->layerMeta = get_post_meta( $this->id, 'layerMeta', true );
-						
-						if( $this->layerMeta == '' && $this->id != $this->defaultId ){
-							
-							$this->layerMeta = get_post_meta( $this->defaultId, 'layerMeta', true );
-						}
 
-						if(!empty($this->layerMeta)){
-							
-							$this->layerMeta = json_decode($this->layerMeta,true);
-						}								
-											
 						// get layer Margin
 						
 						$this->layerMargin 	 = get_post_meta( $this->defaultId, 'layerMargin', true );
@@ -3588,7 +3554,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		$layerCss 		= '';
 		$defaultJs 		= '';
 		$layerJs 		= '';
-		$layerMeta 		= '';
 
 		if( isset($_POST['importCss']) ){
 
@@ -3603,8 +3568,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$defaultJs 	= !empty($this->defaultJs) 	? $this->defaultJs 	: '';
 
 			$layerJs 	= !empty($this->layerJs) 	? $this->layerJs 	: '';
-			
-			$layerMeta 	= !empty($this->layerMeta) 	? $this->layerMeta 	: '';
 		}
 		
 		$defaultCss = sanitize_text_field($defaultCss);
@@ -3716,22 +3679,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			$head .= $layerHead;
 		}
-		
-		if(!empty($layerMeta['link'])){
 			
-			foreach($layerMeta['link'] as $url){
-				
-				$url =$this->sanitize_url( $url );
-				
-				if( !empty($url) && !in_array($url,$headLinks) ){
-				
-					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />' . PHP_EOL;
-			
-					$headLinks[] = $url;
-				}
-			}
-		}			
-		
 		// output css files
 		
 		if( !empty($this->defaultStaticCssUrl) ){
@@ -3957,14 +3905,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			}
 		}
 		
-		if( !empty($layerMeta['script']) ){
-			
-			foreach($layerMeta['script'] as $url){
-				
-				$body .= '<script src="'.$url.'"></script>' .PHP_EOL;
-			}
-		}
-
 		//include layer script
 		
 		$body .='<script id="LiveTplEditorScript">' .PHP_EOL;

@@ -58,11 +58,11 @@ class LTPLE_Client_Editor {
 
 		add_filter('ltple_editor_script', array( $this, 'filter_editor_script' ),0,2);
 		
-		add_filter('ltple_editor_media_lib_url', function($url,$layer){
+		add_filter('ltple_editor_media_lib_url', function($url,$layer,$section='images'){
 			
-			if( !is_admin() ){
+			if( !is_admin() || $this->parent->layer->is_app_output($layer->output) ){
 				
-				$url = $this->parent->urls->media . '?output=widget&section=images';
+				$url = $this->parent->urls->media . '?output=widget&section='.$section;
 			}
 			
 			return $url;
@@ -174,74 +174,82 @@ class LTPLE_Client_Editor {
 
 						include( $this->parent->views . '/editor-panel.php' );
 					}
-					elseif( ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $layer->post_type == 'cb-default-layer' || $layer->is_media ) ){
-                       
-						include( $this->parent->views . '/editor-starter.php' );
-					}
-					else{
+                    else{
                         
-						$default_id = $layer->post_type == 'cb-default-layer' ? $layer->ID : $this->parent->layer->get_default_id($layer->ID);
-                        
-						$layer_plan = $this->parent->plan->get_layer_plan( $default_id, 'min' );
-						
-						if( $layer->post_type != 'cb-default-layer' && $layer_plan['amount'] > 0 && !$this->parent->user->plan["info"]["total_price_amount"] > 0 ){
-							
-							echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-								
-								echo '<div class="alert alert-warning">You need a paid plan to edit this template...</div>';
+                        $layer_plan = $this->parent->plan->get_layer_plan( $layer->ID, 'min' );
+                            
+                        if( ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $layer->post_type == 'cb-default-layer' || $layer->is_media ) ){
+                           
+                            if( !isset($_GET['period_refreshed']) && $layer_plan['amount'] > 0 && $this->parent->user->remaining_days < 0 ){
+                                
+                                include( $this->parent->views . '/subscription-refresh.php' );
+                            }
+                            else{
+                                
+                                include( $this->parent->views . '/editor-starter.php' );
+                            }
+                        }
+                        else{
+                            
+                            if( $layer->post_type != 'cb-default-layer' && $layer_plan['amount'] > 0 && !$this->parent->user->plan["info"]["total_price_amount"] > 0 ){
+                                
+                                echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+                                    
+                                    echo '<div class="alert alert-warning">You need a paid plan to edit this template...</div>';
 
-							echo'</div>';
-						}
-						elseif( $this->parent->layer->is_editable_output($layer->output) ){
-							
-							if( $layer_plan['amount'] > 0 && $this->parent->user->remaining_days < 0 && $this->parent->user->plan["info"]["total_price_amount"] > 0 ){
-								
-								//check license
-								
-								if( !isset($_GET['period_refreshed']) ){
-									
-									// refresh user period
-									
-									$this->parent->users->remote_update_period($this->parent->user->ID);
-									
-									// redirect url
-									
-									$url = add_query_arg( array(
-										
-										'period_refreshed' => '',
-										
-									),$this->parent->urls->current);
-									
-									wp_redirect($url);
-									exit;
-								}
-								else{
-									
-									echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-										
-										echo '<div class="alert alert-warning">Your license is expired, please renew it via the plan page or contact us...</div>';
+                                echo'</div>';
+                            }
+                            elseif( $this->parent->layer->is_editable_output($layer->output) ){
+                                
+                                if( $layer_plan['amount'] > 0 && $this->parent->user->remaining_days < 0 && $this->parent->user->plan["info"]["total_price_amount"] > 0 ){
+                                    
+                                    //check license
+                                    
+                                    if( !isset($_GET['period_refreshed']) ){
+                                        
+                                        // refresh user period
+                                        
+                                        $this->parent->users->remote_update_period($this->parent->user->ID);
+                                        
+                                        // redirect url
+                                        
+                                        $url = add_query_arg( array(
+                                            
+                                            'period_refreshed' => '',
+                                            
+                                        ),$this->parent->urls->current);
+                                        
+                                        wp_redirect($url);
+                                        exit;
+                                    }
+                                    else{
+                                        
+                                        echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+                                            
+                                            echo '<div class="alert alert-warning">Your license is expired, please renew it via the plan page or contact us...</div>';
 
-									echo'</div>';
-								}
-							}
-							elseif( empty($_POST) && empty($layer->html) && !empty($layer->form) && $layer->form != 'none' ){
-								
-                                include( $this->parent->views . '/editor-form.php' );
-							}
-							else{
-								
-								do_action('ltple_include_editor');
-							}
-						}
-						else{
-							
-							echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-								
-								echo '<div class="alert alert-warning">This template is not editable...</div>';
+                                        echo'</div>';
+                                    }
+                                }
+                                elseif( empty($_POST) && empty($layer->html) && !empty($layer->form) && $layer->form != 'none' ){
+                                    
+                                    include( $this->parent->views . '/editor-form.php' );
+                                }
+                                else{
+                                    
+                                    do_action('ltple_include_editor');
+                                }
+                            }
+                            else{
+                                
+                                echo'<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+                                    
+                                    echo '<div class="alert alert-warning">This template is not editable...</div>';
 
-							echo'</div>';		
-						}
-					}
+                                echo'</div>';		
+                            }
+                        }
+                    }
 				}
 				else{
 					
@@ -625,17 +633,16 @@ class LTPLE_Client_Editor {
             $content = $this->parent->layer->render_output($layer) . PHP_EOL;
             
             if( !$this->parent->layer->is_app_output($layer->output) ){
-            
+                            
                 $content .= '<script id="LiveTplEditorClientScript">
-
-                    // prevent link navigation
-                    
-                    document.querySelector(\'a\').addEventListener(\'click\', function(ev){
-
-                        return false;
-                    
-                    }, false);
-                    
+                    document.addEventListener("DOMContentLoaded", function() {
+                        document.querySelectorAll("a").forEach(function(link) {
+                            link.addEventListener("click", function(ev) {
+                                ev.preventDefault();
+                                return false;
+                            }, false);
+                        });
+                    });
                 </script>' . PHP_EOL;
             }
             

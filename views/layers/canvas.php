@@ -78,8 +78,7 @@
 	$layerCss 		= '';
 	$defaultJs 		= '';
 	$layerJs 		= '';
-	$layerMeta 		= '';
-	
+
 	if( isset($_POST['importCss']) ){
 
 		$layerCss = stripcslashes($_POST['importCss']);
@@ -93,8 +92,6 @@
 		$defaultJs =$this->defaultJs;
 		
 		$layerJs =$this->layerJs;
-
-		$layerMeta =$this->layerMeta;
 	}
 	
 	// normalize canvas content
@@ -213,21 +210,6 @@
 			$head .= $layerHead;
 		}
 		
-		if(!empty($layerMeta['link'])){
-			
-			foreach($layerMeta['link'] as $url){
-				
-				$url =$this->sanitize_url( $url );
-				
-				if( !empty($url) && !in_array($url,$headLinks) ){
-				
-					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />';
-			
-					$headLinks[] = $url;
-				}
-			}
-		}
-		
 	$head .= '</head>';
 
 	// get layer
@@ -265,14 +247,6 @@
 					
 					$layer .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
 				}
-			}
-		}
-		
-		if( !empty($layerMeta['script']) ){
-			
-			foreach($layerMeta['script'] as $url){
-				
-				$layer .= '<script src="'.$url.'"></script>' .PHP_EOL;
 			}
 		}
 		

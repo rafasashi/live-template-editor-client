@@ -1735,7 +1735,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 						$html .='<div style="padding:5px 0px;">';
 							
-							$html .='<a href="#" class="btn btn-xs btn-primary gallery-add" data-uploader-title="Add images" data-uploader-button-text="Add images">Add image</a>';
+							$html .='<a href="#" style="color:#566674;background:#f5f5f5;" class="btn btn-sm gallery-add" data-uploader-title="Add gallery images" data-uploader-button-text="Add gallery images">Add gallery image</a>';
 						
 						$html .='</div>';
 					

@@ -72,8 +72,6 @@
 		
 	$layerJs =$this->layerJs;
 
-	$layerMeta =$this->layerMeta;
-	
 	$layerContent = str_replace('<?xml encoding="UTF-8">','',$layerContent);
 	
 	// get google fonts
@@ -175,6 +173,16 @@
 						
 					$headLinks[] = $css_url;
 				}
+                
+                if( $term->is_remote === true ){
+                    
+                    $libraryContent = get_term_meta($term->term_id,'css_content',true);
+                    
+                    if( !empty($libraryContent) ){
+                    
+                        $layerCss .= $libraryContent.PHP_EOL;
+                    }
+                }
 			}
 		}
 		
@@ -184,21 +192,6 @@
 			
 			$head .= $layerHead . PHP_EOL;
 		}
-		
-		if(!empty($layerMeta['link'])){
-			
-			foreach($layerMeta['link'] as $url){
-				
-				$url = $this->sanitize_url( $url );
-				
-				if( !empty($url) && !in_array($url,$headLinks) ){
-				
-					$head .= '<link href="' . $url . '" rel="stylesheet" type="text/css" />' . PHP_EOL;
-			
-					$headLinks[] = $url;
-				}
-			}
-		}	
 		
 		//include style-sheets
 
@@ -210,7 +203,36 @@
 			}
 			
 		$head .= '</style>'.PHP_EOL;
-		
+        
+		$head .='<script id="LiveTplWebAppScript">' .PHP_EOL;
+        
+            // Define the webApp interface
+            
+            $head .= '
+            window.webAppInterface = function() {};
+            
+            webAppInterface.prototype.trigger = function(name, detail) {
+                
+                var evt = new CustomEvent(name, {
+                    bubbles: true,
+                    cancelable: false,
+                    detail: detail
+                });
+                
+                window.parent.document.getElementById("livetpleditor").dispatchEvent(evt);
+            };
+            
+            webAppInterface.prototype.addEventListener = function(name,callback) {
+                
+                window.parent.document.getElementById("livetpleditor").addEventListener(name,callback);
+            };
+            
+            // Make ltple globally accessible
+            
+            window.ltple = new webAppInterface();
+
+		</script>' .PHP_EOL;
+        
 	$head .= '</head>' . PHP_EOL;
 
 	// get layer
@@ -237,21 +259,23 @@
 					
 					$layer .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
 				}
-			}
-		}
-		
-		if( !empty($layerMeta['script']) ){
-			
-			foreach($layerMeta['script'] as $url){
-				
-				$layer .= '<script src="'.$url.'"></script>' .PHP_EOL;
+                
+                if( $term->is_remote === true ){
+                    
+                    $libraryContent = get_term_meta($term->term_id,'js_content',true);
+                    
+                    if( !empty($libraryContent) ){
+                    
+                        $layerJs .= $libraryContent.PHP_EOL;
+                    }
+                }
 			}
 		}
 		
 		//include layer script
 		
 		$layer .='<script id="LiveTplEditorScript">' .PHP_EOL;
-		
+
 			if( $layerJs != '' ){
 
 				$layer .= $layerJs .PHP_EOL;				

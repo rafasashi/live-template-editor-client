@@ -1924,9 +1924,9 @@ class LTPLE_Client {
 								
 								// duplicate all post meta
 								
-								if( $layerMeta = get_post_meta($layerId) ){
+								if( $metadata = get_post_meta($layerId) ){
 						
-									foreach($layerMeta as $name => $value){
+									foreach( $metadata as $name => $value ){
 										
 										if( isset($value[0]) ){
 											

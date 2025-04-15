@@ -351,22 +351,11 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 			
 			$addon = !empty($layer_type->addon) ? $layer_type->addon : null; 
 
-			$tax_query = array('relation'=>'AND');
-			
-			$tax_query[0] = array(
-			
-				'taxonomy' 			=> 'layer-type',
-				'field' 			=> 'slug',
-				'terms' 			=> $layer_type->slug,
-				'include_children' 	=> false,
-				'operator'			=> 'IN'
-			);
-			
 			if( !empty($layer_range) ){
 				
-				$tax_query[1] = array('relation'=>'AND'); // important to keep AND for addons
+				$tax_query = array('relation'=>'AND'); // important to keep AND for addons
 				
-				$tax_query[1][] = array(
+				$tax_query[] = array(
 				
 					'taxonomy' 			=> 'layer-range',
 					'field' 			=> 'slug',
@@ -377,7 +366,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 				
 				if( !empty($addon->slug) && $addon->slug == $layer_range ){
 
-					$tax_query[1][] = array(
+					$tax_query[] = array(
 				
 						'taxonomy' 			=> 'user-contact',
 						'field' 			=> 'slug',
@@ -387,31 +376,53 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 					);					
 				}
 			}
-			else{
+			elseif( $layer_ranges = $this->parent->layer->get_type_ranges($layer_type,$addon) ){
 				
-				$tax_query[1] = array('relation'=>'OR');
-				
+                $tax_query = array('relation'=>'AND');
+                    
+                $range_ids = array();
+                
+                foreach( $layer_ranges as $layer_range ){
+                    
+                    $range_ids[] = $layer_range['term_id'];
+                }
+                
+                $tax_query[0][] = array(
+                
+                    'taxonomy' 			=> 'layer-range',
+                    'field' 			=> 'term_id',
+                    'include_children' 	=> false,
+                    'operator'			=> 'IN',
+                    'terms' 			=> $range_ids,
+                );
+
 				if( !empty($addon->slug) ){
 					
-					$tax_query[1][] = array(
-					
-						'taxonomy' 			=> 'layer-range',
-						'field' 			=> 'slug',
-						'terms' 			=> $addon->slug,
-						'include_children' 	=> false,
-						'operator'			=> 'NOT IN'
-					);
-					
+                    $tax_query[1] = array('relation'=>'OR');
+                    
+                    $tax_query[1][] = array(
+				
+                        'taxonomy' 			=> 'layer-range',
+                        'field' 			=> 'slug',
+                        'terms' 			=> array($addon->slug),
+                        'include_children' 	=> false,
+                        'operator'			=> 'NOT IN'
+                    );			
+				
 					$tax_query[1][] = array(
 				
 						'taxonomy' 			=> 'user-contact',
 						'field' 			=> 'slug',
-						'terms' 			=> $this->parent->user->user_email,
+						'terms' 			=> array($this->parent->user->user_email),
 						'include_children' 	=> false,
 						'operator'			=> 'IN'
-					);	
+					);
 				}
 			}
+            else{
+                
+                return false;
+            }
 			
 			$args = array( 
 			
@@ -429,7 +440,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 			}
 			
 			$args = apply_filters('ltple_gallery_' . $layer_type->storage . '_query',$args);
-			
+            
 			if( $query = new WP_Query($args)){
 				
 				$this->max_num_pages = $query->max_num_pages;
@@ -480,7 +491,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 			
 			// get gallery items 
 			
-			if( $range_items = $this->get_range_items($layer_type,$layer_range,$referer) ){
+            if( $range_items = $this->get_range_items($layer_type,$layer_range,$referer) ){
 				
 				if( !empty($layer_range) ){
 					

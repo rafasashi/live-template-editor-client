@@ -217,10 +217,6 @@
 						
 						$this->gallery->get_gallery_table($layer_type,$layer_range);
 							
-						// upgrade plan modal
-							
-						include( $this->views  . '/modals/upgrade.php');
-						
 					echo '</div>';
 
 				echo'</div>';
