@@ -177,8 +177,8 @@ class LTPLE_Client_Editor {
                     else{
                         
                         $layer_plan = $this->parent->plan->get_layer_plan( $layer->ID, 'min' );
-                            
-                        if( ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) && !isset($_GET['quick']) && ( $layer->post_type == 'cb-default-layer' || $layer->is_media ) ){
+                        
+                        if( $layer->is_storable && !isset($_GET['quick']) && ( $layer->post_type == 'cb-default-layer' || $layer->is_media ) && ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) ){
                            
                             if( !isset($_GET['period_refreshed']) && $layer_plan['amount'] > 0 && $this->parent->user->remaining_days < 0 ){
                                 
@@ -231,12 +231,12 @@ class LTPLE_Client_Editor {
                                         echo'</div>';
                                     }
                                 }
-                                elseif( empty($_POST) && empty($layer->html) && !empty($layer->form) && $layer->form != 'none' ){
-                                    
+                                elseif( !empty($layer->form) && is_array($layer->form) && empty($_POST) && empty($layer->html) ){
+                                   
                                     include( $this->parent->views . '/editor-form.php' );
                                 }
                                 else{
-                                    
+
                                     do_action('ltple_include_editor');
                                 }
                             }
@@ -628,6 +628,10 @@ class LTPLE_Client_Editor {
 			$js .= ' var mediaLibUrl = "' . apply_filters('ltple_editor_media_lib_url','',$layer) . '";'. PHP_EOL;
 			$js .= ' var bookmarkUrl = "' . apply_filters('ltple_editor_bookmark_lib_url','',$layer) . '";'. PHP_EOL;
         
+            $js .= ' var layerForm = ' . json_encode($layer->form) . ';' . PHP_EOL;
+        
+			$js .= ' var layerJson = "' . base64_encode($this->parent->layer->layerJson) . '";' . PHP_EOL;
+            
             // content based preview
             
             $content = $this->parent->layer->render_output($layer) . PHP_EOL;
@@ -648,8 +652,6 @@ class LTPLE_Client_Editor {
             
             $js .= ' var layerContent = "' . base64_encode($content) . '";' . PHP_EOL;
         
-			$js .= ' var layerJson = "' . base64_encode($this->parent->layer->layerJson) . '";' . PHP_EOL;
-
 			//include quick edit
 			 
 			if( isset($_GET['quick']) ){

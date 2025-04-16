@@ -22,9 +22,9 @@ echo'<div class="container-fluid" style="min-height:calc( 100vh - 50px );">';
         
         echo '<form target="_self" action="'.$action_url.'" method="post" style="width:100%;background:#FFFFFF;">';
             
-            if( $fields = $ltple->layer->get_form_fields($layer->ID) ){
+            if( !empty($layer->form) ){
             
-                foreach( $fields as $field ) {
+                foreach( $layer->form as $field ) {
                     
                     echo  $ltple->admin->display_meta_box_field($field,$layer,false); 
                 }

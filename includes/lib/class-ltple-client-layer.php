@@ -423,7 +423,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
                 
                 if( !isset($layer->form) ){
                 
-                    $layer->form = apply_filters('ltple_layer_form',get_post_meta( $layer->default_id, 'layerForm', true ),$layer);
+                    $layer->form = apply_filters('ltple_layer_form',$this->get_form_fields($layer->ID),$layer);
                 }
             }
             
@@ -438,69 +438,75 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
             
             $fields = array();
             
-            if( $dataset = get_post_meta($id,'layerForm',true) ){
-
-                $keys = array_keys($dataset);
+            $default_id = $this->get_default_id($id);
+            
+            if( $dataset = get_post_meta($default_id,'layerForm',true) ){
                 
-                $dataset = array_map(function($values) use ($keys) {
+                if( is_array($dataset) ){
                     
-                    return array_combine($keys, $values);
-                
-                },array_map(null, ...array_values($dataset)));
-                
-                foreach( $dataset as $data ){
+                    $keys = array_keys($dataset);
                     
-                    if( !empty($data['name']) ){
+                    $dataset = array_map(function($values) use ($keys) {
                         
-                        $field = array();
+                        return array_combine($keys,$values);
+                    
+                    },array_map(null, ...array_values($dataset)));
+                    
+                
+                    foreach( $dataset as $data ){
                         
-                        $field['name'] = str_replace(' ','',sanitize_text_field($data['name']));
-                        
-                        $field['id'] = $this->parent->_base.$field['name'];
-                        
-                        $input = !empty($data['input']) ? sanitize_title($data['input']) : 'text';
-                        
-                        if( $input == 'checkbox' ){
+                        if( !empty($data['name']) ){
                             
-                            $field['type'] = 'checkbox_multi';
-                        }
-                        else{
+                            $field = array();
                             
-                            $field['type'] = $input;
+                            $field['name'] = str_replace(' ','',sanitize_text_field($data['name']));
                             
-                            if( in_array($input,array(
+                            $field['id'] = $this->parent->_base.$field['name'];
                             
-                                'url',
-                                'image'
+                            $input = !empty($data['input']) ? sanitize_title($data['input']) : 'text';
+                            
+                            if( $input == 'checkbox' ){
                                 
-                            ))){
-                                
-                                $field['placeholder'] = 'https://';
+                                $field['type'] = 'checkbox_multi';
                             }
-                        }
-                        
-                        //$field['style'] = 'width:100%;';
-                        
-                        $field['label'] = !empty($data['label']) ? ucfirst(str_replace('_',' ',$data['label'])) : '';
-                        
-                        $field['required'] = !empty($data['required']) && sanitize_title($data['required']) == 'required' ? true : false;
-                        
-                        $value = sanitize_textarea_field($data['value']);
-                        
-                        if( $input == 'hidden' ){
+                            else{
+                                
+                                $field['type'] = $input;
+                                
+                                if( in_array($input,array(
+                                
+                                    'url',
+                                    'image'
+                                    
+                                ))){
+                                    
+                                    $field['placeholder'] = 'https://';
+                                }
+                            }
                             
-                            $field['data'] = $value;
-                        }
-                        elseif( $input == 'image' ){
+                            //$field['style'] = 'width:100%;';
                             
-                            $field['data'] = !empty($value) ? $value : $this->parent->assets_url . 'images/default_item.png';
-                        }
-                        else{
+                            $field['label'] = !empty($data['label']) ? ucfirst(str_replace('_',' ',$data['label'])) : '';
                             
-                            $field['options'] = !empty($data['value']) ? explode(PHP_EOL,$value) : array();
+                            $field['required'] = !empty($data['required']) && sanitize_title($data['required']) == 'required' ? true : false;
+                            
+                            $value = sanitize_textarea_field($data['value']);
+                            
+                            if( $input == 'hidden' ){
+                                
+                                $field['data'] = $value;
+                            }
+                            elseif( $input == 'image' ){
+                                
+                                $field['data'] = !empty($value) ? $value : $this->parent->assets_url . 'images/default_item.png';
+                            }
+                            else{
+                                
+                                $field['options'] = !empty($data['value']) ? explode(PHP_EOL,$value) : array();
+                            }
+                            
+                            $fields[] = $field;
                         }
-                        
-                        $fields[] = $field;
                     }
                 }
             }
@@ -1106,31 +1112,6 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( $layer->post_type == 'cb-default-layer' ){
 						
-						if( $layer_type->output == 'inline-css' || $layer_type->output == 'external-css' ){
-							
-                            /*
-							$this->defaultFields[]=array( 
-							
-								'metabox' => array(
-								
-									'name' 		=> 'layer-form',
-									'title' 	=> __( 'Template Action', 'live-template-editor-client' ), 
-									'screen'	=> array($layer->post_type),
-									'context' 	=> 'side',
-									'frontend' 	=> false,
-								),
-								'id'			=> 'layerForm',
-								'type'			=> 'radio',
-								'options'		=> array(
-								
-									'none'		=> 'None',
-									'importer'	=> 'Importer',
-								),
-								'inline'		=> false,
-							);
-                            */                            
-						}
-						
 						$this->defaultFields[]=array( 
 						
 							'metabox' => array(
@@ -1235,6 +1216,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				$output = $layer_type->output;
 			}
 		}
+        
+        if( $output == 'web-app' ){
+            
+            $is_storable= false;
+        }
 		
 		return apply_filters('ltple_storable_' . $output,$is_storable);
 	}

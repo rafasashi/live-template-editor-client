@@ -1,40 +1,33 @@
 <?php
 
 $ltple = LTPLE_Client::instance();
-
-$layer = LTPLE_Editor::instance()->get_layer();
-
-$layer_type = $ltple->layer->get_layer_type($layer->ID);
-
-$user_plan 	= $ltple->plan->get_user_plan_info($ltple->user->ID);
-
-$total_storage 	= isset($user_plan['info']['total_storage'][$layer_type->name]) ? $user_plan['info']['total_storage'][$layer_type->name] : 0;
-    
+  
 get_header();		
 
 if( !$ltple->inWidget ){
     
     include('navbar.php');
+   
+    $iframe_url = add_query_arg( array(
     
-    if( $total_storage > 0 ){
-            
-        $iframe_url = add_query_arg( array(
+        'output' => 'widget'
         
-            'output' => 'widget'
-            
-        ),$ltple->urls->current);
-        
-        echo'<iframe class="full-height" data-src="' . $iframe_url . '" style="width:100%;border:0;min-height:calc(100vh - 130px);overflow:hidden;"></iframe>';
-    }
-    else{
-        
-        include('editor-form.php');
-    }
+    ),$ltple->urls->current);
+    
+    echo'<iframe class="full-height" data-src="' . $iframe_url . '" style="width:100%;border:0;min-height:calc(100vh - 130px);overflow:hidden;"></iframe>';
 }
 else{
-    
+        
+    $layer = LTPLE_Editor::instance()->get_layer();
+
+    $layer_type = $ltple->layer->get_layer_type($layer->ID);
+
     $layer_plan = $ltple->plan->get_layer_plan( $layer->ID, 'min' );
     
+    $user_plan 	= $ltple->plan->get_user_plan_info($ltple->user->ID);
+
+    $total_storage 	= isset($user_plan['info']['total_storage'][$layer_type->name]) ? $user_plan['info']['total_storage'][$layer_type->name] : 0;
+      
     $storage_type = get_post_type_object($layer_type->storage);
 
     $storage_name = !empty($storage_type->labels->singular_name) ? strtolower($storage_type->labels->singular_name) : 'project';
