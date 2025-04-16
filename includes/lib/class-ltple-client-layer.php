@@ -1219,7 +1219,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
         
         if( $output == 'web-app' ){
             
-            $is_storable= false;
+            $is_storable = false;
         }
 		
 		return apply_filters('ltple_storable_' . $output,$is_storable);
@@ -3093,7 +3093,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 			if( !$default_id = intval(get_post_meta( $id, 'defaultLayerId', true )) ){
 				
-				//$default_id = $id;
+				$post = get_post($id);
+                
+                if( !empty($post->post_type) && $post->post_type == 'cb-default-layer' ){
+                    
+                    $default_id = $id;
+                }
 			}
 			
 			$this->default_ids[$id] = $default_id;

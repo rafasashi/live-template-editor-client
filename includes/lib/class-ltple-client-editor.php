@@ -236,7 +236,7 @@ class LTPLE_Client_Editor {
                                     include( $this->parent->views . '/editor-form.php' );
                                 }
                                 else{
-
+                                    dump($layer);
                                     do_action('ltple_include_editor');
                                 }
                             }

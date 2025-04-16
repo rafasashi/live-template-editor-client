@@ -4,12 +4,6 @@ $ltple = LTPLE_Client::instance();
 
 $layer = LTPLE_Editor::instance()->get_layer();
 
-$action_url = add_query_arg( array(
-    
-    'quick' => '',
-    
-),$ltple->urls->current);
-
 get_header();
 
 echo'<div class="container-fluid" style="min-height:calc( 100vh - 50px );">';
@@ -20,7 +14,7 @@ echo'<div class="container-fluid" style="min-height:calc( 100vh - 50px );">';
         
         echo '<hr class="clearfix">';
         
-        echo '<form target="_self" action="'.$action_url.'" method="post" style="width:100%;background:#FFFFFF;">';
+        echo '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
             
             if( !empty($layer->form) ){
             
