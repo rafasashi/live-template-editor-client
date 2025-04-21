@@ -594,19 +594,15 @@ class LTPLE_Client_Editor {
 	
 	public function filter_js_settings($js,$layer){
 		
-		if( $layer->output == 'image' ){
+        if( $layer->output == 'image' ){
 			
 			if( $layer->post_type == 'attachment' ){
 				
 				$attachment_url = wp_get_attachment_url($layer->ID );
 			}
-            else{
+            elseif( $layer_type = $this->parent->layer->get_layer_type($layer) ){
                 
-                $default_id = $layer->post_type == 'cb-default-layer' ? $layer->ID : $this->parent->layer->get_default_id($layer->ID);
-                
-                $layer_type = $this->parent->layer->get_layer_type($layer);
-                
-                $attachments = $this->parent->layer->get_layer_attachments($default_id,$layer_type->storage);
+                $attachments = $this->parent->layer->get_layer_attachments($layer->default_id,$layer_type->storage);
                 
                 if( $image = reset($attachments) ){
                     

@@ -1031,6 +1031,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						'color',
 						'submit',
                         'image',
+                        'data',
 					);
 					
 					$html .= '<div id="'.$id.'" class="sortable">';

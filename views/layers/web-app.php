@@ -211,7 +211,7 @@
             $head .= '
             window.webAppInterface = function() {};
             
-            webAppInterface.prototype.trigger = function(name, detail) {
+            webAppInterface.prototype.trigger = function(name,detail) {
                 
                 var evt = new CustomEvent(name, {
                     bubbles: true,
@@ -227,10 +227,18 @@
                 window.parent.document.getElementById("livetpleditor").addEventListener(name,callback);
             };
             
+            webAppInterface.prototype.get = function(att) {
+                
+                if( att == "form" ){
+                    
+                    return window.top.layerForm;
+                }
+            };
+            
             // Make ltple globally accessible
             
             window.ltple = new webAppInterface();
-
+            
 		</script>' .PHP_EOL;
         
 	$head .= '</head>' . PHP_EOL;
@@ -257,7 +265,7 @@
 				
 				if( !empty($js_url) ){
 					
-					$layer .= '<script src="'.$js_url.'"></script>' .PHP_EOL;
+					$layer .= '<script src="'.$js_url.'" defer></script>' .PHP_EOL;
 				}
                 
                 if( $term->is_remote === true ){

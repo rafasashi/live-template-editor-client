@@ -502,7 +502,29 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
                             }
                             else{
                                 
-                                $field['options'] = !empty($data['value']) ? explode(PHP_EOL,$value) : array();
+                                $values = !empty($data['value']) ? array_filter(explode(PHP_EOL, $data['value'])) : [];
+                                
+                                if( $input == 'data' ){
+                                    
+                                    $len = count($values);
+                                    
+                                    if( $len > 1 ){
+                                        
+                                        $field['data'] = $values;
+                                    }
+                                    elseif( $len == 1 ){
+                                        
+                                        $field['data'] = $values[0];
+                                    }
+                                    else{
+                                        
+                                        $field['data'] = '';
+                                    }
+                                }
+                                else{
+                                    
+                                    $field['options'] = $values;
+                                }
                             }
                             
                             $fields[] = $field;
@@ -1140,7 +1162,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
                             'metabox' => array(
                             
                                 'name' 		=> 'layerForm',
-                                'title' 	=> __( 'Template Form', 'live-template-editor-comfyui' ), 
+                                'title' 	=> __( 'Template Settings', 'live-template-editor-comfyui' ), 
                                 'screen'	=> array($layer->post_type),
                                 'context' 	=> 'advanced',
                                 'frontend' 	=> true,
@@ -2483,6 +2505,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		return $editor;
 	}
     
+    public function is_core_type($post_type){
+        
+        return in_array($post_type,array(
+        
+            'page',
+            'post',
+        ));
+    }
+    
 	public function get_layer_type($post){
 		
 		if( !empty($post) ){
@@ -2523,7 +2554,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							$term->output 	= 'image';
 							$term->storage 	= 'attachment';				
 						}
-						else{
+						elseif( !$this->is_core_type($post->post_type) ){
 						
 							$terms = wp_get_post_terms($post->ID,'layer-type');
 							
@@ -2538,7 +2569,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 									// get default layer id
 									
 									$default_id = $this->get_default_id($post->ID);
-									 
+									
 									$default_post = get_post($default_id);
 								
 									if( !is_null($default_post) && $default_post->post_type == 'cb-default-layer' ){
@@ -4154,7 +4185,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				echo'<th valign="top" scope="row">';
 					
-					echo'<label for="category-text">Service Type</label>';
+					echo'<label for="category-text">Core Interaction</label>';
 				
 				echo'</th>';
 				
@@ -4169,7 +4200,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						'options'		=> $this->get_layer_editors(),
 						'inline'		=> false,
 						'default'		=> 'inline-css',
-						'description'	=> 'Defining the core interaction based on that output',
+						'description'	=> 'Defining the core interaction',
 						
 					), $term );
 					
@@ -4181,7 +4212,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			
 				echo'<th valign="top" scope="row">';
 					
-					echo'<label for="category-text">Storage Format</label>';
+					echo'<label for="category-text">Output Format</label>';
 				
 				echo'</th>';
 				

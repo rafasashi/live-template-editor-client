@@ -732,7 +732,7 @@ class LTPLE_Client {
 	
 	public function filter_post_type_row_actions( $actions, $post ){
 	
-		if( $post->post_type != 'page' && $post->post_type != 'post' ){
+		if( !$this->layer->is_core_type($post->post_type) ){
 		
 			// remove quick edit
 		
