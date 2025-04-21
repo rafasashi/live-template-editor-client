@@ -231,7 +231,7 @@ class LTPLE_Client_Editor {
                                         echo'</div>';
                                     }
                                 }
-                                elseif( !empty($layer->form) && is_array($layer->form) && empty($_POST) && empty($layer->html) ){
+                                elseif( !$this->parent->layer->is_app_output($layer->output) && !empty($layer->form) && is_array($layer->form) && empty($_POST) && empty($layer->html) ){
                                    
                                     include( $this->parent->views . '/editor-form.php' );
                                 }
