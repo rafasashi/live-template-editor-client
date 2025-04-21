@@ -265,7 +265,7 @@
 				
 				if( !empty($js_url) ){
 					
-					$layer .= '<script src="'.$js_url.'" defer></script>' .PHP_EOL;
+					$layer .= '<script src="'.$js_url.'"></script>' .PHP_EOL; // defer not working here
 				}
                 
                 if( $term->is_remote === true ){
