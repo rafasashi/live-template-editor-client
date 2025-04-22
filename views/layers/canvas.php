@@ -104,7 +104,8 @@
 	
 	// get google fonts
 	
-	$googleFonts = [];
+    $cssFonts       = [];
+	$googleFonts    = [];
 	$fontsLibraries = [];
 	
 	if( !empty($layerCss) ){
@@ -137,8 +138,17 @@
 				}
 				elseif( $font_url = $this->get_font_parsed_url($term) ){
 					
-					$fontsLibraries[$font_url] = $this->get_font_family($term);
-				}	
+                    $ext = strtolower(pathinfo(parse_url($font_url, PHP_URL_PATH), PATHINFO_EXTENSION));
+
+                    if( $ext == 'css' ){
+                        
+                        $cssFonts[] = $font_url;
+                    }
+                    else{
+                        
+                        $fontsLibraries[$font_url] = $this->get_font_family($term);
+                    }
+                }	
 			}
 		}
 	}
@@ -166,7 +176,15 @@
 		
 			$head .= '<link href="//fonts.googleapis.com/css?family='.implode('|',$googleFonts).'" rel="stylesheet" />';
 		}
-		
+        
+		if( !empty($cssFonts) ){
+            
+            foreach( $cssFonts as $font_url ){
+            
+                $head .= '<link href="'.$font_url.'" rel="stylesheet" />' . PHP_EOL;
+            }
+        }
+        
 		if( !empty($fontsLibraries) ){
 			
 			$head .= '<style id="LiveTplEditorFonts">' . PHP_EOL;
