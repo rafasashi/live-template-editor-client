@@ -492,7 +492,12 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
                             
                             $value = sanitize_textarea_field($data['value']);
                             
-                            if( $input == 'hidden' ){
+                            if( in_array($input,array(
+                                
+                                'hidden',
+                                'text',
+                                'textarea',
+                            ))){
                                 
                                 $field['data'] = $value;
                             }
