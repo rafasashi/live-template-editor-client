@@ -206,6 +206,17 @@ class LTPLE_Client {
 		add_action('ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
 		
 		add_action('update_post_metadata', array( $this, 'check_post_metadata'),99999999,5 );
+        
+        add_action('ltple_duplicated_layer_status',function($layer_status,$layer){
+            
+            if( $layer->post_type == 'cb-default-layer' ){
+                
+                $layer_status = $layer->post_status;
+            }
+            
+            return $layer_status;
+            
+        },10,2);
 
 	} // End __construct ()
 	
@@ -1899,66 +1910,6 @@ class LTPLE_Client {
 					else{
 						
 						$this->exit_message('Update permission denided...',404);
-					}
-				}
-				elseif( $_POST['postAction'] == 'duplicate' ){
-					
-					//duplicate layer
-					
-					if( !empty($layer) ){
-					
-						$layerId = intval( $layer->ID );
-
-						if( is_int($layerId) && $layerId !== -1 ){
-							
-							$post_id = wp_insert_post( array(
-								
-								'post_author' 	=> $this->user->ID,
-								'post_title' 	=> $post_title,
-								'post_name' 	=> $post_name,
-								'post_type' 	=> $layer->post_type,
-								'post_status' 	=> 'publish'
-							) );
-
-							if( is_numeric($post_id) ){
-								
-								// duplicate all post meta
-								
-								if( $metadata = get_post_meta($layerId) ){
-						
-									foreach( $metadata as $name => $value ){
-										
-										if( isset($value[0]) ){
-											
-											update_post_meta( $post_id, $name, maybe_unserialize($value[0]) );
-										}
-									}
-								}
-								
-								// duplicate all taxonomies
-								
-								if( $taxonomies = get_object_taxonomies($layer->post_type) ){
-								
-									foreach ($taxonomies as $taxonomy) {
-										
-										if( !apply_filters('ltple_duplicate_' . $layer->post_type . '_bail_tax_' . $taxonomy, false) ){
-										
-											$layerTerms = wp_get_object_terms($layerId, $taxonomy, array('fields' => 'slugs'));
-										
-											wp_set_object_terms($post_id, $layerTerms, $taxonomy, false);
-										}
-									}
-								}
-								
-								//redirect to user layer
-
-								$layer_url = $this->urls->get_edit_url($post_id);
-
-								wp_redirect($layer_url);
-								echo 'Redirecting editor...';
-								exit;
-							}							
-						}
 					}
 				}
 				elseif( $_POST['postAction'] == 'import' ){

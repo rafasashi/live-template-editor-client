@@ -143,64 +143,7 @@ if( !$ltple->layer->in_editor('gutenberg') && (empty($ltple->profile->id) || $lt
                                                         
                                     echo'<ul class="dropdown-menu dropdown-menu-right" style="width:250px;margin-top:9px;">';
                                         
-                                        if( $layer->output != 'image' && $ltple->layer->has_preview($layer->post_type) ){
-                                        
-                                            echo'<li>';
-                                                
-                                                echo '<a target="_blank" href="' . get_preview_post_link( $layer->ID ) . '"> Preview Template</a>';
-
-                                            echo'</li>';
-                                        }
-                                        
-                                        echo'<li>';
-                                        
-                                            echo '<a href="#" data-toggle="dialog" data-target="#duplicateLayer">Duplicate Template ' . ( $layer->post_type == 'cb-default-layer' ? '<span class="label label-warning pull-right">admin</span>' : '' ) . '</a>';
-
-                                            echo'<div id="duplicateLayer" title="Duplicate Template">';
-                                                
-                                                echo'<form class="" style="width:250px;display:inline-block;" target="_parent" action="' . $ltple->urls->current . '" id="duplicatePostForm" method="post">';
-                                                    
-                                                    echo'<input type="text" name="postTitle" value="" class="form-control input-sm required" placeholder="Template Title" style="margin:7px 0;" required>';
-                                                    echo'<input type="hidden" name="postAction" id="postAction" value="duplicate">';
-                                                    echo'<input type="hidden" name="postContent" value="">';
-                                                    echo'<input type="hidden" name="postJson" value="">';
-                                                    echo'<input type="hidden" name="postCss" value="">'; 
-                                                    echo'<input type="hidden" name="postJs" value="">'; 									
-                                                    echo'<input type="hidden" name="postSettings" id="postSettings" value="">';
-                                                    
-                                                    wp_nonce_field( 'user_layer_nonce', 'user_layer_nonce_field' );
-                                                    
-                                                    echo'<input type="hidden" name="submitted" id="submitted" value="true">';
-                                                    
-                                                    echo'<div class="ui-helper-clearfix ui-dialog-buttonset">';
-
-                                                        echo'<button class="btn btn-xs btn-primary pull-right" type="submit" id="duplicateBtn" style="border-radius:3px;">Duplicate</button>';
-                                                 
-                                                    echo'</div>';
-                                                    
-                                                echo'</form>';								
-                                                
-                                            echo'</div>';						
-                                            
-                                        echo'</li>';
-                                       
-                                        if( $ltple->user->can_edit ){
-                                            
-                                            echo'<li>';
-                                                
-                                                echo '<a target="_blank" href="' . get_edit_post_link( $layer->ID ) . '"> Edit Backend <span class="label label-warning pull-right">admin</span></a>';
-
-                                            echo'</li>';
-                                            
-                                            if( $layer->post_type == 'cb-default-layer' && empty($ltple->user->layer->post_title) ){
-                                            
-                                                echo'<li>';
-                                                    
-                                                    echo '<a target="_self" href="' . $ltple->urls->edit . '?uri=' . $layer->ID . '&edit"> Edit Frontend <span class="label label-warning pull-right">admin</span></a>';
-
-                                                echo'</li>';
-                                            }
-                                        }
+                                        do_action('ltple_editor_navbar_settings',$layer);
                                         
                                     echo'</ul>';
                                     

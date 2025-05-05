@@ -580,7 +580,7 @@ class LTPLE_Client_Editor {
 		}
 		
 		if( $this->parent->user->can_edit ){
-			
+            
 			if( !empty($layer->urls['backend']) ){
 				
 				echo'<li style="position:relative;">';
