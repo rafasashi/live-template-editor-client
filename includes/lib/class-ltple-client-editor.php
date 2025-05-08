@@ -58,11 +58,11 @@ class LTPLE_Client_Editor {
 
 		add_filter('ltple_editor_script', array( $this, 'filter_editor_script' ),0,2);
 		
-		add_filter('ltple_editor_media_lib_url', function($url,$layer,$section='images'){
+		add_filter('ltple_editor_media_lib_url', function($url,$layer){
 			
 			if( !is_admin() || $this->parent->layer->is_app_output($layer->output) ){
 				
-				$url = $this->parent->urls->media . '?output=widget&section='.$section;
+				$url = $this->parent->urls->media . '?output=widget&section=images';
 			}
 			
 			return $url;
@@ -594,13 +594,15 @@ class LTPLE_Client_Editor {
 	
 	public function filter_js_settings($js,$layer){
 		
+        $layer_type = $this->parent->layer->get_layer_type($layer);
+        
         if( $layer->output == 'image' ){
 			
 			if( $layer->post_type == 'attachment' ){
 				
 				$attachment_url = wp_get_attachment_url($layer->ID );
 			}
-            elseif( $layer_type = $this->parent->layer->get_layer_type($layer) ){
+            elseif( !empty($layer_type) ){
                 
                 $attachments = $this->parent->layer->get_layer_attachments($layer->default_id,$layer_type->storage);
                 
@@ -621,8 +623,9 @@ class LTPLE_Client_Editor {
 		}
 		else{
 			
-			$js .= ' var mediaLibUrl = "' . apply_filters('ltple_editor_media_lib_url','',$layer) . '";'. PHP_EOL;
-			$js .= ' var bookmarkUrl = "' . apply_filters('ltple_editor_bookmark_lib_url','',$layer) . '";'. PHP_EOL;
+			$js .= ' var mediaLibUrl = "' . apply_filters('ltple_editor_media_lib_url','',$layer,$layer_type) . '";'. PHP_EOL;
+			
+            $js .= ' var bookmarkUrl = "' . apply_filters('ltple_editor_bookmark_lib_url','',$layer,$layer_type) . '";'. PHP_EOL;
         
             $js .= ' var layerForm = ' . json_encode($layer->form) . ';' . PHP_EOL;
         
@@ -839,7 +842,7 @@ class LTPLE_Client_Editor {
 			.action-message {
 				padding:0 !important;
 			}
-					
+            
 			.action-meter { 
 				height: 10px;
 				padding: 5px;
