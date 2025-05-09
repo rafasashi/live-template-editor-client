@@ -242,7 +242,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 		
 		return $layer_type;
 	}
-	
+	 
 	public function get_current_range(){
 		
 		$range = !empty($_GET['range']) ? sanitize_title($_GET['range']) : null;
@@ -342,14 +342,12 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 		
 		return $count;
 	}
-	
-	public function get_range_items($layer_type,$layer_range,$referer){
-
-		$items =[];
-		
-		if( !empty($layer_type) ){
-			
-			$addon = !empty($layer_type->addon) ? $layer_type->addon : null; 
+    
+    public function get_query_args($layer_type,$layer_range,$user,$search,$per_page,$page=1){
+        
+        if( !empty($layer_type) ){
+            
+            $addon = !empty($layer_type->addon) ? $layer_type->addon : null; 
 
 			if( !empty($layer_range) ){
 				
@@ -370,7 +368,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 				
 						'taxonomy' 			=> 'user-contact',
 						'field' 			=> 'slug',
-						'terms' 			=> $this->parent->user->user_email,
+						'terms' 			=> $user->user_email,
 						'include_children' 	=> false,
 						'operator'			=> 'IN'
 					);					
@@ -413,7 +411,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 				
 						'taxonomy' 			=> 'user-contact',
 						'field' 			=> 'slug',
-						'terms' 			=> array($this->parent->user->user_email),
+						'terms' 			=> array($user->user_email),
 						'include_children' 	=> false,
 						'operator'			=> 'IN'
 					);
@@ -429,25 +427,37 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 				'post_type' 	=> 'cb-default-layer', 
 				'tax_query' 	=> apply_filters('ltple_gallery_' . $layer_type->storage . '_tax_query',$tax_query),
 				'orderby' 		=> apply_filters('ltple_gallery_' . $layer_type->storage . '_orderby',array('date'=>'DESC')),
-				'posts_per_page'=> $this->per_page,
+				'posts_per_page'=> $per_page,
                 'no_found_rows' => true,
-				'paged'			=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
+				'paged'			=> $page,
 			);
 			
-			if( !empty($_GET['s']) ){
+			if( !empty($search) ){
 				
-				$args['s'] = sanitize_text_field($_GET['s']);
+				$args['s'] = $search;
 			}
 			
-			$args = apply_filters('ltple_gallery_' . $layer_type->storage . '_query',$args);
-            
+			return apply_filters('ltple_gallery_' . $layer_type->storage . '_query',$args);
+        }
+    }
+    
+	public function get_range_items($layer_type,$layer_range,$referer){
+
+		$items =[];
+
+        $search = !empty($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
+        
+        $page = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 );
+        
+		if( $args = $this->get_query_args($layer_type,$layer_range,$this->parent->user,$search,$this->per_page,$page) ){
+			
 			if( $query = new WP_Query($args)){
 				
 				$this->max_num_pages = $query->max_num_pages;
 				
-				$current_types = $this->get_current_types($addon);
+				$current_types = $this->get_current_types();
 				
-				foreach($current_types as $term){
+				foreach( $current_types as $term ){
 					
 					if( $term->slug == $layer_type->slug ){
 						
@@ -456,7 +466,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 							global $post;
 							
 							if( $term->visibility == 'anyone' || $this->parent->user->can_edit ){
-                                   
+                                
 								//get item
 								
 								$item = $this->get_item($post,$layer_type,$referer);
@@ -571,7 +581,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 			}
 		}
 
-		return $items;		
+		return $items;
 	}
 	
 	public function get_layer_type_info( $slug = false ){
@@ -605,8 +615,12 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
     
 	public function get_item($post,$layer_type,$referer=null){
 		
+        $in_widget = $this->parent->inWidget;
+        
+        $in_api = $this->parent->urls->current_url_in('api');
+        
 		$item = '';
-
+       
 		if( $layer = LTPLE_Editor::instance()->get_layer($post) ){
 			
 			//get post_title
@@ -633,16 +647,29 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 					
 					$alt_url = $this->parent->layer->get_preview_image_url($post,'blogindex-thumb',$this->parent->assets_url . 'images/default_item.png');
 					
-                    if( !$this->parent->inWidget ){
+                    $thumb_url = $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url);
+                    
+                    if( !$in_widget ){
                     
                         $item .= '<a type="button" data-toggle="modal" data-target="#'.$info_modal['id'].'">';
                     }
                     
-                    //$item .= '<div class="thumb_wrapper" style="background:url(' . $this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url) . ');background-size:cover;background-repeat:no-repeat;background-position:center center;"></div>'; //thumb_wrapper					
-					
-                    $item .= '<div class="thumb_wrapper"><img loading="lazy" class="lazy" src="'.$this->parent->layer->get_thumbnail_url($post,'blogindex-thumb',$alt_url).'"></div>';
+                    $item .= '<div class="thumb_wrapper">';
+                        
+                        if( $in_api ){
+                        
+                            $image_url = $this->parent->layer->get_thumbnail_url($post,'full',$alt_url);
                     
-                    if( !$this->parent->inWidget ){
+                            $item.= '<img loading="lazy" class="lazy" data-original="' . ( !empty($thumb_url) ? $thumb_url : $image_url ) . '" data-image="' . $image_url . '" />';
+                        }
+                        else{
+                            
+                            $item .= '<img loading="lazy" class="lazy" src="'.$thumb_url.'">';
+                        }
+                        
+                    $item .= '</div>';
+                    
+                    if( !$in_widget ){
                     
                         $item .= '</a>';
                     }
@@ -653,14 +680,14 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 						
                         $title = '';
                         
-                        if( !$this->parent->inWidget ){
+                        if( !$in_widget ){
                         
                             $title .='<a type="button" data-toggle="modal" data-target="#'.$info_modal['id'].'" style="color:#566674;">';
                         }
                         
                         $title  .='<b>' . $post_title . '</b>';
                         
-                        if( !$this->parent->inWidget ){
+                        if( !$in_widget ){
                         
                             $title .= '</a>';
                         }
@@ -673,13 +700,20 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 						
                         $item .= '<div class="btn-group btn-group-justified">';
                             
-                            if( $this->parent->inWidget === true ){
+                            if( $in_widget === true ){
                                 
                                 $action = '';
                                 
                                 if( $this->parent->plan->user_has_layer( $post ) === true ){
                                     
-                                    $action .= '<a target="_parent" class="btn" href="'. $quick_start_url .'" title="Start editing this template">Start</a>';
+                                    if( $in_api ){
+                                    
+                                        $action .= '<a href="#item_'.$post->ID.'" class="btn insert_media" title="Select this template" data-src="'.apply_filters('ltple_gallery_item_data_src','',$layer,$layer_type).'">Select</a>';
+                                    }
+                                    else{
+                                        
+                                        $action .= '<a target="_parent" class="btn" href="'. $quick_start_url .'" title="Start editing this template">Start</a>';
+                                    }
                                 }
                                 elseif( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
                                     

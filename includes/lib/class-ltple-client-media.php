@@ -736,7 +736,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				
 				if($this->parent->inWidget){
 					
-					$item.='<div class="panel-body">';
+					$item.='<div class="panel-body" style="padding:10px">';
 						
 						$item.='<div class="text-right">';
 
