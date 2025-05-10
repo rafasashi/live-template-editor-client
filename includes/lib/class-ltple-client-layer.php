@@ -423,7 +423,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
                 
                 if( !isset($layer->form) ){
                 
-                    $layer->form = apply_filters('ltple_layer_form',$this->get_form_fields($layer->ID),$layer);
+                    $layer_type = $this->get_layer_type($layer);
+                
+                    $layer->form = apply_filters('ltple_layer_form',$this->get_form_fields($layer->ID),$layer,$layer_type);
                 }
             }
             
@@ -503,7 +505,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
                             }
                             elseif( $input == 'image' ){
                                 
-                                $field['data'] = !empty($value) ? $value : $this->parent->assets_url . 'images/default_item.png';
+                                $field['data'] = !empty($value) ? $value : '';
                             }
                             else{
                                 
