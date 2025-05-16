@@ -239,6 +239,20 @@
                 window.parent.document.getElementById("livetpleditor").dispatchEvent(evt);
             };
             
+            webAppInterface.prototype.notify = function(message,className) {
+                
+                if( typeof className != "string" ){
+                    
+                    className = "success";
+                }
+                
+                this.trigger("ltple-notify",{
+                    
+                    message     : message,
+                    className   : className
+                });
+            };
+            
             webAppInterface.prototype.addEventListener = function(name,callback) {
                 
                 window.parent.document.getElementById("livetpleditor").addEventListener(name,callback);
