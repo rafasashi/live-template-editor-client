@@ -623,9 +623,9 @@ class LTPLE_Client_Editor {
 		}
 		else{
 			
-			$js .= ' var mediaLibUrl = "' . apply_filters('ltple_editor_media_lib_url','',$layer,$layer_type) . '";'. PHP_EOL;
+			$js .= ' var mediaLibUrl = "' . add_query_arg(array('in_editor'=>true),apply_filters('ltple_editor_media_lib_url','',$layer,$layer_type)) . '";'. PHP_EOL;
 			
-            $js .= ' var bookmarkUrl = "' . apply_filters('ltple_editor_bookmark_lib_url','',$layer,$layer_type) . '";'. PHP_EOL;
+            $js .= ' var bookmarkUrl = "' . add_query_arg(array('in_editor'=>true),apply_filters('ltple_editor_bookmark_lib_url','',$layer,$layer_type)) . '";'. PHP_EOL;
         
             $js .= ' var layerForm = ' . json_encode($layer->form) . ';' . PHP_EOL;
         

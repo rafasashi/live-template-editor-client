@@ -617,7 +617,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 		
         $in_widget = $this->parent->inWidget;
         
-        $in_api = $this->parent->urls->current_url_in('api');
+        $in_editor = $this->parent->layer->in_editor('ltple');
         
 		$item = '';
        
@@ -656,7 +656,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
                     
                     $item .= '<div class="thumb_wrapper">';
                         
-                        if( $in_api ){
+                        if( $in_editor ){
                         
                             $image_url = $this->parent->layer->get_thumbnail_url($post,'full',$alt_url);
                     
@@ -706,7 +706,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
                                 
                                 if( $this->parent->plan->user_has_layer( $post ) === true ){
                                     
-                                    if( $in_api ){
+                                    if( $in_editor ){
                                     
                                         $action .= '<a href="#item_'.$post->ID.'" class="btn insert_media" title="Select this template" data-src="'.apply_filters('ltple_gallery_item_data_src','',$layer,$layer_type).'">Select</a>';
                                     }
