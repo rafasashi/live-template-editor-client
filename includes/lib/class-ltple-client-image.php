@@ -100,8 +100,6 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		add_action('wp_loaded', array($this,'get_images_types'));
 		
 		add_action( 'before_delete_post', array($this,'delete_static_images'), 10, 3 );
-	
-		add_filter('ltple_admin_loaded', array( $this, 'do_admin_action' ));
 	}
 	
 	public function get_images_types(){
@@ -158,25 +156,6 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 			
 			add_action( 'ltple_update_profile', array( $this, 'upload_avatar_image' ), 0 );
 			add_action( 'ltple_update_profile', array( $this, 'upload_banner_image' ), 0 );
-		}
-	}
-	
-	public function do_admin_action(){
-		
-		if( !empty($_POST['postId']) && current_user_can('edit_posts') ){
-			
-			$source = 'screenshot';
-			
-			if( !empty($_POST['imgData']) ){
-				
-				echo LTPLE_Editor::upload_base64_image($_POST['postId'],$source,$_POST['imgData'],$source);
-			}
-			elseif( !empty($_POST['imgUrl']) ){
-
-				echo LTPLE_Editor::upload_image_url($_POST['postId'],$source,$_POST['imgUrl'],$source);
-			}
-			
-			exit;
 		}
 	}
 	

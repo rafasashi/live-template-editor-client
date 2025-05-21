@@ -742,24 +742,7 @@ class LTPLE_Client {
 	}	
 	
 	public function filter_post_type_row_actions( $actions, $post ){
-	
-		if( !$this->layer->is_core_type($post->post_type) ){
-		
-			// remove quick edit
-		
-			//unset( $actions['edit'] );
-			//unset( $actions['view'] );
-			unset( $actions['trash'] );
-			unset( $actions['inline hide-if-no-js'] );
-			
-			if( !isset($actions['duplicate']) ){
-			
-				// duplicate action
-			
-				$actions['duplicate'] = '<a href="#duplicateItem" data-toggle="dialog" data-type="post_type:' . $post->post_type . '" data-target="#duplicateItem" class="duplicate-button" data-id="' . $post->ID . '">Duplicate</a>';
-			}
-		}
-		
+
 		// add editor actions
 		
 		if( $editor_actions = apply_filters('ltple_admin_editor_actions',array(), $post) ){
@@ -773,8 +756,6 @@ class LTPLE_Client {
 					if( $slug == 'refresh-preview' ){
 						
 						$source = get_preview_post_link($post->ID);
-						
-						// TODO differentiate actions with slug 
 						
 						$action = '<div id="action-buttons-' . $post->ID . '">';
 
