@@ -76,7 +76,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_post_type( 'user-layer','Templates','Template', '', array(
+		$this->parent->register_post_type('user-layer','Saved Templates','Saved Template', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> true,
@@ -97,7 +97,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));
 		
-		$this->parent->register_post_type( 'user-psd','Images','Image', '', array(
+		$this->parent->register_post_type( 'user-psd','Saved Design','Saved Design', '', array(
 
 			'public' 				=> false,
 			'publicly_queryable' 	=> false,
@@ -118,7 +118,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'menu_icon' 			=> 'dashicons-admin-post',
 		));	
 
-		$this->parent->register_taxonomy('layer-type','Service Types','Service Type',  array('user-plan','cb-default-layer','user-layer','user-psd'), array(
+		$this->parent->register_taxonomy('layer-type','Service Types','Service Type',  array('cb-default-layer','user-layer','user-psd'), array(
 			
 			'hierarchical' 			=> false,
 			'public' 				=> false,

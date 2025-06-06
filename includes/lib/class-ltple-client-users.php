@@ -1333,7 +1333,6 @@
 					// custom bulk actions
 
 					$this->bulk_add_plan();
-					//$this->bulk_add_type();
 					$this->bulk_add_range();
 					$this->bulk_add_option();
 					//$this->bulk_add_stars();					
@@ -1571,45 +1570,7 @@
 				}
 			}
 		}
-
-		public function bulk_add_type() {
-			
-			$taxonomy 	= 'layer-type';
-			
-			if ( isset( $_REQUEST[$taxonomy.'1'] ) && is_numeric( $_REQUEST[$taxonomy.'1'] ) && $_REQUEST[$taxonomy.'1'] != '-1' ) {
-				
-				$term_id = intval($_REQUEST[$taxonomy.'1']);
-			}
-			elseif ( isset( $_REQUEST[$taxonomy.'2'] ) && is_numeric( $_REQUEST[$taxonomy.'2'] ) && $_REQUEST[$taxonomy.'2'] != '-1' ) {
-				
-				$term_id = intval($_REQUEST[$taxonomy.'2']);
-			}
-
-			if( !empty($term_id) ){
-				
-				if( $users = $this->get_requested_users() ){
-					
-					//get time limit
-					
-					$max_execution_time = ini_get('max_execution_time'); 
-					
-					//remove time limit
-					
-					set_time_limit(0);				
-				
-					$m = 0;
-					
-					$this->parent->plan->bulk_update_user_type($users,$term_id);
-					
-					add_action( 'admin_notices', array( $this, 'output_add_type_notice'));
-				
-					//reset time limit
-					
-					set_time_limit($max_execution_time);				
-				}
-			}
-		}
-		
+        
 		public function bulk_add_range() {
 			
 			$taxonomy 	= 'layer-range';

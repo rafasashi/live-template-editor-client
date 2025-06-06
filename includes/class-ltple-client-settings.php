@@ -424,28 +424,31 @@ class LTPLE_Client_Settings {
 
 		$tabs = array();
 		
-		foreach( $this->tabs[$this->tabIndex] as $slug => $data ){
-			
-			$tab = !empty($data['tab']) ? $data['tab'] : $data['name'];
-						
-			if( !empty($data['type']) && $data['type'] == 'taxonomy' ){
-				
-				$data['url'] = 'edit-tags.php?taxonomy='.$slug . ( !empty($data['post-type']) ? '&post_type='.$data['post-type'] : '' );
-			}
-			else{
-				
-				if( !empty($_GET['author']) ){
-					
-					$data['url'] = 'edit.php?post_type='.$slug.'&author='.intval($_GET['author']);
-				}
-				else{
-				
-					$data['url'] = 'edit.php?post_type='.$slug;
-				}
-			}
-				
-			$tabs[$tab][$slug] = $data;
-		}
+        if( !empty($this->tabIndex) && !empty($this->tabs[$this->tabIndex]) ){
+            
+            foreach( $this->tabs[$this->tabIndex] as $slug => $data ){
+                
+                $tab = !empty($data['tab']) ? $data['tab'] : $data['name'];
+                            
+                if( !empty($data['type']) && $data['type'] == 'taxonomy' ){
+                    
+                    $data['url'] = 'edit-tags.php?taxonomy='.$slug . ( !empty($data['post-type']) ? '&post_type='.$data['post-type'] : '' );
+                }
+                else{
+                    
+                    if( !empty($_GET['author']) ){
+                        
+                        $data['url'] = 'edit.php?post_type='.$slug.'&author='.intval($_GET['author']);
+                    }
+                    else{
+                    
+                        $data['url'] = 'edit.php?post_type='.$slug;
+                    }
+                }
+                    
+                $tabs[$tab][$slug] = $data;
+            }
+        }
 		
 		echo '<h2 class="nav-tab-wrapper" style="margin-bottom:10px;">';
 			

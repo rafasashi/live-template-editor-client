@@ -1990,33 +1990,6 @@ class LTPLE_Client_Plan {
 		}
 	}
 	
-	public function bulk_update_user_type($users,$term_id){
-			
-		if( !empty($users) ){
-			
-			$taxonomy = 'layer-type';
-			
-			foreach( $users as $user_id ){
-				
-				// update current user custom taxonomy
-				
-				if( $user_plan_id = $this->parent->plan->get_user_plan_id( $user_id, false, array(
-					array(
-						'taxonomy' 	=> $taxonomy,
-						'terms' 	=> $term_id,
-						'field' 	=> 'id',
-						'operator' 	=> 'NOT IN',
-					),				
-				))){
-
-					$response = wp_set_object_terms( $user_plan_id, array($term_id), $taxonomy, true );
-
-					clean_object_term_cache( $user_plan_id, $taxonomy );
-				}
-			}
-		}
-	}
-
 	public function bulk_update_user_range($users,$term_id){
 		
 		if( !empty($users) ){
@@ -2111,7 +2084,7 @@ class LTPLE_Client_Plan {
 						
 						foreach( $terms as $term ){
 							
-							if( in_array($term->slug,$options) ){
+							if( !empty($options) && in_array($term->slug,$options) ){
 							
 								// sum values
 							

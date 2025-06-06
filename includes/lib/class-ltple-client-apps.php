@@ -648,7 +648,6 @@ class LTPLE_Client_Apps extends LTPLE_Client_Object {
 		$columns['slug'] 	= 'Slug';
 		$columns['types'] 	= 'Types';
 		$columns['thumb'] 	= 'Thumb'; // must remain last for mobile view
-		$columns['enable'] 	= 'Enable';
 		
 		return $columns;
 	}

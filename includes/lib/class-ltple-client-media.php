@@ -764,12 +764,6 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
 								$item.='<ul class="dropdown-menu dropdown-menu-right" style="background:#fff;">';
 									
-									$item.='<li style="position:relative;background:#eee;">';
-									
-										$item.='<b style="padding: 10px;display: block;">Open image in</b>';
-										
-									$item.='</li>';
-									
 									$item.='<li style="position:relative;">';
 										
 										$item.='<a class="open-url" href="#open-url" data-target="'.$image_url.'"><span class="glyphicon glyphicon-open pull-right" aria-hidden="true"></span> New Tab</a>';

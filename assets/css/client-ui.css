@@ -174,10 +174,16 @@
     PLAN STYLE
 ----------------------------------------------------- */
 
+#ltple-wrapper #plan_description {
+	
+    line-height: 2.5rem;
+}
+
 #ltple-wrapper #plan_description ul, #ltple-wrapper #plan_description ol {
 	
-    margin-left: 40px;
+    margin-left: 15px;
     margin-bottom: 10px;
+    line-height: 2rem;
 }
 
 #ltple-wrapper #plan_form {

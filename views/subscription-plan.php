@@ -27,7 +27,7 @@ else{
     echo '<div class="container">';
     
         echo'<div id="plan_description" class="entry-content panel-body mt-4">';
-        
+            
             echo apply_filters( 'the_content', $post->post_content);
         
         echo '</div>';
