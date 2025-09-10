@@ -2514,11 +2514,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
     
     public function is_core_type($post_type){
         
-        return in_array($post_type,array(
+        return in_array($post_type,apply_filters('ltple_core_types',array(
         
             'page',
             'post',
-        ));
+        )));
     }
     
 	public function get_layer_type($post){

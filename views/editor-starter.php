@@ -25,7 +25,7 @@ else{
     $layer_plan = $ltple->plan->get_layer_plan( $layer->ID, 'min' );
     
     $user_plan 	= $ltple->plan->get_user_plan_info($ltple->user->ID);
-
+    
     $total_storage 	= isset($user_plan['info']['total_storage'][$layer_type->name]) ? $user_plan['info']['total_storage'][$layer_type->name] : 0;
       
     $storage_type = get_post_type_object($layer_type->storage);
