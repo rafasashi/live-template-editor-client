@@ -221,13 +221,13 @@ class LTPLE_Client {
 	} // End __construct ()
 	
 	public function handle_error(){
-	
+
 		if( $error = error_get_last() ) {
-			
+
 			$skip_type = array(
 			
-				16384 // E_USER_DEPRECATED warning message
-			
+				E_USER_DEPRECATED,
+                E_DEPRECATED,
 			);
 			
 			$skip_message = array(
