@@ -137,7 +137,10 @@ class LTPLE_Client {
 		$this->load_plugin_textdomain();
 	
 		add_action('init', array( $this, 'load_localisation' ), 0 );		
-		
+				
+		$this->filesystem   = new LTPLE_Client_File_System( $this );
+		$this->settings     = new LTPLE_Client_Settings( $this );
+
 		$this->client 		= new LTPLE_Client_Client( $this );
 		
 		$this->request 		= new LTPLE_Client_Request( $this );

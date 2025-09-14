@@ -69,19 +69,7 @@
 				
 				register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );
 				
-				$instance = LTPLE_Client::instance( __FILE__, $version );
-				
-				if ( is_null( $instance->filesystem ) ) {
-					
-					$instance->filesystem = LTPLE_Client_File_System::instance( $instance );
-				}			
-				
-				if ( is_null( $instance->settings ) ) {
-					
-					$instance->settings = LTPLE_Client_Settings::instance( $instance );
-				}
-
-				return $instance;
+				return LTPLE_Client::instance( __FILE__, $version );
 			}
 			
 			add_filter('wp2e_live-template-editor_loaded',function(){

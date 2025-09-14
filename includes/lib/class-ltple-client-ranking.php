@@ -39,7 +39,7 @@
 		}
 		
 		public function add_menu_button(){
-	
+
 			if( $this->parent->settings->is_enabled('ranking') ){
 				
 				echo'<div class="pull-right" style="padding:0 3px;line-height:24px;">';
