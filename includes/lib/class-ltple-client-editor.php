@@ -137,7 +137,7 @@ class LTPLE_Client_Editor {
 				elseif( $this->parent->plan->user_has_layer($layer->ID) ){
                     
 					if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ){
-						
+                        
 						wp_register_script('jquery-validate', esc_url( $this->parent->assets_url ) . 'js/jquery.validate.js', array( 'jquery' ), $this->parent->_version );
 						wp_enqueue_script('jquery-validate');
 						
@@ -170,7 +170,7 @@ class LTPLE_Client_Editor {
                     else{
                         
                         $layer_plan = $this->parent->plan->get_layer_plan( $layer->ID, 'min' );
-                        
+                       
                         if( $layer->is_storable && !isset($_GET['quick']) && ( $layer->post_type == 'cb-default-layer' || $layer->is_media ) && ( !$this->parent->user->can_edit || !isset($_GET['edit']) ) ){
                            
                             if( !isset($_GET['period_refreshed']) && $layer_plan['amount'] > 0 && $this->parent->user->remaining_days < 0 ){
@@ -627,7 +627,7 @@ class LTPLE_Client_Editor {
             // content based preview
             
             $content = $this->parent->layer->render_output($layer) . PHP_EOL;
-            
+           
             if( !$this->parent->layer->is_app_output($layer->output) ){
                             
                 $content .= '<script id="LiveTplEditorClientScript">

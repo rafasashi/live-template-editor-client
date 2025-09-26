@@ -1,7 +1,7 @@
 <?php 
 /**
  * Plugin Name: Live Template Editor Client
- * Version: 1.6.1
+ * Version: 1.6.2
  * Plugin URI: https://github.com/rafasashi
  * Description: Live Template Editor allows you to edit and save HTML5 and CSS3 templates.
  * Author: Rafasashi
@@ -35,46 +35,49 @@
 				
 			//local editor session start
 		}
-		else{
+		else{   
 
-			// Load plugin functions
-			
-			require_once( 'includes/functions.php' );	
-			
-			// Load plugin class files
+            add_action('wp2e_live-template-editor_loaded',function(){
+                
+                // Load plugin functions
+                
+                require_once( 'includes/functions.php' );	
+                
+                // Load plugin class files
 
-			require_once( 'includes/class-ltple-client.php' );
-			require_once( 'includes/class-ltple-client-settings.php' );
-			require_once( 'includes/class-ltple-client-object.php' );
-			require_once( 'includes/class-ltple-client-app.php' );
-			require_once( 'includes/class-ltple-client-integrator.php' );
-			
-			// Autoload plugin libraries
-			
-			$lib = glob( __DIR__ . '/includes/lib/class-ltple-client-*.php');
-			
-			foreach($lib as $file){
-				
-				require_once( $file );
-			}
-			
-			/**
-			 * Returns the main instance of LTPLE_Client to prevent the need to use globals.
-			 *
-			 * @since  1.0.0
-			 * @return object LTPLE_Client
-			 */
-			 
-			function LTPLE_Client( $version = '1.0.0' ) {
-				
-				register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );
-				
-				return LTPLE_Client::instance( __FILE__, $version );
-			}
-			
-			add_filter('wp2e_live-template-editor_loaded',function(){
-				
-				LTPLE_Client('1.1.15.16');
-			});
+                require_once( 'includes/class-ltple-client.php' );
+                require_once( 'includes/class-ltple-client-settings.php' );
+                require_once( 'includes/class-ltple-client-object.php' );
+                require_once( 'includes/class-ltple-client-app.php' );
+                require_once( 'includes/class-ltple-client-integrator.php' );
+                
+                // Autoload plugin libraries
+                
+                $lib = glob( __DIR__ . '/includes/lib/class-ltple-client-*.php');
+                
+                foreach($lib as $file){
+                    
+                    require_once( $file );
+                }
+                
+                /**
+                 * Returns the main instance of LTPLE_Client to prevent the need to use globals.
+                 *
+                 * @since  1.0.0
+                 * @return object LTPLE_Client
+                 */
+                 
+                function LTPLE_Client( $version = '1.0.0' ) {
+                    
+                    register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );
+                    
+                    return LTPLE_Client::instance( __FILE__, $version );
+                }
+                
+                do_action('wp2e_live-template-editor-client_loaded');
+                
+                LTPLE_Client('1.1.15.16');
+                
+            });
 		}
 	}

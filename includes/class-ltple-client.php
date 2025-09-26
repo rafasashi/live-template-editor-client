@@ -72,6 +72,8 @@ class LTPLE_Client {
 	 * @since   1.0.0
 	 */
 	public $assets_url;
+    
+    public $views;
 
 	/**
 	 * Suffix for Javascripts.
@@ -121,6 +123,7 @@ class LTPLE_Client {
 		$this->file 		= $file;
 		$this->dir 			= dirname( $this->file );
 		$this->views   		= trailingslashit( $this->dir ) . 'views';
+        
 		$this->assets_dir 	= trailingslashit( $this->dir ) . 'assets';
 		$this->assets_url 	= esc_url( trailingslashit( plugins_url( '/assets/', $this->file ) ) );
 		
