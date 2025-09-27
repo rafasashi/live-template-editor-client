@@ -1,7 +1,7 @@
 <?php 
 /**
  * Plugin Name: Live Template Editor Client
- * Version: 1.6.2
+ * Version: 1.6.3
  * Plugin URI: https://github.com/rafasashi
  * Description: Live Template Editor allows you to edit and save HTML5 and CSS3 templates.
  * Author: Rafasashi
@@ -60,18 +60,14 @@
                     require_once( $file );
                 }
                 
-                /**
-                 * Returns the main instance of LTPLE_Client to prevent the need to use globals.
-                 *
-                 * @since  1.0.0
-                 * @return object LTPLE_Client
-                 */
-                 
-                function LTPLE_Client( $version = '1.0.0' ) {
+                if( !function_exists('LTPLE_Client') ){
                     
-                    register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );
-                    
-                    return LTPLE_Client::instance( __FILE__, $version );
+                    function LTPLE_Client( $version = '1.0.0' ) {
+                        
+                        register_activation_hook( __FILE__, array( 'LTPLE_Client', 'install' ) );
+                        
+                        return LTPLE_Client::instance( __FILE__, $version );
+                    }
                 }
                 
                 do_action('wp2e_live-template-editor-client_loaded');
