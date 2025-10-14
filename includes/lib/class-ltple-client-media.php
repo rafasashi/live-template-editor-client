@@ -87,6 +87,25 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
             return $color;
             
         },10,1);
+
+        add_filter('lfm_file_url_path',function($url,$folder_id,$is_dir){
+            
+            if( !empty($url) && !$is_dir ){
+
+                if( $folder = get_post($folder_id) ){
+                    
+                    $user_id = (int) $folder->post_author;
+                    
+                    if( $this->parent->plan->get_user_license_remaining_days($user_id) <= 0 ){
+
+                        $url = $this->parent->assets_url . 'images/service-expired.svg';
+                    }
+                }
+            }
+            
+            return $url;
+            
+        },999999,3);
         
 		add_filter('ltple_create_default_folder',function($user, $args, $task, $iteration){
             

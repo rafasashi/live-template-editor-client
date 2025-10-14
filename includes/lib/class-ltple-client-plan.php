@@ -12,7 +12,8 @@ class LTPLE_Client_Plan {
 	var $message;
 	
 	var $subscription_plans	= array();
-	
+	var $remaining_days     = array();
+
 	var $license_holders	= array();
 	var $license_users		= array();
 	
@@ -25,6 +26,8 @@ class LTPLE_Client_Plan {
 	var $buttons 			= array();
 	var $shortcode 			= '';
 	var $iframe_height		= 500;
+
+    
 	
 	/**
 	 * Constructor function
@@ -2423,6 +2426,25 @@ class LTPLE_Client_Plan {
 		return $remaining_days;
 	}
 	
+    public function get_user_license_remaining_days($user_id){
+        
+        if( !isset($this->remaining_days[$user_id]) ){
+
+            if( $period_end = $this->get_license_period_end( $user_id ) ){
+                
+                $remaining_days = floor($this->get_license_remaining_days( $period_end ));
+            }
+            else{
+
+                $remaining_days = 0;
+            }
+
+            $this->remaining_days[$user_id] = $remaining_days;
+        }
+
+        return $this->remaining_days[$user_id];
+    }
+
 	public function get_license_holder_email($user){
 		
 		$license_holder_email = null;
@@ -2448,7 +2470,7 @@ class LTPLE_Client_Plan {
 		
 		return strtolower($license_holder_email);
 	}
-	
+
 	public function get_license_users($holder_id){
 		
 		if( !isset($this->license_users[$holder_id]) ){
