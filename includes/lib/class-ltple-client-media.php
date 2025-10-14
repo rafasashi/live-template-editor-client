@@ -7,14 +7,14 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	var $parent;
 	var $type;
 	var $slug;
-	var $per_page = 50;
+	var $per_page = 15;
 	
 	/**
 	 * Constructor function
 	 */
 	public function __construct ( $parent ) {
 		
-		$this->parent 	= $parent;
+		$this->parent = $parent;
 
 		// add query vars
 		
@@ -64,9 +64,109 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'callback' 	=> array($this,'get_default_images'),
 				'permission_callback' => '__return_true',
 			) );
-		} );			
+		});
+
+        add_filter('lfm_style_hue',function($hue){
+            
+            if( !empty($this->parent->settings->navbarHue) ){
+                
+                $hue = $this->parent->settings->navbarHue;
+            }
+            
+            return $hue;
+            
+        },10,1);
+
+        add_filter('lfm_style_primary_color',function($color){
+            
+            if( !empty($this->parent->settings->mainColor) ){
+                
+                $color = $this->parent->settings->mainColor;
+            }
+            
+            return $color;
+            
+        },10,1);
+        
+		add_filter('ltple_create_default_folder',function($user, $args, $task, $iteration){
+            
+            $this->get_browser_url($user);
+
+        },10,4);
+        
+        add_filter('lfm_migrate_user_images', function($user, $args, $task, $iteration) {
+
+            if( $folder_id = (int) get_user_meta($user->ID,'lfm_default_id',true) ){
+                
+                $folder = $this->get_folder_info($folder_id);
+                
+                if( !empty($folder['bucket']) && !empty($folder['region']) ){
+                    
+                    $args = array(
+                        'post_type'      => 'attachment',
+                        'post_mime_type' => 'image',
+                        'post_status'    => 'inherit',
+                        'author'         => $user->ID,
+                        'meta_query'     => array(
+                            'relation' => 'AND',
+                            array(
+                                'key'     => 'ltple_upload_source',
+                                'value'   => 'upload',
+                                'compare' => '=',
+                            ),
+                            array(
+                                'key'     => 'sfm_migrated',
+                                'compare' => 'NOT EXISTS',
+                            ),
+                        ),
+                        'posts_per_page' => 10, // same as your limit
+                        'paged'          => 1,
+                    );
+
+                    $query = new WP_Query( $args );
+
+                    $total_items = $query->found_posts;
+                    $attachments = $query->posts;
+                    
+                    if( !empty($attachments) ){
+                        
+                        foreach( $attachments as $attachment ){
+                            
+                            $path = str_replace(REW_S3_CDN,REW_S3_BUCKET . '.s3.' . REW_S3_REGION . '.amazonaws.com',wp_get_attachment_url($attachment->ID));
+                            
+                            $new_path = 'https://' . $folder['bucket'] . '.s3.' . $folder['region'] . '.amazonaws.com/' . trailingslashit($folder['path']) . basename($path);
+
+                            s3_file_manager()->move($path,$new_path,false);
+                            
+                            update_post_meta($attachment->ID,'sfm_migrated',time());
+                        }
+                        
+                        rew_bulk_editor()->await_object_task($user);
+                    }
+                }
+            }
+            
+        }, 10, 4);
+
 	}
 	
+    public function get_folder_info($folder_id=0){
+        
+        if( !empty($folder_id) ){
+            
+            return array(
+                
+                'root'      => trailingslashit(LFM_Path::document_root($folder_id)),
+                'path'      => get_post_meta($folder_id,'lfm_path',true),
+                'access'    => get_post_meta($folder_id,'lfm_access',true),
+                'domain'    => get_post_meta($folder_id,'lfm_domain',true),
+                'bucket'    => get_post_meta($folder_id,'sfm_bucket',true),
+                'region'    => get_post_meta($folder_id,'sfm_region',true),
+            );
+        }
+        
+    }
+    
 	public function add_query_vars( $query_vars ){
 		
 		if( !in_array('media',$query_vars) ){
@@ -447,13 +547,20 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		do_action('ltple_before_media');
 		
-		include($this->parent->views . '/navbar.php');
-		
 		if( apply_filters('ltple_show_media_library',false,$this->type) || $this->parent->user->loggedin ){
+            
+            if( $this->type == 'user-images' && !$this->parent->inWidget ){
 
-			include($this->parent->views . '/media.php');
+                echo'<iframe data-src="'.$this->get_browser_url($this->parent->user->ID).'" style="border:0;width:100%;height:calc(100vh - 50px);position:absolute;top:50px;bottom:0;right:0;left:0;"></iframe>';
+            }
+            else{
+           
+                include($this->parent->views . '/navbar.php');
+            
+                include($this->parent->views . '/media.php');
 
-			do_action('ltple_media');
+                do_action('ltple_media');
+            }
 		}
 		else{
 			
@@ -462,7 +569,120 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		return ob_get_clean();
 	}
-	
+    
+    public function get_browser_url($user, $folder_id = 0) {
+        
+        if( is_numeric($user) ){
+        
+            $user = get_user_by('id',$user);
+        }
+        
+        if( !empty($user->ID) ){
+            
+            if( empty($folder_id) ){
+
+                $folder_id = (int) get_user_meta($user->ID, 'lfm_default_id', true);
+                
+                if( !empty($folder_id) ){
+                    
+                    $folder = get_post($folder_id);
+                }
+                
+                if( empty($folder->ID) ){
+
+                    $key = md5($user->user_email);
+                    
+                    $slug = dechex(time());
+                    
+                    $title = "Media Library";
+                    
+                    if( $info = $this->remote_get_media_info($user->user_email) ){
+                        
+                        $folder_id = wp_insert_post(array(
+                        
+                            'post_title'  => $title,
+                            'post_name'   => $slug,
+                            'post_status' => 'publish',
+                            'post_type'   => 'folder',
+                            'post_author' => $user->ID,
+                        ));
+
+                        if( !empty($folder_id) && !is_wp_error($folder_id) ){
+
+                            update_post_meta($folder_id, 'lfm_path', $key . '/' . $folder_id);
+                            update_post_meta($folder_id, 'lfm_access', 'owner');
+                            
+                            if( !empty($info['domain']) ){
+                            
+                                update_post_meta($folder_id, 'lfm_domain', sanitize_text_field($info['domain']));
+                            }
+                            
+                            if( !empty($info['bucket']) && !empty($info['region']) ){
+                            
+                                update_post_meta($folder_id, 'sfm_bucket', sanitize_text_field($info['bucket']));
+                                update_post_meta($folder_id, 'sfm_region', sanitize_title($info['region']));
+                            }
+                            
+                            update_user_meta($user->ID, 'lfm_default_id', $folder_id);
+                        }
+                    }
+                }
+            }
+
+            if( !empty($folder_id) ){
+                
+                return get_permalink($folder_id);
+            }
+        }
+        
+        return false;
+    }
+    
+    public function remote_get_media_info($user_email=''){
+		
+		if( !empty($user_email) && !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
+			
+			$api_url = $this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/media?_=' . time();
+			
+			$api_url .= '&user=' . $this->parent->ltple_encrypt_uri($user_email);
+
+			$response = wp_remote_get( $api_url, array(
+				
+				'timeout'   => 10,
+				'headers' 	=> array(
+					
+					'X-Forwarded-Server' => $_SERVER['HTTP_HOST']
+				)
+			));
+			
+			if( is_array($response) && !empty($response['body']) ){
+				
+				$body = json_decode($response['body'],true);
+				
+				if( !empty($body['data']) ){
+					
+					$data = $this->parent->ltple_decrypt_str($body['data']);
+					
+					if( !empty($data) ){
+						
+						$info = json_decode($data,true);
+						
+						if( is_array($info) ){
+							
+							return $info;							
+						}
+					}
+				}
+			}
+			else{
+				
+				//dump($response);
+			}
+		}
+		
+		return false;
+	}
+    
 	public function get_external_providers(){
 						
 		$apps = [];				
@@ -582,67 +802,119 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 	}
 
 	public function get_uploaded_images($rest = NULL){
-		
-		//get user images
-		
-		$user_images = [];
-		
-		$user_id = $this->parent->user->ID;
-		
-		if( $user_id  > 0 ){
-			
-			//-----------------get images from core library-------------------
-			
-			$args = array(
-			
-				'post_type'      	=> 'attachment',
-				'post_mime_type' 	=> 'image',
-				'post_status'    	=> 'inherit',
-				'posts_per_page' 	=> $this->per_page,
-				'paged'				=> ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 ),
-				'author' 			=> $user_id,
-			);
-			
-			if( !empty($_GET['s']) ){
-				
-				$args['s'] = sanitize_text_field($_GET['s']);
-			}
-			
-			$meta_key = $this->parent->_base . 'upload_source';
-			
-			$slug = 'user-images';
-			
-			$source = 'upload';
-			
-			$args['meta_query'] = array(
-			
-				'relation' => 'OR',
-				array(
-					'key' 		=> $meta_key,
-					'value' 	=> $source,
-					'compare' 	=> '='
-				),
-				array(
-					'key' 		=> $meta_key,
-					'compare' 	=> 'NOT EXISTS'
-				),
-			);
+            
+        // Get user images
+        $user_images = [];
+        $user_id = $this->parent->user->ID;
+        
+        if ( $user_id > 0 ) {
+            
+            $page = get_query_var('paged') ? get_query_var('paged') : ( !empty($_GET['page']) ? intval($_GET['page']) : 1 );
 
-			$query_images = new WP_Query( $args );
+            $per_page = !empty($this->per_page) ? intval($this->per_page) : 20;
+                
+            $search = !empty($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
+                    
+            if ( class_exists('LFM') ) {
+                
+                $folder_id = (int) get_user_meta($user_id, 'lfm_default_id', true);
+                
+                $folder = $this->get_folder_info($folder_id);
+                
+                $path = trailingslashit($folder['root'] . $folder['path']); 
 
-			$images = array();
+                $files = LFM::glob($path.'*',false,'date_desc');
 
-			foreach ( $query_images->posts as $image ){
-				
-				if( $image->post_mime_type != 'image/vnd.adobe.photoshop' ){
-					
-					$user_images[]['item']= $this->get_image_item($image,$slug);
-				}
-			}			
-		}
+                $types = array('jpg','jpeg','png','gif','webp','bmp');
+                
+                $images = array_filter($files, function($file) use ($types) {
+                    
+                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    
+                    return in_array($ext, $types);
+                });
 
-		return $user_images;
-	}
+                if ( !empty($search) ) {
+                    
+                    $images = array_filter($images, function($file) use ($search) {
+                        
+                        return stripos(basename($file), $search) !== false;
+                    });
+                }
+
+                // Pagination setup
+                
+                $total    = count($images);
+                $offset   = ($page - 1) * $per_page;
+                
+                $files = array_slice($images,$offset,$per_page);
+                
+                foreach( $files as $file_path ){
+                    
+                    $relpath = substr($file_path,strlen($path));
+                    
+                    $image_url = LFM_File::get_url_path($file_path,$folder_id,false);
+                    
+                    $thumb_url = $this->parent->urls->api . 'local-file-manager/v1/'.$folder_id.'/?action=file&file='.urlencode($relpath).'&resize=320';
+                    
+                    $image = (object) array(
+                    
+                        'ID'    => 0,
+                        'url'   => $image_url,
+                        'thumb' => $thumb_url,
+                    );
+                    
+                    $user_images[]['item'] = $this->get_image_item($image,'file-manager');
+                }
+            } 
+            else {
+                
+                $args = array(
+                    'post_type'       => 'attachment',
+                    'post_mime_type'  => 'image',
+                    'post_status'     => 'inherit',
+                    'posts_per_page'  => $per_page,
+                    'paged'           => $page,
+                    'author'          => $user_id,
+                );
+                
+                if ( !empty($search) ) {
+                    
+                    $args['s'] = $search;
+                }
+                
+                $meta_key = $this->parent->_base . 'upload_source';
+                $slug = 'user-images';
+                $source = 'upload';
+                
+                $args['meta_query'] = array(
+                    'relation' => 'OR',
+                    array(
+                        'key' 		=> $meta_key,
+                        'value' 	=> $source,
+                        'compare' 	=> '='
+                    ),
+                    array(
+                        'key' 		=> $meta_key,
+                        'compare' 	=> 'NOT EXISTS'
+                    ),
+                );
+
+                $query_images = new WP_Query( $args );
+                
+                foreach ( $query_images->posts as $image ) {
+                    
+                    if ( $image->post_mime_type != 'image/vnd.adobe.photoshop' ) {
+                        
+                        $user_images[]['item'] = $this->get_image_item($image, $slug);
+                    }
+                }
+            }
+        }
+
+        return $user_images;
+    }
+
 	
 	public function get_external_images($rest = NULL){
 		
@@ -694,7 +966,13 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		$thumb_url = false;
 		
-		if( $slug == 'user-images' ){
+        if( $slug == 'file-manager' ){
+			
+			$image_url = $image->url;
+            
+            $thumb_url = $image->thumb;
+		}
+		elseif( $slug == 'user-images' ){
 			
 			if( $src = wp_get_attachment_image_src($image->ID,'medium')){
 				

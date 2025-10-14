@@ -30,6 +30,12 @@ class LTPLE_Client_Settings {
 	public $plugin;
 	public $options;
 	public $addons;
+    
+    public $mainColor;
+    public $linkColor;
+    public $titleBkg;
+    public $navbarColor;
+    public $navbarHue;
 	
 	var $tabs = array();
 	var $enabled = array();
@@ -51,11 +57,12 @@ class LTPLE_Client_Settings {
 		
 		// get custom style
 		
-		$this->navbarColor 	= get_option( $this->parent->_base . 'navbarColor', '#182f42' );
 		$this->mainColor 	= get_option( $this->parent->_base . 'mainColor', '#506988' );
 		$this->linkColor 	= get_option( $this->parent->_base . 'linkColor', '#506988' );	
 		$this->titleBkg 	= get_option( $this->parent->_base . 'titleBkg', '' );
-		
+		$this->navbarColor 	= get_option( $this->parent->_base . 'navbarColor', '#182f42' );
+		$this->navbarHue 	= $this->hex_to_hue($this->navbarColor,207);
+        
 		// Register plugin settings
 		
 		add_action('init' , array( $this, 'init_tabs' ) );
@@ -120,7 +127,56 @@ class LTPLE_Client_Settings {
 			$this->settings = $this->get_fields();
 		});
 	}
-	
+
+    public function hex_to_hue($hex,$default){
+        
+        if( !empty($hex) ){
+            
+            // Sanitize input
+            $hex = trim($hex);
+            if (empty($hex)) return 0;
+
+            // Remove hash if present
+            $hex = ltrim($hex, '#');
+
+            // Expand shorthand (#f60 → #ff6600)
+            if (strlen($hex) === 3) {
+                $hex = $hex[0].$hex[0] . $hex[1].$hex[1] . $hex[2].$hex[2];
+            }
+
+            // Invalid format
+            if (strlen($hex) !== 6) return 0;
+
+            // Convert hex to RGB (0–1 range)
+            $r = hexdec(substr($hex, 0, 2)) / 255;
+            $g = hexdec(substr($hex, 2, 2)) / 255;
+            $b = hexdec(substr($hex, 4, 2)) / 255;
+
+            // Get min, max, delta
+            $max = max($r, $g, $b);
+            $min = min($r, $g, $b);
+            $delta = $max - $min;
+
+            // Calculate hue
+            if ($delta == 0) {
+                $hue = 0; // gray — no hue
+            } elseif ($max == $r) {
+                $hue = 60 * fmod((($g - $b) / $delta), 6);
+            } elseif ($max == $g) {
+                $hue = 60 * ((($b - $r) / $delta) + 2);
+            } else { // $max == $b
+                $hue = 60 * ((($r - $g) / $delta) + 4);
+            }
+
+            // Normalize to 0–360
+            if ($hue < 0) $hue += 360;
+
+            return round($hue);
+        }
+        
+        return $default;
+    }
+    
 	public function is_enabled($service){
 		
 		if( !isset($this->enabled[$service]) ){

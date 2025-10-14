@@ -111,7 +111,7 @@ echo'<div id="media_library" class="wrapper">';
 		
 	echo'</div>';
 
-	echo'<div id="content" class="library-content" style="min-height:calc( 100vh - ' . ( $ltple->inWidget ?  0 : 190 ) . 'px);">';
+	echo'<div id="content" class="library-content" style="min-height:calc( 100vh - ' . ( $ltple->inWidget ?  0 : 100 ) . 'px);">';
 
 		echo'<div class="tab-content">';
 			
@@ -136,49 +136,56 @@ echo'<div id="media_library" class="wrapper">';
 						
 						echo '<li role="presentation">';
 							
-							echo '<button data-toggle="dialog" data-target="#uploadImage" class="btn btn-success btn-sm">+ Upload</button>';
-							
-							echo '<div style="display:none;" id="uploadImage" title="Upload a new Image">';
-								
-								if( !$ltple->user->plan['info']['total_price_amount'] > 0 ){
-									
-									echo '<div class="alert alert-warning">';
-									
-										echo 'You need a paid plan to <b>upload images</b>';
-										
-									echo '</div>';
-								}
-								elseif( !$ltple->user->remaining_days > 0 ){
-									
-									echo '<div class="alert alert-warning">';
-									
-										echo 'You need to renew your plan to <b>upload images</b>';
-										
-									echo '</div>';										
-								}
-								else{
-									
-									$media_url = $ltple->urls->media . 'user-images/' . $query_args;
+                            if( $ltple->inWidget ){
+                            
+                                echo '<a href="'.$ltple->media->get_browser_url($ltple->user->ID).'" class="btn btn-success btn-sm" target="_blank">+ Upload</a>';
+                            }
+                            else{
+                                    
+                                echo '<button data-toggle="dialog" data-target="#uploadImage" class="btn btn-success btn-sm">+ Upload</button>';
+                                
+                                echo '<div style="display:none;" id="uploadImage" title="Upload a new Image">';
+                                    
+                                    if( !$ltple->user->plan['info']['total_price_amount'] > 0 ){
+                                        
+                                        echo '<div class="alert alert-warning">';
+                                        
+                                            echo 'You need a paid plan to <b>upload images</b>';
+                                            
+                                        echo '</div>';
+                                    }
+                                    elseif( !$ltple->user->remaining_days > 0 ){
+                                        
+                                        echo '<div class="alert alert-warning">';
+                                        
+                                            echo 'You need to renew your plan to <b>upload images</b>';
+                                            
+                                        echo '</div>';										
+                                    }
+                                    else{
+                                        
+                                        $media_url = $ltple->urls->media . 'user-images/' . $query_args;
 
-									echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" class="dynamic-form" method="post" enctype="multipart/form-data">';
-										
-										echo '<label>Image File</label>';
-										
-										echo '<input style="font-size:15px;padding:5px;margin:10px 0;" type="file" name="imgFile" id="imgFile" class="form-control required" />';
-										
-										echo '<input type="hidden" name="imgAction" id="imgAction" value="upload" />';
-										
-										wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
-										
-										echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
+                                        echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" class="dynamic-form" method="post" enctype="multipart/form-data">';
+                                            
+                                            echo '<label>Image File</label>';
+                                            
+                                            echo '<input style="font-size:15px;padding:5px;margin:10px 0;" type="file" name="imgFile" id="imgFile" class="form-control required" />';
+                                            
+                                            echo '<input type="hidden" name="imgAction" id="imgAction" value="upload" />';
+                                            
+                                            wp_nonce_field( 'user_image_nonce', 'user_image_nonce_field' );
+                                            
+                                            echo '<input type="hidden" name="submitted" id="submitted" value="true" />';
 
-										echo '<button id="uploadBtn" class="btn btn-sm btn-primary" type="button">Upload</button>';
+                                            echo '<button id="uploadBtn" class="btn btn-sm btn-primary" type="button">Upload</button>';
 
-									echo '</form>';
-								}									
-								
-							echo '</div>';						
-						
+                                        echo '</form>';
+                                    }									
+                                    
+                                echo '</div>';						
+                            }
+                            
 						echo '</li>';
 
 					echo'</ul>';

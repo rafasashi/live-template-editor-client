@@ -2491,7 +2491,7 @@ class LTPLE_Client {
             $style .='height: 26px;';
             $style .='width: auto;';
             $style .='padding: 3px;';
-            $style .='margin: 7px 5px;';
+            $style .='margin: 4px 5px;';
             $style .='border:1px solid '.( !empty($this->settings->navbarColor) ? $this->settings->navbarColor . '78' : '#ccc' ).';';
             $style .='border-radius:25px;';
             

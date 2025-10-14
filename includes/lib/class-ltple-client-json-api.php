@@ -619,6 +619,16 @@ class LTPLE_Client_Json_API {
 				
 				observer.observe(document.querySelector('body'))
 
+                // visibility change
+                
+                document.addEventListener('visibilitychange', function(){
+                    
+                    if( !document.hidden ) {
+                        
+                        $('#".$tableId."').bootstrapTable('refresh');
+                    }
+                });
+
 				// table search
 				
 				$('#".$tableId."').on('search.bs.table',function(e,text){

@@ -785,6 +785,11 @@ class LTPLE_Client_Dashboard {
 
 		$manage_section .= '<li><a href="' . $this->parent->urls->media .'user-images/"><span class="fas fa-icons"></span> Media Library</a></li>';
 		
+        if( $this->parent->apps->get_list('payment') ){
+            
+            $manage_section .= '<li><a href="' . $this->parent->urls->media .'user-payment-urls/"><span class="fas fa-credit-card"></span> Payment Links</a></li>';
+        }
+        
 		$manage_section = apply_filters('ltple_dashboard_manage_sidebar',$manage_section,$currentTab,$output);
 		
 		if( !empty($manage_section) ){

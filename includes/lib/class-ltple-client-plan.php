@@ -1567,8 +1567,8 @@ class LTPLE_Client_Plan {
 		}
 		
 		return $user_plan_id;
-	}	
-	
+	}
+    
 	public function remote_get_periods($user_email=''){
 		
 		if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
