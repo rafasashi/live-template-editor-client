@@ -62,9 +62,7 @@ class LTPLE_Client_Rights {
 			}
 			elseif( $cap == 'upload_files' ){
 				
-				// TODO check user license
-				
-				$allcaps[$cap] = true;
+				$allcaps[$cap] = user_can($user,'administrator') ? true : false;
 			}
 		}
 		
