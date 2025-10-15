@@ -569,8 +569,15 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		if( apply_filters('ltple_show_media_library',false,$this->type) || $this->parent->user->loggedin ){
             
             if( $this->type == 'user-images' && !$this->parent->inWidget ){
+                
+                $browser_url = add_query_arg(array(
 
-                echo'<iframe data-src="'.$this->get_browser_url($this->parent->user->ID).'" style="border:0;width:100%;height:calc(100vh - 50px);position:absolute;top:50px;bottom:0;right:0;left:0;"></iframe>';
+                    'no_cache'  => 'true',
+                    '_'         => time(),
+
+                ),$this->get_browser_url($this->parent->user->ID));
+
+                echo'<iframe data-src="'.$browser_url.'" style="border:0;width:100%;height:calc(100vh - 50px);position:absolute;top:50px;bottom:0;right:0;left:0;"></iframe>';
             }
             else{
            
