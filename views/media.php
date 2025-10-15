@@ -5,7 +5,7 @@ $ltple = LTPLE_Client::instance();
 $currentTab = $ltple->get_current_tab();
 
 $output		= $ltple->inWidget ? 'widget' : 'default';
-$target		= $ltple->inWidget ? '_blank' : '_self';
+$target		= $ltple->inWidget ? '_self' : '_self';
 
 $modal 		= !empty($ltple->modalId) ?  $ltple->modalId : '';
 
@@ -60,7 +60,7 @@ echo'<div id="media_library" class="wrapper">';
 
 	echo '<div id="sidebar" class="'.$sidebar.'">';
 		
-		echo'<div class="gallery_type_title gallery_head">Directory</div>';
+		echo'<div class="gallery_type_title gallery_head">Bookmarks</div>';
 		
 		echo'<ul id="gallery_sidebar" class="nav nav-tabs tabs-left">';
 
@@ -101,8 +101,14 @@ echo'<div id="media_library" class="wrapper">';
 				
 					echo'<li class="gallery_type_title">Links</li>';
 					
-					echo'<li'.( $this->type == 'user-payment-urls' ? ' class="active"' : '' ).'><a target="'.$target.'" href="'.$ltple->urls->media . 'user-payment-urls/'.$query_args.'"><i class="fas fa-credit-card"></i> Payment Links</a></li>';
-				}
+                    if( $payments = $this->parent->apps->get_list('payment') ){
+                        
+                        foreach( $payments as $payment ){
+                            
+                            echo'<li'.( $this->type == 'user-payment-urls' && $currentTab == $payment->slug ? ' class="active"' : '' ).'><a target="'.$target.'" href="'.add_query_arg('tab',$payment->slug,$ltple->urls->media . 'user-payment-urls/'.$query_args).'"><i class="fas fa-credit-card"></i> '.$payment->name.'</a></li>';
+                        }
+                    }
+                }
 			}
 			
 			do_action('ltple_media_gallery_sidebar',$this->type,$section,$query_args);
@@ -505,26 +511,6 @@ echo'<div id="media_library" class="wrapper">';
 								}
 							}
 							
-							// switch service
-							
-							echo '<li class="more dropdown" style="margin-left: 8px; margin-bottom: 0px;">';
-								
-								echo '<button style="padding:3px 5px;margin:8px 0px;height:25px;background:#f2f2f2;border:0;font-size:14px;" class="glyphicon glyphicon-option-vertical dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"></button>';
-								
-								echo '<ul class="dropdown-menu dropdown-menu-left" style="margin-left:-8px;">';
-								
-									foreach($apps as $app){
-										
-										if( in_array('payment',$app->types) && $app->slug != $active ){
-										
-											echo'<li role="presentation"><a target="'.$target.'" href="'.add_query_arg('tab',$app->slug,$ltple->urls->current).'">'.strtoupper($app->name).'</a></li>';
-										}
-									}
-									
-								echo '</ul>';
-							
-							echo '</li>';
-
 							// app actions
 
 							foreach($apps as $app){
