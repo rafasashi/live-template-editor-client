@@ -332,7 +332,14 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
     public function get_folder_action_buttons($folder,$default_id,$target='_self'){
         
-        $permalink = get_permalink($folder->ID);
+        if( $folder->ID != $default_id ){
+
+            $permalink = apply_filters('ltple_storage_link',get_permalink($folder->ID),$folder);
+        }
+        else{
+            
+            $permalink = $this->parent->urls->media;
+        }
 
         $action = '<a target="_self" href="' . $permalink . '" class="btn btn-sm" target="_blank">Browse</a>';
         
