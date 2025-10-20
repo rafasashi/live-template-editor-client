@@ -526,6 +526,11 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			$query_vars[] = 'media';
 		}
 
+		if( !in_array('path',$query_vars) ){
+		
+			$query_vars[] = 'path';
+		}
+
 		return $query_vars;	
 	}
 	
@@ -595,19 +600,18 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		// add rewrite rules
 
-		add_rewrite_rule(
-			
-			$this->slug . '/([^/]+)/?$',
-			'index.php?pagename=' . $this->slug . '&media=$matches[1]',
-			'top'
-		);
+        add_rewrite_rule(
+            
+            $this->slug . '/([^/]+)(?:/(.*))?/?$',
+            'index.php?pagename=' . $this->slug . '&media=$matches[1]&path=$matches[2]',
+            'top'
+        );
 	}
-	
 	
 	public function get_url_parameters(){
 
 		// get media type
-
+        
 		if( !$this->type = get_query_var('media') ){
 			
 			$this->type = 'user-images';
@@ -906,6 +910,10 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
                 $browser_url = $this->get_browser_url($this->parent->user->ID);
 
                 echo'<iframe data-src="'.$browser_url.'" style="background:#181e23;border:0;width:100%;height:calc(100vh - 50px);position:absolute;top:50px;bottom:0;right:0;left:0;background-image:url('.$this->parent->assets_url . '/images/loader.svg);background-position:center center;background-repeat:no-repeat;"></iframe>';
+            }
+            elseif( $this->type == 'browse' ){
+
+                echo 'here';
             }
             else{
            

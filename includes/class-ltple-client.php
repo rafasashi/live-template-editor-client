@@ -1866,7 +1866,9 @@ class LTPLE_Client {
                             }
                             else{
                                 
-                                $this->exit_message($layer_type->name . ' successfully deleted!',200);
+                                $item_type = !empty($layer_type->name) ? $layer_type->name : 'Item';
+
+                                $this->exit_message($item_type . ' successfully deleted!',200);
                             }
                         }
                     }
