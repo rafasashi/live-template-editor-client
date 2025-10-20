@@ -2168,15 +2168,17 @@ class LTPLE_Client_Profile {
                     
                     $folder = get_page_by_path($this->tabSlug,OBJECT,'folder');
                     
+                    $style = 'background:#181e23;border:0;width:100%;height:100vh;position:absolute;top:0;bottom:0;right:0;left:0;';
+
                     if( !empty($folder->post_author) && intval($folder->post_author) == $this->user->ID ){
 
                         $browser_url = $this->parent->media->get_browser_url($this->user->ID,$folder->ID);
-
-                        $content = '<iframe  data-src="'.$this->sanitize_primary_url($browser_url).'" style="border:0;width:100%;height:100vh;position:absolute;top:0;bottom:0;right:0;left:0;"></iframe>';
+                        
+                        $content = '<iframe data-src="'.$this->sanitize_primary_url($browser_url).'" style="'.$style.'"></iframe>';
                     }
                     else{
 
-                        $content = "This storage doesn't exist.";
+                        $content = '<div style="'.$style.'" ><div class="alert alert-danger">This storage doesn\'t exist.</div></div>';
                     }
 
                     $tabs['browse']['position'] = 2;

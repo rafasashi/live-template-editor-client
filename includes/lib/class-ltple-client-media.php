@@ -5,8 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class LTPLE_Client_Media extends LTPLE_Client_Object {
 	
 	var $parent;
+    var $slug;
 	var $type;
-	var $slug;
+    var $path;
 	var $per_page = 15;
 	
 	/**
@@ -89,6 +90,10 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
                 ));
             }
 		});
+
+        add_filter('ltple_default_template_link',array($this,'filter_storage_link'),10,2);
+        
+        add_filter('ltple_storage_link',array($this,'filter_storage_link'),10,2);
         
         add_filter('ltple_create_folder_slug', function($slug) {
 
@@ -168,7 +173,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
                     
                     update_post_meta($folder->ID, 'lfm_access', 'password');
                     
-                    $this->generate_folder_password($folder);
+                    $this->generate_folder_identity($folder);
                 }
             }
 
@@ -218,6 +223,21 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
             
         },999999,3);
 	}
+
+    public function filter_storage_link($url,$layer){
+        
+        if( is_numeric($layer) ){
+    
+            $layer = get_post($layer);
+        }
+
+        if( !empty($layer->post_type) && $layer->post_type == 'folder' ){
+
+            $url = str_replace(trailingslashit($this->parent->urls->primary),trailingslashit($this->parent->urls->media),$url);
+        }
+
+        return $url;
+    }
 	
     public function get_folder_info($folder_id=0){
         
@@ -344,7 +364,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
                
             if( $this->parent->plan->user_has_layer( $folder ) ){
 
-                if( $this->generate_folder_password($folder) ){
+                if( $this->generate_folder_identity($folder) ){
 
                     $this->parent->exit_message('Password successfully added!',200);
                 }
@@ -354,15 +374,23 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
         $this->parent->exit_message('Error creating password...',404);
     }
 
-    public function generate_folder_password($folder){
+    public function generate_folder_username($folder){
+
+        return dechex( rand(10,99) . $folder->post_author . time() );
+    }
+
+    public function generate_folder_password(){
+
+        return substr(str_shuffle('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'),0,10);
+    }
+
+    public function generate_folder_identity($folder,$username=null){
 
         if( !empty($folder->ID) ){
             
-            $username = dechex( rand(10,99) . $folder->post_author . time() );
-            
-            $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            
-            $password = substr(str_shuffle($chars),0,10);
+            $username = !empty($username) ? $username : $this->generate_folder_username($folder);
+
+            $password = $this->generate_folder_password();
             
             $identity_id = wp_insert_post([
 
@@ -615,6 +643,11 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		if( !$this->type = get_query_var('media') ){
 			
 			$this->type = 'user-images';
+		}
+
+		if( !$this->path = get_query_var('path') ){
+			
+			$this->path = '';
 		}
 	}
 	
@@ -905,16 +938,41 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		if( apply_filters('ltple_show_media_library',false,$this->type) || $this->parent->user->loggedin ){
             
+            $iframe_src = false;
+
             if( $this->type == 'user-images' && !$this->parent->inWidget ){
                 
-                $browser_url = $this->get_browser_url($this->parent->user->ID);
-
-                echo'<iframe data-src="'.$browser_url.'" style="background:#181e23;border:0;width:100%;height:calc(100vh - 50px);position:absolute;top:50px;bottom:0;right:0;left:0;background-image:url('.$this->parent->assets_url . '/images/loader.svg);background-position:center center;background-repeat:no-repeat;"></iframe>';
+                $iframe_src = $this->get_browser_url($this->parent->user->ID);
             }
-            elseif( $this->type == 'browse' ){
+            elseif( $this->type == 'browse' && !empty($this->path) ){
+                
+                $parts = explode('/', trim($this->path, '/'));
 
-                echo 'here';
+                $folder_slug = array_shift($parts);
+
+                $folder_path = !empty($parts) ? implode('/', $parts) : '';
+
+                $folders = get_posts([
+
+                    'post_type'      => 'folder',
+                    'name'           => $folder_slug,
+                    'author'         => $this->parent->user->ID,
+                    'posts_per_page' => 1,
+                    'post_status'    => 'publish',
+                ]);
+                
+                $folder = !empty($folders) ? $folders[0] : null;
+
+                if( !empty($folder) ){
+                    
+                    $iframe_src = $this->get_browser_url($this->parent->user->ID,$folder->ID);
+                }
             }
+
+            if( !empty($iframe_src) ){
+
+                echo'<iframe data-src="'.$iframe_src.'" style="background:#181e23;border:0;width:100%;height:calc(100vh - 50px);position:absolute;top:50px;bottom:0;right:0;left:0;background-image:url('.$this->parent->assets_url . '/images/loader.svg);background-position:center center;background-repeat:no-repeat;"></iframe>';
+            }   
             else{
            
                 include($this->parent->views . '/navbar.php');
@@ -949,7 +1007,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
             if( !empty($folder_id) ){
                 
                 if( $url = get_permalink($folder_id) ){
-
+                    
                     return add_query_arg(array(
 
                         'no_cache'  => 'true',

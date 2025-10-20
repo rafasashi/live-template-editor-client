@@ -564,7 +564,7 @@ class LTPLE_Client_Editor {
 		
 		$default_id = $this->parent->layer->get_default_id($layer->ID);
 		
-		if( $permalink = get_permalink($default_id) ){
+		if( $permalink = apply_filters('ltple_default_template_link',get_permalink($default_id),$default_id) ){
 			
 			echo'<li style="position:relative;">';
 			

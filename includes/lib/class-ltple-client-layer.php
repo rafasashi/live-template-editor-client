@@ -677,7 +677,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		if( is_object($post) ){
 			
-			if(!empty($post->post_type)){
+			if( !empty($post->post_type) ){
 			
 				$post_type = $post->post_type;
 			}
@@ -691,7 +691,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			$post_type = $post;
 		}
 		
-		if( $object = get_post_type_object( $post_type ) ){
+        if( $post_type == 'folder' ){
+            
+            $is_public = false;
+        }
+        elseif( $object = get_post_type_object( $post_type ) ){
 			
 			if( $object->publicly_queryable === true ){
 				
@@ -1376,7 +1380,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	public function has_preview($output){
 		
 		$has_preview = false;
-		
+
 		if( 	$this->is_html_output($output)
 			|| 	$this->is_image_output($output)
 			|| 	$this->is_vector_output($output) 
@@ -1641,12 +1645,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 
     public function get_storage_tabs($tabs,$folder){
-        
-        $default_id = $this->parent->media->get_media_library_id($folder->post_author);
-        
+
         $browse = '<div class="tab-action-wrapper">'; 
 	
-			$browse .= '<a class="btn btn-lg btn-primary" href="' . get_permalink($folder->ID) . '">Browse Storage</a>';
+			$browse .= '<a class="btn btn-lg btn-primary" href="' . apply_filters('ltple_storage_link',get_permalink($folder->ID),$folder) . '">Browse Storage</a>';
 
 		$browse .= '</div>';
 
@@ -1657,7 +1659,9 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			'content'	=> $browse,
 		
 		);
-
+        
+        $default_id = $this->parent->media->get_media_library_id($folder->post_author);
+        
         if( $folder->ID != $default_id ){
             
             $share_link = apply_filters('ltple_share_storage_link',get_permalink($folder->ID),$folder);
@@ -1735,7 +1739,11 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
                                 $tab .= '<div class="alert alert-info">Auto generate a new password</div>';						
                                 
-                                // TODO add extra parameters
+                                /*
+                                $tab .= '<label>Username</label>';
+                                $tab .= '<br>';
+                                $tab .= '<input class="form-control" type="text" name="username" value="'.$this->parent->media->generate_folder_username().'" />';
+                                */
 
                                 $tab .= '<div style="text-align:center;">';
 
