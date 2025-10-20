@@ -21,12 +21,16 @@ if( $ltple->profile->in_tab() ){
 	
 		echo'<footer id="ltple-footer" role="contentinfo" style="margin:0 !important;padding:0 !important;position:relative !important;width: 100% !important;display:table !important;">';
 		
-		if( LTPLE_Editor::get_framework('css') == 'bootstrap-4' ){
+        if( LTPLE_Editor::get_framework('css') == 'bootstrap-4' ){
 			
 			echo '<div class="footerbottom px-2">';
 			
 				echo '<div class="row no-gutters">';
 		}
+        elseif( LTPLE_Editor::get_framework('css') == 'bootstrap-5' ){
+
+            echo '<div class="footerbottom row">';
+        }
 		else{
 			
 			echo '<div class="footerbottom">';
@@ -34,58 +38,58 @@ if( $ltple->profile->in_tab() ){
 		
 		?>
 
-				<div class="col-md-5">
-				
-					 <?php
-					  if( get_theme_mod( 'wow_copyright' ) == '') { ?>
-					  <a href="<?php echo $ltple->urls->primary; ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
-					  <?php }
-					  else { echo wp_kses_post( get_theme_mod( 'wow_copyright' ) ); } ?>
+            <div class="col-md-5">
+            
+                 <?php
+                  if( get_theme_mod( 'wow_copyright' ) == '') { ?>
+                  <a href="<?php echo $ltple->urls->primary; ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
+                  <?php }
+                  else { echo wp_kses_post( get_theme_mod( 'wow_copyright' ) ); } ?>
 
-				</div>
-				
-				<div class="col-md-7 smallspacetop">
-					
-					<div class="pull-right smaller">
-					
-					<?php
-					
-					if( wp_nav_menu( array( 
-						
-						'theme_location' 	=> 'footer',
-						'container'  		=> false,
-						'depth'		 		=> 0,
-						'menu_class' 		=> 'footermenu',
-						'fallback_cb' 		=> 'false'
-						
-					))){
-						
-						echo wp_nav_menu( array( 'sort_column' => 'menu_order', 'container'  => false, 'theme_location' => 'footer' , 'echo' => '0' ) );
-					}
-					else {
+            </div>
+            
+            <div class="col-md-7 smallspacetop">
+                
+                <div class="pull-right smaller">
+                
+                <?php
+                
+                if( wp_nav_menu( array( 
+                    
+                    'theme_location' 	=> 'footer',
+                    'container'  		=> false,
+                    'depth'		 		=> 0,
+                    'menu_class' 		=> 'footermenu',
+                    'fallback_cb' 		=> 'false'
+                    
+                ))){
+                    
+                    echo wp_nav_menu( array( 'sort_column' => 'menu_order', 'container'  => false, 'theme_location' => 'footer' , 'echo' => '0' ) );
+                }
+                else {
 
-					}
-					
-					?>
-					
-					</div>
+                }
+                
+                ?>
+                
+                </div>
 
-				</div>
-				
-			</div>
-				
-		<?php 
-			
-			if( LTPLE_Editor::get_framework('css') == 'bootstrap-4' ){
-			
-				echo '</div>';
-				echo '</div>';
-			}
-			else{
-				
-				echo '</div>';
-			}
-		
+            </div>
+            
+        </div>
+            
+    <?php 
+        
+        if( LTPLE_Editor::get_framework('css') == 'bootstrap-4' ){
+        
+            echo '</div>';
+            echo '</div>';
+        }
+        else{
+            
+            echo '</div>';
+        }
+    
 		echo '</footer>';
 	} 
 }

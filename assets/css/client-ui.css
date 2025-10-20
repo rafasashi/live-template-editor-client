@@ -7,6 +7,11 @@
     cursor:pointer;
 }
 
+.input-group-btn button{
+
+    height:34px;
+}
+
 /* ---------------------------------------------------
    MCE
 ----------------------------------------------------- */
@@ -132,6 +137,7 @@
 	.ltple-ui #ltple-wrapper #sidebar {
 		
 		top: 0;
+        overflow-y: auto;
 	}
 	
 	.ltple-widget #ltple-wrapper #sidebar {
@@ -432,6 +438,14 @@ th input, th select {
     margin:6px 0px 6px 6px;
     padding:5px 10px !important;
     border-radius:25px !important;
+}
+
+.editor-tab-content .tab-action-wrapper{
+
+    background:#fbfbfb;
+    border:1px solid #eee;
+    padding:152px 0;
+    text-align:center;
 }
 
 .beforefooter {

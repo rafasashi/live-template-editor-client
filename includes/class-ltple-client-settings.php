@@ -674,10 +674,10 @@ class LTPLE_Client_Settings {
 
 			add_menu_page( 
 		
-				'ltple-storage', 
-				'Storage', 
+				'ltple-user-contents', 
+				'Contents', 
 				'edit_pages', 
-				'ltple-storage', 
+				'ltple-user-contents', 
 				array($this, 'storage_page'), 
 				'dashicons-database', 
 				4
@@ -692,7 +692,7 @@ class LTPLE_Client_Settings {
 					if( !empty($tab['type']) && $tab['type'] == 'taxonomy' ){
 						
 						add_submenu_page(
-							'ltple-storage',
+							'ltple-user-contents',
 							$tab['tab'],
 							$tab['tab'],
 							'edit_pages',
@@ -702,7 +702,7 @@ class LTPLE_Client_Settings {
 					else{
 						
 						add_submenu_page(
-							'ltple-storage',
+							'ltple-user-contents',
 							$tab['tab'],
 							$tab['tab'],
 							'edit_pages',

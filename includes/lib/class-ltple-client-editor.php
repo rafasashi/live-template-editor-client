@@ -412,12 +412,13 @@ class LTPLE_Client_Editor {
 			margin:0;
 		}';
 		
-		$css .= '.editor-tab-actions .btn, .editor-tab-actions .btn:hover, .editor-tab-actions .btn:active, .editor-tab-actions .btn:visited {
+		$css .= '.editor-tab-actions .btn-primary, .editor-tab-actions .btn-primary:hover, .editor-tab-actions .btn-primary:active, .editor-tab-actions .btn-primary:visited {
 		
 			border: 1px solid ' . $this->parent->settings->mainColor . ' !important;
 			color:' . $this->parent->settings->mainColor . ' !important;
 			background:#fff !important;
 			margin-right:5px;
+            font-weight:bold;
 		}';
 
 		// validation errors

@@ -69,7 +69,7 @@ if( !$ltple->layer->in_editor('gutenberg') && (empty($ltple->profile->id) || $lt
                                     
                                     echo '<button style="border:none;background:#f44336;margin-left:2px;color:#fff;" class="btn btn-sm" data-toggle="dialog" data-target="#removeCurrentTpl">Delete</button>';
                                 
-                                    echo'<div style="display:none;text-align:center;" id="removeCurrentTpl" title="Remove current template">';
+                                    echo'<div style="display:none;text-align:center;" id="removeCurrentTpl" title="Remove current item">';
                                         
                                         echo '<div class="alert alert-danger">Are you sure you want to delete this?</div>';						
 

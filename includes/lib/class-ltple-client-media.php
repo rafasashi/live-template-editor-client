@@ -49,7 +49,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'methods' 	=> 'GET',
 				'callback' 	=> array($this,'get_uploaded_images'),
 				'permission_callback' => '__return_true',
-			) );
+			));
 			
 			register_rest_route( 'ltple-media/v1', '/external-images', array(
 				
@@ -64,7 +64,118 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 				'callback' 	=> array($this,'get_default_images'),
 				'permission_callback' => '__return_true',
 			) );
+            
+            if( class_exists('LFM') ){
+
+                register_rest_route( 'ltple-list/v1', '/folder/', array(
+                    
+                    'methods' 	=> 'GET',
+                    'callback' 	=> array($this,'get_user_folder_rows'),
+                    'permission_callback' => '__return_true',
+                ));	
+
+                register_rest_route( 'ltple-storage/v1', '/passwords/', array(
+				
+                    'methods' 	=> 'GET',
+                    'callback' 	=> array($this,'get_storage_rest_passwords'),
+                    'permission_callback' => '__return_true',
+                ));
+
+                register_rest_route( 'ltple-identity/v1', '/generate/', array(
+				
+                    'methods' 	=> 'POST',
+                    'callback' 	=> array($this,'generate_rest_identity'),
+                    'permission_callback' => '__return_true',
+                ));
+            }
 		});
+        
+        add_filter('ltple_create_folder_slug', function($slug) {
+
+            return dechex(time().rand(10,99));
+        });
+
+        add_filter('ltple_list_folder_menu',function($menu){
+
+            return '<li role="presentation" class="active"><a href="' . $this->parent->urls->current . '" role="tab">Storages</a></li>';
+        });
+
+        add_filter('ltple_list_folder_menu',function($menu){
+
+            $menu = '<li role="presentation" class="active"><a href="' . $this->parent->urls->current . '" role="tab">Storages</a></li>';
+
+            if( $default_id = $this->get_media_library_id($this->parent->user) ){
+                
+                $menu .= '<button data-toggle="dialog" data-target="#quickStartStorage" class="btn btn-sm btn-success">+ New</button>';
+         
+                $menu .= '<div style="display:none;text-align:center;" id="quickStartStorage" title="Create Storage">';
+                    
+                    $menu .= '<form style="padding:10px;width:250px;" target="_self" action="' . $this->parent->urls->editor . '?uri='.$default_id.'" method="post">';
+                        
+                        $menu .= '<div style="padding-bottom:10px;display:block;text-align:left;">';
+
+                            $menu .='<label>Name</label>';
+                            
+                            $menu .= '<div class="input-group">';
+                                
+                                $menu .= $this->parent->admin->display_field( array(
+                        
+                                    'type'				=> 'text',
+                                    'id'				=> 'postTitle',
+                                    'required' 			=> true,
+                                    'description'		=> '',
+                                    'style'				=> '',
+                                    
+                                ),false,false);
+                                
+                                $menu .= '<div class="input-group-btn">';
+                                    
+                                    $menu .= '<button data-toggle="action" data-refresh="self" class="btn btn-primary btn-sm" type="button">Start</button>';
+                                    
+                                    $menu .= '<input type="hidden" name="postAction" value="save" />';
+                                    
+                                    $menu .= '<input type="hidden" name="postContent" value="" />';
+
+                                    $menu .= '<input type="hidden" name="ref" value="' . urlencode(str_replace($this->parent->request->proto,'',$this->parent->urls->current)) .'" />';
+                                    
+                                $menu .= '</div>';
+                                
+                            $menu .= '</div>';
+                            
+                        $menu .= '</div>';
+
+                    $menu .= '</form>';	
+
+                $menu .= '</div>';
+            }
+
+            return $menu;
+        });
+
+        add_filter('ltple_list_folder_new_modal',function($has_modal){
+            
+            return false;
+
+        },10,1);
+
+        add_action('ltple_create_folder', function($folder_id, $default_id) {
+                    
+            $folder = get_post($folder_id);
+            
+            if( !empty($folder->post_author) ){
+
+                if( $folder_id = $this->create_user_folder(intval($folder->post_author), $folder) ){
+                    
+                    update_post_meta($folder->ID, 'lfm_access', 'password');
+                    
+                    $this->generate_folder_password($folder);
+                }
+            }
+
+            return $folder_id;
+
+        }, 10, 2);
+
 
         add_filter('lfm_style_hue',function($hue){
             
@@ -106,67 +217,6 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
             return $url;
             
         },999999,3);
-        
-		add_filter('ltple_create_default_folder',function($user, $args, $task, $iteration){
-            
-            $this->get_browser_url($user);
-
-        },10,4);
-        
-        add_filter('lfm_migrate_user_images', function($user, $args, $task, $iteration) {
-
-            if( $folder_id = (int) get_user_meta($user->ID,'lfm_default_id',true) ){
-                
-                $folder = $this->get_folder_info($folder_id);
-                
-                if( !empty($folder['bucket']) && !empty($folder['region']) ){
-                    
-                    $args = array(
-                        'post_type'      => 'attachment',
-                        'post_mime_type' => 'image',
-                        'post_status'    => 'inherit',
-                        'author'         => $user->ID,
-                        'meta_query'     => array(
-                            'relation' => 'AND',
-                            array(
-                                'key'     => 'ltple_upload_source',
-                                'value'   => 'upload',
-                                'compare' => '=',
-                            ),
-                            array(
-                                'key'     => 'sfm_migrated',
-                                'compare' => 'NOT EXISTS',
-                            ),
-                        ),
-                        'posts_per_page' => 10, // same as your limit
-                        'paged'          => 1,
-                    );
-
-                    $query = new WP_Query( $args );
-
-                    $total_items = $query->found_posts;
-                    $attachments = $query->posts;
-                    
-                    if( !empty($attachments) ){
-                        
-                        foreach( $attachments as $attachment ){
-                            
-                            $path = str_replace(REW_S3_CDN,REW_S3_BUCKET . '.s3.' . REW_S3_REGION . '.amazonaws.com',wp_get_attachment_url($attachment->ID));
-                            
-                            $new_path = 'https://' . $folder['bucket'] . '.s3.' . $folder['region'] . '.amazonaws.com/' . trailingslashit($folder['path']) . basename($path);
-
-                            s3_file_manager()->move($path,$new_path,false);
-                            
-                            update_post_meta($attachment->ID,'sfm_migrated',time());
-                        }
-                        
-                        rew_bulk_editor()->await_object_task($user);
-                    }
-                }
-            }
-            
-        }, 10, 4);
-
 	}
 	
     public function get_folder_info($folder_id=0){
@@ -185,7 +235,290 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
         }
         
     }
-    
+
+    public function get_user_folder_rows($request) {
+		
+		$folder_rows = [];
+        
+        $default_id = $this->get_media_library_id($this->parent->user);
+        
+        $post_type = get_post_type_object('folder');
+
+		if( $folders = get_posts(array(
+
+            'post_type'         => 'folder',
+            'post_status'       => array('publish'),
+            'author'            => $this->parent->user->ID,
+            //'post__not_in'      => array($default_id),
+            'parent'            => 0,
+            'posts_per_page'    => -1,
+            'meta_query' => array(
+                'relation' => 'AND',
+                array(
+                    
+                    'key'     => 'sfm_bucket',
+                    'value'   => get_post_meta($default_id,'sfm_bucket', true),
+                    'compare' => '='
+                ),
+                array(
+                    
+                    'key'     => 'sfm_region',
+                    'value'   => get_post_meta($default_id,'sfm_region', true),
+                    'compare' => '='
+                ),
+                array(
+                    
+                    'key'     => 'lfm_path',
+                    'value'   => '',
+                    'compare' => '!='
+                ),
+            ),
+
+        )) ) {
+
+			foreach( $folders as $folder ){
+				
+				$alt_url = $this->parent->assets_url . 'images/default_item.png';
+
+                $access = $folder->ID == $default_id ? 'owner' : get_post_meta($folder->ID,'lfm_access',true);
+				
+                $status = 'Private';
+
+                if( $access == 'anyone' ){
+
+                    $status = 'Public';
+                }
+                elseif( $access == 'password' ){
+
+                    $status = 'Protected';
+                }
+
+                $type = $folder->ID == $default_id ? 'Editor Contents' : 'File Sharing';
+
+				$row = [];
+				
+				$row['preview'] 	= '<div style="height:100px;width:100px;background:url(' . $alt_url . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
+				$row['name'] 		= ucfirst($folder->post_title);
+				$row['type'] 		= $type;
+                $row['status'] 		= $status;
+				$row['action'] 	    = $this->get_folder_action_buttons($folder,$default_id);
+
+				$folder_rows[] = $row;
+			}
+		}
+		
+		return $folder_rows;
+	}
+
+    public function get_folder_action_buttons($folder,$default_id,$target='_self'){
+        
+        $permalink = get_permalink($folder->ID);
+
+        $action = '<a target="_self" href="' . $permalink . '" class="btn btn-sm" target="_blank">Browse</a>';
+        
+        if( $folder->ID != $default_id ){
+            
+            $action .= '<a target="_self" href="' . $this->parent->urls->edit . '?uri=' . $folder->ID . '&action=edit" class="btn btn-sm btn-success" target="_self">Edit</a>';
+
+            $action .= '<button data-toggle="dialog" data-target="#quickRemoveStorage' . $folder->ID . '" class="btn btn-sm btn-danger">Delete</button>';
+
+            $action .= '<div style="display:none;text-align:center;" id="quickRemoveStorage' . $folder->ID . '" title="Remove Storage #' . $folder->ID . '">';
+                
+                $action .=  '<div class="alert alert-danger">Are you sure you want to delete this storage?</div>';						
+
+                $action .=  '<a data-toggle="action" data-refresh="self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . $this->parent->urls->edit . '?uri=' . $folder->ID . '&postAction=delete&confirmed">Delete permanently</a>';
+                
+            $action .= '</div>';
+        }
+
+		return $action;
+	}
+
+    public function generate_rest_identity( $rest = null ) {
+
+        if( !empty($_REQUEST['uri']) ){
+
+            $folder_id = intval($_REQUEST['uri']);
+
+            $folder = get_post($folder_id);
+               
+            if( $this->parent->plan->user_has_layer( $folder ) ){
+
+                if( $this->generate_folder_password($folder) ){
+
+                    $this->parent->exit_message('Password successfully added!',200);
+                }
+            }
+        }
+
+        $this->parent->exit_message('Error creating password...',404);
+    }
+
+    public function generate_folder_password($folder){
+
+        if( !empty($folder->ID) ){
+            
+            $username = dechex( rand(10,99) . $folder->post_author . time() );
+            
+            $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            
+            $password = substr(str_shuffle($chars),0,10);
+            
+            $identity_id = wp_insert_post([
+
+                'post_title'   => $username,
+                'post_type'    => 'identity',
+                'post_status'  => 'publish',
+                'post_author'  => intval($folder->post_author),
+            ]);
+
+            if( !is_wp_error($identity_id) && $identity_id ) {
+                
+                update_post_meta($identity_id, 'lfm_folder', $folder->ID);
+
+                update_post_meta($identity_id, 'lfm_password', $password);
+                
+                return true;
+            }
+        }
+
+        return false;
+    }
+        
+
+    public function get_storage_rest_passwords( $rest = null ) {
+            
+        $items = [];
+            
+        if( !empty($_REQUEST['uri']) ){
+            
+            $folder_id = intval($_REQUEST['uri']);
+
+            $folder = get_post($folder_id);
+               
+            if( $this->parent->plan->user_has_layer( $folder ) ){
+
+                $paged = !empty($_REQUEST['page']) ? intval($_REQUEST['page']) : 1;
+                
+                $per_page = 100;
+
+                if( $passwords = get_posts([
+
+                    'post_type'      => 'identity',
+                    'posts_per_page' => $per_page,
+                    //'paged'          => $paged,
+                    'author'         => intval($folder->post_author),
+                    'orderby'        => 'date',
+                    'order'          => 'DESC',
+                    'meta_query'     => [
+                        [
+                            'key'     => 'lfm_folder',
+                            'value'   => $folder->ID,
+                            'compare' => '=',
+                        ],
+                        [
+                            'key'     => 'lfm_password',
+                            'value'   => '',
+                            'compare' => '!=',
+                        ],
+                    ],
+                ]) ){
+
+                    foreach( $passwords as $password ){
+                        
+                        $items[]['password'] = $this->get_storage_password_item($password);
+                    }
+                }
+            }
+        }
+            
+        return $items;
+    }
+
+    public function get_storage_password_item($password){
+        
+        $username = $password->post_title;
+
+        $key = get_post_meta($password->ID,'lfm_password',true);
+
+		$item = '<div class="row gutter-20">';
+			
+			$item .= '<div class="col-md-4">';
+			
+				$item .= '<div class="input-group input-group-sm" style="margin:10px 0;">';
+					
+					$item .= '<div class="input-group-addon">';
+						
+						$item .= 'Username';
+					
+					$item .= '</div>';
+					
+					$item .= '<input style="margin:0;padding:10px;height:42px;font-size:15px;color:#888;width:95%;border:1px solid #ccc;border-radius:0 3px 3px 0;" type="text" class="form-control" value="'.$username.'" id="u_'.md5($username).'">';
+					
+					$item .= '<span class="input-group-btn">';
+						
+						$item .= '<button class="btn btn-xs" type="button" data-toggle="copy" data-id="#u_'.md5($username).'">Copy</button>';
+					
+					$item .= '</span>';
+					
+				$item .= '</div>';
+				
+			$item .= '</div>';
+
+            $item .= '<div class="col-md-4">';
+			
+				$item .= '<div class="input-group input-group-sm" style="margin:10px 0;">';
+					
+					$item .= '<div class="input-group-addon">';
+						
+						$item .= 'Password';
+					
+					$item .= '</div>';
+					
+					$item .= '<input style="margin:0;padding:10px;height:42px;font-size:15px;color:#888;width:95%;border:1px solid #ccc;border-radius:0 3px 3px 0;" type="password" class="form-control" value="'.$key.'" id="u_'.md5($key).'">';
+					
+					$item .= '<span class="input-group-btn">';
+						
+						$item .= '<button class="btn btn-xs" type="button" data-toggle="copy" data-id="#u_'.md5($key).'">Copy</button>';
+					
+					$item .= '</span>';
+					
+				$item .= '</div>';
+				
+			$item .= '</div>';
+
+			$item .= '<div class="col-md-4 text-right">';
+
+				$item .= '<div style="margin:20px;">';
+
+					$item .= '<a title="Remove password" onclick="return false;" href="#quickRemovePassword' . $password->ID . '" data-toggle="dialog" data-target="#quickRemovePassword' . $password->ID . '" class="btn btn-sm btn-danger" style="margin:0px 0px 2px 10px;padding:1px 6px;border-radius:250px;font-weight:bold;">x</a>';
+
+					$item .= '<div style="display:none;" id="quickRemovePassword' . $password->ID . '" title="Remove Password">';
+					
+						$item .= '<div class="messageConsole" style="width:265px;">';
+						
+							$item .= '<div class="alert alert-danger">Are you sure you want to delete this?</div>';						
+                            
+                            $item .= '<div style="text-align:center;">';
+
+                                $item .= '<a data-toggle="action" data-refresh="self" style="margin:10px;" class="btn btn-xs btn-danger" href="' . $this->parent->urls->edit . '?uri=' . $password->ID . '&postAction=delete&confirmed">Delete Permanently</a>';
+							
+                            $item .= '</div>';
+
+						$item .= '</div>';
+						
+					$item .= '</div>';
+				
+					
+				$item .= '</div>';
+
+			$item .= '</div>';
+			
+		$item .= '</div>';		
+		
+		return $item;
+    }
+
 	public function add_query_vars( $query_vars ){
 		
 		if( !in_array('media',$query_vars) ){
@@ -570,14 +903,9 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
             
             if( $this->type == 'user-images' && !$this->parent->inWidget ){
                 
-                $browser_url = add_query_arg(array(
+                $browser_url = $this->get_browser_url($this->parent->user->ID);
 
-                    'no_cache'  => 'true',
-                    '_'         => time(),
-
-                ),$this->get_browser_url($this->parent->user->ID));
-
-                echo'<iframe data-src="'.$browser_url.'" style="border:0;width:100%;height:calc(100vh - 50px);position:absolute;top:50px;bottom:0;right:0;left:0;"></iframe>';
+                echo'<iframe data-src="'.$browser_url.'" style="background:#181e23;border:0;width:100%;height:calc(100vh - 50px);position:absolute;top:50px;bottom:0;right:0;left:0;background-image:url('.$this->parent->assets_url . '/images/loader.svg);background-position:center center;background-repeat:no-repeat;"></iframe>';
             }
             else{
            
@@ -606,62 +934,111 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
         if( !empty($user->ID) ){
             
             if( empty($folder_id) ){
-
-                $folder_id = (int) get_user_meta($user->ID, 'lfm_default_id', true);
                 
-                if( !empty($folder_id) ){
-                    
-                    $folder = get_post($folder_id);
-                }
-                
-                if( empty($folder->ID) ){
-
-                    $key = md5($user->user_email);
-                    
-                    $slug = dechex(time());
-                    
-                    $title = "Media Library";
-                    
-                    if( $info = $this->remote_get_media_info($user->user_email) ){
-                        
-                        $folder_id = wp_insert_post(array(
-                        
-                            'post_title'  => $title,
-                            'post_name'   => $slug,
-                            'post_status' => 'publish',
-                            'post_type'   => 'folder',
-                            'post_author' => $user->ID,
-                        ));
-
-                        if( !empty($folder_id) && !is_wp_error($folder_id) ){
-
-                            update_post_meta($folder_id, 'lfm_path', $key . '/' . $folder_id);
-                            update_post_meta($folder_id, 'lfm_access', 'owner');
-                            
-                            if( !empty($info['domain']) ){
-                            
-                                update_post_meta($folder_id, 'lfm_domain', sanitize_text_field($info['domain']));
-                            }
-                            
-                            if( !empty($info['bucket']) && !empty($info['region']) ){
-                            
-                                update_post_meta($folder_id, 'sfm_bucket', sanitize_text_field($info['bucket']));
-                                update_post_meta($folder_id, 'sfm_region', sanitize_title($info['region']));
-                            }
-                            
-                            update_user_meta($user->ID, 'lfm_default_id', $folder_id);
-                        }
-                    }
-                }
+                $folder_id = $this->get_media_library_id($user);
             }
 
             if( !empty($folder_id) ){
                 
-                return get_permalink($folder_id);
+                if( $url = get_permalink($folder_id) ){
+
+                    return add_query_arg(array(
+
+                        'no_cache'  => 'true',
+                        '_'         => time(),
+
+                    ),$url);
+                }
             }
         }
         
         return false;
+    }
+
+    public function get_media_library_id($user){
+        
+        if( is_numeric($user) ){
+
+            $user = get_user_by('id',$user);
+        }
+
+        if( !empty($user->ID) ){
+            
+            $folder_id = (int) get_user_meta($user->ID, 'lfm_default_id', true);
+            
+            if( !empty($folder_id) ){
+                
+                $folder = get_post($folder_id);
+            }
+            
+            if( empty($folder->ID) ){
+                
+                if( $folder_id = $this->create_user_folder($user,'Media Library') ){
+                
+                    update_user_meta($user->ID,'lfm_default_id',$folder_id);
+                }
+            }
+
+            return $folder_id;
+        }
+    }
+
+    public function create_user_folder($user,$folder){
+        
+        $folder_id = null;
+
+        if( is_numeric($user) ){
+
+            $user = get_user_by('id',$user);
+        }
+
+        if( !empty($user->ID) ){
+            
+            $key = md5($user->user_email);
+
+            if( $info = $this->remote_get_media_info($user->user_email) ){
+                
+                if( is_string($folder) ){
+
+                    $folder_id = wp_insert_post(array(
+                    
+                        'post_title'  => $folder,
+                        'post_name'   => apply_filters('ltple_create_folder_slug',$folder),
+                        'post_status' => 'publish',
+                        'post_type'   => 'folder',
+                        'post_author' => $user->ID,
+                    ));
+                }
+                elseif(
+
+                    !empty($folder->ID) && 
+                    !empty($folder->post_author) &&
+                    intval($folder->post_author) == $user->ID
+                ){
+
+                    $folder_id = $folder->ID;
+                }
+
+                if( !empty($folder_id) && !is_wp_error($folder_id) ){
+
+                    update_post_meta($folder_id, 'lfm_path', $key . '/' . $folder_id);
+                    update_post_meta($folder_id, 'lfm_access', 'owner');
+                    
+                    if( !empty($info['domain']) ){
+                    
+                        update_post_meta($folder_id, 'lfm_domain', sanitize_text_field($info['domain']));
+                    }
+                    
+                    if( !empty($info['bucket']) && !empty($info['region']) ){
+                    
+                        update_post_meta($folder_id, 'sfm_bucket', sanitize_text_field($info['bucket']));
+                        update_post_meta($folder_id, 'sfm_region', sanitize_title($info['region']));
+                    }
+                }
+            }
+        }
+
+        return $folder_id;
     }
     
     public function remote_get_media_info($user_email=''){
@@ -881,7 +1258,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
                     
                     $image_url = LFM_File::get_url_path($file_path,$folder_id,false);
                     
-                    $thumb_url = $this->parent->urls->api . 'local-file-manager/v1/'.$folder_id.'/?action=file&file='.urlencode($relpath).'&resize=320';
+                    $thumb_url = $this->parent->urls->api . 'local-file-manager/v1/'.$folder_id.'/file/?file='.urlencode($relpath).'&resize=320';
                     
                     $image = (object) array(
                     

@@ -209,9 +209,9 @@ class LTPLE_Client {
 			add_action('init', array( $this, 'init_frontend' ));
 		}
 		
-		add_action('ltple_editor_action', array( $this, 'do_editor_action'),99999999 );
+		add_action('ltple_editor_action', array( $this,'do_editor_action'),99999999 );
 		
-		add_action('update_post_metadata', array( $this, 'check_post_metadata'),99999999,5 );
+		add_action('update_post_metadata', array( $this,'check_post_metadata'),99999999,5 );
         
         add_action('ltple_duplicated_layer_status',function($layer_status,$layer){
             
@@ -850,7 +850,11 @@ class LTPLE_Client {
 	
 	public function filter_template_path( $path, $layer ){
 		
-        if( $this->urls->current_url_in('editor') ){
+        if( $layer->post_type == 'folder' ){
+            
+            return $path;
+        }
+        elseif( $this->urls->current_url_in('editor') ){
             
             add_filter('ltple_css_framework',function($framework){
                         
@@ -1588,668 +1592,696 @@ class LTPLE_Client {
 	public function do_editor_action(){
 		
         $layer = LTPLE_Editor::instance()->get_layer();
-        
-		if( $this->user->loggedin && !empty($layer->ID) ){
+       
+		if( $this->user->loggedin ){
 			
-			if( isset($_POST['postAction'])&& $_POST['postAction'] == 'edit' ){
-               
-				if( !empty($_POST['id']) ){
-					
-					// edit post
-					
-					if( intval($_POST['id']) == $layer->ID ){
-						
-                        $post_id = $layer->ID;
-                        
-                        $post = $layer;
-					
-						if( $this->user->is_admin || intval($post->post_author) == $this->user->ID ){
-							
-							if( !empty($_POST['image_url']) ){
-								
-								//upload image
-								
-								$this->image->upload_post_image($_POST['image_url'],$post_id,'seller');
-							}
-							
-							//update main data
-							
-							$args = array();
-							
-							if( !empty($_POST['post_title']) ){
-								
-								$args['post_title'] = $_POST['post_title'];
-							}
-							
-							if( !empty($_POST['post_status']) ){
-								
-								$args['post_status'] = $_POST['post_status'];
-							}
-							
-							if( !empty($args) ){
-								
-								$time = current_time('mysql');
-								
-								$args['ID'] 				= $post_id;
-								$args['post_modified'] 		= $time;
-								$args['post_modified_gmt'] 	= get_gmt_from_date( $time );
-							
-								wp_update_post($args);
-							}
-							
-							if( $post->post_type == 'cb-default-layer' ){
-							
-								$fields = $this->layer->get_default_layer_fields($post);
-							}
-							else{
-								
-								$fields = $this->layer->get_user_layer_fields(array(),$post);
-							}
-							
-							if( !empty($fields) ){
-								
-								foreach( $fields as $field ){
-								
-									if( !empty($field['metabox']['taxonomy']) ){
-										
-										//update terms
-										
-										$taxonomy = $field['metabox']['taxonomy'];
-										
-										if( isset($_POST['tax_input'][$taxonomy]) ){
-											
-											$terms = array();
-											
-											if( is_string($_POST['tax_input'][$taxonomy]) ){
-												
-												$terms = array($_POST['tax_input'][$taxonomy]);
-											}
-											elseif( is_array($_POST['tax_input'][$taxonomy]) ){
-												
-												$terms = $_POST['tax_input'][$taxonomy];
-											}
-											
-											wp_set_post_terms( $post_id, $terms, $taxonomy, false );
-										}
-									}
-									else{
-										
-										$field_id = isset($field['name']) ? $field['name'] : $field['id'];
-										
-										if( strpos($field_id,'[') ){
-											
-											$field_id = strstr($field_id,'[',true);
-										}
-										
-										if( isset($_POST[$field_id]) ){
-										
-											//update meta
-										
-											if( !empty($field['type']) && in_array($field['type'],array(
-												
-												'textarea',
-												'code_editor',
-											))){
-												
-												if( !empty($field['code']) && $field['code'] == 'json' ){
-													
-													$value = LTPLE_Editor::sanitize_json($_POST[$field_id]);
-												}
-												elseif( !empty($field['code']) && $field['code'] == 'css' ){
-													
-													$value = LTPLE_Editor::sanitize_css($_POST[$field_id]);
-												}
-												else{
-													
-													$value = LTPLE_Editor::sanitize_content($_POST[$field_id]);
-												}
-											}
-											else{
-												
-												$value = is_array($_POST[$field_id]) ? array_map('sanitize_text_field',$_POST[$field_id]) : sanitize_text_field($_POST[$field_id]);
-											}
-											
-											update_post_meta($post_id,$field_id,$value);
-										}
-									}
-								}
-							}
-							
-							do_action('ltple_edit_layer',$post_id,$post);
-							
-							$layer = LTPLE_Editor::instance()->get_layer($post);
-							
-							$this->exit_message('Settings successfully updated!', 200, apply_filters('ltple_edit_layer_callback',array(
-								
-								'callback' =>'$("#viewBtn").attr("href","'.get_permalink($layer).'");',
-							
-							),$post));
-						}
-						
-						$this->exit_message('Access to project denied...',404);
-					}
-				}
-				
-				$this->exit_message('Error retrieving project...',404);
-			}
-			elseif( isset($_GET['postAction'])&& $_GET['postAction']=='delete' ){
-				
-				if( intval($layer->post_author) == $this->user->ID ){
-					
-					// get local images
-				
-					$image_dir = $this->image->dir . $this->user->ID . '/';
-					$image_url = $this->image->url . $this->user->ID . '/';	
-				
-					$images = glob( $image_dir . $layer->ID . '_*.png');				
-					
-					if( !isset($_GET['confirmed']) ){
-					
-						// confirm deletion
+            if( isset($_POST['postAction']) && sanitize_title($_POST['postAction']) == 'create' ){
 
-						$message = '<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
-							
-							$message .= '<h2>Are you sure you want to delete this?</h2>';
-						
-							if( !empty($images) ){
-								
-								$message .= '<hr></hr>';
+                $post_type = sanitize_title($_POST['postType']) || null;
 
-								$message .= '<div style="margin-top:20px;" class="alert alert-warning">The following images will be removed</div>';
-								
-								$message .= '<div style="margin-top:20px;">';
+                $post_title = sanitize_text_field($_POST['postTitle']) || null;
 
-									foreach ($images as $image) {
-										
-										$message .= '<div class="row">';
-										
-											$message .='<div class="col-xs-3 col-sm-3 col-lg-2">';
+                if( !empty($post_title) && in_array($post_type,array(
 
-												$message .='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
-													
-											$message .='</div>';
+                    'folder',
 
-											$message .='<div class="col-xs-9 col-sm-9 col-lg-10">';
+                ))){
+                    
+                    // todo insert folder and get id
 
-												$message .='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
-												$message .='<br>';
-												$message .='<input style="width:100%;padding:2px 10px;" type="text" value="'. $image_url . basename($image) .'" />';
-
-											$message .='</div>';										
-										
-										$message .= '</div>';
-									}
-									
-								$message .= '</div>';
-							}
-								
-							$message .= '<hr></hr>';	
-								
-							$message .= '<div style="margin-top:10px;text-align:right;">';						
-								
-								$message .= '<a style="margin:10px;" class="btn btn-lg btn-success" href="' . $this->urls->current . '&confirmed">Yes</a>';
-								
-								$message .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->edit . '?uri=' . $layer->ID . '">No</a>';
-
-							$message .= '</div>';
-						
-						$message .= '</div>';
-						
-						$this->session->update_user_data('message',$message);
-					}
-					else{
-						
-						// get layer type
-						
-						$layer_type = $this->layer->get_layer_type($layer);
-
-						//delete images
-						
-						foreach ($images as $image) {
-							
-							unlink($image);
-						}
-						
-						// delete static files
-						
-						$this->layer->delete_static_contents( $layer->ID );
-					
-						// move layer to trash
-						
-						//wp_trash_post( $layer->ID );
-						
-						// delete layer
-						
-						wp_delete_post( $layer->ID, false );
-						
-						// output message
-						
-						if( $_GET['confirmed'] == 'self' ){
-						
-							$message ='<div class="alert alert-success">';
-									
-								$message .= 'Template successfully deleted.';
-
-							$message .='</div>';
-							
-							$this->session->update_user_data('message',$message);
-						
-							wp_redirect($this->urls->dashboard . '?list=' . $layer_type->storage);
-							exit;
-						}
-						else{
-							
-							$this->exit_message('Template successfully deleted!',200);
-						}
-					}
-				}
-			}
-			elseif( isset($_POST['postAction']) && $_POST['postAction'] == 'download' ){
-				
-				$this->layer->download_static_contents($layer->ID);
-			}
-			elseif( isset($_POST['postContent']) && !empty($layer->post_type) ){
-				
-				// get post content
-				
-				$post_content 	= LTPLE_Editor::sanitize_content( $_POST['postContent'] );
-				
-				$post_json 		= ( !empty($_POST['postJson']) ? LTPLE_Editor::sanitize_json( $_POST['postJson'] ) : '' );
-				
-				$post_css 		= ( !empty($_POST['postCss']) ? sanitize_meta('layerCss',$_POST['postCss'],'post') : '' ); // unslash breaks unicode char
-				$post_js 		= ( !empty($_POST['postJs'])  ? sanitize_meta('layerJs',stripcslashes( $_POST['postJs'] ),'post') : '' );
-
-				$post_title 	= ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
-				$post_name 		= $post_title;	
-
-                $layer_type = $this->layer->get_layer_type($layer);
+                    do_action('ltple_create_'.$post_type,$post_id);
+                }
+            }
+            elseif( $layer = LTPLE_Editor::instance()->get_layer() ){
                 
-				if( $_POST['postAction'] == 'update' ){
-					
-					//update layer
-					
-					if( $this->user->can_edit ){
+                if( isset($_POST['postAction'])&& sanitize_title($_POST['postAction']) == 'edit' ){
+                   
+                    if( !empty($_POST['id']) ){
                         
-						if( !empty($layer) ){
-						
-							$layerId = intval( $layer->ID );
+                        // edit post
+                        
+                        if( intval($_POST['id']) == $layer->ID ){
+                            
+                            $post_id = $layer->ID;
+                            
+                            $post = $layer;
+                        
+                            if( $this->user->is_admin || intval($post->post_author) == $this->user->ID ){
+                                
+                                if( !empty($_POST['image_url']) ){
+                                    
+                                    //upload image
+                                    
+                                    $this->image->upload_post_image($_POST['image_url'],$post_id,'seller');
+                                }
+                                
+                                //update main data
+                                
+                                $args = array();
+                                
+                                if( !empty($_POST['post_title']) ){
+                                    
+                                    $args['post_title'] = $_POST['post_title'];
+                                }
+                                
+                                if( !empty($_POST['post_status']) ){
+                                    
+                                    $args['post_status'] = $_POST['post_status'];
+                                }
+                                
+                                if( !empty($args) ){
+                                    
+                                    $time = current_time('mysql');
+                                    
+                                    $args['ID'] 				= $post_id;
+                                    $args['post_modified'] 		= $time;
+                                    $args['post_modified_gmt'] 	= get_gmt_from_date( $time );
+                                
+                                    wp_update_post($args);
+                                }
+                                
+                                if( $post->post_type == 'cb-default-layer' ){
+                                
+                                    $fields = $this->layer->get_default_layer_fields($post);
+                                }
+                                elseif( $post->post_type == 'folder' ){
+                                
+                                    $fields = $this->layer->get_storage_fields();
+                                }
+                                else{
+                                    
+                                    $fields = $this->layer->get_user_layer_fields(array(),$post);
+                                }
+                                
+                                if( !empty($fields) ){
+                                    
+                                    foreach( $fields as $field ){
+                                    
+                                        if( !empty($field['metabox']['taxonomy']) ){
+                                            
+                                            //update terms
+                                            
+                                            $taxonomy = $field['metabox']['taxonomy'];
+                                            
+                                            if( isset($_POST['tax_input'][$taxonomy]) ){
+                                                
+                                                $terms = array();
+                                                
+                                                if( is_string($_POST['tax_input'][$taxonomy]) ){
+                                                    
+                                                    $terms = array($_POST['tax_input'][$taxonomy]);
+                                                }
+                                                elseif( is_array($_POST['tax_input'][$taxonomy]) ){
+                                                    
+                                                    $terms = $_POST['tax_input'][$taxonomy];
+                                                }
+                                                
+                                                wp_set_post_terms( $post_id, $terms, $taxonomy, false );
+                                            }
+                                        }
+                                        else{
+                                            
+                                            $field_id = isset($field['name']) ? $field['name'] : $field['id'];
+                                            
+                                            if( strpos($field_id,'[') ){
+                                                
+                                                $field_id = strstr($field_id,'[',true);
+                                            }
+                                            
+                                            if( isset($_POST[$field_id]) ){
+                                            
+                                                //update meta
+                                            
+                                                if( !empty($field['type']) && in_array($field['type'],array(
+                                                    
+                                                    'textarea',
+                                                    'code_editor',
+                                                ))){
+                                                    
+                                                    if( !empty($field['code']) && $field['code'] == 'json' ){
+                                                        
+                                                        $value = LTPLE_Editor::sanitize_json($_POST[$field_id]);
+                                                    }
+                                                    elseif( !empty($field['code']) && $field['code'] == 'css' ){
+                                                        
+                                                        $value = LTPLE_Editor::sanitize_css($_POST[$field_id]);
+                                                    }
+                                                    else{
+                                                        
+                                                        $value = LTPLE_Editor::sanitize_content($_POST[$field_id]);
+                                                    }
+                                                }
+                                                else{
+                                                    
+                                                    $value = is_array($_POST[$field_id]) ? array_map('sanitize_text_field',$_POST[$field_id]) : sanitize_text_field($_POST[$field_id]);
+                                                }
+                                                
+                                                update_post_meta($post_id,$field_id,$value);
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                do_action('ltple_edit_layer',$post_id,$post);
 
-							if( is_int($layerId) && $layerId !== -1 ){
-							
-								global $wpdb;
-							
-								//$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $layerId));
-							
-								update_post_meta($layerId, 'layerContent', $post_content);
-							
-								update_post_meta($layerId, 'layerCss', $post_css);
-								
-								update_post_meta($layerId, 'layerJs', $post_js);
-								
-								$this->exit_message('Template successfully updated!',200);
-							}
-						}
-						else{
-						
-							$this->exit_message('Error getting default layer ID...',404);
-						}
-					}
-					else{
-						
-						$this->exit_message('Update permission denided...',404);
-					}
-				}
-				elseif( $_POST['postAction'] == 'import' ){
-					
-					if( $this->user->is_admin ){
-						
-						if( !empty($layer) ){
-						
-							$layerId = intval( $layer->ID );
+                                $layer = LTPLE_Editor::instance()->get_layer($post);
+                                
+                                $this->exit_message('Settings successfully updated!', 200, apply_filters('ltple_edit_layer_callback',array(
+                                    
+                                    'callback' =>'$("#viewBtn").attr("href","'.get_permalink($layer).'");',
+                                
+                                ),$post));
+                            }
+                            
+                            $this->exit_message('Access to project denied...',404);
+                        }
+                    }
+                    
+                    $this->exit_message('Error retrieving project...',404);
+                }
+                elseif( isset($_GET['postAction']) && sanitize_title($_GET['postAction']) == 'delete' ){
+                    
+                    if( intval($layer->post_author) == $this->user->ID ){
+                        
+                        // get local images
+                    
+                        $image_dir = $this->image->dir . $this->user->ID . '/';
+                        $image_url = $this->image->url . $this->user->ID . '/';	
+                    
+                        $images = glob( $image_dir . $layer->ID . '_*.png');				
+                        
+                        if( !isset($_GET['confirmed']) ){
+                        
+                            // confirm deletion
 
-							if( is_int($layerId) && $layerId !== -1 ){
-							
-								$post_id = wp_insert_post(array(
-									
-									'post_author' 	=> $this->user->ID,
-									'post_title' 	=> $post_title,
-									'post_name' 	=> $post_name,
-									'post_type' 	=> $layer->post_type,
-									'post_status' 	=> 'publish'
-								));
+                            $message = '<div class="col-xs-12 col-sm-12 col-lg-8" style="padding:20px;min-height:500px;">';
+                                
+                                $message .= '<h2>Are you sure you want to delete this?</h2>';
+                            
+                                if( !empty($images) ){
+                                    
+                                    $message .= '<hr></hr>';
 
-								if( is_numeric($post_id) ){							
-									
-									// duplicate all taxonomies
-									
-									$taxonomies = get_object_taxonomies($layer->post_type);
-									
-									foreach ($taxonomies as $taxonomy) {
-										
-										$layerTerms = wp_get_object_terms($layerId, $taxonomy, array('fields' => 'slugs'));
-										
-										wp_set_object_terms($post_id, $layerTerms, $taxonomy, false);
-									}
-									
-									update_post_meta( $post_id, 'layerMargin', '0px' );
+                                    $message .= '<div style="margin-top:20px;" class="alert alert-warning">The following images will be removed</div>';
+                                    
+                                    $message .= '<div style="margin-top:20px;">';
 
-									update_post_meta($post_id, 'layerContent', $post_content);
-									
-									update_post_meta($post_id, 'layerCss', $post_css);
-									
-									update_post_meta($post_id, 'layerJs', $post_js);									
-									
-									if(!empty($_POST['postSources'])){
-										
-										$postSources = $_POST['postSources'];
-										
-										$upload_dir = wp_upload_dir();
-										
-										$valid_hosts = array(
-										
-											'fonts.googleapis.com',
-										);										
-										
-										foreach($postSources as $tagname => $sources){
-											
-											foreach($sources as $i => $source){
-												
-												// search source
-												
-												if( !in_array(parse_url($source,PHP_URL_HOST),$valid_hosts) ){
+                                        foreach ($images as $image) {
+                                            
+                                            $message .= '<div class="row">';
+                                            
+                                                $message .='<div class="col-xs-3 col-sm-3 col-lg-2">';
 
-													$source_name = strtolower(basename($source));
-													
-													$source_name = preg_replace('/[^\da-z]/i', '-', $source_name);
-													
-													if( !empty($source_name) ){
-														
-														$source_name = $source_name . ( $tagname == 'link' ? '.css' : '.js');
-							
-														if( file_exists( $upload_dir['path'] . '/' . $source_name ) ){
-															
-															unlink( $upload_dir['path'] . '/' . $source_name );
-														}
-							
-														if( file_exists( $upload_dir['path'] . '/' . $source_name ) ){
-															
-															// upload file
-															
-															$postSources[$tagname][$i] = $upload_dir['url'] . '/' . $source_name;	
-														}
-														else{
-							
-															// get file contents
-															
-															$ch = curl_init($source);
-															curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-															curl_setopt($ch, CURLOPT_TIMEOUT,20);
-															curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-															curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
-															$file = curl_exec($ch);
-															$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-															curl_close($ch);
-															
-															//if( $file = file_get_contents($source) ){
-															if( $httpcode >= 300 ){
-																
-																// remove comments in file
-									
-																$regex = array(
-																"`^([\t\s]+)`ism"=>'',
-																"`^\/\*(.+?)\*\/`ism"=>"",
-																"`([\n\A;]+)\/\*(.+?)\*\/`ism"=>"$1",
-																"`([\n\A;\s]+)//(.+?)[\n\r]`ism"=>"$1\n",
-																"`(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+`ism"=>"\n"
-																);
-																
-																$file = preg_replace(array_keys($regex),$regex,$file);		
-																
-																$css_urls = $this->extract_css_urls($file);
-																
-																if( !empty($css_urls) ){
-																	
-																	foreach($css_urls as $type => $urls){
-																		
-																		if( !empty($urls) ){
-																			
-																			foreach($urls as $url){
-																				
-																				$abs_url = $this->layer->get_absolute_url( $url, $source );
-																				
-																				$filename = strtolower(basename($abs_url));
-																				
-																				if( !empty($filename) ){
-																					
-																					$filename = md5($source) . '_' . $filename;
-																					
-																					if( !file_exists( $upload_dir['path'] . '/' . $filename ) ){
-																						
-																						$ch = curl_init($abs_url);
-																						curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-																						curl_setopt($ch, CURLOPT_TIMEOUT,20);
-																						curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-																						curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
-																						$content = curl_exec($ch);
-																						$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-																						curl_close($ch);
-																						
-																						if( $httpcode >= 300 ){																						
-																							
-																							$upload  = wp_upload_bits( $filename, null, $content );
-																							
-																							if( !empty($upload['url']) ){
-																								
-																								$abs_url = $upload['url'];
-																							}
-																							else{
-																								
-																								//var_dump($content);
-																							}
-																						}
-																					}
-																					else{
-																						
-																						$abs_url = $upload_dir['url'] . '/' . $filename;
-																					}
-														
-																					$file = str_replace( $url, $abs_url, $file );
-																				}
-																			}
-																		}
-																	}
-																}
-																
-																// upload file
-																
-																$upload = wp_upload_bits($source_name, null, $file);
-																
-																// set new url
-									
-																$postSources[$tagname][$i] = $upload['url'];
-															}
-														}
-													}
-													else{
-														
-														unset($postSources[$tagname][$i]);
-													}
-												}
-											}
-										}
-										
-										// update meta
+                                                    $message .='<img class="lazy" data-original="' . $image_url . basename($image) .'" />';
+                                                        
+                                                $message .='</div>';
 
-										update_post_meta($post_id, 'layerMeta', json_encode($postSources,JSON_PRETTY_PRINT));
-									}									
+                                                $message .='<div class="col-xs-9 col-sm-9 col-lg-10">';
 
-									// get layer url
-										
-									$layer_url = $this->urls->edit . '?uri=' . $post_id;
-									
-									//redirect to user layer
+                                                    $message .='<b style="overflow:hidden;width:90%;display:block;">' . basename($image) . '</b>';
+                                                    $message .='<br>';
+                                                    $message .='<input style="width:100%;padding:2px 10px;" type="text" value="'. $image_url . basename($image) .'" />';
 
-									wp_redirect($layer_url);
-									echo 'Redirecting editor...';
-									exit;
-								}							
-							}
-						}
-					}
-					else{
-						
-						$this->exit_alert('You don\'t have enough right to perform this action...',404);
-					}
-				}
-				elseif( isset($_POST['postAction']) && $_POST['postAction'] == 'save' ){				
+                                                $message .='</div>';										
+                                            
+                                            $message .= '</div>';
+                                        }
+                                        
+                                    $message .= '</div>';
+                                }
+                                    
+                                $message .= '<hr></hr>';	
+                                    
+                                $message .= '<div style="margin-top:10px;text-align:right;">';						
+                                    
+                                    $message .= '<a style="margin:10px;" class="btn btn-lg btn-success" href="' . $this->urls->current . '&confirmed">Yes</a>';
+                                    
+                                    $message .= '<a style="margin:10px;" class="btn btn-lg btn-danger" href="' . $this->urls->edit . '?uri=' . $layer->ID . '">No</a>';
 
-					//save layer
-					
-					$post_id = '';
-					$defaultLayerId = -1;
-					
-					if( empty($layer_type->storage) ){
-						
-						$this->exit_alert('Wrong template storage...',404);
-					}
-					elseif( $layer->post_type != 'cb-default-layer' ){
-						
-						$post_id		= $layer->ID;
-						$post_author	= $layer->post_author;
-						$post_title		= $layer->post_title;
-						$post_name		= $layer->post_name;
-						$post_status 	= $layer->post_status;
-						$post_type		= $layer->post_type; // user-layer, post, page...
-						
-						$defaultLayerId	= $this->layer->get_default_id($post_id);
-					}
-					else{
-						
-						$post_type = $layer_type->storage;
-						
-						$post_status = apply_filters('ltple_default_layer_status','publish',$post_type);
-						
-						$defaultLayer = $layer;
-						
-						if( !empty($defaultLayer) ){
-						
-							if( empty($post_title) ){
-							
-								$post_title = $defaultLayer->post_title;
-							}
-							
-							$post_author = $this->user->ID;
-							
-							if( !$this->plan->remaining_storage_amount($defaultLayer) > 0 ){
-								
-								$layer_type = $this->layer->get_layer_type($defaultLayer);
-								
-								$this->exit_alert('You can\'t save more projects from the <b>' . $layer_type->name . '</b> gallery with the current plan...',404);
-							}
+                                $message .= '</div>';
+                            
+                            $message .= '</div>';
+                            
+                            $this->session->update_user_data('message',$message);
+                        }
+                        else{
+                            
+                            // get layer type
+                            
+                            $layer_type = $this->layer->get_layer_type($layer);
 
-							$defaultLayerId	= $defaultLayer->ID;
-						}
-						else{
-							
-							$this->exit_alert('This default layer doesn\'t exists...',404);						
-						}
-					}
-					
-					if( $post_title != '' && is_int($defaultLayerId) && $defaultLayerId > 0 ){
-						
-						$time 	= current_time('mysql');
-						$gmt 	= get_gmt_from_date($time);
-						
-						if( $post_id > 0 ){
-							
-							$post_id = wp_update_post(array(
-								
-								'ID' 			=> $post_id,
-								'post_author' 	=> $post_author,
-								'post_title' 	=> $post_title,
-								'post_name' 	=> $post_name,
-								'post_type' 	=> $post_type,
-								'post_status' 	=> $post_status,
-								'post_modified' 	=> $time,
-								'post_modified_gmt' => $gmt,
-							));
-							
-							$status = 'updated';
-						}
-						else{
-							
-							$post_id = wp_insert_post(array(
-								
-								'post_author' 	=> $post_author,
-								'post_title' 	=> $post_title,
-								'post_name' 	=> $post_name,
-								'post_type' 	=> $post_type,
-								'post_status' 	=> $post_status,
-								'post_date' 	=> $time,
-								'post_date_gmt' => $gmt,
-							));
-							
-							$status = 'created';
-						}
-						
-						if( is_numeric($post_id) ){
-							
-							$this->layer->save_default_id($post_id,$defaultLayerId);
-							
-							update_post_meta($post_id, 'layerContent', $post_content);
-							
-							update_post_meta($post_id, 'layerJson', $post_json);
-							
-							update_post_meta($post_id, 'layerCss', $post_css);
-							
-							update_post_meta($post_id, 'layerJs', $post_js);
-							
-							do_action('ltple_user_layer_' . $status,$post_id,$defaultLayerId);
-							
-							if( $layer->post_type == 'cb-default-layer' ){
-								
-								// update layer type
-								
-								wp_set_object_terms($post_id,$layer_type->term_id,'layer-type',false); 
-									
-                                do_action('ltple_create_' . $layer_type->storage,$post_id,$defaultLayerId);
+                            //delete images
+                            
+                            foreach ($images as $image) {
+                                
+                                unlink($image);
+                            }
+                            
+                            // delete static files
+                            
+                            $this->layer->delete_static_contents( $layer->ID );
+                        
+                            // move layer to trash
+                            
+                            //wp_trash_post( $layer->ID );
+                            
+                            // delete layer
+                            
+                            wp_delete_post( $layer->ID, false );
+                            
+                            // output message
+                            
+                            if( sanitize_title($_GET['confirmed']) == 'self' ){
+                            
+                                $message ='<div class="alert alert-success">';
+                                        
+                                    $message .= 'Template successfully deleted.';
 
-								//redirect to user layer
+                                $message .='</div>';
+                                
+                                $this->session->update_user_data('message',$message);
+                            
+                                wp_redirect($this->urls->dashboard . '?list=' . $layer_type->storage);
+                                exit;
+                            }
+                            else{
+                                
+                                $this->exit_message($layer_type->name . ' successfully deleted!',200);
+                            }
+                        }
+                    }
+                }
+                elseif( isset($_POST['postAction']) && sanitize_title($_POST['postAction']) == 'download' ){
+                    
+                    $this->layer->download_static_contents($layer->ID);
+                }
+                elseif( isset($_POST['postContent']) && !empty($layer->post_type) ){
+                    
+                    // get post content
+                    
+                    $post_content 	= LTPLE_Editor::sanitize_content( $_POST['postContent'] );
+                    
+                    $post_json 		= ( !empty($_POST['postJson']) ? LTPLE_Editor::sanitize_json( $_POST['postJson'] ) : '' );
+                    
+                    $post_css 		= ( !empty($_POST['postCss']) ? sanitize_meta('layerCss',$_POST['postCss'],'post') : '' ); // unslash breaks unicode char
+                    $post_js 		= ( !empty($_POST['postJs'])  ? sanitize_meta('layerJs',stripcslashes( $_POST['postJs'] ),'post') : '' );
 
-								$user_layer_url = $this->urls->get_edit_url($post_id);
-								
-								wp_redirect($user_layer_url);
-								echo 'Redirecting editor...';
-								exit;					
-							}
-							else{
-								
-								$this->exit_message('Template successfully '.$status,200);
-							}
-						}
-					}
+                    $post_title 	= ( !empty($_POST['postTitle']) ? wp_strip_all_tags( $_POST['postTitle'] ) 	 : '' );
+                    $post_name 		= $post_title;	
 
-					$this->exit_message('Error saving user layer...',404);
-				}
-				else{
-					
-					$this->exit_alert('This action doesn\'t exists...',404);					
-				}
-			}
-			elseif( $_SERVER['REQUEST_METHOD'] === 'POST' ){
-				
-                if( !empty($layer->output) && $layer->output == 'image' ){
-				
-					if( $this->layer->upload_image_template($layer) ){
-						
-						$this->exit_message('Design successfully saved!',200);						
-					}
-					else{
-						
-						$this->exit_message('Error Saving Design...',404);
-					}
-				}
-			}	
+                    $layer_type = $this->layer->get_layer_type($layer);
+                    
+                    if( sanitize_title($_POST['postAction']) == 'update' ){
+                        
+                        //update layer
+                        
+                        if( $this->user->can_edit ){
+                            
+                            if( !empty($layer) ){
+                            
+                                $layerId = intval( $layer->ID );
+
+                                if( is_int($layerId) && $layerId !== -1 ){
+                                
+                                    global $wpdb;
+                                
+                                    //$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content), array( "ID" => $layerId));
+                                
+                                    update_post_meta($layerId, 'layerContent', $post_content);
+                                
+                                    update_post_meta($layerId, 'layerCss', $post_css);
+                                    
+                                    update_post_meta($layerId, 'layerJs', $post_js);
+                                    
+                                    $this->exit_message('Template successfully updated!',200);
+                                }
+                            }
+                            else{
+                            
+                                $this->exit_message('Error getting default layer ID...',404);
+                            }
+                        }
+                        else{
+                            
+                            $this->exit_message('Update permission denided...',404);
+                        }
+                    }
+                    elseif( sanitize_title($_POST['postAction']) == 'import' ){
+                        
+                        if( $this->user->is_admin ){
+                            
+                            if( !empty($layer) ){
+                            
+                                $layerId = intval( $layer->ID );
+
+                                if( is_int($layerId) && $layerId !== -1 ){
+                                
+                                    $post_id = wp_insert_post(array(
+                                        
+                                        'post_author' 	=> $this->user->ID,
+                                        'post_title' 	=> $post_title,
+                                        'post_name' 	=> $post_name,
+                                        'post_type' 	=> $layer->post_type,
+                                        'post_status' 	=> 'publish'
+                                    ));
+
+                                    if( is_numeric($post_id) ){							
+                                        
+                                        // duplicate all taxonomies
+                                        
+                                        $taxonomies = get_object_taxonomies($layer->post_type);
+                                        
+                                        foreach ($taxonomies as $taxonomy) {
+                                            
+                                            $layerTerms = wp_get_object_terms($layerId, $taxonomy, array('fields' => 'slugs'));
+                                            
+                                            wp_set_object_terms($post_id, $layerTerms, $taxonomy, false);
+                                        }
+                                        
+                                        update_post_meta( $post_id, 'layerMargin', '0px' );
+
+                                        update_post_meta($post_id, 'layerContent', $post_content);
+                                        
+                                        update_post_meta($post_id, 'layerCss', $post_css);
+                                        
+                                        update_post_meta($post_id, 'layerJs', $post_js);									
+                                        
+                                        if(!empty($_POST['postSources'])){
+                                            
+                                            $postSources = $_POST['postSources'];
+                                            
+                                            $upload_dir = wp_upload_dir();
+                                            
+                                            $valid_hosts = array(
+                                            
+                                                'fonts.googleapis.com',
+                                            );										
+                                            
+                                            foreach($postSources as $tagname => $sources){
+                                                
+                                                foreach($sources as $i => $source){
+                                                    
+                                                    // search source
+                                                    
+                                                    if( !in_array(parse_url($source,PHP_URL_HOST),$valid_hosts) ){
+
+                                                        $source_name = strtolower(basename($source));
+                                                        
+                                                        $source_name = preg_replace('/[^\da-z]/i', '-', $source_name);
+                                                        
+                                                        if( !empty($source_name) ){
+                                                            
+                                                            $source_name = $source_name . ( $tagname == 'link' ? '.css' : '.js');
+                                
+                                                            if( file_exists( $upload_dir['path'] . '/' . $source_name ) ){
+                                                                
+                                                                unlink( $upload_dir['path'] . '/' . $source_name );
+                                                            }
+                                
+                                                            if( file_exists( $upload_dir['path'] . '/' . $source_name ) ){
+                                                                
+                                                                // upload file
+                                                                
+                                                                $postSources[$tagname][$i] = $upload_dir['url'] . '/' . $source_name;	
+                                                            }
+                                                            else{
+                                
+                                                                // get file contents
+                                                                
+                                                                $ch = curl_init($source);
+                                                                curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+                                                                curl_setopt($ch, CURLOPT_TIMEOUT,20);
+                                                                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                                                                curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+                                                                $file = curl_exec($ch);
+                                                                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                                curl_close($ch);
+                                                                
+                                                                //if( $file = file_get_contents($source) ){
+                                                                if( $httpcode >= 300 ){
+                                                                    
+                                                                    // remove comments in file
+                                        
+                                                                    $regex = array(
+                                                                    "`^([\t\s]+)`ism"=>'',
+                                                                    "`^\/\*(.+?)\*\/`ism"=>"",
+                                                                    "`([\n\A;]+)\/\*(.+?)\*\/`ism"=>"$1",
+                                                                    "`([\n\A;\s]+)//(.+?)[\n\r]`ism"=>"$1\n",
+                                                                    "`(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+`ism"=>"\n"
+                                                                    );
+                                                                    
+                                                                    $file = preg_replace(array_keys($regex),$regex,$file);		
+                                                                    
+                                                                    $css_urls = $this->extract_css_urls($file);
+                                                                    
+                                                                    if( !empty($css_urls) ){
+                                                                        
+                                                                        foreach($css_urls as $type => $urls){
+                                                                            
+                                                                            if( !empty($urls) ){
+                                                                                
+                                                                                foreach($urls as $url){
+                                                                                    
+                                                                                    $abs_url = $this->layer->get_absolute_url( $url, $source );
+                                                                                    
+                                                                                    $filename = strtolower(basename($abs_url));
+                                                                                    
+                                                                                    if( !empty($filename) ){
+                                                                                        
+                                                                                        $filename = md5($source) . '_' . $filename;
+                                                                                        
+                                                                                        if( !file_exists( $upload_dir['path'] . '/' . $filename ) ){
+                                                                                            
+                                                                                            $ch = curl_init($abs_url);
+                                                                                            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+                                                                                            curl_setopt($ch, CURLOPT_TIMEOUT,20);
+                                                                                            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                                                                                            curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+                                                                                            $content = curl_exec($ch);
+                                                                                            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                                                                            curl_close($ch);
+                                                                                            
+                                                                                            if( $httpcode >= 300 ){																						
+                                                                                                
+                                                                                                $upload  = wp_upload_bits( $filename, null, $content );
+                                                                                                
+                                                                                                if( !empty($upload['url']) ){
+                                                                                                    
+                                                                                                    $abs_url = $upload['url'];
+                                                                                                }
+                                                                                                else{
+                                                                                                    
+                                                                                                    //var_dump($content);
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                        else{
+                                                                                            
+                                                                                            $abs_url = $upload_dir['url'] . '/' . $filename;
+                                                                                        }
+                                                            
+                                                                                        $file = str_replace( $url, $abs_url, $file );
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    // upload file
+                                                                    
+                                                                    $upload = wp_upload_bits($source_name, null, $file);
+                                                                    
+                                                                    // set new url
+                                        
+                                                                    $postSources[$tagname][$i] = $upload['url'];
+                                                                }
+                                                            }
+                                                        }
+                                                        else{
+                                                            
+                                                            unset($postSources[$tagname][$i]);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            
+                                            // update meta
+
+                                            update_post_meta($post_id, 'layerMeta', json_encode($postSources,JSON_PRETTY_PRINT));
+                                        }									
+
+                                        // get layer url
+                                            
+                                        $layer_url = $this->urls->edit . '?uri=' . $post_id;
+                                        
+                                        //redirect to user layer
+
+                                        wp_redirect($layer_url);
+                                        echo 'Redirecting editor...';
+                                        exit;
+                                    }							
+                                }
+                            }
+                        }
+                        else{
+                            
+                            $this->exit_alert('You don\'t have enough right to perform this action...',404);
+                        }
+                    }
+                    elseif( isset($_POST['postAction']) && sanitize_title($_POST['postAction']) == 'save' ){				
+
+                        //save layer
+                        
+                        $post_id = '';
+                        $defaultLayerId = -1;
+                        
+                        if( empty($layer_type->storage) ){
+                            
+                            $this->exit_alert('Wrong template storage...',404);
+                        }
+                        elseif( !$this->layer->is_default_type($layer->post_type) ){
+                            
+                            $post_id		= $layer->ID;
+                            $post_author	= $layer->post_author;
+                            $post_title		= $layer->post_title;
+                            $post_name		= $layer->post_name;
+                            $post_status 	= $layer->post_status;
+                            $post_type		= $layer->post_type; // user-layer, post, page...
+                            
+                            $defaultLayerId	= $this->layer->get_default_id($post_id);
+                        }
+                        else{
+                            
+                            $post_type = $layer_type->storage;
+                            
+                            $post_status = apply_filters('ltple_default_layer_status','publish',$post_type);
+                            
+                            $defaultLayer = $layer;
+                            
+                            if( !empty($defaultLayer) ){
+                            
+                                if( empty($post_title) ){
+                                
+                                    $post_title = $defaultLayer->post_title;
+                                }
+                                
+                                $post_author = $this->user->ID;
+                                
+                                if( $layer->post_type == 'cb-default-layer' && !$this->plan->remaining_storage_amount($defaultLayer) > 0 ){
+                                    
+                                    $layer_type = $this->layer->get_layer_type($defaultLayer);
+                                    
+                                    $this->exit_alert('You can\'t save more projects from the <b>' . $layer_type->name . '</b> gallery with the current plan...',404);
+                                }
+
+                                $defaultLayerId	= $defaultLayer->ID;
+                            }
+                            else{
+                                
+                                $this->exit_alert('This default layer doesn\'t exists...',404);						
+                            }
+                        }
+                        
+                        if( $post_title != '' && is_int($defaultLayerId) && $defaultLayerId > 0 ){
+                            
+                            $time 	= current_time('mysql');
+                            $gmt 	= get_gmt_from_date($time);
+                            
+                            if( $post_id > 0 ){
+                                
+                                $post_id = wp_update_post(array(
+                                    
+                                    'ID' 			=> $post_id,
+                                    'post_author' 	=> $post_author,
+                                    'post_title' 	=> $post_title,
+                                    'post_name' 	=> $post_name,
+                                    'post_type' 	=> $post_type,
+                                    'post_status' 	=> $post_status,
+                                    'post_modified' 	=> $time,
+                                    'post_modified_gmt' => $gmt,
+                                ));
+                                
+                                $status = 'updated';
+                            }
+                            else{
+                                
+                                $post_id = wp_insert_post(array(
+                                    
+                                    'post_author' 	=> $post_author,
+                                    'post_title' 	=> $post_title,
+                                    'post_name' 	=> apply_filters('ltple_create_'.$post_type.'_slug',$post_name),
+                                    'post_type' 	=> $post_type,
+                                    'post_status' 	=> $post_status,
+                                    'post_date' 	=> $time,
+                                    'post_date_gmt' => $gmt,
+                                ));
+                                
+                                $status = 'created';
+                            }
+                            
+                            if( is_numeric($post_id) ){
+                                
+                                $this->layer->save_default_id($post_id,$defaultLayerId);
+                                
+                                update_post_meta($post_id, 'layerContent', $post_content);
+                                
+                                update_post_meta($post_id, 'layerJson', $post_json);
+                                
+                                update_post_meta($post_id, 'layerCss', $post_css);
+                                
+                                update_post_meta($post_id, 'layerJs', $post_js);
+                                
+                                do_action('ltple_user_layer_' . $status,$post_id,$defaultLayerId);
+                                
+                                if( $this->layer->is_default_type($layer->post_type) ){
+                                    
+                                    if( !empty($layer_type->term_id) ){                                    
+
+                                        // update layer type
+                                    
+                                        wp_set_object_terms($post_id,$layer_type->term_id,'layer-type',false); 
+                                    }
+                                    
+                                    do_action('ltple_create_' . $layer_type->storage,$post_id,$defaultLayerId);
+                                    
+                                    if( $layer->post_type == 'cb-default-layer' ){
+
+                                        //redirect to user layer
+
+                                        $user_layer_url = $this->urls->get_edit_url($post_id);
+                                        
+                                        wp_redirect($user_layer_url);
+                                        echo 'Redirecting editor...';
+                                        exit;
+                                    }
+                                }
+
+                                $this->exit_message( $layer_type->name . ' successfully '.$status,200);
+                            }
+                        }
+
+                        $this->exit_message('Error saving user layer...',404);
+                    }
+                    else{
+                        
+                        $this->exit_alert('This action doesn\'t exists...',404);					
+                    }
+                }
+                elseif( $_SERVER['REQUEST_METHOD'] === 'POST' ){
+                   
+                    if( !empty($layer->output) && $layer->output == 'image' ){
+                    
+                        if( $this->layer->upload_image_template($layer) ){
+                            
+                            $this->exit_message('Design successfully saved!',200);						
+                        }
+                        else{
+                            
+                            $this->exit_message('Error Saving Design...',404);
+                        }
+                    }
+                }
+            }
 		}
 	}
 

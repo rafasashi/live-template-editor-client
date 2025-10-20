@@ -354,18 +354,19 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		add_action('edit_layer-range', array( $this, 'save_layer_taxonomy_fields' ) );			
 		
 		// layer tabs
-	
-		add_filter('ltple_inline-css_project_tabs', array($this,'get_editable_layer_tabs'),10,2);			
+        
+        add_filter('ltple_inline-css_project_tabs', array($this,'get_editable_layer_tabs'),10,2);			
 		add_filter('ltple_external-css_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
 		add_filter('ltple_hosted-page_project_tabs', array($this,'get_hosted_layer_tabs'),10,2);
 		add_filter('ltple_canvas_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
 		add_filter('ltple_image_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
 		add_filter('ltple_vector_project_tabs', array($this,'get_editable_layer_tabs'),10,2);
+		add_filter('ltple_folder_project_tabs', array($this,'get_storage_tabs'),10,2);
 		
 		add_filter('ltple_project_advance_tabs', array($this,'get_layer_advance_tabs'),10,3);
 		
 		add_filter('ltple_edit_layer_options', array($this,'add_edit_layer_options'),10,2);
-        
+
 		// init
 		
 		add_filter('init', array( $this, 'init_layer' ),10);
@@ -1621,8 +1622,8 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 	}
 	
 	public function get_editable_layer_tabs($tabs,$layer){
-
-		$edit = '<div style="background:#fbfbfb;border:1px solid #eee;padding:152px 0;text-align:center;">'; 
+       
+		$edit = '<div class="tab-action-wrapper">'; 
 	
 			$edit .= '<a class="btn btn-lg btn-primary" href="' . $this->parent->urls->edit . '?uri=' . $layer->ID . '">Open in Editor</a>';
 
@@ -1638,6 +1639,159 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 
 		return $tabs;
 	}
+
+    public function get_storage_tabs($tabs,$folder){
+        
+        $default_id = $this->parent->media->get_media_library_id($folder->post_author);
+        
+        $browse = '<div class="tab-action-wrapper">'; 
+	
+			$browse .= '<a class="btn btn-lg btn-primary" href="' . get_permalink($folder->ID) . '">Browse Storage</a>';
+
+		$browse .= '</div>';
+
+		$tabs['browse'] = array(
+		
+			'name' 		=> 'Explorer',
+			'slug'		=> 'browse',
+			'content'	=> $browse,
+		
+		);
+
+        if( $folder->ID != $default_id ){
+            
+            $share_link = apply_filters('ltple_share_storage_link',get_permalink($folder->ID),$folder);
+
+            $share = '<input style="width:66%;" type="text" class="form-control pull-left" value="'.$share_link.'" id="u_'.md5($share_link).'">';
+                
+            $share .= '<button class="btn btn-sm" style="height:34px;border-radius:50px;margin-left:10px;" type="button" data-toggle="copy" data-id="#u_'.md5($share_link).'">Copy</button>';
+
+            $settings = $this->parent->admin->display_meta_box_field(array(
+
+                'id'    => 'share_link',
+                'label' => 'Share Link',
+                'type'  => 'html',
+                'data'  => $share,
+
+            ),null,false);
+
+            if( $fields = $this->get_storage_fields() ){
+                
+                foreach( $fields as $field ){
+
+                    if( !empty($field['id']) && in_array($field['id'],array(
+                        
+                        'lfm_access',
+
+                    ))){
+
+                        $settings .= $this->parent->admin->display_meta_box_field($field,$folder,false);
+                    }
+                }
+            }
+            
+            if( !empty($settings) ){
+                
+                $tabs['settings'] = apply_filters('ltple_storage_settings_tab',array(
+                
+                    'name' 		=> 'Settings',
+                    'slug'		=> 'settings',
+                    'content'	=> $settings,
+                ));
+            }
+
+            $tabs['passwords'] = array(
+            
+                'name' 		=> 'Passwords',
+                'slug'		=> 'passwords',
+                'content'	=> $this->get_passwords_tab_content($folder),
+            );
+        }
+
+        return $tabs;
+    }
+
+    public function get_passwords_tab_content($folder){
+		
+		$tab = '';
+
+		$tab .= '<div id="folder-passwords">';
+			
+			$tab .= '<div class="editor-tab-actions">';
+				
+				//$tab .= '<b class="pull-left" style="margin-right:5px;">Add :</b>';
+				
+				// add plugins
+				
+				$tab .= '<div class="dropdown float-left">';
+					
+					$tab .= '<a class="pull-left btn btn-xs btn-success" title="Generate password" onclick="return false;" href="#quickAddPassword" data-toggle="dialog" data-target="#quickAddPassword">+ Generate</a>';
+					
+					$tab .= '<div style="display:none;" id="quickAddPassword" title="New Password">';
+					
+						$tab .= '<div class="messageConsole" style="padding:5px;width:265px;">';
+							
+							$tab .= '<div data-method="post" data-action="'.$this->parent->urls->api.'ltple-identity/v1/generate?' . http_build_query($_REQUEST, '', '&amp;') .'">';
+
+                                $tab .= '<div class="alert alert-info">Auto generate a new password</div>';						
+                                
+                                // TODO add extra parameters
+
+                                $tab .= '<div style="text-align:center;">';
+
+                                    $tab .= '<button data-toggle="action" data-refresh="self" target="_self" class="btn btn-sm" type="button" style="margin:10px;">Generate password</button>';
+
+                                $tab .= '</div>';
+
+							$tab .= '</div>';
+							
+						$tab .= '</div>';
+						
+					$tab .= '</div>';
+					
+				$tab .= '</div>';
+				
+			$tab .= '</div>';
+			
+			// get table of results
+            
+			$tab .= $this->parent->api->get_table(
+			
+				$this->parent->urls->api . 'ltple-storage/v1/passwords?' . http_build_query($_REQUEST, '', '&amp;'), 
+				
+				array(
+				
+					array(
+
+						'field' 	=> 'password',
+						'sortable' 	=> 'false',
+						'content' 	=> '',
+					),					
+				), 
+				$trash		= false,
+				$export		= false,
+				$search		= true,
+				$toggle		= false,
+				$columns	= false,
+				$header		= false,
+				$pagination	= false,
+				$form		= false,
+				$toolbar 	= 'toolbar',
+				$card		= false,
+				$itemHeight	= 335, 
+				$fixedHeight= false, 
+				$echo		= false
+			);
+            
+		$tab .= '</div>';
+		
+		return $tab;
+	}
+
+    public function get_storage_fields(){
+
+        return apply_filters('lfm_folder_custom_fields', array(),'folder');
+    }
 	
 	public function get_layer_advance_tabs($tabs,$layer,$fields){
 		
@@ -1766,7 +1920,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		
 	}
-	
+
 	public function get_user_projects($user_id,$layer_type){
 		
 		$user_projects = array();
@@ -2549,7 +2703,13 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 					if( !empty($post->post_type) ){
 						
-						if( $post->post_type == 'default-element' ){
+                        if( $post->post_type == 'folder' ){
+						
+							$term->name 	= 'Storage';
+							$term->output 	= 'folder';
+							$term->storage 	= 'folder';
+						}
+						elseif( $post->post_type == 'default-element' ){
 						
 							$term->name 	= 'Hosted Page';
 							$term->output 	= 'hosted-page';
@@ -3124,6 +3284,20 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 		
 		return $psd_rows;
 	}
+
+    public function is_default_type($post_type){
+        
+        if( !empty($post_type) && in_array($post_type,array(
+            
+            'folder',
+            'cb-default-layer',
+        ))){
+            
+            return true;
+        }
+        
+        return false;
+    }
 	
 	public function get_default_id($id){
 		
@@ -3133,7 +3307,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				
 				$post = get_post($id);
                 
-                if( !empty($post->post_type) && $post->post_type == 'cb-default-layer' ){
+                if( !empty($post->post_type) && $this->is_default_type($post->post_type) ){
                     
                     $default_id = $id;
                 }

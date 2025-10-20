@@ -269,7 +269,7 @@ echo'<div id="media_library" class="wrapper">';
 													
 													echo '<div class="input-group-btn">';
 														
-														echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Add</button>';
+														echo '<button class="btn btn-primary btn-sm" type="button">Add</button>';
 														
 														echo '<input type="hidden" name="action" value="connect" />';
 														
@@ -359,7 +359,7 @@ echo'<div id="media_library" class="wrapper">';
 													
 													echo '<div class="input-group-btn">';
 														
-														echo '<button class="btn btn-primary btn-sm" style="height:34px;" type="button">Import</button>';
+														echo '<button class="btn btn-primary btn-sm" type="button">Import</button>';
 														
 														echo '<input type="hidden" name="app" value="autoDetect" />';
 														

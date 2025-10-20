@@ -12,7 +12,7 @@ echo'<div id="panel" class="wrapper">';
 	
 	include('sidebar.php');
 	
-	echo'<div id="content" class="library-content" style="min-height:10vh;">';
+	echo'<div id="content" class="library-content" style="min-height:calc( 100vh - 90px );">';
 		
 		echo'<div class="tab-content">';
 			
@@ -37,17 +37,17 @@ echo'<div id="panel" class="wrapper">';
 						
 						$modal_url = apply_filters( 'ltple_list_'.$currentTab.'_new_url', $ltple->urls->gallery . '?layer[default_storage]=' . $currentTab, $currentTab, 'widget' );					
 					
-						$modal_title = __('Add Account','live-template-editor-client');
+						$modal_title = apply_filters('ltple_list_'.$currentTab.'_new_modal_title',__('Add Account','live-template-editor-client'));
 					}
 					elseif( apply_filters('ltple_list_'.$currentTab.'_new_modal',true) ){
 						
-						$modal_url = add_query_arg( array(
+						$modal_url = apply_filters('ltple_list_'.$currentTab.'_new_url',add_query_arg( array(
 						
 							'output' 	=> 'widget',
 							
-						),$ltple->urls->gallery . '?layer[default_storage]=' . $currentTab);
+						),$ltple->urls->gallery . '?layer[default_storage]=' . $currentTab));
 					
-						$modal_title = __('New Project','live-template-editor-client');
+						$modal_title = apply_filters('ltple_list_'.$currentTab.'_new_modal_title',__('New Project','live-template-editor-client'));
 					}
 					
 					if( !empty($modal_url) ){

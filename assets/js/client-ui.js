@@ -1143,7 +1143,26 @@ if( typeof window.editorCallbacks == typeof undefined )
 				}
 			});
 		}
-		
+
+        // visibility change
+       
+        document.addEventListener('visibilitychange', function() {
+            
+            if (!document.hidden) {
+
+                // Refresh all initialized Bootstrap Tables
+                
+                $('table').each(function() {
+
+                    if ($(this).data('bootstrap.table')) {
+                        
+                        $(this).bootstrapTable('refresh');
+                    }
+                });
+            }
+        });
+
+
 		$("form").on("submit",function(e){
 			
 			// save tinyMCE

@@ -70,7 +70,7 @@ class LTPLE_Client_Profile {
 				
 		add_filter('template_redirect', array( $this, 'get_current_parameters' ),1);
 
-		add_action( 'rest_api_init', function () {
+		add_action('rest_api_init', function () {
 			
 			register_rest_route( 'ltple-menu/v1', '/profile', array(
 				
@@ -83,13 +83,13 @@ class LTPLE_Client_Profile {
 
 		add_shortcode('ltple-client-profile', array( $this , 'get_profile_shortcode' ) );
 		
-		add_action( 'template_include', array( $this , 'include_user_profile' ));
+		add_action('template_include', array( $this , 'include_user_profile' ));
 			
-		add_action( 'show_user_profile', array( $this, 'show_privacy_settings' ),20,1 );
-		add_action( 'edit_user_profile', array( $this, 'show_privacy_settings' ),20,1 );
+		add_action('show_user_profile', array( $this, 'show_privacy_settings' ),20,1 );
+		add_action('edit_user_profile', array( $this, 'show_privacy_settings' ),20,1 );
 		
-		add_action( 'personal_options_update', array( $this, 'save_privacy_settings' ) );
-		add_action( 'edit_user_profile_update', array( $this, 'save_privacy_settings' ) );
+		add_action('personal_options_update', array( $this, 'save_privacy_settings' ) );
+		add_action('edit_user_profile_update', array( $this, 'save_privacy_settings' ) );
 		
 		add_filter('ltple_default_user-theme_content', array( $this, 'get_default_page_template'),10,1 );
 		add_filter('ltple_default_user-theme_css', array( $this, 'filter_default_page_style'),10,1 );
@@ -119,7 +119,7 @@ class LTPLE_Client_Profile {
 			echo'</li>';			
 		},1);
 		
-		add_action( 'ltple_view_my_profile', function(){
+		add_action('ltple_view_my_profile', function(){
 	
 			echo'<li style="position:relative;background:#182f42;">';
 				
@@ -143,6 +143,21 @@ class LTPLE_Client_Profile {
 			}
 			
 		},1);
+
+        add_action('ltple_theme_template', function($template,$tab){
+            
+            if( $tab == 'browse' ){
+
+                $template = '<div class="browser-wrapper" style="background:#181e23;z-index:1;overflow:hidden;background-image:url('.$this->parent->assets_url . '/images/loader.svg);background-position:center center;background-repeat:no-repeat;width:100%;height:100vh;position:absolute;">';
+                    
+                    $template .= '{{ page.content }}';
+
+                $template .= '</div>';
+            }
+
+            return $template;
+
+        },PHP_INT_MAX,2);
 	}
 	
 	public function get_current_profile_id(){
@@ -318,8 +333,8 @@ class LTPLE_Client_Profile {
 		if( empty($this->in_tab) ){
 			
 			$in_tab = false;
-			
-			if( $tabs = $this->get_profile_tabs() ){
+
+            if( $tabs = $this->get_profile_tabs() ){
 				
 				if( isset($tabs[$this->tab]) ){
 					
@@ -1413,7 +1428,7 @@ class LTPLE_Client_Profile {
 	public function render_page_content(){
 		
 		$content = $this->get_page_template();
-		
+
 		$content = $this->parse_page_content($content);
 		
 		return apply_filters('ltple_parse_css_variables',$content);
@@ -2148,7 +2163,28 @@ class LTPLE_Client_Profile {
 				
 					wp_add_inline_style( $this->parent->_token . '-about',$this->get_about_style());
 				}
-				
+                
+                if( $this->tab == 'browse' ){
+                    
+                    $folder = get_page_by_path($this->tabSlug,OBJECT,'folder');
+                    
+                    if( !empty($folder->post_author) && intval($folder->post_author) == $this->user->ID ){
+
+                        $browser_url = $this->parent->media->get_browser_url($this->user->ID,$folder->ID);
+
+                        $content = '<iframe  data-src="'.$this->sanitize_primary_url($browser_url).'" style="border:0;width:100%;height:100vh;position:absolute;top:0;bottom:0;right:0;left:0;"></iframe>';
+                    }
+                    else{
+
+                        $content = "This storage doesn't exist.";
+                    }
+
+                    $tabs['browse']['position'] = 2;
+                    $tabs['browse']['name']     = 'Browser';
+                    $tabs['browse']['slug']     = 'browse';
+                    $tabs['browse']['content'] 	= $content;
+                }
+
 				// get addon tabs
 				
 				$extra = apply_filters('ltple_profile_tabs',$tabs,$this->user,$this->tab);
@@ -2175,6 +2211,40 @@ class LTPLE_Client_Profile {
 		
 		return $this->tabs;
 	}
+
+    public function sanitize_primary_url($url) {
+
+        $parsed_url = parse_url($url);
+
+        // Get the primary base (already includes https://... and no trailing slash)
+        $primary = $this->parent->urls->primary;
+
+        // Keep the original scheme if it exists, otherwise use the one from primary
+        $scheme = $parsed_url['scheme'] ?? parse_url($primary, PHP_URL_SCHEME) ?? 'https';
+
+        // Extract the host from the primary
+        $host = parse_url($primary, PHP_URL_HOST);
+
+        // Handle optional path
+        $path = $parsed_url['path'] ?? '';
+
+        // Rebuild the URL
+        $url = $scheme . '://' . $host . $path;
+
+        // Preserve query string if exists
+        if (!empty($parsed_url['query'])) {
+            $url .= '?' . $parsed_url['query'];
+        }
+
+        // Preserve fragment if exists
+        if (!empty($parsed_url['fragment'])) {
+            $url .= '#' . $parsed_url['fragment'];
+        }
+
+        return $url;
+    }
+
+
 	
 	public function sanitize_text_editor($str){
 		
