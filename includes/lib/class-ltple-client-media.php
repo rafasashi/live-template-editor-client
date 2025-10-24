@@ -180,7 +180,32 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
             return $folder_id;
 
         }, 10, 2);
+        
+        add_filter('lfm_load_files_proxy_php', function($is_proxied,$folder){
 
+            if( 1==2 ){ // using signed cookies instead
+                
+                $default_id = $this->get_media_library_id($folder->post_author);
+                
+                if( $folder->ID != $default_id ){
+                    
+                    $cdn_domain = apply_filters('rew_server_url',get_option('lfm_cf_cdn_domain',false));
+            
+                    $folder_domain = apply_filters('rew_server_url',get_post_meta($folder->ID,'lfm_domain',true));
+
+                    if( !empty($cdn_domain) && !empty($folder_domain) ){
+                        
+                        if( $cdn_domain == $folder_domain ){
+
+                            $is_proxied = true;
+                        }
+                    }
+                }
+            }
+
+            return $is_proxied;
+
+        },10,2);
 
         add_filter('lfm_style_hue',function($hue){
             
