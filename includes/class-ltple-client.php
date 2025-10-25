@@ -1608,7 +1608,7 @@ class LTPLE_Client {
                 ))){
                     
                     // todo insert folder and get id
-
+                    
                     do_action('ltple_create_'.$post_type,$post_id);
                 }
             }

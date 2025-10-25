@@ -169,18 +169,61 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
             
             if( !empty($folder->post_author) ){
 
-                if( $folder_id = $this->create_user_folder(intval($folder->post_author), $folder) ){
+                $args = array(
                     
-                    update_post_meta($folder->ID, 'lfm_access', 'password');
+                    'domain' => get_option('lfm_cf_cdn_domain',false),
+                    'region' => get_option('lfm_s3_region',false),
+                    'bucket' => get_option('lfm_s3_bucket',false),
+                );
+
+                if( !empty($args['domain']) && !empty($args['region']) && !empty($args['bucket']) ){
                     
-                    $this->generate_folder_identity($folder);
+                    if( $folder_id = $this->create_user_folder(intval($folder->post_author),$folder,$args,true) ){
+                        
+                        update_post_meta($folder->ID, 'lfm_access', 'password');
+                        
+                        $this->generate_folder_identity($folder);
+                    }
                 }
             }
 
             return $folder_id;
 
         }, 10, 2);
-        
+
+        add_filter('s3_file_manager_s3_settings_fields', function($fields){
+            
+            $fields[] = array(
+
+                'id'            => 's3_region',
+                'label'         => __( 'Bucket Region', 'live-template-editor-client' ),
+                'type'          => 'select',
+                'options'       => S3_File_Manager::get_region_options(),
+                'description'   => 'Default S3 Bucket Region',
+            );
+            
+            $fields[] = array(
+
+                'id'            => 's3_bucket',
+                'label'         => __( 'Bucket Name', 'live-template-editor-client' ),
+                'type'          => 'text',
+                'description'   => 'Default S3 Bucket Name',
+            );
+
+            return $fields;
+
+        },10,1);
+
+        add_filter('lfm_upload_allowed_file_types', function($file_types){
+            
+            if( 1==1 ){ // TODO check plan
+
+                $file_types = array_merge($file_types,['mp4','m4v','m4p','webm','ogv','mkv','avi','mov','wmv']);
+            }
+
+            return $file_types;
+        });
+
         add_filter('lfm_load_files_proxy_php', function($is_proxied,$folder){
 
             if( 1==2 ){ // using signed cookies instead
@@ -1062,7 +1105,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
         if( !empty($user->ID) ){
             
-            $folder_id = (int) get_user_meta($user->ID, 'lfm_default_id', true);
+            $folder_id = (int) get_user_meta($user->ID,'lfm_default_id', true);
             
             if( !empty($folder_id) ){
                 
@@ -1071,9 +1114,12 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
             
             if( empty($folder->ID) ){
                 
-                if( $folder_id = $this->create_user_folder($user,'Media Library') ){
-                
-                    update_user_meta($user->ID,'lfm_default_id',$folder_id);
+                if( $args = $this->remote_get_media_info($user->user_email) ){
+                    
+                    if( $folder_id = $this->create_user_folder($user,'Media Library',$args,false) ){
+                    
+                        update_user_meta($user->ID,'lfm_default_id',$folder_id);
+                    }
                 }
             }
 
@@ -1081,7 +1127,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
         }
     }
 
-    public function create_user_folder($user,$folder){
+    public function create_user_folder($user,$folder,$args,$is_private){
         
         $folder_id = null;
 
@@ -1094,44 +1140,45 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
             
             $key = md5($user->user_email);
 
-            if( $info = $this->remote_get_media_info($user->user_email) ){
+            if( is_string($folder) ){
+
+                $folder_id = wp_insert_post(array(
                 
-                if( is_string($folder) ){
+                    'post_title'  => $folder,
+                    'post_name'   => apply_filters('ltple_create_folder_slug',$folder),
+                    'post_status' => 'publish',
+                    'post_type'   => 'folder',
+                    'post_author' => $user->ID,
+                ));
+            }
+            elseif(
 
-                    $folder_id = wp_insert_post(array(
-                    
-                        'post_title'  => $folder,
-                        'post_name'   => apply_filters('ltple_create_folder_slug',$folder),
-                        'post_status' => 'publish',
-                        'post_type'   => 'folder',
-                        'post_author' => $user->ID,
-                    ));
+                !empty($folder->ID) && 
+                !empty($folder->post_author) &&
+                intval($folder->post_author) == $user->ID
+            ){
+
+                $folder_id = $folder->ID;
+            }
+
+            if( !empty($folder_id) && !is_wp_error($folder_id) ){
+                
+                $path = ( $is_private ? 'private/' : '' ) . $key . '/' . $folder_id;
+                
+                $access = $is_private ? 'password' : 'owner';
+
+                update_post_meta($folder_id, 'lfm_path',$path);
+                update_post_meta($folder_id, 'lfm_access', $access);
+                
+                if( !empty($args['domain']) ){
+                
+                    update_post_meta($folder_id, 'lfm_domain', sanitize_text_field($args['domain']));
                 }
-                elseif(
-
-                    !empty($folder->ID) && 
-                    !empty($folder->post_author) &&
-                    intval($folder->post_author) == $user->ID
-                ){
-
-                    $folder_id = $folder->ID;
-                }
-
-                if( !empty($folder_id) && !is_wp_error($folder_id) ){
-
-                    update_post_meta($folder_id, 'lfm_path', $key . '/' . $folder_id);
-                    update_post_meta($folder_id, 'lfm_access', 'owner');
-                    
-                    if( !empty($info['domain']) ){
-                    
-                        update_post_meta($folder_id, 'lfm_domain', sanitize_text_field($info['domain']));
-                    }
-                    
-                    if( !empty($info['bucket']) && !empty($info['region']) ){
-                    
-                        update_post_meta($folder_id, 'sfm_bucket', sanitize_text_field($info['bucket']));
-                        update_post_meta($folder_id, 'sfm_region', sanitize_title($info['region']));
-                    }
+                
+                if( !empty($args['bucket']) && !empty($args['region']) ){
+                
+                    update_post_meta($folder_id, 'sfm_bucket', sanitize_text_field($args['bucket']));
+                    update_post_meta($folder_id, 'sfm_region', sanitize_title($args['region']));
                 }
             }
         }
