@@ -27,8 +27,6 @@ class LTPLE_Client_Plan {
 	var $shortcode 			= '';
 	var $iframe_height		= 500;
 
-    
-	
 	/**
 	 * Constructor function
 	 */
@@ -126,7 +124,35 @@ class LTPLE_Client_Plan {
 		add_action('admin_init', array( $this, 'handle_bulk_actions' ));
 	
 		add_filter('ltple_plan_table_services', array( $this, 'add_plan_table_services' ),0,2);
-	}
+
+        add_filter('lfm_upload_allowed_file_types', function($file_types,$user){
+            
+            if( !in_array('mp4',$file_types) ){
+
+                $file_types = array_merge($file_types,['mp4','m4v','m4p','webm','ogv','mkv','avi','mov','wmv']);
+            }
+
+            return $file_types;
+
+        },10,2);
+
+        add_filter('lfm_upload_max_filesize', function($max_file_size,$user){
+                
+            $plan = $this->get_user_plan_info($user->ID); 
+    
+            if( isset($plan['info']['max_file_size']) ){
+
+                $max_file_size = $plan['info']['max_file_size'];
+            }
+            else{
+
+                $max_file_size = 0;
+            }
+
+            return $max_file_size;
+
+        },10,2);
+    }
 
 	public function init_plan(){
 		
@@ -779,72 +805,106 @@ class LTPLE_Client_Plan {
 	}
 
 	public function add_plan_table_services($table,$plan){
-		
+
 		if( $this->parent->settings->is_enabled('bandwidth') ){
 			
 			$total_bandwidth = isset( $plan['info']['total_bandwidth'] ) ? $plan['info']['total_bandwidth'] : 0;
 			
-			if( $total_bandwidth > 0 ){
-				
+            $total_disk_space = isset( $plan['info']['total_disk_space'] ) ? $plan['info']['total_disk_space'] : 0;
+                
+            $max_file_size = isset( $plan['info']['max_file_size'] ) ? $plan['info']['max_file_size'] : 0;
+        
+            $file_types = isset( $plan['info']['file_types'] ) ? $plan['info']['file_types'] : array();
+
+			if( $total_bandwidth > 0 && !empty($file_types) ){
+
 				$md5 = md5(rand());
+
+                $rowspan = count($file_types);
 				
 				$table .='<a data-toggle="collapse" data-bs-toggle="collapse" data-target="#section_'.$md5.'" data-bs-target="#section_'.$md5.'" class="plan_section">Hosting <i class="fas fa-angle-down pull-right" style="font-size:25px;"></i></a>';
 				
-				$table .= '<div id="section_'.$md5.'" class="panel-collapse collapse">';
+				$table .= '<div id="section_'.$md5.'" class="panel-collapse">';
 					
 					$table .= '<table id="plan_licenses" class="table table-striped">';
+                        
+                        $table .= '<tr>';
+                    
+                            $table .= '<th style="width:40%;">';	
+                                
+                                $table .= 'Media Storage';
+                                
+                            $table .= '</th>';
 
-						if( $total_bandwidth > 0 ){
-							
-							$table .= '<tr>';
-						
-								$table .= '<th style="width:60%;">';	
-									
-									$table .= 'Media Library';
-									
-								$table .= '</th>';
+                            $table .= '<th style="width:20%;text-align:center;">';
 
-								$table .= '<th style="width:20%;text-align:center;">';							
-						
-									$table .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Bandwidth" data-bs-title="Bandwidth" data-content="Monthy bandwidth usage limit" data-bs-content="Monthy bandwidth usage limit" data-original-title="" title="">Bandwidth <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
-									
-								$table .= '</th>';	
-								
-								$table .= '<th style="width:20%;text-align:center;">';							
-						
-									$table .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Bandwidth" data-bs-title="Bandwidth" data-content="The amount of stored images allowed by the plan" data-bs-content="The amount of stored images allowed by the plan" data-original-title="" title="">Storage <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
-									
-								$table .= '</th>';
-								
-							$table .= '</tr>';
-							
-							$table .= '<tr>';
-						
-								$table .= '<td>';	
-									
-									$table .= '<b>';
-									
-										$table .= 'Images';
-									
-									$table .= '</b>';
-									
-								$table .= '</td>';
+                                $table .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Upload" data-bs-title="Upload" data-content="Upload capability and access rights" data-bs-content="Upload capability and access rights" data-bs-original-title="" title="">Upload <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
+                            
+                            $table .= '</th>';
 
-								$table .= '<td style="text-align:center;">';							
-						
-									$table .= '<span class="badge">'.$total_bandwidth.' GB</span>';
-									
-								$table .= '</td>';	
-								
-								$table .= '<td style="text-align:center;background:#efefef;vertical-align:middle;">';							
-						
-									$table .= '<span class="badge" data-toggle="tooltip" data-placement="left" data-bs-placement="left" title="" data-original-title="Unlimited"><i class="fas fa-infinity" style="font-size:14px;"></i></span>';
-									
-								$table .= '</td>';
-								
-							$table .= '</tr>';
-						}
-						
+                            $table .= '<th style="width:20%;text-align:center;">';							
+                    
+                                $table .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Bandwidth" data-bs-title="Bandwidth" data-content="Monthy bandwidth usage limit" data-bs-content="Monthy bandwidth usage limit" data-original-title="" title="">Bandwidth <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
+                                
+                            $table .= '</th>';	
+                            
+                            $table .= '<th style="width:20%;text-align:center;">';							
+                    
+                                $table .= '<div data-html="true" data-toggle="popover" data-bs-toggle="popover" data-placement="bottom" data-bs-placement="bottom" data-trigger="hover" data-bs-trigger="hover" data-title="Disk Space" data-bs-title="Disk Space" data-content="The total disk space allowed by the plan" data-bs-content="The total disk space allowed by the plan" data-original-title="" title="">Disk Space <i class="fas fa-question-circle" style="font-size:13px;"></i></div>';
+                                
+                            $table .= '</th>';
+                            
+                        $table .= '</tr>';
+                              
+                        $i = 0;
+
+                        foreach( $file_types as $file_type ){
+                            
+                            $table .= '<tr>';
+                        
+                                $table .= '<td>';	
+                                    
+                                    $table .= '<b>';
+                                    
+                                        $table .= $file_type['name'];
+                                    
+                                    $table .= '</b>';
+                                    
+                                $table .= '</td>';
+
+                                $table .= '<td style="text-align:center;">';							
+                        
+                                    if( $file_type['has_access'] === true ){
+										
+										$table .= '<span class="far fa-check-circle" style="font-size:30px;color:#3dd643;" aria-hidden="true"></span>';
+									}											
+									else{
+										
+										$table .= '<span class="far fa-times-circle" style="font-size:30px;color:#ec3344;" aria-hidden="true"></span>';
+									}
+                                    
+                                $table .= '</td>';	
+
+                                if( $i === 0 ){
+
+                                    $table .= '<td rowspan="'.$rowspan.'" style="text-align:center;vertical-align:middle;background:#efefef;">';							
+                            
+                                        $table .= '<span class="badge">'.$total_bandwidth.' GB</span>';
+                                        
+                                    $table .= '</td>';	
+                                    
+                                    $table .= '<td rowspan="'.$rowspan.'" style="text-align:center;vertical-align:middle;">';							
+                            
+                                        $table .= '<span class="badge">'.$total_disk_space.' GB</span>';
+
+                                    $table .= '</td>';
+                                }
+
+                            $table .= '</tr>';
+
+                            ++$i;
+                        }
+
 					$table .= '</table>';
 					
 				$table .= '</div>';
@@ -1209,7 +1269,7 @@ class LTPLE_Client_Plan {
 		return $total_storage;
 	}
 
-	public function sum_total_bandwidth( &$total_bandwidth=[], $options){
+	public function sum_total_bandwidth( &$total_bandwidth, $options ){
 		
 		if( isset($options['bandwidth_amount']) ){
 			
@@ -1218,7 +1278,27 @@ class LTPLE_Client_Plan {
 		
 		return $total_bandwidth;
 	}
-	
+
+	public function sum_total_disk_space( &$total_disk_space, $options ){
+		
+		if( isset($options['disk_space']) ){
+			
+			$total_disk_space = $total_disk_space + $options['disk_space'];
+		}
+		
+		return $total_disk_space;
+	}
+
+	public function get_max_file_size( $max_file_size, $options ){
+		
+		if( isset($options['max_file_size']) && $options['max_file_size'] > $max_file_size ){
+			
+			$max_file_size = $options['max_file_size'];
+		}
+		
+		return $max_file_size;
+	}
+
 	public function is_parent_in_plan($user_plan_id, $taxonomy, $parent_id){
 		
 		// check parent
@@ -2081,6 +2161,26 @@ class LTPLE_Client_Plan {
 				$plan['info']['total_fee_period'] 		= 'once';
 				$plan['info']['total_price_currency']	= '$';
 
+                if( $this->parent->settings->is_enabled('bandwidth') ){
+
+                    $plan['info']['total_bandwidth']    = 0;
+                    $plan['info']['total_disk_space']   = 0;
+                    $plan['info']['max_file_size']      = 0;
+                    $plan['info']['file_types']         = array(
+
+                        'images' => array(
+                            
+                            'name'          => 'Images',
+                            'has_access'    => true,
+                        ),
+                        'videos' => array(
+                            
+                            'name'          => 'Videos',
+                            'has_access'    => true,
+                        ),
+                    );
+                }
+
 				if( $taxonomies = $this->get_layer_taxonomies_options() ){
 						
 					foreach( $taxonomies as $taxonomy => $terms ){
@@ -2098,7 +2198,11 @@ class LTPLE_Client_Plan {
 								if( $this->parent->settings->is_enabled('bandwidth') ){
 									
 									$plan['info']['total_bandwidth'] = $this->sum_total_bandwidth( $plan['info']['total_bandwidth'], $term->options);
-								}
+                                    
+                                    $plan['info']['total_disk_space'] = $this->sum_total_disk_space( $plan['info']['total_disk_space'], $term->options);
+                                    
+                                    $plan['info']['max_file_size'] = $this->get_max_file_size( $plan['info']['max_file_size'], $term->options);
+                                }
 								
 								$plan = apply_filters('ltple_subscription_plan_info',$plan,$term->options);								
 
@@ -2509,7 +2613,9 @@ class LTPLE_Client_Plan {
 			$this->user_plans[$user_id]['info']['total_price_amount'] 	= 0;
 			$this->user_plans[$user_id]['info']['total_fee_amount'] 	= 0;
 			$this->user_plans[$user_id]['info']['total_bandwidth'] 		= 0;
-			
+            $this->user_plans[$user_id]['info']['total_disk_space'] 	= 0;
+			$this->user_plans[$user_id]['info']['max_file_size'] 	    = 0;
+
 			$this->user_plans[$user_id]['info']['total_price_period'] 	= 'month';
 			$this->user_plans[$user_id]['info']['total_fee_period'] 	= 'once';
 			$this->user_plans[$user_id]['info']['total_price_currency'] = '$';
@@ -2585,7 +2691,7 @@ class LTPLE_Client_Plan {
 						if( $has_term === true ){
 							
 							$options = $this->parent->layer->get_options( $taxonomy, $term );
-									
+                            
 							if( empty($term->parent) || !$this->is_parent_in_plan( $user_plan_id, $taxonomy, $term->parent ) ){
 							
 								
@@ -2598,7 +2704,11 @@ class LTPLE_Client_Plan {
 							if( $this->parent->settings->is_enabled('bandwidth') ){
 								
 								$this->user_plans[$user_id]['info']['total_bandwidth'] = $this->sum_total_bandwidth( $this->user_plans[$user_id]['info']['total_bandwidth'], $options);
-							}
+							
+                                $this->user_plans[$user_id]['info']['total_disk_space'] = $this->sum_total_disk_space( $this->user_plans[$user_id]['info']['total_disk_space'], $options);
+                                
+                                $this->user_plans[$user_id]['info']['max_file_size'] = $this->get_max_file_size( $this->user_plans[$user_id]['info']['max_file_size'], $options);
+                            }
 							
 							if( $taxonomy == 'account-option' ){
 							

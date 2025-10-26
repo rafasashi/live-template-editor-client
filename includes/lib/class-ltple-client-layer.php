@@ -4251,6 +4251,10 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 			if( $this->parent->settings->is_enabled('bandwidth') ){
 				
 				$options['bandwidth_amount'] = $this->get_plan_amount($term_id,'bandwidth');
+
+                $options['disk_space'] = $this->get_plan_amount($term_id,'disk-space');
+
+                $options['max_file_size'] = $this->get_plan_amount($term_id,'max-file-size');
 			}
 			
 			$options = apply_filters('ltple_account_options',$options,$term_id);
@@ -4716,6 +4720,52 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 								echo'<p class="description">Additional monthly bandwidth usage limit in GB </p>';
 
 							echo'</div>';	
+                            
+                            $disk_space = 0;
+						
+							if( !empty($term->term_id) ){
+								
+								$disk_space = $this->get_plan_amount($term->term_id,'disk-space');
+							}
+
+							echo'<div class="form-field" style="margin-bottom:15px;">';
+								
+								echo'<label for="'.$term->taxonomy.'-disk-space">Disk Space (GB)</label>';
+
+								echo'<div class="input-group">';
+								
+									echo'<span class="input-group-addon" style="color: #fff;padding: 5px 10px;background: #9E9E9E;">+</span>';
+									
+									echo'<input type="number" step="1" min="0" max="10000" placeholder="0" name="'.$term->taxonomy.'-disk-space" id="'.$term->taxonomy.'-disk-space" style="width:80px;" value="'.$disk_space.'"/>';					
+									
+								echo'</div>';
+								
+								echo'<p class="description">Additional disk space in GB </p>';
+
+							echo'</div>';	
+
+                            $max_file_size = 0;
+						
+							if( !empty($term->term_id) ){
+								
+								$max_file_size = $this->get_plan_amount($term->term_id,'max-file-size');
+							}
+
+							echo'<div class="form-field" style="margin-bottom:15px;">';
+								
+								echo'<label for="'.$term->taxonomy.'-max-file-size">Max File Size (MB)</label>';
+
+								echo'<div class="input-group">';
+								
+									echo'<span class="input-group-addon" style="color: #fff;padding: 5px 10px;background: #9E9E9E;">&lt;</span>';
+									
+									echo'<input type="number" step="1" min="0" max="10000" placeholder="0" name="'.$term->taxonomy.'-max-file-size" id="'.$term->taxonomy.'-max-file-size" style="width:80px;" value="'.$max_file_size.'"/>';					
+									
+								echo'</div>';
+								
+								echo'<p class="description">Increase the max file size in MB </p>';
+
+							echo'</div>';	
 						}
 						
 						//addon account fields
@@ -4997,15 +5047,15 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 							
 								if( $storage_amount == 1 ){
 									
-									$content .='<span class="label label-primary">+' . $storage_amount . '</span>' . $type;
+									$content .='<span class="label label-primary"><b>'.$type.':</b> +' . $storage_amount . '</span>';
 								}
 								elseif($storage_amount > 0){
 									
-									$content .='<span class="label label-primary">+' . $storage_amount . '</span>' .  $type;
+									$content .='<span class="label label-primary"><b>'.$type.':</b> +' . $storage_amount . '</span>';
 								}
 								else{
 									
-									$content .= '<span class="label label-primary">' . $storage_amount . '</span>' .  $type;
+									$content .= '<span class="label label-primary"><b>'.$type.':</b> ' . $storage_amount . '</span>';
 								}
 
 								$content .= '<br>';							
@@ -5024,9 +5074,32 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 						
 						$bandwidth_amount = 0;
 					}
-					
-					$content .= '+' . $bandwidth_amount . ' GB' . '</br>';
-				}
+
+					if( $bandwidth_amount > 0 ){
+
+                        $content .= '<b>bandwidth:</b> +' . $bandwidth_amount . ' GB' . '</br>';
+                    }
+
+                    if(!$disk_space = $this->parent->layer->get_plan_amount($term->term_id,'disk-space')){
+						
+						$disk_space = 0;
+					}
+
+					if( $disk_space > 0 ){
+
+                        $content .= '<b>disk space:</b> +' . $disk_space . ' GB' . '</br>';
+                    }
+
+                    if(!$max_file_size = $this->parent->layer->get_plan_amount($term->term_id,'max-file-size')){
+						
+						$max_file_size = 0;
+					}
+
+					if( $max_file_size > 0 ){
+
+                        $content .= '<b>file size:</b> <' . $max_file_size . ' MB' . '</br>';
+                    }
+                }
 				
 				$content .= apply_filters('ltple_layer_usage_column','',$term);
 			}
@@ -5157,6 +5230,16 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 				if(isset($_POST[$term->taxonomy .'-bandwidth-amount'])&&is_numeric($_POST[$term->taxonomy .'-bandwidth-amount'])){
 					
 					$this->update_plan_amount($term->term_id,'bandwidth',round(intval(sanitize_text_field($_POST[$term->taxonomy . '-bandwidth-amount'])),0));
+				}
+
+                if(isset($_POST[$term->taxonomy .'-disk-space'])&&is_numeric($_POST[$term->taxonomy .'-disk-space'])){
+					
+					$this->update_plan_amount($term->term_id,'disk-space',round(intval(sanitize_text_field($_POST[$term->taxonomy . '-disk-space'])),0));
+				}
+
+                if(isset($_POST[$term->taxonomy .'-max-file-size'])&&is_numeric($_POST[$term->taxonomy .'-max-file-size'])){
+					
+					$this->update_plan_amount($term->term_id,'max-file-size',round(intval(sanitize_text_field($_POST[$term->taxonomy . '-max-file-size'])),0));
 				}
 				
 				if(isset($_POST['output'])){

@@ -214,16 +214,6 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
         },10,1);
 
-        add_filter('lfm_upload_allowed_file_types', function($file_types){
-            
-            if( 1==1 ){ // TODO check plan
-
-                $file_types = array_merge($file_types,['mp4','m4v','m4p','webm','ogv','mkv','avi','mov','wmv']);
-            }
-
-            return $file_types;
-        });
-
         add_filter('lfm_load_files_proxy_php', function($is_proxied,$folder){
 
             if( 1==2 ){ // using signed cookies instead

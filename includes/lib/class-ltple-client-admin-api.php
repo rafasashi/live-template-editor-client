@@ -780,6 +780,24 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 																
 																$html .= '+' . ( $term->options['bandwidth_amount'] / 1000 ) .' TB' .'<br>';
 															}
+
+                                                            if( $term->options['disk_space'] < 1000 ){
+																
+																$html .= '+'.$term->options['disk_space'].' GB' .'<br>';
+															}
+															elseif( $term->options['disk_space'] >= 1000 ){
+																
+																$html .= '+' . ( $term->options['disk_space'] / 1000 ) .' TB' .'<br>';
+															}
+
+                                                            if( $term->options['max_file_size'] < 1000 ){
+																
+																$html .= '+'.$term->options['max_file_size'].' MB' .'<br>';
+															}
+															elseif( $term->options['max_file_size'] >= 1000 ){
+																
+																$html .= '+' . ( $term->options['max_file_size'] / 1000 ) .' GB' .'<br>';
+															}
 														}
 														
 														// get addon options
