@@ -37,7 +37,10 @@ class LTPLE_Client_Json_API {
 
 		wp_register_script( 'ltple-bootstrap-table-filter-control', esc_url( $this->parent->assets_url ) . 'js/bootstrap-table-filter-control.min.js', array( 'jquery','ltple-bootstrap-js' ), $this->parent->_version);
 		wp_enqueue_script( 'ltple-bootstrap-table-filter-control' ); 
-				
+        
+        wp_register_script( 'ltple-sticky-table-headers', esc_url( $this->parent->assets_url ) . 'js/jquery.stickytableheaders.min.js', array( 'jquery','ltple-bootstrap-js' ), $this->parent->_version);
+		wp_enqueue_script( 'ltple-sticky-table-headers' ); 
+
 		$tableId = $this->get_table_id($api_url);
 		
 		wp_register_script( 'ltple-table-' . $tableId, '', array( 'ltple-bootstrap-table' ) );
@@ -671,7 +674,6 @@ class LTPLE_Client_Json_API {
 
 					});
 				}
-				
 			});";
 		}
 		else{
@@ -717,6 +719,10 @@ class LTPLE_Client_Json_API {
 					});
 				}
 				
+				// sticky headers
+
+                $('#".$tableId."').stickyTableHeaders();
+
 			});";
 		}
 
@@ -724,29 +730,29 @@ class LTPLE_Client_Json_API {
 
         function numericSorter(a,b){
                 
-              // Ensure values are strings
-              a = (a || '').toString().trim();
-              b = (b || '').toString().trim();
+            // Ensure values are strings
+            a = (a || '').toString().trim();
+            b = (b || '').toString().trim();
 
-              const specials = ['N/A', '-', 'Unlimited', '∞', 'None', 'No Limit'];
-              const aSpecial = specials.some(s => a.toLowerCase().includes(s.toLowerCase()));
-              const bSpecial = specials.some(s => b.toLowerCase().includes(s.toLowerCase()));
+            const specials = ['N/A', '-', 'Unlimited', '∞', 'None', 'No Limit'];
+            const aSpecial = specials.some(s => a.toLowerCase().includes(s.toLowerCase()));
+            const bSpecial = specials.some(s => b.toLowerCase().includes(s.toLowerCase()));
 
-              if (aSpecial && !bSpecial) return 1;   // push specials to bottom
-              if (!aSpecial && bSpecial) return -1;
-              if (aSpecial && bSpecial) return 0;
+            if (aSpecial && !bSpecial) return 1;   // push specials to bottom
+            if (!aSpecial && bSpecial) return -1;
+            if (aSpecial && bSpecial) return 0;
 
-              const numA = parseFloat(a.replace(/[^0-9.\-]/g, '')) || 0;
-              const numB = parseFloat(b.replace(/[^0-9.\-]/g, '')) || 0;
+            const numA = parseFloat(a.replace(/[^0-9.\-]/g, '')) || 0;
+            const numB = parseFloat(b.replace(/[^0-9.\-]/g, '')) || 0;
 
-              // Compare numeric part first
-              if (numA !== numB) return numA - numB;
+            // Compare numeric part first
+            if (numA !== numB) return numA - numB;
 
-              // If numeric parts are equal, compare the remaining text alphabetically
-              const textA = a.replace(/[0-9.\-\s]/g, '').toUpperCase();
-              const textB = b.replace(/[0-9.\-\s]/g, '').toUpperCase();
+            // If numeric parts are equal, compare the remaining text alphabetically
+            const textA = a.replace(/[0-9.\-\s]/g, '').toUpperCase();
+            const textB = b.replace(/[0-9.\-\s]/g, '').toUpperCase();
 
-              return textA.localeCompare(textB);
+            return textA.localeCompare(textB);
         }";
 		
 		return $script;
