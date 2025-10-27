@@ -41,7 +41,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		
 		// add media shortcode
 		
-		add_shortcode('ltple-client-media', array( $this , 'get_media_shortcode' ) );
+		add_shortcode('ltple-client-media', array( $this , 'render_media_library' ) );
 		
 		add_action( 'rest_api_init', function () {
 			
@@ -995,7 +995,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 		}
 	}
 	
-	public function get_media_shortcode(){
+	public function render_media_library(){
 		
 		ob_start();
 		

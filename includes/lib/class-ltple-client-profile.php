@@ -81,7 +81,7 @@ class LTPLE_Client_Profile {
 			
 		} );
 
-		add_shortcode('ltple-client-profile', array( $this , 'get_profile_shortcode' ) );
+		add_shortcode('ltple-client-profile', array( $this , 'render_user_profile' ) );
 		
 		add_action('template_include', array( $this , 'include_user_profile' ));
 			
@@ -1681,7 +1681,7 @@ class LTPLE_Client_Profile {
 		return $content;
 	}
 	
-	public function get_profile_shortcode(){
+	public function render_user_profile(){
 		
 		if( empty($this->id) ){
 			

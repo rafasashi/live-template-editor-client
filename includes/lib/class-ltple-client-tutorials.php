@@ -35,10 +35,10 @@ class LTPLE_Client_Tutorials {
 		
 		// add tutorials shortcodes
 		
-		add_shortcode('ltple-tutorial', array( $this , 'get_tutorial_shortcode' ) );
+		add_shortcode('ltple-tutorial', array( $this , 'render_tutorial' ) );
 	}
 	
-	public function get_tutorial_shortcode( $atts ){
+	public function render_tutorial( $atts ){
 		
 		$atts = shortcode_atts( array(
 		

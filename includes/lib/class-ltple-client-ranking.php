@@ -33,7 +33,7 @@
 			
 			add_action( 'edit_user_profile_update', array( $this, 'save_user_stars' ) );
 		
-			add_shortcode('ltple-client-ranking', array( $this , 'get_ranking_shortcode' ) );
+			add_shortcode('ltple-client-ranking', array( $this , 'render_ranking_page' ) );
 			
 			add_action('ltple_menu_buttons', array( $this , 'add_menu_button' ) );
 		}
@@ -54,7 +54,7 @@
 			}			
 		}
 		
-		public function get_ranking_shortcode(){
+		public function render_ranking_page(){
 			
 			if( $this->parent->settings->is_enabled('ranking') ){
 			

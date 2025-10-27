@@ -31,7 +31,7 @@ class LTPLE_Client_Login {
 		
 		add_filter('login_redirect', array($this, 'set_login_redirect_url'), 10, 3 );		
 		
-		add_shortcode('ltple-client-login', array($this , 'get_login_shortcode' ) );
+		add_shortcode('ltple-client-login', array($this , 'render_login_form' ) );
 
 		add_action('register_post',       array( $this, 'check_honeypot' ), 0  );
 		add_action('login_form_register', array( $this, 'check_honeypot' ), 0  );
@@ -279,7 +279,7 @@ class LTPLE_Client_Login {
 		return $redirect_to;
 	}
 	
-	public function get_login_shortcode(){
+	public function render_login_form(){
 
 		ob_start();
 		

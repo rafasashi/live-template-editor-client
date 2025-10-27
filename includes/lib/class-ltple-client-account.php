@@ -17,7 +17,7 @@ class LTPLE_Client_Account {
 		
 		add_action('wp', array( $this,'init_account'),9999);
 		
-		add_shortcode('ltple-client-account', array( $this , 'get_account_shortcode' ) );
+		add_shortcode('ltple-client-account', array( $this , 'render_account_panel' ) );
 	}
 	
 	public function init_account(){
@@ -30,7 +30,7 @@ class LTPLE_Client_Account {
 		}
 	}
 	
-	public function get_account_shortcode(){
+	public function render_account_panel(){
 		
 		ob_start();
 		

@@ -111,6 +111,13 @@ class LTPLE_Client_Plan {
 				'callback' 	=> array($this,'deliver_plans'),
 				'permission_callback' => '__return_true',
 			) );
+
+			register_rest_route( 'ltple-plans/v1', '/list', array(
+				
+				'methods' 	=> 'GET',
+				'callback' 	=> array($this,'get_plans_list'),
+				'permission_callback' => '__return_true',
+			) );
 		} );
 		
 		add_action('restrict_manage_posts', array($this, 'add_manage_plan_actions'),10,2 );
@@ -125,16 +132,21 @@ class LTPLE_Client_Plan {
 	
 		add_filter('ltple_plan_table_services', array( $this, 'add_plan_table_services' ),0,2);
 
-        add_filter('lfm_upload_allowed_file_types', function($file_types,$user){
+        add_filter('lfm_upload_allowed_file_types', function($file_types,$user,$folder){
             
             if( !in_array('mp4',$file_types) ){
+                
+                $default_id = $this->parent->media->get_media_library_id($user);
+                
+                if( $default_id != $folder->ID ){
 
-                $file_types = array_merge($file_types,['mp4','m4v','m4p','webm','ogv','mkv','avi','mov','wmv']);
+                    $file_types = array_merge($file_types,['mp4','m4v','m4p','webm','ogv','mkv','avi','mov','wmv']);
+                }
             }
 
             return $file_types;
 
-        },10,2);
+        },10,3);
 
         add_filter('lfm_upload_max_filesize', function($max_file_size,$user){
                 
@@ -158,7 +170,9 @@ class LTPLE_Client_Plan {
 		
 		if( !is_admin() ){
 		
-			add_shortcode('subscription-plan', array( $this, 'get_subscription_plan_shortcode' ) );
+			add_shortcode('subscription-plan', array( $this, 'render_subscription_plan' ) );
+
+            add_shortcode('subscription-plans-table', array( $this, 'render_plans_table' ) );
 		}
 		else{
 
@@ -914,7 +928,7 @@ class LTPLE_Client_Plan {
 		return $table;
 	}
 	
-	public function get_subscription_plan_shortcode( $atts ){
+	public function render_subscription_plan( $atts ){
 		
 		$atts = shortcode_atts( array(
 		
@@ -1148,6 +1162,180 @@ class LTPLE_Client_Plan {
 		return $shortcode;
 	}
 	
+    public function render_plans_table($atts){
+        
+        $shortcode ='<div class="tab-content" style="margin-top:20px;">';
+			
+			$shortcode .='<div role="tabpanel" class="tab-pane active" id="plans">';
+				
+				// get table fields
+				
+				$shortcode .='<div class="row" style="margin:-20px 0px -15px 0px;">';
+					
+                    $fields = array(
+						
+						array(
+
+							'field' 	=> 'preview',
+							'sortable' 	=> 'false',
+							'content' 	=> '',
+						),
+						array(
+
+							'field' 		=> 'name',
+							'sortable' 		=> 'true',
+							'content' 		=> 'Name',
+							'filter-control'=> 'input',
+						),
+                        array(
+
+							'field' 		=> 'price',
+							'sortable' 		=> 'true',
+                            'sorter'        => 'numericSorter',
+							'content' 		=> 'Price',
+							'filter-control'=> 'input',
+						),
+                        array(
+
+							'field' 		=> 'file-types',
+							'sortable' 		=> 'true',
+							'content' 		=> 'File Types',
+							'filter-control'=> 'input',
+						),
+						array(
+
+							'field' 		=> 'bandwidth',
+							'sortable' 		=> 'true',
+                            'sorter'        => 'numericSorter',
+							'content' 		=> 'Bandwidth',
+							'filter-control'=> 'input',
+						),
+                        array(
+
+							'field' 		=> 'disk-space',
+							'sortable' 		=> 'true',
+                            'sorter'        => 'numericSorter',
+							'content' 		=> 'Disk Space',
+							'filter-control'=> 'input',
+						),
+                        array(
+
+							'field' 		=> 'max-file-size',
+							'sortable' 		=> 'true',
+                            'sorter'        => 'numericSorter',
+							'content' 		=> 'Max File Size',
+							'filter-control'=> 'input',
+						),	
+                        array(
+
+							'field' 		=> 'subdomains',
+							'sortable' 		=> 'true',
+                            'sorter'        => 'numericSorter',
+							'content' 		=> 'Subdomains',
+							'filter-control'=> 'input',
+						),
+                        array(
+
+							'field' 		=> 'shared-licenses',
+							'sortable' 		=> 'true',
+                            'sorter'        => 'numericSorter',
+							'content' 		=> 'Shared Licenses',
+							'filter-control'=> 'input',
+						),							
+					);
+				
+					// get table of results
+					
+					$api_url = $this->parent->urls->api . 'ltple-plans/v1/list/';
+					
+					if( !empty($_REQUEST) ){
+						
+						$api_url .= '?' . http_build_query($_REQUEST, '', '&amp;');
+					}
+					
+					$shortcode .= $this->parent->api->get_table(
+					
+						$api_url, 
+						$fields, 
+						$trash		= false,
+						$export		= false,
+						$search		= false,
+						$toggle		= false,
+						$columns	= false,
+						$header		= true,
+						$pagination	= false,
+						$form		= false,
+						$toolbar 	= 'toolbar',
+						$card		= false,
+						$itemHeight	= 235,
+						$fixedHeight= false,
+						$echo		= false,
+					);
+
+				$shortcode .='</div>';
+				
+			$shortcode .='</div>';
+					
+		$shortcode .='</div>';	
+
+        return $shortcode;
+    }
+
+    public function get_plans_list($rest){
+        
+        $items = [];
+
+        if( $plans = $this->get_subscription_plans() ){
+            
+            foreach( $plans as $plan ){
+                
+                if( empty($plan['info']['total_bandwidth']) ){
+                    
+                    continue;
+                }
+
+                $url = $plan['info_url'];
+
+                $name = '<a href="'.$url.'" target="_blank">' . $plan['title'] . '</a>';
+                
+                $thumb_url = $this->parent->plan->get_thumb_url($plan['id']);
+                
+                $preview        = '<a href="'.$url.'" target="_blank"><div style="background:url(' . $thumb_url . ');background-size:contain;background-repeat:no-repeat;background-position:top center;width:100px;height:65px;display:inline-block;"></div></a>';
+                $price          = $plan['price_tag'];
+                $bandwidth      = $plan['info']['total_bandwidth'] . ' GB';
+                $disk_space     = $plan['info']['total_disk_space'] . ' GB';
+                $max_file_size  = $plan['info']['max_file_size'] . ' MB';
+                $subdomains     = $plan['info']['total_subdomain_amount'] . ' subdomain' . ( $plan['info']['total_subdomain_amount'] != 1 ? 's' : '' );
+                $licenses       = $plan['info']['total_license_amount'] . ' license' . ( $plan['info']['total_license_amount'] != 1 ? 's' : '' );
+                
+                $file_types = array();
+                
+                foreach( $plan['info']['file_types'] as $file_type ){
+                    
+                    if( $file_type['has_access'] === true ){
+                        
+                        $file_types[] = $file_type['name'];
+                    }
+                }
+                
+                $items[] = array(
+                    
+                    'preview'           => $preview,
+                    'name'              => $name,
+                    'price'             => $price,  
+                    'file-types'        => implode(', ',$file_types),  
+                    'bandwidth'         => $bandwidth,
+                    'disk-space'        => $disk_space,
+                    'max-file-size'     => $max_file_size,
+                    'subdomains'        => $subdomains,
+                    'shared-licenses'   => $licenses,
+                );
+            }
+        }
+
+        return $items;
+    }
+
 	public function get_layer_taxonomies_options(){
 		
 		if( is_null($this->layerOptions) ){

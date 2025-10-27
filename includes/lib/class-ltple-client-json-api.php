@@ -413,7 +413,7 @@ class LTPLE_Client_Json_API {
 				$table 	.=  'data-page-list="[20, 50, 100, 200, 500]" ';
 				$table 	.=  'data-filter-control="true" ';
 				$table 	.=  'data-sortable="true" '; 
-				$table 	.=  'data-url="' . $api_url . '" ';
+                $table 	.=  'data-url="' . $api_url . '" ';
 			}
 			
 			$table 	.=  'data-show-refresh="true" ';
@@ -465,7 +465,7 @@ class LTPLE_Client_Json_API {
 			$table .=  '</form>';
 		}
 		
-		if($echo){
+		if($echo===true){
 			
 			echo $table;
 		}
@@ -677,7 +677,7 @@ class LTPLE_Client_Json_API {
 		else{
 			
 			$script .= "$(document).ready(function(){
-				
+
 				// table filters
 
 				if( $('#tableFilters').length > 0 ){
@@ -720,7 +720,34 @@ class LTPLE_Client_Json_API {
 			});";
 		}
 
-		$script .= " })(jQuery);";
+		$script .= " })(jQuery);
+
+        function numericSorter(a,b){
+                
+              // Ensure values are strings
+              a = (a || '').toString().trim();
+              b = (b || '').toString().trim();
+
+              const specials = ['N/A', '-', 'Unlimited', '∞', 'None', 'No Limit'];
+              const aSpecial = specials.some(s => a.toLowerCase().includes(s.toLowerCase()));
+              const bSpecial = specials.some(s => b.toLowerCase().includes(s.toLowerCase()));
+
+              if (aSpecial && !bSpecial) return 1;   // push specials to bottom
+              if (!aSpecial && bSpecial) return -1;
+              if (aSpecial && bSpecial) return 0;
+
+              const numA = parseFloat(a.replace(/[^0-9.\-]/g, '')) || 0;
+              const numB = parseFloat(b.replace(/[^0-9.\-]/g, '')) || 0;
+
+              // Compare numeric part first
+              if (numA !== numB) return numA - numB;
+
+              // If numeric parts are equal, compare the remaining text alphabetically
+              const textA = a.replace(/[0-9.\-\s]/g, '').toUpperCase();
+              const textB = b.replace(/[0-9.\-\s]/g, '').toUpperCase();
+
+              return textA.localeCompare(textB);
+        }";
 		
 		return $script;
 	}

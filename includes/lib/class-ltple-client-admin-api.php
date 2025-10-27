@@ -16,12 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 			
 			add_action('save_post', array( $this, 'save_meta_boxes' ), 10, 1 );
 			
-			add_shortcode('ltple-client-admin', array( $this , 'get_admin_frontend' ) );
+			add_shortcode('ltple-client-admin', array( $this , 'render_admin_frontend' ) );
 			
 			do_action('updated_option', array( $this, 'settings_updated' ), 10, 3 );
 		}
 		
-		public function get_admin_frontend(){
+		public function render_admin_frontend(){
 			
 			
 		}

@@ -27,10 +27,10 @@ class LTPLE_Client_Checkout extends LTPLE_Client_Object {
 
 		$this->parent = $parent;
 		
-		add_shortcode('ltple-client-checkout', array( $this , 'get_shortcode' ) );
+		add_shortcode('ltple-client-checkout', array( $this , 'render_checkout_page' ) );
 	}
 	
-	public function get_shortcode() {
+	public function render_checkout_page() {
 		
 		ob_start();
 		

@@ -26,7 +26,7 @@ class LTPLE_Client_Dashboard {
 			
 			// add dashboard shortcodes
 		
-			add_shortcode('ltple-client-dashboard', array( $this , 'get_dashboard_shortcode' ) );
+			add_shortcode('ltple-client-dashboard', array( $this , 'render_dashboard' ) );
 			
 			add_filter('body_class',array($this,'filter_dashboard_classes'),99999,2);
 			add_filter('post_class',array($this,'filter_dashboard_classes'),99999,2);
@@ -444,7 +444,7 @@ class LTPLE_Client_Dashboard {
 		return $content;
 	}
 	
-	public function get_dashboard_shortcode(){
+	public function render_dashboard(){
 		
 		ob_start();
 

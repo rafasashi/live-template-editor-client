@@ -406,11 +406,11 @@ class LTPLE_Client {
 
 		// add editor shortcodes
 		
-		add_shortcode('ltple-client-editor', array( $this , 'get_gallery_shortcode' ) );
+		add_shortcode('ltple-client-editor', array( $this , 'render_templates_gallery' ) );
 		
 		// add apps shortcodes
 		
-		add_shortcode('ltple-client-apps', array( $this , 'get_apps_shortcode' ) );		
+		add_shortcode('ltple-client-apps', array( $this , 'render_apps_panel' ) );		
 		
 		add_action('ltple_message', array( $this, 'output_message') );	
 		
@@ -1364,7 +1364,7 @@ class LTPLE_Client {
 		do_action('ltple_footer');
 	}
 	
-	public function get_apps_shortcode(){
+	public function render_apps_panel(){
 		
 		ob_start();
 		
@@ -1382,7 +1382,7 @@ class LTPLE_Client {
 		return ob_get_clean();
 	}
 	
-	public function get_gallery_shortcode(){
+	public function render_templates_gallery(){
 		
 		ob_start();
 		
