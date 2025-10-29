@@ -118,6 +118,25 @@ echo'<div id="panel" class="wrapper">';
 							'filter-control'=> 'select',
 						)								
 					);
+                    
+                    if( $post_type->name == 'folder' ){
+                        
+                        $fields[] = array(
+
+							'field' 		=> 'file-types',
+							'sortable' 		=> 'true',
+							'content' 		=> 'File Types',
+							'filter-control'=> 'input',
+						);
+
+                        $fields[] = array(
+
+							'field' 		=> 'status',
+							'sortable' 		=> 'true',
+							'content' 		=> 'Status',
+							'filter-control'=> 'select',
+						);
+                    }
 
 					$fields = apply_filters('ltple_table_fields',$fields,$post_type);
 					

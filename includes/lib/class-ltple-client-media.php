@@ -372,12 +372,15 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
                 }
 
                 $type = $folder->ID == $default_id ? 'Editor Contents' : 'File Sharing';
-
-				$row = [];
+                
+                $file_types = $folder->ID == $default_id ? 'Images' : 'Images, Audios, Videos';
+				
+                $row = [];
 				
 				$row['preview'] 	= '<div style="height:100px;width:100px;background:url(' . $alt_url . ');background-size:cover;background-repeat:no-repeat;background-position:center center;width:100%;display:inline-block;"></div>';
 				$row['name'] 		= ucfirst($folder->post_title);
 				$row['type'] 		= $type;
+                $row['file-types'] 	= $file_types;
                 $row['status'] 		= $status;
 				$row['action'] 	    = $this->get_folder_action_buttons($folder,$default_id);
 

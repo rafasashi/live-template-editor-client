@@ -132,15 +132,34 @@ class LTPLE_Client_Plan {
 	
 		add_filter('ltple_plan_table_services', array( $this, 'add_plan_table_services' ),0,2);
 
-        add_filter('lfm_upload_allowed_file_types', function($file_types,$user,$folder){
-            
-            if( !in_array('mp4',$file_types) ){
-                
-                $default_id = $this->parent->media->get_media_library_id($user);
-                
-                if( $default_id != $folder->ID ){
+        add_filter('lfm_upload_allowed_file_types', function($file_types, $user, $folder) {
 
-                    $file_types = array_merge($file_types,['mp4','m4v','m4p','webm','ogv','mkv','avi','mov','wmv']);
+            $default_id = $this->parent->media->get_media_library_id($user);
+
+            if ($default_id != $folder->ID) {
+
+                // video formats
+
+                $video_types = ['mp4', 'm4v', 'm4p', 'webm', 'ogv', 'mkv', 'avi', 'mov', 'wmv'];
+
+                foreach ($video_types as $type) {
+
+                    if (!in_array($type, $file_types)) {
+
+                        $file_types[] = $type;
+                    }
+                }
+
+                // audio formats
+
+                $audio_types = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'wma', 'aiff', 'alac'];
+
+                foreach ($audio_types as $type) {
+
+                    if (!in_array($type, $file_types)) {
+
+                        $file_types[] = $type;
+                    }
                 }
             }
 
