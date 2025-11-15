@@ -1,14 +1,19 @@
-<?php ob_clean(); 
+<?php 
 
-	// add head
-	
-	remove_action( 'wp_head', '_wp_render_title_tag', 1 );
-	
-	add_action( 'wp_head', array( $this, 'get_header') );
-	
-	// add menu
-	
-	add_filter( 'wp_nav_menu', array( $this, 'get_menu' ), 10, 2);
+if (ob_get_level()){
+
+    ob_clean();
+}
+
+// add head
+
+remove_action( 'wp_head', '_wp_render_title_tag', 1 );
+
+add_action( 'wp_head', array( $this, 'get_header') );
+
+// add menu
+
+add_filter( 'wp_nav_menu', array( $this, 'get_menu' ), 10, 2);
 ?>
 
 <!DOCTYPE html>

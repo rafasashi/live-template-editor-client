@@ -169,7 +169,7 @@
                             
                             echo '<li>';
 
-                                echo'<form id="tableFilters">';
+                                echo'<form id="tableFilters" style="margin-top:4px;">';
                                 
                                     // switch range
                                         

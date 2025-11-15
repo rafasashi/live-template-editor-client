@@ -1,42 +1,46 @@
 <?php 
 
-	$ltple = LTPLE_Client::instance();
+$ltple = LTPLE_Client::instance();
 
-	ob_clean(); 
-	
-	// get site name
-	
-	$site_name = ucfirst(get_bloginfo('name'));
-	
-	// get site logo
-	
-	$site_logo = ( !empty($ltple->settings->options->logo_url) ? $ltple->settings->options->logo_url : $ltple->assets_url . 'images/home.png' );
-	
-	// get site icon
-	
-	$site_icon = get_site_icon_url(512,WP_CONTENT_URL .  '/favicon.jpeg');
+if (ob_get_level()){
 
-	// get description
-	
-	$description = wp_trim_words(get_user_meta($ltple->profile->id, 'description', true),50,' [...]');
+    ob_clean();
+}
 
-	if( empty($description) ){
-		
-		$description = 'Nothing to say';
-	}
-	
-	// get page title
-	
-	$title = $ltple->profile->name;
-	
-	$locale = get_locale();
-	$robots = 'index,follow';
-	
-	$canonical_url = $ltple->urls->home;
-	
-	$sitemap_url = trailingslashit($ltple->urls->home) . 'wp-sitemap.xml';
-	$feed_url 	 = trailingslashit($ltple->urls->home) . 'feed/';
-	
+
+// get site name
+
+$site_name = ucfirst(get_bloginfo('name'));
+
+// get site logo
+
+$site_logo = ( !empty($ltple->settings->options->logo_url) ? $ltple->settings->options->logo_url : $ltple->assets_url . 'images/home.png' );
+
+// get site icon
+
+$site_icon = get_site_icon_url(512,WP_CONTENT_URL .  '/favicon.jpeg');
+
+// get description
+
+$description = wp_trim_words(get_user_meta($ltple->profile->id, 'description', true),50,' [...]');
+
+if( empty($description) ){
+    
+    $description = 'Nothing to say';
+}
+
+// get page title
+
+$title = $ltple->profile->name;
+
+$locale = get_locale();
+$robots = 'index,follow';
+
+$canonical_url = $ltple->urls->home;
+
+$sitemap_url = trailingslashit($ltple->urls->home) . 'wp-sitemap.xml';
+$feed_url 	 = trailingslashit($ltple->urls->home) . 'feed/';
+
 ?>
 <!DOCTYPE html>
 <html>
