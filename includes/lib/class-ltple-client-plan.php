@@ -2685,7 +2685,7 @@ class LTPLE_Client_Plan {
 		return $this->license_holders[$user_id];
 	}
 	
-	public function get_license_period_end($user_id){
+	public function get_license_period_end($user_id,$refresh=true){
 		
 		$period_end = 0;
 		
@@ -2693,7 +2693,7 @@ class LTPLE_Client_Plan {
 
 			$period_end = get_user_meta( $user_id, $this->parent->_base . 'period_end', true );
 			
-			if( !is_numeric($period_end) ){
+			if( !is_numeric($period_end) && $refresh === true ){
 				
 				// remote get period end
 				

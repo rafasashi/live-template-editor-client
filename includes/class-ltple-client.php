@@ -2155,7 +2155,7 @@ class LTPLE_Client {
                         else{
                             
                             $post_type = $layer_type->storage;
-                            
+
                             $post_status = apply_filters('ltple_default_layer_status','publish',$post_type);
                             
                             $defaultLayer = $layer;

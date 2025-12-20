@@ -201,11 +201,12 @@ class LTPLE_Client_Profile {
 					
 			$this->name = $this->get_profile_name($this->id);
 		
-			if( empty($this->user->ID) )
+			if( empty($this->user->ID) ){
 				
 				include( $this->parent->views . '/profile/restricted.php' );
-			
-			$this->user->period_end = $this->parent->plan->get_license_period_end( $this->user->ID);
+            }
+            
+			$this->user->period_end = $this->parent->plan->get_license_period_end( $this->user->ID,false);
 			
 			$this->user->remaining_days = $this->parent->plan->get_license_remaining_days( $this->user->period_end );
 			
