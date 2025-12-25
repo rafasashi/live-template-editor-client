@@ -206,7 +206,7 @@ class LTPLE_Client_Profile {
 				include( $this->parent->views . '/profile/restricted.php' );
             }
             
-			$this->user->period_end = $this->parent->plan->get_license_period_end( $this->user->ID,false);
+			$this->user->period_end = $this->parent->plan->get_license_period_end($this->user->ID,false); // TODO refresh license once after disclaimer via no_cache (maybe)
 			
 			$this->user->remaining_days = $this->parent->plan->get_license_remaining_days( $this->user->period_end );
 			

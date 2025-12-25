@@ -40,26 +40,28 @@
 				var wrap = '<div class="carousel-row" style="flex-wrap:wrap;display:flex;width:'+viewWidth+'px;float:left;"></div>';
 			}
 			
-			var $row = $(wrap); 
-			
-			$('#'+id+' '+itemSelector).each(function() {
-				
-				rowWidth += $(this).outerWidth(true); // add the width of each item
-				
-				if (rowWidth > viewWidth) { // if the total width is greater than or equal to the screen width
-					
-					$('#'+id+'').append($row); // append the current row to the body
-					
-					$row = $(wrap); 
-					
-					rowWidth = $(this).outerWidth(true); // set the total width to the width of the current item
-				}
-				
-				$row.append($(this)); // append the current item to the current row
-			  
-			});
+			var $row = $(wrap);
 
-			$('#'+id+'').append($row); // append the last row to the body
+            $('#' + id + ' ' + itemSelector).each(function () {
+
+                var itemWidth = $(this).width();
+
+                if (rowWidth + itemWidth > viewWidth) {
+
+                    // append completed row
+                    $('#' + id).append($row);
+
+                    // start a new row
+                    $row = $(wrap);
+                    rowWidth = 0;
+                }
+
+                $row.append(this);
+                rowWidth += itemWidth;
+            });
+
+            // append last row
+            $('#' + id).append($row);
 
 			var carouselWidth = $('#'+id+' .carousel-row').length * viewWidth;
 			var carouselHeight = $('#'+id+' .carousel-row').length * viewHeight;
@@ -69,9 +71,11 @@
 			if( axis == 'x' ){
 				
 				$('#'+id+' .carousel-wrapper').css({
-					
-					'width' 	: carouselWidth + 'px',
-					'height' 	: viewHeight + 'px',
+                    
+					'touch-action'  : 'pan-y',
+					'width' 	    : carouselWidth + 'px',
+					'height' 	    : viewHeight + 'px',
+                    
 				});
 			}
 			else{
