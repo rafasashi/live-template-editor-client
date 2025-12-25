@@ -214,7 +214,7 @@
 			if( is_author() ){
 				
 				$author_name = get_query_var('author_name');
-				
+
 				if( $author = get_user_by('slug',$author_name) ){
 					
 					$url = $this->parent->urls->profile . $author->ID . '/';

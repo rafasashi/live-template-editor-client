@@ -2303,7 +2303,7 @@ class LTPLE_Client_Profile {
 		
 		$this->slug = $this->get_slug();
 		
-		$this->parent->urls->profile = apply_filters('ltple_profile_url',$this->parent->urls->primary . '/' . $this->slug . '/');
+		$this->parent->urls->profile = apply_filters('ltple_profile_url',$this->parent->urls->home . '/' . $this->slug . '/');
 		
 		// add rewrite rules
 		
