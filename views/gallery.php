@@ -225,6 +225,6 @@
 
 		echo'</div>';
 		
-		do_action('ltple_gallery_after_output');
+		do_action('ltple_gallery_after_output',$layer_type,$layer_range);
 	}
 	

@@ -28,8 +28,20 @@ class LTPLE_Client_Checkout extends LTPLE_Client_Object {
 		$this->parent = $parent;
 		
 		add_shortcode('ltple-client-checkout', array( $this , 'render_checkout_page' ) );
-	}
 	
+        add_action('ltple_gallery_upgrade_item',array( $this, 'add_checkout_modal'),10,2);
+    }
+	
+    public function add_checkout_modal($item,$layer_range){
+        
+        if( $checkout_modal = $this->get_modal($layer_range) ){
+
+            $item .= $checkout_modal['content'];
+        }
+        
+        return $item;
+    }
+    
 	public function render_checkout_page() {
 		
 		ob_start();
@@ -181,7 +193,7 @@ class LTPLE_Client_Checkout extends LTPLE_Client_Object {
             'options' 	=> $layer_range,
         
         ), $this->parent->urls->checkout );
-        
+
         $modal_id = 'upgrade_plan_'.$layer_range;
         
         $content = '<div class="modal fade" id="'.$modal_id.'" tabindex="-1" role="dialog">'.PHP_EOL;

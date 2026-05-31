@@ -500,7 +500,7 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 			$layer_range = $this->get_current_range();
 			
 			// get gallery items 
-			
+
             if( $range_items = $this->get_range_items($layer_type,$layer_range,$referer) ){
 				
 				if( !empty($layer_range) ){
@@ -563,10 +563,10 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 
 							
 						$item .='</div>';
-						
+                        
 						$items[] = array(
 							
-							'item' => $item,
+							'item' => apply_filters('ltple_gallery_upgrade_item',$item,$layer_range),
 						);						
 					}
 				}
@@ -635,6 +635,14 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 
 			$quick_start_url = apply_filters('ltple_quick_start_url',$this->parent->urls->edit . '?uri='.$post->ID,$post);
 			
+            // get checkout url
+
+            $checkout_url = $this->parent->product->get_checkout_url($layer);
+            
+            // get checkout url
+
+            $checkout_modal = $this->get_modal($checkout_url);
+           
 			// get layer range
 			
 			$layer_range = $this->parent->layer->get_layer_range($post);
@@ -716,8 +724,8 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
                                     }
                                 }
                                 elseif( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ){
-                                    
-                                    $action .=  '<a type="button" class="btn" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
+                                   
+                                    $action .=  '<a type="button" class="btn" data-toggle="modal" data-target="#'.$checkout_modal['id'].'">'.PHP_EOL;
                                 
                                         $action .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL; 
                             
@@ -749,8 +757,8 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
                                 }
                                 elseif( empty($this->parent->user->ID) || ( !empty($this->parent->user->plan['holder']) && $this->parent->user->plan['holder'] == $this->parent->user->ID ) ){
                                     
-                                    $item .= '<a type="button" class="btn" data-toggle="modal" data-target="#upgrade_plan_'.$layer_range->slug.'" href="#upgrade_plan_'.$layer_range->slug.'">'.PHP_EOL;
-                                
+                                    $item .=  '<a type="button" class="btn" data-toggle="modal" data-target="#'.$checkout_modal['id'].'">'.PHP_EOL;
+
                                         $item .= '<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Unlock'.PHP_EOL;
                             
                                     $item .= '</a>'.PHP_EOL;
@@ -764,6 +772,11 @@ class LTPLE_Client_Gallery extends LTPLE_Client_Object {
 				$item .= '</div>';
 				
 			$item .= '</div>';
+
+            if( !$this->parent->plan->user_has_layer( $post ) ){
+                
+                $item .= $checkout_modal['content'];
+            }
 		}
 
 		return $item;
