@@ -272,12 +272,12 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
                     
                     if( $this->parent->plan->get_user_license_remaining_days($user_id) <= 0 ){
 
-                        $url = $this->parent->assets_url . 'images/service-expired.svg';
+                        return $this->parent->assets_url . 'images/service-expired.svg';
                     }
                 }
             }
             
-            return $url;
+            return apply_filters('rew_prod_url',$url);
             
         },999999,3);
 	}

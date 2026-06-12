@@ -726,12 +726,9 @@ class LTPLE_Client {
 	public function custom_admin_dashboard_css() {
 		
 		echo '<style>';
-					
-			echo '#adminmenu a {color:' . $this->settings->linkColor . ' !important;}';
-			echo '#adminmenu .wp-has-current-submenu .wp-submenu .wp-submenu-head, #adminmenu .wp-menu-arrow, #adminmenu .wp-menu-arrow div, #adminmenu li.current a.menu-top, #adminmenu li.wp-has-current-submenu a.wp-has-current-submenu, .folded #adminmenu li.current.menu-top, .folded #adminmenu li.wp-has-current-submenu { border-left: 5px solid ' . $this->settings->mainColor . '; }';
-					
+
 			echo '.displaying-num {  
-				background-color: #337ab7;
+				background-color: #3858e9;
 				display: inline;
 				padding: .2em .6em .3em;
 				font-size: 90%;
