@@ -14,7 +14,7 @@ echo'<div class="container-fluid" style="min-height:calc( 100vh - 50px );">';
         
         echo '<hr class="clearfix">';
         
-        echo '<form target="_self" action="" method="post" style="width:100%;background:#FFFFFF;">';
+        echo '<form target="_self" action="'.apply_filters('rew_post_request_url',$ltple->urls->current).'" method="post" style="width:100%;background:#FFFFFF;">';
             
             if( !empty($layer->form) ){
             
