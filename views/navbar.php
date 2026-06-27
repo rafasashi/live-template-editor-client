@@ -92,7 +92,7 @@ if( !$ltple->layer->in_editor('gutenberg') && (empty($ltple->profile->id) || $lt
                             
                             $post_title = $layer->post_title;
                             
-                            echo'<form style="display:inline-block;" target="_parent" action="' . $ltple->urls->edit . '?uri=' . $layer->ID . '" id="savePostForm" method="post">';
+                            echo'<form style="display:inline-block;" target="_parent" action="' . apply_filters('rew_post_request_url',$ltple->urls->edit . '?uri=' . $layer->ID) . '" id="savePostForm" method="post">';
                                 
                                 echo'<input type="hidden" name="postTitle" id="postTitle" value="' . $post_title . '" class="form-control required" placeholder="Template Title">';
                                 echo'<input type="hidden" name="postContent" id="postContent" value="">';

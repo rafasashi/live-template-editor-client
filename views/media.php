@@ -172,7 +172,7 @@ echo'<div id="media_library" class="wrapper">';
                                         
                                         $media_url = $ltple->urls->media . 'user-images/' . $query_args;
 
-                                        echo '<form style="padding:10px;" target="_self" action="'.$media_url.'" id="saveImageForm" class="dynamic-form" method="post" enctype="multipart/form-data">';
+                                        echo '<form style="padding:10px;" target="_self" action="'.apply_filters('rew_post_request_url',$media_url).'" id="saveImageForm" class="dynamic-form" method="post" enctype="multipart/form-data">';
                                             
                                             echo '<label>Image File</label>';
                                             
@@ -547,7 +547,7 @@ echo'<div id="media_library" class="wrapper">';
 
 											echo '<div style="display:none;" id="addLink" title="Add payment link">';
 												
-												echo '<form style="padding:10px;" target="_self" action="' . $ltple->urls->current . '#' . $app->slug . '" class="saveBookmarkForm" method="post">';
+												echo '<form style="padding:10px;" target="_self" action="' . apply_filters('rew_post_request_url',$ltple->urls->current . '#' . $app->slug) . '" class="saveBookmarkForm" method="post">';
 													
 													echo '<div style="padding-bottom:10px;display:block;">';
 														

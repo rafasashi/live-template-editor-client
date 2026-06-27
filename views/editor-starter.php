@@ -93,7 +93,7 @@ else{
                     
                     $start_url = remove_query_arg('output',$this->parent->urls->current);			
                     
-                    echo'<form target="_parent" class="col-xs-8" action="' . $start_url . '" id="savePostForm" method="post">';
+                    echo'<form target="_parent" class="col-xs-8" action="' . apply_filters('rew_post_request_url',$start_url) . '" id="savePostForm" method="post">';
                         
                         do_action('ltple_editor_start_' . $layer_type->storage);
                         

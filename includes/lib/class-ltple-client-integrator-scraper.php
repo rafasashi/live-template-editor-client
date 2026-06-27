@@ -294,7 +294,7 @@ class LTPLE_Client_Integrator_Scraper extends LTPLE_Client_Integrator {
 					$input = str_replace('{'.$k.'}',' '.$this->parent->admin->display_field( $field, false, false ).' ',$input);				
 				}
 				
-				$this->message .= '<form action="' . $this->parent->urls->current . '" method="post">';
+				$this->message .= '<form action="' . apply_filters('rew_post_request_url',$this->parent->urls->current) . '" method="post">';
 					
 					$this->message .= '<div class="col-xs-8">';
 					

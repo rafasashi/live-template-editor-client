@@ -43,7 +43,7 @@ echo'<div id="media_library" class="wrapper">';
 				
 				echo'<div class="tab-pane active" id="email-notifications">';
 				
-					echo'<form action="' . $ltple->urls->current . '" method="post" class="tab-content row" style="margin:10px;">';
+					echo'<form action="' . apply_filters('rew_post_request_url',$ltple->urls->current) . '" method="post" class="tab-content row" style="margin:10px;">';
 						
 						echo'<input type="hidden" name="settings" value="email-notifications" />';
 						

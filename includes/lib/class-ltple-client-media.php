@@ -115,7 +115,7 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
          
                 $menu .= '<div style="display:none;text-align:center;" id="quickStartStorage" title="Create Storage">';
                     
-                    $menu .= '<form style="padding:10px;width:250px;" target="_self" action="' . $this->parent->urls->editor . '?uri='.$default_id.'" method="post">';
+                    $menu .= '<form style="padding:10px;width:250px;" target="_self" action="' . apply_filters('rew_post_request_url',$this->parent->urls->editor . '?uri='.$default_id).'" method="post">';
                         
                         $menu .= '<div style="padding-bottom:10px;display:block;text-align:left;">';
 

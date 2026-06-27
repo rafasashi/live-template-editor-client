@@ -35,7 +35,7 @@ echo'<div id="panel" class="wrapper">';
 					
 				$fields = $ltple->layer->get_user_layer_fields(array(),$layer);
 				
-				echo '<form id="savePostForm" method="post" enctype="multipart/form-data">';
+				echo '<form action="' . apply_filters('rew_post_request_url',$ltple->urls->current) . '"  id="savePostForm" method="post" enctype="multipart/form-data">';
 					
 					echo'<div class="row gutter-20">';
 						

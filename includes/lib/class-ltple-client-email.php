@@ -590,7 +590,7 @@ class LTPLE_Client_Email {
 		
 			$this->invitationForm .= '<div class="col-xs-12 col-md-6">';
 			
-				$this->invitationForm .= '<form action="' . $this->parent->urls->current . '" method="post">';
+				$this->invitationForm .= '<form action="' . apply_filters('rew_post_request_url',$this->parent->urls->current) . '" method="post">';
 		
 					$this->invitationForm .= '<input type="hidden" name="importType" value="'.$type.'" />';
 					

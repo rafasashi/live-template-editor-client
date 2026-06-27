@@ -371,7 +371,7 @@ class LTPLE_Client_Json_API {
 		
 		if($form){
 		
-			$table .=  '<form id="tableForm" action="' . $this->parent->urls->current . '" method="post">';
+			$table .=  '<form id="tableForm" action="' . apply_filters('rew_post_request_url',$this->parent->urls->current) . '" method="post">';
 		}
 	
 		$table .=  '<div id="'.$toolbar.'" class="btn-group">';
