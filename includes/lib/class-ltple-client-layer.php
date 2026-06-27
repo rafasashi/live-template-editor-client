@@ -1735,7 +1735,7 @@ class LTPLE_Client_Layer extends LTPLE_Client_Object {
 					
 						$tab .= '<div class="messageConsole" style="padding:5px;width:265px;">';
 							
-							$tab .= '<div data-method="post" data-action="'.$this->parent->urls->api.'ltple-identity/v1/generate?' . http_build_query($_REQUEST, '', '&amp;') .'">';
+							$tab .= '<div data-method="post" data-action="'.apply_filters('rew_post_request_url',$this->parent->urls->api.'ltple-identity/v1/generate?' . http_build_query($_REQUEST, '', '&amp;')) .'">';
 
                                 $tab .= '<div class="alert alert-info">Auto generate a new password</div>';						
                                 
