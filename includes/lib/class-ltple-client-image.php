@@ -625,32 +625,33 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 		if( is_numeric($user_id) ){
 			
 			$path = $this->get_avatar_path($user_id);
+            
+			if( $user_id > 0 ){
+                
+                if( !file_exists($path) ){
+                    
+                    $gravatar_url = get_avatar_url( $user_id, array(
+                        
+                        'size'		=> 125,
+                        'default' 	=> $url,
+                    ));
 
-			if( file_exists($path) ){
-			
-				$url = add_query_arg( array(
+                    $image = wp_get_image_editor( $gravatar_url );
 				
-					'_' => time(),
-				
-				),$this->url . $user_id . '/avatar.png');
-			}
-			elseif( $user_id > 0 ){
-				
-				$gravatar_url = get_avatar_url( $user_id, array(
-					
-					'size'		=> 125,
-					'default' 	=> $url,
-				));
-				
-				$image = wp_get_image_editor( $gravatar_url );
-				
-				if ( !is_wp_error( $image ) ){
-					
-					$image->save($path);
+                    if ( !is_wp_error( $image ) ){
+                        
+                        $image->save($path);
 
-					$url = $this->url . $user_id . '/avatar.png';
-				}
+                        do_action('rew_file_uploaded',$path,'image/png');
+                    }
+                }
 			}
+
+            $url = add_query_arg( array(
+            
+                '_' => time(),
+            
+            ),$this->url . $user_id . '/avatar.png');
 		}
 		
 		return $url;
@@ -714,13 +715,19 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 				
 				if ( !is_wp_error( $image ) ){
 					
+                    $path = $this->get_avatar_path( $this->parent->user->ID );
+
 					// resize image
 					
 					//$image->rotate( 90 );
 					$image->resize( 125, 125, true );
-					$image->save( $this->get_avatar_path( $this->parent->user->ID ) );
+					$image->save($path);
 
-					return true;
+                    $type = mime_content_type( $_FILES['avatar']['tmp_name'] );
+
+                    do_action('rew_file_uploaded',$path,$type);
+					
+                    return true;
 				}
 			}
 		}
@@ -754,15 +761,21 @@ class LTPLE_Client_Image extends LTPLE_Client_Object {
 	
 				if ( !is_wp_error( $image ) ){
 					
+                    $path = $this->get_banner_path( $this->parent->user->ID );
+
 					// resize image
 					
 					//$image->rotate( 90 );
 					
 					$image->resize( 1920, 1080, true );
 					
-					$image->save( $this->get_banner_path( $this->parent->user->ID ) );
+					$image->save($path);
+                    
+                    $type = mime_content_type( $_FILES['banner']['tmp_name'] );
 
-					return true;
+                    do_action('rew_file_uploaded',$path,$type);
+					
+                    return true;
 				}
 			}
 		}

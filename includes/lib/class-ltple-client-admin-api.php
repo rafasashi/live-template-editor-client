@@ -209,7 +209,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 						
 						$html .= '<span class="input-group-btn">';
 					
-							$html .= '<input type="submit" class="btn btn-default show-password" data-target="#'.$field['id'].'" value="Show" />';
+							$html .= '<input type="submit" class="button show-password" data-target="#'.$field['id'].'" value="Show" />';
 						
 						$html .= '</span>';
 						

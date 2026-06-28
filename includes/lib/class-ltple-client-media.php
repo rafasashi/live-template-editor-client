@@ -537,19 +537,19 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 
         $key = get_post_meta($password->ID,'lfm_password',true);
 
-		$item = '<div class="row gutter-20">';
+		$item = '<div class="row gutter-20" style="border-top: 1px solid #eee;">';
 			
 			$item .= '<div class="col-md-4">';
 			
 				$item .= '<div class="input-group input-group-sm" style="margin:10px 0;">';
 					
-					$item .= '<div class="input-group-addon">';
+					$item .= '<label>';
 						
 						$item .= 'Username';
 					
-					$item .= '</div>';
+					$item .= '</label>';
 					
-					$item .= '<input style="margin:0;padding:10px;height:42px;font-size:15px;color:#888;width:95%;border:1px solid #ccc;border-radius:0 3px 3px 0;" type="text" class="form-control" value="'.$username.'" id="u_'.md5($username).'">';
+					$item .= '<input style="margin:0;padding:10px;height:42px;font-size:15px;color:#888;width:95%;border:none;box-shadow:none;" type="text" class="form-control" value="'.$username.'" id="u_'.md5($username).'">';
 					
 					$item .= '<span class="input-group-btn">';
 						
@@ -565,13 +565,13 @@ class LTPLE_Client_Media extends LTPLE_Client_Object {
 			
 				$item .= '<div class="input-group input-group-sm" style="margin:10px 0;">';
 					
-					$item .= '<div class="input-group-addon">';
+					$item .= '<label>';
 						
 						$item .= 'Password';
 					
-					$item .= '</div>';
+					$item .= '</label>';
 					
-					$item .= '<input style="margin:0;padding:10px;height:42px;font-size:15px;color:#888;width:95%;border:1px solid #ccc;border-radius:0 3px 3px 0;" type="password" class="form-control" value="'.$key.'" id="u_'.md5($key).'">';
+					$item .= '<input style="margin:0;padding:10px;height:42px;font-size:15px;color:#888;width:95%;border:none;box-shadow:none;" type="text" class="form-control" value="'.$key.'" id="u_'.md5($key).'">';
 					
 					$item .= '<span class="input-group-btn">';
 						
