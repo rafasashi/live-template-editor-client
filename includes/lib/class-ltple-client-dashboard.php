@@ -203,10 +203,11 @@ class LTPLE_Client_Dashboard {
 				'user' 	=> $this->parent->ltple_encrypt_uri($user->user_email),
 			
 			),$this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/metrics/' . ( user_can($user,'administrator') ? 'all' : 'user' ) );
-			
+
 			$response = wp_remote_get( $api_url, array(
 				
 				'timeout'   => 30,
+                'sslverify' => false,
 				'headers' 	=> array(
 					
 					'X-Forwarded-Server' => $_SERVER['HTTP_HOST'],
