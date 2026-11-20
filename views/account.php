@@ -158,7 +158,7 @@ echo'<div id="media_library" class="wrapper">';
 								
 								if( $remaining_days < 0 ){
 									
-									$ltple->users->remote_update_period($ltple->user->ID);
+									$ltple->plan->refresh_license_period($ltple->user->ID);
 								
 									$remaining_days = $ltple->users->get_user_remaining_days($ltple->user->ID);
 								}

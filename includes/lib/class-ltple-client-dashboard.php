@@ -207,7 +207,6 @@ class LTPLE_Client_Dashboard {
 			$response = wp_remote_get( $api_url, array(
 				
 				'timeout'   => 30,
-                'sslverify' => false,
 				'headers' 	=> array(
 					
 					'X-Forwarded-Server' => $_SERVER['HTTP_HOST'],

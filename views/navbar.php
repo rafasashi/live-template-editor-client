@@ -175,7 +175,6 @@ if( !$ltple->layer->in_editor('gutenberg') && (empty($ltple->profile->id) || $lt
                 }
                 else{
                     
-
                     echo'<a style="margin:0 2px;" class="btn btn-sm btn-success" href="'. wp_login_url( $ltple->request->proto . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'] ) .'">Login</a>';
                     
                     echo'<a style="margin:0 2px;" class="btn btn-sm btn-info" href="'. wp_login_url( $ltple->urls->current ) .'&action=register">Register</a>';

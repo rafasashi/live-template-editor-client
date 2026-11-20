@@ -202,7 +202,7 @@ class LTPLE_Client_Editor {
                                         
                                         // refresh user period
                                         
-                                        $this->parent->users->remote_update_period($this->parent->user->ID);
+                                        $this->parent->plan->refresh_license_period($this->parent->user->ID);
                                         
                                         // redirect url
                                         

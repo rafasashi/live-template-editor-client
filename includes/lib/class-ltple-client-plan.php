@@ -1555,7 +1555,7 @@ class LTPLE_Client_Plan {
 
 			$user_plan = $this->get_user_plan_info( $user->ID );
 			
-			$period_end = $this->get_license_period_end( $user->ID );
+			$period_end = $this->get_license_period_end($user->ID,false);
 			
 			$days = floor($this->get_license_remaining_days( $period_end ));
 
@@ -1816,8 +1816,9 @@ class LTPLE_Client_Plan {
 			wp_delete_post( $plan_id, true );
 		}
 		
-		delete_user_meta( $user_id , $this->parent->_base . 'user_plan_options');
-		delete_user_meta( $user_id , $this->parent->_base . 'period_end');
+		delete_user_meta($user_id, $this->parent->_base . 'user_plan_options');
+		delete_user_meta($user_id, $this->parent->_base . 'period_end');
+		delete_user_meta($user_id, $this->parent->_base . 'period_checked');
 
 		update_user_meta( $user_id , 'has_subscription', 'false');
 	
@@ -1858,55 +1859,135 @@ class LTPLE_Client_Plan {
 		
 		return $user_plan_id;
 	}
-    
-	public function remote_get_periods($user_email=''){
+
+	public function remote_get_periods($user_email='',$bust=false){
 		
-		if( !is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ){
+		if( is_plugin_active( 'live-template-editor-server/live-template-editor-server.php' ) ) return false;
+
+		$api_url = $this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/periods';
+		
+		$args = array();
+		
+		if( !empty($user_email) ){
 			
-			$api_url = $this->parent->server->url . '/' . rest_get_url_prefix() . '/ltple-subscription/v1/periods?_=' . time();
+			$args[] = 'user=' . $this->parent->ltple_encrypt_uri($user_email);
+		}
+		
+		if( $bust ){
 			
-			if(!empty($user_email)){
-				
-				$api_url .= '&user=' . $this->parent->ltple_encrypt_uri($user_email);
-			}
+			$args[] = '_=' . time();
+		}
+		
+		if( !empty($args) ){
 			
-			$response = wp_remote_get( $api_url, array(
-				
-				'timeout'   => 10,
-				'headers' 	=> array(
-					
-					'X-Forwarded-Server' => $_SERVER['HTTP_HOST']
-				)
-			));
+			$api_url .= '?' . implode('&',$args);
+		}
+
+		$response = wp_remote_get( $api_url, array(
+		
+			'timeout' => 10,
+			'headers' => array( 'X-Forwarded-Server' => $_SERVER['HTTP_HOST'] ),
+		));
+
+		if( is_array($response) && !empty($response['body']) ){
 			
-			if( is_array($response) && !empty($response['body']) ){
+			$body = json_decode($response['body'],true);
+			
+			if( !empty($body['data']) ){
 				
-				$body = json_decode($response['body'],true);
+				$periods = json_decode($this->parent->ltple_decrypt_str($body['data']),true);
 				
-				if( !empty($body['data']) ){
-					
-					$periods = $this->parent->ltple_decrypt_str($body['data']);
-					
-					if( !empty($periods) ){
-						
-						$periods = json_decode($periods,true);
-						
-						if( !empty($periods) && is_array($periods) ){
-							
-							return $periods;							
-						}
-					}
-				}
-			}
-			else{
-				
-				//dump($response);
+				if( is_array($periods) ) return $periods;   // [] = valid "no license"
 			}
 		}
 		
-		return false;
+		return false; // real failure
 	}
-	
+
+	public function get_period_check_ttl($period_end){
+		
+		$remaining = $period_end - time();
+		
+		if( $period_end <= 0 ){
+			
+			$ttl = DAY_IN_SECONDS;                          // never subscribed
+		}
+		elseif( $remaining > 0 ){
+			
+			$ttl = min( WEEK_IN_SECONDS, $remaining );      // valid: nothing to learn before expiry
+		}
+		elseif( $remaining > -3 * DAY_IN_SECONDS ){
+			
+			$ttl = HOUR_IN_SECONDS;                         // just expired, renewal likely
+		}
+		else{
+			
+			$ttl = DAY_IN_SECONDS;                          // long expired
+		}
+		
+		return apply_filters('ltple_period_check_ttl',$ttl,$period_end);
+	}
+
+	public function refresh_license_period($user_id, $force=false){
+
+		$holder_id = $this->get_license_holder_id($user_id);
+		$email     = $this->get_license_holder_email($holder_id);
+		
+		if( empty($email) ) return 0;
+
+		$current = intval(get_user_meta($holder_id,$this->parent->_base.'period_end',true));
+		$checked = intval(get_user_meta($holder_id,$this->parent->_base.'period_checked',true));
+		$ttl     = $this->get_period_check_ttl($current);
+
+		if( !$force && $checked && ( time() - $checked ) < $ttl ) return $current;
+
+		// stampede lock (forced calls, e.g. right after payment, are never blocked by it)
+		
+		$lock = 'ltple_pl_' . md5($email);
+		
+		if( !$force && get_transient($lock) ) return $current;
+		
+		set_transient($lock,1,30);
+
+		$periods = $this->remote_get_periods($email,$force);
+
+		delete_transient($lock);
+
+		if( $periods === false ){
+			
+			// failure: back off 5 min instead of retrying on every request
+			
+			update_user_meta($holder_id,$this->parent->_base.'period_checked', time() - $ttl + 300);
+			
+			return $current;
+		}
+
+		$end = isset($periods[$email]) ? intval($periods[$email]) : 0;
+		
+		// also stamps period_checked
+		
+		$this->parent->users->update_user_period($holder_id,$end); 
+
+		return $end;
+	}
+
+	public function get_license_period_end($user_id,$refresh=true){
+		
+		$period_end = 0;
+		
+		if( $user_id = $this->get_license_holder_id($user_id) ){
+			
+			if( $refresh === true ){
+				
+				$this->refresh_license_period($user_id);
+			}
+			
+			$period_end = intval(get_user_meta( $user_id, $this->parent->_base . 'period_end', true ));
+		}
+		
+		return $period_end;
+	}
+
 	public function remote_update_image_urls(){
 		
 		if( $ids = $this->remote_get_ids() ){
@@ -2039,10 +2120,10 @@ class LTPLE_Client_Plan {
 						do_action('ltple_update_user_plan',$user);
 					
 						if( $this->deliver_plan($this->data,$user) ){
-														
+							
 							if( $this->data['price'] > 0 ){
 								
-								// update period end
+								// update period end (forced refresh, right after payment)
 								
 								$this->parent->users->remote_update_period($user->ID);
 								
@@ -2683,36 +2764,6 @@ class LTPLE_Client_Plan {
 		}
 		
 		return $this->license_holders[$user_id];
-	}
-	
-	public function get_license_period_end($user_id,$refresh=true){
-		
-		$period_end = 0;
-		
-		if( $user_id = $this->get_license_holder_id($user_id)){
-
-			$period_end = get_user_meta( $user_id, $this->parent->_base . 'period_end', true );
-			
-			if( !is_numeric($period_end) && $refresh === true ){
-				
-				// remote get period end
-				
-				$user_email = $this->get_license_holder_email($user_id);
-				
-				$periods = $this->remote_get_periods($user_email);
-				
-				if( !empty($periods[$user_email]) ){
-					
-					$period_end = $periods[$user_email];
-					
-					$this->parent->users->update_user_period($user_id,$period_end);
-				}				
-			}
-			
-			$period_end = intval($period_end);
-		}
-		
-		return $period_end;
 	}
 	
 	public function get_license_key($str){

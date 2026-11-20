@@ -60,17 +60,11 @@ class LTPLE_Client_Websocket {
 	}
 	
 	public function get_url($room = '1234'){
-		
-		$isSecure = ( (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' ) || (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443 ) ? true : false;
-		
-		$ssl = $isSecure ? 's' : '';
-		
-		$host_name = 'ws-api.recuweb.co';
-		
+
 		// start server
 		
-		$server_url = 'http'.$ssl.'://' . $host_name . '/a/chat/start.php?room=' . $room;
-
+		$server_url = 'https://ws-api.recuweb.co/a/chat/start.php?room=' . $room;
+        
 		$socket_url = false;
 		
 		if( $ch = curl_init() ){

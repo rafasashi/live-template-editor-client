@@ -403,95 +403,9 @@
 			//add_filter('pre_get_users', array( $this, 'filter_users_by_role') );			
 		}
 	
-		public function remote_update_period($user_id=null){ 
+		public function remote_update_period($user_id=null){
 			
-			if( $user = get_user_by('id',$user_id) ){
-			
-				if( $periods = $this->parent->plan->remote_get_periods(strtolower($user->user_email)) ){
-					
-					$args = array( 
-						
-						'fields' => array('id','user_email'),
-					);
-					
-					if( !is_null($user_id) ){
-						
-						$args['include'] = is_numeric($user_id) ? array($user_id) : $user_id;
-					}
-					else{
-						
-						// get users with subscription
-						
-						$args['meta_query'] = array(
-							
-							'relation' => 'OR',
-							
-							array(
-							
-								'key'     	=> 'has_subscription',
-								'compare' 	=> '=',
-								'value'		=> 'true',
-							),	
-							array(
-							
-								'key'     	=> $this->parent->_base . 'period_end',
-								'compare' 	=> 'EXISTS',
-							),
-							/*
-							array(
-						
-								'key'     	=> $this->parent->_base . 'period_end',
-								'compare' 	=> '<',
-								'value'		=> time(), // for debugging
-							)
-							*/
-						);				
-					}
-					
-					if( $users = get_users($args) ){
-						
-						foreach( $users as $user ){
-							
-							$user_email = strtolower($user->user_email);
-							
-							if( intval($user->id) > 1 && isset($periods[$user_email]) ){
-								
-								if( !empty($periods[$user_email]) ){
-								
-									$this->update_user_period($user->id,$periods[$user_email]);
-								}
-								else{
-									
-									$remaining_days = $this->get_user_remaining_days($user->id);
-								}
-							}
-						}
-					}							
-				}
-				elseif( defined('MASTER_ADMIN_EMAIL') ){
-					
-					wp_mail(MASTER_ADMIN_EMAIL, 'Error updating periods', print_r('',true));
-				}
-			}
-		}
-		
-		public function handle_update_user_period($rest){
-			
-			$user_email = $this->parent->ltple_decrypt_uri($rest['user']);
-			
-			if( $user = get_user_by('email',$user_email) ){
-				
-				$period_end = $this->parent->ltple_decrypt_uri($rest['period']);
-				
-				if( !empty($period_end) && is_numeric($period_end) ){
-					
-					$this->update_user_period($user->ID,$period_end);
-				
-					return true;
-				}
-			}
-			
-			return false;
+			if( $user_id ) $this->parent->plan->refresh_license_period($user_id,true);
 		}
 
 		public function update_user_period($user_id=0,$period_end=0){
@@ -499,23 +413,41 @@
 			$user_id = intval($user_id);
 			
 			if( $user_id > 0 ){
-				
 				$period_end = intval($period_end);
-			
 				update_user_meta($user_id, $this->parent->_base . 'period_end', $period_end);
-			
-				$user_has_subscription = 'false';
-				
-				$remaining_days = $this->parent->plan->get_license_remaining_days($period_end);
-				
-				if( $remaining_days > 0 ){
-					
-					$user_has_subscription = 'true';
-				}
-				
-				update_user_meta( $user_id , 'has_subscription', $user_has_subscription);
-			
+				update_user_meta($user_id, $this->parent->_base . 'period_checked', time()); // pushes reset the clock too
+				update_user_meta($user_id, 'has_subscription',
+					$this->parent->plan->get_license_remaining_days($period_end) > 0 ? 'true' : 'false');
 				return true;
+			}
+			return false;
+		}
+		
+		public function handle_update_user_period($rest){
+
+			$user_email = $this->parent->ltple_decrypt_uri($rest['user']);
+
+			if( $user = get_user_by('email',$user_email) ){
+
+				$payload = explode('|',(string) $this->parent->ltple_decrypt_uri($rest['period']));
+
+				$period_end = $payload[0];
+				$ts         = isset($payload[1]) ? intval($payload[1]) : 0;
+
+				if( $period_end !== '' && is_numeric($period_end) ){
+
+					if( $ts ){
+						
+						$last = intval(get_user_meta($user->ID,$this->parent->_base.'period_pushed_at',true));
+						
+						if( $ts < $last ) return false; // stale/replayed push
+						
+						update_user_meta($user->ID,$this->parent->_base.'period_pushed_at',$ts);
+					}
+
+					$this->update_user_period($user->ID,intval($period_end));
+					return true;
+				}
 			}
 			
 			return false;
@@ -971,7 +903,7 @@
 				
 				$this->list->{$user_id}->role 		= get_userdata($user_id);
 				$this->list->{$user_id}->plan 		= $this->parent->plan->get_user_plan_info($user_id);
-				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id);
+				$this->list->{$user_id}->period		= $this->parent->plan->get_license_period_end($user_id,false);
 				$this->list->{$user_id}->last_seen 	= isset($meta['ltple__last_seen']) ? $meta['ltple__last_seen'] : '';
 				$this->list->{$user_id}->last_uagent= isset($meta[$this->parent->_base . '_last_uagent']) ? $this->get_browser($meta[$this->parent->_base . '_last_uagent']) : '';
 				$this->list->{$user_id}->stars 		= $this->parent->stars->get_count($user_id);
